@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2006655890
+    "done": 2031648270
   },
   "layout": "treemap",
   "areas": [
@@ -50,19 +50,19 @@
           }
         },
         {
-          "name": "Unidentified",
-          "description": "Leaves without a known signature (models, motions, scripts...)",
-          "data": {
-            "total": 117128310,
-            "done": 0
-          }
-        },
-        {
           "name": "TMD2",
           "description": "Static scene objects (geometry, UVs, colours, normals), exportable to OBJ",
           "data": {
             "total": 96711712,
             "done": 96711712
+          }
+        },
+        {
+          "name": "Unidentified",
+          "description": "Leaves without a known signature (models, motions, scripts...)",
+          "data": {
+            "total": 91561222,
+            "done": 0
           }
         },
         {
@@ -79,6 +79,14 @@
           "data": {
             "total": 45703428,
             "done": 45703428
+          }
+        },
+        {
+          "name": "Event motions",
+          "description": "Motions embedded in the in-engine cutscene (event) files",
+          "data": {
+            "total": 24992380,
+            "done": 24992380
           }
         },
         {
@@ -111,6 +119,14 @@
           "data": {
             "total": 5804106,
             "done": 5804106
+          }
+        },
+        {
+          "name": "Event commands",
+          "description": "Command chains of the event files (meaning not decoded yet)",
+          "data": {
+            "total": 574708,
+            "done": 0
           }
         },
         {

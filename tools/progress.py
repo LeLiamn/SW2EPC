@@ -29,6 +29,7 @@ from iso_list import SECTOR, list_image, read_file  # noqa: E402
 import linkdata  # noqa: E402
 import pack  # noqa: E402
 import motion  # noqa: E402
+import event  # noqa: E402
 
 # Format -> ("done" | "todo", description). Keep in sync with docs/formats/README.md.
 FORMAT_STATUS = {
@@ -39,6 +40,8 @@ FORMAT_STATUS = {
     "PS2": ("done", "3D models with skeleton and skinning, exportable to OBJ"),
     "Motion": ("done", "Animations (keyframed cubic curves per node and component)"),
     "Motion (atypical)": ("todo", "Motions with an unknown track type"),
+    "Event motions": ("done", "Motions embedded in the in-engine cutscene (event) files"),
+    "Event commands": ("todo", "Command chains of the event files (meaning not decoded yet)"),
     "PS2 variant": ("todo", "'PS2 ' files without nodes (different layout)"),
     "tm3": ("done", "Textures as GS upload packets (8-bit + palettes), convertible to PNG"),
     "TMD2": ("done", "Static scene objects (geometry, UVs, colours, normals), exportable to OBJ"),
@@ -78,6 +81,16 @@ def count_container(data, sizes, forced_kind=None):
                 kind = "PS2 variant"
             elif kind == "Unidentified" and leaf[:4] == bytes((0x51, 0, 0, 0)):
                 kind = "Motion" if motion_parses(leaf) else "Motion (atypical)"
+            elif kind == "Unidentified" and event.is_event(leaf):
+                try:
+                    _, end = event.commands(leaf)
+                    played = sum(m["end"] for _, _, m in event.motions(leaf, end))
+                except (event.EventError, ValueError):
+                    played = 0
+                sizes["Event motions"] += played
+                sizes["Event commands"] += len(leaf) - played
+                used += len(leaf)
+                continue
             sizes[kind] += len(leaf)
             used += len(leaf)
     sizes["Containers"] += len(data) - used
