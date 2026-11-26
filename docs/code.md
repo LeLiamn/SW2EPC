@@ -795,6 +795,26 @@ match. It decodes the "ipu2" pictures (MPEG intra frames) with the IPU, into 16 
 - **Queue:** up to 4 decodes can wait. The end-of-transfer handler of channel 3 starts the next
   one.
 
+## Drawing text (`src/text_draw.c`)
+
+The code at 0x00144080-0x00147574 has 17 functions, 3 of which match. It is probably the start
+of `font.c`, whose name the next function passes.
+
+- **The font** (`0x004053C0`) is a texture of fixed-size cells, with an optional table of cell
+  positions and of character widths. A second texture holds the cells after the first page.
+- **Styles:** each character is one textured sprite, drawn in one of six styles: a colour per
+  corner, flat, with a shadow, outlined (two kinds), or by a callback.
+- **Text state** (`0x0056CCA0`): the style, the colours (indices into the palette at
+  `0x004248F0`, with separate alphas), the scales (20.0 = the font's size), the line height and
+  the depth.
+- **Codes in a string:**
+  - `[NN` sets colour NN, `]` goes back to the state's colours;
+  - TAB moves to the next tab stop, LF starts a new line;
+  - 0xF0 followed by a letter draws a button icon;
+  - the lead byte of a two-byte character is shown as `@`.
+- **Helpers:** functions measure a string, count its characters, squeeze it into a box, and
+  break its lines at spaces.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
