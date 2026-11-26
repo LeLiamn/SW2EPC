@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2150692241
+    "done": 2152025545
   },
   "functions": {
     "total": 10587,
@@ -761,8 +761,24 @@
           "name": "Unidentified",
           "description": "Leaves without a known signature (models, motions, scripts...)",
           "data": {
-            "total": 4884343,
+            "total": 3551039,
             "done": 0
+          }
+        },
+        {
+          "name": "Text",
+          "description": "Text tables (messages, event dialogues): offsets and NUL-terminated strings",
+          "data": {
+            "total": 1065547,
+            "done": 1065547
+          }
+        },
+        {
+          "name": "Game state tables",
+          "description": "Fixed-size tables copied whole into the game state (Empire starts, event predata, 1309)",
+          "data": {
+            "total": 874580,
+            "done": 874580
           }
         },
         {
@@ -771,14 +787,6 @@
           "data": {
             "total": 614992,
             "done": 614992
-          }
-        },
-        {
-          "name": "Text",
-          "description": "Text tables (messages, event dialogues): offsets and NUL-terminated strings",
-          "data": {
-            "total": 606823,
-            "done": 606823
           }
         },
         {

@@ -21,14 +21,27 @@ The standard PS2 3D save icon: header (version 0x10000, 1 shape, texture type 7 
 a colour), the animation (1 frame, 1 key), then the 128 x 128 16-bit texture, which ends exactly at
 the end of the file. `tools/ps2icon.py` checks it and exports the texture to PNG.
 
+### Game state tables (entries 0160-0171, 1309)
+
+- **0160-0170** (`emp_cq_main.c`, `func_0030CE90` loads entry `0xA0 + n`): the starting state of an
+  Empire game, 68,240 bytes = three blocks of 500, 3,000 and 64,740 bytes that `func_0030CD80`
+  copies whole into the game state (`0x007A3B98`, `0x007A3B9C`, `0x007A3BA0`), then rebuilds the
+  officers' derived values.
+- **0171** (`emp_ev_predata.c`): 391 records of 0x3C bytes (`func_0032F040` returns record n).
+- **1309** (`SecretSorts.c`): 314 records of 0x140 bytes; the one matching a player's choice is
+  copied to `0x0076E9C0`.
+
+The fields of these records are the game state's own structures, named as the code using them is
+decompiled.
+
+### Officer quotes (entries 0200-0226)
+
+An offset table (the first offset gives its size) of records; each record is two u32, then a text
+table ("Your skill on the battlefield is worthy of...", each line ending with `@` and a voice
+number). See [TEXT.md](TEXT.md); `text.record_tables()` checks them.
+
 ## Identified, not decoded yet
 
 | Entry | Size | Read by | What it is |
 |---|---:|---|---|
-| 0005 | 615 KB | `SceneTitle.c` (`func_00279FB0` turns it into the title screen's data) | title screen data |
-| 0050 | 197 KB | `sc_sysmsg.c` | system messages: header with offsets of string tables |
-| 0160-0171 | 68 KB each | `emp_cq_main.c` (entry 0x0AA goes to the Empire set-up's work object) | Empire mode tables |
-| 0172 | 579 KB | `emp_ev_still.c` | event dialogues: 348 records, each with lines of text and voice numbers |
-| 0173-0199 | 2.2 MB | `StateBattleInitialize.c` (entry 0xAD + scenario), in place of the officers' entries 3080+ | battle event scripts (event command chains) |
-| 1309 | 100 KB | `SecretSorts.c` | 314 records of 0x140 bytes; the one matching a player's choice is copied to `0x0076E9C0` |
 | 1385 | 156 KB | `SeManager.c` (entry 0x569) | sound effect table |

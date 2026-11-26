@@ -56,6 +56,7 @@ FORMAT_STATUS = {
     "ADPCM sounds": ("done", "Sound-effect bank and other raw SPU ADPCM files, decodable to WAV"),
     "Sound bank headers": ("done", "Sony HD sound bank headers (IECS chunks) for the ADPCM banks"),
     "LZ archive": ("done", "LZ-compressed LINKDATA containers (title screen textures)"),
+    "Game state tables": ("done", "Fixed-size tables copied whole into the game state (Empire starts, event predata, 1309)"),
     "Text": ("done", "Text tables (messages, event dialogues): offsets and NUL-terminated strings"),
     "Save icon": ("done", "PS2 memory-card 3D icon (vertices, animation, 128x128 texture)"),
     "Event motions": ("done", "Motions embedded in the in-engine cutscene (event) files"),
@@ -205,6 +206,13 @@ def known_entries(data):
                 known["0061"] = "Save icon"
             except (ps2icon.IconError, struct.error):
                 pass
+        size = e["size"]
+        if 160 <= e["index"] <= 170 and size == 500 + 3000 + 0xFCE4:
+            known[f"{e['index']:04d}"] = "Game state tables"   # emp_cq_main.c, func_0030CD80
+        if e["index"] == 171 and size % 0x3C == 0:
+            known["0171"] = "Game state tables"                 # emp_ev_predata.c, 0x3C-byte records
+        if e["index"] == 1309 and size % 0x140 == 0:
+            known["1309"] = "Game state tables"                 # SecretSorts.c, 0x140-byte records
         if e["index"] == 172:                   # event dialogues (emp_ev_still.c)
             try:
                 event.check_dialogues(data[e["offset"]:e["offset"] + e["size"]])
@@ -262,7 +270,8 @@ def count_container(data, sizes, forced_kind=None):
                     pass
             elif kind == "Unidentified" and lz_archive(leaf):
                 kind = "LZ archive"
-            elif kind == "Unidentified" and text.strings(leaf) is not None:
+            elif kind == "Unidentified" and (text.strings(leaf) is not None
+                                             or text.record_tables(leaf) is not None):
                 kind = "Text"
             elif kind == "Unidentified" and leaf == b"X" * len(leaf):
                 kind = "Containers"                 # filler entries of a pack ("XXXX...")

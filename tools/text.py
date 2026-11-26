@@ -58,6 +58,26 @@ def strings(d):
     return None
 
 
+
+def record_tables(d):
+    """Officer quotes (e.g. BNS entries 0200-0226): an offset table (the first offset gives its
+    size) of records, each two u32 then a text table. Returns the list of string lists, or None."""
+    if len(d) < 8:
+        return None
+    first = struct.unpack_from("<I", d, 0)[0]
+    if first % 4 or not 8 <= first < len(d):
+        return None
+    offs = list(struct.unpack_from(f"<{first // 4}I", d, 0)) + [len(d)]
+    if offs != sorted(offs):
+        return None
+    out = []
+    for a, b in zip(offs, offs[1:]):
+        s = strings(d[a + 8:b]) if b - a > 8 else None
+        if s is None:
+            return None
+        out.append(s)
+    return out
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     if len(sys.argv) < 2:
