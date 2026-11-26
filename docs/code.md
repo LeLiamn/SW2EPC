@@ -139,6 +139,21 @@ option the opposite way to how it is read, so page 9 always sees the pad setting
 
 All 11 page handlers are decompiled. The page drawers (`0x002B6450`...) are not decompiled yet.
 
+## Scene 0x0D: the Treasures gallery (`src/scene_treasures.c`)
+
+Original source file `StateTreasures.c`. The scene is a set of sub-screens ("modes", `0x00731334`,
+0 to 14), named from their button help lines: 0 main menu, 5 "Select Officer / Skills", 6 "Select
+Officer", 7 "Select Mount", 11 "Select Skill", 12 "Turn Page / Enlarge" (an art book?), 13
+"Category / Play" (a player?), and screens shared with other code (1, 2, 4, 8, 9, 10, 14).
+`func_001E7110` requests a mode: it starts a transition (phase 4), prepares the screen and moves
+two layout layers; mode 15 leaves the gallery. The update function (`0x001E8EB0`) handles the
+phases (0 opening, 2 leaving, 4 changing mode) and otherwise runs the mode's handler; the draw
+function (`0x001E9150`) runs the mode's drawer, then its help line.
+
+Decompiled: enter, leave, update, step, draw, the mode request and ten small mode handlers.
+Not yet: the end of a transition (`0x001E7290`), the main menu (`0x001E7830`), modes 3, 7 and 11,
+`0x001E7680` and the functions after the draw function.
+
 ## Where each source file is
 
 The game's code names 68 source files in assertion strings; 66 of them are referenced by
