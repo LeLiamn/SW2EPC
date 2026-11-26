@@ -3,8 +3,11 @@
 Notes on the code of `SLES_546.24`, function by function. Decompiled C goes in `src/`. Addresses are
 virtual addresses (the executable loads at `0x00100000`).
 
-Tools so far: `tools/mips_disasm.py` (minimal R5900 disassembler). Ghidra will take over for larger
-work.
+Tools: `tools/mips_disasm.py` (minimal R5900 disassembler) and **Ghidra 12.2 with the
+[ghidra-emotionengine-reloaded](https://github.com/chaoticgd/ghidra-emotionengine-reloaded) extension**
+(processor `r5900:LE:32:default`), run headless with `tools/ghidra_run.ps1` (needs JDK 25+). With the
+R5900 processor Ghidra finds **10,583 functions** (9,820 with plain MIPS64), and its output for `main`
+matches the hand decompilation in `src/main.c` call for call.
 
 ## Start-up (crt0, Metrowerks runtime)
 
