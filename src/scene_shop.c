@@ -1552,7 +1552,8 @@ void func_002A0B40(int player)
 #define SKILL_KIND(s) g_004281B8[(s) * 8 + 5]
 #define SKILL_COUNT 0x28
 
-extern u8 g_0045CEA0[6];             /* (gp - 0x7D50) the six mounts on sale by default */
+typedef struct { u8 type[6]; } MountTypes;
+extern MountTypes g_0045CEA0;         /* (gp - 0x7D50) the six mounts on sale by default */
 
 int func_002F67B0(u32 officer);                           /* officer type (1 or 2) */
 void func_001A0630(void *record, u8 mount);
@@ -1725,45 +1726,47 @@ void func_002A0920(int player)
  * order; 6 offers. 50 %: one random offer is the day's bargain. */
 void func_002A1380(void)
 {
-    u8 order[6];
+    MountTypes order;
     const char *names[6];
-    unsigned i, a, b;
+    unsigned i;
 
-    for (i = 0; i < 6; i++)
-        order[i] = g_0045CEA0[i];
+    order = *(MountTypes *)&g_0045CEA0;
     if (random16() % 100 < 30) {
-        order[2] = 3;
+        order.type[2] = 3;
         g_00773198 = 1;
     }
     for (i = 0; i < 6; i++)
-        func_001A0630(&g_007731D0[i * 0x24], order[i]);
+        func_001A0630(&g_007731D0[i * 0x24], order.type[i]);
     func_00372E60(names, 6);
-    for (i = 0; i < 6; i++)
-        func_00120928((char *)&g_007731D0[i * 0x24 + 0x13], names[i]);
+    {
+        u8 *rec = g_007731D0;
+        for (i = 0; i < 6; i++, rec += 0x24)
+            func_00120928((char *)rec + 0x13, names[i]);
+    }
 
     for (i = 0; i < 6; i++)
-        order[i] = (u8)i;
-    order[5] = 2;                               /* (as in the original: 2 twice, no 5) */
+        order.type[i] = (u8)i;
+    order.type[5] = 2;                          /* (as in the original: 2 twice, no 5) */
     for (i = 0; i < 6; i++) {                   /* six random swaps */
-        a = random16() % 6;
-        b = random16() % 6;
-        {
-            u8 t = order[a];
-            order[a] = order[b];
-            order[b] = t;
-        }
+        u8 a = random16() % 6;
+        u8 b = random16() % 6;
+        u8 tmp = order.type[a];
+        order.type[a] = order.type[b];
+        order.type[b] = tmp;
     }
     for (i = 0; i < 6; i++)
-        g_007731D0[i * 0x24 + 7] = order[i];
+        g_007731D0[i * 0x24 + 7] = order.type[i];
 
     for (i = 0; i < 8; i++) {
         g_MountOffers[i].price = 0;
         g_MountOffers[i].index = (u8)i;
         g_MountOffers[i].bargain = 0;
     }
-    g_0077317C = 6;                             /* min(8, 6) */
+    if (i > 6)
+        i = 6;
+    g_0077317C = (u8)i;
     if (random16() % 100 < 50) {
-        unsigned r = g_0077317C == 0 ? 0 : random16() % g_0077317C;
+        u8 r = g_0077317C == 0 ? 0 : random16() % g_0077317C;
         g_MountOffers[r].bargain = 1;
         g_00773194 = 1;
     }
@@ -1777,7 +1780,7 @@ void func_002A1650(void)
 
     for (i = 0; i < g_0077317C; i++) {
         MountOffer *o = &g_MountOffers[i];
-        unsigned price;
+        int price;
 
         if (g_007731D0[o->index * 0x24 + 6] == 3)
             price = 3000;
@@ -1785,7 +1788,7 @@ void func_002A1650(void)
             price = random16() % 3 * 100 + 2000;
         if (o->bargain != 0)
             price = price * 8 / 10;
-        o->price = (int)price;
+        o->price = price;
     }
 }
 

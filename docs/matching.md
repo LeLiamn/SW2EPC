@@ -21,6 +21,7 @@ Settings:
 - `#pragma tailcall off` (the game never turns a final call into a jump);
 - `#pragma no_branch_likely on` (the game never uses branch-likely instructions; this pragma
   exists from build 198 on);
+- `#pragma opt_unroll_loops off` (the game's loops are never unrolled, although `-O4,p` would);
 - default small-data settings (small globals through `$gp`, as in the game).
 
 Using CodeWarrior for PS2 is done with the rights holder's written permission, for this
@@ -41,7 +42,7 @@ writes `build/decompme/<ADDR>/` (git-ignored: the assembly comes from the game's
 |---|---|
 | `target.s` | "Target assembly" when creating the scratch |
 | `context.h` | the scratch's "Context" tab |
-| `code.c` | the scratch's "Source" tab, with `#pragma tailcall off` and `#pragma no_branch_likely on` at the top |
+| `code.c` | the scratch's "Source" tab, with `#pragma tailcall off`, `#pragma no_branch_likely on` and `#pragma opt_unroll_loops off` at the top |
 
 Scratches are public on decomp.me.
 
