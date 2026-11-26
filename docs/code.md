@@ -159,6 +159,19 @@ officer's skills in 4 columns of 10. Original quirks kept: a dead test in the ma
 list that can stop on a locked mount. The functions after `0x001E95F0` seem to belong to the next
 source file.
 
+## Scene 0x0E: the shop (`src/scene_shop.c`)
+
+Original source file `StateShop.c`. The shop has a mode (`0x00773148`, what the player is doing,
+0 to 16) and a screen (`0x00773144`, what is drawn, 0 to 9). `func_0029FE50` applies a requested
+mode (`0x0077314C`) and picks its screen; mode 16 leaves the shop. Screens, from their help lines:
+1 buy skills for an officer (modes 5-8 = slots 0-3), 2 hire guards, 3 and 4 buy mounts, 5 sell, 6
+dismiss, 9 skill list. At enter the shopkeeper is picked with the game's random generator
+(`seed = seed * 0x41C64E6D + 0x3039` on the scratchpad word `0x7000015C`): 0xB9 (50 %) or 0xB8
+(25 %) when their conditions hold, otherwise 0xB5 or 0xB6. Shop music: track 0x2C.
+
+Decompiled: enter, leave, leave_alt, update, step, draw, the mode switch and two helpers. Not yet:
+the mode handlers (`0x002A0B40`...`0x002A3DB0`) and the list builders (`0x002A01D0`...).
+
 ## Sony libraries and C runtime (compiled with another compiler)
 
 Besides the game's own code (CodeWarrior), the executable links Sony's EE libraries, release 3.0
