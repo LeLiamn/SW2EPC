@@ -13,13 +13,50 @@ typedef unsigned int u32;
  * the main loop. Its readers are not identified yet. */
 extern int g_0045D1C4;
 
+/*
+ * 0x0045D880: the scene (state) manager that runs the whole game. Each scene of the game plugs its
+ * own functions in; the state numbers are not mapped to scenes yet. 0x18 in `requested` means "no
+ * change requested". Field names are descriptive guesses from how func_001005A0 uses them.
+ */
+typedef struct {
+    u32 update_arg;          /* +0x00 argument passed to update() */
+    u32 result;              /* +0x04 returned by func_001005A0 when the game quits */
+    int quit;                /* +0x08 non-zero: leave the main loop */
+    int skip_update_test;    /* +0x0C non-zero: run step() without asking update() */
+    int force_draw;          /* +0x10 non-zero: draw even when the state is changing */
+    int previous;            /* +0x14 state before a reset */
+    int current;             /* +0x18 current state */
+    int unknown_1c;          /* +0x1C set to 0x18 on reset */
+    int requested;           /* +0x20 requested state (0x18 = none) */
+    int running;             /* +0x24 the per-frame loop runs while current == running */
+    void (*enter)(void);     /* +0x28 */
+    void (*leave)(void);     /* +0x2C */
+    int (*update)(u32 arg);  /* +0x30 non-zero: run step() */
+    void (*step)(void);      /* +0x34 */
+    void (*draw)(void);      /* +0x38 */
+    void (*enter_alt)(void); /* +0x3C used instead of enter when set */
+    void (*leave_alt)(void); /* +0x40 used instead of leave when set */
+    void (*on_reset)(void);  /* +0x44 called when a reset is requested */
+} SceneManager;
+
+extern SceneManager g_0045D880;
+
+/* 0x0045D20C and 0x0045D210: two reset requests (soft reset by button combination?). */
+extern int g_0045D20C;
+extern int g_0045D210;
+
+void func_00100260(void);
+void func_00100410(void);
+void func_001004B0(void);
+void func_00100500(void);
+void func_001020E0(void);
+
 /* 0x0045CB80: passed four times to func_00117F10 during system set-up. */
 extern u32 g_0045CB80[];
 
 /* 0x7000015C: a word in the PS2 scratchpad RAM, set to 12345 at start-up (random seed?). */
 #define g_7000015C (*(volatile u32 *)0x7000015C)
 
-int func_001005A0(void);
 void func_00102380(void);
 void func_001023E0(void);
 void func_001029B0(void);
@@ -88,6 +125,74 @@ void func_00106810(void)
 {
     func_001014D0(0);
     func_001014D0(1);
+}
+
+/*
+ * 0x001005A0, 0x2C4 bytes. Runs the scene manager until the game quits, then returns its result.
+ * This is where each frame of the game happens (main's loop calls it until it returns non-zero).
+ */
+int func_001005A0(void)
+{
+    SceneManager *s = &g_0045D880;
+
+    func_001014D0(0);
+    func_00100260();
+    while (s->quit == 0) {
+        func_00100500();
+
+        /* Enter the current scene (once, when it was just requested). */
+        if (s->requested < 0x18 && s->current == s->requested) {
+            s->requested = 0x18;
+            if (s->enter_alt != 0)
+                s->enter_alt();
+            else
+                s->enter();
+        } else {
+            s->enter();
+        }
+        func_001014D0(1);
+
+        /* Run the scene while it stays current. */
+        if (s->current == s->running) {
+            do {
+                if (s->skip_update_test != 0)
+                    s->step();
+                else if (s->update(s->update_arg) != 0)
+                    s->step();
+
+                if ((s->current == s->running || s->force_draw != 0) &&
+                    g_0045D20C == 0 && g_0045D210 == 0) {
+                    s->draw();
+                    s->force_draw = 0;
+                } else {
+                    func_001014D0(0);
+                }
+                func_001004B0();
+
+                if (g_0045D20C != 0 || g_0045D210 != 0) {   /* reset requested */
+                    func_001020E0();
+                    func_001020E0();
+                    if (s->on_reset != 0)
+                        s->on_reset();
+                    g_0045D20C = 0;
+                    g_0045D210 = 0;
+                    s->previous = s->current;
+                    s->current = 0x10;
+                    s->requested = 0x18;
+                    s->unknown_1c = 0x18;
+                }
+            } while (s->current == s->running);
+        }
+
+        /* Leave the scene. */
+        if (s->requested < 0x18 && s->leave_alt != 0)
+            s->leave_alt();
+        else
+            s->leave();
+    }
+    func_001014D0(0);
+    func_00100410();
+    return s->result;
 }
 
 /* 0x00102A20, 0x58 bytes. Called by the start-up code (crt0) with argc/argv, followed by exit().
