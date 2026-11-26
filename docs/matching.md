@@ -74,11 +74,21 @@ What makes the compiler produce the game's exact code, learnt so far:
   object whose members are the settings copies.
 - **Controller values are `int` locals holding a 16-bit value**: `int pressed = (u16)(...)`. With
   `unsigned short` locals, the compiler re-extends them before each first use.
+- **The shop's state is one object** (`0x00772DF0`-`0x007731A4`: skill, mount and hire offers,
+  then the shop's variables): stores to an offer must be assumed to change the counts, and the code
+  reaches the offers as `base + 0x280`.
+- **Small helpers used only inside their file are `static`**: the compiler then knows which
+  registers they leave alone, and keeps values in argument registers across the call.
+- **Declaration order picks the registers**: when only the `s` registers differ, reorder the locals.
+- **Several `return` statements**: a branch that ends with its own `return 0` gives a separate
+  `v0 = 0` before the jump to the epilogue.
+- **A count used twice around a random draw is read into a local**:
+  `int n = count; r = n != 0 ? random16() % n : 0;`.
 
 ## Status
 
 **StateTreasures.c is fully matching** (all 24 functions of `src/scene_treasures.c`), and so is
 `src/main.c` (start-up and the scene manager).
 
-49 functions match. The other functions are equivalent C that
+86 functions match (31 of the 42 functions of `src/scene_shop.c`). The other functions are equivalent C that
 still needs reshaping.

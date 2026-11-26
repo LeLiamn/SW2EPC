@@ -136,10 +136,35 @@ extern struct {
 #define g_006935DB (s_006934B3.g_006935DB)
 #define g_0069395E (s_006934B3.g_0069395E)
 
-/* Globals 0x00773138-0x007731A4: one object in the original (not reached through $gp). */
+/* Mounts for sale: 8 records of 12 bytes at 0x00773070: +0 price, +4 index of the mount record
+ * in g_007731D0 (0x10 = sold), +8 non-zero for the day's bargain (20 % off). */
+typedef struct {
+    int price;
+    u8 index;
+    u8 pad[3];
+    int bargain;
+} MountOffer;
+
+/* Officers for hire: records of 12 bytes at 0x007730D0: +0 price, +4 officer (0x19F = none),
+ * +8 1 for the day's bargain (20 % off), +9 non-zero when the player has room for him. */
+typedef struct {
+    int price;
+    int officer;
+    u8 bargain;
+    u8 can_hire;
+    u8 pad[2];
+} HireOffer;
+
+/* 0x00772DF0-0x007731A4: the shop's state, one object in the original (the code reaches the mount
+ * offers as base + 0x280 and must assume a store to an offer may change the counts). */
 extern struct {
-    u8 g_00773138;                /* (inside it) non-zero: the "Guards" variant of the hire screen */
-    char pad_0[0x7];
+    u8 g_00772DF0[0x280];         /* skills for sale: 0x140 bytes per player, 0x50 per slot */
+    MountOffer mounts[8];         /* 0x00773070 */
+    HireOffer hires[8];           /* 0x007730D0 */
+    u8 g_00773130[8];             /* data block filled by func_002CAD60 */
+    u8 g_00773138;                /* non-zero: the "Guards" variant of the hire screen */
+    char pad_0[0x3];
+    u8 g_0077313C[4];             /* data block filled by func_002CAD90 */
     u8 g_00773140;                /* (inside it) cursor of screens 5 and 7 */
     char pad_1[0x3];
     int g_00773144;               /* screen being drawn (0..9) */
@@ -154,11 +179,11 @@ extern struct {
     u32 g_00773168;
     u32 g_0077316C;
     u32 g_00773170;
-    char pad_2[0x8];
+    char pad_2[0x4];
+    u8 g_00773174[8];             /* 4 bytes per player: state of skill slots 0-3 (0, 1 or more) */
     u8 g_0077317C;
     u8 g_0077317D;
-    u8 g_0077317E;
-    u8 g_0077317F;
+    u8 g_0077317E[2];             /* main-menu cursor of each player */
     char pad_3[0x1];
     u8 g_00773181;
     char pad_4[0x1];
@@ -177,41 +202,49 @@ extern struct {
     int g_00773198;
     int g_0077319C;
     int g_007731A0;
-} s_00773138;
-#define g_00773138 (s_00773138.g_00773138)
-#define g_00773140 (s_00773138.g_00773140)
-#define g_00773144 (s_00773138.g_00773144)
-#define g_00773148 (s_00773138.g_00773148)
-#define g_0077314C (s_00773138.g_0077314C)
-#define g_00773150 (s_00773138.g_00773150)
-#define g_00773154 (s_00773138.g_00773154)
-#define g_00773158 (s_00773138.g_00773158)
-#define g_0077315C (s_00773138.g_0077315C)
-#define g_00773160 (s_00773138.g_00773160)
-#define g_00773164 (s_00773138.g_00773164)
-#define g_00773168 (s_00773138.g_00773168)
-#define g_0077316C (s_00773138.g_0077316C)
-#define g_00773170 (s_00773138.g_00773170)
-#define g_0077317C (s_00773138.g_0077317C)
-#define g_0077317D (s_00773138.g_0077317D)
-#define g_0077317E (s_00773138.g_0077317E)
-#define g_0077317F (s_00773138.g_0077317F)
-#define g_00773181 (s_00773138.g_00773181)
-#define g_00773183 (s_00773138.g_00773183)
-#define g_00773184 (s_00773138.g_00773184)
-#define g_00773185 (s_00773138.g_00773185)
-#define g_00773186 (s_00773138.g_00773186)
-#define g_00773187 (s_00773138.g_00773187)
-#define g_00773188 (s_00773138.g_00773188)
-#define g_00773189 (s_00773138.g_00773189)
-#define g_0077318A (s_00773138.g_0077318A)
-#define g_0077318B (s_00773138.g_0077318B)
-#define g_0077318C (s_00773138.g_0077318C)
-#define g_00773190 (s_00773138.g_00773190)
-#define g_00773194 (s_00773138.g_00773194)
-#define g_00773198 (s_00773138.g_00773198)
-#define g_0077319C (s_00773138.g_0077319C)
-#define g_007731A0 (s_00773138.g_007731A0)
+} s_00772DF0;
+#define g_00773138 (s_00772DF0.g_00773138)
+#define g_00772DF0 (s_00772DF0.g_00772DF0)
+#define g_MountOffers (s_00772DF0.mounts)
+#define g_HireOffers (s_00772DF0.hires)
+#define g_00773070 ((u8 *)s_00772DF0.mounts)
+#define g_007730D0 ((u8 *)s_00772DF0.hires)
+#define g_00773130 (s_00772DF0.g_00773130)
+#define g_0077313C (s_00772DF0.g_0077313C)
+#define g_00773174 (s_00772DF0.g_00773174)
+#define g_00773140 (s_00772DF0.g_00773140)
+#define g_00773144 (s_00772DF0.g_00773144)
+#define g_00773148 (s_00772DF0.g_00773148)
+#define g_0077314C (s_00772DF0.g_0077314C)
+#define g_00773150 (s_00772DF0.g_00773150)
+#define g_00773154 (s_00772DF0.g_00773154)
+#define g_00773158 (s_00772DF0.g_00773158)
+#define g_0077315C (s_00772DF0.g_0077315C)
+#define g_00773160 (s_00772DF0.g_00773160)
+#define g_00773164 (s_00772DF0.g_00773164)
+#define g_00773168 (s_00772DF0.g_00773168)
+#define g_0077316C (s_00772DF0.g_0077316C)
+#define g_00773170 (s_00772DF0.g_00773170)
+#define g_0077317C (s_00772DF0.g_0077317C)
+#define g_0077317D (s_00772DF0.g_0077317D)
+#define g_0077317E (s_00772DF0.g_0077317E)
+#define g_0077317F (s_00772DF0.g_0077317E[1])
+#define g_00773181 (s_00772DF0.g_00773181)
+#define g_00773183 (s_00772DF0.g_00773183)
+#define g_00773184 (s_00772DF0.g_00773184)
+#define g_00773185 (s_00772DF0.g_00773185)
+#define g_00773186 (s_00772DF0.g_00773186)
+#define g_00773187 (s_00772DF0.g_00773187)
+#define g_00773188 (s_00772DF0.g_00773188)
+#define g_00773189 (s_00772DF0.g_00773189)
+#define g_0077318A (s_00772DF0.g_0077318A)
+#define g_0077318B (s_00772DF0.g_0077318B)
+#define g_0077318C (s_00772DF0.g_0077318C)
+#define g_00773190 (s_00772DF0.g_00773190)
+#define g_00773194 (s_00772DF0.g_00773194)
+#define g_00773198 (s_00772DF0.g_00773198)
+#define g_0077319C (s_00772DF0.g_0077319C)
+#define g_007731A0 (s_00772DF0.g_007731A0)
 
 /* Globals 0x00780494-0x00780498: one object in the original (not reached through $gp). */
 extern struct {
@@ -242,11 +275,6 @@ extern struct {
 #define g_7000015C (*(u32 *)0x7000015C)
 
 /* Shop state. */
-extern u8 g_00773130[];              /* data block filled by func_002CAD60 */
-extern u8 g_0077313C[];              /* data block filled by func_002CAD90 */
-extern u8 g_00773174[];              /* 4 bytes per officer: state of slots 0-3 (0, 1 or more) */
-extern u8 g_00772DF0[];              /* 0x140 bytes per officer, 0x50 per slot */
-extern u8 g_00773070[], g_007730D0[];
 extern u8 g_00440CD8[];
 extern u8 g_0045CEA8[8];            /* (small data: reached through $gp) */
 extern int g_0045CE98, g_0045CE9C;   /* a pair saved at enter and restored at leave */
@@ -351,6 +379,18 @@ void func_001A7DC0(const char *text, int alpha, int b);
 #define pad1_held() ((unsigned short)(pad1_ready() ? g_00500700[0].held : 0))
 #define pad2_ready() ((g_00500700[1].ready & 1) ? (g_00500700[1].connected & 1) == 1 : 0)
 #define pad2_pressed() ((unsigned short)(pad2_ready() ? g_00500700[1].pressed : 0))
+#define pad2_held() ((unsigned short)(pad2_ready() ? g_00500700[1].held : 0))
+
+/* Another way the original reads a player's controller (fixed addresses per player). */
+#define read_pad_fixed(player, pressed, held) do { \
+        if ((player) == 0) {                       \
+            pressed = pad1_pressed();              \
+            held = pad1_held();                    \
+        } else if ((player) == 1) {                \
+            pressed = pad2_pressed();              \
+            held = pad2_held();                    \
+        }                                          \
+    } while (0)
 
 /* Next value of the game's random generator (a linear congruential generator, 0..65535), inlined
  * in the original (a macro). */
@@ -549,8 +589,8 @@ void func_002A4210(void)
     g_00773154 = 3;
     g_00773186 = 0;
     g_00773181 = 0;
-    g_0077317F = 0;
-    g_0077317E = 0;
+    g_0077317E[1] = 0;
+    g_0077317E[0] = 0;
     g_0077318A = 0;
     g_0077318C = 0;
     g_00773190 = 0;
@@ -708,7 +748,7 @@ void func_002A4950(void)
     func_00105F70(view);
 
     switch (g_00773144) {
-    case 0: func_002ABFD0(g_00773168, &g_0077317E, g_00773160); break;
+    case 0: func_002ABFD0(g_00773168, g_0077317E, g_00773160); break;
     case 1:
         func_002AC330(g_00773168, g_0077316C, g_00773148,
                       &g_00772DF0[g_0077315C * 0x140 + g_00773181 * 0x50],
@@ -788,31 +828,33 @@ void func_002A01A0(u32 *dst, const u32 *src)
     dst[3] = src[3];
 }
 
-/* 0x002A1E90, 0x27C bytes. Mode 12 (screen 7, "Select  Back"): a list of g_00773140 entries, cursor
+/* 0x002A1E90, 0x27C bytes, matching. Mode 12 (screen 7, "Select  Back"): a list of g_00773140 entries, cursor
  * g_00773186; Cancel or the third button goes back to mode 3. A held Up/Down stops at the ends, a
  * fresh press wraps around. */
 void func_002A1E90(int player)
 {
     int pressed, held;
-    u8 count = g_00773140;
 
     read_pad(player, pressed, held);
-    if ((pressed & BTN_CANCEL) || (pressed & BTN_EXTRA)) {
+    if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(3);
-    } else if (count > 1) {
+    } else if (pressed & BTN_EXTRA) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(3);
+    } else if (g_00773140 > 1) {
         if (held & BTN_UP) {
-            if (g_00773186 != 0) {
+            if (g_00773186 > 0) {
                 func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773186 = (u8)((g_00773186 + count - 1) % count);
+                g_00773186 = (g_00773186 + g_00773140 - 1) % g_00773140;
             } else if (pressed & BTN_UP) {
                 func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773186 = count - 1;
+                g_00773186 = g_00773140 - 1;
             }
         } else if (held & BTN_DOWN) {
-            if (g_00773186 < count - 1) {
+            if (g_00773186 < g_00773140 - 1) {
                 func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773186 = (u8)((g_00773186 + 1) % count);
+                g_00773186 = (g_00773186 + 1) % g_00773140;
             } else if (pressed & BTN_DOWN) {
                 func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
                 g_00773186 = 0;
@@ -854,7 +896,7 @@ void func_002A3300(int player)
     }
 }
 
-/* 0x002A3580, 0x3A0 bytes. Mode 1 (screen 1, "Select  Skills  Back  OK"): choose one of the four
+/* 0x002A3580, 0x3A0 bytes, matching. Mode 1 (screen 1, "Select  Skills  Back  OK"): choose one of the four
  * skill slots of the player (g_00773181). OK on an empty slot plays the error sound, otherwise it
  * goes straight to mode 5 + slot. The third button opens the skill list (mode 9). The 4
  * "unreachable" blocks Ghidra removed are the negative fix-ups of `% 4`. */
@@ -862,26 +904,26 @@ void func_002A3580(int player)
 {
     int pressed, held;
 
-    read_pad(player, pressed, held);
+    read_pad_fixed(player, pressed, held);
     if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(0);
     } else if (pressed & BTN_OK) {
-        if (g_00773174[player * 4 + g_00773181] == 0) {
-            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);   /* error */
-        } else {
+        if ((&g_00773174[player * 4])[g_00773181] > 0) {
             func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             g_00773148 = g_00773181 + 5;
             g_00773186 = 0;
-            g_00799A28 = 0;
             g_00799A24 = g_00799A26;
+            g_00799A28 = 0;
             g_00799A2C = 1;
+        } else {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);   /* error */
         }
     } else if (pressed & BTN_EXTRA) {
         func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(9);
     } else if (held & BTN_UP) {
-        if (g_00773181 != 0) {
+        if (g_00773181 > 0) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             g_00773181 = (u8)((g_00773181 + 3) % 4);
             func_002A86A0(0x10);
@@ -914,7 +956,7 @@ void func_002A3920(int player)
     int pressed, held;
     u8 cursor = g_00773187;
 
-    read_pad(player, pressed, held);
+    read_pad_fixed(player, pressed, held);
     if ((pressed & BTN_CANCEL) || (pressed & BTN_EXTRA)) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(g_00773150);
@@ -959,7 +1001,7 @@ void func_002A3920(int player)
     }
 }
 
-/* 0x002A3DB0, 0x414 bytes. Mode 0 (screen 0, "Select  Back  OK"): the shop's main menu, 3 or 4
+/* 0x002A3DB0, 0x414 bytes, matching. Mode 0 (screen 0, "Select  Back  OK"): the shop's main menu, 3 or 4
  * entries (cursor g_0077317E[player]); OK requests mode cursor + 1. Cancel says goodbye: the
  * shopkeeper's farewell voice is picked at random (0xBB when g_0077318A >= 3, 50 %; 0xBC when
  * g_0077319C == 1, 50 %; else 0xBA) and mode 16 (leave) is requested. Returns 1 when a choice was
@@ -968,11 +1010,11 @@ int func_002A3DB0(int player)
 {
     int pressed, held;
     int count = func_0029FD20();
-    u8 *cursor = &g_0077317E + player;
+    u8 *cursor = (u8 *)g_0077317E + player;
 
-    if (*cursor >= count)
+    if (count <= *cursor)
         *cursor = (u8)(count - 1);
-    read_pad(player, pressed, held);
+    read_pad_fixed(player, pressed, held);
 
     if (pressed & BTN_CANCEL) {
         if (g_0077318A >= 3 && random16() % 100 <= 49) {
@@ -998,20 +1040,24 @@ int func_002A3DB0(int player)
         return 1;
     }
     if (held & BTN_UP) {
-        if (*cursor != 0) {
+        if (*cursor > 0) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             *cursor = (u8)((*cursor + count - 1) % count);
+            return 0;
         } else if (pressed & BTN_UP) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             *cursor = (u8)(count - 1);
+            return 0;
         }
     } else if (held & BTN_DOWN) {
         if (*cursor < count - 1) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             *cursor = (u8)((*cursor + count + 1) % count);
+            return 0;
         } else if (pressed & BTN_DOWN) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             *cursor = 0;
+            return 0;
         }
     }
     return 0;
@@ -1110,45 +1156,38 @@ int func_0029FC40(int mount)
 
 /* ---- Mode 3: buy mounts ------------------------------------------------------------------------ */
 
-/* Mounts for sale: 8 records of 12 bytes at 0x00773070: +0 price, +4 index of the mount record
- * in g_007731D0 (0x10 = sold), +8 non-zero for the day's bargain (20 % off). */
-typedef struct {
-    int price;
-    u8 index;
-    u8 pad[3];
-    int bargain;
-} MountOffer;
-#define g_MountOffers ((MountOffer *)g_00773070)
 
 /* 0x002A1740, 0x1C bytes, matching. Copies a mount offer. */
-void func_002A1740(MountOffer *dst, const MountOffer *src)
+static void func_002A1740(MountOffer *dst, const MountOffer *src)
 {
     dst->index = src->index;
     dst->price = src->price;
     dst->bargain = src->bargain;
 }
 
-/* 0x002A1760, 0x16C bytes. Buys the mount under the cursor (g_00773183): pays, gives it to the
+/* 0x002A1760, 0x16C bytes, matching. Buys the mount under the cursor (g_00773183): pays, gives it to the
  * player and removes it from the offers (the last offer becomes "sold"). */
 void func_002A1760(void)
 {
-    MountOffer *offer = &g_MountOffers[g_00773183];
+    MountOffer *offers = g_MountOffers;
     void *mount;
     u32 owner;
     int i;
 
-    func_0029FBA0(-offer->price);
+    func_0029FBA0(-offers[g_00773183].price);
     g_0077318A++;                               /* purchases this visit (farewell voice) */
-    mount = func_0029FD90(offer->index);
+    mount = func_0029FD90(g_MountOffers[g_00773183].index);
     owner = func_001A0670();
     if (func_001A06D0() != 0) {
         func_0019FD50(owner, mount);
-        for (i = g_00773183; i < 7; i++)
-            func_002A1740(&g_MountOffers[i], &g_MountOffers[i + 1]);
-        g_MountOffers[i].index = 0x10;
+        for (i = g_00773183; i < 7; i++) {
+            MountOffer *o = &offers[i];
+            func_002A1740(o, o + 1);
+        }
+        offers[i].index = 0x10;
         g_0077317C--;
-        if (g_0077317C != 0 && g_00773183 > g_0077317C - 1)
-            g_00773183 = g_0077317C - 1;
+        if (g_0077317C > 0)
+            g_00773183 = g_00773183 > g_0077317C - 1 ? g_0077317C - 1 : g_00773183;
         func_002CAD90(g_0077313C);
     }
 }
@@ -1309,16 +1348,6 @@ void func_002A21B0(int player, int back)
 
 /* ---- Mode 2: hire officers --------------------------------------------------------------------- */
 
-/* Officers for hire: records of 12 bytes at 0x007730D0: +0 price, +4 officer (0x19F = none),
- * +8 1 for the day's bargain (20 % off), +9 non-zero when the player has room for him. */
-typedef struct {
-    int price;
-    int officer;
-    u8 bargain;
-    u8 can_hire;
-    u8 pad[2];
-} HireOffer;
-#define g_HireOffers ((HireOffer *)g_007730D0)
 #define SLOT_COUNT 0x19          /* officer slots 0..24 */
 
 /* 0x002A2AE0, 0x1C bytes, matching. Copies a hire offer. */
@@ -1735,7 +1764,7 @@ void func_002A0920(int player)
         }
 }
 
-/* 0x002A1380, 0x2CC bytes. The mounts on sale: six mount records (g_007731D0) built from the
+/* 0x002A1380, 0x2CC bytes, matching. The mounts on sale: six mount records (g_007731D0) built from the
  * default list (30 %: the third one becomes type 3), given random names, shown in a shuffled
  * order; 6 offers. 50 %: one random offer is the day's bargain. */
 void func_002A1380(void)
@@ -1752,11 +1781,8 @@ void func_002A1380(void)
     for (i = 0; i < 6; i++)
         func_001A0630(&g_007731D0[i * 0x24], order.type[i]);
     func_00372E60(names, 6);
-    {
-        u8 *rec = g_007731D0;
-        for (i = 0; i < 6; i++, rec += 0x24)
-            func_00120928((char *)rec + 0x13, names[i]);
-    }
+    for (i = 0; i < 6; i++)
+        func_00120928((char *)&g_007731D0[i * 0x24] + 0x13, names[i]);
 
     for (i = 0; i < 6; i++)
         order.type[i] = (u8)i;
@@ -1780,29 +1806,29 @@ void func_002A1380(void)
         i = 6;
     g_0077317C = (u8)i;
     if (random16() % 100 < 50) {
-        u8 r = g_0077317C == 0 ? 0 : random16() % g_0077317C;
+        int n = g_0077317C;
+        u8 r = n != 0 ? random16() % n : 0;
         g_MountOffers[r].bargain = 1;
         g_00773194 = 1;
     }
 }
 
-/* 0x002A1650, 0xE8 bytes. Mount prices: 3000 for a type-3 mount, else 2000, 2100 or 2200 at
+/* 0x002A1650, 0xE8 bytes, matching. Mount prices: 3000 for a type-3 mount, else 2000, 2100 or 2200 at
  * random; x 0.8 for the bargain. */
 void func_002A1650(void)
 {
     int i;
 
     for (i = 0; i < g_0077317C; i++) {
-        MountOffer *o = &g_MountOffers[i];
         int price;
 
-        if (g_007731D0[o->index * 0x24 + 6] == 3)
+        if (g_007731D0[g_MountOffers[i].index * 0x24 + 6] == 3)
             price = 3000;
         else
             price = random16() % 3 * 100 + 2000;
-        if (o->bargain != 0)
+        if (g_MountOffers[i].bargain != 0)
             price = price * 8 / 10;
-        o->price = price;
+        g_MountOffers[i].price = price;
     }
 }
 
@@ -1838,27 +1864,38 @@ int func_002A2640(void)
     return MIN(MAX(n, 0), 8);
 }
 
-/* 0x002A2770, 0x268 bytes. The officers for hire: a shuffled list of candidates (func_002F7D90 with
+/* 0x002A2770, 0x268 bytes, matching. The officers for hire: a shuffled list of candidates (func_002F7D90 with
  * the filter func_002F85E0), keeping those the force has room for, up to func_002A2640(). With 3 or
  * more offers, 50 %: one random offer is the day's bargain. */
 void func_002A2770(void)
 {
-    int slot_a = SLOT_COUNT, slot_b = SLOT_COUNT, room = 0, unknown = 0;
-    int found, wanted, count, i;
+    int slot_a;
+    int slot_b;
+    int room;
+    int unknown;
+    int i;
+    int wanted;
+    int found;
     HireOffer *o = g_HireOffers;
+    int officer;
+    int count;
+    int *list;
 
     g_0077317D = 0;
+    slot_a = SLOT_COUNT;
+    slot_b = SLOT_COUNT;
+    room = 0;
+    unknown = 0;
     found = func_003003C0(&slot_a, &slot_b, &room, &unknown);
     wanted = func_002A2640();
     if (found > 0 && wanted > 0) {
-        int *list;
         count = func_002F7D90(0, (void *)func_002F85E0, 0, 0, 0, 0);
         list = func_002F7B10();
         func_002F7C40(list, count);
         for (i = 0; i < count; i++) {
-            int officer = list[i];
+            officer = list[i];
             if ((func_002F3F20(officer) == 0 || (room > 0 && slot_a >= 0 && slot_a < SLOT_COUNT))
-                && (unsigned)officer < OFFICER_NONE) {
+                && ((officer >= 0) && (officer < OFFICER_NONE)) != 0) {
                 if (func_002F3F20(officer) != 0)
                     room--;
                 o->officer = officer;
@@ -1873,13 +1910,14 @@ void func_002A2770(void)
     for (i = 0; i < g_0077317D; i++)
         g_HireOffers[i].bargain = 0;
     if (g_0077317D > 2 && random16() % 100 < 50) {
-        unsigned r = g_0077317D == 0 ? 0 : random16() % g_0077317D;
+        int n = g_0077317D;
+        unsigned r = n != 0 ? random16() % n : 0;
         g_HireOffers[r].bargain = 1;
         g_00773194 = 1;
     }
 }
 
-/* 0x002A29E0, 0xF8 bytes. Hire prices: (level / 4 + 1) x 400 + 1000, or x 500 for the unique
+/* 0x002A29E0, 0xF8 bytes, matching. Hire prices: (level / 4 + 1) x 400 + 1000, or x 500 for the unique
  * officers (0-27 and 400-414); x 0.8 for the bargain. */
 void func_002A29E0(void)
 {

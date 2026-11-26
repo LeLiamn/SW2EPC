@@ -474,7 +474,6 @@ void func_001E7830(void)
     int held = pad1_held();
     int found = 0;
     int *available = func_003BD290();
-    unsigned i;
 
     if (func_002ED150() != 0)                   /* animation still running */
         return;
