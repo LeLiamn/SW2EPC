@@ -1615,13 +1615,18 @@ void func_002A0B40(int player)
     int port;
     char text[256];
     int pressed, held;
-    int slot = g_00773148 - 5;                  /* (left unset by the original for other modes) */
-    SkillOffer *offers = (SkillOffer *)&g_00772DF0[g_0077315C * 0x140 + slot * 0x50];
-    u8 *count = &g_00773174[player * 4 + slot];
+    int slot;                                   /* (left unset by the original for other modes) */
     int answer;
     int box = BOX_NONE;
 
+#define OFFERS ((SkillOffer *)(g_00772DF0 + g_0077315C * 0x140 + slot * 0x50))
     read_pad(player, port, pressed, held);
+    switch (g_00773148) {
+    case 5: slot = 0; break;
+    case 6: slot = 1; break;
+    case 7: slot = 2; break;
+    case 8: slot = 3; break;
+    }
     if (g_006934B3 != 0)
         box = 0;
     else if (g_006935DB != 0)
@@ -1631,23 +1636,25 @@ void func_002A0B40(int player)
         return;
     if (box == 1) {
         if (answer == BOX_YES) {
-            int skill = offers[g_00773186].skill;
-            int level = func_002F47A0(func_0029FD70(), skill);
+            int skill = OFFERS[g_00773186].skill;
+            u8 level = func_002F47A0(func_0029FD70(), skill);
+            u8 *count;
             int i;
 
-            func_002F4820(func_0029FD70(), skill, level + 1);
-            func_0029FBA0(-offers[g_00773186].price);
+            func_002F4820(func_0029FD70(), skill, (u8)(level + 1));
+            func_0029FBA0(-OFFERS[g_00773186].price);
             if (g_004281B8[skill * 8 + 5] == 3)
                 g_0077319C = 1;                 /* changes the farewell voice */
             g_0077318A++;
             for (i = g_00773186; i < 4; i++)
-                func_002A01A0((u32 *)&offers[i], (const u32 *)&offers[i + 1]);
-            offers[i].skill = SKILL_NONE;
+                func_002A01A0((u32 *)&OFFERS[i], (const u32 *)&OFFERS[i + 1]);
+            count = &((u8 *)&g_00773174)[player * 4 + slot];
+            OFFERS[i].skill = SKILL_NONE;
             (*count)--;
-            if (*count != 0 && g_00773186 > *count - 1)
-                g_00773186 = *count - 1;
+            if (*count > 0)
+                g_00773186 = g_00773186 > *count - 1 ? *count - 1 : g_00773186;
             func_002A0920(g_0077315C);
-            if (*count == 0)
+            if (*count <= 0)
                 back_to_slots();
         } else if (pressed & BTN_CANCEL) {
             func_001AFFB0();
@@ -1655,20 +1662,22 @@ void func_002A0B40(int player)
         }
         return;
     }
+    if (box != BOX_NONE && box_busy(box))
+        return;
 
     if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         back_to_slots();
     } else if (pressed & BTN_OK) {
         int skill;
-        if (*count == 0) {
+        if (g_00773174[player * 4 + slot] == 0) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             return;
         }
-        skill = offers[g_00773186].skill;
+        skill = OFFERS[g_00773186].skill;
         if (skill == SKILL_NONE) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-        } else if (func_0029FB70() < offers[g_00773186].price) {
+        } else if (func_0029FB70() < OFFERS[g_00773186].price) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             show_msg(0, port, g_0043C3A0);
         } else {
@@ -1679,26 +1688,34 @@ void func_002A0B40(int player)
     } else if (held & BTN_EXTRA) {
         func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(9);
-    } else if (*count > 1) {
-        u8 n = *count;
+    } else {
+        u8 *count = &((u8 *)&g_00773174)[player * 4 + slot];
+        int n = *count;
+        if (n <= 1)
+            return;
         if (held & BTN_UP) {
-            if (g_00773186 != 0) {
-                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773186 = (u8)((g_00773186 + n - 1) % n);
-            } else if (pressed & BTN_UP) {
-                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773186 = n - 1;
+            if (n > 0) {
+                if (g_00773186 > 0) {
+                    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                    g_00773186 = (u8)((g_00773186 + *count - 1) % *count);
+                } else if (pressed & BTN_UP) {
+                    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                    g_00773186 = *count - 1;
+                }
             }
         } else if (held & BTN_DOWN) {
-            if (g_00773186 < n - 1) {
-                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773186 = (u8)((g_00773186 + 1) % n);
-            } else if (pressed & BTN_DOWN) {
-                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773186 = 0;
+            if (n > 0) {
+                if (g_00773186 < n - 1) {
+                    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                    g_00773186 = (u8)((g_00773186 + 1) % *count);
+                } else if (pressed & BTN_DOWN) {
+                    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                    g_00773186 = 0;
+                }
             }
         }
     }
+#undef OFFERS
 }
 
 /* ---- Building the day's offers and their prices ----------------------------------------------- */
