@@ -1762,10 +1762,16 @@ void func_002A01D0(int player)
     unsigned pick, index;
 
     for (s = 0; s < 4; s++) {
-        for (k = 0; k < 5; k++) {
-            base[s * 5 + k].skill = SKILL_NONE;
-            base[s * 5 + k].level = 0;
-        }
+        base[s * 5 + 0].skill = SKILL_NONE;
+        base[s * 5 + 0].level = 0;
+        base[s * 5 + 1].skill = SKILL_NONE;
+        base[s * 5 + 1].level = 0;
+        base[s * 5 + 2].skill = SKILL_NONE;
+        base[s * 5 + 2].level = 0;
+        base[s * 5 + 3].skill = SKILL_NONE;
+        base[s * 5 + 3].level = 0;
+        base[s * 5 + 4].skill = SKILL_NONE;
+        base[s * 5 + 4].level = 0;
         filled[s] = 0;
     }
     type = func_002F67B0(func_0029FD70());
@@ -1811,12 +1817,16 @@ void func_002A01D0(int player)
     }
 
     /* counts */
-    for (s = 0; s < 4; s++) {
-        g_00773174[player * 4 + s] = 0;
-    }
+    g_00773174[player * 4 + 0] = 0;
+    g_00773174[player * 4 + 1] = 0;
+    g_00773174[player * 4 + 2] = 0;
+    g_00773174[player * 4 + 3] = 0;
     for (s = 0; s < 4; s++)
-        for (k = 0; k < 5 && base[s * 5 + k].skill < SKILL_COUNT; k++)
+        for (k = 0; k < 5; k++) {
+            if (base[s * 5 + k].skill >= SKILL_COUNT)
+                break;
             g_00773174[player * 4 + s]++;
+        }
 
     /* bargains */
     if (g_00669D82 == 3) {                      /* sale: everything but the ultimates */

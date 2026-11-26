@@ -86,14 +86,30 @@ What makes the compiler produce the game's exact code, learnt so far:
   a local of each caller, and a message without a name calls the formatter with two arguments.
 - **The message boxes are indexed from their object's base** (`0x0068F3E0`), with the box offset in
   the load (`lbu 0x40D4(base + box * 0x128)`).
-- **After reading the controller, the code uses the port number**, not the player argument.
+- **After reading the controller, the code uses the port number**, not the player argument,
+  except where the argument register is never reloaded: `func_002A2110(player)` is called with
+  `a0` still holding the argument (a call with no `a0` set-up passes the function's own argument).
 - **A count used twice around a random draw is read into a local**:
   `int n = count; r = n != 0 ? random16() % n : 0;`.
+- **List cursors read the count into an `int` local for the tests only**: the moves re-read the
+  global (`(cursor + g_count - 1) % g_count`); `if (n <= 1) return;` before them, `cursor > 0` (not
+  `!= 0`) for "not at the top".
+- **Clamps against a count are `x > n - 1 ? n - 1 : x`**, stored even when nothing changes.
+- **Branch order**: write the test the way the game branches (`if (mode >= 5) ... else ...`,
+  `if (flag != 0) a else b`, `if (count <= 0)` where the game uses `bgtz`); byte counts compare as
+  `> 1`, not `>= 2`.
+- **An address inside the shop object is base plus offsets** (`g_00772DF0 + player * 0x140 +
+  slot * 0x50`), in that order, not an array index.
+- **Keep the slot of modes 5-8 as a small `switch`** (`case 5: slot = 0` ...): the game tests
+  `mode == 8, 7, 6, 5`, and leaves the slot unset for other modes.
+- **Check struct layouts**: `py tools/check_layout.py` checks that every `g_XXXXXXXX` field of a
+  one-object struct sits at its address (relocations are masked by the matching check, so a wrong
+  padding can stay invisible; the shop state had 4 bytes too many after `0x00773170`).
 
 ## Status
 
 **StateTreasures.c is fully matching** (all 24 functions of `src/scene_treasures.c`), and so is
 `src/main.c` (start-up and the scene manager).
 
-97 functions match (32 of the 42 functions of `src/scene_shop.c`, 24 of the 33 of `src/scene_config.c`, 6 of the 8 of `src/scene_setup_emp_mogi.c`, 2 of the 37 of `src/scene_post_battle.c`). The other functions are equivalent C that
+102 functions match (37 of the 42 functions of `src/scene_shop.c`, 24 of the 33 of `src/scene_config.c`, 6 of the 8 of `src/scene_setup_emp_mogi.c`, 2 of the 37 of `src/scene_post_battle.c`). The other functions are equivalent C that
 still needs reshaping.
