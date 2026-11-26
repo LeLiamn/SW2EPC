@@ -1600,8 +1600,8 @@ void func_002F4820(u32 officer, int skill, int level);
 /* Back to the slot choice (mode 1). */
 static inline void back_to_slots(void)
 {
-    g_00799A28 = 1;
     g_00799A24 = g_00799A26;
+    g_00799A28 = 1;
     g_00799A2C = 0;
     func_0029FDB0(1);
 }
@@ -1612,12 +1612,13 @@ static inline void back_to_slots(void)
  * list (mode 9). */
 void func_002A0B40(int player)
 {
-    int port;
-    char text[256];
-    int pressed, held;
-    int slot;                                   /* (left unset by the original for other modes) */
     int answer;
     int box = BOX_NONE;
+    int held;
+    int slot;                                   /* (left unset by the original for other modes) */
+    int port;
+    int pressed;
+    char text[256];
 
 #define OFFERS ((SkillOffer *)(g_00772DF0 + g_0077315C * 0x140 + slot * 0x50))
     read_pad(player, port, pressed, held);
@@ -1670,7 +1671,7 @@ void func_002A0B40(int player)
         back_to_slots();
     } else if (pressed & BTN_OK) {
         int skill;
-        if (g_00773174[player * 4 + slot] == 0) {
+        if ((&g_00773174[player * 4])[slot] <= 0) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             return;
         }
