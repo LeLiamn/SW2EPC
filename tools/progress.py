@@ -35,6 +35,7 @@ import linkdata  # noqa: E402
 import pack  # noqa: E402
 import battlefield  # noqa: E402
 import efb  # noqa: E402
+import ipu  # noqa: E402
 import motion  # noqa: E402
 import event  # noqa: E402
 
@@ -53,7 +54,8 @@ FORMAT_STATUS = {
     "PS2 variant": ("todo", "'PS2 ' files without nodes (different layout)"),
     "tm3": ("done", "Textures as GS upload packets (8-bit + palettes), convertible to PNG"),
     "TMD2": ("done", "Static scene objects (geometry, UVs, colours, normals), exportable to OBJ"),
-    "IPU": ("todo", "IPU images (ipu2)"),
+    "IPU": ("done", "IPU movies (ipu2: frame table + PS2 IPU frames), convertible to video"),
+    "IPU (unparsed)": ("todo", "ipu2 files that do not parse"),
     "PAC0": ("todo", "PAC0 files"),
     "EFB": ("done", "Visual effects: sprite and emitter layers, parameters mapped from effect.c"),
     "EFB (unparsed)": ("todo", "EFB files that do not parse"),
@@ -181,6 +183,11 @@ def count_container(data, sizes, forced_kind=None):
     else:
         for _, leaf in pack.iter_leaves(data):
             kind = LEAF_KIND[pack.kind_of(leaf)]
+            if kind == "IPU":
+                try:
+                    ipu.parse(leaf)
+                except ipu.IpuError:
+                    kind = "IPU (unparsed)"
             if kind == "EFB":
                 try:
                     efb.parse(leaf)

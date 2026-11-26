@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2134097918
+    "done": 2141731438
   },
   "functions": {
     "total": 10587,
@@ -751,10 +751,10 @@
         },
         {
           "name": "IPU",
-          "description": "IPU images (ipu2)",
+          "description": "IPU movies (ipu2: frame table + PS2 IPU frames), convertible to video",
           "data": {
             "total": 7633520,
-            "done": 0
+            "done": 7633520
           }
         },
         {

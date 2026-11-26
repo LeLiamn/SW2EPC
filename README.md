@@ -59,6 +59,8 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | `tools/ps2model.py` | Export the 3D models (with skeleton and skinning applied) to OBJ, with a PNG preview |
 | `tools/motion.py` | Read the animations and pose a model at any frame (OBJ / PNG) |
 | `tools/tmd2.py` | Export the battlefields' static scene objects (TMD2) to OBJ |
+| `tools/efb.py` | Check the EFB particle effects and print their layers |
+| `tools/ipu.py` | Convert the IPU movies (`ipu2`) to video |
 | `tools/battlefield.py` | Check the battlefield terrain files and export a terrain to OBJ |
 | `tools/tm3.py` | Convert tm3 textures (GS upload packets) to PNG, one per palette |
 | `tools/event.py` | List the commands and motions of the in-engine cutscene (event) files |
