@@ -125,5 +125,19 @@ def main():
         print(f"Posed {model_path} with {motion_path} at frame {frame} -> {out}")
 
 
+
+def check_action_table(data):
+    """A character's action table (4th part of a motion pack, MotionManager.c -> func_0015FD90):
+    u32 0, u32, u32 count A, u32 count B, then A records of 0x20 bytes and B records of 0x30 bytes;
+    each B record's u16 at +2 is the A record it belongs to. True when `data` is exactly that."""
+    if len(data) < 16 or struct.unpack_from("<I", data, 0)[0] != 0:
+        return False
+    a, b = struct.unpack_from("<II", data, 8)
+    if not a or 16 + 0x20 * a + 0x30 * b != len(data):
+        return False
+    base = 16 + 0x20 * a
+    return all(struct.unpack_from("<H", data, base + 0x30 * i + 2)[0] < a for i in range(b))
+
+
 if __name__ == "__main__":
     main()

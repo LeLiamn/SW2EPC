@@ -59,3 +59,10 @@ and the like), which is why they are about ten times rarer.
 
 - Components 9–15 and bit 12 (`0x1000`), used by 194 tracks.
 - The 73 atypical files.
+
+## Action tables (4th part of a motion pack)
+
+`MotionManager.c` loads a character's motion pack (`func_0017C6D0`); the pack's 4th part goes to
+`func_0015FD90`: u32 0, u32, u32 count A, u32 count B, then A records of 0x20 bytes and B records
+of 0x30 bytes; each B record's u16 at +2 is the A record it belongs to (the game stores a pointer
+to it at A +0x14). `motion.check_action_table()` checks the exact size and the links.

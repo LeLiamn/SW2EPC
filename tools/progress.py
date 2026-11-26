@@ -228,6 +228,9 @@ def known_entries(data):
     return known
 
 
+LEFT = None      # set to a list to collect the leaves still not understood (path, size, kind, head)
+
+
 def count_container(data, sizes, forced_kind=None):
     """Add a LINKDATA container's bytes to `sizes`, by leaf format (opening nested packs)."""
     used = 0
@@ -268,6 +271,8 @@ def count_container(data, sizes, forced_kind=None):
                     kind = "Sound bank headers"
                 except ValueError:
                     pass
+            elif kind == "Unidentified" and motion.check_action_table(leaf):
+                kind = "Motion"                     # action table of a motion pack
             elif kind == "Unidentified" and lz_archive(leaf):
                 kind = "LZ archive"
             elif kind == "Unidentified" and (text.strings(leaf) is not None
@@ -294,6 +299,8 @@ def count_container(data, sizes, forced_kind=None):
                 continue
             sizes[kind] += len(leaf)
             used += len(leaf)
+            if LEFT is not None and FORMAT_STATUS.get(kind, ("todo",))[0] == "todo":
+                LEFT.append((path, len(leaf), kind, leaf[:8].hex()))
     sizes["Containers"] += len(data) - used
 
 
