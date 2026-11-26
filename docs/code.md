@@ -472,19 +472,34 @@ the code before it handles object actions (`ObjAction.c`). No source file name i
 
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
-Original source file `StateEdit.c` (probable: its name is referenced at `0x003767A0`, in the same
-block of code). Decompiled: the scene and the page set-ups (`0x0037BB60`-`0x0037DA64`, 30
-functions, 9 match); the page handlers (table `0x004169A0`, `0x003789B0`-...) and the small
-accessors at `0x003766C0`-`0x00376870` are still to do.
+Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
+whole file is decompiled (`0x003766C0`-`0x0037DA64`, 117 functions, 36 match).
 
 - The editor's state is a 0xBA0-byte block (`0x0045D7C8`, plus a 0x780-byte one at
   `0x0045D7CC`): the 15 created officers (copied from the game state at `0x00669D60 + 0x254`,
   0x38 bytes each, at +0xBC), the officer being edited at +0x404 (+0x18 body, +0x1C colour,
   +0x20 weapon, +0x24 and +0x2A-0x2E choices) and its copy at +0x43C (a page's changes are undone
   from it), the page (+0xB4, asked for at +0xB0), per page a cursor and its scroll.
-- Pages: 0 the name (two parts, at most 7 characters each), 1 body, 2 weapon (lists by body
-  group), 3-8 other choices, 9, 10 and 11 confirmations / the officer list; 12 leaves for the
-  title (scene 1). Changing page goes through phases (in, out, timer).
+- **Pages:** there are twelve (handlers in the table at `0x004169A0`); 12 leaves for the title
+  (scene 1). Changing page goes through phases (in, out, timer).
+  - 0 is the two names. Each is typed on a grid of 17 x 6 characters (`0x0045C478`, `@` =
+    none) and holds at most 7 characters; L / R move in the name and the extra button deletes.
+  - 1 is the body (13) and its colour (10).
+  - 2 is the weapon, from a list that depends on the body's group: male (0x1C-0x21, 0x30),
+    female (0x36-0x38) or others (0x33-0x35). Changing the body drops the choices the new group
+    cannot use.
+  - 3, 5, 6 and 7 are other choices (record +0x2B, +0x2A, +0x2D, +0x2C).
+  - 4 is the voice, four per group. The extra button plays one of eight samples at random.
+  - 8 is a 14-wide grid of 0x43 entries (+0x2E).
+  - 9 is two colours, each picked from a grid of 13 x 11 (0x8E colours). The extra button
+    picks two different colours at random.
+  - 10 is the editor's menu (pages 0-9, then done). Done asks whether to keep the changes
+    (messages 0x2D1-0x2D4).
+  - 11 is the list of the 15 edited officers. OK edits one or creates one, the extra button
+    deletes one (unless it is in use in the battle's sides), and Cancel asks to save. The save
+    goes through the memory card dialog (`func_002DAC30`); if it fails, the copies are put back.
+- **Lists:** a list page shows its choice on the model at once, restoring the record from the
+  backup first. OK keeps the choice. Cancel sets +0xB97 so that the menu restores the record.
 - A model of the officer is shown (unit `0x00574DE0`): the weapon gives a model kind (weapons
   0x3E-0x67 share four kinds), the view height comes from `0x00416720` / `0x00416780`.
 - The accessors are leaf functions the compiler knows not to touch other registers: Ghidra then
