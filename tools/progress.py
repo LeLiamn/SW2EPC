@@ -40,11 +40,11 @@ FORMAT_STATUS = {
     "Motion": ("done", "Animations (keyframed cubic curves per node and component)"),
     "Motion (atypical)": ("todo", "Motions with an unknown track type"),
     "PS2 variant": ("todo", "'PS2 ' files without nodes (different layout)"),
-    "tm3": ("todo", "Files starting with 'tm3 '"),
+    "tm3": ("done", "Textures as GS upload packets (8-bit + palettes), convertible to PNG"),
     "TMD2": ("done", "Static scene objects (geometry, UVs, colours, normals), exportable to OBJ"),
     "IPU": ("todo", "IPU images (ipu2)"),
     "PAC0": ("todo", "PAC0 files"),
-    "EFB": ("todo", "EFB files (effects?)"),
+    "EFB": ("todo", "Visual effects: structure known, parameters not yet"),
     "Unidentified": ("todo", "Leaves without a known signature (models, motions, scripts...)"),
 }
 

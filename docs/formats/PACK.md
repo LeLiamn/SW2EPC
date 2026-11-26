@@ -44,9 +44,9 @@ single error, which would not happen if sub-file boundaries were wrong. With the
 | `PS2 ` models | 476 | 51 MB | 9.1% | ✅ [PS2MODEL.md](PS2MODEL.md) |
 | Motions (`51 00 00 00`) | 10,714 | 46 MB | 8.2% | ✅ [MOTION.md](MOTION.md) |
 | Starting `10 00 00 00 00 00 01 06` | 447 | 26 MB | 4.6% | to study |
-| `EFB` | 15,682 | 24 MB | 4.3% | to study |
+| `EFB` (visual effects) | 15,682 | 24 MB | 4.3% | 🟡 [EFB.md](EFB.md) |
 | Starting with zeros | 2,051 | 24 MB | 4.3% | to study |
-| `tm3 ` | 176 | 13 MB | 2.2% | to study |
+| `tm3 ` textures | 176 | 13 MB | 2.2% | ✅ [TM3.md](TM3.md) |
 | `ipu2` (PS2 IPU images) | 2 | 8 MB | 1.4% | to study |
 | Small tables (count + fixed-size records) and others | | ~7 MB | ~1% | to study |
 

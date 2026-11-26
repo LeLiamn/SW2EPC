@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 1994108706
+    "done": 2006655890
   },
   "layout": "treemap",
   "areas": [
@@ -83,7 +83,7 @@
         },
         {
           "name": "EFB",
-          "description": "EFB files (effects?)",
+          "description": "Visual effects: structure known, parameters not yet",
           "data": {
             "total": 24154928,
             "done": 0
@@ -91,10 +91,10 @@
         },
         {
           "name": "tm3",
-          "description": "Files starting with 'tm3 '",
+          "description": "Textures as GS upload packets (8-bit + palettes), convertible to PNG",
           "data": {
             "total": 12547184,
-            "done": 0
+            "done": 12547184
           }
         },
         {

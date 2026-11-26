@@ -23,6 +23,7 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | 3D models (`PS2 `) | Skeleton and skinning decoded: characters, soldiers and weapons export to OBJ in bind pose (455 of 476) |
 | Animations (10,714 motions) | Format solved from the data: 10,641 read exactly and pose the characters |
 | Scene objects (26,623 TMD2) | Geometry decoded; whole battlefield packs export to OBJ |
+| tm3 textures (176) | All convert to PNG, one image per palette (characters' textures) |
 | Other formats inside | Signatures identified (battlefield pieces, `TMD2`, `tm3`...) |
 | Decompilation | Started: start-up code mapped, `main` decompiled ([docs/code.md](docs/code.md)) |
 
@@ -52,6 +53,7 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | `tools/ps2model.py` | Export the 3D models (with skeleton and skinning applied) to OBJ, with a PNG preview |
 | `tools/motion.py` | Read the animations and pose a model at any frame (OBJ / PNG) |
 | `tools/tmd2.py` | Export the battlefields' static scene objects (TMD2) to OBJ |
+| `tools/tm3.py` | Convert tm3 textures (GS upload packets) to PNG, one per palette |
 | `tools/tim2.py` | Convert TIM2 textures to PNG, every texture of the disc at once |
 | `tools/elf_info.py` | Sections, symbols, compiler and code size of an executable |
 | `tools/find_strings.py` | Readable strings of a binary, with a report of file names |
