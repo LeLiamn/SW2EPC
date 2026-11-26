@@ -615,6 +615,23 @@ follows, then the memory allocator.
     buffer is aligned: a preloaded or host copy?
   - Other files are read by path (`func_00102880`); the end of the last sector is cleared.
 
+## The memory allocator (`src/heap.c`)
+
+The allocator covers 0x00102A80-0x00103090, right after `main`: 13 functions, 7 of which
+match. Its source file name is unknown.
+
+- **The area** runs from `0x007C1000`, after the BSS, to `0x01FFF000`. Two heaps share it:
+  heap 0 allocates upwards from the start, and heap 1 downwards from the end. `0x005004D8`
+  picks the heap in use; the game sets heap 1.
+- **Blocks:** each block has a 16-byte header holding its previous and next blocks, its data
+  pointer (0 when free) and its size including the header.
+- **Allocating** is first fit, starting from the heap's cursor; the rest of the chosen block is
+  split off. `func_00102D30(size)` allocates on a 16-byte boundary, and
+  `func_00102DB0(align, size)` on `align`.
+- **Freeing** (`func_00102EC0(data)`) searches back from the last block, merges the block with
+  its free neighbours and moves the cursor back to it.
+- **Saving the state:** `func_00102B80` saves both heaps' state.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
