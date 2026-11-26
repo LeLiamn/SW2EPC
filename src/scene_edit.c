@@ -266,7 +266,7 @@ extern int g_00416560[13], g_004165A0[16], g_004165E0[18], g_00416630[15];
 extern int g_00416670[8], g_00416690[12], g_004166C0[12], g_004166F0[11];
 
 #define g_7000015C (*(u32 *)0x7000015C)   /* (scratchpad) the random seed */
-#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10 & 0xFFFF)
 
 /* Two window layouts of a page's list (inlined): the list in front, or the grid. */
 #define SHOW_GRID(es) do {                                              \

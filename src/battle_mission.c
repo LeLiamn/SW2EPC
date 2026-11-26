@@ -46,7 +46,7 @@ extern struct {
 } g_00669D60;
 
 #define g_7000015C (*(u32 *)0x7000015C)   /* (scratchpad) the random seed */
-#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10 & 0xFFFF)
 
 extern char g_007BFDF0[];                 /* the mission's text */
 extern const char g_0045CAC8[];           /* an empty text */

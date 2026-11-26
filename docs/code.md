@@ -534,6 +534,21 @@ missions; its source file name is unknown.
 - **Saving:** an Empire battle keeps this state in its save (record +0xAE8). Page 10 of the
   battle menu changes the player's formation.
 
+## An Empire event: a battle against a chosen officer (`src/empire_challenge.c`)
+
+The module covers 0x003F84B0-0x003F8B2C: 8 functions, 4 of which match. It sits between the
+formations and `BgManager.c`; its source file name is unknown. The event's state is the object
+that `func_003EA000` returns: +0 holds the step, +8 the player's officer.
+
+- **The opponent** is drawn at random among the officers with the highest value of
+  `func_002F34E0` (the level?). It must serve a valid entry, be free, and not be the player's
+  ruler.
+- **The battle** is set up on stage 0x20E, with the opponent placed in a free entry.
+- **After the battle,** the steps run in order:
+  1. The reward: message 0x11E, half of `func_00331010`, and a tenth of that to the player's
+     entry. When `func_0036B260` holds, message 0x11D is shown instead.
+  2. The opponent goes back free once the message is closed.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The

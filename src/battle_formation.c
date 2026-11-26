@@ -43,7 +43,7 @@ extern struct {
 } g_00669D60;
 
 #define g_7000015C (*(u32 *)0x7000015C)   /* (scratchpad) the random seed */
-#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10 & 0xFFFF)
 
 typedef struct { int v[100]; } Advantages;
 typedef struct { int v[10]; } PerFormation;
