@@ -2,6 +2,7 @@
 
 [![Decompiled](https://decompilati.onl/badge/samurai-warriors-2-empire.svg)](https://decompilati.onl/projects/samurai-warriors-2-empire)
 [![Matching](https://decompilati.onl/badge/samurai-warriors-2-empire/matching.svg)](https://decompilati.onl/projects/samurai-warriors-2-empire)
+[![Functions](https://decompilati.onl/badge/samurai-warriors-2-empire/functions.svg)](https://decompilati.onl/projects/samurai-warriors-2-empire)
 [![Data](https://decompilati.onl/badge/samurai-warriors-2-empire/data.svg)](https://decompilati.onl/projects/samurai-warriors-2-empire)
 
 A preservation project for **Samurai Warriors 2: Empires** (PS2, Omega Force / Koei, 2006):
