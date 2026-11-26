@@ -3,13 +3,13 @@
 **Status: understood (standard Sony format).** Tool: `tools/tim2.py` (converts to PNG, no
 dependencies).
 
-TIM2 is the standard texture format of the PS2 SDK. The game has **3,266 TIM2 textures** in
-`LINKDATA.BNS`: 500 as direct entries and 2,766 inside nested LINKDATA containers (40 MB in total).
-All of them convert without error.
+TIM2 is the standard texture format of the PS2 SDK. The game has **16,027 TIM2 textures** in
+`LINKDATA.BNS` (205 MB): 500 as direct entries, the rest inside nested LINKDATA containers and
+[packs](PACK.md). All of them convert without error.
 
 ## What the game uses
 
-All 3,266 files are version 4, with one picture each and no mipmaps:
+The 500 top-level files are version 4, with one picture each and no mipmaps:
 
 | Image type | Bits per pixel | Count (top level) | Palette |
 |---|---:|---:|---|

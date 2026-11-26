@@ -8,8 +8,8 @@ What is measured:
   if it has one, else an estimate up to the last `jr $ra`). "matching" / "non_matching" come
   from MATCHED_CODE below until a real build/objdiff report replaces them.
 - data: every file on the disc except the executable, SYSTEM.CNF and IOP modules. LINKDATA
-  containers are opened (nested ones too) and their entries grouped by real format (signature);
-  the container structure itself (tables, padding) counts as "LINKDATA". Other files are grouped
+  containers and the packs inside them are opened (see tools/pack.py) and their leaves grouped by
+  real format (signature); the container structure itself (tables, padding) counts as "Containers". Other files are grouped
   by extension. A format counts as "done" when it is fully documented in docs/formats and readable
   by the tools. Statuses live in FORMAT_STATUS below.
 
@@ -27,42 +27,42 @@ import elf_info  # noqa: E402
 from disc_info import system_cnf  # noqa: E402
 from iso_list import SECTOR, list_image, read_file  # noqa: E402
 import linkdata  # noqa: E402
+import pack  # noqa: E402
 
 # Format -> ("done" | "todo", description). Keep in sync with docs/formats/README.md.
 FORMAT_STATUS = {
-    "LINKDATA": ("done", "Container tables and padding"),
+    "Containers": ("done", "LINKDATA and pack tables, padding"),
     "TIM2": ("done", "Textures (Sony TIM2), convertible to PNG"),
     "MPEG2": ("todo", "Movies (MPEG-2 program streams)"),
     "ANS stream": ("todo", "Audio streams (music?)"),
-    "PAC0": ("todo", "PAC0 archives"),
     "PS2": ("todo", "Files starting with 'PS2 '"),
-    "Unidentified": ("todo", "Entries without a known signature"),
+    "tm3": ("todo", "Files starting with 'tm3 '"),
+    "TMD2": ("todo", "Files starting with 'TMD2'"),
+    "IPU": ("todo", "IPU images (ipu2)"),
+    "PAC0": ("todo", "PAC0 files"),
+    "Unidentified": ("todo", "Leaves without a known signature (models, motions, scripts...)"),
 }
 
 MATCHED_CODE = {"matching": 0, "non_matching": 0}
 
 SKIP_EXTENSIONS = {"IRX", "IMG", "CNF"}
 CONTAINER_KIND = {"ANS": "ANS stream", "CNS": "MPEG2"}
-SIGNATURE_KIND = {b"TIM2": "TIM2", b"PAC0": "PAC0", b"PS2 ": "PS2", b"\x00\x00\x01\xba": "MPEG2"}
-LINKDATA_SIG = linkdata.MAGIC.to_bytes(4, "little")
+LEAF_KIND = {"tm2": "TIM2", "tm3": "tm3", "tmd2": "TMD2", "ps2": "PS2", "pac": "PAC0",
+             "ipu": "IPU", "pss": "MPEG2", "bin": "Unidentified"}
 
 
-def count_linkdata(read, size, sizes, forced_kind=None):
-    """Add the bytes of a LINKDATA blob to `sizes`, by entry format. `read(off, n)` reads it."""
-    head = read(0, linkdata.HEADER)
-    count = int.from_bytes(head[4:8], "little")
-    table = linkdata.parse_header(head + read(linkdata.HEADER, 8 * count))
+def count_container(data, sizes, forced_kind=None):
+    """Add a LINKDATA container's bytes to `sizes`, by leaf format (opening nested packs)."""
     used = 0
-    for e in table["entries"]:
-        used += e["size"]
-        sig = read(e["offset"], 4)
-        if forced_kind:
+    if forced_kind:
+        for e in linkdata.parse_header(data)["entries"]:
             sizes[forced_kind] += e["size"]
-        elif sig == LINKDATA_SIG:
-            count_linkdata(lambda o, n, base=e["offset"]: read(base + o, n), e["size"], sizes)
-        else:
-            sizes[SIGNATURE_KIND.get(sig, "Unidentified")] += e["size"]
-    sizes["LINKDATA"] += size - used
+            used += e["size"]
+    else:
+        for _, leaf in pack.iter_leaves(data):
+            sizes[LEAF_KIND[pack.kind_of(leaf)]] += len(leaf)
+            used += len(leaf)
+    sizes["Containers"] += len(data) - used
 
 
 def code_total(elf):
@@ -86,10 +86,8 @@ def build_report(image):
         if base.upper() == exe.upper() or ext in SKIP_EXTENSIONS or "/MODULES/" in name.upper():
             continue
         if base.upper().startswith("LINKDATA."):
-            def read(off, n, start=lba * SECTOR):
-                disc.seek(start + off)
-                return disc.read(n)
-            count_linkdata(read, size, sizes, CONTAINER_KIND.get(ext))
+            disc.seek(lba * SECTOR)
+            count_container(disc.read(size), sizes, CONTAINER_KIND.get(ext))
         else:
             sizes[ext] += size
     disc.close()

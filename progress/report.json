@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 45003581
+    "done": 210048961
   },
   "layout": "treemap",
   "areas": [
@@ -43,9 +43,9 @@
         },
         {
           "name": "Unidentified",
-          "description": "Entries without a known signature",
+          "description": "Leaves without a known signature (models, motions, scripts...)",
           "data": {
-            "total": 517185975,
+            "total": 277561715,
             "done": 0
           }
         },
@@ -53,31 +53,55 @@
           "name": "TIM2",
           "description": "Textures (Sony TIM2), convertible to PNG",
           "data": {
-            "total": 40186784,
-            "done": 40186784
-          }
-        },
-        {
-          "name": "LINKDATA",
-          "description": "Container tables and padding",
-          "data": {
-            "total": 4816797,
-            "done": 4816797
+            "total": 204819136,
+            "done": 204819136
           }
         },
         {
           "name": "PS2",
           "description": "Files starting with 'PS2 '",
           "data": {
-            "total": 3764976,
+            "total": 50890000,
             "done": 0
           }
         },
         {
-          "name": "PAC0",
-          "description": "PAC0 archives",
+          "name": "tm3",
+          "description": "Files starting with 'tm3 '",
           "data": {
-            "total": 126920,
+            "total": 12547184,
+            "done": 0
+          }
+        },
+        {
+          "name": "IPU",
+          "description": "IPU images (ipu2)",
+          "data": {
+            "total": 7633520,
+            "done": 0
+          }
+        },
+        {
+          "name": "TMD2",
+          "description": "Files starting with 'TMD2'",
+          "data": {
+            "total": 7256256,
+            "done": 0
+          }
+        },
+        {
+          "name": "Containers",
+          "description": "LINKDATA and pack tables, padding",
+          "data": {
+            "total": 5229825,
+            "done": 5229825
+          }
+        },
+        {
+          "name": "PAC0",
+          "description": "PAC0 files",
+          "data": {
+            "total": 143816,
             "done": 0
           }
         }

@@ -16,7 +16,8 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | Disc image | Europe SLES-54624 v1.00, verified against [Redump #17102](http://redump.org/disc/17102/) |
 | Executable | Analysed: no symbols, CodeWarrior compiler, 70 original source file names recovered |
 | Data containers (`LINKDATA`) | Fully understood, all 3,629 entries extractable |
-| Textures (TIM2) | 3,266 textures, all convertible to PNG |
+| Packs (nested archives) | Understood: 41,079 leaf files in `LINKDATA.BNS` |
+| Textures (TIM2) | 16,027 textures, all convertible to PNG |
 | Other formats inside | Signatures identified (MPEG-2 movies, audio streams, PAC0...) |
 | Decompilation | Not started |
 
@@ -40,6 +41,7 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | `tools/iso_list.py` | List the ISO with file positions, including the second layer of a DVD-9 |
 | `tools/disc_info.py` | Boot executable (from `SYSTEM.CNF`), its hashes, compiler and code size, largest files |
 | `tools/linkdata.py` | List and extract the LINKDATA containers straight from the disc image |
+| `tools/pack.py` | Open Koei's nested offset-table packs: tree, statistics, extraction |
 | `tools/tim2.py` | Convert TIM2 textures to PNG, every texture of the disc at once |
 | `tools/elf_info.py` | Sections, symbols, compiler and code size of an executable |
 | `tools/find_strings.py` | Readable strings of a binary, with a report of file names |

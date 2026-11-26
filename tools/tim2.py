@@ -139,20 +139,12 @@ def convert(data, out_path, all_palettes=False):
 
 
 def iter_bns_tim2(image):
-    """Yield (name, bytes) for every TIM2 in LINKDATA.BNS, looking inside nested LINKDATA too."""
+    """Yield (name, bytes) for every TIM2 in LINKDATA.BNS, inside nested containers and packs."""
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    import linkdata
-    f, base, table = linkdata.open_container(image, "BNS")
-    for e in table["entries"]:
-        f.seek(base + e["offset"])
-        data = f.read(e["size"])
-        if data[:4] == b"TIM2":
-            yield f"{e['index']:04d}", data
-        elif data[:4] == struct.pack("<I", linkdata.MAGIC):
-            for sub in linkdata.parse_header(data)["entries"]:
-                blob = data[sub["offset"]:sub["offset"] + sub["size"]]
-                if blob[:4] == b"TIM2":
-                    yield f"{e['index']:04d}_{sub['index']:03d}", blob
+    import pack
+    for path, leaf in pack.iter_bns(image):
+        if leaf[:4] == b"TIM2":
+            yield path.replace("/", "_"), leaf
 
 
 def main():
