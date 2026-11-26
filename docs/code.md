@@ -75,7 +75,7 @@ assertion string), "probable" when its functions sit right next to that file's c
 | `0x06` | `0x001D1F30` | StateBattleInitialize.c | certain (battle tear-down, `src/scene_battle_initialize.c`) |
 | `0x07` | `0x001D5F00` | StateBattleInitialize.c | certain (battle intro, `src/scene_battle_initialize.c`) |
 | `0x08` | `0x00235A70` |  | unknown |
-| `0x09` | `0x002267F0` | StatePreBattle.c | probable |
+| `0x09` | `0x002267F0` | StatePreBattle.c | certain (pre-battle menu, `src/scene_pre_battle.c`) |
 | `0x0A` | `0x0021C5F0` | StatePostBattle.c | certain |
 | `0x0B` | `0x00236C50` |  | leaves at once (`src/scene_empty.c`) |
 | `0x0C` | `0x001E6860` | StateConfig.c | certain |
@@ -314,6 +314,22 @@ Original source file `StateConquest.c` (`0x002F1950`-`0x002F2718`, 15 functions,
 23), the draw its drawer. Screens that can open on top are run first and return 2 when done
 (`0x0030E1F0`, `0x0030E4D0`, `0x0038C7C0`, `0x003F13E0`). Screen 0x1F starts a battle (scene 9,
 with `0x00669F6C` = 1). Leaving goes to `0x007B4E50` (reset to 0x12 afterwards).
+
+## Scene 0x09: before a battle (`src/scene_pre_battle.c`)
+
+Original source file `StatePreBattle.c` (`0x00220780`-`0x00228174`, about 84 functions). Decompiled:
+the scene and its last pages (`0x00224D70`-`0x00228174`, 40 functions, 7 match); the first menu
+pages (`0x00220780`-`0x00224D60`) are still to do.
+
+- **enter** opens the loading screen for the battle's stage (picture by battle type, `0x00669DD4`;
+  mode 2: picture 0x16), prepares the battle (`func_001D42E0`) and, for a free battle, the menu
+  (LINKDATA 0x36, and 0x37 outside mode 2); an Empire battle (`0x00669F6C` = 1) uses scene 0x08's
+  screens instead. When a movie plays first, the update builds the battle one step a frame.
+- **The menu**: page `0x00749A10` for player `0x00749A1C`; pages 10 (a list of 31 entries), 11
+  (the formation), 12 (values for five slots, kept in the order of the values) and 13 (the music:
+  on / off, track, play) are decompiled; each page has a button help line.
+- Pages 10-13 keep their state in small objects (`0x00749B6C`, `0x00749B96`, `0x00749B9E`,
+  `0x00749BB6`) that the code reaches through a pointer to the object.
 
 ## Scene 0x15: Empire set-up (`src/scene_setup_emp_mogi.c`)
 
