@@ -328,10 +328,9 @@ void func_0029C140(u32 a, u8 b, int c);
 int func_0029FD10(void);
 void func_001A7DC0(const char *text, int alpha, int b);
 
-static unsigned short pad1_pressed(void)
-{
-    return ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074C : 0;
-}
+/* Inlined in the original: a macro. */
+#define pad1_ready() ((g_00500764 & 1) ? (g_00500765 & 1) == 1 : 0)
+#define pad1_pressed() (pad1_ready() ? g_0050074C : 0)
 
 /* Next value of the game's random generator (a linear congruential generator, 0..65535). */
 static unsigned random16(void)

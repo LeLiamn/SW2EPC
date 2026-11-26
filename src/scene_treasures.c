@@ -236,15 +236,10 @@ void func_001E7DC0(void);            /* mode 3 */
 void func_001E8200(void);            /* mode 11: select skill */
 void func_001E86D0(void);            /* mode 7: select mount */
 
-static unsigned short pad1_pressed(void)
-{
-    return ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074C : 0;
-}
-
-static unsigned short pad1_held(void)
-{
-    return ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074E : 0;
-}
+/* Inlined in the original: a macro. */
+#define pad1_ready() ((g_00500764 & 1) ? (g_00500765 & 1) == 1 : 0)
+#define pad1_pressed() (pad1_ready() ? g_0050074C : 0)
+#define pad1_held() (pad1_ready() ? g_0050074E : 0)
 
 /* 0x001E7110, 0x180 bytes. Requests mode `mode`: starts the transition (phase 4), prepares the
  * mode's screen, and moves the two layout layers (func_00376100) to the mode's positions.
@@ -570,7 +565,7 @@ void func_001E80B0(float dt)
         func_001E7110(3);
 }
 
-/* 0x001E8110, 0xE4 bytes. Mode 5 ("Select Officer  Skills  Back"). */
+/* 0x001E8110, 0xE4 bytes, matching. Mode 5 ("Select Officer  Skills  Back"). */
 void func_001E8110(void)
 {
     unsigned short pressed = pad1_pressed();
@@ -657,10 +652,12 @@ void func_001E8200(void)
     }
 }
 
-/* 0x001E8600, 0xA0 bytes. Mode 6 ("Select Officer  Back"). */
+/* 0x001E8600, 0xA0 bytes, matching. Mode 6 ("Select Officer  Back"). */
 void func_001E8600(void)
 {
-    if (pad1_pressed() & BTN_CANCEL) {
+    unsigned short pressed = pad1_pressed();
+
+    if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_001E7110(0);
     } else {

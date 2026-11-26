@@ -534,15 +534,10 @@ int func_002DAC30(void);
 void func_002DBAA0(void);
 void func_002DBAB0(void);
 
-static unsigned short pad1_pressed(void)
-{
-    return ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074C : 0;
-}
-
-static unsigned short pad1_held(void)
-{
-    return ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074E : 0;
-}
+/* Inlined in the original: a macro. */
+#define pad1_ready() ((g_00500764 & 1) ? (g_00500765 & 1) == 1 : 0)
+#define pad1_pressed() (pad1_ready() ? g_0050074C : 0)
+#define pad1_held() (pad1_ready() ? g_0050074E : 0)
 
 /* 0x001E44C0, 0x220 bytes. Page 1: a three-entry sub-menu opening pages 5, 6 and 7. */
 void func_001E44C0(void)
