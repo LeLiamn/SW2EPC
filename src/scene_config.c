@@ -656,7 +656,7 @@ void func_001E4E70(void)
 void func_001E5060(void)
 {
     unsigned short pad1 = pad1_pressed();
-    unsigned short pad2 = ((g_005007EC & 1) && (g_005007ED & 1) == 1) ? g_005007D4 : 0;
+    unsigned short pad2 = ((g_005007EC & 1) ? (g_005007ED & 1) == 1 : 0) ? g_005007D4 : 0;
 
     if (pad1 & BTN_OK) {
         func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
