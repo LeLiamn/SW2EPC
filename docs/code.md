@@ -707,6 +707,36 @@ file. The rest loads TIM2 files into the GS memory:
   (rounded to 128 pixels for 4-bit and 8-bit pictures), the format, the log2 of the size,
   colours with alpha, and the CLUT's base and format.
 
+## Sound and the music stream (`src/sound_stream.c`)
+
+The code at 0x00114B20-0x0011585C has 28 functions, 12 of which match. It sits on a sound
+library linked just before it: an IOP sound driver reached by RPC, whose functions start at
+0x0010B000. Its source file name is unknown.
+
+- **Volumes** go from 0 to 0x3FFF. Each can fade: a fade is (from, to, frames, frame) and moves
+  one step per frame. There are fades for the master volume, for the music stream and for each
+  of the 16 sound channels (at `0x00560F60`).
+- **Music stream requests:** a request word at `0x00560FE0` holds the bits 1 play, 2 stop, 4 a
+  third request and 8 set the volume. `func_001155F0` handles it once per frame, under the sound
+  semaphore, and only while the disc reader is idle. A looping stream that stops is started
+  again.
+- **Set-up:** `func_001151C0` starts the driver and the disc reader. `func_00114FA0` sets up the
+  voices, the two sound banks, the reverb and the default volumes.
+
+## The disc reader (`src/disc_reader.c`)
+
+The code at 0x001158A0-0x00116604 has 19 functions, 5 of which match. The reads of `file.c` go
+to a thread of their own (priority 5, its stack at `0x00561000`). The thread receives a list of
+up to 255 requests, each a sector or a file path, an offset, a sector count and a destination.
+
+- **Chunks:** the thread reads at most 0x400 sectors at a time. Before each chunk it waits until
+  the music stream has buffered enough data (from 0x32 up to 0x5F), since music and data come
+  from the same disc. It pauses the music meanwhile.
+- **File paths:** a path such as `cdrom0:\PATH` becomes `\PATH;1` in upper case for libcdvd.
+  Each file is searched for up to 5 times.
+- **Destinations:** bit 31 means the IOP's memory, bit 1 a read through the sound driver.
+- **Cancel:** `func_00115D40` cancels the reads under way.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
