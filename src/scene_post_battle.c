@@ -1114,3 +1114,50 @@ void func_0021C280(void)
     if (g_0074794C == 0 && g_00748F98 == 2 && g_00748A04[0] == g_00748A04[0x14])
         func_0011EB80(&g_00748A04[0x14], g_00748A04, 0x14);
 }
+
+
+int func_002F4080(int officer);
+int func_002FB2A0(int value);
+void func_00328A00(int officer, int value);
+int func_003635F0(void);
+void func_003A4DA0(int scenario, int b, int points, int c);
+
+/* 0x0021C390, 0x254 bytes. Saves the battle's results: the kept items (0x00748A04) into the item
+ * records, unlocks officers (func_00328A00) of side 0 below 0x1C whose level is above 9 (in the
+ * Empire game only when func_002FB2A0 agrees), records the best player's points for the scenario
+ * (func_003A4DA0), then the offered items (0x007489DC). */
+void func_0021C390(void)
+{
+    int i, best, officer, points;
+
+    for (i = 0; i < g_00748F98; i++) {
+        u8 *item = &g_00748A04[i * 0x14];
+        func_0019DDC0(item);
+        func_0011EB80(func_00328B30(item[0]), item, 0x14);
+    }
+    for (i = 0; i < 8; i++) {
+        officer = func_003620E0(0, i);
+        if (officer >= 0x1C)
+            continue;
+        if (g_00748F84 == 0) {
+            if (func_002F41E0(officer) > 9 && func_002FB2A0(func_002F4080(officer)) != 0)
+                func_00328A00(officer, 1);
+        } else if (g_00748F84 == 1 && func_002F41E0(officer) > 9) {
+            func_00328A00(officer, 1);
+        }
+    }
+    best = 0;
+    for (i = 0; i < g_00748F98; i++) {
+        points = g_00749110[func_00362320(i)] + g_0074941C;
+        if (best < points)
+            best = points;
+    }
+    if (best > 0xFFFF)
+        best = 0xFFFF;
+    func_003A4DA0(func_003623B0(), func_003635F0(), best, g_00748F94);
+    for (i = 0; i < g_00748F98; i++) {
+        u8 *item = &g_007489DC[i * 0x14];
+        func_0019DDC0(item);
+        func_0011EB80(func_00328B30(item[0]), item, 0x14);
+    }
+}
