@@ -1,6 +1,6 @@
 /*
- * model.c - motion curves, tm3 textures and 3D models (original source file unknown; this part
- * covers 0x00147780-0x00148784, after font.c; the model code goes on after it).
+ * model.c - motion curves, tm3 textures and 3D models (original source file unknown; 0x00147780-
+ * 0x00149724, after font.c; the drawing function at 0x00149730 follows).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -79,6 +79,12 @@ void *func_00102DB0(int align, u32 size);
 void *func_00102D30(u32 size);
 void *func_0020EC50(u32 size);
 void func_00102EC0(void *data);
+void func_00148700(u32 *p);
+void func_001485C0(u8 *list, int n, int other);
+void func_00148660(u8 *list);
+void func_001486A0(u8 *o);
+void func_00147780(void *node);
+void func_001477A0(void *p);
 
 /* 0x00147780, 0x20 bytes, matching. Clears a node (0x70 bytes). */
 void func_00147780(void *node)
@@ -603,4 +609,318 @@ void func_00148700(u32 *p)
         p[0x32] = 0;
         p[0x33] = 0x80;
     }
+}
+
+/* A node of a skeleton being drawn (0x70 bytes). */
+typedef struct Node {
+    float pos[4];            /* translation, w = 1 */
+    float rot[4];            /* +0x10 rotation, w = 0 */
+    float matrix[4][4];      /* +0x20 local matrix (VU0 micro subroutine 0x50) */
+    struct Node *parent;     /* +0x60 */
+    float **slot;            /* +0x64 where its matrices go */
+    u8 dirty;                /* +0x68 */
+    u8 index;
+    u8 pad[6];
+} Node;
+
+/* An object drawn with a skeleton (0x220 bytes). */
+typedef struct {
+    u32 packets[2][0x34];    /* +0x000 the VU1 packets (lights at +0x40 / +0x80 of each) */
+    float world[4][4];       /* +0x1A0 */
+    u8 *matrices[2];         /* +0x1E0 two matrices per node, per frame */
+    Model *model;            /* +0x1E8 */
+    Model *model2;           /* +0x1EC */
+    Node *nodes;             /* +0x1F0 */
+    Node *nodes2;            /* +0x1F4 */
+    float **slots;           /* +0x1F8 (16 bytes per node) */
+    u32 pad;
+    u8 count;                /* +0x200 nodes */
+    u8 a;
+    u8 b;                    /* +0x202 kept when cleared */
+    u8 c;
+    u32 d;                   /* +0x204 */
+    Node *e;                 /* +0x208 */
+    u8 flags;                /* +0x20C */
+    u8 pad2[3];
+    u8 transforms[0x10];     /* +0x210 */
+} Actor;
+
+void func_00143268(void *m, void *a, void *b, void *c);           /* sceVu0NormalLightMatrix? */
+void func_00143328(void *m, void *a, void *b, void *c, void *d);  /* sceVu0LightColorMatrix? */
+
+/* A node's local matrix from its rotation and translation (VU0 micro subroutine 0x50). */
+#define NODE_MATRIX(n)                                                  \
+    __asm__ volatile("lqc2 $vf1, 0x10(%0)\n"                            \
+                     "lqc2 $vf2, 0(%0)\n"                               \
+                     "vcallms 0x50\n"                                   \
+                     "qmfc2.i $9, $vf1\n"                               \
+                     "sqc2 $vf16, 0x20(%0)\n"                           \
+                     "sqc2 $vf17, 0x30(%0)\n"                           \
+                     "sqc2 $vf18, 0x40(%0)\n"                           \
+                     "sqc2 $vf19, 0x50(%0)\n"                           \
+                     : : "r"(n) : "$9", "memory")
+
+/* Takes a node's rotation and translation from its 9 floats (rotation, ?, translation). */
+#define NODE_TRS(n, trs)                                                \
+    do {                                                                \
+        (n)->rot[0] = ((float *)(trs))[0];                              \
+        (n)->rot[1] = ((float *)(trs))[1];                              \
+        (n)->rot[2] = ((float *)(trs))[2];                              \
+        (n)->rot[3] = 0.0f;                                             \
+        (n)->pos[0] = ((float *)(trs))[6];                              \
+        (n)->pos[1] = ((float *)(trs))[7];                              \
+        (n)->pos[2] = ((float *)(trs))[8];                              \
+        (n)->pos[3] = 1.0f;                                             \
+    } while (0)
+
+/* 0x00148790, 0x250 bytes. Builds an object's nodes from its model (and the second node list
+ * from `m2`). */
+void func_00148790(Actor *a, Model *m, Model *m2)
+{
+    Node *n = a->nodes;
+    u32 *trs = m->nodes_trs;
+    int *parent = m->parents;
+    int i;
+
+    for (i = 0; i < m->nodes; i++, n++, parent++, trs += 9) {
+        func_00147780(n);
+        NODE_TRS(n, trs);
+        NODE_MATRIX(n);
+        n->index = i;
+        n->parent = *parent == -1 ? 0 : &a->nodes[*parent];
+        n->slot = (float **)((u8 *)a->slots + i * 0x10);
+        n->dirty = 1;
+    }
+    if (m2 != 0 && (n = a->nodes2) != 0) {
+        trs = m2->nodes_trs;
+        parent = m2->parents;
+        for (i = 0; i < m2->nodes; i++, n++, parent++, trs += 9) {
+            func_00147780(n);
+            NODE_TRS(n, trs);
+            NODE_MATRIX(n);
+            n->index = i;
+            n->parent = *parent == -1 ? 0 : &a->nodes2[*parent];
+            n->slot = (float **)((u8 *)a->slots + i * 0x10);
+            n->dirty = 1;
+        }
+    }
+}
+
+/* 0x001489F0, 0xC0 bytes. Rebuilds the local matrices of nodes `first` (+0x2C of `m`) to
+ * first + count (+0x2D). */
+void func_001489F0(Actor *a, Model *m)
+{
+    u8 first = ((u8 *)m)[0x2C];
+    Node *n = &a->nodes[first];
+    u32 *trs = m->nodes_trs + first * 9;
+    int i;
+
+    for (i = 0; i < ((u8 *)m)[0x2D]; i++, n++, trs += 9) {
+        NODE_TRS(n, trs);
+        NODE_MATRIX(n);
+        n->dirty = 1;
+    }
+}
+
+/* 0x00148AB0, 0xAC bytes. Sets `count` nodes up without a model: unit matrices, no parent. */
+void func_00148AB0(Actor *a, u32 count)
+{
+    Node *n = a->nodes;
+    u32 i;
+
+    for (i = 0; i < count; i++, n++) {
+        func_00147780(n);
+        n->matrix[0][0] = 1.0f;
+        n->matrix[1][1] = 1.0f;
+        n->matrix[2][2] = 1.0f;
+        n->matrix[3][3] = 1.0f;
+        n->index = i;
+        n->parent = 0;
+        n->slot = (float **)((u8 *)a->slots + i * 0x10);
+        n->dirty = 1;
+    }
+}
+
+/* 0x00148B60, 0x650 bytes. Resets the translation of nodes `first` to `last` from the model.
+ * When there is a second model and node list, the same is done a second time on the first list
+ * (as in the original). The original loops are unrolled by 8. */
+void func_00148B60(Actor *a, int first, int last)
+{
+    int i;
+
+    for (i = first; i <= last; i++) {
+        Node *n = &a->nodes[i];
+        float *trs = (float *)a->model->nodes_trs + i * 9;
+
+        n->pos[0] = trs[6];
+        n->pos[1] = trs[7];
+        n->pos[2] = trs[8];
+        n->pos[3] = 1.0f;
+    }
+    if (a->model2 != 0 && a->nodes2 != 0) {
+        for (i = first; i <= last; i++) {
+            Node *n = &a->nodes[i];
+            float *trs = (float *)a->model->nodes_trs + i * 9;
+
+            n->pos[0] = trs[6];
+            n->pos[1] = trs[7];
+            n->pos[2] = trs[8];
+            n->pos[3] = 1.0f;
+        }
+    }
+}
+
+/* Writes a unit matrix. */
+static inline void unit_matrix(float *m)
+{
+    int i;
+
+    for (i = 0; i < 16; i++)
+        m[i] = (i % 5) == 0 ? 1.0f : 0.0f;
+}
+
+/* 0x001491B0, 0xF0 bytes. Gives each node its two matrices (unit) in each frame's buffer (a
+ * quadword skipped after the first 64 nodes). */
+void func_001491B0(Actor *a)
+{
+    float **slot = a->slots;
+    float *m0 = (float *)(a->matrices[0] + 0x10);
+    float *m1 = (float *)(a->matrices[1] + 0x10);
+    int i;
+
+    for (i = 0; i < a->count; i++, slot += 4, m0 += 16, m1 += 16) {
+        if (i == 0x40) {
+            m0 += 4;
+            m1 += 4;
+        }
+        func_001477A0(slot);
+        unit_matrix(m0);
+        unit_matrix(m1);
+        slot[0] = m0;
+        slot[1] = m1;
+    }
+}
+
+/* 0x001492A0, 0x10C bytes, matching. Sets an object up for model `m` with `count` nodes and `n`
+ * transforms. */
+void func_001492A0(Actor *a, Model *m, u8 count, int n)
+{
+    int f;
+
+    a->model = m;
+    a->model2 = 0;
+    a->count = count;
+    func_00148700(a->packets[0]);
+    a->slots = func_00102DB0(0x10, a->count << 4);
+    a->nodes = func_00102DB0(0x10, a->count * 0x70);
+    a->nodes2 = 0;
+    for (f = 0; f < 2; f++) {
+        a->matrices[f] = func_00102DB0(0x10, a->count * 0x40 + 0x20);
+        func_001185E0(a->matrices[f], a->count * 0x40 + 0x20, 0);
+    }
+    func_001491B0(a);
+    if (m != 0)
+        func_00148790(a, m, 0);
+    a->c = 0;
+    func_001485C0(a->transforms, n, 0);
+    a->d = 0;
+}
+
+/* 0x001493B0, 0x13C bytes. The same with a second model (`count2` nodes for it). */
+void func_001493B0(Actor *a, Model *m, Model *m2, u8 count, int count2, int n)
+{
+    int f;
+
+    a->model = m;
+    a->model2 = m2;
+    a->count = count;
+    func_00148700(a->packets[0]);
+    a->slots = func_00102DB0(0x10, a->count << 4);
+    a->nodes = func_00102DB0(0x10, a->count * 0x70);
+    if (count2 == 0)
+        a->nodes2 = 0;
+    else
+        a->nodes2 = func_00102DB0(0x10, count2 * 0x70);
+    for (f = 0; f < 2; f++) {
+        a->matrices[f] = func_00102DB0(0x10, a->count * 0x40 + 0x20);
+        func_001185E0(a->matrices[f], a->count * 0x40 + 0x20, 0);
+    }
+    func_001491B0(a);
+    if (m != 0)
+        func_00148790(a, m, m2);
+    a->c = 0;
+    func_001485C0(a->transforms, n, 0);
+    a->d = 0;
+}
+
+/* 0x001494F0, 0x9C bytes, matching. Frees an object's buffers and clears it (+0x202 kept). */
+void func_001494F0(Actor *a)
+{
+    int f;
+    u8 keep;
+
+    func_00148660(a->transforms);
+    func_00102EC0(a->slots);
+    a->slots = 0;
+    func_00102EC0(a->nodes);
+    a->nodes = 0;
+    if (a->nodes2 != 0) {
+        func_00102EC0(a->nodes2);
+        a->nodes2 = 0;
+    }
+    for (f = 0; f < 2; f++) {
+        func_00102EC0(a->matrices[f]);
+        a->matrices[f] = 0;
+    }
+    keep = a->b;
+    func_001486A0((u8 *)a);
+    a->b = keep;
+}
+
+/* 0x00149590, 0x8C bytes. Sets the lights of both packets: directions `dir`, colours `colour`,
+ * ambient `ambient`. */
+void func_00149590(Actor *a, u8 *dir, u8 *colour, void *ambient)
+{
+    u8 *p = (u8 *)a;
+    int i;
+
+    for (i = 0; i < 2; i++, p += 0xD0) {
+        func_00143268(p + 0x40, dir, dir + 0x10, dir + 0x20);
+        func_00143328(p + 0x80, colour, colour + 0x10, colour + 0x20, ambient);
+    }
+}
+
+/* 0x00149620, 0xF4 bytes. Changes an object's models; the nodes are rebuilt when the node count
+ * or the presence of the second model changes, or when there is no second model. */
+void func_00149620(Actor *a, Model *m, Model *m2)
+{
+    int rebuild = 0;
+    Model *old = a->model;
+    Model *old2 = a->model2;
+
+    a->model = m;
+    a->model2 = m2;
+    if ((old2 != 0 && m2 == 0) || (m2 != 0 && old2 == 0))
+        rebuild = 1;
+    if (old == 0)
+        rebuild = 1;
+    else if (m->nodes != old->nodes)
+        rebuild = 1;
+    if (m != 0) {
+        if (m2 == 0)
+            a->flags &= ~2;
+        if (rebuild)
+            func_00148790(a, m, m2);
+        else if (m2 == 0)
+            func_00148790(a, m, m2);
+        a->e = a->nodes;
+    }
+    a->d = 0;
+    a->flags &= ~8;
+}
+
+/* 0x00149720, 0x8 bytes, matching. */
+void func_00149720(Actor *a)
+{
+    a->d = 0;
 }
