@@ -81,7 +81,7 @@ assertion string), "probable" when its functions sit right next to that file's c
 | `0x0C` | `0x001E6860` | StateConfig.c | certain |
 | `0x0D` | `0x001E8B30` | StateTreasures.c | certain |
 | `0x0E` | `0x002A4210` | StateShop.c | certain |
-| `0x0F` | `0x002F1790` | StateConquest.c | probable |
+| `0x0F` | `0x002F1790` | SceneLoading.c | certain (loading screen, `src/scene_loading.c`) |
 | `0x10` | `0x0015FF70` | StateInitialize.c | probable (after a soft reset, `src/scene_initialize.c`) |
 | `0x11` | `0x003F2A50` | SceneTutorial.c | probable (starts a tutorial, `src/scene_tutorial.c`) |
 | `0x12` | `0x002F2620` | StateConquest.c | probable |
@@ -253,6 +253,23 @@ All decompiled (2026-11-26); most match.
   `0x00669DB0` is saved and cleared for the demo (`0x001BEAB0` puts it back).
 - **0x11** starts the first available tutorial among 0x0C-0x0E; **0x16** opens the conquest map and
   the season animation player; **0x03** is empty and **0x0B** leaves as soon as it is entered.
+
+## Scene 0x0F: the loading screen (`src/scene_loading.c`)
+
+Original source file `SceneLoading.c` (`0x002F0810`-`0x002F1930`, 18 functions, all decompiled;
+13 match). Opened by `0x002F15E0(_, stage)` when a battle starts: it loads LINKDATA entry
+`0x5E + stage` (a pack of five TIM2 pictures, loaded with `__FILE__` and line 353) into the object
+at `0x007A2640` (speed 1.2, six layers of 0x34 bytes, the pack).
+
+- A layer interpolates alpha (clamped to 128), position and scale between two values while its
+  time (+1.2 a frame) goes from `start` to `end`. Flags: 0x01 loop, 0x02 rotate (-0.06 rad per unit
+  of time), 0x04 256 wide and drawn twice (the second copy mirrored), 0x08 512 wide, 0x20 fade back
+  after half the window, 0x40 other blending (GS ALPHA 0x43), 0x80 eased progress (square root).
+- Layers 0, 4, 1 and 2 are drawn, in that order, over a black full-screen rectangle; layer 2 runs
+  along layer 4's picture (a light sweeping over the stage name?).
+- Corners are turned with VU0 micro subroutines 0x10 (cosine) and 0x00 (sine), written as
+  `vu0_cos` / `vu0_sin` stand-ins, then converted with `vftoi4` and scaled from 480 to 448 lines.
+- The scene waits for the loading (`func_00102960`), fades out and leaves.
 
 ## Scene 0x15: Empire set-up (`src/scene_setup_emp_mogi.c`)
 

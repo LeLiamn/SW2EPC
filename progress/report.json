@@ -2,16 +2,16 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 34000,
-    "non_matching": 49076
+    "matching": 35024,
+    "non_matching": 52364
   },
   "data": {
     "total": 2155890688,
     "done": 2155890688
   },
   "functions": {
-    "total": 10609,
-    "matching": 139
+    "total": 10610,
+    "matching": 152
   },
   "layout": "treemap",
   "areas": [
@@ -110,11 +110,11 @@
         },
         {
           "name": "StateConquest.c",
-          "description": "Estimated range 0x2F1798-0x2FF3F0; 0 function(s) decompiled",
+          "description": "Estimated range 0x2F1798-0x2FF3F0; 4 function(s) decompiled",
           "code": {
             "total": 56408,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 72,
+            "non_matching": 284
           }
         },
         {
@@ -146,11 +146,11 @@
         },
         {
           "name": "SceneLoading.c",
-          "description": "Estimated range 0x2EBBF8-0x2F1798; 0 function(s) decompiled",
+          "description": "Estimated range 0x2EBBF8-0x2F1798; 14 function(s) decompiled",
           "code": {
             "total": 23456,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 952,
+            "non_matching": 3004
           }
         },
         {
