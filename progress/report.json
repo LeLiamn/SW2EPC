@@ -2,16 +2,16 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 48164,
-    "non_matching": 202636
+    "matching": 48968,
+    "non_matching": 207240
   },
   "data": {
     "total": 2155890688,
     "done": 2155890688
   },
   "functions": {
-    "total": 10618,
-    "matching": 341
+    "total": 10621,
+    "matching": 368
   },
   "layout": "treemap",
   "areas": [
@@ -164,11 +164,11 @@
         },
         {
           "name": "SceneTutorial.c",
-          "description": "Estimated range 0x3EDD28-0x3F6A18; 51 function(s) decompiled",
+          "description": "Estimated range 0x3EDD28-0x3F6A18; 103 function(s) decompiled",
           "code": {
             "total": 36080,
-            "matching": 2600,
-            "non_matching": 8080
+            "matching": 3404,
+            "non_matching": 12412
           }
         }
       ]
@@ -390,11 +390,11 @@
         },
         {
           "name": "BgManager.c",
-          "description": "Estimated range 0x3F6A18-0x4050A8; 0 function(s) decompiled",
+          "description": "Estimated range 0x3F6A18-0x4050A8; 1 function(s) decompiled",
           "code": {
             "total": 59024,
             "matching": 0,
-            "non_matching": 0
+            "non_matching": 272
           }
         },
         {

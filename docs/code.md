@@ -490,6 +490,27 @@ and 0x13.
 - **Update:** `func_003F5120` returns 0 when the window is closed, 2 on the frame it closes,
   and 1 otherwise. The scenes wait while it returns non-zero.
 
+## Missions during a free battle (`src/battle_mission.c`)
+
+The module covers 0x003F5550-0x003F6BA0: 53 functions, 27 of which match. It comes after
+`SceneTutorial.c`; its source file name is unknown.
+
+- **The mission** is 8 bytes in small data (`0x0045D868`): the soldier group, the kind (0-7),
+  the time limit in minutes (3000 frames a minute, PAL), a target value and a status (0 offered,
+  1 running, 2 over, 5 none). An Empire battle keeps the mission in its save, at record +0xAE0.
+- **Offer:** when a free battle starts, a mission is offered one time in four. Both sides need
+  8 groups or more, and the battle type must not be 6-0x12.
+  - The group is the eligible one with the best score: a random part (0-49), bonuses when its
+    leader is linked to the other side's leaders, and the difficulty's bonus (table
+    `0x0041DA80`).
+  - The kind is drawn among the eight whose condition holds (table `0x0041DAA0`). The time is
+    5-7 minutes; kinds 0, 1, 3 and 4 also get a target.
+- **Check:** each kind's goal is in the table at `0x0041DAC0`. While the group is active and
+  time remains, the mission is won once the goal is reached. It is lost when time runs out. If
+  the group is gone, it is won for a player's group and lost for an enemy one.
+  `func_0035D300` announces the result, and a reminder plays at each of the last three minutes.
+- **Display:** the text is message 0x96 + kind, and page 15 of the battle menu shows it.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
