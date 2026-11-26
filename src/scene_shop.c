@@ -187,7 +187,6 @@ extern struct {
     u32 g_00773168;
     u32 g_0077316C;
     u32 g_00773170;
-    char pad_2[0x4];
     u8 g_00773174[8];             /* 4 bytes per player: state of skill slots 0-3 (0, 1 or more) */
     u8 g_0077317C;
     u8 g_0077317D;
@@ -742,7 +741,7 @@ static inline void help_by_state(u8 state, const char *more, const char *one, co
         func_001A7DC0(none, 0x80, 1);
 }
 
-/* 0x002A4950, 0x6A4 bytes. Scene draw: the screen, then its button help line. */
+/* 0x002A4950, 0x6A4 bytes, matching. Scene draw: the screen, then its button help line. */
 void func_002A4950(void)
 {
     u32 view;
@@ -757,16 +756,18 @@ void func_002A4950(void)
     case 0: func_002ABFD0(g_00773168, g_0077317E, g_00773160); break;
     case 1:
         func_002AC330(g_00773168, g_0077316C, g_00773148,
-                      &g_00772DF0[g_0077315C * 0x140 + g_00773181 * 0x50],
+                      g_00772DF0 + g_0077315C * 0x140 + g_00773181 * 0x50,
                       &g_00773174[g_0077315C * 4], g_00773181, g_00773186);
-        break;
-    case 2:
-        func_002AD0B0(g_00773168, 0, g_0077316C, g_007730D0, g_0077317D, g_00773184, g_00773185);
         break;
     case 3:
         func_002AC7F0(g_00773168, g_00773170, g_0077316C, g_00773070, g_0077317C, g_00773183);
         break;
     case 4:
+        func_002ACC30(g_00773168, g_0077316C, g_00773170, g_00773186, g_0077313C, g_0077315C);
+        break;
+    case 2:
+        func_002AD0B0(g_00773168, 0, g_0077316C, g_007730D0, g_0077317D, g_00773184, g_00773185);
+        break;
     case 5:
         func_002ACC30(g_00773168, g_0077316C, g_00773170, g_00773186, g_0077313C, g_0077315C);
         break;
@@ -776,34 +777,78 @@ void func_002A4950(void)
     case 9: func_0029C140(func_0029FD70(), g_00773187, g_007731A0); break;
     }
 
+    /* Help lines chosen from a "slot state": 0 = `none`, 1 = `one`, 2 or more = `more`. */
     switch (g_00773144) {
     case 0: func_001A7DC0(g_0043C578, 0x80, 1); break;
     case 1:
-        if (g_00773148 < 5) {
+        if (g_00773148 >= 5) {                  /* modes 5-8: buying for slot 0-3 */
+            int slot;                           /* (left unset by the original for other modes) */
+            switch (g_00773148) {
+            case 5: slot = 0; break;
+            case 6: slot = 1; break;
+            case 7: slot = 2; break;
+            case 8: slot = 3; break;
+            }
+            if ((&g_00773174[g_0077315C * 4])[slot] > 1)
+                func_001A7DC0(g_0043C580, 0x80, 1);
+            else if ((&g_00773174[g_0077315C * 4])[slot] == 1)
+                func_001A7DC0(g_0043C87C, 0x80, 1);
+            else if ((&g_00773174[g_0077315C * 4])[slot] == 0)
+                func_001A7DC0(g_0043C890, 0x80, 1);
+        } else {
             func_001A7DC0(g_0043C57C, 0x80, 1);
-        } else {                                /* modes 5-8: buying for slot 0-3 */
-            int slot = g_00773148 - 5;          /* (left unset by the original for other modes) */
-            help_by_state(g_00773174[g_0077315C * 4 + slot], g_0043C580, g_0043C87C, g_0043C890);
         }
-        break;
-    case 2:
-        if (g_00773138 != 0)
-            func_001A7DC0(g_0043C598, 0x80, 1);
-        else
-            help_by_state(g_0077317D, g_0043C59C, g_0043C888, g_0043C55C);
         break;
     case 3:
     case 4:
-        if (func_0029FD10() == 0)
-            help_by_state(g_0077317C, g_0043C590, g_0043C88C, g_0043C55C);
-        else
-            help_by_state(g_0077317C, g_0043C58C, g_0043C880, g_0043C894);
+        if (func_0029FD10() == 0) {
+            if (g_0077317C > 1)
+                func_001A7DC0(g_0043C590, 0x80, 1);
+            else if (g_0077317C == 1)
+                func_001A7DC0(g_0043C88C, 0x80, 1);
+            else if (g_0077317C == 0)
+                func_001A7DC0(g_0043C55C, 0x80, 1);
+        } else {
+            if (g_0077317C > 1)
+                func_001A7DC0(g_0043C58C, 0x80, 1);
+            else if (g_0077317C == 1)
+                func_001A7DC0(g_0043C880, 0x80, 1);
+            else if (g_0077317C == 0)
+                func_001A7DC0(g_0043C894, 0x80, 1);
+        }
         break;
-    case 5: help_by_state(g_00773140, g_0043C594, g_0043C884, 0); break;
+    case 2:
+        if (g_00773138 <= 0) {
+            if (g_0077317D > 1)
+                func_001A7DC0(g_0043C59C, 0x80, 1);
+            else if (g_0077317D == 1)
+                func_001A7DC0(g_0043C888, 0x80, 1);
+            else if (g_0077317D == 0)
+                func_001A7DC0(g_0043C55C, 0x80, 1);
+        } else {
+            func_001A7DC0(g_0043C598, 0x80, 1);
+        }
+        break;
     case 6: func_001A7DC0(g_0043C5A0, 0x80, 1); break;
-    case 7: help_by_state(g_00773140, g_0043C648, g_0043C55C, 0); break;
+    case 5:
+        if (g_00773140 > 1)
+            func_001A7DC0(g_0043C594, 0x80, 1);
+        else if (g_00773140 == 1)
+            func_001A7DC0(g_0043C884, 0x80, 1);
+        break;
+    case 7:
+        if (g_00773140 > 1)
+            func_001A7DC0(g_0043C648, 0x80, 1);
+        else if (g_00773140 == 1)
+            func_001A7DC0(g_0043C55C, 0x80, 1);
+        break;
     case 8: func_001A7DC0(g_0043C584, 0x80, 1); break;
-    case 9: func_001A7DC0(g_007731A0 == 0 ? g_0043C868 : g_0043C86C, 0x80, 1); break;
+    case 9:
+        if (g_007731A0 != 0)
+            func_001A7DC0(g_0043C86C, 0x80, 1);
+        else
+            func_001A7DC0(g_0043C868, 0x80, 1);
+        break;
     }
     func_002AA150(g_00773168, g_00773144, g_0077315C);
 }
