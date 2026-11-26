@@ -1537,3 +1537,260 @@ void func_00220150(void)
     }
     func_00285D50(g_00747950, g_00747934, g_005BD724[4], 0);
 }
+extern u8 g_006934B3_state;               /* message box 0 state */
+extern u8 g_0069395E_state;               /* box 1 open when neither 0 nor 0xFF */
+
+
+extern int g_00747970;                    /* frames before leaving */
+extern u8 *g_005BA6A0_bases;              /* sc_ubase.c records, 0x2C bytes (see MISC.md 0051) */
+extern const char *g_00456318;            /* "... %s ... %s" (item earned) */
+extern const char *g_0042DC10[];          /* item names ("Cross Spear"...) */
+
+void func_0021D0D0(int pad, int box);
+void func_0021D6A0(int pad, int box);
+void func_0021E520(int pad);
+void func_0021EF50(int pad);
+int func_003F13E0(void);
+void func_002872E0(PlayerResult *r);
+void func_0028A3D0(void);
+void func_00288990(void);
+int func_00362160(int side, int slot);
+const char *func_0019B170(char *buf, int a, int b);
+int func_003DFAB0(void *data, int pad);
+int func_002DAC30(void);
+void func_002D8160(void);
+void func_002DBA90(void);
+void func_002D8060(int value);
+void func_003A3CE0(int item);
+void func_003F1070(int value);
+
+/* Which message box is open (0, 1, or 5 for none), as the scene tests it. */
+static int open_box(void)
+{
+    if (g_006934B3_state != 0)
+        return 0;
+    if (g_006935DB_state != 0)
+        return 1;
+    return 5;
+}
+
+/* 0x0021F680, 0xAB0 bytes. Scene update. g_00747940 is the window phase: 0 in use (runs the
+ * shown page's handler), 2 closing then fade (6), 3/4 opening, 5 waits for box 1 then opens the
+ * page, 6 waits for every box then switches page (func_0021BA40), 7 back to 5. Player 2's
+ * controller is used for player 2's pages. */
+int func_0021F680(void)
+{
+    int player = g_0074794C;
+    int box, pad = 0, item;
+    unsigned short pressed;
+    char text[256], name[32];
+    u8 *last = &g_00748938[player * 0x52 + g_00748938[player * 0x52 + 0x51] * 0x14];
+
+    item = func_002F57A0(last[0]);
+    if (g_00748FA4[player] == 0x1A)
+        item = 0x78;
+    else
+        item = item * 4 + 3;
+    if (player == 0 || g_00747934 == 0 || g_00747934 == 8)
+        pad = 0;
+    else if (player == 1)
+        pad = 1;
+    pressed = PAD_READY(pad) ? PAD_PRESSED(pad) : 0;
+    box = open_box();
+    g_0074796C++;
+
+    switch (g_00747940) {
+    case 0:
+        if (g_007729FC == 0) {
+            g_00747940 = 1;
+        } else if (g_00748F80 != 0 && (pressed & 0x40)) {
+            g_00748F80 = 0;
+            func_0023AD10(2, 0, 0x2CDC, 0x2CDC, 0x1000);
+            func_002872E0(&g_00747DF8[player]);
+        }
+        if (g_00747930 == 4 && (pressed & 0x40) && g_007729FC != 0) {
+            func_0028A3D0();
+            g_00747940 = 1;
+        }
+        break;
+    default:
+        if (func_003F13E0() != 0)
+            return 0;
+        switch (g_00747930) {
+        case 0:
+            func_0021D0D0(pad, box);
+            return 1;
+        case 1: {                                   /* an item was earned */
+            char answer = box == 5 ? 0 : (char)g_006934B4_answers[box * 0x128];
+            if (box != 0) {
+                u8 *base = &g_005BA6A0_bases[func_00362160(0, func_00362320(player)) * 0x2C];
+                func_001204B0(text, g_00456318,
+                              func_0019B170(name, ((short *)base)[0], ((short *)base)[1]),
+                              g_0042DC10[item]);
+                func_001B8BF0();
+                func_001AEDE0(0, 300);
+                func_001AE9F0(0, text, 1);
+                func_001AFC70(0, pad);
+                return 1;
+            }
+            if (answer == 1) {
+                func_0021C090();
+                func_0021B660(2);
+            }
+            return 1;
+        }
+        case 2:
+            func_0021D6A0(pad, box);
+            return 1;
+        case 3:
+            if (box == 0)
+                return 0;
+            if (pressed & 0x40) {
+                func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                func_0021B660(4);
+            }
+            break;
+        case 4:                                     /* skills, two at a time */
+            if (pressed & 0x40) {
+                if (g_007729FC == 0) {
+                    int left = g_00747B60[player].count - g_00748A2D;
+                    if (left == 0) {
+                        func_0021C0D0();
+                        func_0021C1D0();
+                        func_0021B660(5);
+                        func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                    } else if (left == 1) {
+                        g_00748A2C = 1;
+                        g_00748A2D++;
+                        func_00288990();
+                        func_00289100();
+                        func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                    } else if (left > 1) {
+                        g_00748A2D += 2;
+                        g_00748A2C = 2;
+                        func_00288990();
+                        func_00289100();
+                        func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                    }
+                } else {
+                    func_0028A3D0();
+                    func_0023AD10(2, 0, 0x2CDC, 0x2CDC, 0x1000);
+                }
+            }
+            break;
+        case 5:
+            func_0021E520(pad);
+            break;
+        case 6:
+            func_0021ED70(pad, box);
+            return 1;
+        case 7:
+            if (func_003DFAB0(g_00748CB4, pad) != 0) {
+                func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                func_0021B660(8);
+            }
+            break;
+        case 8:
+            func_0021EF50(pad);
+            break;
+        case 9:                                     /* save? */
+            if (g_00747948 == 1) {
+                int r = func_002DAC30();
+                if (r == 2) {
+                    func_002D8160();
+                    func_001204B0(text, g_0043C31C);
+                    func_001B8BF0();
+                    func_001AE9F0(1, text, 1);
+                    func_001AFC50(1);
+                    g_006935DB_state = 5;
+                    g_00747948 = 0;
+                } else if (r == 1) {
+                    g_0074952C = 1;
+                    func_002D8160();
+                    func_0021B660(10);
+                }
+            } else if (g_00747948 == 0) {
+                char answer = box == 5 ? 0 : (char)g_006934B4_answers[box * 0x128];
+                if (box == 1) {
+                    if (answer == 4) {                  /* yes: save */
+                        func_002DBA90();
+                        func_002D8060(0);
+                        g_00747948 = 1;
+                    } else if (answer == 5) {           /* no: keep the items, leave */
+                        int i, prev = 0;
+                        u8 *first = 0;
+                        for (i = 0; i < g_00748F98; i++) {
+                            u8 *rec = &g_00748938[i * 0x52 + g_00748938[i * 0x52 + 0x51] * 0x14];
+                            if (i == 0) {
+                                first = rec;
+                                func_0011EB80(func_00328B30(rec[0]), rec, 0x14);
+                                func_003A3CE0(rec[0]);
+                                prev = rec[0];
+                            } else if (i == 1) {
+                                if (first[0] != rec[0]) {
+                                    func_0011EB80(func_00328B30(rec[0]), rec, 0x14);
+                                    func_003A3CE0(rec[0]);
+                                }
+                            } else {
+                                func_003A3CE0(prev);
+                            }
+                        }
+                        func_0021B660(10);
+                    }
+                } else {
+                    func_001204B0(text, g_0043C31C);
+                    func_001B8BF0();
+                    func_001AE9F0(1, text, 1);
+                    func_001AFC50(1);
+                    g_006935DB_state = 5;
+                    g_00747948 = 0;
+                }
+            }
+            break;
+        }
+        break;
+    case 2:
+        if (g_007729FC == 0) {
+            if (g_00747970 == 0) {
+                func_001B8F60(0, 6, 8);
+                g_00747940 = 6;
+            } else {
+                g_00747970--;
+            }
+        }
+        break;
+    case 3:
+        if (g_007729FC == 0)
+            g_00747940 = 1;
+        break;
+    case 4:
+        if (g_007729FC == 0) {
+            if (g_00747934 == 5)
+                func_002857E0(4);
+            g_00747940 = 3;
+        }
+        break;
+    case 5:
+        if (g_0069395E_state == 0 || g_0069395E_state == 0xFF) {
+            func_0021BC80();
+            g_00747940 = 0;
+        }
+        break;
+    case 6:
+        if (g_006934B3_state != 1 && g_006934B3_state != 8 &&
+            g_006935DB_state != 1 && g_006935DB_state != 8 &&
+            (g_0069395E_state == 0 || g_0069395E_state == 0xFF)) {
+            func_0021BA40();
+            if (g_00747934 == 6)
+                func_003F1070(8);
+            g_00747940 = 5;
+            func_001B8F60(1, 6, 8);
+        }
+        break;
+    case 7:
+        g_00747940 = 5;
+        break;
+    }
+    return 1;
+}
+
