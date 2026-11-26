@@ -296,7 +296,7 @@ void func_001E7110(int mode)
         func_00376100(layer + 4, sub >= 0 ? sub + 0x0F : -1, -1);
 }
 
-/* 0x001E7290, 0x3F0 bytes. End of a transition: tidies up the mode being left, prepares the
+/* 0x001E7290, 0x3F0 bytes, matching. End of a transition: tidies up the mode being left, prepares the
  * requested one (func_002ED190 starts layout animations?), then makes it current. */
 void func_001E7290(void)
 {
@@ -317,24 +317,48 @@ void func_001E7290(void)
         if (g_00731334 == 4)
             func_003BD600();
         /* cursor back on the entry of the mode we leave (mode 11 belongs to entry 5) */
-        g_0073135A = (g_00731334 == 11) ? 5 : (u8)(g_00731334 - 1);
+        if (g_00731334 == 11)
+            g_0073135A = 5;
+        else
+            g_0073135A = (u8)(g_00731334 - 1);
         break;
     case 1:
+        func_002ED190(0x20);
+        break;
     case 2:
         func_002ED190(0x20);
         break;
     case 3:                                     /* the sub-menu of modes 12, 13, 14 */
-        if (g_00731334 == 14) {
+        switch (g_00731334) {
+        case 12:
+            func_00397260();
+            /* fall through */
+        case 13:
+            g_0073135A = (u8)(g_00731334 - 12);
+            break;
+        case 14:
             func_003B21A0();
             g_0073135A = (u8)(g_00731334 - 12);
-        } else if (g_00731334 == 13) {
-            g_0073135A = (u8)(g_00731334 - 12);
-        } else if (g_00731334 == 12) {
-            func_00397260();
-            g_0073135A = (u8)(g_00731334 - 12);
-        } else {
+            break;
+        default:
             g_0073135A = 0;
+            break;
         }
+        break;
+    case 12:
+        func_003971B0();
+        func_002ED190(0x16);
+        func_002ED190(0x18);
+        func_002ED190(0x1D);
+        break;
+    case 13:
+        func_002ED190(0x23);
+        func_002ED190(0x24);
+        break;
+    case 14:
+        func_002ED190(0x25);
+        func_003B20F0();
+        func_003B2140();
         break;
     case 4: {
         u32 *screen;
@@ -359,6 +383,12 @@ void func_001E7290(void)
             func_002ED190(0x1C);
         }
         func_002ED190(10);
+        func_002ED190(0x12);
+        break;
+    case 11:
+        g_00799A68 = 0;
+        g_0073135A = 0x28;
+        func_002ED190(0x0C);
         func_002ED190(0x12);
         break;
     case 6:
@@ -388,26 +418,7 @@ void func_001E7290(void)
         func_002ED190(0x28);
         func_002ED190(0x29);
         break;
-    case 11:
-        g_00799A68 = 0;
-        g_0073135A = 0x28;
-        func_002ED190(0x0C);
-        func_002ED190(0x12);
-        break;
-    case 12:
-        func_003971B0();
-        func_002ED190(0x16);
-        func_002ED190(0x18);
-        func_002ED190(0x1D);
-        break;
-    case 13:
-        func_002ED190(0x23);
-        func_002ED190(0x24);
-        break;
-    case 14:
-        func_002ED190(0x25);
-        func_003B20F0();
-        func_003B2140();
+    case 15:                                    /* leaving: nothing to prepare */
         break;
     }
     func_002ED190(3);
