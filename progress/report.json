@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2146265934
+    "done": 2146747558
   },
   "functions": {
     "total": 10587,
@@ -745,7 +745,7 @@
           "name": "Unidentified",
           "description": "Leaves without a known signature (models, motions, scripts...)",
           "data": {
-            "total": 8735942,
+            "total": 8254318,
             "done": 0
           }
         },
@@ -774,6 +774,14 @@
           }
         },
         {
+          "name": "Sound bank headers",
+          "description": "Sony HD sound bank headers (IECS chunks) for the ADPCM banks",
+          "data": {
+            "total": 411648,
+            "done": 411648
+          }
+        },
+        {
           "name": "PAC0",
           "description": "PAC0 files",
           "data": {
@@ -787,6 +795,14 @@
           "data": {
             "total": 128304,
             "done": 0
+          }
+        },
+        {
+          "name": "Save icon",
+          "description": "PS2 memory-card 3D icon (vertices, animation, 128x128 texture)",
+          "data": {
+            "total": 69976,
+            "done": 69976
           }
         },
         {

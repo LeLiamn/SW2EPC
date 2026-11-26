@@ -10,6 +10,7 @@ Usage:
   py tools/soundbank.py --iso image.iso out_dir [--rate 32000]
 """
 import os
+import struct
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -33,6 +34,38 @@ def split(data):
             start = i + FRAME
     return sounds
 
+
+
+HD_MAGIC = b"IECSsreV"
+
+
+def parse_headers(data):
+    """Sony sound bank headers ("HD", BNS entry 1383): a run of headers made of IECS chunks
+    (Vers, Head, Vagi, Smpl, Sset, Prog), in groups aligned to 2048 bytes and padded with zeros.
+    Returns the list of (offset, header size, body size); raises ValueError when it does not fit."""
+    banks, pos = [], 0
+    while pos < len(data):
+        if data[pos:pos + 8] != HD_MAGIC:
+            nxt = (pos + 0x7FF) & ~0x7FF
+            if any(data[pos:min(nxt, len(data))]):
+                raise ValueError(f"unexpected bytes at 0x{pos:x}")
+            pos = nxt
+            continue
+        if data[pos + 0x10:pos + 0x18] != b"IECSdaeH":
+            raise ValueError(f"no Head chunk at 0x{pos + 0x10:x}")
+        hd, bd = struct.unpack_from("<II", data, pos + 0x1C)
+        p = pos
+        while p < pos + hd:
+            if data[p:p + 4] != b"IECS":
+                raise ValueError(f"bad chunk at 0x{p:x}")
+            p += struct.unpack_from("<I", data, p + 8)[0]
+        if p != pos + hd:
+            raise ValueError(f"chunks do not end at the header's end (0x{pos:x})")
+        banks.append((pos, hd, bd))
+        pos += hd
+    if not banks:
+        raise ValueError("no header")
+    return banks
 
 def main():
     sys.stdout.reconfigure(encoding="utf-8")

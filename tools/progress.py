@@ -37,6 +37,8 @@ import pack  # noqa: E402
 import battlefield  # noqa: E402
 import efb  # noqa: E402
 import ipu  # noqa: E402
+import soundbank  # noqa: E402
+import ps2icon  # noqa: E402
 import motion  # noqa: E402
 import event  # noqa: E402
 
@@ -50,6 +52,8 @@ FORMAT_STATUS = {
     "Motion": ("done", "Animations (keyframed cubic curves per node and component)"),
     "Motion (atypical)": ("todo", "Motions with an unknown track type"),
     "ADPCM sounds": ("done", "Sound-effect bank and other raw SPU ADPCM files, decodable to WAV"),
+    "Sound bank headers": ("done", "Sony HD sound bank headers (IECS chunks) for the ADPCM banks"),
+    "Save icon": ("done", "PS2 memory-card 3D icon (vertices, animation, 128x128 texture)"),
     "Event motions": ("done", "Motions embedded in the in-engine cutscene (event) files"),
     "Event commands": ("todo", "Command chains of the event files (meaning not decoded yet)"),
     "PS2 variant": ("todo", "'PS2 ' files without nodes (different layout)"),
@@ -179,6 +183,12 @@ def known_entries(data):
     carry no signature of their own)."""
     known = {}
     for e in linkdata.parse_header(data)["entries"]:
+        if e["index"] == 61:                    # memory-card icon (saveload.c)
+            try:
+                ps2icon.parse(data[e["offset"]:e["offset"] + e["size"]])
+                known["0061"] = "Save icon"
+            except (ps2icon.IconError, struct.error):
+                pass
         if 2486 <= e["index"] < 2672:          # second pack of each battlefield (Stage.c)
             try:
                 battlefield.parse_pack2(data[e["offset"]:e["offset"] + e["size"]])
@@ -221,6 +231,12 @@ def count_container(data, sizes, forced_kind=None):
                     battlefield.parse(leaf)
                     kind = "Battlefield"
                 except battlefield.BattlefieldError:
+                    pass
+            elif kind == "Unidentified" and leaf[:8] == soundbank.HD_MAGIC:
+                try:
+                    soundbank.parse_headers(leaf)
+                    kind = "Sound bank headers"
+                except ValueError:
                     pass
             elif kind == "Unidentified" and leaf == b"X" * len(leaf):
                 kind = "Containers"                 # filler entries of a pack ("XXXX...")
