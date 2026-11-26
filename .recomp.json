@@ -10,15 +10,11 @@
     "serial": "SLES-54624"
   },
   "project": "SW2EPC",
-  "status": "exploring",
+  "status": "in-progress",
   "targets": ["Windows"],
-  "approach": "Decompilation of the PS2 executable (matching if the original compiler is available), then a native PC port running the player's own copy of the game",
+  "approach": "File formats first, then a decompilation of the PS2 executable (built with CodeWarrior) and a native PC port running the player's own copy of the game",
   "started": "2026-11-26",
   "maintainers": [{ "name": "LeLiamn", "link": "https://github.com/LeLiamn" }],
-  "help": [
-    "Koei PS2 file formats",
-    "Identifying the original compiler"
-  ],
   "tags": ["koei", "omega-force", "preservation"],
-  "notes": "Works on the PS2 release (a separate Xbox 360 recomp exists: rbxrootx/samurai_warriors_2_empires_recomp). Just started: tools for the disc and the executable are in place; file formats and the compiler are the first steps. No game files in the repository."
+  "notes": "Works on the PS2 release (a separate Xbox 360 recomp exists: rbxrootx/samurai_warriors_2_empires_recomp). Data containers, nested packs, all 16,027 textures (PNG), the 105 music tracks (WAV) and the 21 movies (MKV, stereo and Dolby Digital 5.1) are decoded and documented. Next: 3D models and battlefields, then the code. No game files in the repository."
 }
