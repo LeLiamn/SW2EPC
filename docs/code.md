@@ -67,7 +67,7 @@ assertion string), "probable" when its functions sit right next to that file's c
 | State | Enter | Source file | Match |
 |---|---|---|---|
 | `0x00` | `0x00161250` | StateInitialize.c | certain (start-up picture, `src/scene_initialize.c`) |
-| `0x01` | `0x00160220` | StateInitialize.c | probable |
+| `0x01` | `0x00160220` | StateInitialize.c | certain (title screen, `src/scene_initialize.c`) |
 | `0x02` | `0x001BFFA0` | StateDemo.c | certain (demo, `src/scene_demo.c`) |
 | `0x03` | `0x00236D40` |  | empty scene (`src/scene_empty.c`) |
 | `0x04` | `0x001D4490` | StateBattleInitialize.c | probable |
@@ -238,6 +238,13 @@ All decompiled (2026-11-26); most match.
   0x48, a full-screen picture (LINKDATA entry 3, loaded with `__FILE__` and line 25) for 150
   frames (Start skips it after 50), cues 0x4A and 0x47, then leaves (scene 1 when nothing is
   requested).
+- **0x01 title screen** (StateInitialize.c, drawing in SceneTitle.c): phases fade in, "press
+  Start", the menu, leave. 1500 frames (25 s) without input start the demo (scene 2). Menu entries
+  (`0x00160030`): 0 scene 0x13, 1 scene 0x15 (Empire set-up), 2 treasures (0x0D) and 4 options
+  (0x0C) with a return to the title, 3 scene 0x14, 5 the demo. Entries 0 and 1 first check the save
+  (`0x0019FB10` / `0x0019FB80`) and can ask a yes / no question (title menu state at `0x0076F3D4`,
+  `0x0D` = the question); "yes" starts a new game in scene 0x16 (entry 0) or 9 (entry 1). The game
+  mode is written to `0x00669DB8` (0, 1, 2, 4, 6).
 - **0x10 after a soft reset**: stops everything, closes the message boxes, re-applies the saved
   music and sound-effect volumes (`0x00669DB2` / `0x00669DB3`) and leaves.
 - **Leaving a scene** is an inlined macro everywhere (`LEAVE_SCENE` in `scene_initialize.c`):

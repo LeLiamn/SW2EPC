@@ -2,16 +2,16 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 35024,
-    "non_matching": 52364
+    "matching": 35424,
+    "non_matching": 55884
   },
   "data": {
     "total": 2155890688,
     "done": 2155890688
   },
   "functions": {
-    "total": 10610,
-    "matching": 152
+    "total": 10611,
+    "matching": 158
   },
   "layout": "treemap",
   "areas": [
@@ -29,11 +29,11 @@
       "children": [
         {
           "name": "StateInitialize.c",
-          "description": "Estimated range 0x154290-0x166E68; 13 function(s) decompiled",
+          "description": "Estimated range 0x154290-0x166E68; 23 function(s) decompiled",
           "code": {
             "total": 76760,
-            "matching": 1080,
-            "non_matching": 532
+            "matching": 1480,
+            "non_matching": 4052
           }
         },
         {

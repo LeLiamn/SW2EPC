@@ -1,6 +1,6 @@
 /*
- * scene_initialize.c - scenes 0x00 and 0x10 (original source file StateInitialize.c, probable:
- * scene 0x00's picture is loaded with that file name). Scene 0x01 belongs here too (not yet).
+ * scene_initialize.c - scenes 0x00, 0x01 (the title screen) and 0x10 (original source file
+ * StateInitialize.c: scene 0x00's picture is loaded with that file name).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -10,7 +10,8 @@
  * shows a full-screen picture (LINKDATA entry 3) for 150 frames (Start skips it after 50), then
  * plays cues 0x4A and 0x47 and leaves for the requested scene. Scene 0x10 is where the game goes
  * after a soft reset: it stops everything, closes the message boxes and re-applies the saved sound
- * volumes before leaving.
+ * volumes before leaving. Scene 0x01 runs the title screen and its menu (drawn by SceneTitle.c)
+ * and starts the demo after 25 seconds without input.
  */
 
 typedef unsigned char u8;
@@ -70,6 +71,10 @@ extern struct {
     u8 unknown_0[0x52];
     u8 g_00669DB2;           /* music volume */
     u8 g_00669DB3;           /* sound-effect volume */
+    u8 unknown_54[0x4];
+    int g_00669DB8;          /* game mode picked on the title (0, 1, 2, 4, 6) */
+    u8 unknown_5c[0x1B0];
+    int g_00669F6C;
 } g_00669D60;
 #define g_00669DB2 (g_00669D60.g_00669DB2)
 #define g_00669DB3 (g_00669D60.g_00669DB3)
@@ -286,4 +291,417 @@ void func_0015FF70(void)
 void func_0015FFF0(void)
 {
     func_001037F0(1);
+}
+
+/* ---- Scene 0x01: the title screen ------------------------------------------------------------- */
+
+/* The title menu (SceneTitle.c, 0x0076F3D4). */
+extern struct {
+    u8 menu;                 /* 0x0076F3D4: 0x0D = the yes / no question */
+    u8 unknown_1;
+    u8 unknown_2;
+    u8 count;                /* 0x0076F3D7 */
+    int answer;              /* 0x0076F3D8: 0 or 1 in the question */
+    int unknown_8;           /* 0x0076F3DC */
+    int unknown_c;           /* 0x0076F3E0 */
+} g_0076F3D4;
+
+/* The scene manager's "draw even when not updated" flag (0x0045D890, see main.c). */
+#define g_0045D890 (g_0045D880.force_draw)
+
+/* Game state words used when a game starts (see scene_demo.c). */
+#define g_00669DB8_mode (g_00669D60.g_00669DB8)
+#define g_00669F6C_flag (g_00669D60.g_00669F6C)
+
+/* Controller 1: also the "any button" word at +0x48 and the repeating buttons at +0x4E. */
+extern short g_00500748;
+extern unsigned short g_0050074E;
+#define pad1_any() ((short)(pad1_ready() ? g_00500748 : 0))
+#define pad1_repeat() ((unsigned short)(pad1_ready() ? g_0050074E : 0))
+#define BTN_UP     0x1000
+#define BTN_DOWN   0x4000
+#define BTN_OK     0x40
+#define BTN_CANCEL 0x10
+
+#define box1_open() (g_0069395E != 0 && g_0069395E != 0xFF)
+#define LEAVE_IF_NONE(scene) do {                                       \
+        if (g_0045D89C >= 0x18 && g_0045D8A0 >= 0x18)                   \
+            g_0045D89C = (scene);                                       \
+    } while (0)
+#define GO_TO_NEXT_SCENE() do {                                         \
+        if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {            \
+            g_0045D894 = g_0045D898;                                    \
+            g_0045D898 = g_0045D8A0;                                    \
+            g_0045D89C = 0x18;                                          \
+        } else {                                                        \
+            g_0045D894 = g_0045D898;                                    \
+            g_0045D898 = g_0045D89C;                                    \
+            g_0045D89C = g_0045D8A0;                                    \
+        }                                                               \
+    } while (0)
+
+/* Scene 0x01 state, small data ($gp). */
+extern u32 g_0045CC70;                    /* frames left before the demo (1500 = 25 s) */
+extern u8 g_0045CC74;                     /* phase */
+extern u8 g_0045CC75;                     /* 1: come back without the title animation */
+extern u8 g_0045CC76;
+
+void func_0023ACC0(int a, int b);
+void func_0017DF10(void);
+void func_00101400(int value);
+void func_00278760(void);
+void func_00278870(void);
+void func_002788F0(void);
+void func_00278300(void);
+void func_00278150(int step);
+void func_0017E010(int value);
+void func_0023AC40(void);
+void func_002784F0(void);
+void func_002789C0(void);
+void func_002787E0(void);
+u8 func_002782C0(void);
+u8 func_00276B20(void);                   /* menu cursor */
+void func_00276B30(void);                 /* cursor up */
+void func_00276C80(void);                 /* cursor down */
+int func_0019FB80(void);
+int func_0019FB10(void);
+void func_001A2040(void);
+void func_001A1AC0(void);
+void func_00278500(void);
+void func_002786B0(void);
+
+/* 0x00160010, 0xC bytes, matching. */
+void func_00160010(int value)
+{
+    g_0045CC76 = value != 0;
+}
+
+/* 0x00160020, 0xC bytes, matching. Non-zero: the next title screen comes back without its animation (set
+ * by the demo, scene_demo.c). */
+void func_00160020(int value)
+{
+    g_0045CC75 = value != 0;
+}
+
+/* 0x00160030, 0x1EC bytes. Starts the title menu entry `entry`: 0 scene 0x13, 1 scene 0x15
+ * (Empire set-up), 2 the treasures (0x0D, back here), 3 scene 0x14, 4 the options (0x0C, back
+ * here), 5 the demo (2). Returns 0 for any other entry. */
+int func_00160030(u8 entry)
+{
+    int ok = 1;
+
+    func_0023ACC0(0x302, 2);
+    g_00669F6C_flag = 0;
+    switch (entry) {
+    case 1:
+        func_0017DF10();
+        g_00669DB8_mode = 1;
+        LEAVE_IF_NONE(0x15);
+        break;
+    case 3:
+        func_0017DF10();
+        g_00669DB8_mode = 2;
+        LEAVE_IF_NONE(0x14);
+        break;
+    case 0:
+        func_0017DF10();
+        g_00669DB8_mode = 0;
+        LEAVE_IF_NONE(0x13);
+        break;
+    case 2:
+        g_00669DB8_mode = 4;
+        g_0045D89C = 0x0D;
+        g_0045D8A0 = g_0045D898;
+        func_0017DF10();
+        return 1;
+    case 4:
+        g_00669DB8_mode = 6;
+        g_0045D89C = 0x0C;
+        g_0045D8A0 = g_0045D898;
+        func_0017DF10();
+        break;
+    case 5:
+        LEAVE_IF_NONE(2);
+        break;
+    default:
+        ok = 0;
+    }
+    return ok;
+}
+
+/* 0x00160220, 0x1A4 bytes. Scene 0x01 enter: opens the title (SceneTitle.c) and picks its start.
+ * Coming back from a game scene (0x09, 0x0A, 0x0C, 0x0D, 0x10, 0x13-0x16) or from the start-up or
+ * the demo (0 / 2), it fades in and shows the title animation (step 4, or 3 from start-up and
+ * demo) unless g_0045CC75 asks to skip it; from anywhere else, straight to the menu. */
+void func_00160220(void)
+{
+    int previous;
+
+    func_00101400(0);
+    func_001037F0(0);
+    g_0045CC70 = 1500;
+    func_00278760();
+    func_00278870();
+    func_002788F0();
+    func_00278300();
+    func_0023AD10(0x302, 2, 0x2CDC, 0x2CDC, 0x1000);
+    previous = g_0045D894;
+    if (previous == 0x13 || previous == 0x16 || previous == 0x15 || previous == 0x14 ||
+        previous == 0x0A || previous == 0x10 || previous == 9 || previous == 0x0D ||
+        previous == 0x0C) {
+        g_0069395E = 0xFF;
+        func_001B8F60(1, 6, 8);
+        if (g_0045CC75 == 1) {
+            g_0045CC74 = 0;
+        } else {
+            g_0045CC74 = 3;
+            func_00278150(4);
+            func_0017E010(0x30);
+        }
+    } else if (previous == 2 || previous == 0) {
+        g_0069395E = 0xFF;
+        func_001B8F60(1, 6, 8);
+        if (g_0045CC75 == 1) {
+            g_0045CC74 = 0;
+        } else {
+            g_0045CC74 = 3;
+            func_00278150(3);
+            func_0017E010(0x30);
+        }
+    } else {
+        g_0045CC74 = 3;
+        func_00278150(4);
+    }
+    g_0045CC75 = 0;
+}
+
+/* 0x001603D0, 0x138 bytes, matching. Scene 0x01 leave: closes the parts of the title that the next scene
+ * does not keep. */
+void func_001603D0(void)
+{
+    func_0023AC40();
+    if (g_0045D898 == 2) {
+        func_002784F0();
+        func_001037F0(0);
+    } else if (g_0045D898 == 9) {
+        func_002784F0();
+        func_002789C0();
+        func_002787E0();
+        func_001037F0(1);
+    } else if (g_0045D898 == 0x15) {
+        func_001037F0(1);
+    } else if (g_0045D898 == 0x12 || g_0045D898 == 0x16) {
+        func_002784F0();
+        func_002789C0();
+        func_002787E0();
+        func_001037F0(1);
+    } else if (g_0045D898 == 0x13) {
+        func_002784F0();
+        func_001037F0(1);
+    } else if (g_0045D898 == 0x14) {
+        func_001037F0(0);
+    } else {
+        func_002784F0();
+        func_002789C0();
+        func_002787E0();
+        func_001037F0(0);
+    }
+}
+
+/* 0x00160510, 0x94 bytes. Scene 0x01 enter_alt (coming back over another scene). */
+void func_00160510(void)
+{
+    func_00101400(0);
+    func_0023AD10(0x302, 2, 0x2CDC, 0x2CDC, 0x1000);
+    func_0017E010(0x30);
+    if (g_0045D894 != 0 && (g_0045D894 == 0x0D || g_0045D894 == 0x0C)) {
+        func_001B8F60(1, 6, 8);
+        func_001B8BF0();
+        g_0045CC74 = 3;
+        func_00278150(4);
+    }
+}
+
+/* 0x001605B0, 0x1C bytes, matching. Scene 0x01 leave_alt. */
+void func_001605B0(void)
+{
+    func_0023AC40();
+}
+
+/* 0x001605D0, 0x99C bytes. Scene 0x01 update. Phases (g_0045CC74): 0 fade in, 1 wait for the
+ * fade, 2 "press Start" (Start opens the menu; 25 s idle starts the demo), 3 the menu (Up / Down
+ * move, OK picks, Cancel opens the yes / no question; 25 s without input starts the demo), 4 leave
+ * once the fade is over. Entries 0 and 1 first ask for a save (func_0019FB10 / func_0019FB80). */
+int func_001605D0(void)
+{
+    unsigned short repeat = pad1_repeat();
+    unsigned short pressed = pad1_pressed();
+
+    if (box1_open())
+        return 1;
+
+    if (g_0045CC74 == 4) {
+        if (!box1_open()) {
+            if (g_0045D89C == 2) {
+                GO_TO_NEXT_SCENE();
+            } else if (func_002782C0() == 0x10) {
+                if ((u32)(g_0045D89C - 0x0C) < 2)       /* options or treasures: keep drawing */
+                    g_0045D890 = 1;
+                GO_TO_NEXT_SCENE();
+            }
+        }
+    } else if (g_0045CC74 == 3) {
+        if (func_002782C0() > 5 && func_002782C0() != 0x0B && func_002782C0() != 0x0C) {
+            u32 step;
+
+            if (pad1_any() != 0)
+                g_0045CC70 = 1500;
+            step = g_0045CC70 > 1 ? 1 : g_0045CC70;
+            g_0045CC70 -= step;
+            if (g_0045CC70 == 0 && g_0076F3D4.unknown_c == 0) {
+                LEAVE_IF_NONE(2);                       /* idle: the demo */
+                func_001B8F60(0, 6, 8);
+                func_0017DF10();
+                g_0045CC74 = 4;
+            } else if (pressed & BTN_OK) {
+                if (func_00276B20() == 1) {
+                    if (g_0076F3D4.menu == 0x0D) {
+                        if (g_0076F3D4.answer == 0) {
+                            func_00160030(func_00276B20());
+                        } else {
+                            func_0017DF10();
+                            func_0023ACC0(0x302, 2);
+                            func_001A2040();
+                            func_001A1AC0();
+                            g_00669F6C_flag = 1;
+                            g_00669DB8_mode = 1;
+                            LEAVE_IF_NONE(9);
+                        }
+                        func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                        g_0076F3D4.unknown_8 = 1;
+                        func_00278150(0x0F);
+                        g_0045CC74 = 4;
+                        func_00278500();
+                        return 1;
+                    } else {
+                        int none;
+
+                        func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                        none = func_0019FB80();
+                        if (none != 0) {
+                            g_0076F3D4.unknown_8 = 0;
+                        } else {
+                            func_00160030(func_00276B20());
+                            g_0045CC74 = 4;
+                        }
+                        g_0076F3D4.unknown_c = none != 0;
+                        func_00278150(0x0B);
+                    }
+                } else if (func_00276B20() == 0) {
+                    if (g_0076F3D4.menu == 0x0D) {
+                        if (g_0076F3D4.answer == 0) {
+                            func_00160030(func_00276B20());
+                        } else {
+                            func_0023ACC0(0x302, 2);
+                            g_00669F6C_flag = 0;
+                            g_00669DB8_mode = 0;
+                            LEAVE_IF_NONE(0x16);
+                        }
+                        func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                        g_0076F3D4.unknown_8 = 1;
+                        g_0045CC74 = 4;
+                        func_00278150(0x0F);
+                        func_00278500();
+                        return 1;
+                    } else {
+                        int none;
+
+                        func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                        none = func_0019FB10();
+                        if (none != 0) {
+                            g_0076F3D4.unknown_8 = 0;
+                        } else {
+                            func_00160030(func_00276B20());
+                            g_0045CC74 = 4;
+                        }
+                        g_0076F3D4.unknown_c = none != 0;
+                        func_00278150(0x0B);
+                    }
+                }
+                if (func_00276B20() != 0 && func_00276B20() != 1 &&
+                    func_00160030(func_00276B20()) != 0) {
+                    func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                    g_0045CC74 = 4;
+                    func_00278150(0x0B);
+                }
+            } else if (pressed & BTN_CANCEL) {
+                if (g_0076F3D4.count < 2 && g_0076F3D4.menu == 0x0D) {
+                    func_0023AD10(4, 0, 0x2CDC, 0x2CDC, 0x1000);
+                    g_0045CC74 = 3;
+                    g_0076F3D4.unknown_2 = 3;
+                    g_0076F3D4.unknown_c = 0;
+                    g_0076F3D4.unknown_8 = 1;
+                    g_0076F3D4.menu = g_0076F3D4.count + 6;
+                    g_0076F3D4.answer = 1;
+                    g_0076F3D4.unknown_1 = 0;
+                }
+            } else if (repeat & BTN_UP) {
+                if (g_0076F3D4.menu == 0x0D) {
+                    func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                    g_0076F3D4.answer = g_0076F3D4.answer == 0 ? 1 : 0;
+                } else {
+                    u8 before = func_00276B20();
+                    func_00276B30();
+                    if (before != func_00276B20())
+                        func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                }
+            } else if (repeat & BTN_DOWN) {
+                if (g_0076F3D4.menu == 0x0D) {
+                    func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                    g_0076F3D4.answer = g_0076F3D4.answer == 0 ? 1 : 0;
+                } else {
+                    u8 before = func_00276B20();
+                    func_00276C80();
+                    if (before != func_00276B20())
+                        func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                }
+            }
+        }
+    } else if (g_0045CC74 == 2) {
+        if (!box1_open()) {
+            u32 step = g_0045CC70 > 1 ? 1 : g_0045CC70;
+
+            g_0045CC70 -= step;
+            if (g_0045CC70 == 0) {
+                LEAVE_IF_NONE(2);                       /* idle: the demo */
+                func_001B8F60(0, 6, 8);
+                g_0045CC74 = 4;
+            } else if (pressed & BTN_START) {
+                func_0023AD10(0x300, 0, 0x2CDC, 0x2CDC, 0x1000);
+                func_00278150(1);
+                g_0045CC74 = 3;
+                g_0045CC70 = 1500;
+                func_0017E010(0x30);
+            }
+        }
+    } else if (g_0045CC74 == 1) {
+        if (!box1_open())
+            g_0045CC74 = 2;
+    } else if (g_0045CC74 == 0) {
+        g_0045CC74 = 1;
+        func_001B8F60(1, 6, 8);
+    }
+    func_00278500();
+    return 1;
+}
+
+/* 0x00160F70, 0x8 bytes, matching. Scene 0x01 step: empty. */
+void func_00160F70(void)
+{
+}
+
+/* 0x00160F80, 0x1C bytes, matching. Scene 0x01 draw: the title (SceneTitle.c). */
+void func_00160F80(void)
+{
+    func_002786B0();
 }
