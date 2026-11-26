@@ -782,6 +782,19 @@ The code at 0x00117EB0-0x00118E94, just before libcdvd, has 11 functions, 1 of w
   - These loops are unrolled by 8 in the original, so this code was built without
     `opt_unroll_loops off`.
 
+## Pictures decoded by the IPU (`src/ipu_picture.c`)
+
+The code at 0x00143970-0x00144070, right after Sony's libraries, has 13 functions, 7 of which
+match. It decodes the "ipu2" pictures (MPEG intra frames) with the IPU, into 16 x 16 tiles of
+32-bit pixels.
+
+- **Transfer:** the coded data goes to the IPU by DMA channel 4. The tiles come back by channel 3
+  into one buffer per frame.
+- **Upload:** each tile is then sent to the GS by an upload packet of its own (see
+  `gs_packet.c`).
+- **Queue:** up to 4 decodes can wait. The end-of-transfer handler of channel 3 starts the next
+  one.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
