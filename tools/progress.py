@@ -34,6 +34,7 @@ from iso_list import SECTOR, list_image, read_file  # noqa: E402
 import linkdata  # noqa: E402
 import pack  # noqa: E402
 import battlefield  # noqa: E402
+import efb  # noqa: E402
 import motion  # noqa: E402
 import event  # noqa: E402
 
@@ -54,7 +55,8 @@ FORMAT_STATUS = {
     "TMD2": ("done", "Static scene objects (geometry, UVs, colours, normals), exportable to OBJ"),
     "IPU": ("todo", "IPU images (ipu2)"),
     "PAC0": ("todo", "PAC0 files"),
-    "EFB": ("todo", "Visual effects: structure known, parameters not yet"),
+    "EFB": ("done", "Visual effects: sprite and emitter layers, parameters mapped from effect.c"),
+    "EFB (unparsed)": ("todo", "EFB files that do not parse"),
     "Battlefield": ("done", "Battlefield terrain: height grid, texture layers and tiles, exportable to OBJ"),
     "Unidentified": ("todo", "Leaves without a known signature (models, motions, scripts...)"),
 }
@@ -179,6 +181,11 @@ def count_container(data, sizes, forced_kind=None):
     else:
         for _, leaf in pack.iter_leaves(data):
             kind = LEAF_KIND[pack.kind_of(leaf)]
+            if kind == "EFB":
+                try:
+                    efb.parse(leaf)
+                except efb.EfbError:
+                    kind = "EFB (unparsed)"
             if kind == "PS2" and leaf[0x10:0x12] == bytes(2):
                 kind = "PS2 variant"
             elif kind == "Unidentified" and leaf[:4] == bytes((0x51, 0, 0, 0)):

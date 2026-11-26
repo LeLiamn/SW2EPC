@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2109942990
+    "done": 2134097918
   },
   "functions": {
     "total": 10587,
@@ -719,10 +719,10 @@
         },
         {
           "name": "EFB",
-          "description": "Visual effects: structure known, parameters not yet",
+          "description": "Visual effects: sprite and emitter layers, parameters mapped from effect.c",
           "data": {
             "total": 24154928,
-            "done": 0
+            "done": 24154928
           }
         },
         {
