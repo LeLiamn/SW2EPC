@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 46768,
-    "non_matching": 156844
+    "matching": 47080,
+    "non_matching": 179272
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10618,
-    "matching": 298
+    "matching": 305
   },
   "layout": "treemap",
   "areas": [
@@ -417,11 +417,11 @@
         },
         {
           "name": "ObjAction.c",
-          "description": "Estimated range 0x27BF40-0x2877B8; 0 function(s) decompiled",
+          "description": "Estimated range 0x27BF40-0x2877B8; 35 function(s) decompiled",
           "code": {
             "total": 47224,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 312,
+            "non_matching": 22428
           }
         },
         {

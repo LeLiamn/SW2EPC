@@ -438,6 +438,38 @@ start is a guess: the code before it belongs to the message window (`0x005BBF18`
 - **Draw:** it sets two GS registers, draws the map (not in game mode 2), then the page's
   drawer (`func_00282020`...) and its help line.
 
+## The battle menu's windows and drawers (`src/battle_menu_draw.c`)
+
+The file covers 0x0027FD20-0x002856CC: 35 functions, 7 of which match. Its start is a guess:
+the code before it handles object actions (`ObjAction.c`). No source file name is used in it.
+
+- **Window animations:** each window of the menu is a record of 0x14 bytes, kept in two
+  tables (`0x00772320`, 34 records; `0x007725F8`, 6 records). A record holds two
+  rectangles, two alphas, a frame count and a timer.
+  - `func_0027FE60(layer)` sets up the records of a page's windows. Odd layers only close
+    windows (`func_0028D5D0`).
+  - `func_001AE550` advances a record by one frame and returns its current position and
+    alpha.
+- **How the drawers draw:** they build GS sprite packets themselves: TEX0, RGBAQ, then a UV
+  and XYZ2 pair for each corner.
+  - X is written as `x * 16 + 0x7000`. Y is scaled by `640 / 480 * 448 / 512`, then written as
+    `(y * 16 - 0xE00) / *(int *)0x70000154 + 0x8000`.
+  - Text goes through the font state at `0x0056CCA4`: four corner colours (5 normal, 6
+    highlighted, 1 a better value) and a size in points.
+- **Menu lines** (tables at `0x00410E60`): each line is x, y and an icon from the icon
+  rectangles at `0x00440450`. A line slides in from the left as the frames since the page
+  opened (`g_007725E4`) go by; the chosen line is drawn brighter and an unavailable one more
+  transparent.
+- **Page drawers:**
+  - 1: the officer — name, portrait, ten stats, level, experience and weapon kind (names at
+    `0x0042DC10`);
+  - 5: the records, with a turning 3-D marker (VU0 micro routine 0x70, written as a
+    `vu0_rotate` stand-in);
+  - 6: the bodyguards;
+  - 8: the items, a 4 x 10 grid whose slots are lit above a level;
+  - 9 and 10: two lists;
+  - 15: a mission text (messages `func_00372CF0` 0-11).
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c` (probable: its name is referenced at `0x003767A0`, in the same
