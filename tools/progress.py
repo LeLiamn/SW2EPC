@@ -219,6 +219,16 @@ def known_entries(data):
                 known["0172"] = "Text"
             except (event.EventError, struct.error):
                 pass
+        if 2859 <= e["index"] <= 3044:         # field data of each battlefield (Field.c)
+            try:
+                battlefield.parse_field(data[e["offset"]:e["offset"] + e["size"]])
+                known[f"{e['index']:04d}"] = "Battlefield"
+            except (battlefield.BattlefieldError, struct.error):
+                pass
+        if 3045 <= e["index"] <= 3078 and size == 576:   # lighting (StgAmbient.c): 36 vec4 floats
+            vals = struct.unpack_from("<144f", data, e["offset"])
+            if all(v == v and abs(v) < 1e7 for v in vals):
+                known[f"{e['index']:04d}"] = "Battlefield"
         if 2486 <= e["index"] < 2672:          # second pack of each battlefield (Stage.c)
             try:
                 battlefield.parse_pack2(data[e["offset"]:e["offset"] + e["size"]])
@@ -276,7 +286,9 @@ def count_container(data, sizes, forced_kind=None):
             elif kind == "Unidentified" and lz_archive(leaf):
                 kind = "LZ archive"
             elif kind == "Unidentified" and (text.strings(leaf) is not None
-                                             or text.record_tables(leaf) is not None):
+                                             or text.record_tables(leaf) is not None
+                                             or text.pair_tables(leaf) is not None
+                                             or text.plain(leaf)):
                 kind = "Text"
             elif kind == "Unidentified" and leaf == b"X" * len(leaf):
                 kind = "Containers"                 # filler entries of a pack ("XXXX...")

@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2154013545
+    "done": 2155072347
   },
   "functions": {
     "total": 10587,
@@ -689,8 +689,8 @@
           "name": "Battlefield",
           "description": "Battlefields: terrain (height grid, layers, tiles) and second pack (nodes, objects, ranges)",
           "data": {
-            "total": 63582656,
-            "done": 63582656
+            "total": 64436432,
+            "done": 64436432
           }
         },
         {
@@ -758,19 +758,11 @@
           }
         },
         {
-          "name": "Unidentified",
-          "description": "Leaves without a known signature (models, motions, scripts...)",
-          "data": {
-            "total": 1563039,
-            "done": 0
-          }
-        },
-        {
           "name": "Text",
           "description": "Text tables (messages, event dialogues): offsets and NUL-terminated strings",
           "data": {
-            "total": 1065547,
-            "done": 1065547
+            "total": 1270573,
+            "done": 1270573
           }
         },
         {
@@ -795,6 +787,14 @@
           "data": {
             "total": 597304,
             "done": 597304
+          }
+        },
+        {
+          "name": "Unidentified",
+          "description": "Leaves without a known signature (models, motions, scripts...)",
+          "data": {
+            "total": 504237,
+            "done": 0
           }
         },
         {

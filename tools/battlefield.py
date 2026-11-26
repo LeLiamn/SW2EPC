@@ -224,6 +224,34 @@ def parse_pack2(data):
     _ranges(data, parts[4][0], parts[4][1])
     return {"kind": "full", "nodes": len(nodes) - 1, "objects": sizes[0][0]}
 
+
+# ---- Field data (BNS entries 2859-3044: Field.c, func_0018C490 / func_0018CAB0) ------------------
+#
+# The entry number comes from a table in the executable (0x00424F30, one per battlefield). A pack
+# (`count`, offsets) of up to 4 parts: [0] 0x40-byte area records (func_0018C870; u16 +0x1E = a
+# record of part 1), [1] 0x10-byte records (func_0018CA50), [2] 0x10-byte records
+# (func_0018CA70), [3] 8-byte records (func_0018CA90).
+
+FIELD_RECORD = (0x40, 0x10, 0x10, 0x08)
+
+
+def parse_field(data):
+    offs = _pack(data, 0, len(data), "field")
+    if not 3 <= len(offs) <= 4:
+        raise BattlefieldError("field: not 3 or 4 parts")
+    bounds = offs + [len(data)]
+    counts = []
+    for i in range(len(offs)):
+        size = bounds[i + 1] - bounds[i]
+        if size % FIELD_RECORD[i]:
+            raise BattlefieldError(f"field part {i}: size {size}")
+        counts.append(size // FIELD_RECORD[i])
+    for r in range(counts[0]):
+        link = struct.unpack_from("<H", data, offs[0] + 0x40 * r + 0x1E)[0]
+        if link >= counts[1]:
+            raise BattlefieldError(f"field area {r}: link {link}")
+    return counts
+
 def iter_files(image):
     """(path, data) of every battlefield file of a disc image."""
     here = os.path.dirname(os.path.abspath(__file__))

@@ -78,6 +78,33 @@ def record_tables(d):
         out.append(s)
     return out
 
+
+def pair_tables(d):
+    """(offset, size) pairs (the first offset gives the size of the pair table), each part a text
+    table (e.g. part 2 of BNS entry 0050). Returns the list of string lists, or None."""
+    if len(d) < 16:
+        return None
+    first = struct.unpack_from("<I", d, 0)[0]
+    if first % 8 or not 8 <= first < len(d):
+        return None
+    out, p = [], first
+    for i in range(first // 8):
+        o, size = struct.unpack_from("<II", d, 8 * i)
+        if o < p or o + size > len(d):
+            return None
+        s = strings(d[o:o + size])
+        if s is None:
+            return None
+        out.append(s)
+        p = o + size
+    return out
+
+
+def plain(d):
+    """A bare string (printable text, then NUL padding), e.g. the leaves of BNS entry 0128."""
+    text = d.rstrip(b"\0")
+    return bool(text) and len(d) > len(text) and b"\0" not in text and _printable(text)
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     if len(sys.argv) < 2:
