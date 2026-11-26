@@ -20,7 +20,7 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | Textures (TIM2) | 16,027 textures, all convertible to PNG |
 | Music (`LINKDATA.ANS`) | 105 tracks (2 h 46 min), decoded to WAV |
 | Movies (`LINKDATA.CNS`) | 21 movies exported to MKV with stereo and Dolby Digital 5.1 tracks |
-| 3D models (`PS2 `) | 476 models export to OBJ; rigid ones (weapons) are correct, characters not posed by their skeleton yet |
+| 3D models (`PS2 `) | Skeleton and skinning decoded: characters, soldiers and weapons export to OBJ in bind pose (455 of 476) |
 | Other formats inside | Signatures identified (battlefield pieces, `TMD2`, `tm3`...) |
 | Decompilation | Not started |
 
@@ -47,7 +47,7 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | `tools/pack.py` | Open Koei's nested offset-table packs: tree, statistics, extraction |
 | `tools/ans.py` | Decode the music streams (`LINKDATA.ANS`) to WAV |
 | `tools/pss.py` | Export the movies (`LINKDATA.CNS`) to MKV with both audio tracks (needs ffmpeg) |
-| `tools/ps2model.py` | Export the 3D models to OBJ, with a PNG preview |
+| `tools/ps2model.py` | Export the 3D models (with skeleton and skinning applied) to OBJ, with a PNG preview |
 | `tools/tim2.py` | Convert TIM2 textures to PNG, every texture of the disc at once |
 | `tools/elf_info.py` | Sections, symbols, compiler and code size of an executable |
 | `tools/find_strings.py` | Readable strings of a binary, with a report of file names |

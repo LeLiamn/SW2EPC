@@ -11,7 +11,7 @@ gets understood. All game data is inside the three [LINKDATA](LINKDATA.md) conta
 | PSS movies | CNS | 21 | `00 00 01 BA` | MPEG-2 video + stereo SPU ADPCM + Dolby Digital 5.1 (byte-swapped). [PSS.md](PSS.md) | ✅ understood, MKV export |
 | Music streams | ANS | 105 | `00 08 00 00` | Stereo 48 kHz SPU ADPCM, 2 h 46 min with loop points. [ANS.md](ANS.md) | ✅ understood, WAV export |
 | PAC0 | BNS | 847 | `PAC0` | Archives? | 🔴 to study |
-| `PS2 ` models | BNS, in packs | 476 | `PS2 ` | 3D models: skeleton + VIF/GIF vertex batches. Rigid models export correctly; skinned ones not posed yet. [PS2MODEL.md](PS2MODEL.md) | 🟡 in progress, OBJ export |
+| `PS2 ` models | BNS, in packs | 476 | `PS2 ` | 3D models: skeleton + skinned VIF/GIF vertex batches (characters, soldiers, weapons). 455 fully decoded, 21 node-less variant left. [PS2MODEL.md](PS2MODEL.md) | ✅ understood, OBJ export in bind pose |
 | `tm3 ` | BNS | 176 | `tm3 ` | ? (texture-like name) | 🔴 to study |
 | `TMD2` | BNS | 372 | `TMD2` + version `0060` | Battlefield piece descriptors (world coordinates), two per piece | 🔴 to study |
 | `ipu2` | BNS | 2 | `ipu2` | PS2 IPU images | 🔴 to study |

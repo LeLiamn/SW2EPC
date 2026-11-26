@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 1799858197
+    "done": 1850619893
   },
   "layout": "treemap",
   "areas": [
@@ -59,10 +59,10 @@
         },
         {
           "name": "PS2",
-          "description": "Files starting with 'PS2 '",
+          "description": "3D models with skeleton and skinning, exportable to OBJ",
           "data": {
-            "total": 50890000,
-            "done": 0
+            "total": 50761696,
+            "done": 50761696
           }
         },
         {
@@ -102,6 +102,14 @@
           "description": "PAC0 files",
           "data": {
             "total": 143816,
+            "done": 0
+          }
+        },
+        {
+          "name": "PS2 variant",
+          "description": "'PS2 ' files without nodes (different layout)",
+          "data": {
+            "total": 128304,
             "done": 0
           }
         }
