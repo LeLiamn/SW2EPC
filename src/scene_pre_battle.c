@@ -218,7 +218,6 @@ extern struct {
     int g_00749B08;
     int g_00749B0C;
     char pad_3[0x58];
-    signed char g_00749B68;
 } s_00749A0C;
 #define g_00749A0C (s_00749A0C.g_00749A0C)
 #define g_00749A10 (s_00749A0C.g_00749A10)
@@ -245,7 +244,7 @@ extern struct {
 #define g_00749B04 (s_00749A0C.g_00749B04)
 #define g_00749B08 (s_00749A0C.g_00749B08)
 #define g_00749B0C (s_00749A0C.g_00749B0C)
-#define g_00749B68 (s_00749A0C.g_00749B68)
+#define g_00749B68 (*(signed char *)&g_00749B10[0x58])
 
 /* Globals 0x00772D34-0x00772D58: one object in the original (not reached through $gp). */
 extern struct {
@@ -357,7 +356,7 @@ extern void (*g_0040DF50[3])(int pad);    /* page 13 handlers (the last one empt
 /* Help lines. */
 
 /* Small data ($gp). */
-extern void (*g_0045CD70[2])(int pad);    /* page 12 handlers */
+extern void (*g_0045CDB0[2])(int pad);    /* page 12 handlers */
 extern u8 *g_0045D2C0;
 extern int g_0045D494;                    /* step of the build-up (movie first) */
 extern int g_0045D498;                    /* its frame count */
@@ -369,7 +368,7 @@ u8 func_00362C80(int side);
 u8 func_00362D70(int side);
 int func_00362D10(int side, u8 value);
 void func_00362C50(int side, int value);
-void func_002C5220(int pad, u8 *cursor, u8 *stored, int count, int count2);
+int func_002C5220(int pad, u8 *cursor, u8 *stored, int count, int count2);
 void func_00220970(int page);
 int func_0029D220(u8 *state);
 void func_00362BD0(int side, int slot, int value);
@@ -1080,6 +1079,503 @@ void func_00221F70(int player)
     }
 }
 
+/* Page 3, the army (g_00749B10, 0x5C bytes): side, unit cursor, scroll, last move; then the
+ * target list of the chosen unit, the mode (0 a unit, 3 its target) and the view (0-2). */
+#define P3_SIDE        (g_00749B10[0x00])
+#define P3_CURSOR      (g_00749B10[0x01])
+#define P3_SCROLL      (g_00749B10[0x02])
+#define P3_MOVED       (g_00749B10[0x03])          /* 1 / 2: the side was just switched */
+#define P3_KIND        (g_00749B10[0x38])
+#define P3_TCURSOR     (g_00749B10[0x39])
+#define P3_TSCROLL     (g_00749B10[0x3A])
+#define P3_TLIST       (&g_00749B10[0x3C])         /* 20 targets */
+#define P3_TCOUNT      (g_00749B10[0x50])
+#define P3_GROUP       (*(u8 ***)&g_00749B10[0x54])
+#define P3_VIEW        (g_00749B10[0x59])
+#define P3_UNIT(side, i) (*(u8 **)(g_00749530 + 0x340 + (side) * 0x78 + (i) * 4))
+#define P3_COUNT(side) (((int *)g_007496F0)[side])
+
+extern void (*g_0040DF30[4])(int pad);    /* page 3 handlers by mode (1 and 2 empty) */
+extern const char *g_0043CA14[2];         /* "... uses this mount" per player? */
+
+void func_0034ED90(u32 target, u8 *cell);
+u32 func_00352FE0(u8 kind, u32 *out, int max);
+u32 func_0033D270(u8 **group, u8 kind);
+u32 func_0034EC80(u32 target);
+u8 **func_0034A740(u8 *unit);         /* the group of a unit */
+void func_002281B0(u8 **group, u32 target);
+u32 func_002F57F0(u8 item);
+void func_002F56A0(u32 officer, u32 kind);
+void func_002F4980(u32 officer, u32 item, int equip);
+void func_002CAD90(void);
+void func_003DD660(int player, u8 mount);
+const char *func_0019B280(char *buf, u32 officer);
+void func_001204B0(char *out, const char *format, ...);
+
+/* 0x00222450, 0xDC bytes. Page 2 (the map): Cancel goes back. */
+void func_00222450(int player)
+{
+    int port = 0;
+    unsigned short pressed;
+
+    if (player == 0)
+        port = 0;
+    else if (player == 1)
+        port = 1;
+    pressed = PAD_PRESSED_N(port);
+    if ((pressed & BTN_OK) == 0 && (pressed & BTN_CANCEL) != 0) {
+        SE(2);
+        func_00220970(0);
+    }
+    func_002ECB80(port);
+}
+
+/* 0x00222530, 0x5C bytes. Moves the camera's target to `pos` (from the default target). */
+void func_00222530(u8 *pos)
+{
+    float target[4];
+
+    func_001911A0(target, pos);
+    g_007A1BA4 = 0;
+    g_007A1B70[0] = g_007A1E00[0];
+    g_007A1B70[1] = g_007A1E00[1];
+    g_007A1B70[2] = g_007A1E00[2];
+    g_007A1B70[3] = g_007A1E00[3];
+    g_007A1BA8 = 0x0F;
+    g_007A1B80[0] = target[0];
+    g_007A1B80[1] = target[1];
+    g_007A1B80[2] = target[2];
+    g_007A1B80[3] = target[3];
+    g_00749B00 = 1;
+}
+
+/* 0x00222590, 0x3C bytes, matching. The camera on a unit. */
+void func_00222590(u8 *unit)
+{
+    func_00222530((*(u32 *)(unit + 0x80) & 0x20000) ? unit + 0x30 : unit + 0x28);
+}
+
+/* 0x002225D0, 0x7C bytes. The camera on a target's map cell (5000 units a cell). */
+void func_002225D0(u32 target)
+{
+    float pos[2];
+    u8 cell[4];
+
+    func_0034ED90(target, cell);
+    pos[0] = (float)cell[0] * 5000.0f + 2500.0f;
+    pos[1] = (float)cell[1] * 5000.0f + 2500.0f;
+    func_00222530((u8 *)pos);
+}
+
+/* 0x00222650, 0x78 bytes. Page 3: back to choosing a unit (from the first one when `reset`). */
+void func_00222650(int reset)
+{
+    if (reset != 0) {
+        P3_SIDE = 0;
+        P3_CURSOR = 0;
+        P3_SCROLL = 0;
+        P3_MOVED = 0;
+    }
+    if (P3_COUNT(0) > 0)
+        func_00222590(P3_UNIT(P3_SIDE, P3_CURSOR));
+    g_00749B68 = 0;
+}
+
+/* 0x002226D0, 0x1CC bytes. Page 3: lists the targets `group` can be sent to (at most 20) and
+ * puts the cursor on its current one. */
+void func_002226D0(u8 **group)
+{
+    u32 list[20];
+    u32 n, i, current_index = 0;
+    u32 current;
+
+    P3_GROUP = group;
+    n = func_00352FE0((*group)[0x79], list, 0x14);
+    current = func_0033D270(group, (*group)[0x79]);
+    if (current == 0)
+        current = func_0034EC80(0);
+    for (i = 0; i < n; i++)
+        if (func_0034EC80(list[i]) == current)
+            current_index = i;
+    P3_KIND = (*group)[0x79];
+    P3_TSCROLL = (u8)(current_index > 10 ? 10 : current_index);
+    P3_TCURSOR = (u8)current_index;
+    g_00749B10[0x3B] = 0;
+    func_00118850(P3_TLIST, 0x14);
+    for (i = 0; i < n; i++)
+        P3_TLIST[i] = (u8)list[i];
+    P3_TCOUNT = (u8)n;
+    if (n != 0)
+        func_002225D0(current);
+    g_00749B68 = 3;
+}
+
+/* 0x002228A0, 0x6C bytes. Whether `unit` can be given orders: active, none of the blocking
+ * states, and of kind 0. */
+int func_002228A0(u8 *unit)
+{
+    u32 flags;
+
+    if (unit == 0)
+        return 0;
+    flags = *(u32 *)(unit + 0x80);
+    if ((flags & 1) == 0)
+        return 0;
+    if ((flags & 1) == 0 || (flags & 0x8C40002) != 0)
+        return 0;
+    return unit[0x79] == 0;
+}
+
+/* Switches the view (three views, or two for units flagged 0x30), forward `step` 1 or 2. */
+#define P3_NEXT_VIEW(unit, step) do {                                   \
+        if ((*(u32 *)((unit) + 0x80) & 0x30) == 0) {                    \
+            P3_VIEW = (u8)((P3_VIEW + (step)) % 3);                     \
+        } else {                                                        \
+            int was2 = P3_VIEW == 2;                                    \
+            P3_VIEW = 2;                                                \
+            if (was2)                                                   \
+                P3_VIEW = 0;                                            \
+        }                                                               \
+    } while (0)
+
+/* 0x00222910, 0x474 bytes. Page 3, choosing a unit: the list of one side's units (Left / Right
+ * switch side), the cursor (func_002C5220, 11 shown), L1 / R1 the view; OK on an orderable unit of
+ * an Empire battle opens its target list. The camera follows the unit. */
+void func_00222910(int pad)
+{
+    int port = pad == 0 ? 0 : (pad == 1 ? 1 : pad);
+    unsigned short pressed = PAD_PRESSED_N(port);
+    unsigned short repeat = PAD_REPEAT_N(port);
+    u32 count = P3_COUNT(P3_SIDE);
+    u32 shown = (int)count > 10 ? 11 : count;
+    u8 *unit = P3_UNIT(P3_SIDE, P3_CURSOR);
+    int moved = 0;
+
+    P3_MOVED = 0;
+    if (pressed & BTN_OK) {
+        if (func_0036D780() == 0) {
+            SE(4);
+        } else if (unit != 0) {
+            if (func_002228A0(unit) == 0) {
+                SE(4);
+            } else {
+                SE(1);
+                func_002226D0(func_0034A740(unit));
+            }
+        }
+    } else if (pressed & BTN_CANCEL) {
+        SE(2);
+        func_00220970(0);
+    } else if (pressed & BTN_LEFT) {
+        SE(0);
+        P3_SIDE = (P3_SIDE + 1) & 1;
+        moved = 1;
+        P3_CURSOR = 0;
+        P3_SCROLL = 0;
+        P3_MOVED = 1;
+    } else if (pressed & BTN_RIGHT) {
+        SE(0);
+        P3_SIDE = (P3_SIDE + 3) & 1;
+        moved = 1;
+        P3_CURSOR = 0;
+        P3_MOVED = 2;
+        P3_SCROLL = 0;
+    } else if (func_002C5220(port, &P3_SCROLL, &P3_CURSOR, shown & 0xFF, count & 0xFF) != 0) {
+        moved = 1;
+    } else if (repeat & 4) {
+        if (unit != 0) {
+            SE(0);
+            P3_NEXT_VIEW(unit, 2);
+        }
+    } else if (repeat & 8) {
+        if (unit != 0) {
+            SE(0);
+            P3_NEXT_VIEW(unit, 4);
+        }
+    }
+    if (moved && !(g_0073DCA3[pad * 0x290] & 4)) {
+        if (P3_CURSOR < P3_COUNT(P3_SIDE))
+            func_00222590(P3_UNIT(P3_SIDE, P3_CURSOR));
+    }
+}
+
+/* 0x00222D90, 0x2F4 bytes. Page 3, choosing the unit's target: OK sends it there
+ * (func_002281B0), Cancel goes back; the camera follows the target. */
+void func_00222D90(int pad)
+{
+    int port = pad == 0 ? 0 : (pad == 1 ? 1 : pad);
+    unsigned short pressed = PAD_PRESSED_N(port);
+    unsigned short repeat = PAD_REPEAT_N(port);
+    u8 shown = P3_TCOUNT > 10 ? 11 : P3_TCOUNT;
+
+    if (pressed & BTN_OK) {
+        SE(1);
+        func_002281B0(P3_GROUP, func_0034EC80(P3_TLIST[P3_TCURSOR]));
+        func_00222650(0);
+    } else if (pressed & BTN_CANCEL) {
+        SE(2);
+        func_00222650(0);
+    } else if (func_002C5220(port, &P3_TSCROLL, &P3_TCURSOR, shown, P3_TCOUNT) != 0) {
+        if (!(g_0073DCA3[pad * 0x290] & 4))
+            func_002225D0(func_0034EC80(P3_TLIST[P3_TCURSOR]));
+    } else if (repeat & 4) {
+        SE(0);
+        P3_NEXT_VIEW(*P3_GROUP, 2);
+    } else if (repeat & 8) {
+        SE(0);
+        P3_NEXT_VIEW(*P3_GROUP, 4);
+    }
+}
+
+/* 0x00223090, 0x68 bytes. Page 3: runs the handler of its mode. */
+void func_00223090(int pad)
+{
+    void (*handlers[4])(int pad);
+
+    handlers[0] = g_0040DF30[0];
+    handlers[1] = g_0040DF30[1];
+    handlers[2] = g_0040DF30[2];
+    handlers[3] = g_0040DF30[3];
+    if (handlers[(u8)g_00749B68] != 0)
+        handlers[(u8)g_00749B68](pad);
+}
+
+/* 0x00223100, 0x1C bytes, matching. Page 3 set-up. */
+void func_00223100(void)
+{
+    func_00222650(1);
+}
+
+/* 0x00223120, 0x100 bytes. Page 5 (the bodyguards' view): Cancel goes back to page 1. */
+void func_00223120(int player)
+{
+    unsigned short pressed = 0;
+
+    if (player == 0)
+        pressed = PAD_PRESSED_N(0);
+    else if (player == 1)
+        pressed = PAD_PRESSED_N(1);
+    if ((pressed & BTN_OK) == 0 && (pressed & BTN_CANCEL) != 0) {
+        SE(2);
+        func_00220970(1);
+    }
+}
+
+/* 0x00223220, 0x3D4 bytes. Page 6, the equipment (the player's items, g_00749A28): Up / Down move
+ * among them, OK equips one, Cancel keeps the kind of the equipped one and goes back. */
+void func_00223220(int player)
+{
+    u32 officer = PLAYER_OFFICER(player);
+    unsigned short pressed = 0, repeat = 0;
+    u8 *items = g_00749A28[player];
+    u8 count;
+
+    if (player == 0) {
+        pressed = PAD_PRESSED_N(0);
+        repeat = PAD_REPEAT_N(0);
+    } else if (player == 1) {
+        pressed = PAD_PRESSED_N(1);
+        repeat = PAD_REPEAT_N(1);
+    }
+    if (g_00749AEF != -1)
+        return;
+    if (pressed & BTN_CANCEL) {
+        func_002F56A0(officer, func_002F57F0(items[items[0x51] * 0x14]));
+        SE(2);
+        func_00220970(1);
+    } else if (pressed & BTN_OK) {
+        if (g_00749AF0 == items[0x51]) {
+            SE(4);
+        } else {
+            SE(1);
+            items[0x51] = g_00749AF0;
+        }
+    } else if ((repeat & 0x1000) || (pressed & 0x1000)) {
+        count = g_00749A28[g_00749A1C][0x50];
+        if (count < 2) {
+            g_00749AF0 = 0;
+        } else {
+            int i = (g_00749AF0 + count - 1) % count;
+            if (i < g_00749AF0 || (pressed & 0x1000)) {
+                SE(0);
+                g_00749AF0 = (u8)i;
+            }
+        }
+    } else if ((repeat & 0x4000) || (pressed & 0x4000)) {
+        count = g_00749A28[g_00749A1C][0x50];
+        if (count < 2) {
+            g_00749AF0 = 0;
+        } else {
+            u32 i = (g_00749AF0 + 1) % count;
+            if (g_00749AF0 < i || (pressed & 0x4000)) {
+                SE(0);
+                g_00749AF0 = (u8)i;
+            }
+        }
+    }
+}
+
+/* 0x00223600, 0x560 bytes. Page 7, the items: a grid of 4 columns of 10 (0xFF = the header row,
+ * g_00749AF3 its column); OK uses / equips an available item, the second extra button takes it
+ * off, Cancel goes back. */
+void func_00223600(int player)
+{
+    u32 officer = PLAYER_OFFICER(player);
+    unsigned short pressed = 0, repeat = 0;
+    u32 item;
+
+    if (player == 0) {
+        pressed = PAD_PRESSED_N(0);
+        repeat = PAD_REPEAT_N(0);
+    } else if (player == 1) {
+        pressed = PAD_PRESSED_N(1);
+        repeat = PAD_REPEAT_N(1);
+    }
+    item = g_00749AF0;
+    if (item == 0xFF)
+        item = func_002F6A60(officer);
+    if (pressed & BTN_OK) {
+        if (func_0036DBA0(officer, item) < 1) {
+            SE(4);
+        } else if (func_002F4900(officer, item) == 0) {
+            SE(1);
+            func_002F4980(officer, item, 1);
+        } else {
+            SE(4);
+        }
+    } else if (pressed & BTN_EXTRA2) {
+        if (func_0036DBA0(officer, item) < 1) {
+            SE(4);
+        } else if (func_002F4900(officer, item) == 0) {
+            SE(4);
+        } else {
+            SE(1);
+            func_002F4980(officer, item, 0);
+        }
+    } else if (pressed & BTN_CANCEL) {
+        SE(2);
+        func_00220970(1);
+    } else if (repeat & 0x4000) {                  /* down */
+        if (g_00749AF0 == 0xFF) {
+            SE(0);
+            g_00749AF0 = g_00749AF3 * 10;
+            func_0028D5D0(0x0E);
+        } else if (g_00749AF0 % 10 < 9) {
+            SE(0);
+            g_00749AF0++;
+            func_0028D5D0(0x0E);
+        }
+    } else if (repeat & 0x1000) {                  /* up: to the header from the first row */
+        if (g_00749AF0 != 0xFF) {
+            SE(0);
+            if (g_00749AF0 % 10 == 0) {
+                g_00749AF3 = g_00749AF0;
+                g_00749AF0 = 0xFF;
+                g_00749AF3 = g_00749AF3 / 10;
+            } else {
+                g_00749AF0--;
+            }
+            func_0028D5D0(0x0E);
+        }
+    } else if (repeat & BTN_RIGHT) {
+        if (g_00749AF0 != 0xFF && g_00749AF0 < 0x1E) {
+            SE(0);
+            g_00749AF0 += 10;
+            func_0028D5D0(0x0E);
+        }
+    } else if (repeat & BTN_LEFT) {
+        if (g_00749AF0 != 0xFF && g_00749AF0 > 9) {
+            SE(0);
+            g_00749AF0 -= 10;
+            func_0028D5D0(0x0E);
+        }
+    }
+}
+
+/* 0x00223B60, 0x44 bytes, matching. Reads the mounts (func_002CAD90); in an Empire battle with
+ * func_0036D310 set, none (0 mounts, both players' choice 4 = none). */
+void func_00223B60(u8 *mounts)
+{
+    func_002CAD90();
+    if (func_0036D310() != 0) {
+        mounts[4] = 0;
+        mounts[5] = 4;
+        mounts[6] = 4;
+    }
+}
+
+/* 0x00223BB0, 0x488 bytes. Page 9, the mounts (g_00749AE4: four mounts, their count, then each
+ * player's choice): Up / Down move, OK rides the mount (with two armies not one the other player
+ * rides), the second extra button gets off; Cancel goes back. */
+void func_00223BB0(int player)
+{
+    u32 other = (g_00749A1C + 1) % 2;
+    int port = 0;
+    unsigned short pressed, repeat;
+    char name[128], text[256];
+
+    if (player == 0)
+        port = 0;
+    else if (player == 1)
+        port = 1;
+    pressed = PAD_PRESSED_N(port);
+    repeat = PAD_REPEAT_N(port);
+    if (pressed & BTN_OK) {
+        u8 mount = g_00749AE4[g_00749AF0];
+
+        if (mount == g_00749AE4[5 + player]) {
+            SE(4);
+        } else if (mount == g_00749AE4[5 + other]) {
+            if ((g_00669F60 & 2) == 0) {
+                func_003DD660(other, 4);
+                func_003DD660(g_00749A1C, g_00749AE4[g_00749AF0]);
+                SE(1);
+            } else {
+                func_001204B0(text, g_0043CA14[other],
+                              func_0019B280(name, PLAYER_OFFICER(other)));
+                func_001AE9F0(0, text, 1);
+                func_001AFC70(0, port);
+                SE(4);
+            }
+        } else {
+            SE(1);
+            func_003DD660(g_00749A1C, g_00749AE4[g_00749AF0]);
+        }
+        func_00223B60(g_00749AE4);
+    } else if (pressed & BTN_EXTRA2) {
+        if (g_00749AE4[g_00749AF0] == g_00749AE4[5 + player]) {
+            SE(1);
+            func_003DD660(g_00749A1C, 4);
+        } else {
+            SE(4);
+        }
+        func_00223B60(g_00749AE4);
+    } else if (pressed & BTN_CANCEL) {
+        SE(2);
+        func_00220970(1);
+    } else if ((repeat & 0x1000) || (pressed & 0x1000)) {
+        if (g_00749AE8 < 2) {
+            g_00749AF0 = 0;
+        } else {
+            int i = (g_00749AF0 + g_00749AE8 - 1) % g_00749AE8;
+            if (i < g_00749AF0 || (pressed & 0x1000)) {
+                SE(0);
+                g_00749AF0 = (u8)i;
+            }
+        }
+    } else if ((repeat & 0x4000) || (pressed & 0x4000)) {
+        if (g_00749AE8 < 2) {
+            g_00749AF0 = 0;
+        } else {
+            u32 i = (g_00749AF0 + 1) % g_00749AE8;
+            if (g_00749AF0 < i || (pressed & 0x4000)) {
+                SE(0);
+                g_00749AF0 = (u8)i;
+            }
+        }
+    }
+}
+
 /* 0x00224D70, 0x54 bytes. Page 10: runs the handler of its mode (g_00749B6C[0], 0-2). */
 void func_00224D70(void)
 {
@@ -1264,8 +1760,8 @@ void func_002254B0(int pad)
 {
     void (*handlers[2])(int pad);
 
-    handlers[0] = g_0045CD70[0];
-    handlers[1] = g_0045CD70[1];
+    handlers[0] = g_0045CDB0[0];
+    handlers[1] = g_0045CDB0[1];
     handlers[g_00749B9E](pad);
 }
 
