@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 10716,
-    "non_matching": 37536
+    "matching": 11424,
+    "non_matching": 36828
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10586,
-    "matching": 68
+    "matching": 69
   },
   "layout": "treemap",
   "areas": [
@@ -20,8 +20,8 @@
       "description": "Runtime start-up, scene manager and main loop. Estimated range 0x100000-0x102410; 4 function(s) decompiled",
       "code": {
         "total": 9232,
-        "matching": 592,
-        "non_matching": 708
+        "matching": 1300,
+        "non_matching": 0
       }
     },
     {

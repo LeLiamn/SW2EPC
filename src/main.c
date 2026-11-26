@@ -220,14 +220,14 @@ void func_00100500(void)
         *(SceneEntry *)&g_0045D880.running = g_00422000[g_0045D880.current];
 }
 
-/* 0x001005A0, 0x2C4 bytes. Runs the scene manager until the game quits, then returns its result.
+/* 0x001005A0, 0x2C4 bytes, matching. Runs the scene manager until the game quits, then returns its result.
  * This is where each frame of the game happens (main's loop calls it until it returns non-zero).
  */
 int func_001005A0(void)
 {
     func_001014D0(0);
     func_00100260();
-    while (g_0045D880.quit == 0) {
+    while (!g_0045D880.quit) {
         func_00100500();
 
         /* Enter the current scene (once, when it was just requested). */
@@ -275,10 +275,14 @@ int func_001005A0(void)
         }
 
         /* Leave the scene. */
-        if (g_0045D880.requested < 0x18 && g_0045D880.leave_alt != 0)
-            g_0045D880.leave_alt();
-        else
+        if (g_0045D880.requested < 0x18) {
+            if (g_0045D880.leave_alt != 0)
+                g_0045D880.leave_alt();
+            else
+                g_0045D880.leave();
+        } else {
             g_0045D880.leave();
+        }
     }
     func_001014D0(0);
     func_00100410();
