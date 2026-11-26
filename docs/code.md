@@ -568,6 +568,35 @@ The file covers 0x003F8B30-0x003F961C: 9 functions, 3 of which match.
 - **After the file,** from `0x003F9680` to `0x00403D30`, the text section holds VU1
   microprograms (VIF `MPG` packets, command 0x4A), not C code.
 
+## The system layer (`src/system.c`)
+
+This file covers 0x00100410-0x00102410, the rest of the "start-up and main loop" area: 46
+functions with those of `main.c`, 25 of which match. Its source file name is unknown. The
+start-up code at 0x00100008 is assembly and is not written in C: it sets gp and the stack,
+clears the BSS and calls `main`.
+
+- **Shutdown:** `func_00100410` stops the game's systems at the end of the main loop.
+- **IOP requests:** a request is four words, and the first word's bit 31 marks a second kind.
+  A request is either sent at once (`0x0045D8D0`) or queued (`0x0045D8F0`). The queue is sorted
+  by the sum of each request's first two words and sent when the IOP is free; -1 ends it.
+- **Display:**
+  - The GS has two display environments at `0x00500130`.
+  - Mode 0 is full height: 448 lines, vertical scale 1 (`*(int *)0x70000154`). Mode 1 is half
+    height: 224 lines, scale 2.
+  - The screen offset ranges from -24 to 24 on each axis, written into the DISPLAY registers.
+  - The clear packets are prepared in advance (`0x0045E900`, `0x0045FC20`).
+- **Frames:**
+  - Each frame's GS packets go into one of two buffers (`0x00460130`, `0x004B0130`, 0x50000
+    bytes each), as a DMA chain written through `*(u32 **)0x70000158`.
+  - `func_001020E0` ends the frame: it closes the chain, waits on the frame semaphore and flips.
+  - The vertical blank handler (`func_00102150`) flips when the frame is ready and signals
+    the semaphore.
+  - A DMA handler (`func_00101C20`) reads the line counter.
+- **Timers:** RCNT0 and RCNT1 count with mode 0x83. Constants for 1/60 s, 60 and 3600 are
+  set up at start.
+
+For the PC port, this file is to be replaced by the platform layer.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
