@@ -1,6 +1,6 @@
 /*
  * model.c - motion curves, tm3 textures and 3D models (original source file unknown; 0x00147780-
- * 0x00149724, after font.c; the drawing function at 0x00149730 follows).
+ * 0x0014D384, after font.c).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -65,7 +65,8 @@ typedef struct {
     Tm3 *texture;            /* +0x20 */
     u16 a;                   /* +0x24 */
     u16 nodes;               /* +0x26 */
-    u8 colour[6];            /* +0x28 */
+    u8 range[6];             /* +0x28 node ranges (first, count): other modes, then mode 0's
+                              * two (see func_00149730) */
     u8 pad2;
     u8 alpha;                /* +0x2F */
 } Model;
@@ -476,32 +477,30 @@ void func_001483B0(Model *m)
     func_00148130(m);
 }
 
-/* 0x001483F0, 0x24 bytes, matching. Sets a model's colours. */
+/* 0x001483F0, 0x24 bytes, matching. Sets a model's node ranges. */
 void func_001483F0(Model *m, u8 a, u8 b, u8 c, u8 d, u8 e, u8 f)
 {
-    m->colour[0] = a;
-    m->colour[1] = b;
-    m->colour[2] = c;
-    m->colour[3] = d;
-    m->colour[4] = e;
-    m->colour[5] = f;
+    m->range[0] = a;
+    m->range[1] = b;
+    m->range[2] = c;
+    m->range[3] = d;
+    m->range[4] = e;
+    m->range[5] = f;
     m->alpha = 100;
 }
 
-/* 0x00148420, 0x40 bytes, matching. Gives a model a tm3 texture (its colours copied from the texture's
- * bytes at +0x90). */
-void func_00148420(Model *m, Tm3 *t)
+/* 0x00148420, 0x40 bytes, matching. Gives a model its description (`info`, kept at +0x20): the node
+ * ranges from its bytes 0x90-0x95, the byte at +0x99. */
+void func_00148420(Model *m, u8 *info)
 {
-    u8 *b = (u8 *)&t->tex0;
-
-    m->texture = t;
-    m->colour[0] = b[0];
-    m->colour[1] = b[1];
-    m->colour[2] = b[2];
-    m->colour[3] = b[3];
-    m->colour[4] = b[4];
-    m->colour[5] = b[5];
-    m->alpha = t->b;
+    m->texture = (Tm3 *)info;
+    m->range[0] = info[0x90];
+    m->range[1] = info[0x91];
+    m->range[2] = info[0x92];
+    m->range[3] = info[0x93];
+    m->range[4] = info[0x94];
+    m->range[5] = info[0x95];
+    m->alpha = info[0x99];
 }
 
 /* 0x00148460, 0x80 bytes. Sends a model's parts. */
@@ -710,12 +709,12 @@ void func_00148790(Actor *a, Model *m, Model *m2)
  * first + count (+0x2D). */
 void func_001489F0(Actor *a, Model *m)
 {
-    u8 first = ((u8 *)m)[0x2C];
+    u8 first = m->range[4];
     Node *n = &a->nodes[first];
     u32 *trs = m->nodes_trs + first * 9;
     int i;
 
-    for (i = 0; i < ((u8 *)m)[0x2D]; i++, n++, trs += 9) {
+    for (i = 0; i < m->range[5]; i++, n++, trs += 9) {
         NODE_TRS(n, trs);
         NODE_MATRIX(n);
         n->dirty = 1;
@@ -923,4 +922,142 @@ void func_00149620(Actor *a, Model *m, Model *m2)
 void func_00149720(Actor *a)
 {
     a->d = 0;
+}
+
+void func_0014E6F0(Actor *a, float base[4][4], float m[4][4], int frame);
+
+/* out = a * b (4 x 4, column vectors: out[j] = a * b[j]), as the VU0's vmulabc / vmaddabc
+ * sequences do. */
+static inline void mat_mul(float out[4][4], float a[4][4], float b[4][4])
+{
+    float r[4][4];
+    int j, k;
+
+    for (j = 0; j < 4; j++)
+        for (k = 0; k < 4; k++)
+            r[j][k] = a[0][k] * b[j][0] + a[1][k] * b[j][1] + a[2][k] * b[j][2]
+                      + a[3][k] * b[j][3];
+    for (j = 0; j < 4; j++)
+        for (k = 0; k < 4; k++)
+            out[j][k] = r[j][k];
+}
+
+/* A node's matrix for frame `frame`, and whether it is up to date (the byte after the two
+ * matrix pointers). */
+#define NODE_WORLD(n, frame) (*(float (**)[4])((u8 *)(n)->slot + (frame) * 4))
+#define NODE_DONE(n)         (((u8 *)(n)->slot)[8])
+
+/* Brings a node's matrix up to date: its ancestors not yet done are done first, from the root
+ * (the root's matrix is `base` times its local one, the others their parent's times theirs). */
+static inline void node_world(Node *n, float base[4][4], int frame)
+{
+    Node *chain[40];
+    int top = 0, done = 0;
+    Node *p;
+
+    for (p = n; p != 0; p = p->parent)
+        chain[top++] = p;
+    top--;
+    while (top >= 0 && NODE_DONE(chain[top])) {
+        top--;
+        done++;
+    }
+    if (done == 0) {
+        mat_mul(NODE_WORLD(chain[top], frame), base, chain[top]->matrix);
+        NODE_DONE(chain[top]) = 1;
+        top--;
+    }
+    for (; top >= 0; top--) {
+        mat_mul(NODE_WORLD(chain[top], frame), NODE_WORLD(chain[top + 1], frame),
+                chain[top]->matrix);
+        NODE_DONE(chain[top]) = 1;
+    }
+}
+
+/* The nodes done in mode 0 (body), with the hands' fingers when the model has more than 26
+ * nodes (+0x29), and the ones done in mode 1. */
+static const u8 nodes_mode0_a[] = { 6, 7, 20, 21 };
+static const u8 nodes_mode0_b[] = { 24, 25, 22, 23 };
+static const u8 nodes_mode0_c[] = { 33, 27, 37, 31, 35, 29, 43, 39, 45, 41 };
+static const u8 nodes_mode1[] = { 8, 10, 11, 9, 14, 17, 1, 2 };
+
+/* 0x00149730, 0x3C58 bytes. Brings the matrices of an object's nodes up to date for frame
+ * `frame` (the original inlines the chain walk for each node: 15 KB of VU0 code).
+ *
+ * The base matrix is the object's world matrix times the rotation at 0x70000080 (set up by
+ * func_001181E0), or the matrix of the node it is attached to (+0x1FC, node +0x201). Mode 0
+ * does the body's nodes (the arms' unless the second model is in use, the fingers for models of
+ * more than 26 nodes), node 11, the model's ranges (+0x2C/+0x2D, then +0x2A/+0x2B, the latter by
+ * func_0014E6F0 in some states); mode 1 eight fixed nodes; modes above 2 the range +0x28/+0x29;
+ * mode 2 nothing. */
+void func_00149730(Actor *a, char mode, int frame)
+{
+    Model *m = (a->flags & 2) ? a->model2 : a->model;
+    Node *list = (a->flags & 2) ? a->nodes2 : a->nodes;
+    float (*attached)[4] = 0;
+    float base[4][4];
+    Node *n;
+    u32 i;
+
+    if (a->e != list)
+        return;
+    for (i = 0, n = a->e; i < m->nodes; i++, n++)
+        NODE_DONE(n) = 0;
+    if (*(Actor **)((u8 *)a + 0x1FC) == 0) {
+        mat_mul(base, a->world, (float (*)[4])0x70000080);
+    } else {
+        Actor *parent = *(Actor **)((u8 *)a + 0x1FC);
+
+        attached = NODE_WORLD(&parent->e[a->a], frame);
+        for (i = 0; i < 4; i++) {
+            base[i][0] = attached[i][0];
+            base[i][1] = attached[i][1];
+            base[i][2] = attached[i][2];
+            base[i][3] = attached[i][3];
+        }
+    }
+    list = a->e;
+    if (mode == 0) {
+        for (i = 0; i < sizeof(nodes_mode0_a); i++)
+            node_world(&list[nodes_mode0_a[i]], base, frame);
+        if ((a->flags & 2) == 0) {
+            for (i = 0; i < sizeof(nodes_mode0_b); i++)
+                node_world(&list[nodes_mode0_b[i]], base, frame);
+            if (m->range[1] > 0x1A) {
+                for (i = 0; i < sizeof(nodes_mode0_c); i++)
+                    node_world(&list[nodes_mode0_c[i]], base, frame);
+            }
+        }
+        node_world(&list[11], base, frame);
+        if (m->range[5] != 0) {
+            n = &a->e[m->range[4]];
+            for (i = 0; i < m->range[5]; i++, n++)
+                node_world(n, base, frame);
+        }
+        if (m->range[3] != 0) {
+            if ((a->flags & 4) && (a->flags & 2) == 0 && a->d > 1) {
+                if (attached == 0) {
+                    func_0014E6F0(a, base, a->world, frame);
+                } else {
+                    float t[4][4];
+
+                    mat_mul(t, attached, (float (*)[4])0x70000080);
+                    func_0014E6F0(a, base, t, frame);
+                }
+            } else {
+                n = &a->e[m->range[2]];
+                for (i = 0; i < m->range[3]; i++, n++)
+                    node_world(n, base, frame);
+            }
+        }
+    } else if (mode == 1) {
+        for (i = 0; i < sizeof(nodes_mode1); i++)
+            node_world(&list[nodes_mode1[i]], base, frame);
+    } else if (mode != 2) {
+        n = &list[m->range[0]];
+        for (i = 0; i < m->range[1]; i++, n++)
+            node_world(n, base, frame);
+    }
+    if (a->d != (u32)-1)
+        a->d++;
 }
