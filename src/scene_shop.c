@@ -239,7 +239,7 @@ extern struct {
 
 
 /* 0x7000015C: random seed in the scratchpad (set to 12345 at start-up, see main.c). */
-#define g_7000015C (*(volatile u32 *)0x7000015C)
+#define g_7000015C (*(u32 *)0x7000015C)
 
 /* Shop state. */
 extern u8 g_00773130[];              /* data block filled by func_002CAD60 */
@@ -349,12 +349,9 @@ void func_001A7DC0(const char *text, int alpha, int b);
 #define pad1_ready() ((g_00500764 & 1) ? (g_00500765 & 1) == 1 : 0)
 #define pad1_pressed() ((unsigned short)(pad1_ready() ? g_0050074C : 0))
 
-/* Next value of the game's random generator (a linear congruential generator, 0..65535). */
-static unsigned random16(void)
-{
-    g_7000015C = g_7000015C * 0x41C64E6D + 0x3039;
-    return g_7000015C >> 16;
-}
+/* Next value of the game's random generator (a linear congruential generator, 0..65535), inlined
+ * in the original (a macro). */
+#define random16() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, (g_7000015C >> 16) & 0xFFFF)
 
 /* 0x0029FD10, 0x10 bytes, matching. Non-zero when the shop also sells mounts. */
 int func_0029FD10(void)
@@ -529,7 +526,7 @@ void func_002A41D0(void)
     func_00376100(3, 4, -1);
 }
 
-/* 0x002A4210, 0x33C bytes. Scene enter. Picks a shopkeeper at random: 0xB9 (50 %) or 0xB8 (25 %)
+/* 0x002A4210, 0x33C bytes, matching. Scene enter. Picks a shopkeeper at random: 0xB9 (50 %) or 0xB8 (25 %)
  * when their condition holds, else 0xB5 or 0xB6 (50 % each). */
 void func_002A4210(void)
 {
