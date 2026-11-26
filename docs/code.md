@@ -170,12 +170,28 @@ dismiss, 9 skill list. At enter the shopkeeper is picked with the game's random 
 (25 %) when their conditions hold, otherwise 0xB5 or 0xB6. Shop music: track 0x2C.
 
 `0x0077315C` is the player using the shop (0 or 1): it picks the controller and the player's
-records. Decompiled: enter, leave, leave_alt, update, step, draw, the mode request and mode switch,
-small helpers, and the handlers of modes 0 (main menu, 3 or 4 entries; on Cancel the farewell voice
-is also picked at random), 1 (one of four skill slots), 9 (skill list, 4 columns of 10, L1/R1 swap
-all / own skills), 12 and 15 (lists). Original quirk kept: mode 15 has no empty-list test and
-would divide by zero. Not yet: modes 2, 3, 4/11 and 5-8 (`0x002A2EF0`, `0x002A18D0`,
-`0x002A21B0`, `0x002A0B40`) and the list builders (`0x002A01D0`...).
+records. The whole of `StateShop.c` that the scene uses is decompiled (`0x0029FB70`..`0x002A5000`):
+scene functions, mode request and switch, every mode handler, the confirmation boxes, the list
+builders and the prices.
+
+What the shop does:
+- **Skills** (modes 1, 5-8): four slots per officer, up to 5 offers per slot, sorted by level. A
+  skill below level 3 is offered; one suited to the other officer type only 25 % of the time.
+  Price = level x 400 (x 500 for kind 3), x 0.8 when the skill suits the officer's type, x 1.2
+  when it suits the other type. Skills 9, 0x13 and 0x25 at level 4 cost 10000.
+- **Mounts** (mode 3, sell in modes 4 and 11): six mounts with random names; 3000 for a type-3
+  mount, else 2000-2200; at most 4 owned (buying a fifth offers to sell one). Selling price 4000 or
+  5000 for special types, else (rank + 1) x 100 + 900 (or + 1400).
+- **Officers** (mode 2): up to 8 candidates the force has room for; price = (level / 4 + 1) x 400
+  + 1000, x 500 for unique officers (0-27 and 400-414).
+- **Bargain**: each list has a 50 % chance of one random offer at 20 % off; when the system byte
+  `0x00669D82` is 3, every skill offer is a bargain.
+- **Shopkeeper**: picked at random on entry and again for the farewell; purchases this visit,
+  bargains and special items change which one appears.
+
+Original quirks kept: mode 15 divides by zero on an empty list; hiring writes one record past the
+last offer; the mount shuffle starts from 0, 1, 2, 3, 4, 2 (no 5); selling asks "any mount left?"
+twice; a final test for kind-3 skills can never succeed.
 
 ## Sony libraries and C runtime (compiled with another compiler)
 

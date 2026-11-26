@@ -911,21 +911,22 @@ int func_0029FC40(int mount)
 
 /* ---- Mode 3: buy mounts ------------------------------------------------------------------------ */
 
-/* Mounts for sale: 8 records of 12 bytes at 0x00773070: +0 price, +4 mount type (0x10 = sold). */
+/* Mounts for sale: 8 records of 12 bytes at 0x00773070: +0 price, +4 index of the mount record
+ * in g_007731D0 (0x10 = sold), +8 non-zero for the day's bargain (20 % off). */
 typedef struct {
     int price;
-    u8 type;
+    u8 index;
     u8 pad[3];
-    int unknown_8;
+    int bargain;
 } MountOffer;
 #define g_MountOffers ((MountOffer *)g_00773070)
 
 /* 0x002A1740, 0x1C bytes. Copies a mount offer. */
 void func_002A1740(MountOffer *dst, const MountOffer *src)
 {
-    dst->type = src->type;
+    dst->index = src->index;
     dst->price = src->price;
-    dst->unknown_8 = src->unknown_8;
+    dst->bargain = src->bargain;
 }
 
 /* 0x002A1760, 0x16C bytes. Buys the mount under the cursor (g_00773183): pays, gives it to the
@@ -939,13 +940,13 @@ void func_002A1760(void)
 
     func_0029FBA0(-offer->price);
     g_0077318A++;                               /* purchases this visit (farewell voice) */
-    mount = func_0029FD90(offer->type);
+    mount = func_0029FD90(offer->index);
     owner = func_001A0670();
     if (func_001A06D0() != 0) {
         func_0019FD50(owner, mount);
         for (i = g_00773183; i < 7; i++)
             func_002A1740(&g_MountOffers[i], &g_MountOffers[i + 1]);
-        g_MountOffers[i].type = 0x10;
+        g_MountOffers[i].index = 0x10;
         g_0077317C--;
         if (g_0077317C != 0 && g_00773183 > g_0077317C - 1)
             g_00773183 = g_0077317C - 1;
@@ -985,13 +986,13 @@ void func_002A18D0(int player)
         func_0029FDB0(0);
     } else if (pressed & BTN_OK) {
         MountOffer *offer = &g_MountOffers[g_00773183];
-        if (g_0077317C == 0 || offer->type == 0x10) {
+        if (g_0077317C == 0 || offer->index == 0x10) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         } else if (func_0029FB70() < offer->price) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             show_box(0, player, g_0043C3A0, 0);
         } else if (g_00773140 < 4) {
-            const char *name = (const char *)func_0029FD90(offer->type) + 0x13;
+            const char *name = (const char *)func_0029FD90(offer->index) + 0x13;
             func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             show_box(1, player, g_0043C3DC, name);
         } else {
@@ -1110,11 +1111,11 @@ void func_002A21B0(int player, int back)
 /* ---- Mode 2: hire officers --------------------------------------------------------------------- */
 
 /* Officers for hire: records of 12 bytes at 0x007730D0: +0 price, +4 officer (0x19F = none),
- * +9 non-zero when the player has room for him. */
+ * +8 1 for the day's bargain (20 % off), +9 non-zero when the player has room for him. */
 typedef struct {
     int price;
     int officer;
-    u8 unknown_8;
+    u8 bargain;
     u8 can_hire;
     u8 pad[2];
 } HireOffer;
@@ -1237,4 +1238,461 @@ int func_002A2EF0(int player)
         return 0;
     }
     return func_002C5220(player, &g_00773184, &g_00773185, rows, g_0077317D);
+}
+
+/* ---- Modes 5 to 8: buy a skill for slot 0 to 3 ------------------------------------------------- */
+
+/* Skills for sale: g_00772DF0[player * 0x140 + slot * 0x50] = 5 records of 16 bytes:
+ * +0 skill (0x28 = none), +4 price. Their count is g_00773174[player * 4 + slot]. */
+typedef struct {
+    int skill;
+    int price;
+    u8 level;                /* level the officer reaches by buying it */
+    u8 pad[3];
+    int bargain;             /* 1: the day's bargain (20 % off) */
+} SkillOffer;
+#define SKILL_NONE 0x28
+
+extern const char *g_0043C3A8;       /* "Are you sure you want to purchase the skill %s?" */
+extern const char *g_0042D3E0[];     /* skill names ("Vitality", "Focus", "Potence"...) */
+extern u8 g_004281B8[];              /* skill table, 8 bytes per skill (+5: kind) */
+
+int func_002F47A0(u32 officer, int skill);                /* skill level */
+void func_002F4820(u32 officer, int skill, int level);
+
+/* Back to the slot choice (mode 1). */
+static void back_to_slots(void)
+{
+    g_00799A28 = 1;
+    g_00799A24 = g_00799A26;
+    g_00799A2C = 0;
+    func_0029FDB0(1);
+}
+
+/* 0x002A0B40, 0x838 bytes. Modes 5-8 (screen 1, "Select  Skills  Back  Buy"): the skills for sale
+ * in one slot. OK asks to confirm; "yes" raises the skill of the officer shown by one level, pays,
+ * and removes the offer (back to the slots when none is left). The third button opens the skill
+ * list (mode 9). */
+void func_002A0B40(int player)
+{
+    unsigned short pressed, held;
+    int slot = g_00773148 - 5;                  /* (left unset by the original for other modes) */
+    SkillOffer *offers = (SkillOffer *)&g_00772DF0[g_0077315C * 0x140 + slot * 0x50];
+    u8 *count = &g_00773174[player * 4 + slot];
+    char answer;
+    int box;
+
+    read_pad(player, &pressed, &held);
+    box = open_box(&answer);
+    if (box == 0)
+        return;
+    if (box == 1) {
+        if (answer == BOX_YES) {
+            int skill = offers[g_00773186].skill;
+            int level = func_002F47A0(func_0029FD70(), skill);
+            int i;
+
+            func_002F4820(func_0029FD70(), skill, level + 1);
+            func_0029FBA0(-offers[g_00773186].price);
+            if (g_004281B8[skill * 8 + 5] == 3)
+                g_0077319C = 1;                 /* changes the farewell voice */
+            g_0077318A++;
+            for (i = g_00773186; i < 4; i++)
+                func_002A01A0((u32 *)&offers[i], (const u32 *)&offers[i + 1]);
+            offers[i].skill = SKILL_NONE;
+            (*count)--;
+            if (*count != 0 && g_00773186 > *count - 1)
+                g_00773186 = *count - 1;
+            func_002A0920(g_0077315C);
+            if (*count == 0)
+                back_to_slots();
+        } else if (pressed & BTN_CANCEL) {
+            func_001AFFB0();
+            func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        }
+        return;
+    }
+
+    if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        back_to_slots();
+    } else if (pressed & BTN_OK) {
+        int skill;
+        if (*count == 0) {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            return;
+        }
+        skill = offers[g_00773186].skill;
+        if (skill == SKILL_NONE) {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        } else if (func_0029FB70() < offers[g_00773186].price) {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            show_box(0, player, g_0043C3A0, 0);
+        } else {
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            func_002F47A0(func_0029FD70(), skill);   /* result unused (as in the original) */
+            show_box(1, player, g_0043C3A8, g_0042D3E0[skill]);
+        }
+    } else if (held & BTN_EXTRA) {
+        func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(9);
+    } else if (*count > 1) {
+        u8 n = *count;
+        if (held & BTN_UP) {
+            if (g_00773186 != 0) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773186 = (u8)((g_00773186 + n - 1) % n);
+            } else if (pressed & BTN_UP) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773186 = n - 1;
+            }
+        } else if (held & BTN_DOWN) {
+            if (g_00773186 < n - 1) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773186 = (u8)((g_00773186 + 1) % n);
+            } else if (pressed & BTN_DOWN) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773186 = 0;
+            }
+        }
+    }
+}
+
+/* ---- Building the day's offers and their prices ----------------------------------------------- */
+
+/* The skill table: 8 bytes per skill at 0x004281B8; +4 the slot it belongs to (0-3, else none),
+ * +5 its kind (1 and 2 suit one officer type each, 3 = special). */
+#define SKILL_SLOT(s) g_004281B8[(s) * 8 + 4]
+#define SKILL_KIND(s) g_004281B8[(s) * 8 + 5]
+#define SKILL_COUNT 0x28
+
+extern char g_00669D82;              /* 3: everything is a bargain on this visit (cleared after) */
+extern u8 g_0045CEA0[6];             /* (gp - 0x7D50) the six mounts on sale by default */
+
+int func_002F67B0(u32 officer);                           /* officer type (1 or 2) */
+void func_001A0630(void *record, u8 mount);
+void func_00372E60(const char **names, int count);
+void func_00120928(char *dst, const char *src);           /* strcpy */
+int func_003003C0(int *slot_a, int *slot_b, int *room, int *d);
+int func_002F7D90(int a, void *filter, int c, int d, int e, int f);
+int *func_002F7B10(void);
+void func_002F7C40(int *list, int count);
+void func_002F85E0(void);
+int func_002F41E0(int officer);                           /* officer level */
+int func_00327E50(void);
+int func_002FB3B0(u32 force);
+int func_002FB430(u32 force);
+int func_00309FB0(void);
+
+/* The level-4 "ultimate" form of skills 9, 0x13 and 0x25: fixed price, never a bargain. */
+static int is_ultimate(const SkillOffer *o)
+{
+    return (o->skill == 9 || o->skill == 0x13 || o->skill == 0x25) && o->level == 4;
+}
+
+/* 0x002A01D0, 0x744 bytes. Fills the four skill slots of `player`'s shop list for the officer
+ * shown: every skill below level 3 of the slot (kind 3 never; a skill of the other officer type
+ * only 25 % of the time), sorted by level then skill number, at most 5 per slot (a full slot drops
+ * a random offer, except an ultimate, to make room). Then picks the day's bargain. */
+void func_002A01D0(int player)
+{
+    SkillOffer *base = (SkillOffer *)&g_00772DF0[player * 0x140];
+    int filled[4];
+    int type, skill, s, k, total;
+    unsigned pick, index;
+
+    for (s = 0; s < 4; s++) {
+        for (k = 0; k < 5; k++) {
+            base[s * 5 + k].skill = SKILL_NONE;
+            base[s * 5 + k].level = 0;
+        }
+        filled[s] = 0;
+    }
+    type = func_002F67B0(func_0029FD70());
+
+    for (skill = 0; skill < SKILL_COUNT; skill++) {
+        u8 slot = SKILL_SLOT(skill);
+        u8 kind;
+        SkillOffer *row;
+        int n;
+
+        if (slot >= 4 || (u8)func_002F47A0(func_0029FD70(), skill) >= 3)
+            continue;
+        kind = SKILL_KIND(skill);
+        if (kind == 3)
+            continue;
+        if (((type == 1 && kind == 2) || (type == 2 && kind == 1)) && random16() % 100 >= 25)
+            continue;
+        row = &base[slot * 5];
+        n = filled[slot];
+        if (n >= 5) {                           /* full: drop a random offer to make room */
+            unsigned r = random16() % 6;
+            if (r >= 5)
+                continue;
+            if (row[r].skill == 9 || row[r].skill == 0x13 || row[r].skill == 0x25)
+                continue;
+            for (; r < 4; r++)
+                func_002A01A0((u32 *)&row[r], (const u32 *)&row[r + 1]);
+            row[r].skill = SKILL_NONE;
+            n = 4;
+        }
+        /* insertion sort: by level, then by skill number */
+        for (; n > 0; n--) {
+            int level = (u8)func_002F47A0(func_0029FD70(), skill) + 1;
+            if (row[n - 1].level < level)
+                break;
+            if (row[n - 1].level == level && row[n - 1].skill < skill)
+                break;
+            func_002A01A0((u32 *)&row[n], (const u32 *)&row[n - 1]);
+        }
+        row[n].skill = skill;
+        row[n].level = (u8)(func_002F47A0(func_0029FD70(), skill) + 1);
+        filled[slot]++;                         /* (can pass 5: only "full or not" matters) */
+    }
+
+    /* counts */
+    for (s = 0; s < 4; s++) {
+        g_00773174[player * 4 + s] = 0;
+    }
+    for (s = 0; s < 4; s++)
+        for (k = 0; k < 5 && base[s * 5 + k].skill < SKILL_COUNT; k++)
+            g_00773174[player * 4 + s]++;
+
+    /* bargains */
+    if (g_00669D82 == 3) {                      /* sale: everything but the ultimates */
+        for (s = 0; s < 4; s++)
+            for (k = 0; k < g_00773174[player * 4 + s]; k++) {
+                SkillOffer *o = &base[s * 5 + k];
+                o->bargain = !is_ultimate(o);
+                if (o->bargain)
+                    g_00773194 = 1;
+            }
+        g_00669D82 = 0;
+    } else {
+        if (random16() % 100 < 50) {            /* one bargain, 50 % of the time */
+            total = (u8)((u8)((u8)(g_00773174[player * 4] + g_00773174[player * 4 + 1])
+                              + g_00773174[player * 4 + 2]) + g_00773174[player * 4 + 3]);
+            pick = total == 0 ? 0 : random16() % (unsigned)total;
+        } else {
+            pick = 0xFF;
+        }
+        index = 0;
+        for (s = 0; s < 4; s++)
+            for (k = 0; k < g_00773174[player * 4 + s]; k++) {
+                SkillOffer *o = &base[s * 5 + k];
+                if (is_ultimate(o)) {
+                    o->bargain = 0;
+                } else if (index == pick) {
+                    o->bargain = 1;
+                    g_00773194 = 1;
+                } else {
+                    o->bargain = 0;
+                }
+                index = (index + 1) & 0xFF;
+            }
+    }
+
+    /* (never true: kind-3 skills are not offered) */
+    for (s = 0; s < 4; s++)
+        for (k = 0; k < g_00773174[player * 4 + s]; k++)
+            if (SKILL_KIND(base[s * 5 + k].skill) == 3) {
+                g_00773198 = 1;
+                break;
+            }
+}
+
+/* 0x002A0920, 0x218 bytes. Prices of `player`'s skill offers: level x 400 (x 500 for kind 3), or
+ * 10000 for an ultimate; x 0.8 when the skill suits the officer's type, x 1.2 when it suits the
+ * other type; x 0.8 again for the bargain. */
+void func_002A0920(int player)
+{
+    SkillOffer *base = (SkillOffer *)&g_00772DF0[player * 0x140];
+    int type = func_002F67B0(func_0029FD70());
+    int s, k;
+
+    for (k = 0; k < 5; k++)
+        for (s = 0; s < 4; s++) {
+            SkillOffer *o = &base[s * 5 + k];
+            unsigned price;
+            u8 kind;
+
+            if (o->skill >= SKILL_COUNT)
+                continue;
+            kind = SKILL_KIND(o->skill);
+            if (is_ultimate(o))
+                price = 10000;
+            else if (kind == 3)
+                price = o->level * 500;
+            else
+                price = o->level * 400;
+            if ((type == 1 && kind == 1) || (type == 2 && kind == 2))
+                price = price * 8 / 10;
+            else if ((type == 1 && kind == 2) || (type == 2 && kind == 1))
+                price = price * 12 / 10;
+            if (o->bargain == 1)
+                price = price * 8 / 10;
+            o->price = (int)price;
+        }
+}
+
+/* 0x002A1380, 0x2CC bytes. The mounts on sale: six mount records (g_007731D0) built from the
+ * default list (30 %: the third one becomes type 3), given random names, shown in a shuffled
+ * order; 6 offers. 50 %: one random offer is the day's bargain. */
+void func_002A1380(void)
+{
+    u8 order[6];
+    const char *names[6];
+    unsigned i, a, b;
+
+    for (i = 0; i < 6; i++)
+        order[i] = g_0045CEA0[i];
+    if (random16() % 100 < 30) {
+        order[2] = 3;
+        g_00773198 = 1;
+    }
+    for (i = 0; i < 6; i++)
+        func_001A0630(&g_007731D0[i * 0x24], order[i]);
+    func_00372E60(names, 6);
+    for (i = 0; i < 6; i++)
+        func_00120928((char *)&g_007731D0[i * 0x24 + 0x13], names[i]);
+
+    for (i = 0; i < 6; i++)
+        order[i] = (u8)i;
+    order[5] = 2;                               /* (as in the original: 2 twice, no 5) */
+    for (i = 0; i < 6; i++) {                   /* six random swaps */
+        a = random16() % 6;
+        b = random16() % 6;
+        {
+            u8 t = order[a];
+            order[a] = order[b];
+            order[b] = t;
+        }
+    }
+    for (i = 0; i < 6; i++)
+        g_007731D0[i * 0x24 + 7] = order[i];
+
+    for (i = 0; i < 8; i++) {
+        g_MountOffers[i].price = 0;
+        g_MountOffers[i].index = (u8)i;
+        g_MountOffers[i].bargain = 0;
+    }
+    g_0077317C = 6;                             /* min(8, 6) */
+    if (random16() % 100 < 50) {
+        unsigned r = g_0077317C == 0 ? 0 : random16() % g_0077317C;
+        g_MountOffers[r].bargain = 1;
+        g_00773194 = 1;
+    }
+}
+
+/* 0x002A1650, 0xE8 bytes. Mount prices: 3000 for a type-3 mount, else 2000, 2100 or 2200 at
+ * random; x 0.8 for the bargain. */
+void func_002A1650(void)
+{
+    int i;
+
+    for (i = 0; i < g_0077317C; i++) {
+        MountOffer *o = &g_MountOffers[i];
+        unsigned price;
+
+        if (g_007731D0[o->index * 0x24 + 6] == 3)
+            price = 3000;
+        else
+            price = random16() % 3 * 100 + 2000;
+        if (o->bargain != 0)
+            price = price * 8 / 10;
+        o->price = (int)price;
+    }
+}
+
+/* 0x002A2640, 0x124 bytes. How many officers the shop offers for hire: room left in the force
+ * (6 per something, minus those already there), limited by another count while func_00327E50()
+ * is below 150; between 0 and 8. */
+int func_002A2640(void)
+{
+    u32 force = func_00327D50();
+    int n;
+
+    if (func_00327E50() < 150) {
+        int capacity = func_002FB3B0(force);
+        int limit = func_00309FB0();
+        int used = func_002FB430(force);
+        int take;
+
+        n = capacity * 6 - used;
+        limit -= used;
+        if (limit < 1) {
+            limit = 0;
+            take = n > 0;
+        } else {
+            take = limit < n;
+        }
+        if (take)
+            n = limit;
+    } else {
+        n = func_002FB3B0(force) * 6 - func_002FB430(force);
+    }
+    if (n > 8)
+        n = 8;
+    if (n < 1)
+        n = 0;
+    return n;
+}
+
+/* 0x002A2770, 0x268 bytes. The officers for hire: a shuffled list of candidates (func_002F7D90 with
+ * the filter func_002F85E0), keeping those the force has room for, up to func_002A2640(). With 3 or
+ * more offers, 50 %: one random offer is the day's bargain. */
+void func_002A2770(void)
+{
+    int slot_a = SLOT_COUNT, slot_b = SLOT_COUNT, room = 0, unknown = 0;
+    int found, wanted, count, i;
+    HireOffer *o = g_HireOffers;
+
+    g_0077317D = 0;
+    found = func_003003C0(&slot_a, &slot_b, &room, &unknown);
+    wanted = func_002A2640();
+    if (found > 0 && wanted > 0) {
+        int *list;
+        count = func_002F7D90(0, (void *)func_002F85E0, 0, 0, 0, 0);
+        list = func_002F7B10();
+        func_002F7C40(list, count);
+        for (i = 0; i < count; i++) {
+            int officer = list[i];
+            if ((func_002F3F20(officer) == 0 || (room > 0 && slot_a >= 0 && slot_a < SLOT_COUNT))
+                && (unsigned)officer < OFFICER_NONE) {
+                if (func_002F3F20(officer) != 0)
+                    room--;
+                o->officer = officer;
+                o->can_hire = 1;
+                g_0077317D++;
+                o++;
+                if (g_0077317D >= wanted)
+                    break;
+            }
+        }
+    }
+    for (i = 0; i < g_0077317D; i++)
+        g_HireOffers[i].bargain = 0;
+    if (g_0077317D > 2 && random16() % 100 < 50) {
+        unsigned r = g_0077317D == 0 ? 0 : random16() % g_0077317D;
+        g_HireOffers[r].bargain = 1;
+        g_00773194 = 1;
+    }
+}
+
+/* 0x002A29E0, 0xF8 bytes. Hire prices: (level / 4 + 1) x 400 + 1000, or x 500 for the unique
+ * officers (0-27 and 400-414); x 0.8 for the bargain. */
+void func_002A29E0(void)
+{
+    int i;
+
+    for (i = 0; i < g_0077317D; i++) {
+        HireOffer *o = &g_HireOffers[i];
+        int unit = ((o->officer >= 0 && o->officer < 0x1C) || (o->officer >= 400 && o->officer < 0x19F))
+                   ? 500 : 400;
+        int price = unit * (func_002F41E0(o->officer) / 4 + 1) + 1000;
+
+        if (o->bargain == 1)
+            price = price * 8 / 10;
+        o->price = price;
+    }
 }
