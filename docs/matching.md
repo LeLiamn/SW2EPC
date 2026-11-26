@@ -17,7 +17,7 @@ CodeWarrior for PS2 **3.0.1 build 210 (2006-03-08)**; builds 198 and 205 give th
 older ones fewer matches (the 2.4 release saves `$ra` with 128-bit `sq`, the game with 64-bit `sd`).
 Settings:
 
-- `-O4` (`-O3` gives the same results so far);
+- `-O4,p` (level 4, optimised for speed: divisions by a constant become multiplications);
 - `#pragma tailcall off` (the game never turns a final call into a jump);
 - `#pragma no_branch_likely on` (the game never uses branch-likely instructions; this pragma
   exists from build 198 on);
@@ -52,7 +52,8 @@ What makes the compiler produce the game's exact code, learnt so far:
 - **Globals outside the small-data area are parts of larger objects.** CodeWarrior reaches any
   global of 8 bytes or less through `$gp`, but the game does so only for its small-data area
   (around `gp = 0x00464BF0`). `tools/group_globals.py` turns the scalar `extern`s of a file into
-  structs covering their address ranges (old names kept as macros). When the real start of an
+  structs covering their address ranges (old names kept as macros), padded beyond 8 bytes when
+  only a small part of the object is known. When the real start of an
   object is known, model it from there: the system settings start at `0x00669D60`, and the code
   adds `+0x2C` to reach the pads' settings.
 - **Flag bytes are bitfields** (first field = lowest bit): the game extracts them with

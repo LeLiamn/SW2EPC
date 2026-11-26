@@ -78,6 +78,8 @@ def main():
                 pad += 1
             body.append("    " + decl.strip())
             pos = addr + size
+        if pos - base <= 8:                     # still small: the compiler would use $gp
+            body.append(f"    char size_unknown[{9 - (pos - base)}];   /* the whole object is larger */")
         sname = f"s_{base:08X}"
         out.append(f"/* Globals 0x{base:08X}-0x{pos:08X}: one object in the original (not reached through $gp). */")
         out.append("extern struct {")

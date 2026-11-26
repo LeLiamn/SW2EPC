@@ -110,6 +110,7 @@ extern PadState g_00500700[2];
 /* Globals 0x00669D82-0x00669D83: one object in the original (not reached through $gp). */
 extern struct {
     char g_00669D82;              /* 3: everything is a bargain on this visit (cleared after) */
+    char size_unknown[8];   /* the whole object is larger (not reached through $gp) */
 } s_00669D82;
 #define g_00669D82 (s_00669D82.g_00669D82)
 
@@ -205,6 +206,7 @@ extern struct {
 /* Globals 0x00780494-0x00780498: one object in the original (not reached through $gp). */
 extern struct {
     u32 g_00780494;
+    char size_unknown[5];   /* the whole object is larger (not reached through $gp) */
 } s_00780494;
 #define g_00780494 (s_00780494.g_00780494)
 
@@ -377,21 +379,42 @@ void *func_0029FD90(int index)
     return &g_007731D0[index * 0x24];
 }
 
-/* 0x0029FDB0, 0x9C bytes. Requests mode `mode` (applied by func_0029FE50 on the next update) and
+/* 0x0029FDB0, 0x9C bytes, matching. Requests mode `mode` (applied by func_0029FE50 on the next update) and
  * moves the layout layer to the mode's position: modes 1-4 use layers 5-8, mode 11 layer 8. */
 void func_0029FDB0(int mode)
 {
-    int layer = -1;
+    int layer;
 
     g_00773150 = g_00773148;
-    if (mode == 16)
+    switch (mode) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+        break;
+    case 16:
         g_00780494 = 1;
+        break;
+    }
     g_00773154 = 1;
+    layer = -1;
+    g_0077314C = mode;
     if (mode > 0 && mode < 5)
         layer = mode + 4;
     if (mode == 11)
         layer = 8;
-    g_0077314C = mode;
     func_00376100(3, 4, layer);
 }
 
@@ -1035,13 +1058,13 @@ int func_0029FB70(void)
     return func_002F9190(func_00327D50());
 }
 
-/* 0x0029FBA0, 0x94 bytes. Adds `amount` gold (negative: spends it); gold is kept in tens. */
+/* 0x0029FBA0, 0x94 bytes, matching. Adds `amount` gold (negative: spends it); gold is kept in tens. */
 void func_0029FBA0(int amount)
 {
-    if (amount < 1)
-        func_002F9130(func_00327D50(), -amount / 10);
-    else
+    if (amount > 0)
         func_002F90D0(func_00327D50(), amount / 10);
+    else
+        func_002F9130(func_00327D50(), -amount / 10);
     func_0039F960();
 }
 

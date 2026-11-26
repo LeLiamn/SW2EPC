@@ -211,6 +211,7 @@ extern struct {
 /* Globals 0x00799A68-0x00799A6C: one object in the original (not reached through $gp). */
 extern struct {
     u32 g_00799A68;
+    char size_unknown[5];   /* the whole object is larger (not reached through $gp) */
 } s_00799A68;
 #define g_00799A68 (s_00799A68.g_00799A68)
 

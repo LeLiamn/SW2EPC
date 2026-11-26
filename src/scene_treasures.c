@@ -61,6 +61,7 @@ extern struct {
 /* Globals 0x0069395E-0x0069395F: one object in the original (not reached through $gp). */
 extern struct {
     char g_0069395E;  /* message box 1 open when neither 0 nor -1 */
+    char size_unknown[8];   /* the whole object is larger (not reached through $gp) */
 } s_0069395E;
 #define g_0069395E (s_0069395E.g_0069395E)
 
@@ -107,6 +108,7 @@ extern struct {
 /* Globals 0x00799A68-0x00799A6C: one object in the original (not reached through $gp). */
 extern struct {
     u32 g_00799A68;
+    char size_unknown[5];   /* the whole object is larger (not reached through $gp) */
 } s_00799A68;
 #define g_00799A68 (s_00799A68.g_00799A68)
 
@@ -738,7 +740,7 @@ void func_001E8A80(void)
         func_001E7110(0);
 }
 
-/* 0x001E8AB0, 0x74 bytes. Fills `list` with the ids 0..25 except 6 and 12, then 26. */
+/* 0x001E8AB0, 0x74 bytes, matching. Fills `list` with the ids 0..25 except 6 and 12, then 26. */
 void func_001E8AB0(IdList *list)
 {
     int id;
