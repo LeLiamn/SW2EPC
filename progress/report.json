@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 1850619893
+    "done": 1896323321
   },
   "layout": "treemap",
   "areas": [
@@ -45,7 +45,7 @@
           "name": "Unidentified",
           "description": "Leaves without a known signature (models, motions, scripts...)",
           "data": {
-            "total": 277561715,
+            "total": 231812367,
             "done": 0
           }
         },
@@ -63,6 +63,14 @@
           "data": {
             "total": 50761696,
             "done": 50761696
+          }
+        },
+        {
+          "name": "Motion",
+          "description": "Animations (keyframed cubic curves per node and component)",
+          "data": {
+            "total": 45703428,
+            "done": 45703428
           }
         },
         {
@@ -110,6 +118,14 @@
           "description": "'PS2 ' files without nodes (different layout)",
           "data": {
             "total": 128304,
+            "done": 0
+          }
+        },
+        {
+          "name": "Motion (atypical)",
+          "description": "Motions with an unknown track type",
+          "data": {
+            "total": 45920,
             "done": 0
           }
         }

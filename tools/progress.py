@@ -28,6 +28,7 @@ from disc_info import system_cnf  # noqa: E402
 from iso_list import SECTOR, list_image, read_file  # noqa: E402
 import linkdata  # noqa: E402
 import pack  # noqa: E402
+import motion  # noqa: E402
 
 # Format -> ("done" | "todo", description). Keep in sync with docs/formats/README.md.
 FORMAT_STATUS = {
@@ -36,6 +37,8 @@ FORMAT_STATUS = {
     "MPEG2": ("done", "Movies (Sony PSS: MPEG-2 + ADPCM + AC-3), exportable to MKV"),
     "ANS stream": ("done", "Music streams (SPU ADPCM), decodable to WAV"),
     "PS2": ("done", "3D models with skeleton and skinning, exportable to OBJ"),
+    "Motion": ("done", "Animations (keyframed cubic curves per node and component)"),
+    "Motion (atypical)": ("todo", "Motions with an unknown track type"),
     "PS2 variant": ("todo", "'PS2 ' files without nodes (different layout)"),
     "tm3": ("todo", "Files starting with 'tm3 '"),
     "TMD2": ("todo", "Files starting with 'TMD2'"),
@@ -52,6 +55,14 @@ LEAF_KIND = {"tm2": "TIM2", "tm3": "tm3", "tmd2": "TMD2", "ps2": "PS2", "pac": "
              "ipu": "IPU", "pss": "MPEG2", "bin": "Unidentified"}
 
 
+def motion_parses(leaf):
+    try:
+        tail = leaf[motion.parse(leaf)["end"]:]
+    except (motion.MotionError, ValueError, Exception):
+        return False
+    return not tail or (len(tail) < 16 and not any(tail))
+
+
 def count_container(data, sizes, forced_kind=None):
     """Add a LINKDATA container's bytes to `sizes`, by leaf format (opening nested packs)."""
     used = 0
@@ -64,6 +75,8 @@ def count_container(data, sizes, forced_kind=None):
             kind = LEAF_KIND[pack.kind_of(leaf)]
             if kind == "PS2" and leaf[0x10:0x12] == bytes(2):
                 kind = "PS2 variant"
+            elif kind == "Unidentified" and leaf[:4] == bytes((0x51, 0, 0, 0)):
+                kind = "Motion" if motion_parses(leaf) else "Motion (atypical)"
             sizes[kind] += len(leaf)
             used += len(leaf)
     sizes["Containers"] += len(data) - used

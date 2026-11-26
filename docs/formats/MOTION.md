@@ -1,36 +1,61 @@
 # Motions (files starting `51 00 00 00`)
 
-**Status: in progress.** Identified as animations; the key layout is only partly understood.
+**Status: understood.** Tool: `tools/motion.py` (lists tracks, checks every motion, poses a model at
+any frame and exports it to OBJ / PNG).
 
-`LINKDATA.BNS` holds **10,714 motion files** (46 MB), grouped by the hundred in packs (for example
-152 in pack 1612), from 56 bytes to 67 KB.
+`LINKDATA.BNS` holds **10,714 motion files** (46 MB), grouped in packs, often right next to the model
+they animate (pack 1412 holds the samurai model `1412.1` and its motion `1412.2`). **10,641 parse
+exactly** (to the last byte, or to zero padding below 16 bytes); 73 use a rarer track type or have a
+few trailing bytes and are still to study.
 
-## Header (16 bytes, little-endian)
+Solved from the data alone: the track layout below makes 10,641 files end exactly, and 679,397 of
+679,433 animated tracks end exactly on the motion's last frame.
 
-| Offset | Type | Values seen | Meaning (hypothesis) |
-|---:|---|---|---|
-| 0x00 | u32 | 81 (`0x51`) | Format id |
-| 0x04 | u32 | 87, 147... | Number of tracks? (87 = 29 × 3, 147 = 49 × 3) |
-| 0x08 | u32 | 1, 8, 30, 33, 60... | Length in frames (60 = two seconds at 30 fps?) |
-| 0x0C | u32 | `0x42000`, `0x4A000` | Flags |
+All values are little-endian.
 
-## Data (partial)
+## Header (12 bytes)
 
-The data is mostly 32-bit floats. Frame numbers appear as whole floats (0, 4, 39, 51, 60) and the last
-frame always closes a run of values, so the data is made of **tracks of keys**, each key ending on a
-frame number:
+| Offset | Type | Meaning |
+|---:|---|---|
+| 0x00 | u32 | `0x51`: format id |
+| 0x04 | u32 | Number of tracks (87, 117, 147, 111...: depends on the skeleton) |
+| 0x08 | u32 | Length in frames |
 
-```
-track: u32 type (0 for the first tracks)
-       key: f32 end frame, f32 × 4 values     (repeated until the end frame = length)
-```
+The tracks follow immediately (the first track header is at 0x0C).
 
-This reading holds for the first three tracks of motion `1074.0.0` (for example a constant track is
-a single key at frame 60 holding (3.012, −6.553, 3.587, −112.131), close to the root height of the
-characters, −117.5). It breaks on the fourth track: other track types store a different number of
-values per key.
+## Tracks
 
-## Next step
+Each track animates one component of one skeleton node. It starts with a u32 header:
 
-The game's `MotionManager.c` (its name survives in the executable) reads these files. Finding and
-reading that code is the reliable way to finish the format, rather than guessing more track types.
+| Bits | Meaning |
+|---|---|
+| 0–7 | Node index in the model's skeleton |
+| 8–11 | Component: 0, 1, 2 = rotation x, y, z (radians); 3, 4, 5 = translation x, y, z; 9–15 rare, unknown |
+| 13 (`0x2000`) | Constant track: values follow |
+| 15 (`0x8000`) | Animated track: keys follow |
+| 18–31 | Number of keys (or of values) |
+
+Then:
+
+- **Animated track**: N keys of 5 floats: end frame, then a, b, c, d. Key k covers the frames after
+  key k−1 (or frame 0) up to its end frame, with value = a·t³ + b·t² + c·t + d, t going from 0 to 1
+  over the segment. The last key always ends on the motion's last frame.
+- **Constant track** with bit 13: N floats (always one in practice).
+- **Constant track** without bit 13: no data, the value is 0.
+
+Rotations (components 0–2) are animated on most nodes; translations (3–5) only on a few (the root
+and the like), which is why they are about ten times rarer.
+
+## Checks
+
+- The layout above reads 10,641 of 10,714 files exactly.
+- Consecutive cubic segments join with a median gap of 0.011 radian (0.6°): the export tool fitted
+  each segment within a tolerance. Other readings of the four values (reversed polynomial, time in
+  frames) give large jumps.
+- Applying motion `1412.2` (114 frames) to the samurai `1412.1` gives coherent human poses, and
+  frames 0 and 114 are identical: a looping animation.
+
+## Open questions
+
+- Components 9–15 and bit 12 (`0x1000`), used by 194 tracks.
+- The 73 atypical files.
