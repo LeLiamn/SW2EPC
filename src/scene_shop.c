@@ -475,12 +475,10 @@ void func_0029FDB0(int mode)
     func_00376100(3, 4, layer);
 }
 
-/* 0x0029FE50, 0x350 bytes. Applies the requested mode (g_0077314C): picks its screen, resets the
+/* 0x0029FE50, 0x350 bytes, matching. Applies the requested mode (g_0077314C): picks its screen, resets the
  * cursors it needs and starts its layout animations (func_002A86A0). Mode 16 leaves the shop. */
 void func_0029FE50(void)
 {
-    int current = g_0045D898;
-
     func_002C59F0();
     func_002C5A30();
     switch (g_0077314C) {
@@ -499,6 +497,19 @@ void func_0029FE50(void)
         if (g_00773148 == 0)
             func_002A86A0(0x15);
         break;
+    case 5: case 6: case 7: case 8:
+        g_00773144 = 1;
+        if (g_00773148 != 9)
+            g_00773186 = 0;
+        break;
+    case 3:
+        g_00773144 = 3;
+        if (g_00773148 != 11 && g_00773148 != 12)
+            g_00773183 = 0;
+        func_002A86A0(6);
+        if (g_00773148 == 0)
+            func_002A86A0(0x15);
+        break;
     case 2:
         g_00773144 = 2;
         if (g_00773148 != 14 && g_00773148 != 15) {
@@ -509,13 +520,11 @@ void func_0029FE50(void)
         if (g_00773148 == 0)
             func_002A86A0(0x15);
         break;
-    case 3:
-        g_00773144 = 3;
-        if (g_00773148 != 11 && g_00773148 != 12)
-            g_00773183 = 0;
-        func_002A86A0(6);
-        if (g_00773148 == 0)
-            func_002A86A0(0x15);
+    case 14:
+        g_00773144 = 6;
+        g_00773189 = 0;
+        g_00773186 = 0;
+        func_002A86A0(0x0B);
         break;
     case 4:
     case 11:
@@ -523,10 +532,15 @@ void func_0029FE50(void)
         g_00773186 = 0;
         func_002A86A0(0x0C);
         break;
-    case 5: case 6: case 7: case 8:
-        g_00773144 = 1;
-        if (g_00773148 != 9)
-            g_00773186 = 0;
+    case 15:
+        g_00773144 = 8;
+        g_00773186 = 0;
+        func_002A86A0(0x0D);
+        break;
+    case 12:
+        g_00773144 = 7;
+        g_00773186 = 0;
+        func_002A86A0(0x0E);
         break;
     case 9:
         g_00799A68 = g_0077315C;
@@ -536,33 +550,18 @@ void func_0029FE50(void)
         g_00773188 = 0;
         g_007731A0 = 1;
         break;
-    case 12:
-        g_00773144 = 7;
-        g_00773186 = 0;
-        func_002A86A0(0x0E);
-        break;
-    case 14:
-        g_00773144 = 6;
-        g_00773189 = 0;
-        g_00773186 = 0;
-        func_002A86A0(0x0B);
-        break;
-    case 15:
-        g_00773144 = 8;
-        g_00773186 = 0;
-        func_002A86A0(0x0D);
-        break;
     case 16:                                    /* leave the shop */
-        if (g_0045D89C > 0x17 && g_0045D8A0 > 0x17)
+        if (g_0045D89C >= 0x18 && g_0045D8A0 >= 0x18)
             g_0045D89C = 0x12;                  /* nowhere to go back to: scene 0x12 */
         if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {
+            g_0045D894 = g_0045D898;
             g_0045D898 = g_0045D8A0;
             g_0045D89C = 0x18;
         } else {
+            g_0045D894 = g_0045D898;
             g_0045D898 = g_0045D89C;
             g_0045D89C = g_0045D8A0;
         }
-        g_0045D894 = current;
         g_00773186 = 0;
         break;
     }
@@ -1209,12 +1208,16 @@ void func_002A1760(void)
  * shows the player's mounts (mode 12). */
 void func_002A18D0(int player)
 {
-    int port;
-    char text[256];
-    int pressed, held;
-    int answer;
-    int box = BOX_NONE;
     MountOffer *offers = g_MountOffers;
+    int count;
+    u8 *mount;
+    int index;
+    int box = BOX_NONE;
+    int held;
+    int port;
+    int answer;
+    char text[256];
+    int pressed;
 
     read_pad(player, port, pressed, held);
     if (g_006934B3 != 0)
@@ -1243,7 +1246,6 @@ void func_002A18D0(int player)
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(0);
     } else if (pressed & BTN_OK) {
-        int index;
         if (!(g_0077317C > 0)) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             return;
@@ -1263,19 +1265,17 @@ void func_002A18D0(int player)
             show_msg(1, port, g_0043C3E4);
             return;
         }
-        {
-            u8 *mount = func_0029FD90(index);
-            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            show_box(1, port, g_0043C3DC, (const char *)mount + 0x13);
-        }
+        mount = func_0029FD90(index);
+        func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        show_box(1, port, g_0043C3DC, (const char *)mount + 0x13);
     } else if (pressed & BTN_EXTRA) {
         if (func_0029FD10() != 0) {
             func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             func_0029FDB0(12);
         }
     } else {
-        int count = g_0077317C;
-        if (count < 2)
+        count = g_0077317C;
+        if (count <= 1)
             return;
         if (held & BTN_UP) {
             if (g_00773183 > 0) {
@@ -1419,7 +1419,7 @@ int func_002A2B90(int officer)
     return func_002A2B00(officer, slot_a, slot_b, room);
 }
 
-/* 0x002A2BE0, 0x308 bytes. Hires the officer under the cursor (g_00773185): pays, places him in a
+/* 0x002A2BE0, 0x308 bytes, matching. Hires the officer under the cursor (g_00773185): pays, places him in a
  * free slot, removes him from the offers and updates which offers can still be hired. */
 void func_002A2BE0(void)
 {
@@ -1429,12 +1429,16 @@ void func_002A2BE0(void)
     func_00300560(&slot_a, &slot_b);
     officer = g_HireOffers[g_00773185].officer;
     func_0029FBA0(-g_HireOffers[g_00773185].price);
-    if (func_002F3F20(officer) != 0 && slot_a >= 0 && slot_a < SLOT_COUNT)
-        func_002F7300(officer, func_00327D50(), slot_a, 2);
-    else if (slot_b >= 0 && slot_b < SLOT_COUNT)
-        func_002F7300(officer, func_00327D50(), slot_b, 1);
-    else if (slot_a >= 0 && slot_a < SLOT_COUNT)
-        func_002F7300(officer, func_00327D50(), slot_a, 2);
+    if (func_002F3F20(officer) != 0 && slot_a >= 0 && slot_a < SLOT_COUNT) {
+        int k = func_00327D50();
+        func_002F7300(officer, k, slot_a, 2);
+    } else if (slot_b >= 0 && slot_b < SLOT_COUNT) {
+        int k = func_00327D50();
+        func_002F7300(officer, k, slot_b, 1);
+    } else if (slot_a >= 0 && slot_a < SLOT_COUNT) {
+        int k = func_00327D50();
+        func_002F7300(officer, k, slot_a, 2);
+    }
     func_002A85C0(officer);
     g_0077318A++;                               /* purchases this visit (farewell voice) */
 
@@ -1446,13 +1450,16 @@ void func_002A2BE0(void)
     if (g_0077317D < 8) {                       /* the whole list fits: no scrolling */
         g_00773185 = g_00773185 > g_0077317D - 1 ? g_0077317D - 1 : g_00773185;
         g_00773184 = g_00773185;
-    } else if (g_0077317D - 8 < g_00773185 - g_00773184) {
+    } else if (g_00773185 - g_00773184 > g_0077317D - 8) {
         g_00773185--;
     }
 
-    room = func_00300560(&slot_a, &slot_b);
-    for (i = 0; i < g_0077317D; i++)
-        g_HireOffers[i].can_hire = (u8)func_002A2B00(g_HireOffers[i].officer, slot_a, slot_b, room);
+    {
+        HireOffer *o = g_HireOffers;
+        room = func_00300560(&slot_a, &slot_b);
+        for (i = 0; i < g_0077317D; i++, o++)
+            o->can_hire = (u8)func_002A2B00(o->officer, slot_a, slot_b, room);
+    }
     g_00773138++;
     func_002CAD60(g_00773130);
 }
@@ -1794,7 +1801,8 @@ void func_002A0920(int player)
 {
     int type = func_002F67B0(func_0029FD70());
     SkillOffer *base = (SkillOffer *)&g_00772DF0[player * 0x140];
-    int s, k;
+    int k;
+    int s;
 
     for (k = 0; k < 5; k++)
         for (s = 0; s < 4; s++) {
