@@ -32,8 +32,26 @@ extern struct {
 #define g_0045D898 (g_0045D880.current)
 #define g_0045D89C (g_0045D880.return_to)
 #define g_0045D8A0 (g_0045D880.requested)
-#define GO_TO_NEXT_SCENE() do {                                                 if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {                        g_0045D894 = g_0045D898;                                                g_0045D898 = g_0045D8A0;                                                g_0045D89C = 0x18;                                                  } else {                                                                    g_0045D894 = g_0045D898;                                                g_0045D898 = g_0045D89C;                                                g_0045D89C = g_0045D8A0;                                            }                                                                   } while (0)
-#define SWITCH_SCENE() do {                                                     if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {                        g_0045D898 = g_0045D8A0;                                                g_0045D89C = 0x18;                                                  } else {                                                                    g_0045D898 = g_0045D89C;                                                g_0045D89C = g_0045D8A0;                                            }                                                                   } while (0)
+#define GO_TO_NEXT_SCENE() do {                                         \
+        if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {            \
+            g_0045D894 = g_0045D898;                                    \
+            g_0045D898 = g_0045D8A0;                                    \
+            g_0045D89C = 0x18;                                          \
+        } else {                                                        \
+            g_0045D894 = g_0045D898;                                    \
+            g_0045D898 = g_0045D89C;                                    \
+            g_0045D89C = g_0045D8A0;                                    \
+        }                                                               \
+    } while (0)
+#define SWITCH_SCENE() do {                                             \
+        if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {            \
+            g_0045D898 = g_0045D8A0;                                    \
+            g_0045D89C = 0x18;                                          \
+        } else {                                                        \
+            g_0045D898 = g_0045D89C;                                    \
+            g_0045D89C = g_0045D8A0;                                    \
+        }                                                               \
+    } while (0)
 
 /* The game state (0x00669D60), the fields used here. */
 extern struct {

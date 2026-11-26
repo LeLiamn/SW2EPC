@@ -1173,8 +1173,16 @@ static inline int box_busy(int box)
 
 /* Shows a message in box `box` for the player's controller (inlined in the original, with one
  * text buffer per function). */
-#define show_box(box, player, format, name) do {           func_001204B0(text, format, name);                  func_001AE9F0(box, text, 1);                        func_001AFC70(box, player);                     } while (0)
-#define show_msg(box, player, format) do {                  func_001204B0(text, format);                        func_001AE9F0(box, text, 1);                        func_001AFC70(box, player);                     } while (0)
+#define show_box(box, player, format, name) do {                        \
+        func_001204B0(text, format, name);                              \
+        func_001AE9F0(box, text, 1);                                    \
+        func_001AFC70(box, player);                                     \
+    } while (0)
+#define show_msg(box, player, format) do {                              \
+        func_001204B0(text, format);                                    \
+        func_001AE9F0(box, text, 1);                                    \
+        func_001AFC70(box, player);                                     \
+    } while (0)
 
 /* 0x0029FB70, 0x24 bytes, matching. The player's gold. */
 int func_0029FB70(void)

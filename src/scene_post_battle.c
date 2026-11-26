@@ -1808,7 +1808,18 @@ extern const char *g_0044D990;            /* "Your army has earned no experience
 
 /* One counting step: `value` goes up by 8 towards `target`, with a tick sound on odd frames
  * (`blink`). Sets `counting` to 0 once it got there. */
-#define COUNT_UP(counting, value, target, blink)                            do {                                                                        (counting) = (value) < (target);                                        if (counting) {                                                             if (((blink) & 1) == 1)                                                     func_0023AD10(3, 0, 0x2CDC, 0x2CDC, 0x1000);                        (value) += 8;                                                           if ((value) > (target))                                                     (value) = (target);                                                 (blink) = ((blink) + 1) & 1;                                        }                                                                   } while (0)
+#define COUNT_UP(counting, value, target, blink)                        \
+    do {                                                                \
+        (counting) = (value) < (target);                                \
+        if (counting) {                                                 \
+            if (((blink) & 1) == 1)                                     \
+            func_0023AD10(3, 0, 0x2CDC, 0x2CDC, 0x1000);                \
+            (value) += 8;                                               \
+            if ((value) > (target))                                     \
+            (value) = (target);                                         \
+            (blink) = ((blink) + 1) & 1;                                \
+        }                                                               \
+    } while (0)
 
 /* 0x0021D0D0, 0x5CC bytes. Army experience page (controller `pad`, open box `box`): without
  * results (func_0036B260) shows "no experience" in box 0 and moves on (page 1) on its answer;

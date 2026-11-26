@@ -38,7 +38,17 @@ extern struct {
         if (g_0045D89C >= 0x18 && g_0045D8A0 >= 0x18)                   \
             g_0045D89C = (scene);                                       \
     } while (0)
-#define GO_TO_NEXT_SCENE() do {                                                 if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {                        g_0045D894 = g_0045D898;                                                g_0045D898 = g_0045D8A0;                                                g_0045D89C = 0x18;                                                  } else {                                                                    g_0045D894 = g_0045D898;                                                g_0045D898 = g_0045D89C;                                                g_0045D89C = g_0045D8A0;                                            }                                                                   } while (0)
+#define GO_TO_NEXT_SCENE() do {                                         \
+        if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {            \
+            g_0045D894 = g_0045D898;                                    \
+            g_0045D898 = g_0045D8A0;                                    \
+            g_0045D89C = 0x18;                                          \
+        } else {                                                        \
+            g_0045D894 = g_0045D898;                                    \
+            g_0045D898 = g_0045D89C;                                    \
+            g_0045D89C = g_0045D8A0;                                    \
+        }                                                               \
+    } while (0)
 /* The second half of a scene change, without setting `previous`. */
 #define SWITCH_SCENE() do {                                             \
         if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {            \
