@@ -116,5 +116,5 @@ What makes the compiler produce the game's exact code, learnt so far:
 **StateTreasures.c is fully matching** (all 24 functions of `src/scene_treasures.c`), and so is
 `src/main.c` (start-up and the scene manager).
 
-206 functions match (37 of the 42 functions of `src/scene_shop.c`, 24 of the 33 of `src/scene_config.c`, 6 of the 8 of `src/scene_setup_emp_mogi.c`, 2 of the 37 of `src/scene_post_battle.c`, 18 of 23 in `src/scene_initialize.c`, 7 of 25 in `src/scene_demo.c`, 9 of 10 in `src/scene_empty.c`, 14 of 18 in `src/scene_loading.c`, 30 of 67 in `src/scene_battle_initialize.c`, 9 of 15 in `src/scene_conquest.c`, 7 of 40 in `src/scene_pre_battle.c`, all of `src/scene_tutorial.c` and `src/scene_season_anime.c`). The other functions are equivalent C that
+214 functions match (37 of the 42 functions of `src/scene_shop.c`, 24 of the 33 of `src/scene_config.c`, 6 of the 8 of `src/scene_setup_emp_mogi.c`, 2 of the 37 of `src/scene_post_battle.c`, 18 of 23 in `src/scene_initialize.c`, 7 of 25 in `src/scene_demo.c`, 9 of 10 in `src/scene_empty.c`, 14 of 18 in `src/scene_loading.c`, 30 of 67 in `src/scene_battle_initialize.c`, 9 of 15 in `src/scene_conquest.c`, 15 of 82 in `src/scene_pre_battle.c`, all of `src/scene_tutorial.c` and `src/scene_season_anime.c`). The other functions are equivalent C that
 still needs reshaping.

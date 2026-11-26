@@ -350,7 +350,7 @@ extern u8 g_00442EA0[][0x10];              /* camera directions per battle type 
 extern float g_00443290[][4];              /* camera targets per battle type */
 extern struct { float a, b, c; } g_00443530[];   /* camera distances per battle type */
 extern struct { float a, b; } g_00443630[];  /* distance ranges per battle type */
-extern void (*g_0040DF40[3])(void);       /* page 10 handlers */
+extern void (*g_0040DF40[3])(int pad);    /* page 10 handlers */
 extern void (*g_0040DF50[3])(int pad);    /* page 13 handlers (the last one empty) */
 
 /* Help lines. */
@@ -500,7 +500,7 @@ int func_002208D0(u32 officer);
 u32 func_002F6A60(u32 officer);
 int func_0036DBA0(u32 officer, u32 item);
 int func_002F4900(u32 officer, u32 item);
-u32 func_0029A5C0(void);
+u32 func_0029A5C0(u8 *page);
 const char *func_003725A0(int id);
 void func_003838B0(const char *text, int b);
 void func_003F11D0(void);
@@ -1576,15 +1576,311 @@ void func_00223BB0(int player)
     }
 }
 
-/* 0x00224D70, 0x54 bytes. Page 10: runs the handler of its mode (g_00749B6C[0], 0-2). */
-void func_00224D70(void)
+/* Page 10 (g_00749B6C): mode (0 a slot, 1 / 2 its value), slot (0-1), cursor, scroll, the two
+ * slots' choices (+4, 0xFF = none), the list of values (+6, 31 entries, 0x1F = none). */
+#define P10_MODE    (g_00749B6C[0])
+#define P10_SLOT    (g_00749B6C[1])
+#define P10_CURSOR  (g_00749B6C[2])
+#define P10_SCROLL  (g_00749B6C[3])
+#define P10_CHOICE  (&g_00749B6C[4])
+#define P10_LIST    (&g_00749B6C[6])
+
+extern u8 *g_0045D2F0;                    /* (small data) the battle map: +4 its 32 x 32 cells */
+extern u32 g_006AA580[6];                 /* a list ... */
+extern u32 g_006AA598;                    /* ... and its count */
+
+void func_0034FE40(u8 *map);
+void func_003535B0(u8 *map);
+void func_00182350(void);
+void func_001D5DC0(void);
+void func_00354500(void);
+void func_00355490(void);
+void func_003E5570(void);
+int func_00362600(int side, u32 i);
+void func_003E5E00(void);
+void func_003625D0(int side, int i, u32 value);
+int func_0029D000(u8 *page, u8 value, int b);
+
+/* A map cell (inlined in the original, with a pointer test that is always true). */
+static u8 *map_cell(u8 *map, const u8 *pos)
 {
-    void (*handlers[3])(void);
+    if (pos == 0 || pos[0] >= 0x20 || pos[1] >= 0x20)
+        return 0;
+    return (*(u8 ***)(map + 4))[pos[0] + pos[1] * 0x20];
+}
+
+/* 0x00224040, 0x18 bytes, matching. Page 10: back to choosing a slot (the first one when `reset`). */
+void func_00224040(int reset)
+{
+    u8 *page = g_00749B6C;
+
+    if (reset != 0)
+        page[1] = 0;
+    page[0] = 0;
+}
+
+/* 0x00224060, 0x20 bytes, matching. Page 10: choosing a slot's value (mode 1). */
+void func_00224060(int reset)
+{
+    u8 *page = g_00749B6C;
+
+    if (reset != 0) {
+        page[2] = 0;
+        page[3] = 0;
+    }
+    page[0] = 1;
+}
+
+/* 0x00224080, 0x20 bytes, matching. Page 10: choosing a slot's value (mode 2, a free battle). */
+void func_00224080(int reset)
+{
+    u8 *page = g_00749B6C;
+
+    if (reset != 0) {
+        page[2] = 0;
+        page[3] = 0;
+    }
+    page[0] = 2;
+}
+
+/* 0x002240A0, 0x1E4 bytes. Rebuilds the battle's map state after the page-10 values changed:
+ * clears the first 25 x 25 cells' marks and the list at 0x006AA580, the soldier groups, and the
+ * map's other data. */
+void func_002240A0(void)
+{
+    u8 *map = g_0045D2F0;
+    u32 x, y, i;
+
+    func_0034FE40(map);
+    func_003535B0(map);
+    for (y = 0; y < 0x19; y++) {
+        for (x = 0; x < 0x19; x++) {
+            u8 pos[2];
+            u8 *cell;
+
+            pos[0] = (u8)x;
+            pos[1] = (u8)y;
+            cell = map_cell(g_0045D2F0, pos);
+            if (cell != 0) {
+                cell[8] = 0;
+                cell[0xC] = 0;
+                cell[9] = 0;
+                cell[0xD] = 0;
+            }
+        }
+    }
+    while (g_006AA598 != 0) {                     /* removes the first entry until empty */
+        for (i = 0; i < g_006AA598; i++)
+            if (g_006AA580[0] == g_006AA580[i])
+                break;
+        for (; i < g_006AA598 - 1; i++)
+            g_006AA580[i] = g_006AA580[i + 1];
+        g_006AA598--;
+    }
+    func_00182350();
+    func_001D5DC0();
+    func_00354500();
+    func_00355490();
+    func_003E5570();
+    func_0028EFC0(g_007496F0);
+}
+
+/* 0x00224290, 0xFC bytes. When the slots' values changed kind (0 or 1) from `before`, rebuilds
+ * the map state. */
+void func_00224290(int *before)
+{
+    u32 i;
+    int had1 = 0, had0 = 0, has1 = 0, has0 = 0;
+
+    for (i = 0; i < 2; i++) {
+        if (before[i] == 1)
+            had1 = 1;
+        else if (before[i] == 0)
+            had0 = 1;
+    }
+    for (i = 0; i < 2; i++) {
+        int v = func_00362600(0, i);
+        if (v == 1)
+            has1 = 1;
+        else if (v == 0)
+            has0 = 1;
+    }
+    if (had0 != has0 || had1 != has1)
+        func_002240A0();
+    func_003E5E00();
+}
+
+/* 0x00224390, 0xE8 bytes. Page 10 done: writes the slots' values to side 0 (chosen ones first,
+ * then 0x1F). */
+void func_00224390(void)
+{
+    int before[2];
+    u32 i, n = 0;
+
+    for (i = 0; i < 2; i++)
+        before[i] = func_00362600(0, i);
+    for (i = 0; i < 2; i++) {
+        u8 v = 0x1F;
+
+        if (P10_CHOICE[i] != 0xFF)
+            v = P10_LIST[P10_CHOICE[i]];
+        if (v < 0x1F) {
+            func_003625D0(0, n, v);
+            n++;
+        }
+    }
+    for (; n < 2; n++)
+        func_003625D0(0, n, 0x1F);
+    func_00224290(before);
+}
+
+/* 0x00224480, 0x1C8 bytes. Page 10, choosing a slot: OK picks its value (mode 1 in an Empire
+ * battle, else 2), the second extra button clears it, Cancel keeps everything and goes back. */
+void func_00224480(int pad)
+{
+    u8 cursor = P10_SLOT;
+    int port = pad == 0 ? 0 : (pad == 1 ? 1 : pad);
+    unsigned short pressed = PAD_PRESSED_N(port);
+
+    if (pressed & BTN_OK) {
+        SE(1);
+        if (func_0036D2E0() == 0)
+            func_00224080(1);
+        else
+            func_00224060(1);
+    } else if (pressed & BTN_CANCEL) {
+        func_00224390();
+        SE(2);
+        func_00220970(0);
+    } else if (pressed & BTN_EXTRA2) {
+        if (P10_CHOICE[P10_SLOT] < 0x1F)
+            SE(2);
+        else
+            SE(4);
+        P10_CHOICE[P10_SLOT] = 0xFF;
+    } else {
+        func_002C5220(port, &cursor, &P10_SLOT, 2, 2);
+    }
+}
+
+/* 0x00224650, 0x120 bytes. A list's page down (`shown` lines of `count`): to the end, or one page
+ * further keeping the cursor on the screen. */
+void func_00224650(int *cursor, int *scroll, int count, int shown)
+{
+    int c = *cursor, s = *scroll;
+
+    if (shown < count) {
+        if (c != count - 1 || s != shown - 1) {
+            SE(0);
+            c += shown;
+            if (c < count - 1) {
+                int t = c - (count - shown);
+                if (shown <= c + shown - s && s <= t)
+                    s = t;
+            } else {
+                c = count - 1;
+                s = shown - 1;
+            }
+        }
+    } else if (s < shown - 1) {
+        SE(0);
+        c = count - 1;
+        s = shown - 1;
+    }
+    *cursor = c;
+    *scroll = s;
+}
+
+/* 0x00224770, 0xF4 bytes. A list's page up: to the start, or one page back. */
+void func_00224770(int *cursor, int *scroll, int count, int shown)
+{
+    int c = *cursor, s = *scroll;
+
+    if (shown < count) {
+        if (c != 0 || s != 0) {
+            SE(0);
+            c -= shown;
+            if (c < 0) {
+                c = 0;
+                s = 0;
+            } else {
+                int lower;
+
+                if (c < 1) {
+                    c = 0;
+                    lower = s > 0;
+                } else {
+                    lower = c < s;
+                }
+                if (lower)
+                    s = c;
+            }
+        }
+    } else if (s > 0) {
+        SE(0);
+        c = 0;
+        s = 0;
+    }
+    *cursor = c;
+    *scroll = s;
+}
+
+/* Page 10's value list (modes 1 and 2): the cursor (func_002C5220, 9 shown), Left / Right a page
+ * up / down, OK keeps the value when func_0029D000 accepts it (`empire`), Cancel goes back. */
+static void page10_values(int pad, int count, int empire)
+{
+    int port = pad == 0 ? 0 : (pad == 1 ? 1 : pad);
+    unsigned short pressed = PAD_PRESSED_N(port);
+    unsigned short repeat = PAD_REPEAT_N(port);
+    int shown = count < 10 ? count : 9;
+
+    if (pressed & BTN_OK) {
+        if (func_0029D000(g_00749B6C, P10_CURSOR, empire) == 0) {
+            SE(4);
+        } else {
+            SE(1);
+            P10_CHOICE[P10_SLOT] = P10_CURSOR;
+            func_00224040(0);
+        }
+    } else if (pressed & BTN_CANCEL) {
+        SE(2);
+        func_00224040(0);
+    } else if (func_002C5220(port, &P10_SCROLL, &P10_CURSOR, shown & 0xFF, count & 0xFF) == 0) {
+        int c = P10_CURSOR, s = P10_SCROLL;
+
+        if (repeat & BTN_LEFT) {
+            func_00224770(&c, &s, count, shown);
+            P10_CURSOR = (u8)c;
+            P10_SCROLL = (u8)s;
+        } else if (repeat & BTN_RIGHT) {
+            func_00224650(&c, &s, count, shown);
+            P10_CURSOR = (u8)c;
+            P10_SCROLL = (u8)s;
+        }
+    }
+}
+
+/* 0x00224870, 0x284 bytes. Page 10, mode 1 (an Empire battle): the values of func_0029A5C0. */
+void func_00224870(int pad)
+{
+    page10_values(pad, func_0029A5C0(g_00749B6C), 1);
+}
+
+/* 0x00224B00, 0x264 bytes. Page 10, mode 2 (a free battle): the values listed at set-up. */
+void func_00224B00(int pad)
+{
+    page10_values(pad, g_00749B91, 0);
+}
+
+/* 0x00224D70, 0x54 bytes. Page 10: runs the handler of its mode (g_00749B6C[0], 0-2). */
+void func_00224D70(int pad)
+{
+    void (*handlers[3])(int pad);
 
     handlers[0] = g_0040DF40[0];
     handlers[1] = g_0040DF40[1];
     handlers[2] = g_0040DF40[2];
-    handlers[g_00749B6C[0]]();
+    handlers[g_00749B6C[0]](pad);
 }
 
 /* 0x00224DD0, 0x1C bytes. */
@@ -2262,7 +2558,7 @@ int func_00226D90(void)
     case 6:  func_00223220(g_00749A1C); break;
     case 7:  func_00223600(g_00749A1C); break;
     case 9:  func_00223BB0(g_00749A1C); break;
-    case 10: func_00224D70(); break;
+    case 10: func_00224D70(g_00749A1C); break;
     case 11: func_00224E20(g_00749A1C); break;
     case 12: func_002254B0(g_00749A1C); break;
     case 13: func_00225950(g_00749A1C); break;
@@ -2559,7 +2855,7 @@ void func_002275C0(void)
                 func_001A7DC0(g_0043C6FC, 0x80, 1);
             else
                 func_001A7DC0(g_0043C700, 0x80, 1);
-        } else if (func_0029A5C0() < 2) {
+        } else if (func_0029A5C0(g_00749B6C) < 2) {
             func_001A7DC0(g_0043C560, 0x80, 1);
         } else {
             func_001A7DC0(g_0043C638, 0x80, 1);

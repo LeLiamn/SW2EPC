@@ -317,19 +317,37 @@ with `0x00669F6C` = 1). Leaving goes to `0x007B4E50` (reset to 0x12 afterwards).
 
 ## Scene 0x09: before a battle (`src/scene_pre_battle.c`)
 
-Original source file `StatePreBattle.c` (`0x00220780`-`0x00228174`, about 84 functions). Decompiled:
-the scene and its last pages (`0x00224D70`-`0x00228174`, 40 functions, 7 match); the first menu
-pages (`0x00220780`-`0x00224D60`) are still to do.
+Original source file `StatePreBattle.c` (`0x00220780`-`0x00228174`, 82 functions, all decompiled;
+15 match).
 
 - **enter** opens the loading screen for the battle's stage (picture by battle type, `0x00669DD4`;
   mode 2: picture 0x16), prepares the battle (`func_001D42E0`) and, for a free battle, the menu
   (LINKDATA 0x36, and 0x37 outside mode 2); an Empire battle (`0x00669F6C` = 1) uses scene 0x08's
   screens instead. When a movie plays first, the update builds the battle one step a frame.
-- **The menu**: page `0x00749A10` for player `0x00749A1C`; pages 10 (a list of 31 entries), 11
-  (the formation), 12 (values for five slots, kept in the order of the values) and 13 (the music:
-  on / off, track, play) are decompiled; each page has a button help line.
-- Pages 10-13 keep their state in small objects (`0x00749B6C`, `0x00749B96`, `0x00749B9E`,
-  `0x00749BB6`) that the code reaches through a pointer to the object.
+- **The menu** (page `0x00749A10`, player `0x00749A1C`; a page change goes through
+  `0x002209E0`, which also moves the camera at `0x007A1B70`):
+
+  | page | handler | content |
+  |---|---|---|
+  | 0 | `0x00221AB0` | main menu, 7 entries (`0x00429E60` -> pages `0x0040DF10`: 1, 10, 11, 3, 2, 13, ready) |
+  | 1 | `0x00221F70` | the officer: equipment (6), items (7), mounts (9, needs mounts), bodyguards (5); the extra button switches costume |
+  | 2 | `0x00222450` | the map |
+  | 3 | `0x00223090` | the army: each side's units (Left / Right), the view (L1 / R1), orders: a unit's target (Empire battles) |
+  | 5 | `0x00223120` | bodyguards (view only) |
+  | 6 | `0x00223220` | equipment: the player's items (`0x00749A28`, 0x52 bytes per player) |
+  | 7 | `0x00223600` | items: 4 columns of 10, use / take off |
+  | 9 | `0x00223BB0` | mounts: four mounts, one per player (`0x00749AE4`) |
+  | 10 | `0x00224D70` | two slots taking values from a list (changing their kind rebuilds the map state) |
+  | 11 | `0x00224E20` | the formation |
+  | 12 | `0x002254B0` | values for five slots, kept in the order of the values |
+  | 13 | `0x00225950` | the music: on / off, track, play |
+  | 14 / 15 | (page change) | to the battle (scene 4) / leave and free the battle |
+
+- With two armies each player declares "ready" (`0x00749B08`); the battle starts when both are.
+- Pages 3, 10-13 keep their state in small objects (`0x00749B10`, `0x00749B6C`, `0x00749B96`,
+  `0x00749B9E`, `0x00749BB6`) that the code reaches through a pointer to the object.
+- Camera calls: `func_002EBD80(distance, camera, direction)` and `func_002EBAA0(distance, camera,
+  direction, frames)`, the distance passed in `$f12` (tables per battle type at `0x00443530`).
 
 ## Scene 0x15: Empire set-up (`src/scene_setup_emp_mogi.c`)
 

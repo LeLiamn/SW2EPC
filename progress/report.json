@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 39412,
-    "non_matching": 87760
+    "matching": 39688,
+    "non_matching": 105120
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10614,
-    "matching": 206
+    "matching": 214
   },
   "layout": "treemap",
   "areas": [
@@ -65,20 +65,20 @@
         },
         {
           "name": "StatePreBattle.c",
-          "description": "Estimated range 0x2214B8-0x22A120; 40 function(s) decompiled",
+          "description": "Estimated range 0x2214B8-0x22A120; 76 function(s) decompiled",
           "code": {
             "total": 35944,
-            "matching": 420,
-            "non_matching": 12692
+            "matching": 696,
+            "non_matching": 26108
           }
         },
         {
           "name": "StatePostBattle.c",
-          "description": "Estimated range 0x219898-0x2214B8; 37 function(s) decompiled",
+          "description": "Estimated range 0x219898-0x2214B8; 43 function(s) decompiled",
           "code": {
             "total": 31776,
             "matching": 128,
-            "non_matching": 24260
+            "non_matching": 28204
           }
         },
         {
