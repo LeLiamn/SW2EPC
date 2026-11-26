@@ -96,7 +96,9 @@ void func_00100500(void);
 void func_001020E0(void);
 
 /* 0x0045CB80: passed four times to func_00117F10 during system set-up. */
-extern u32 g_0045CB80[];
+/* Four different symbols that the linker placed at the same address (the compiler loads each one
+ * separately, so they are distinct names in the source; linker-defined section bounds?). */
+extern u32 g_0045CB80_a[], g_0045CB80_b[], g_0045CB80_c[], g_0045CB80_d[];
 
 /* 0x7000015C: a word in the PS2 scratchpad RAM, set to 12345 at start-up (random seed?). */
 #define g_7000015C (*(volatile u32 *)0x7000015C)
@@ -124,10 +126,10 @@ void func_001014D0(int value)
     g_0045D1C4 = value;
 }
 
-/* 0x00117E50, 0x38 bytes. First call of main. */
+/* 0x00117E50, 0x38 bytes, matching. First call of main. */
 void func_00117E50(void)
 {
-    func_00117F10(g_0045CB80, g_0045CB80, g_0045CB80, g_0045CB80);
+    func_00117F10(g_0045CB80_a, g_0045CB80_b, g_0045CB80_c, g_0045CB80_d);
 }
 
 /* 0x00117E90, 0x1C bytes, matching. Last call of main. */

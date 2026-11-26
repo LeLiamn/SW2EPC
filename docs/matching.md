@@ -45,9 +45,26 @@ writes `build/decompme/<ADDR>/` (git-ignored: the assembly comes from the game's
 
 Scratches are public on decomp.me.
 
+## How the source has to be written
+
+What makes the compiler produce the game's exact code, learnt so far:
+
+- **Globals outside the small-data area are parts of larger objects.** CodeWarrior reaches any
+  global of 8 bytes or less through `$gp`, but the game does so only for its small-data area
+  (around `gp = 0x00464BF0`). `tools/group_globals.py` turns the scalar `extern`s of a file into
+  structs covering their address ranges (old names kept as macros). When the real start of an
+  object is known, model it from there: the system settings start at `0x00669D60`, and the code
+  adds `+0x2C` to reach the pads' settings.
+- **Flag bytes are bitfields** (first field = lowest bit): the game extracts them with
+  `dsll32` / `dsrl32` pairs.
+- **`if` / `else` statements, not `?:`**, where the game branches (and the branch order follows the
+  condition as written: `if (flag == 0) a; else b;` and `if (flag) b; else a;` differ).
+- **Locals change the order of loads and stores**: copying two fields through locals first
+  gives "load, load, store, store".
+- A symbol, not an integer cast, where the game builds an address with `lui` / `addiu`.
+- Four different symbols when the same address is loaded four times.
+
 ## Status
 
-30 functions match (1,352 bytes), all as first written: small call wrappers, struct copies, the
-scene step functions, the shop helpers and the Treasures mode handlers (see the `, matching` tags
-in `src/`). The other functions are equivalent C that still needs reshaping (register use,
-statement order, local variables) to match.
+47 functions match (4,040 bytes, 0.13 % of the code). The other functions are equivalent C that
+still needs reshaping.

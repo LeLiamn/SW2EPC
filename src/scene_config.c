@@ -10,6 +10,30 @@
 typedef unsigned char u8;
 typedef unsigned int u32;
 
+/* Flag bytes of the live settings (bitfields, first field = lowest bit). */
+typedef struct {             /* 0x00669DB0 */
+    u8 unknown_0 : 1;
+    u8 mode : 3;             /* display mode 0..7 */
+    u8 off_11 : 1;           /* set: option 1 of page 5 is off */
+    u8 on_12 : 1;            /* set: option 2 is on */
+    u8 option_13 : 2;        /* 0: option 3 on, 1: off */
+} DisplayFlags;
+
+typedef struct {             /* 0x00669DB1 */
+    u8 unknown_0 : 2;
+    u8 output : 2;           /* sound output mode 0..3 */
+    u8 option : 1;
+    u8 unknown_5 : 3;
+} SoundFlags;
+
+typedef struct {             /* +0x11 of each pad's settings */
+    u8 unknown_0 : 1;
+    u8 off_20 : 1;           /* set: option 0 of page 9 is off (vibration?) */
+    u8 on_21 : 1;
+    u8 off_22 : 1;
+    u8 unknown_4 : 4;
+} PadFlags;
+
 /* The scene manager (see main.c), used here for the transition when the menu closes. */
 extern int g_0045D894;   /* previous state */
 extern int g_0045D898;   /* current state */
@@ -17,35 +41,185 @@ extern int g_0045D89C;   /* state to return to */
 extern int g_0045D8A0;   /* requested state (0x18 = none) */
 
 /* Globals of the options scene (0x00731140 .. 0x0073123F). */
-extern int g_007311F0;   /* current page of the menu (0..10) */
-extern int g_007311F8;   /* phase: 0 opening, 1 in use, 2 closing, 3 leaving */
-extern int g_00731200;   /* page 10 mode (0 or 1) */
-extern int g_0073120C;   /* sub-mode of page 3 (2 or 3) */
-extern u32 g_00731214;   /* the menu's window / layout handle */
-extern u8 g_00731219;    /* page 0 cursor */
-extern u8 g_0073121A;    /* page 1 cursor */
-extern char g_0073121B;  /* page 5 cursor */
-extern char g_0073121C;  /* page 9 cursor */
-extern u8 g_0073121D;    /* page 10 cursor */
-extern u8 g_00731225;    /* cursor shared by pages 3, 7 and 10 */
-extern int g_00731228;   /* result of the page drawing: 0 when the page is idle */
-extern int g_0073122C;
-extern int g_0073123C;   /* value saved at enter, restored at leave */
+/* Globals 0x0043C32C-0x0043C6D4: one object in the original (not reached through $gp). */
+extern struct {
+    const char *g_0043C32C;    /* "The abilities and experience of all officers will be reset to default levels. Proceed?" */
+    const char *g_0043C330;    /* "All abilities have been reset to default levels." */
+    const char *g_0043C334;    /* "Interim data has been voided." */
+    const char *g_0043C338;    /* "There is no interim data." */
+    const char *g_0043C33C;    /* "Void interim data?" */
+    char pad_0[0x268];
+    const char *g_0043C5A8;   /* "Select  Back  OK" */
+    char pad_1[0x6C];
+    const char *g_0043C618;   /* "Default  Adjust  Back" */
+    const char *g_0043C61C;   /* "Default  Select  Back  OK" */
+    const char *g_0043C620;   /* "Select  Back  Change" */
+    char pad_2[0xA0];
+    const char *g_0043C6C4;   /* "Select  Cancel  OK" */
+    const char *g_0043C6C8;   /* "Select  Change  Cancel" */
+    const char *g_0043C6CC;   /* "Select  Change  Cancel  Play" */
+    const char *g_0043C6D0;   /* "Back  Next" */
+} s_0043C32C;
+#define g_0043C32C (s_0043C32C.g_0043C32C)
+#define g_0043C330 (s_0043C32C.g_0043C330)
+#define g_0043C334 (s_0043C32C.g_0043C334)
+#define g_0043C338 (s_0043C32C.g_0043C338)
+#define g_0043C33C (s_0043C32C.g_0043C33C)
+#define g_0043C5A8 (s_0043C32C.g_0043C5A8)
+#define g_0043C618 (s_0043C32C.g_0043C618)
+#define g_0043C61C (s_0043C32C.g_0043C61C)
+#define g_0043C620 (s_0043C32C.g_0043C620)
+#define g_0043C6C4 (s_0043C32C.g_0043C6C4)
+#define g_0043C6C8 (s_0043C32C.g_0043C6C8)
+#define g_0043C6CC (s_0043C32C.g_0043C6CC)
+#define g_0043C6D0 (s_0043C32C.g_0043C6D0)
+
+/* Globals 0x0050074C-0x005007EE: one object in the original (not reached through $gp). */
+extern struct {
+    unsigned short g_0050074C; /* buttons pressed this frame */
+    unsigned short g_0050074E; /* buttons pressed or repeating */
+    char pad_0[0x14];
+    u8 g_00500764;            /* bit 0: pad ready? */
+    u8 g_00500765;            /* bit 0: pad connected? */
+    char pad_1[0x6E];
+    unsigned short g_005007D4;
+    unsigned short g_005007D6;                /* controller 2: buttons pressed or repeating */
+    char pad_2[0x14];
+    u8 g_005007EC;
+    u8 g_005007ED;
+} s_0050074C;
+#define g_0050074C (s_0050074C.g_0050074C)
+#define g_0050074E (s_0050074C.g_0050074E)
+#define g_00500764 (s_0050074C.g_00500764)
+#define g_00500765 (s_0050074C.g_00500765)
+#define g_005007D4 (s_0050074C.g_005007D4)
+#define g_005007D6 (s_0050074C.g_005007D6)
+#define g_005007EC (s_0050074C.g_005007EC)
+#define g_005007ED (s_0050074C.g_005007ED)
+
+/* 0x00669D60: the game's system settings (saved with the system data?). The code reaches its parts
+ * from this base: the two pads' settings at +0x2C, display and sound flags at +0x50... */
+typedef struct {             /* 0x12 bytes per pad */
+    u8 map[0x10];            /* button map: one byte per action (offsets in g_0040CC20) */
+    u8 extra;                /* pad 0's byte: copied to/from DisplaySettings.value_14 */
+    PadFlags flags;
+} PadConfig;
+
+extern struct {
+    u8 unknown_00[0x2C];
+    PadConfig pads[2];       /* +0x2C (0x00669D8C) */
+    DisplayFlags display;    /* +0x50 (0x00669DB0) */
+    SoundFlags sound;        /* +0x51 */
+    u8 volume[3];            /* +0x52..0x54 */
+    u8 offset_x, offset_y;   /* +0x55, +0x56: screen offset (signed) */
+} g_00669D60;
+#define g_00669D8C (g_00669D60.pads)
+#define g_00669D9C (g_00669D60.pads[0].extra)
+#define g_00669DB0 (g_00669D60.display)
+#define g_00669DB1 (g_00669D60.sound)
+#define g_00669DB2 (g_00669D60.volume[0])
+#define g_00669DB3 (g_00669D60.volume[1])
+#define g_00669DB4 (g_00669D60.volume[2])
+#define g_00669DB5 (g_00669D60.offset_x)
+#define g_00669DB6 (g_00669D60.offset_y)
+
+/* Globals 0x006934B3-0x0069395F: one object in the original (not reached through $gp). */
+extern struct {
+    char g_006934B3;
+    char pad_0[0x127];
+    char g_006935DB;
+    char pad_1[0x382];
+    char g_0069395E;
+} s_006934B3;
+#define g_006934B3 (s_006934B3.g_006934B3)
+#define g_006935DB (s_006934B3.g_006935DB)
+#define g_0069395E (s_006934B3.g_0069395E)
+
+/* Globals 0x00731144-0x00731240: one object in the original (not reached through $gp). */
+extern struct {
+    int g_00731144;
+    int g_00731148;
+    int g_0073114C;
+    u8 g_00731150;
+    u8 g_00731151;
+    char pad_0[0x1];
+    u8 g_00731153;
+    char pad_1[0x24];
+    u8 g_00731178;
+    u8 g_00731179;
+    u8 g_0073117A;
+    char pad_2[0x75];
+    int g_007311F0;   /* current page of the menu (0..10) */
+    int g_007311F4;            /* page to open after closing */
+    int g_007311F8;   /* phase: 0 opening, 1 in use, 2 closing, 3 leaving */
+    char pad_3[0x4];
+    int g_00731200;   /* page 10 mode (0 or 1) */
+    char pad_4[0x4];
+    int g_00731208;
+    int g_0073120C;   /* sub-mode of page 3 (2 or 3) */
+    char pad_5[0x4];
+    u32 g_00731214;   /* the menu's window / layout handle */
+    u8 g_00731218;
+    u8 g_00731219;    /* page 0 cursor */
+    u8 g_0073121A;    /* page 1 cursor */
+    char g_0073121B;  /* page 5 cursor */
+    char g_0073121C;  /* page 9 cursor */
+    u8 g_0073121D;    /* page 10 cursor */
+    u8 g_0073121E;
+    u8 g_0073121F;
+    char pad_6[0x3];
+    u8 g_00731223;
+    u8 g_00731224;
+    u8 g_00731225;    /* cursor shared by pages 3, 7 and 10 */
+    char pad_7[0x2];
+    int g_00731228;   /* result of the page drawing: 0 when the page is idle */
+    int g_0073122C;
+    char pad_8[0xC];
+    int g_0073123C;   /* value saved at enter, restored at leave */
+} s_00731144;
+#define g_00731144 (s_00731144.g_00731144)
+#define g_00731148 (s_00731144.g_00731148)
+#define g_0073114C (s_00731144.g_0073114C)
+#define g_00731150 (s_00731144.g_00731150)
+#define g_00731151 (s_00731144.g_00731151)
+#define g_00731153 (s_00731144.g_00731153)
+#define g_00731178 (s_00731144.g_00731178)
+#define g_00731179 (s_00731144.g_00731179)
+#define g_0073117A (s_00731144.g_0073117A)
+#define g_007311F0 (s_00731144.g_007311F0)
+#define g_007311F4 (s_00731144.g_007311F4)
+#define g_007311F8 (s_00731144.g_007311F8)
+#define g_00731200 (s_00731144.g_00731200)
+#define g_00731208 (s_00731144.g_00731208)
+#define g_0073120C (s_00731144.g_0073120C)
+#define g_00731214 (s_00731144.g_00731214)
+#define g_00731218 (s_00731144.g_00731218)
+#define g_00731219 (s_00731144.g_00731219)
+#define g_0073121A (s_00731144.g_0073121A)
+#define g_0073121B (s_00731144.g_0073121B)
+#define g_0073121C (s_00731144.g_0073121C)
+#define g_0073121D (s_00731144.g_0073121D)
+#define g_0073121E (s_00731144.g_0073121E)
+#define g_0073121F (s_00731144.g_0073121F)
+#define g_00731223 (s_00731144.g_00731223)
+#define g_00731224 (s_00731144.g_00731224)
+#define g_00731225 (s_00731144.g_00731225)
+#define g_00731228 (s_00731144.g_00731228)
+#define g_0073122C (s_00731144.g_0073122C)
+#define g_0073123C (s_00731144.g_0073123C)
+
+/* Globals 0x00799A68-0x00799A6C: one object in the original (not reached through $gp). */
+extern struct {
+    u32 g_00799A68;
+} s_00799A68;
+#define g_00799A68 (s_00799A68.g_00799A68)
+
 extern u8 g_00731140[], g_00731158[], g_0073117C[], g_00731184[];
 
 /* 0x0069395E: a byte checked before leaving (0 or 0xFF = nothing pending). */
-extern char g_0069395E;
 
 /* Button help lines shown at the bottom of each page (European version, English). In the strings,
  * 0xF0 followed by a letter inserts a button icon. */
-extern const char *g_0043C5A8;   /* "Select  Back  OK" */
-extern const char *g_0043C618;   /* "Default  Adjust  Back" */
-extern const char *g_0043C61C;   /* "Default  Select  Back  OK" */
-extern const char *g_0043C620;   /* "Select  Back  Change" */
-extern const char *g_0043C6C4;   /* "Select  Cancel  OK" */
-extern const char *g_0043C6C8;   /* "Select  Change  Cancel" */
-extern const char *g_0043C6CC;   /* "Select  Change  Cancel  Play" */
-extern const char *g_0043C6D0;   /* "Back  Next" */
 
 u32 func_001026D0(int a, int b, int c, int d, int e, int f, const void *g, int h);
 void func_00102960(int value);
@@ -98,10 +272,6 @@ void func_003F8BB0(void);
 /* ---- Helpers and page 0 (main options page) ------------------------------------------------ */
 
 /* Controller state kept by the pad code (0x00500740...). */
-extern u8 g_00500764;            /* bit 0: pad ready? */
-extern u8 g_00500765;            /* bit 0: pad connected? */
-extern unsigned short g_0050074C; /* buttons pressed this frame */
-extern unsigned short g_0050074E; /* buttons pressed or repeating */
 
 /* Game button bits as used by the menus (meaning deduced from how page 0 reacts to them). */
 #define BTN_CANCEL 0x0010
@@ -113,23 +283,12 @@ extern unsigned short g_0050074E; /* buttons pressed or repeating */
 
 /* Two message boxes (0x006934B4 + n * 0x128, n = 0 or 1); their first byte is non-zero while open,
  * the byte at +1 (0x006934B4 + n * 0x128) holds the answer (4 = yes?). */
-extern char g_006934B3;
-extern char g_006935DB;
 extern char g_006934B4[];
 
-extern int g_007311F4;            /* page to open after closing */
-extern int g_00731208;
-extern u8 g_00731218, g_0073121E, g_0073121F, g_00731223, g_00731224;
-extern u32 g_00799A68;
-extern u8 g_00429030[];           /* lookup tables used by func_001E6670 */
+extern u8 g_00429030[];
+extern u8 g_004290F8[];          /* layout data of the options menu window */           /* lookup tables used by func_001E6670 */
 
 /* Dialog texts (pointers to English strings). */
-extern const char *g_0043C32C;    /* "The abilities and experience of all officers will be reset to
-                                     default levels. Proceed?" */
-extern const char *g_0043C330;    /* "All abilities have been reset to default levels." */
-extern const char *g_0043C334;    /* "Interim data has been voided." */
-extern const char *g_0043C338;    /* "There is no interim data." */
-extern const char *g_0043C33C;    /* "Void interim data?" */
 
 void func_001204B0(char *dst, const char *src);
 void func_0017DF10(void);
@@ -261,7 +420,7 @@ void func_001E3DB0(int page)
     func_002B9CC0(page);
 }
 
-/* 0x001E4030, 0x44 bytes. Closing finished: switch to the page chosen by func_001E3DB0. */
+/* 0x001E4030, 0x44 bytes, matching. Closing finished: switch to the page chosen by func_001E3DB0. */
 void func_001E4030(void)
 {
     func_002C59F0();
@@ -358,16 +517,12 @@ void func_001E4080(void)
 /* ---- Pages 1, 3, 6 and 8 ----------------------------------------------------------------------- */
 
 /* Second controller (0x005007C8...), read by page 6. */
-extern u8 g_005007EC;
-extern u8 g_005007ED;
-extern unsigned short g_005007D4;
 
 #define BTN_RESET  0x0800         /* page 8: back to default position */
 #define BTN_RIGHT  0x2000
 #define BTN_LEFT   0x8000
 
 /* Page 8 keeps the screen offset x (-24..24) in the first word of g_00731140, and y here. */
-extern int g_00731144;
 
 void func_00100ED0(int *x, int *y);
 void func_001E3C30(void);
@@ -526,9 +681,6 @@ void func_001E5060(void)
 
 /* The settings edited by page 5 live in g_00731140: +0 / +4 screen offset being edited, +8 / +0xC
  * screen offset to restore on cancel, then option bytes. */
-extern u8 g_00731150, g_00731151, g_00731153;   /* three On/Off options of page 5 */
-extern int g_00731148, g_0073114C;               /* screen offset saved when the page opened */
-extern u8 g_00669DB5, g_00669DB6;                /* screen offset used by the display code */
 
 int func_001E36D0(void *settings);
 void func_001E3560(void *settings);
@@ -616,8 +768,6 @@ void func_001E46E0(void)
 
 /* ---- Page 9 ------------------------------------------------------------------------------------ */
 
-extern unsigned short g_005007D6;                /* controller 2: buttons pressed or repeating */
-extern u8 g_00731178, g_00731179, g_0073117A;    /* three On/Off options of the chosen pad */
 
 int func_001E39F0(int pad, void *settings);
 void func_001E37E0(int pad, void *settings);
@@ -1009,24 +1159,33 @@ typedef struct {             /* 0x00731158 (one pad at a time), edited by pages 
     u8 option_20, option_21, option_22;
 } PadSettings;
 
-extern u8 g_00669D8C[];                 /* 2 x 0x12 bytes of pad settings */
-extern u8 g_00669D9C, g_00669DB0, g_00669DB1, g_00669DB2, g_00669DB3, g_00669DB4;
-extern int g_0040CC20[8];               /* offset of each button-map entry in a pad's settings */
+/* Settings of each pad at 0x00669D8C: the button map (one byte per action, at the offsets of the
+ * table g_0040CC20) and flags. */
+extern int g_0040CC20[8];               /* offset of each button-map entry in a PadConfig */
 
 void func_001036B0(int port, int on);
 void func_0017E0C0(u8 volume, int b);
 
-#define PAD_FLAGS(pad) g_00669D8C[(pad) * 0x12 + 0x11]
+#define PAD_MAP(pad, i) (((u8 *)&g_00669D8C[pad])[g_0040CC20[i]])
 
-/* 0x001E3300, 0xCC bytes. Copies the live display settings into `out`. */
+/* 0x001E3300, 0xCC bytes, matching. Copies the live display settings into `out`. */
 void func_001E3300(void *out)
 {
     DisplaySettings *d = out;
 
-    d->mode = (g_00669DB0 & 0x0F) >> 1;
-    d->option_11 = (g_00669DB0 & 0x10) ? 0 : 1;
-    d->option_12 = (g_00669DB0 & 0x20) ? 1 : 0;
-    d->option_13 = (g_00669DB0 >> 6 == 0) ? 1 : 0;
+    d->mode = g_00669DB0.mode;
+    if (g_00669DB0.off_11)
+        d->option_11 = 0;
+    else
+        d->option_11 = 1;
+    if (g_00669DB0.on_12)
+        d->option_12 = 1;
+    else
+        d->option_12 = 0;
+    if (g_00669DB0.option_13 == 0)
+        d->option_13 = 1;
+    else
+        d->option_13 = 0;
     d->value_14 = g_00669D9C;
     d->saved_x = (signed char)g_00669DB5;
     d->saved_y = (signed char)g_00669DB6;
@@ -1034,62 +1193,100 @@ void func_001E3300(void *out)
     d->y = (signed char)g_00669DB6;
 }
 
-/* 0x001E33D0, 0x12C bytes. Copies the live settings of pad `pad` (0 or 1) into `out`. */
+/* 0x001E33D0, 0x12C bytes, matching. Copies the live settings of pad `pad` (0 or 1) into `out`. */
 void func_001E33D0(int pad, void *out)
 {
     PadSettings *p = out;
-    u8 flags = PAD_FLAGS(pad);
-    int i;
 
-    p->option_20 = (flags & 0x02) ? 0 : 1;
-    p->option_21 = (flags & 0x04) ? 1 : 0;
-    p->option_22 = (flags & 0x08) ? 0 : 1;
-    for (i = 0; i < 8; i++)                     /* unrolled in the original */
-        p->slots[i] = g_00669D8C[pad * 0x12 + g_0040CC20[i]];
+    if (g_00669D8C[pad].flags.off_20)
+        p->option_20 = 0;
+    else
+        p->option_20 = 1;
+    if (g_00669D8C[pad].flags.on_21 == 0)
+        p->option_21 = 0;
+    else
+        p->option_21 = 1;
+    if (g_00669D8C[pad].flags.off_22)
+        p->option_22 = 0;
+    else
+        p->option_22 = 1;
+    p->slots[0] = PAD_MAP(pad, 0);
+    p->slots[1] = PAD_MAP(pad, 1);
+    p->slots[2] = PAD_MAP(pad, 2);
+    p->slots[3] = PAD_MAP(pad, 3);
+    p->slots[4] = PAD_MAP(pad, 4);
+    p->slots[5] = PAD_MAP(pad, 5);
+    p->slots[6] = PAD_MAP(pad, 6);
+    p->slots[7] = PAD_MAP(pad, 7);
 }
 
-/* 0x001E3500, 0x58 bytes. Copies the live sound settings into `out` (6 bytes, see page 7). */
+/* 0x001E3500, 0x58 bytes, matching. Copies the live sound settings into `out` (6 bytes, see page 7). */
 void func_001E3500(void *out)
 {
     u8 *s = out;
 
-    s[0] = (g_00669DB1 & 0x0F) >> 2;
+    s[0] = g_00669DB1.output;
     s[1] = g_00669DB2;
     s[2] = g_00669DB3;
     s[3] = g_00669DB4;
     s[4] = 0x2D;                                /* sound test: first track shown */
-    s[5] = (g_00669DB1 & 0x1F) >> 4;
+    s[5] = g_00669DB1.option;
 }
 
-/* 0x001E3560, 0x16C bytes. Writes display settings back and applies the screen offset. */
+/* 0x001E3560, 0x16C bytes, matching. Writes display settings back and applies the screen offset. */
 void func_001E3560(void *in)
 {
     DisplaySettings *d = in;
-    u8 mode = (d->mode & 7) << 1;
 
-    g_00669DB0 = (g_00669DB0 & 0xE1) | mode | (d->option_11 == 0 ? 0x10 : 0);
-    g_00669DB0 = (g_00669DB0 & 0xDF) | (d->option_12 == 1 ? 0x20 : 0);
-    g_00669DB0 = (g_00669DB0 & 0x3F) | (d->option_13 == 0 ? 0x40 : 0);
+    g_00669DB0.mode = d->mode;
+    if (d->option_11 == 0)
+        g_00669DB0.off_11 = 1;
+    else
+        g_00669DB0.off_11 = 0;
+    if (d->option_12 == 1)
+        g_00669DB0.on_12 = 1;
+    else
+        g_00669DB0.on_12 = 0;
+    if (d->option_13 == 0)
+        g_00669DB0.option_13 = 1;
+    else
+        g_00669DB0.option_13 = 0;
     g_00669D9C = d->value_14;
-    g_00669DB5 = (u8)d->x;
-    g_00669DB6 = (u8)d->y;
+    {
+        int x = d->x;
+        int y = d->y;
+        g_00669DB5 = x;
+        g_00669DB6 = y;
+    }
     func_00100ED0(&d->x, &d->y);
 }
 
-/* 0x001E36D0, 0x10C bytes. Non-zero when `in` differs from the live display settings (the screen
+/* 0x001E36D0, 0x10C bytes, matching. Non-zero when `in` differs from the live display settings (the screen
  * offset is not compared). */
 int func_001E36D0(void *in)
 {
     DisplaySettings *d = in;
 
-    if (d->mode != (g_00669DB0 & 0x0F) >> 1)
+    if (d->mode != g_00669DB0.mode)
         return 1;
-    if (d->option_11 == 0 ? !(g_00669DB0 & 0x10) : (g_00669DB0 & 0x10) != 0)
+    if (d->option_11 == 0) {
+        if (g_00669DB0.off_11 == 0)
+            return 1;
+    } else if (g_00669DB0.off_11 != 0) {
         return 1;
-    if (d->option_12 == 1 ? !(g_00669DB0 & 0x20) : (g_00669DB0 & 0x20) != 0)
+    }
+    if (d->option_12 == 1) {
+        if (g_00669DB0.on_12 == 0)
+            return 1;
+    } else if (g_00669DB0.on_12 != 0) {
         return 1;
-    if (d->option_13 == 0 ? (g_00669DB0 >> 6) != 1 : (g_00669DB0 >> 6) != 0)
+    }
+    if (d->option_13 == 0) {
+        if (g_00669DB0.option_13 != 1)
+            return 1;
+    } else if (g_00669DB0.option_13 != 0) {
         return 1;
+    }
     return 0;
 }
 
@@ -1101,19 +1298,24 @@ void func_001E37E0(int pad, void *in)
     int o22_off = (p->option_22 == 0);
     int port = pad;                             /* original: undefined unless pad is 0 or 1 */
     u8 *state;
-    int i;
 
-    PAD_FLAGS(pad) = (PAD_FLAGS(pad) & 0xFD) | ((o20 == 0) << 1);
+    g_00669D8C[pad].flags.off_20 = (o20 == 0);
     func_001036B0(port, o20 != 0);              /* vibration on/off? */
-    PAD_FLAGS(pad) = (PAD_FLAGS(pad) & 0xFB) | ((o21 != 0) << 2);
-    PAD_FLAGS(pad) = (PAD_FLAGS(pad) & 0xF7) | (o22_off << 3);
+    g_00669D8C[pad].flags.on_21 = (o21 != 0);
+    g_00669D8C[pad].flags.off_22 = o22_off;
 
     state = &g_00500764 + port * 0x88;          /* the pad's state block */
     if ((state[0] & 1) && (state[1] & 1) == 1)
         state[0] = (state[0] & 0xF7) | (o22_off << 3);
 
-    for (i = 0; i < 8; i++)                     /* unrolled in the original */
-        g_00669D8C[pad * 0x12 + g_0040CC20[i]] = (u8)p->slots[i];
+    PAD_MAP(pad, 0) = (u8)p->slots[0];
+    PAD_MAP(pad, 1) = (u8)p->slots[1];
+    PAD_MAP(pad, 2) = (u8)p->slots[2];
+    PAD_MAP(pad, 3) = (u8)p->slots[3];
+    PAD_MAP(pad, 4) = (u8)p->slots[4];
+    PAD_MAP(pad, 5) = (u8)p->slots[5];
+    PAD_MAP(pad, 6) = (u8)p->slots[6];
+    PAD_MAP(pad, 7) = (u8)p->slots[7];
 }
 
 /* 0x001E39F0, 0xDC bytes. Non-zero when `in` differs from the live settings of pad `pad`.
@@ -1123,45 +1325,50 @@ void func_001E37E0(int pad, void *in)
 int func_001E39F0(int pad, void *in)
 {
     PadSettings *p = in;
-    u8 flags = PAD_FLAGS(pad);
     int i;
 
-    if ((p->option_20 == 0) != ((flags >> 1) & 1))
+    if ((p->option_20 == 0) != g_00669D8C[pad].flags.off_20)
         return 1;
-    if ((p->option_22 == 0) != ((flags >> 3) & 1))
+    if ((p->option_22 == 0) != g_00669D8C[pad].flags.off_22)
         return 1;
-    if ((p->option_21 == 0) != ((flags >> 2) & 1))
+    if ((p->option_21 == 0) != g_00669D8C[pad].flags.on_21)
         return 1;
     for (i = 0; i < 8; i++)
-        if (p->slots[i] != g_00669D8C[pad * 0x12 + g_0040CC20[i]])
+        if (p->slots[i] != PAD_MAP(pad, i))
             return 1;
     return 0;
 }
 
-/* 0x001E3AD0, 0xB8 bytes. Writes the sound settings back and applies them. */
+/* 0x001E3AD0, 0xB8 bytes, matching. Writes the sound settings back and applies them. */
 void func_001E3AD0(void *in)
 {
     u8 *s = in;
 
+    g_00669DB1.output = s[0];
     g_00669DB2 = s[1];
     g_00669DB3 = s[2];
     g_00669DB4 = s[3];
-    g_00669DB1 = (g_00669DB1 & 0xE3) | ((s[0] & 3) << 2) | ((s[5] & 1) << 4);
+    g_00669DB1.option = s[5];
     func_0023C050(s[0]);
     func_0017E0C0(s[1], 0);
     func_0023B530(s[2]);
     func_0023AB70(s[3]);
 }
 
-/* 0x001E3B90, 0x94 bytes. Non-zero when `in` differs from the live sound settings. */
+/* 0x001E3B90, 0x94 bytes, matching. Non-zero when `in` differs from the live sound settings. */
 int func_001E3B90(void *in)
 {
     u8 *s = in;
 
-    if (s[0] != (g_00669DB1 & 0x0F) >> 2 || s[1] != g_00669DB2 || s[2] != g_00669DB3 ||
-        s[3] != g_00669DB4)
+    if (s[0] != g_00669DB1.output)
         return 1;
-    return s[5] != (g_00669DB1 & 0x1F) >> 4;
+    if (s[1] != g_00669DB2)
+        return 1;
+    if (s[2] != g_00669DB3)
+        return 1;
+    if (s[3] != g_00669DB4)
+        return 1;
+    return s[5] != g_00669DB1.option;
 }
 
 /* 0x001E3C30, 0x64 bytes. Applies all live settings again (display, both pads, sound), by reading
@@ -1229,11 +1436,11 @@ u8 func_001E6670(int table, int flag, unsigned int index)
     return value;
 }
 
-/* 0x001E6860, 0xF4 bytes. Enter: create the menu and reset its state. */
+/* 0x001E6860, 0xF4 bytes, matching. Enter: create the menu and reset its state. */
 void func_001E6860(void)
 {
     func_003F8B30(4);
-    g_00731214 = func_001026D0(1, 0x3B, 0, 1, 0, 0, (const void *)0x004290F8, 0x9D7);
+    g_00731214 = func_001026D0(1, 0x3B, 0, 1, 0, 0, g_004290F8, 0x9D7);
     func_00102960(1);
     func_001E3D50();
     g_007311F0 = 0;
@@ -1253,7 +1460,7 @@ void func_001E6860(void)
     g_0073123C = func_001037F0(0);
 }
 
-/* 0x001E6960, 0x44 bytes. Leave: destroy the menu and restore the saved value. */
+/* 0x001E6960, 0x44 bytes, matching. Leave: destroy the menu and restore the saved value. */
 void func_001E6960(void)
 {
     func_00375D60();

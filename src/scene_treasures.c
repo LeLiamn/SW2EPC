@@ -19,19 +19,100 @@ extern int g_0045D898;   /* current state */
 extern int g_0045D89C;   /* state to return to */
 extern int g_0045D8A0;   /* requested state (0x18 = none) */
 
-extern char g_0069395E;  /* message box 1 open when neither 0 nor -1 */
+/* Globals 0x0043C578-0x0043C77C: one object in the original (not reached through $gp). */
+extern struct {
+    const char *g_0043C578;       /* "Select  Back  OK" */
+    char pad_0[0xCC];
+    const char *g_0043C648;       /* "Select  Back" */
+    char pad_1[0xC];
+    const char *g_0043C658;       /* "Select Officer  Skills  Back" */
+    const char *g_0043C65C;       /* "Select Officer  Back  OK" */
+    const char *g_0043C660;       /* "Select Skill  Back" */
+    const char *g_0043C664;       /* "Select Officer  Back" */
+    char pad_2[0x8];
+    const char *g_0043C670;       /* "Select Mount  Back" */
+    char pad_3[0x100];
+    const char *g_0043C774;       /* "Turn Page  Select  Back  Enlarge" */
+    const char *g_0043C778;       /* "Category  Select  Back  Play" */
+} s_0043C578;
+#define g_0043C578 (s_0043C578.g_0043C578)
+#define g_0043C648 (s_0043C578.g_0043C648)
+#define g_0043C658 (s_0043C578.g_0043C658)
+#define g_0043C65C (s_0043C578.g_0043C65C)
+#define g_0043C660 (s_0043C578.g_0043C660)
+#define g_0043C664 (s_0043C578.g_0043C664)
+#define g_0043C670 (s_0043C578.g_0043C670)
+#define g_0043C774 (s_0043C578.g_0043C774)
+#define g_0043C778 (s_0043C578.g_0043C778)
+
+/* Globals 0x0050074C-0x00500766: one object in the original (not reached through $gp). */
+extern struct {
+    unsigned short g_0050074C;   /* pressed this frame */
+    unsigned short g_0050074E;   /* pressed or repeating */
+    char pad_0[0x14];
+    u8 g_00500764;
+    u8 g_00500765;
+} s_0050074C;
+#define g_0050074C (s_0050074C.g_0050074C)
+#define g_0050074E (s_0050074C.g_0050074E)
+#define g_00500764 (s_0050074C.g_00500764)
+#define g_00500765 (s_0050074C.g_00500765)
+
+/* Globals 0x0069395E-0x0069395F: one object in the original (not reached through $gp). */
+extern struct {
+    char g_0069395E;  /* message box 1 open when neither 0 nor -1 */
+} s_0069395E;
+#define g_0069395E (s_0069395E.g_0069395E)
+
+/* Globals 0x00731314-0x00731360: one object in the original (not reached through $gp). */
+extern struct {
+    u8 g_00731314;                /* number of entries counted at enter */
+    char pad_0[0x3];
+    u32 g_00731318;
+    u32 g_0073131C;
+    u32 g_00731320;
+    u32 g_00731324;
+    u32 g_00731328;
+    u32 g_0073132C;
+    u32 g_00731330;
+    int g_00731334;               /* current mode (0..14) */
+    int g_00731338;               /* requested mode */
+    int g_0073133C;               /* phase: 0 opening, 2 leaving, 4 changing mode, 3/5 running */
+    char pad_1[0x1A];
+    u8 g_0073135A;
+    u8 g_0073135B;
+    u8 g_0073135C;
+    u8 g_0073135D;
+    u8 g_0073135E;
+    char g_0073135F;
+} s_00731314;
+#define g_00731314 (s_00731314.g_00731314)
+#define g_00731318 (s_00731314.g_00731318)
+#define g_0073131C (s_00731314.g_0073131C)
+#define g_00731320 (s_00731314.g_00731320)
+#define g_00731324 (s_00731314.g_00731324)
+#define g_00731328 (s_00731314.g_00731328)
+#define g_0073132C (s_00731314.g_0073132C)
+#define g_00731330 (s_00731314.g_00731330)
+#define g_00731334 (s_00731314.g_00731334)
+#define g_00731338 (s_00731314.g_00731338)
+#define g_0073133C (s_00731314.g_0073133C)
+#define g_0073135A (s_00731314.g_0073135A)
+#define g_0073135B (s_00731314.g_0073135B)
+#define g_0073135C (s_00731314.g_0073135C)
+#define g_0073135D (s_00731314.g_0073135D)
+#define g_0073135E (s_00731314.g_0073135E)
+#define g_0073135F (s_00731314.g_0073135F)
+
+/* Globals 0x00799A68-0x00799A6C: one object in the original (not reached through $gp). */
+extern struct {
+    u32 g_00799A68;
+} s_00799A68;
+#define g_00799A68 (s_00799A68.g_00799A68)
+
 
 /* Scene state. */
-extern u32 g_00731318, g_0073131C, g_00731320, g_0073132C;  /* windows / layouts made at enter */
-extern u32 g_00731324, g_00731328;                          /* optional handles, freed at leave */
-extern u32 g_00731330;
-extern u8 g_00731314;                /* number of entries counted at enter */
 extern u8 g_00731340[];              /* per entry: how many of its 4 records are in use */
-extern int g_00731334;               /* current mode (0..14) */
-extern int g_00731338;               /* requested mode */
-extern int g_0073133C;               /* phase: 0 opening, 2 leaving, 4 changing mode, 3/5 running */
-extern u8 g_0073135A, g_0073135B, g_0073135C, g_0073135D, g_0073135E;  /* cursors? */
-extern char g_0073135F;
 
 typedef struct {                     /* 0x00731240 */
     int ids[26];                     /* +0x00 */
@@ -44,9 +125,6 @@ extern u8 g_00429230[];
 extern u8 g_0040CC40[];
 
 /* Controller 1 (see scene_config.c). */
-extern u8 g_00500764, g_00500765;
-extern unsigned short g_0050074C;   /* pressed this frame */
-extern unsigned short g_0050074E;   /* pressed or repeating */
 #define BTN_CANCEL 0x0010
 #define BTN_SKILLS 0x0020            /* the "Skills" button of mode 5 */
 #define BTN_OK     0x0040
@@ -56,7 +134,6 @@ extern unsigned short g_0050074E;   /* pressed or repeating */
 #define BTN_LEFT   0x8000
 #define SE_CURSOR 0x2CDC
 
-extern u32 g_00799A68;
 void func_003BD5C0(void);
 void func_003BD540(void);
 void func_003971B0(void);
@@ -66,15 +143,6 @@ int func_003A1FC0(int mount);         /* MOUNT_LOCKED (4) when the mount is not 
 void func_002B3CF0(int value);
 
 /* Button help lines (0xF0 + letter = a button icon). */
-extern const char *g_0043C578;       /* "Select  Back  OK" */
-extern const char *g_0043C648;       /* "Select  Back" */
-extern const char *g_0043C658;       /* "Select Officer  Skills  Back" */
-extern const char *g_0043C65C;       /* "Select Officer  Back  OK" */
-extern const char *g_0043C660;       /* "Select Skill  Back" */
-extern const char *g_0043C664;       /* "Select Officer  Back" */
-extern const char *g_0043C670;       /* "Select Mount  Back" */
-extern const char *g_0043C774;       /* "Turn Page  Select  Back  Enlarge" */
-extern const char *g_0043C778;       /* "Category  Select  Back  Play" */
 
 #define MENU_BGM 0x1C
 
@@ -738,7 +806,7 @@ void func_001E8B30(void)
     func_0017E010(MENU_BGM);
 }
 
-/* 0x001E8DD0, 0xD8 bytes. Scene leave: frees what enter made (in reverse order). */
+/* 0x001E8DD0, 0xD8 bytes, matching. Scene leave: frees what enter made (in reverse order). */
 void func_001E8DD0(void)
 {
     func_00375D60();

@@ -19,43 +19,222 @@ extern int g_0045D898;   /* current state */
 extern int g_0045D89C;   /* state to return to */
 extern int g_0045D8A0;   /* requested state (0x18 = none) */
 
-extern char g_0069395E;  /* message box 1 open when neither 0 nor -1 */
+/* Globals 0x0043C3A0-0x0043C898: one object in the original (not reached through $gp). */
+extern struct {
+    const char *g_0043C3A0;       /* "You do not have enough gold." */
+    char pad_0[0x4];
+    const char *g_0043C3A8;       /* "Are you sure you want to purchase the skill %s?" */
+    char pad_1[0x10];
+    const char *g_0043C3BC;       /* "Are you sure you want to hire %s?" */
+    char pad_2[0x8];
+    const char *g_0043C3C8;       /* "You cannot employ any more officers." */
+    char pad_3[0x10];
+    const char *g_0043C3DC;       /* "Purchasing %s. Proceed?" */
+    char pad_4[0x4];
+    const char *g_0043C3E4;       /* "You cannot purchase any more mounts. Would you like to sell one of your current mounts?" */
+    char pad_5[0x38];
+    const char *g_0043C420;       /* "Selling %s. Proceed?" */
+    char pad_6[0x138];
+    const char *g_0043C55C;       /* "Back" */
+    char pad_7[0x18];
+    const char *g_0043C578;       /* "Select  Back  OK" */
+    const char *g_0043C57C;       /* "Select  Skills  Back  OK" */
+    const char *g_0043C580;       /* "Select  Skills  Back  Buy" */
+    const char *g_0043C584;       /* "Select  Back" */
+    char pad_8[0x4];
+    const char *g_0043C58C;       /* "Select  Mounts  Back  Buy" */
+    const char *g_0043C590;       /* "Select  Back  Buy" */
+    const char *g_0043C594;       /* "Select  Back  Sell" */
+    const char *g_0043C598;       /* "Select  Guards  Back  Hire" */
+    const char *g_0043C59C;       /* "Select  Back  Hire" */
+    const char *g_0043C5A0;       /* "Select  Back  Dismiss" */
+    char pad_9[0xA4];
+    const char *g_0043C648;       /* "Select  Back" */
+    char pad_10[0x21C];
+    const char *g_0043C868;       /* "All Skills  Select  Back" */
+    const char *g_0043C86C;       /* "Own Skills  Select  Back" */
+    char pad_11[0xC];
+    const char *g_0043C87C;       /* "Skills  Back  Buy" */
+    const char *g_0043C880;       /* "Mounts  Back  Buy" */
+    const char *g_0043C884;       /* "Back  Sell" */
+    const char *g_0043C888;       /* "Back  Hire" */
+    const char *g_0043C88C;       /* "Back  Buy" */
+    const char *g_0043C890;       /* "Skills  Back" */
+    const char *g_0043C894;       /* "Mounts  Back" */
+} s_0043C3A0;
+#define g_0043C3A0 (s_0043C3A0.g_0043C3A0)
+#define g_0043C3A8 (s_0043C3A0.g_0043C3A8)
+#define g_0043C3BC (s_0043C3A0.g_0043C3BC)
+#define g_0043C3C8 (s_0043C3A0.g_0043C3C8)
+#define g_0043C3DC (s_0043C3A0.g_0043C3DC)
+#define g_0043C3E4 (s_0043C3A0.g_0043C3E4)
+#define g_0043C420 (s_0043C3A0.g_0043C420)
+#define g_0043C55C (s_0043C3A0.g_0043C55C)
+#define g_0043C578 (s_0043C3A0.g_0043C578)
+#define g_0043C57C (s_0043C3A0.g_0043C57C)
+#define g_0043C580 (s_0043C3A0.g_0043C580)
+#define g_0043C584 (s_0043C3A0.g_0043C584)
+#define g_0043C58C (s_0043C3A0.g_0043C58C)
+#define g_0043C590 (s_0043C3A0.g_0043C590)
+#define g_0043C594 (s_0043C3A0.g_0043C594)
+#define g_0043C598 (s_0043C3A0.g_0043C598)
+#define g_0043C59C (s_0043C3A0.g_0043C59C)
+#define g_0043C5A0 (s_0043C3A0.g_0043C5A0)
+#define g_0043C648 (s_0043C3A0.g_0043C648)
+#define g_0043C868 (s_0043C3A0.g_0043C868)
+#define g_0043C86C (s_0043C3A0.g_0043C86C)
+#define g_0043C87C (s_0043C3A0.g_0043C87C)
+#define g_0043C880 (s_0043C3A0.g_0043C880)
+#define g_0043C884 (s_0043C3A0.g_0043C884)
+#define g_0043C888 (s_0043C3A0.g_0043C888)
+#define g_0043C88C (s_0043C3A0.g_0043C88C)
+#define g_0043C890 (s_0043C3A0.g_0043C890)
+#define g_0043C894 (s_0043C3A0.g_0043C894)
+
+/* Globals 0x0050074C-0x00500766: one object in the original (not reached through $gp). */
+extern struct {
+    unsigned short g_0050074C;
+    char pad_0[0x16];
+    u8 g_00500764;
+    u8 g_00500765;
+} s_0050074C;
+#define g_0050074C (s_0050074C.g_0050074C)
+#define g_00500764 (s_0050074C.g_00500764)
+#define g_00500765 (s_0050074C.g_00500765)
+
+/* Globals 0x00669D82-0x00669D83: one object in the original (not reached through $gp). */
+extern struct {
+    char g_00669D82;              /* 3: everything is a bargain on this visit (cleared after) */
+} s_00669D82;
+#define g_00669D82 (s_00669D82.g_00669D82)
+
+/* Globals 0x006934B3-0x0069395F: one object in the original (not reached through $gp). */
+extern struct {
+    char g_006934B3;
+    char pad_0[0x127];
+    char g_006935DB;
+    char pad_1[0x382];
+    char g_0069395E;  /* message box 1 open when neither 0 nor -1 */
+} s_006934B3;
+#define g_006934B3 (s_006934B3.g_006934B3)
+#define g_006935DB (s_006934B3.g_006935DB)
+#define g_0069395E (s_006934B3.g_0069395E)
+
+/* Globals 0x00773138-0x007731A4: one object in the original (not reached through $gp). */
+extern struct {
+    char g_00773138;              /* (inside it) non-zero: the "Guards" variant of the hire screen */
+    char pad_0[0x7];
+    u8 g_00773140;                /* (inside it) cursor of screens 5 and 7 */
+    char pad_1[0x3];
+    int g_00773144;               /* screen being drawn (0..9) */
+    int g_00773148;               /* current mode (0..16) */
+    int g_0077314C;               /* requested mode */
+    int g_00773150;               /* mode before the last request */
+    int g_00773154;               /* phase: 0 opening, 1 leaving with a sound, 2 leaving, 3 running */
+    int g_00773158;               /* scene we came from */
+    int g_0077315C;               /* player using the shop (0 or 1): picks the controller and the 0x140-byte record of g_00772DF0 */
+    int g_00773160;               /* shopkeeper picture? (0xB5..0xB9) */
+    int g_00773164;               /* shopkeeper sound bank? (0x20..0x24) */
+    u32 g_00773168;
+    u32 g_0077316C;
+    u32 g_00773170;
+    char pad_2[0x8];
+    u8 g_0077317C;
+    u8 g_0077317D;
+    u8 g_0077317E;
+    u8 g_0077317F;
+    char pad_3[0x1];
+    u8 g_00773181;
+    char pad_4[0x1];
+    u8 g_00773183;
+    u8 g_00773184;
+    u8 g_00773185;
+    u8 g_00773186;
+    u8 g_00773187;
+    u8 g_00773188;
+    u8 g_00773189;
+    u8 g_0077318A;
+    u8 g_0077318B;              /* non-zero: func_002D6890 succeeded at enter */
+    int g_0077318C;
+    int g_00773190;
+    int g_00773194;
+    int g_00773198;
+    int g_0077319C;
+    int g_007731A0;
+} s_00773138;
+#define g_00773138 (s_00773138.g_00773138)
+#define g_00773140 (s_00773138.g_00773140)
+#define g_00773144 (s_00773138.g_00773144)
+#define g_00773148 (s_00773138.g_00773148)
+#define g_0077314C (s_00773138.g_0077314C)
+#define g_00773150 (s_00773138.g_00773150)
+#define g_00773154 (s_00773138.g_00773154)
+#define g_00773158 (s_00773138.g_00773158)
+#define g_0077315C (s_00773138.g_0077315C)
+#define g_00773160 (s_00773138.g_00773160)
+#define g_00773164 (s_00773138.g_00773164)
+#define g_00773168 (s_00773138.g_00773168)
+#define g_0077316C (s_00773138.g_0077316C)
+#define g_00773170 (s_00773138.g_00773170)
+#define g_0077317C (s_00773138.g_0077317C)
+#define g_0077317D (s_00773138.g_0077317D)
+#define g_0077317E (s_00773138.g_0077317E)
+#define g_0077317F (s_00773138.g_0077317F)
+#define g_00773181 (s_00773138.g_00773181)
+#define g_00773183 (s_00773138.g_00773183)
+#define g_00773184 (s_00773138.g_00773184)
+#define g_00773185 (s_00773138.g_00773185)
+#define g_00773186 (s_00773138.g_00773186)
+#define g_00773187 (s_00773138.g_00773187)
+#define g_00773188 (s_00773138.g_00773188)
+#define g_00773189 (s_00773138.g_00773189)
+#define g_0077318A (s_00773138.g_0077318A)
+#define g_0077318B (s_00773138.g_0077318B)
+#define g_0077318C (s_00773138.g_0077318C)
+#define g_00773190 (s_00773138.g_00773190)
+#define g_00773194 (s_00773138.g_00773194)
+#define g_00773198 (s_00773138.g_00773198)
+#define g_0077319C (s_00773138.g_0077319C)
+#define g_007731A0 (s_00773138.g_007731A0)
+
+/* Globals 0x00780494-0x00780498: one object in the original (not reached through $gp). */
+extern struct {
+    u32 g_00780494;
+} s_00780494;
+#define g_00780494 (s_00780494.g_00780494)
+
+/* Globals 0x00799A24-0x00799A6C: one object in the original (not reached through $gp). */
+extern struct {
+    unsigned char g_00799A24;
+    char pad_0[0x1];
+    unsigned char g_00799A26;
+    char pad_1[0x1];
+    int g_00799A28;
+    int g_00799A2C;
+    char pad_2[0x38];
+    u32 g_00799A68;
+} s_00799A24;
+#define g_00799A24 (s_00799A24.g_00799A24)
+#define g_00799A26 (s_00799A24.g_00799A26)
+#define g_00799A28 (s_00799A24.g_00799A28)
+#define g_00799A2C (s_00799A24.g_00799A2C)
+#define g_00799A68 (s_00799A24.g_00799A68)
+
 
 /* 0x7000015C: random seed in the scratchpad (set to 12345 at start-up, see main.c). */
 #define g_7000015C (*(volatile u32 *)0x7000015C)
 
 /* Shop state. */
 extern u8 g_00773130[];              /* data block filled by func_002CAD60 */
-extern char g_00773138;              /* (inside it) non-zero: the "Guards" variant of the hire screen */
 extern u8 g_0077313C[];              /* data block filled by func_002CAD90 */
-extern u8 g_00773140;                /* (inside it) cursor of screens 5 and 7 */
-extern int g_00773144;               /* screen being drawn (0..9) */
-extern int g_00773148;               /* current mode (0..16) */
-extern int g_0077314C;               /* requested mode */
-extern int g_00773154;               /* phase: 0 opening, 1 leaving with a sound, 2 leaving, 3 running */
-extern int g_00773158;               /* scene we came from */
-extern int g_0077315C;               /* player using the shop (0 or 1): picks the controller and
-                                      * the 0x140-byte record of g_00772DF0 */
-extern int g_00773160;               /* shopkeeper picture? (0xB5..0xB9) */
-extern int g_00773164;               /* shopkeeper sound bank? (0x20..0x24) */
-extern u32 g_00773168, g_0077316C, g_00773170;   /* layouts made at enter */
 extern u8 g_00773174[];              /* 4 bytes per officer: state of slots 0-3 (0, 1 or more) */
-extern u8 g_0077317C, g_0077317D, g_0077317E, g_0077317F, g_00773181, g_00773183, g_00773184;
-extern u8 g_00773185, g_00773186, g_00773187, g_00773188, g_00773189, g_0077318A;
-extern char g_0077318B;              /* non-zero: func_002D6890 succeeded at enter */
-extern int g_0077318C, g_00773190, g_00773194, g_00773198;   /* conditions for the shopkeeper */
-extern int g_0077319C, g_007731A0;
 extern u8 g_00772DF0[];              /* 0x140 bytes per officer, 0x50 per slot */
 extern u8 g_00773070[], g_007730D0[];
 extern u8 g_00440CD8[];
 extern u8 g_0045CEA8[];
 extern int g_0045CE98, g_0045CE9C;   /* a pair saved at enter and restored at leave */
-extern u32 g_00780494;
-extern u32 g_00799A68;
 
 /* Controller 1 (see scene_config.c). */
-extern u8 g_00500764, g_00500765;
-extern unsigned short g_0050074C;
 #define BTN_L1R1   0x000C            /* L1 or R1 (swap "All Skills" / "Own Skills") */
 #define BTN_CANCEL 0x0010
 #define BTN_EXTRA  0x0020            /* the third face button ("Skills", "Mounts", "Guards") */
@@ -78,11 +257,8 @@ static void read_pad(int player, unsigned short *pressed, unsigned short *held)
     *held = ready ? *(const unsigned short *)(pad + 2) : 0;
 }
 
-extern int g_00773150;               /* mode before the last request */
 extern u8 g_007731D0[];              /* 0x24-byte records */
 extern int g_0045D56C;               /* (gp - 0x7684) officer shown by the skill list, 0x19F = none */
-extern unsigned char g_00799A24, g_00799A26;
-extern int g_00799A28, g_00799A2C;
 
 #define OFFICER_NONE 0x19F
 
@@ -91,27 +267,6 @@ void func_002A86A0(int value);
 int func_0036DC30(u32 officer, u8 skill);
 
 /* Button help lines (0xF0 + letter = a button icon). */
-extern const char *g_0043C55C;       /* "Back" */
-extern const char *g_0043C578;       /* "Select  Back  OK" */
-extern const char *g_0043C57C;       /* "Select  Skills  Back  OK" */
-extern const char *g_0043C580;       /* "Select  Skills  Back  Buy" */
-extern const char *g_0043C584;       /* "Select  Back" */
-extern const char *g_0043C58C;       /* "Select  Mounts  Back  Buy" */
-extern const char *g_0043C590;       /* "Select  Back  Buy" */
-extern const char *g_0043C594;       /* "Select  Back  Sell" */
-extern const char *g_0043C598;       /* "Select  Guards  Back  Hire" */
-extern const char *g_0043C59C;       /* "Select  Back  Hire" */
-extern const char *g_0043C5A0;       /* "Select  Back  Dismiss" */
-extern const char *g_0043C648;       /* "Select  Back" */
-extern const char *g_0043C868;       /* "All Skills  Select  Back" */
-extern const char *g_0043C86C;       /* "Own Skills  Select  Back" */
-extern const char *g_0043C87C;       /* "Skills  Back  Buy" */
-extern const char *g_0043C880;       /* "Mounts  Back  Buy" */
-extern const char *g_0043C884;       /* "Back  Sell" */
-extern const char *g_0043C888;       /* "Back  Hire" */
-extern const char *g_0043C88C;       /* "Back  Buy" */
-extern const char *g_0043C890;       /* "Skills  Back" */
-extern const char *g_0043C894;       /* "Mounts  Back" */
 
 #define SHOP_BGM 0x2C
 
@@ -185,16 +340,16 @@ static unsigned random16(void)
     return g_7000015C >> 16;
 }
 
-/* 0x0029FD10, 0x10 bytes. Non-zero when the shop also sells mounts. */
+/* 0x0029FD10, 0x10 bytes, matching. Non-zero when the shop also sells mounts. */
 int func_0029FD10(void)
 {
-    return g_00773140 != 0;
+    return g_00773140 > 0;
 }
 
-/* 0x0029FD20, 0x30 bytes. Number of entries of the shop's main menu: 4 with mounts, else 3. */
+/* 0x0029FD20, 0x30 bytes, matching. Number of entries of the shop's main menu: 4 with mounts, else 3. */
 int func_0029FD20(void)
 {
-    return func_0029FD10() == 0 ? 3 : 4;
+    return func_0029FD10() != 0 ? 4 : 3;
 }
 
 /* 0x0029FD50, 0x20 bytes, matching. Sets the officer shown by the skill list when `officer` is valid
@@ -394,7 +549,7 @@ void func_002A4210(void)
     func_001B8F60(1, 6, 8);
 }
 
-/* 0x002A4550, 0x84 bytes. Scene leave. */
+/* 0x002A4550, 0x84 bytes, matching. Scene leave. */
 void func_002A4550(void)
 {
     int saved[2];
@@ -559,7 +714,7 @@ void func_002A4950(void)
     func_002AA150(g_00773168, g_00773144, g_0077315C);
 }
 
-/* 0x002A5000, 0x80 bytes. Loads the shop's lists; with `reload` 0 (at enter) also the extra ones. */
+/* 0x002A5000, 0x80 bytes, matching. Loads the shop's lists; with `reload` 0 (at enter) also the extra ones. */
 void func_002A5000(int reload)
 {
     g_00773194 = 0;
@@ -816,18 +971,10 @@ int func_002A3DB0(int player)
 
 /* Message boxes: two records of 0x128 bytes; +0 (0x006934B3 / 0x006935DB) non-zero while the box is
  * open, +1 (0x006934B4...) the answer (4 = yes). Box 0 shows a message, box 1 asks yes / no. */
-extern char g_006934B3, g_006935DB;
 extern char g_006934B4[];
 #define BOX_NONE 5
 #define BOX_YES  4
 
-extern const char *g_0043C3A0;       /* "You do not have enough gold." */
-extern const char *g_0043C3BC;       /* "Are you sure you want to hire %s?" */
-extern const char *g_0043C3C8;       /* "You cannot employ any more officers." */
-extern const char *g_0043C3DC;       /* "Purchasing %s. Proceed?" */
-extern const char *g_0043C3E4;       /* "You cannot purchase any more mounts. Would you like to sell
-                                      * one of your current mounts?" */
-extern const char *g_0043C420;       /* "Selling %s. Proceed?" */
 
 void func_001204B0(char *dst, const char *format, ...);   /* sprintf */
 void func_001AE9F0(int box, const char *text, int c);     /* open a message box */
@@ -1030,7 +1177,7 @@ void func_002A18D0(int player)
 
 /* The player's mounts: g_0077313C[0..3], count g_00773140. */
 
-/* 0x002A2110, 0x9C bytes. Sells the player's mount under the cursor (g_00773186): adds its price
+/* 0x002A2110, 0x9C bytes, matching. Sells the player's mount under the cursor (g_00773186): adds its price
  * to the gold, frees it, and unmounts the player if it was the one ridden. */
 void func_002A2110(int player)
 {
@@ -1253,7 +1400,6 @@ typedef struct {
 } SkillOffer;
 #define SKILL_NONE 0x28
 
-extern const char *g_0043C3A8;       /* "Are you sure you want to purchase the skill %s?" */
 extern const char *g_0042D3E0[];     /* skill names ("Vitality", "Focus", "Potence"...) */
 extern u8 g_004281B8[];              /* skill table, 8 bytes per skill (+5: kind) */
 
@@ -1366,7 +1512,6 @@ void func_002A0B40(int player)
 #define SKILL_KIND(s) g_004281B8[(s) * 8 + 5]
 #define SKILL_COUNT 0x28
 
-extern char g_00669D82;              /* 3: everything is a bargain on this visit (cleared after) */
 extern u8 g_0045CEA0[6];             /* (gp - 0x7D50) the six mounts on sale by default */
 
 int func_002F67B0(u32 officer);                           /* officer type (1 or 2) */
