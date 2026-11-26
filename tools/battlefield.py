@@ -140,6 +140,90 @@ def export_obj(data, info, path):
                     out.write(f"f {a} {c} {d}\nf {a} {d} {b}\n")
 
 
+
+# ---- The second pack of a battlefield (LINKDATA.BNS entries 2486-2671) --------------------------
+#
+# Loaded by Stage.c together with the terrain (entry 2486 + battlefield number) and read by
+# func_00197470: [nodes info, objects info, nodes, objects, ranges] (full packs), or only the
+# "ranges" part for the placeholder battlefields.
+
+def _pack(data, start, end, name):
+    """Offsets (relative to the pack) of a `count, offsets...` pack."""
+    if end - start < 4:
+        raise BattlefieldError(f"{name}: too small")
+    count = struct.unpack_from("<I", data, start)[0]
+    if not count or 4 + 4 * count > end - start:
+        raise BattlefieldError(f"{name}: bad count")
+    offs = list(struct.unpack_from(f"<{count}I", data, start + 4))
+    if offs != sorted(offs) or offs[-1] > end - start:
+        raise BattlefieldError(f"{name}: offsets out of order")
+    return offs
+
+
+def _size_table(data, start, end, name):
+    """Sizes of a `count, sizes...` table whose data follows it, aligned to 16 bytes
+    (func_00208070); empty slots have size 0."""
+    count = struct.unpack_from("<I", data, start)[0]
+    sizes = struct.unpack_from(f"<{count}I", data, start + 4)
+    first = start + ((count * 4 + 4 + 15) & ~15)
+    if first + sum(sizes) > end or end - first - sum(sizes) >= 16:
+        raise BattlefieldError(f"{name}: sizes do not fill the table")
+    return count, sizes
+
+
+def _ranges(data, start, end):
+    """func_00197300's part: 5 entries (a u32 value, then four arrays)."""
+    offs = _pack(data, start, end, "ranges")
+    if len(offs) != 5:
+        raise BattlefieldError("ranges: not 5 entries")
+    return offs
+
+
+def parse_pack2(data):
+    """{"kind": "full" | "ranges", ...} of a battlefield's second pack (raises BattlefieldError)."""
+    offs = _pack(data, 0, len(data), "pack")
+    if len(offs) != 5:
+        raise BattlefieldError("not 5 parts")
+    bounds = offs + [len(data)]
+    parts = [(bounds[i], bounds[i + 1]) for i in range(5)]
+    if parts[0][1] - parts[0][0] == 16:                 # placeholder: only the ranges part
+        _ranges(data, 0, len(data))
+        return {"kind": "ranges"}
+    # Part 2: the nodes, a pack of records: u16 index, u16 links, u16 items, u16, header to 0x30,
+    # then the items (0x10 bytes when bit 0 of their word +0xC is set, else 0x20; word +4 an
+    # angle snapped to quarter turns at load, func_001FFF10), then the links (0x20 bytes each).
+    a, b = parts[2]
+    nodes = _pack(data, a, b, "nodes") + [b - a]
+    for i in range(len(nodes) - 1):
+        rec, end = a + nodes[i], a + nodes[i + 1]
+        index, links, items = struct.unpack_from("<3H", data, rec)
+        if index != i:
+            raise BattlefieldError(f"node {i}: index {index}")
+        p = rec + 0x30
+        for _ in range(items):
+            p += 0x10 if struct.unpack_from("<I", data, p + 0xC)[0] & 1 else 0x20
+        p += 0x20 * links
+        if p > end or end - p >= 16:
+            raise BattlefieldError(f"node {i}: size")
+    # Part 0: 16 bytes per node.
+    if parts[0][1] - parts[0][0] != 16 * (len(nodes) - 1):
+        raise BattlefieldError("node info size")
+    # Part 3: the objects, a pack of size tables: three tables of TMD2 objects (one per object;
+    # the third has 15 more, shared), then a table of per-object data (0, 0x20, or a 16-byte header
+    # and data, func_00207FA0).
+    a, b = parts[3]
+    tables = _pack(data, a, b, "objects") + [b - a]
+    sizes = [_size_table(data, a + tables[i], a + tables[i + 1], f"objects {i}")
+             for i in range(len(tables) - 1)]
+    if len(sizes) != 4 or any(s and s < 0x20 for s in sizes[3][1]):
+        raise BattlefieldError("objects: unexpected tables")
+    # Part 1: 16 bytes per object.
+    extra = parts[1][1] - parts[1][0] - 16 * sizes[0][0]
+    if not 0 <= extra < 16:
+        raise BattlefieldError("object info size")
+    _ranges(data, parts[4][0], parts[4][1])
+    return {"kind": "full", "nodes": len(nodes) - 1, "objects": sizes[0][0]}
+
 def iter_files(image):
     """(path, data) of every battlefield file of a disc image."""
     here = os.path.dirname(os.path.abspath(__file__))

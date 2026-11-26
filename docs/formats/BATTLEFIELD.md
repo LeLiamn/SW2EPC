@@ -78,3 +78,29 @@ joined by paths, a river and hills around the edges, matching its top-down map.
 
 Not decoded yet: the first 4 and last 6 bytes of a vertex, the meaning of the layer flags, and the
 content of the register sets beyond "GS data copied as is".
+
+# The second pack of each battlefield (entries 2486-2671)
+
+`func_00193B90` also loads entry `2486 + battlefield number`; `func_00197470` reads it. It is a pack
+of 5 parts (`u32 count`, then offsets from the pack's start), checked by
+`battlefield.parse_pack2()` on all 186 entries (58 full packs, 128 placeholders):
+
+| Part | Content | Reader |
+|---|---|---|
+| 0 | 16 bytes per node of part 2 | `func_001FFF10` |
+| 1 | 16 bytes per object of part 3 | `func_00208140` |
+| 2 | nodes: a pack of records (below) | `func_001FFF10`, `func_001FF140` |
+| 3 | objects: a pack of four size tables | `func_00208140`, `func_00208070`, `func_00207FA0` |
+| 4 | "ranges": a pack of 5 entries (a u32 value, then four arrays) | `func_00197300`, `func_001F70A0` |
+
+The 128 placeholder battlefields have only the "ranges" part (the entry itself is that pack).
+
+**Node record**: u16 index (= its position), u16 number of links, u16 number of items, u16; header
+up to 0x30; then the items, 0x10 bytes when bit 0 of their word at +0xC is set, else 0x20 (their
+float at +4 is an angle, snapped to 0, ±90° or 180° at load); then the links, 0x20 bytes each.
+
+**Object tables** (part 3): each is `u32 count, count × u32 size`, then the data aligned to 16
+bytes, one slot per object (size 0 = empty). Tables 0 to 2 hold TMD2 objects (one per object; the
+third has 15 more, shared, `func_00207D40`), table 3 per-object data: empty, 0x20 bytes (default),
+or a 16-byte header followed by data. When placed, an object's bounding box is moved by its centre
+(TMD2 +0x90) times 100 (`func_00207DF0`).

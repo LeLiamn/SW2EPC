@@ -22,6 +22,7 @@ Usage:
   py tools/progress.py image.iso --stdout   print it instead
 """
 import json
+import struct
 import re
 import os
 import sys
@@ -59,7 +60,7 @@ FORMAT_STATUS = {
     "PAC0": ("todo", "PAC0 files"),
     "EFB": ("done", "Visual effects: sprite and emitter layers, parameters mapped from effect.c"),
     "EFB (unparsed)": ("todo", "EFB files that do not parse"),
-    "Battlefield": ("done", "Battlefield terrain: height grid, texture layers and tiles, exportable to OBJ"),
+    "Battlefield": ("done", "Battlefields: terrain (height grid, layers, tiles) and second pack (nodes, objects, ranges)"),
     "Unidentified": ("todo", "Leaves without a known signature (models, motions, scripts...)"),
 }
 
@@ -173,6 +174,20 @@ def motion_parses(leaf):
     return not tail or (len(tail) < 16 and not any(tail))
 
 
+def known_entries(data):
+    """{entry name: format} of whole LINKDATA entries recognised by their structure (their leaves
+    carry no signature of their own)."""
+    known = {}
+    for e in linkdata.parse_header(data)["entries"]:
+        if 2486 <= e["index"] < 2672:          # second pack of each battlefield (Stage.c)
+            try:
+                battlefield.parse_pack2(data[e["offset"]:e["offset"] + e["size"]])
+                known[f"{e['index']:04d}"] = "Battlefield"
+            except (battlefield.BattlefieldError, struct.error):
+                pass
+    return known
+
+
 def count_container(data, sizes, forced_kind=None):
     """Add a LINKDATA container's bytes to `sizes`, by leaf format (opening nested packs)."""
     used = 0
@@ -181,8 +196,12 @@ def count_container(data, sizes, forced_kind=None):
             sizes[forced_kind] += e["size"]
             used += e["size"]
     else:
-        for _, leaf in pack.iter_leaves(data):
+        known = known_entries(data)
+        for path, leaf in pack.iter_leaves(data):
             kind = LEAF_KIND[pack.kind_of(leaf)]
+            entry = path.split(".")[0]
+            if kind == "Unidentified" and entry in known:
+                kind = known[entry]
             if kind == "IPU":
                 try:
                     ipu.parse(leaf)

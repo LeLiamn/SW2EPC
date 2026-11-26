@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2141731438
+    "done": 2146265934
   },
   "functions": {
     "total": 10587,
@@ -687,10 +687,10 @@
         },
         {
           "name": "Battlefield",
-          "description": "Battlefield terrain: height grid, texture layers and tiles, exportable to OBJ",
+          "description": "Battlefields: terrain (height grid, layers, tiles) and second pack (nodes, objects, ranges)",
           "data": {
-            "total": 58530192,
-            "done": 58530192
+            "total": 63582656,
+            "done": 63582656
           }
         },
         {
@@ -729,16 +729,8 @@
           "name": "ADPCM sounds",
           "description": "Sound-effect bank and other raw SPU ADPCM files, decodable to WAV",
           "data": {
-            "total": 19648336,
-            "done": 19648336
-          }
-        },
-        {
-          "name": "Unidentified",
-          "description": "Leaves without a known signature (models, motions, scripts...)",
-          "data": {
-            "total": 13266502,
-            "done": 0
+            "total": 19130368,
+            "done": 19130368
           }
         },
         {
@@ -747,6 +739,14 @@
           "data": {
             "total": 12547184,
             "done": 12547184
+          }
+        },
+        {
+          "name": "Unidentified",
+          "description": "Leaves without a known signature (models, motions, scripts...)",
+          "data": {
+            "total": 8735942,
+            "done": 0
           }
         },
         {
@@ -793,7 +793,7 @@
           "name": "Motion (atypical)",
           "description": "Motions with an unknown track type",
           "data": {
-            "total": 45920,
+            "total": 41984,
             "done": 0
           }
         }
