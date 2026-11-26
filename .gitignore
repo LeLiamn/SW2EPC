@@ -41,3 +41,7 @@ __pycache__/
 # Private working notes (kept local)
 CLAUDE.md
 .claude/
+
+# Ghidra install and projects (local tools, never committed)
+ghidra*/
+*.gpr
