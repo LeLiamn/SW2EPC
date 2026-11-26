@@ -304,11 +304,17 @@ u32 func_001BF4C0(void)
     return g_006D3350[i];
 }
 
-/* 0x001BF590, 0x50 bytes. Stages 3, 6, 0x0D, 0x14 and 0x1C use the fixed pairing. */
+/* 0x001BF590, 0x50 bytes, matching. Stages 3, 6, 0x0D, 0x14 and 0x1C use the fixed pairing. */
 int func_001BF590(u32 stage)
 {
-    if (stage == 6 || stage == 0x1C || stage == 0x14 || stage == 0x0D || stage == 3)
+    switch (stage) {
+    case 3:
+    case 0x0D:
+    case 0x14:
+    case 0x1C:
+    case 6:
         return 1;
+    }
     return 0;
 }
 

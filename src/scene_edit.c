@@ -342,12 +342,11 @@ void func_0037C130(void)
  * cursor on `index`. */
 int func_0037C160(int count, int shown, int index)
 {
-    if (shown < count) {
-        if (index < shown)
-            return 0;
-        return index - shown + 1;
-    }
-    return 0;
+    if (count <= shown)
+        return 0;
+    if (index < shown)
+        return 0;
+    return index - shown + 1;
 }
 
 /* Finds `value` in `list` (-1 when absent). */
@@ -844,10 +843,10 @@ int func_0037D350(float dt)
     return 1;
 }
 
-/* 0x0037D9E0, 0x30 bytes. Scene 0x14 step. */
+/* 0x0037D9E0, 0x30 bytes, matching. Scene 0x14 step. */
 void func_0037D9E0(void)
 {
-    if (ES(0xB98, int) != 0)
+    if (*(int *)(func_003766C0() + 0xB98) != 0)
         func_00179320();
 }
 

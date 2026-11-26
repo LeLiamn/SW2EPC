@@ -236,7 +236,7 @@ extern ShownOfficer g_00748DC8[];
 extern int g_00748FA4[2];                        /* officer of each player (0x19F = none) */
 extern int g_00749180[];                         /* per player, added up for the gold */
 extern int g_007494D8[2];
-extern int g_00749520[2];
+extern int g_00749520[];                         /* per player (2), not in $gp */
 
 extern const char g_00429CB0[];                  /* "StatePostBattle.c" (__FILE__ for the loader) */
 
@@ -790,7 +790,7 @@ int func_0021B530(void)
     return a[0x13] != b[0x13];
 }
 
-/* 0x0021B640, 0x20 bytes. */
+/* 0x0021B640, 0x20 bytes, matching. */
 int func_0021B640(void)
 {
     return g_00749520[g_0074794C];
@@ -1052,7 +1052,8 @@ void func_0021BFC0(int player)
 extern int g_00748A60[11];                /* item screen: 0x00748A60-0x00748A88 */
 extern int g_00748AA4[9];                 /* 0x00748AA4-0x00748AC4 */
 extern int g_00748ADC[24];                /* 0x00748ADC-0x00748B38 */
-extern int g_00748CAC, g_00748CB0;
+extern int g_00748CAC[];                         /* two words, not in $gp */
+#define g_00748CB0 (g_00748CAC[1])
 
 /* 0x0021C090, 0x38 bytes. Clears the item screen's values. */
 void func_0021C090(void)
@@ -1088,7 +1089,7 @@ void func_0021C0D0(void)
 /* 0x0021C1D0, 0x14 bytes. */
 void func_0021C1D0(void)
 {
-    g_00748CAC = 0;
+    g_00748CAC[0] = 0;
     g_00748CB0 = 0;
 }
 
@@ -1400,9 +1401,9 @@ int func_0021ED70(int pad, int box)
     char text[256];
     char answer;
 
-    if (g_00748CAC == 0)
-        g_00748CAC = 1;
-    if (g_00748CAC != 1)
+    if (g_00748CAC[0] == 0)
+        g_00748CAC[0] = 1;
+    if (g_00748CAC[0] != 1)
         return 0;
     answer = box == 5 ? 0 : (char)g_006934B4_answers[box * 0x128];
     if (box == 1) {

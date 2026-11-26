@@ -310,7 +310,7 @@ extern u8 g_00749B10[0x5C];
 extern u8 g_00749B6C[0x2A];
 #define g_00749B91 (g_00749B6C[0x25])
 /* Page 11 (0x00749B96, 8 bytes): the formation. */
-extern u8 g_00749B96[8];
+extern u8 g_00749B96[0x10];
 /* Page 12 (0x00749B9E, 0x18 bytes). */
 extern struct {
     u8 g_00749B9E;           /* 0 choosing a slot, 1 choosing a value */
@@ -553,7 +553,7 @@ void func_002254F0(void);
             g_0045D89C = (scene);                                       \
     } while (0)
 
-/* 0x00220780, 0x68 bytes. Non-zero when page 10 is offered: not in battle types 6-0x12, and
+/* 0x00220780, 0x68 bytes, matching. Non-zero when page 10 is offered: not in battle types 6-0x12, and
  * with entries. */
 int func_00220780(void)
 {
@@ -563,7 +563,7 @@ int func_00220780(void)
         return 0;
     if (type >= 0x10 && type <= 0x12)
         return 0;
-    return g_00749B91 != 0;
+    return g_00749B91 > 0;
 }
 
 /* 0x002207F0, 0xC4 bytes. Non-zero when page 11 / 12 is offered: not in battle types 6-0x12,
@@ -585,10 +585,10 @@ int func_002207F0(void)
     return func_0033F7D0(0, 1) < 3 ? 0 : 1;
 }
 
-/* 0x002208C0, 0x10 bytes. */
+/* 0x002208C0, 0x10 bytes, matching. */
 int func_002208C0(void)
 {
-    return g_00749AE8 != 0;
+    return g_00749AE8 > 0;
 }
 
 /* 0x002208D0, 0x9C bytes. How many of `officer`'s four records (func_0035DEC0) are set (first
@@ -610,12 +610,12 @@ int func_002208D0(u32 officer)
     return n;
 }
 
-/* 0x00220970, 0x6C bytes. Requests page `page` (applied by func_002209E0); 14 also stops the
+/* 0x00220970, 0x6C bytes, matching. Requests page `page` (applied by func_002209E0); 14 also stops the
  * music and fades out, 15 stops it. */
 void func_00220970(int page)
 {
-    g_00749A18 = 1;
     g_00749A14 = page;
+    g_00749A18 = 1;
     if (page == 0x0E) {
         func_0017DF10();
         func_001B8F60(0, 6, 8);
@@ -861,13 +861,15 @@ u32 func_00221820(int i)
     return g_00429E60[i];
 }
 
-/* 0x00221840, 0x48 bytes. Whether an entry is offered (2: page 11 / 12, 1: page 10, else yes). */
+/* 0x00221840, 0x48 bytes, matching. Whether an entry is offered (2: page 11 / 12, 1: page 10, else yes). */
 int func_00221840(u32 what)
 {
-    if (what == 2)
-        return func_002207F0();
-    if (what == 1)
+    switch (what) {
+    case 1:
         return func_00220780();
+    case 2:
+        return func_002207F0();
+    }
     return 1;
 }
 
@@ -994,12 +996,12 @@ int func_00221AB0(int player)
     return 0;
 }
 
-/* 0x00221F40, 0x2C bytes. Whether line `line` of page 1 is offered (11: only with mounts). */
+/* 0x00221F40, 0x2C bytes, matching. Whether line `line` of page 1 is offered (11: only with mounts). */
 int func_00221F40(int line)
 {
-    if (line == 0x0B)
-        return func_002208C0();
-    return 1;
+    if (line != 0x0B)
+        return 1;
+    return func_002208C0();
 }
 
 /* 0x00221F70, 0x4DC bytes. Page 1, the officer (four lines: equipment 6, items 7, mounts 9,
@@ -1892,7 +1894,7 @@ void func_00224DD0(void)
     g_00749B6C[3] = 0;
 }
 
-/* 0x00224DF0, 0x24 bytes. Page 11: starts on side 0's formation. */
+/* 0x00224DF0, 0x24 bytes, matching. Page 11: starts on side 0's formation. */
 void func_00224DF0(void)
 {
     g_00749B96[0] = func_00362C80(0);
@@ -1973,17 +1975,21 @@ void func_00224FF0(void)
     func_00362C50(0, slot);
 }
 
-/* 0x00225100, 0x2C bytes. Page 12: undoes the edit. */
+/* 0x00225100, 0x2C bytes, matching. Page 12: undoes the edit. */
 void func_00225100(void)
 {
-    func_00118AC0(g_00749BA1, g_00749BA6, 5);
+    u8 *page = (u8 *)&s_00749B9E;
+
+    func_00118AC0(page + 3, page + 8, 5);
 }
 
-/* 0x00225130, 0x38 bytes. Page 12: starts an edit. */
+/* 0x00225130, 0x38 bytes, matching. Page 12: starts an edit. */
 void func_00225130(void)
 {
-    g_00749BB5 = 0;
-    func_00118AC0(g_00749BA6, g_00749BA1, 5);
+    u8 *page = (u8 *)&s_00749B9E;
+
+    page[0x17] = 0;
+    func_00118AC0(page + 8, page + 3, 5);
     func_00224FB0(1);
 }
 
@@ -2051,14 +2057,14 @@ void func_00225370(int pad)
     }
 }
 
-/* 0x002254B0, 0x40 bytes. Page 12: runs the handler of its mode. */
+typedef struct { void (*f[2])(int pad); } Handlers2;
+
+/* 0x002254B0, 0x40 bytes, matching. Page 12: runs the handler of its mode. */
 void func_002254B0(int pad)
 {
-    void (*handlers[2])(int pad);
+    Handlers2 handlers = *(Handlers2 *)g_0045CDB0;
 
-    handlers[0] = g_0045CDB0[0];
-    handlers[1] = g_0045CDB0[1];
-    handlers[g_00749B9E](pad);
+    handlers.f[g_00749B9E](pad);
 }
 
 /* 0x002254F0, 0x70 bytes. Page 13, the music: starts the current track. */
@@ -2227,7 +2233,7 @@ void func_00225ED0(void)
         g_00749530[0x642 + i] = 0x1F;
 }
 
-/* 0x00225F20, 0x90 bytes. Page 10's list from the five officers' values (an Empire battle). */
+/* 0x00225F20, 0x90 bytes, matching. Page 10's list from the five officers' values (an Empire battle). */
 void func_00225F20(void)
 {
     u32 i;
@@ -2239,7 +2245,10 @@ void func_00225F20(void)
         if (v < 0x1F)
             n++;
     }
-    g_00749B91 = n == 0 ? 0 : 5;
+    if (n != 0)
+        g_00749B91 = 5;
+    else
+        g_00749B91 = 0;
 }
 
 /* 0x00225FB0, 0xD0 bytes. Page 10's list: the entries allowed (func_003A01A0), except 8 and 0x1D. */
@@ -2265,17 +2274,17 @@ void func_00225FB0(void)
     g_00749B91 = n;
 }
 
-/* 0x00226080, 0x64 bytes. Page 10 set-up. */
+/* 0x00226080, 0x64 bytes, matching. Page 10 set-up. */
 void func_00226080(void)
 {
     func_00118850(g_00749B6C, 0x2A);
     g_00749B6C[4] = 0xFF;
     g_00749B6C[5] = 0xFF;
     func_00225ED0();
-    if (func_0036D2E0() == 0)
-        func_00225FB0();
-    else
+    if (func_0036D2E0() != 0)
         func_00225F20();
+    else
+        func_00225FB0();
 }
 
 /* 0x002260F0, 0x8 bytes, matching. */
