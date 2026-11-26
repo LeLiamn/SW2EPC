@@ -404,20 +404,39 @@ Original source file `SceneTutorial.c`. The scene part (0x003F2B20-0x003F4840) i
 ## Scene 0x08: the menu during a battle (`src/scene_battle_menu.c`)
 
 Probable: the scene fades in when it comes from the battle (scene 5). No source file name is
-used in it. Its own functions and the two small pages just before them are decompiled
-(0x00235870-0x00236C44, 13 functions, 8 match). The pages (0x0022F000?-0x00235870) are not.
+used in it. The whole file is decompiled (0x0022FF30-0x00236C44, 73 functions, 22 match). Its
+start is a guess: the code before it belongs to the message window (`0x005BBF18`).
 
 - **Pages:** there are 19 (`g_0074B724`, 0-0x12) for player `g_0074B734`, shown over the
-  battle map; `func_002300B0` changes page. Page 17 opens a dialog (`func_002DB990`, 4 or 7 in
-  an Empire battle). Page 18 asks "Exiting game. Proceed?" and goes to page 21 on yes.
+  battle map.
+  - `func_002300B0` requests a page; 0x14 goes back to the battle and 0x15 quits.
+  - `func_00230160` applies it: the camera, the window layers (`func_0027FE60`) and the
+    page's set-up. It has the same shape as `func_002209E0` of the pre-battle menu.
+- **Page 0, the main menu:**
+  - a free battle has eight lines (table `0x0042A410`, pages at `0x0040E970`). Entries 0, 1
+    and 3 are offered only when `func_0022FF30`, `func_0022FF90` and `func_00230010` allow them;
+  - an Empire battle has four lines (`0x0040E990`). With two armies, the first player asking
+    to go back waits for the other one.
+- **Page 3, orders to the units.** It has four modes (`0x0040E9C0`): choose a unit, an order
+  (5), a group, or a target. An order is counted in its record (`func_00338410` +0x0B) and
+  given through `func_0035F6F0`. The camera follows the unit, group or cell unless the player
+  record's bit 2 is set.
+- **Other pages:**
+  - 5: 16 battle records of 0x110 bytes, through a pointer to `0x005BC5A8`;
+  - 7: save or quit;
+  - 8: a 4 x 10 grid;
+  - 9 and 10: two lists that go back to the battle once used;
+  - 11: a question;
+  - 12: a sub-menu of pages 8, 6, 5 and 15;
+  - 16: a sub-menu of pages 17 and 18;
+  - 17: a dialog;
+  - 18: "Exiting game. Proceed?".
 - **Enter:** it sets the menu camera up from the battle type, with the same tables as the
   pre-battle menu (`0x00442EA0`-`0x00443640`).
-- **Update:** it runs in phases (`g_0074B72C`). 0 opens the menu and 1 runs the page's handler
-  (after `func_003F1400`). 2-4 leave through `func_00230160`, after the boxes close and, in an
-  Empire battle, after the fade.
-- **Draw:** it sets two GS registers, draws the map (not in game mode 2), then the page's drawer
-  (`func_00282020`...) and its help line. Page 3's help line depends on the unit in the chosen
-  cell.
+- **Update:** it runs in phases (`g_0074B72C`). 0 opens the menu, 1 runs the page's handler,
+  and 2-4 apply the requested page.
+- **Draw:** it sets two GS registers, draws the map (not in game mode 2), then the page's
+  drawer (`func_00282020`...) and its help line.
 
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
