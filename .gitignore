@@ -43,5 +43,5 @@ CLAUDE.md
 .claude/
 
 # Ghidra install and projects (local tools, never committed)
-ghidra*/
+/ghidra_*/
 *.gpr
