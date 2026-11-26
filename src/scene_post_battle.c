@@ -1005,3 +1005,112 @@ void func_0021BC80(void)
         break;
     }
 }
+
+
+/* Entry of the item screen's data for each scenario (func_003623B0), 0 when none. */
+static const u8 s_scenario_entry[0x1E] = {
+    0x56, 0x44, 0x52, 0x4F, 0x48, 0x5B, 0x50, 0x49, 0x43, 0x57, 0x51, 0x4C, 0x47, 0x46, 0x58,
+    0x53, 0x54, 0x45, 0x4E, 0x5D, 0x4D, 0x42, 0x4A, 0x5A, 0x4B, 0x4A, 0x42, 0x55, 0x5C, 0x45,
+};
+
+/* 0x0021BE80, 0x138 bytes. LINKDATA entry loaded by enter for the current scenario (a switch in
+ * the original). */
+int func_0021BE80(void)
+{
+    u32 scenario = func_003623B0();
+
+    if (scenario < 0x1E)
+        return s_scenario_entry[scenario];
+    return 0;
+}
+
+extern u8 g_00748A04[];                   /* per player, 0x14 bytes: the item kept */
+void func_002205E0(int player);
+void func_002206B0(int player);
+
+/* 0x0021BFC0, 0xD0 bytes. Copies player `player`'s last item (0x00748938 record, index at +0x51)
+ * to the offered item (0x007489DC) and to the kept item (0x00748A04), the latter with its default
+ * values when the item is known (func_0021A720). */
+void func_0021BFC0(int player)
+{
+    u8 *src = &g_00748938[player * 0x52 + g_00748938[player * 0x52 + 0x51] * 0x14];
+    u8 tmp[32];
+
+    func_0011EB80(&g_007489DC[player * 0x14], src, 0x14);
+    if (func_003A02F0(src[0]) == 0) {
+        func_0011EB80(&g_00748A04[player * 0x14], &g_007489DC[player * 0x14], 0x14);
+    } else {
+        func_0021A720(tmp, src[0]);
+        func_0011EB80(&g_00748A04[player * 0x14], tmp, 0x14);
+    }
+}
+
+extern int g_00748A60[11];                /* item screen: 0x00748A60-0x00748A88 */
+extern int g_00748AA4[9];                 /* 0x00748AA4-0x00748AC4 */
+extern int g_00748ADC[24];                /* 0x00748ADC-0x00748B38 */
+extern int g_00748CAC, g_00748CB0;
+
+/* 0x0021C090, 0x38 bytes. Clears the item screen's values. */
+void func_0021C090(void)
+{
+    int i;
+
+    for (i = 0; i < 11; i++)
+        g_00748A60[i] = 0;
+}
+
+/* 0x0021C0D0, 0xFC bytes. Prepares the skill screen for the current player: its lists
+ * (func_002205E0, func_002206B0), a copy of the offered item, and the screen's default values. */
+void func_0021C0D0(void)
+{
+    int i;
+
+    func_002205E0(g_0074794C);
+    func_002206B0(g_0074794C);
+    func_0011EB80(g_00748AC8, &g_007489DC[g_0074794C * 0x14], 0x14);
+    for (i = 0; i < 3; i++)
+        g_00748AA4[i] = 0;
+    for (i = 3; i < 9; i++)
+        g_00748AA4[i] = 1;
+    g_00748ADC[0] = 0;
+    for (i = 0; i < 12; i++)
+        g_00748ADC[1 + i] = (i & 1) ? 8 : 6;            /* 0x00748AE0-0x00748B0C: 6, 8, 6, 8... */
+    for (i = 13; i < 21; i++)
+        g_00748ADC[i] = 1;                              /* 0x00748B10-0x00748B2C */
+    for (i = 21; i < 24; i++)
+        g_00748ADC[i] = 8;                              /* 0x00748B30-0x00748B38 */
+}
+
+/* 0x0021C1D0, 0x14 bytes. */
+void func_0021C1D0(void)
+{
+    g_00748CAC = 0;
+    g_00748CB0 = 0;
+}
+
+extern u8 g_00748CB4[];
+extern int g_00749438[2], g_007494D0[2];
+extern u8 g_00749440[];                   /* 0x24 bytes per player */
+void func_003DF970(int item, void *a, int b, int c, void *d);
+
+/* 0x0021C1F0, 0x84 bytes. */
+void func_0021C1F0(void)
+{
+    int player = g_0074794C;
+
+    func_003DF970(func_003294A0(g_0074794C), g_00748CB4, g_00749438[g_0074794C],
+                  g_007494D0[g_0074794C], &g_00749440[player * 0x24]);
+}
+
+/* 0x0021C280, 0x104 bytes. Keeps the item chosen on the item screen (g_00748CB0: 0 keep the new
+ * one), and in two-player games copies player 0's item to player 1 when they are the same kind. */
+void func_0021C280(void)
+{
+    if (g_00748CB0 == 0)
+        func_0011EB80(&g_00748A04[g_0074794C * 0x14], g_00748AC8, 0x14);
+    else if (g_00748CB0 == 1 && g_0074794C == 1 && g_00748F98 == 2 &&
+             g_007489F0[0] == g_007489DC[0])
+        func_0011EB80(g_007489F0, g_007489DC, 0x14);
+    if (g_0074794C == 0 && g_00748F98 == 2 && g_00748A04[0] == g_00748A04[0x14])
+        func_0011EB80(&g_00748A04[0x14], g_00748A04, 0x14);
+}
