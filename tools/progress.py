@@ -32,7 +32,7 @@ import motion  # noqa: E402
 
 # Format -> ("done" | "todo", description). Keep in sync with docs/formats/README.md.
 FORMAT_STATUS = {
-    "Containers": ("done", "LINKDATA and pack tables, padding"),
+    "Containers": ("done", "LINKDATA and pack tables (3 pack variants), padding"),
     "TIM2": ("done", "Textures (Sony TIM2), convertible to PNG"),
     "MPEG2": ("done", "Movies (Sony PSS: MPEG-2 + ADPCM + AC-3), exportable to MKV"),
     "ANS stream": ("done", "Music streams (SPU ADPCM), decodable to WAV"),
@@ -44,6 +44,7 @@ FORMAT_STATUS = {
     "TMD2": ("todo", "Files starting with 'TMD2'"),
     "IPU": ("todo", "IPU images (ipu2)"),
     "PAC0": ("todo", "PAC0 files"),
+    "EFB": ("todo", "EFB files (effects?)"),
     "Unidentified": ("todo", "Leaves without a known signature (models, motions, scripts...)"),
 }
 
@@ -52,7 +53,7 @@ MATCHED_CODE = {"matching": 0, "non_matching": 0}
 SKIP_EXTENSIONS = {"IRX", "IMG", "CNF"}
 CONTAINER_KIND = {"ANS": "ANS stream", "CNS": "MPEG2"}
 LEAF_KIND = {"tm2": "TIM2", "tm3": "tm3", "tmd2": "TMD2", "ps2": "PS2", "pac": "PAC0",
-             "ipu": "IPU", "pss": "MPEG2", "bin": "Unidentified"}
+             "ipu": "IPU", "pss": "MPEG2", "efb": "EFB", "bin": "Unidentified"}
 
 
 def motion_parses(leaf):

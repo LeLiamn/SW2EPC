@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 1896323321
+    "done": 1897396994
   },
   "layout": "treemap",
   "areas": [
@@ -42,19 +42,27 @@
           }
         },
         {
+          "name": "TIM2",
+          "description": "Textures (Sony TIM2), convertible to PNG",
+          "data": {
+            "total": 205318528,
+            "done": 205318528
+          }
+        },
+        {
           "name": "Unidentified",
           "description": "Leaves without a known signature (models, motions, scripts...)",
           "data": {
-            "total": 231812367,
+            "total": 117128310,
             "done": 0
           }
         },
         {
-          "name": "TIM2",
-          "description": "Textures (Sony TIM2), convertible to PNG",
+          "name": "TMD2",
+          "description": "Files starting with 'TMD2'",
           "data": {
-            "total": 204819136,
-            "done": 204819136
+            "total": 96711712,
+            "done": 0
           }
         },
         {
@@ -74,6 +82,14 @@
           }
         },
         {
+          "name": "EFB",
+          "description": "EFB files (effects?)",
+          "data": {
+            "total": 24154928,
+            "done": 0
+          }
+        },
+        {
           "name": "tm3",
           "description": "Files starting with 'tm3 '",
           "data": {
@@ -90,19 +106,11 @@
           }
         },
         {
-          "name": "TMD2",
-          "description": "Files starting with 'TMD2'",
-          "data": {
-            "total": 7256256,
-            "done": 0
-          }
-        },
-        {
           "name": "Containers",
-          "description": "LINKDATA and pack tables, padding",
+          "description": "LINKDATA and pack tables (3 pack variants), padding",
           "data": {
-            "total": 5229825,
-            "done": 5229825
+            "total": 5804106,
+            "done": 5804106
           }
         },
         {
