@@ -40,6 +40,7 @@ FORMAT_STATUS = {
     "PS2": ("done", "3D models with skeleton and skinning, exportable to OBJ"),
     "Motion": ("done", "Animations (keyframed cubic curves per node and component)"),
     "Motion (atypical)": ("todo", "Motions with an unknown track type"),
+    "ADPCM sounds": ("done", "Sound-effect bank and other raw SPU ADPCM files, decodable to WAV"),
     "Event motions": ("done", "Motions embedded in the in-engine cutscene (event) files"),
     "Event commands": ("todo", "Command chains of the event files (meaning not decoded yet)"),
     "PS2 variant": ("todo", "'PS2 ' files without nodes (different layout)"),
@@ -57,6 +58,16 @@ SKIP_EXTENSIONS = {"IRX", "IMG", "CNF"}
 CONTAINER_KIND = {"ANS": "ANS stream", "CNS": "MPEG2"}
 LEAF_KIND = {"tm2": "TIM2", "tm3": "tm3", "tmd2": "TMD2", "ps2": "PS2", "pac": "PAC0",
              "ipu": "IPU", "pss": "MPEG2", "efb": "EFB", "bin": "Unidentified"}
+
+
+def is_raw_adpcm(leaf):
+    """Raw SPU ADPCM: starts with a silent frame and every frame looks like ADPCM."""
+    if len(leaf) < 64 or len(leaf) % 16 or any(leaf[:16]):
+        return False
+    frames = range(16, len(leaf), 16)
+    good = sum(1 for i in frames if (leaf[i] >> 4) <= 4 and (leaf[i] & 15) <= 12
+               and leaf[i + 1] in (0, 1, 2, 3, 4, 6, 7))
+    return good >= 0.99 * len(frames)
 
 
 def motion_parses(leaf):
@@ -81,6 +92,8 @@ def count_container(data, sizes, forced_kind=None):
                 kind = "PS2 variant"
             elif kind == "Unidentified" and leaf[:4] == bytes((0x51, 0, 0, 0)):
                 kind = "Motion" if motion_parses(leaf) else "Motion (atypical)"
+            elif kind == "Unidentified" and is_raw_adpcm(leaf):
+                kind = "ADPCM sounds"
             elif kind == "Unidentified" and event.is_event(leaf):
                 try:
                     _, end = event.commands(leaf)

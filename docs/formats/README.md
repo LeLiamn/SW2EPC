@@ -19,6 +19,7 @@ gets understood. All game data is inside the three [LINKDATA](LINKDATA.md) conta
 | Motions | BNS, in packs | 10,714 | `51 00 00 00` | Animations: per node and component, cubic curve keys. 10,641 of 10,714 read exactly; poses a model. [MOTION.md](MOTION.md) | ✅ understood, posing tool |
 | Battlefield layouts | BNS, in packs | 186 | `00 C0 04 66` | Layout data of the battlefields, packed with their minimap. Sections partly mapped. [BATTLEFIELD.md](BATTLEFIELD.md) | 🟡 in progress |
 | Events | BNS | 303 | `10 00 00 00 00 00 01 06` | In-engine cutscenes: command chain + 2,842 motions (97.8% of the bytes). [EVENT.md](EVENT.md) | 🟡 motions done, commands to study |
+| Sound bank | BNS entry 1384 + small raw files | 1,610 sounds | none (raw SPU ADPCM) | Sound effects, split on ADPCM end/loop flags, 32,000 Hz (probable). [SOUNDBANK.md](SOUNDBANK.md) | ✅ understood, WAV export |
 | Other leaves | BNS | ~13,000 | none | Geometry packets (`00 C0 04 66`), `51 00 00 00` files, tables... 278 MB: see [PACK.md](PACK.md) | 🔴 to study |
 
 Legend: ✅ understood · 🟢 standard format, already documented elsewhere · 🟡 in progress · 🔴 unknown

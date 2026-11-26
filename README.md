@@ -24,6 +24,7 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | Animations (10,714 motions) | Format solved from the data: 10,641 read exactly and pose the characters |
 | Scene objects (26,623 TMD2) | Geometry decoded; whole battlefield packs export to OBJ |
 | tm3 textures (176) | All convert to PNG, one image per palette (characters' textures) |
+| Sound effects (1,610) | Bank split and decoded to WAV (17 minutes) |
 | Other formats inside | Signatures identified (battlefield pieces, `TMD2`, `tm3`...) |
 | Decompilation | Started: start-up code mapped, `main` decompiled ([docs/code.md](docs/code.md)) |
 
@@ -55,6 +56,7 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | `tools/tmd2.py` | Export the battlefields' static scene objects (TMD2) to OBJ |
 | `tools/tm3.py` | Convert tm3 textures (GS upload packets) to PNG, one per palette |
 | `tools/event.py` | List the commands and motions of the in-engine cutscene (event) files |
+| `tools/soundbank.py` | Split the sound-effect bank into 1,610 WAV files |
 | `tools/tim2.py` | Convert TIM2 textures to PNG, every texture of the disc at once |
 | `tools/elf_info.py` | Sections, symbols, compiler and code size of an executable |
 | `tools/find_strings.py` | Readable strings of a binary, with a report of file names |

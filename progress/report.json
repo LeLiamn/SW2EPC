@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2031648270
+    "done": 2051296606
   },
   "layout": "treemap",
   "areas": [
@@ -61,7 +61,7 @@
           "name": "Unidentified",
           "description": "Leaves without a known signature (models, motions, scripts...)",
           "data": {
-            "total": 91561222,
+            "total": 71912886,
             "done": 0
           }
         },
@@ -95,6 +95,14 @@
           "data": {
             "total": 24154928,
             "done": 0
+          }
+        },
+        {
+          "name": "ADPCM sounds",
+          "description": "Sound-effect bank and other raw SPU ADPCM files, decodable to WAV",
+          "data": {
+            "total": 19648336,
+            "done": 19648336
           }
         },
         {
