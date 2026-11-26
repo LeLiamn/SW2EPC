@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2155745494
+    "done": 2155890688
   },
   "functions": {
     "total": 10587,
@@ -673,8 +673,8 @@
           "name": "TIM2",
           "description": "Textures (Sony TIM2), convertible to PNG",
           "data": {
-            "total": 205364032,
-            "done": 205364032
+            "total": 205391680,
+            "done": 205391680
           }
         },
         {
@@ -705,8 +705,8 @@
           "name": "Motion",
           "description": "Animations (keyframed cubic curves per node and component)",
           "data": {
-            "total": 47733412,
-            "done": 47733412
+            "total": 47733060,
+            "done": 47733060
           }
         },
         {
@@ -753,24 +753,24 @@
           "name": "Containers",
           "description": "LINKDATA and pack tables (3 pack variants), padding",
           "data": {
-            "total": 5920298,
-            "done": 5920298
+            "total": 5920314,
+            "done": 5920314
           }
         },
         {
           "name": "Text",
           "description": "Text tables (messages, event dialogues): offsets and NUL-terminated strings",
           "data": {
-            "total": 1305130,
-            "done": 1305130
+            "total": 1305066,
+            "done": 1305066
           }
         },
         {
           "name": "Game state tables",
           "description": "Fixed-size tables copied whole into the game state (Empire starts, event predata, 1309)",
           "data": {
-            "total": 874580,
-            "done": 874580
+            "total": 992526,
+            "done": 992526
           }
         },
         {
@@ -811,14 +811,6 @@
           "data": {
             "total": 155868,
             "done": 155868
-          }
-        },
-        {
-          "name": "Unidentified",
-          "description": "Leaves without a known signature (models, motions, scripts...)",
-          "data": {
-            "total": 145194,
-            "done": 0
           }
         },
         {

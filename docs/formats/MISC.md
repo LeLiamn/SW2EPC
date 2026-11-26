@@ -40,8 +40,36 @@ An offset table (the first offset gives its size) of records; each record is two
 table ("Your skill on the battlefield is worthy of...", each line ending with `@` and a voice
 number). See [TEXT.md](TEXT.md); `text.record_tables()` checks them.
 
-## Identified, not decoded yet
+### Battlefield field data and lighting (entries 2859-3078)
 
-| Entry | Size | Read by | What it is |
-|---|---:|---|---|
-| 1385 | 156 KB | `SeManager.c` (entry 0x569) | sound effect table |
+- **2859-3044** (`Field.c`, entry from a table at `0x00424F30`): a pack of 3 or 4 parts:
+  0x40-byte area records (u16 +0x1E = a record of part 1), 0x10-byte records, 0x10-byte records,
+  8-byte records. `battlefield.parse_field()`.
+- **3045-3078** (`StgAmbient.c`, entry `0xBE5 + battlefield`, or `0xC00`-`0xC06`): 576 bytes of
+  lighting, 36 vectors of 4 floats (light position and direction, colours as 255.0, factors).
+
+### Smaller tables (checked against the code that reads them)
+
+| Entry | Read by | Layout |
+|---|---|---|
+| 0051 | `sc_ubase.c` | u32 count + 0x2C-byte records |
+| 0052 | `Stage.c` | pack whose parts are relocated; part 2 to `func_0027F6D0` |
+| 0053 | `sc_ctrl.c` | u32 count + 100-byte records: the battlefield table the code reads at `0x005BA694` |
+| 0062 | `RelayCamera.c` | pack |
+| 0063 | `ObjAction.c` | 31 (offset, size) parts, each given to a handler of a table at `0x0043FE40` |
+| 1194 | `emp_war_fix.c` | pack of 4 relocated parts |
+| 1195 | `emp_FldBase.c` | 0x78 bytes per scenario (20 entries of 6 bytes) |
+| 1197-1281 | `emp_sc.c` | Empire scenario tables (see EVENT.md / `event.check_emp_sc`) |
+| 1282-1308 | `MiniMap.c` | minimaps: a 32 x 32 zone grid and the TIM2 map image (entry from `0x0040D630`) |
+| 1310 | `SecretSorts.c` | 0x30-byte records |
+| 1385 | `SeManager.c` | u32 count, u32, then 20-byte records: position and size (in sectors) of each sound stream |
+| 1386 | `ModelManager.c` | 0xA0-byte records |
+| 1387, 1388 | `Weapon.c` | 0x20- and 0x30-byte records |
+| 1390 | `Bullet.c` | 16-byte header (u32 count at +4) + 0x48-byte records |
+| 2030 | | CLT2 palettes (TIM2 layout without an image), `tim2.is_clt2()` |
+| 3079 | `SecretsScene.c` | pack |
+| 3262-3387 | `ev_message.c` | PAC0 files behind a 16-byte header (`pac0.parse_wrapped()`) |
+| 3388-3458 | `MovieTelop.c` | movie subtitles: count, (start, end) frame pairs, lines (`text.telop()`) |
+
+The record fields of these tables are the game's own structures; they get their names as the code
+reading them is decompiled.

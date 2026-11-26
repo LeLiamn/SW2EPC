@@ -226,6 +226,30 @@ def known_entries(data):
         if e["index"] == 1385 and size >= 8:    # SeManager.c: stream table, 20-byte records
             if 8 + 20 * struct.unpack_from("<I", data, e["offset"])[0] == size:
                 known["1385"] = "Sound tables"
+        if 1282 <= e["index"] <= 1308:          # MiniMap.c (entry from a table at 0x0040D630)
+            mm = data[e["offset"]:e["offset"] + e["size"]]
+            offs = pack.is_pack(mm)
+            if offs is not None and len(offs) == 2 and offs[1] - offs[0] == 1024 and                     mm[offs[1]:offs[1] + 4] == b"TIM2":
+                known[f"{e['index']:04d}"] = "TIM2"           # 32 x 32 zone grid + the map image
+        raw = data[e["offset"]:e["offset"] + e["size"]]
+        n0 = struct.unpack_from("<I", raw, 0)[0] if size >= 4 else 0
+        n4 = struct.unpack_from("<I", raw, 4)[0] if size >= 8 else 0
+        tables = {                              # entry: record layout checked against the reader
+            51: size == 4 + 0x2C * n0,           # sc_ubase.c: count + 0x2C-byte records
+            53: size == 4 + 100 * n0,            # sc_ctrl.c: the battlefield table (0x005BA694)
+            1386: size % 0xA0 == 0,              # ModelManager.c: 0xA0-byte records
+            1387: size % 0x20 == 0,              # Weapon.c: 0x20-byte records
+            1388: size % 0x30 == 0,              # Weapon.c: 0x30-byte records
+            1390: size == 0x10 + 0x48 * n4,      # Bullet.c: header + 0x48-byte records
+            1310: size % 0x30 == 0,              # SecretSorts.c
+            1195: size % 0x78 == 0,              # emp_FldBase.c: 20 x 6 bytes per scenario
+        }
+        if tables.get(e["index"]):
+            known[f"{e['index']:04d}"] = "Game state tables"
+        if (e["index"] in (52, 62, 1194, 3079) and pack.is_pack(raw) is not None) or                 (e["index"] == 63 and n0 == 0x1F):
+            # Stage.c, RelayCamera.c, ObjAction.c (31 parts for handlers at 0x0043FE40),
+            # emp_war_fix.c, SecretsScene.c: packs whose parts the reader relocates and uses
+            known[f"{e['index']:04d}"] = "Game state tables"
         if e["index"] == 172:                   # event dialogues (emp_ev_still.c)
             try:
                 event.check_dialogues(data[e["offset"]:e["offset"] + e["size"]])
@@ -313,8 +337,8 @@ def count_container(data, sizes, forced_kind=None):
                                              or text.pair_tables(leaf) is not None
                                              or text.plain(leaf)):
                 kind = "Text"
-            elif kind == "Unidentified" and leaf == b"X" * len(leaf):
-                kind = "Containers"                 # filler entries of a pack ("XXXX...")
+            elif kind == "Unidentified" and (leaf == b"X" * len(leaf) or not any(leaf)):
+                kind = "Containers"                 # filler entries of a pack ("XXXX...", zeros)
             elif kind == "Unidentified" and is_raw_adpcm(leaf):
                 kind = "ADPCM sounds"
             elif kind == "Unidentified" and (event.is_event(leaf) or event.is_old_script(leaf)):
