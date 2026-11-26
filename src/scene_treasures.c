@@ -95,7 +95,7 @@ extern struct {
     u8 g_0073135C;
     u8 g_0073135D;
     u8 g_0073135E;
-    char g_0073135F;
+    u8 g_0073135F;  
 } s_00731314;
 #define g_00731314 (s_00731314.g_00731314)
 #define g_00731318 (s_00731314.g_00731318)
@@ -465,20 +465,6 @@ int func_001E7680(void *data)
 
 #define MAIN_ENTRIES 10
 
-/* Moves the main-menu cursor to the next available entry, `step` = 1 (down) or 9 (up). */
-static void main_menu_move(const int *available, unsigned step)
-{
-    unsigned i;
-
-    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-    i = (g_0073135A + step) % MAIN_ENTRIES;
-    g_0073135A = (u8)i;
-    while (available[i] == 0) {
-        i = (i + step) % MAIN_ENTRIES;
-        g_0073135A = (u8)i;
-    }
-}
-
 /* 0x001E7830, 0x4CC bytes, matching. Mode 0: the gallery's main menu, 10 entries; entry n opens mode n + 1.
  * Entries whose flag (from func_003BD290) is 0 are skipped. A fresh press wraps around, a held
  * one stops at the last available entry. */
@@ -662,7 +648,7 @@ void func_001E8110(void)
 
 #define SKILL_HEADER 0xFF   /* cursor on the header row above the skill columns */
 
-/* 0x001E8200, 0x400 bytes. Mode 11. Step 0 (g_0073135F = 0, "Select Officer  Back  OK"): choose
+/* 0x001E8200, 0x400 bytes, matching. Mode 11. Step 0 (g_0073135F = 0, "Select Officer  Back  OK"): choose
  * an officer, OK opens the skills. Step 1 ("Select Skill  Back"): 4 columns of 10 skills (cursor
  * 0..39, column = cursor / 10); Up from a column's first row goes to the header row (remembering
  * the column in g_0073135E), Down from it comes back. Cancel returns to step 0. */
@@ -671,7 +657,53 @@ void func_001E8200(void)
     int pressed = pad1_pressed();
     int held = pad1_held();
 
-    if (g_0073135F == 0) {
+    if (g_0073135F != 0) {
+        if (pressed & BTN_CANCEL) {
+            func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073135A = 0x28;
+            g_0073135F = 0;
+            g_00731330 = 0;
+            func_002ED190(0x13);
+            func_002ED190(0x1C);
+        } else if (held & BTN_DOWN) {
+            if (g_0073135F != 0) {              /* (always true here: tested again, as in the original) */
+                if (g_0073135A == SKILL_HEADER) {
+                    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                    g_0073135A = (u8)(g_0073135E * 10);
+                    func_002B3CF0(6);
+                } else if (g_0073135A % 10 < 9) {
+                    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                    g_0073135A++;
+                    func_002B3CF0(6);
+                }
+            }
+        } else if (held & BTN_UP) {
+            if (g_0073135A != SKILL_HEADER) {
+                if (g_0073135A % 10 == 0) {
+                    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                    g_0073135E = g_0073135A / 10;
+                    g_0073135A = SKILL_HEADER;
+                    func_002B3CF0(6);
+                } else {
+                    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                    g_0073135A--;
+                    func_002B3CF0(6);
+                }
+            }
+        } else if (held & BTN_RIGHT) {
+            if (g_0073135A != SKILL_HEADER && g_0073135A < 0x1E) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_0073135A += 10;
+                func_002B3CF0(6);
+            }
+        } else if (held & BTN_LEFT) {
+            if (g_0073135A != SKILL_HEADER && g_0073135A >= 10) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_0073135A -= 10;
+                func_002B3CF0(6);
+            }
+        }
+    } else {
         if (pressed & BTN_OK) {
             func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             g_0073135A = 0;
@@ -684,49 +716,6 @@ void func_001E8200(void)
             func_001E7110(5);
         } else {
             func_001E7680(g_007312AC);
-        }
-        return;
-    }
-
-    if (pressed & BTN_CANCEL) {
-        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-        g_0073135A = 0x28;
-        g_0073135F = 0;
-        g_00731330 = 0;
-        func_002ED190(0x13);
-        func_002ED190(0x1C);
-    } else if (held & BTN_DOWN) {
-        if (g_0073135A == SKILL_HEADER) {
-            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            g_0073135A = (u8)(g_0073135E * 10);
-            func_002B3CF0(6);
-        } else if (g_0073135A % 10 < 9) {
-            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            g_0073135A++;
-            func_002B3CF0(6);
-        }
-    } else if (held & BTN_UP) {
-        if (g_0073135A != SKILL_HEADER) {
-            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            if (g_0073135A % 10 == 0) {
-                g_0073135E = g_0073135A / 10;
-                g_0073135A = SKILL_HEADER;
-            } else {
-                g_0073135A--;
-            }
-            func_002B3CF0(6);
-        }
-    } else if (held & BTN_RIGHT) {
-        if (g_0073135A != SKILL_HEADER && g_0073135A < 0x1E) {
-            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            g_0073135A += 10;
-            func_002B3CF0(6);
-        }
-    } else if (held & BTN_LEFT) {
-        if (g_0073135A != SKILL_HEADER && g_0073135A > 9) {
-            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            g_0073135A -= 10;
-            func_002B3CF0(6);
         }
     }
 }
