@@ -45,10 +45,25 @@ extern u8 g_0040CC40[];
 
 /* Controller 1 (see scene_config.c). */
 extern u8 g_00500764, g_00500765;
-extern unsigned short g_0050074C;
+extern unsigned short g_0050074C;   /* pressed this frame */
+extern unsigned short g_0050074E;   /* pressed or repeating */
 #define BTN_CANCEL 0x0010
 #define BTN_SKILLS 0x0020            /* the "Skills" button of mode 5 */
+#define BTN_OK     0x0040
+#define BTN_UP     0x1000
+#define BTN_RIGHT  0x2000
+#define BTN_DOWN   0x4000
+#define BTN_LEFT   0x8000
 #define SE_CURSOR 0x2CDC
+
+extern u32 g_00799A68;
+void func_003BD5C0(void);
+void func_003BD540(void);
+void func_003971B0(void);
+void func_003B20F0(void);
+void func_003B2140(void);
+int func_003A1FC0(int mount);         /* MOUNT_LOCKED (4) when the mount is not unlocked */
+void func_002B3CF0(int value);
 
 /* Button help lines (0xF0 + letter = a button icon). */
 extern const char *g_0043C578;       /* "Select  Back  OK" */
@@ -145,7 +160,7 @@ void func_002EF180(u32 a);
 void func_002EF200(u32 a, u32 b, int c, void *d, u32 e, u8 f, u8 g, u8 h);
 void func_002EF280(void);
 
-/* Mode handlers not decompiled yet. */
+/* Defined further down. */
 void func_001E7290(void);            /* applies the requested mode (end of a transition) */
 int func_001E7680(void *data);
 void func_001E7830(void);            /* mode 0: the gallery's main menu */
@@ -156,6 +171,11 @@ void func_001E86D0(void);            /* mode 7: select mount */
 static unsigned short pad1_pressed(void)
 {
     return ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074C : 0;
+}
+
+static unsigned short pad1_held(void)
+{
+    return ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074E : 0;
 }
 
 /* 0x001E7110, 0x180 bytes. Requests mode `mode`: starts the transition (phase 4), prepares the
@@ -193,6 +213,208 @@ void func_001E7110(int mode)
         func_00376100(first + 4, second < 0 ? -1 : second + 0x0F, -1);
 }
 
+/* 0x001E7290, 0x3F0 bytes. End of a transition: tidies up the mode being left, prepares the
+ * requested one (func_002ED190 starts layout animations?), then makes it current. */
+void func_001E7290(void)
+{
+    func_002C59F0();
+    func_002C5A30();
+    switch (g_00731338) {
+    case 0:                                     /* back to the main menu */
+        if (g_00731334 == 5 && g_00731328 != 0) {
+            func_00102EC0(g_00731328);
+            g_00731328 = 0;
+        }
+        if (g_00731334 == 4 && g_00731324 != 0) {
+            func_00102EC0(g_00731324);
+            g_00731324 = 0;
+        }
+        if ((unsigned)(g_00731334 - 8) < 3)
+            func_003BD580();
+        if (g_00731334 == 4)
+            func_003BD600();
+        /* cursor back on the entry of the mode we leave (mode 11 belongs to entry 5) */
+        g_0073135A = (g_00731334 == 11) ? 5 : (u8)(g_00731334 - 1);
+        break;
+    case 1:
+    case 2:
+        func_002ED190(0x20);
+        break;
+    case 3:                                     /* the sub-menu of modes 12, 13, 14 */
+        if (g_00731334 == 14) {
+            func_003B21A0();
+            g_0073135A = (u8)(g_00731334 - 12);
+        } else if (g_00731334 == 13) {
+            g_0073135A = (u8)(g_00731334 - 12);
+        } else if (g_00731334 == 12) {
+            func_00397260();
+            g_0073135A = (u8)(g_00731334 - 12);
+        } else {
+            g_0073135A = 0;
+        }
+        break;
+    case 4: {
+        u32 *screen;
+        func_003BD5C0();
+        screen = *(u32 **)((char *)func_002FC2C0() + 0x6AC);
+        screen[2] = 0xFFFFFFFF;
+        *(unsigned short *)((char *)screen + 0x1E) = 0;
+        *(unsigned short *)((char *)screen + 0x1C) = 0;
+        screen[0] = 4;
+        func_002ED190(0x1E);
+        break;
+    }
+    case 5:
+        if (g_00731334 != 11) {                 /* not when coming back from the skills */
+            if (g_00731328 == 0)
+                g_00731328 = func_001026D0(1, 0x41, 0, 1, 0, 0, g_00429230, 0x15F);
+            g_0073135F = 0;
+            g_0073135B = 0;
+            g_0073135C = 0;
+            func_002ED190(0x11);
+            func_002ED190(0x1A);
+            func_002ED190(0x1C);
+        }
+        func_002ED190(10);
+        func_002ED190(0x12);
+        break;
+    case 6:
+        g_0073135F = 0;
+        g_0073135B = 0;
+        g_0073135C = 0;
+        func_002ED190(0x11);
+        func_002ED190(0x0E);
+        func_002ED190(0x12);
+        func_002ED190(0x1A);
+        func_002ED190(0x1C);
+        break;
+    case 7:
+        g_0073135A = 0;
+        func_002ED190(0x1F);
+        break;
+    case 8:
+        func_003BD540();
+        func_002ED190(0x27);
+        break;
+    case 9:
+        func_003BD540();
+        func_002ED190(0x27);
+        /* fall through (as in the original: func_003BD540 runs twice) */
+    case 10:
+        func_003BD540();
+        func_002ED190(0x28);
+        func_002ED190(0x29);
+        break;
+    case 11:
+        g_00799A68 = 0;
+        g_0073135A = 0x28;
+        func_002ED190(0x0C);
+        func_002ED190(0x12);
+        break;
+    case 12:
+        func_003971B0();
+        func_002ED190(0x16);
+        func_002ED190(0x18);
+        func_002ED190(0x1D);
+        break;
+    case 13:
+        func_002ED190(0x23);
+        func_002ED190(0x24);
+        break;
+    case 14:
+        func_002ED190(0x25);
+        func_003B20F0();
+        func_003B2140();
+        break;
+    }
+    func_002ED190(3);
+    g_00731334 = g_00731338;
+    g_0073133C = 0;
+}
+
+/* 0x001E7680, 0x1A8 bytes. Officer list (modes 5, 6, 11): Left/Right move through 28 officers,
+ * wrapping; g_0073135B follows as a scroll position 0..5, g_00731330 is the direction (1 left,
+ * 2 right). Returns 1 when the cursor moved. `data` is not used. */
+int func_001E7680(void *data)
+{
+    unsigned short held = pad1_held();
+
+    g_00731330 = 0;
+    if (held & BTN_RIGHT) {
+        g_00731330 = 2;
+        g_0073135C = (g_0073135C < 0x1B) ? g_0073135C + 1 : 0;
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        if (g_0073135B < 5)
+            g_0073135B++;
+        return 1;
+    }
+    if (held & BTN_LEFT) {
+        g_00731330 = 1;
+        g_0073135C = (g_0073135C == 0) ? 0x1B : g_0073135C - 1;
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        if (g_0073135B != 0)
+            g_0073135B--;
+        return 1;
+    }
+    return 0;
+}
+
+#define MAIN_ENTRIES 10
+
+/* Moves the main-menu cursor to the next available entry, `step` = 1 (down) or 9 (up). */
+static void main_menu_move(const int *available, unsigned step)
+{
+    unsigned i;
+
+    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+    i = (g_0073135A + step) % MAIN_ENTRIES;
+    g_0073135A = (u8)i;
+    while (available[i] == 0) {
+        i = (i + step) % MAIN_ENTRIES;
+        g_0073135A = (u8)i;
+    }
+}
+
+/* 0x001E7830, 0x4CC bytes. Mode 0: the gallery's main menu, 10 entries; entry n opens mode n + 1.
+ * Entries whose flag (from func_003BD290) is 0 are skipped. A fresh press wraps around, a held
+ * one stops at the last available entry. */
+void func_001E7830(void)
+{
+    unsigned short pressed = pad1_pressed();
+    unsigned short held = pad1_held();
+    const int *available = func_003BD290();
+    int found = 0;
+    int i;
+
+    if (func_002ED150() != 0)                   /* animation still running */
+        return;
+
+    if (pressed & BTN_OK) {
+        func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        if (g_0073135A == 0x10)                 /* never true (10 entries): leftover in the original */
+            func_001E7110(15);
+        else
+            func_001E7110(g_0073135A + 1);
+    } else if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_001E7110(15);
+    } else if (pressed & BTN_UP) {
+        main_menu_move(available, MAIN_ENTRIES - 1);
+    } else if (pressed & BTN_DOWN) {
+        main_menu_move(available, 1);
+    } else if (held & BTN_UP) {
+        for (i = g_0073135A - 1; i >= 0; i--)
+            if (available[i] != 0) { found = 1; break; }
+        if (found)
+            main_menu_move(available, MAIN_ENTRIES - 1);
+    } else if (held & BTN_DOWN) {
+        for (i = g_0073135A + 1; i < MAIN_ENTRIES; i++)
+            if (available[i] != 0) { found = 1; break; }
+        if (found)
+            main_menu_move(available, 1);
+    }
+}
+
 /* 0x001E7D00, 0x60 bytes. Mode 1 (viewer, shared with func_00391xxx). */
 void func_001E7D00(float dt)
 {
@@ -213,6 +435,36 @@ void func_001E7D60(float dt)
         func_00397AC0();
     if (*(int *)(viewer + 0x150) != 5)
         func_001E7110(0);
+}
+
+/* 0x001E7DC0, 0x24C bytes. Mode 3: a sub-menu of 3 entries opening modes 12, 13 and 14. A fresh
+ * press wraps around, a held one does not. */
+void func_001E7DC0(void)
+{
+    unsigned short pressed = pad1_pressed();
+    unsigned short held = pad1_held();
+
+    if (pressed & BTN_OK) {
+        func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_001E7110(g_0073135A + 12);
+    } else if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_001E7110(0);
+    } else if (pressed & BTN_UP) {
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_0073135A = (u8)((g_0073135A + 2) % 3);
+    } else if (pressed & BTN_DOWN) {
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_0073135A = (u8)((g_0073135A + 1) % 3);
+    } else if (held & BTN_UP) {
+        if (g_0073135A != 0) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073135A = (u8)((g_0073135A + 2) % 3);
+        }
+    } else if ((held & BTN_DOWN) && g_0073135A < 2) {
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_0073135A = (u8)((g_0073135A + 1) % 3);
+    }
 }
 
 /* 0x001E8010, 0x40 bytes. Mode 12 ("Turn Page  Select  Back  Enlarge": an art book?). */
@@ -266,6 +518,77 @@ void func_001E8110(void)
     }
 }
 
+#define SKILL_HEADER 0xFF   /* cursor on the header row above the skill columns */
+
+/* 0x001E8200, 0x400 bytes. Mode 11. Step 0 (g_0073135F = 0, "Select Officer  Back  OK"): choose
+ * an officer, OK opens the skills. Step 1 ("Select Skill  Back"): 4 columns of 10 skills (cursor
+ * 0..39, column = cursor / 10); Up from a column's first row goes to the header row (remembering
+ * the column in g_0073135E), Down from it comes back. Cancel returns to step 0. */
+void func_001E8200(void)
+{
+    unsigned short pressed = pad1_pressed();
+    unsigned short held = pad1_held();
+
+    if (g_0073135F == 0) {
+        if (pressed & BTN_OK) {
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073135A = 0;
+            g_0073135F = 1;
+            g_00731330 = 3;
+            func_002ED190(0x14);
+            func_002ED190(0x1B);
+        } else if (pressed & BTN_CANCEL) {
+            func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            func_001E7110(5);
+        } else {
+            func_001E7680(g_007312AC);
+        }
+        return;
+    }
+
+    if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_0073135A = 0x28;
+        g_0073135F = 0;
+        g_00731330 = 0;
+        func_002ED190(0x13);
+        func_002ED190(0x1C);
+    } else if (held & BTN_DOWN) {
+        if (g_0073135A == SKILL_HEADER) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073135A = (u8)(g_0073135E * 10);
+            func_002B3CF0(6);
+        } else if (g_0073135A % 10 < 9) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073135A++;
+            func_002B3CF0(6);
+        }
+    } else if (held & BTN_UP) {
+        if (g_0073135A != SKILL_HEADER) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            if (g_0073135A % 10 == 0) {
+                g_0073135E = g_0073135A / 10;
+                g_0073135A = SKILL_HEADER;
+            } else {
+                g_0073135A--;
+            }
+            func_002B3CF0(6);
+        }
+    } else if (held & BTN_RIGHT) {
+        if (g_0073135A != SKILL_HEADER && g_0073135A < 0x1E) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073135A += 10;
+            func_002B3CF0(6);
+        }
+    } else if (held & BTN_LEFT) {
+        if (g_0073135A != SKILL_HEADER && g_0073135A > 9) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073135A -= 10;
+            func_002B3CF0(6);
+        }
+    }
+}
+
 /* 0x001E8600, 0xA0 bytes. Mode 6 ("Select Officer  Back"). */
 void func_001E8600(void)
 {
@@ -282,6 +605,51 @@ void func_001E86A0(void)
 {
     if (func_003EF070() != 0)
         func_001E7110(0);
+}
+
+#define MOUNT_LOCKED 4
+
+/* 0x001E86D0, 0x348 bytes. Mode 7 ("Select Mount  Back"): 4 mounts, locked ones skipped. A fresh
+ * press wraps and skips locked mounts; a held press moves by one only when an unlocked mount lies
+ * further that way (so it can stop on a locked one, as in the original). OK does nothing. The 8
+ * "unreachable" blocks Ghidra removed are the negative fix-ups of `% 4`. */
+void func_001E86D0(void)
+{
+    unsigned short pressed = pad1_pressed();
+    unsigned short held = pad1_held();
+    int found = 0;
+    int i;
+
+    if (pressed & BTN_OK)
+        return;
+    if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_001E7110(0);
+    } else if (pressed & BTN_DOWN) {
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        do
+            g_0073135A = (u8)((g_0073135A + 1) % 4);
+        while (func_003A1FC0(g_0073135A) == MOUNT_LOCKED);
+    } else if (pressed & BTN_UP) {
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        do
+            g_0073135A = (u8)((g_0073135A + 3) % 4);
+        while (func_003A1FC0(g_0073135A) == MOUNT_LOCKED);
+    } else if (held & BTN_DOWN) {
+        for (i = g_0073135A + 1; i < 4; i++)
+            if (func_003A1FC0(i) != MOUNT_LOCKED) { found = 1; break; }
+        if (found) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073135A++;
+        }
+    } else if (held & BTN_UP) {
+        for (i = g_0073135A - 1; i >= 0; i--)
+            if (func_003A1FC0(i) != MOUNT_LOCKED) { found = 1; break; }
+        if (found) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073135A--;
+        }
+    }
 }
 
 /* 0x001E8A20, 0x2C bytes. Mode 8. */

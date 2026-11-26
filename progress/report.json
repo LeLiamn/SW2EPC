@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 0,
-    "non_matching": 21628
+    "non_matching": 26740
   },
   "data": {
     "total": 2155890688,
@@ -88,11 +88,11 @@
         },
         {
           "name": "StateTreasures.c",
-          "description": "Estimated range 0x1E6D78-0x1E9208; 18 function(s) decompiled",
+          "description": "Estimated range 0x1E6D78-0x1E9208; 24 function(s) decompiled",
           "code": {
             "total": 9360,
             "matching": 0,
-            "non_matching": 4220
+            "non_matching": 9332
           }
         },
         {

@@ -150,9 +150,14 @@ two layout layers; mode 15 leaves the gallery. The update function (`0x001E8EB0`
 phases (0 opening, 2 leaving, 4 changing mode) and otherwise runs the mode's handler; the draw
 function (`0x001E9150`) runs the mode's drawer, then its help line.
 
-Decompiled: enter, leave, update, step, draw, the mode request and ten small mode handlers.
-Not yet: the end of a transition (`0x001E7290`), the main menu (`0x001E7830`), modes 3, 7 and 11,
-`0x001E7680` and the functions after the draw function.
+All of the scene's code (`0x001E7110`..`0x001E9150`, 24 functions) is decompiled: enter, leave,
+update, step, draw, the mode request and the end of a transition, and every mode handler. The main
+menu has 10 entries (entry n opens mode n + 1), skipping those not unlocked yet; mode 3 is a
+sub-menu opening modes 12 to 14; mode 7 lists 4 mounts (locked ones skipped); mode 11 shows an
+officer's skills in 4 columns of 10. Original quirks kept: a dead test in the main menu (cursor
+0x10), a missing `break` that runs `func_003BD540` twice for mode 9, and held Up/Down in the mount
+list that can stop on a locked mount. The functions after `0x001E95F0` seem to belong to the next
+source file.
 
 ## Where each source file is
 
