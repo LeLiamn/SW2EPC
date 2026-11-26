@@ -95,5 +95,5 @@ What makes the compiler produce the game's exact code, learnt so far:
 **StateTreasures.c is fully matching** (all 24 functions of `src/scene_treasures.c`), and so is
 `src/main.c` (start-up and the scene manager).
 
-89 functions match (32 of the 42 functions of `src/scene_shop.c`, 24 of the 33 of `src/scene_config.c`). The other functions are equivalent C that
+95 functions match (32 of the 42 functions of `src/scene_shop.c`, 24 of the 33 of `src/scene_config.c`, 6 of the 8 of `src/scene_setup_emp_mogi.c`). The other functions are equivalent C that
 still needs reshaping.

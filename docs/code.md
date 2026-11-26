@@ -193,6 +193,25 @@ Original quirks kept: mode 15 divides by zero on an empty list; hiring writes on
 last offer; the mount shuffle starts from 0, 1, 2, 3, 4, 2 (no 5); selling asks "any mount left?"
 twice; a final test for kind-3 skills can never succeed.
 
+## Scene 0x15: Empire set-up (`src/scene_setup_emp_mogi.c`)
+
+Original source file `StateSetupEmpMogi.c` (`0x00390940`-`0x00391250`, 8 functions, all decompiled;
+6 match). "Mogi" is probably 模擬 (a mock or free game?).
+
+- **enter** (`0x00390C70`) resets both sides (value 10, and 10000 for each of 8 slots), allocates a
+  0x8EC4-byte work object (pointer at `0x0045D7E4`, read by `0x00390940`), loads LINKDATA entry 0x88
+  (`func_001026D0(..., __FILE__, 206)`: the loader takes the source file name and line), and starts
+  the set-up screens, music 0x31 and the fade-in. Coming back from scene 9 skips all of it.
+- **update** (`0x00390EE0`) pauses while a message box is open, then runs the set-up screen of the
+  current mode (work + 0x8E6C): 0 goes to 2; 2-4, 5, 6-7 and 8 call the screens of the neighbouring
+  files (`emp_free_setup.c` and others); 1 leaves once box 1 is closed; 9 waits for
+  `func_0017DDA0` (at most 250 frames), picks the computer side (`0x003909A0`: two random values
+  below 31, and a check around value 0xB5) and leaves, to scene 9 when nothing else is requested.
+- **draw** (`0x003911B0`) draws the current set-up screen.
+
+The file before it, `emp_cq_text.c` (`0x00390760`-`0x00390934`), loads a text table (pointer at
+`0x0045D7DC`, handle at `0x0045D7E0`) and turns its offsets into pointers.
+
 ## Sony libraries and C runtime (compiled with another compiler)
 
 Besides the game's own code (CodeWarrior), the executable links Sony's EE libraries, release 3.0

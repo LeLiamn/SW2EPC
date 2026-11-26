@@ -2,16 +2,16 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 25340,
-    "non_matching": 22912
+    "matching": 26444,
+    "non_matching": 24072
   },
   "data": {
     "total": 2155890688,
     "done": 2051296606
   },
   "functions": {
-    "total": 10586,
-    "matching": 89
+    "total": 10587,
+    "matching": 95
   },
   "layout": "treemap",
   "areas": [
@@ -128,11 +128,11 @@
         },
         {
           "name": "StateSetupEmpMogi.c",
-          "description": "Estimated range 0x390A10-0x392FD0; 0 function(s) decompiled",
+          "description": "Estimated range 0x390A10-0x392FD0; 5 function(s) decompiled",
           "code": {
             "total": 9664,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 1028,
+            "non_matching": 440
           }
         },
         {
@@ -196,11 +196,11 @@
         },
         {
           "name": "emp_cq_text.c",
-          "description": "Estimated range 0x38FE30-0x390A10; 0 function(s) decompiled",
+          "description": "Estimated range 0x38FE30-0x390A10; 3 function(s) decompiled",
           "code": {
             "total": 3040,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 76,
+            "non_matching": 720
           }
         },
         {
