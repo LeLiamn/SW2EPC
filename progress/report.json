@@ -2,16 +2,16 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 32212,
-    "non_matching": 42692
+    "matching": 34000,
+    "non_matching": 49076
   },
   "data": {
     "total": 2155890688,
     "done": 2155890688
   },
   "functions": {
-    "total": 10588,
-    "matching": 102
+    "total": 10609,
+    "matching": 139
   },
   "layout": "treemap",
   "areas": [
@@ -29,11 +29,11 @@
       "children": [
         {
           "name": "StateInitialize.c",
-          "description": "Estimated range 0x154290-0x166E68; 0 function(s) decompiled",
+          "description": "Estimated range 0x154290-0x166E68; 13 function(s) decompiled",
           "code": {
             "total": 76760,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 1080,
+            "non_matching": 532
           }
         },
         {
@@ -47,11 +47,11 @@
         },
         {
           "name": "StateDemo.c",
-          "description": "Estimated range 0x1BE248-0x1C3080; 0 function(s) decompiled",
+          "description": "Estimated range 0x1BE248-0x1C3080; 25 function(s) decompiled",
           "code": {
             "total": 20024,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 232,
+            "non_matching": 5676
           }
         },
         {
@@ -164,10 +164,10 @@
         },
         {
           "name": "SceneTutorial.c",
-          "description": "Estimated range 0x3EDD28-0x3F6A18; 0 function(s) decompiled",
+          "description": "Estimated range 0x3EDD28-0x3F6A18; 5 function(s) decompiled",
           "code": {
             "total": 36080,
-            "matching": 0,
+            "matching": 184,
             "non_matching": 0
           }
         }
@@ -571,10 +571,10 @@
         },
         {
           "name": "SeasonAnime.c",
-          "description": "Estimated range 0x3D70F0-0x3DEC78; 0 function(s) decompiled",
+          "description": "Estimated range 0x3D70F0-0x3DEC78; 5 function(s) decompiled",
           "code": {
             "total": 31624,
-            "matching": 0,
+            "matching": 220,
             "non_matching": 0
           }
         },
@@ -621,11 +621,11 @@
         },
         {
           "name": "SeManager.c",
-          "description": "Estimated range 0x234490-0x23CED8; 0 function(s) decompiled",
+          "description": "Estimated range 0x234490-0x23CED8; 10 function(s) decompiled",
           "code": {
             "total": 35400,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 72,
+            "non_matching": 176
           }
         },
         {

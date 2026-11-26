@@ -66,10 +66,10 @@ assertion string), "probable" when its functions sit right next to that file's c
 
 | State | Enter | Source file | Match |
 |---|---|---|---|
-| `0x00` | `0x00161250` | StateInitialize.c | probable |
+| `0x00` | `0x00161250` | StateInitialize.c | certain (start-up picture, `src/scene_initialize.c`) |
 | `0x01` | `0x00160220` | StateInitialize.c | probable |
-| `0x02` | `0x001BFFA0` | StateDemo.c | probable |
-| `0x03` | `0x00236D40` |  | unknown |
+| `0x02` | `0x001BFFA0` | StateDemo.c | certain (demo, `src/scene_demo.c`) |
+| `0x03` | `0x00236D40` |  | empty scene (`src/scene_empty.c`) |
 | `0x04` | `0x001D4490` | StateBattleInitialize.c | probable |
 | `0x05` | `0x001D2A90` | StateBattleInitialize.c | probable |
 | `0x06` | `0x001D1F30` |  | unknown |
@@ -77,18 +77,18 @@ assertion string), "probable" when its functions sit right next to that file's c
 | `0x08` | `0x00235A70` |  | unknown |
 | `0x09` | `0x002267F0` | StatePreBattle.c | probable |
 | `0x0A` | `0x0021C5F0` | StatePostBattle.c | certain |
-| `0x0B` | `0x00236C50` |  | unknown |
+| `0x0B` | `0x00236C50` |  | leaves at once (`src/scene_empty.c`) |
 | `0x0C` | `0x001E6860` | StateConfig.c | certain |
 | `0x0D` | `0x001E8B30` | StateTreasures.c | certain |
 | `0x0E` | `0x002A4210` | StateShop.c | certain |
 | `0x0F` | `0x002F1790` | StateConquest.c | probable |
-| `0x10` | `0x0015FF70` | StateInitialize.c | probable |
-| `0x11` | `0x003F2A50` | SceneTutorial.c | probable |
+| `0x10` | `0x0015FF70` | StateInitialize.c | probable (after a soft reset, `src/scene_initialize.c`) |
+| `0x11` | `0x003F2A50` | SceneTutorial.c | probable (starts a tutorial, `src/scene_tutorial.c`) |
 | `0x12` | `0x002F2620` | StateConquest.c | probable |
 | `0x13` | `0x003694B0` |  | unknown |
 | `0x14` | `0x0037D060` |  | unknown |
 | `0x15` | `0x00390C70` | StateSetupEmpMogi.c | certain |
-| `0x16` | `0x003DABC0` | SeasonAnime.c | probable |
+| `0x16` | `0x003DABC0` | SeasonAnime.c | probable (season animation, `src/scene_season_anime.c`) |
 | `0x17` | `0x003F46B0` | SceneTutorial.c | probable |
 
 ## Scene 0x0C: the options menu (`src/scene_config.c`)
@@ -229,6 +229,30 @@ at `0x00669DE8`, bit 1 of `0x00669F60` = two players, `0x00669F70` = how the bat
   item screen `0x00748AA4` (mode, cursor, slot, choices still free) and `0x00748AC8` (the item being
   edited, a 0x14-byte item record) with the replay list `0x00748ADC`, per-player choices
   `0x0074901C` (type, value pairs: 0-9 attribute, 10-14 kind, 15 bonus).
+
+## Small scenes (`src/scene_initialize.c`, `scene_demo.c`, `scene_empty.c`, `scene_tutorial.c`, `scene_season_anime.c`)
+
+All decompiled (2026-11-26); most match.
+
+- **0x00 start-up** (StateInitialize.c): waits for the memory card check (`0x002DAEE0`), sound cue
+  0x48, a full-screen picture (LINKDATA entry 3, loaded with `__FILE__` and line 25) for 150
+  frames (Start skips it after 50), cues 0x4A and 0x47, then leaves (scene 1 when nothing is
+  requested).
+- **0x10 after a soft reset**: stops everything, closes the message boxes, re-applies the saved
+  music and sound-effect volumes (`0x00669DB2` / `0x00669DB3`) and leaves.
+- **Leaving a scene** is an inlined macro everywhere (`LEAVE_SCENE` in `scene_initialize.c`):
+  requested scene if any and different, else back to `return_to`; with neither, a fallback
+  (scene 1, or 0x12 in the shop).
+- **0x02 demo** (StateDemo.c): cycles three entries (`0x0045CCBC`): 0 plays a movie or cue (0x48,
+  0x4A, 0x47) and returns to the title; 1 and 2 start a random demo battle (scene 4) with one or two
+  armies. The battle set-up (`0x001BF5E0`): a stage (random among 24, or for the first 60 demos a
+  shuffled list of 30 read from both ends), two different forces among six officer pools
+  (`0x004082B0`-`0x00408430`; pool 5 = any officer), or a fixed pairing (`0x00408450`) on stages
+  3, 6, 0x0D, 0x14 and 0x1C during the first 60 demos; random values, weather, formations, morale
+  and items. The game state is flagged as a demo (`0x00669F60` bit 4, `0x00669DB8` = 1) and bit 4 of
+  `0x00669DB0` is saved and cleared for the demo (`0x001BEAB0` puts it back).
+- **0x11** starts the first available tutorial among 0x0C-0x0E; **0x16** opens the conquest map and
+  the season animation player; **0x03** is empty and **0x0B** leaves as soon as it is entered.
 
 ## Scene 0x15: Empire set-up (`src/scene_setup_emp_mogi.c`)
 
