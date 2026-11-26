@@ -1298,3 +1298,80 @@ void func_002206F0(int player)
 void func_00220140(void)
 {
 }
+
+
+/* The item being edited on the item screen (0x00748AC8, a 0x14-byte item record): +0 item,
+ * +1 kind, +2 eight attributes, +10 their values, +0x12 number of attributes, +0x13 a bonus. */
+#define g_00748AC9 (g_00748AC8[1])
+#define g_00748ADA (g_00748AC8[0x12])
+#define g_00748ADB (g_00748AC8[0x13])
+
+/* The choices made on the item screen, per player (0x30 bytes at 0x0074901C): (type, value)
+ * pairs. */
+typedef struct {
+    int type;                /* 0-9 attribute, 10-14 kind, 15 bonus */
+    int value;
+} ItemChoice;
+extern ItemChoice g_0074901C[2][6];
+extern u8 g_00428138[];                   /* base bonus of each kind */
+
+/* 0x0021E1F0, 0x22C bytes. Undoes the item screen's choices back to choice `count`: restarts from
+ * the offered item and replays the first `count` choices (g_00748ADC: number of choices made,
+ * then (choice, slot) pairs). */
+void func_0021E1F0(int count)
+{
+    int i;
+
+    if (count >= g_00748ADC[0])
+        return;
+    g_00748ADC[0] = count;
+    func_0011EB80(g_00748AC8, &g_007489DC[g_0074794C * 0x14], 0x14);
+    for (i = 3; i < 9; i++)
+        g_00748AA4[i] = 1;
+    for (i = 0; i < count; i++) {
+        int choice = g_00748ADC[1 + 2 * i];
+        int slot = g_00748ADC[2 + 2 * i];
+        ItemChoice *c = &g_0074901C[g_0074794C][choice];
+
+        g_00748AA4[3 + choice] = 0;
+        if (c->type >= 10 && c->type <= 14) {
+            static const u8 kinds[5] = { 1, 3, 2, 4, 5 };        /* types 10-14 */
+            g_00748AC9 = kinds[c->type - 10];
+        } else if (c->type >= 0 && c->type <= 9) {
+            g_00748AC9 = (u8)c->type;
+        } else if (c->type == 15) {
+            g_00748ADB = (u8)(c->value - g_00428138[g_00748AC8[0]]);
+        } else {
+            g_00748AC8[2 + slot] = (u8)c->type;
+            g_00748AC8[10 + slot] = (u8)c->value;
+        }
+    }
+}
+
+/* 0x0021E430, 0xEC bytes. Marks (g_00748ADC[13 + i]) the attributes of the edited item equal to
+ * `attribute`; returns the first marked one, or with fewer than 3 marked, clears the marks and
+ * returns the first free slot (attribute 10 or more), else 0. */
+int func_0021E430(u32 attribute)
+{
+    int i, first_free = 8, first_marked = 8, marked = 0;
+
+    for (i = 0; i < g_00748ADA; i++) {
+        g_00748ADC[13 + i] = 0;
+        if (g_00748AC8[2 + i] < 10) {
+            if (g_00748AC8[2 + i] == attribute) {
+                g_00748ADC[13 + i] = 1;
+                if (i < first_marked)
+                    first_marked = i;
+                marked++;
+            }
+        } else if (i < first_free) {
+            first_free = i;
+        }
+    }
+    if (marked < 3) {
+        for (i = 13; i < 21; i++)
+            g_00748ADC[i] = 1;
+        first_marked = first_free == 8 ? 0 : first_free;
+    }
+    return first_marked;
+}
