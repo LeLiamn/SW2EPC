@@ -822,6 +822,24 @@ of `font.c`, whose name the next function passes.
 Font 1's second texture is the same picture with the next CLUT. It then sets the text state's
 defaults: flat style, colour 5, opaque, scale 16, lines 20 pixels apart.
 
+## Motion curves, tm3 textures and models (`src/model.c`)
+
+The code from 0x00147780 on handles 3D models. Its first part, 0x00147780-0x00148784, has 32
+functions, 18 of which match. The VU0 bone matrices and the drawing come after it.
+
+- **Motion curves** (see `docs/formats/MOTION.md`):
+  - each track is a word (node in bits 0-7, component in bits 8-12, key size in bits 13-15, key
+    count from bit 18) followed by its keys;
+  - a key size of 0 means the value 0, 1 a constant, more a list of cubic segments;
+  - components 9-16 are a camera's (the motions with "atypical" tracks are camera motions, and
+    component 15 is halved: an angle?).
+- **tm3 textures:** their GS upload packets are patched with the GS buffers given (the pixels in
+  8-bit, then 16 palettes), then sent by DMA "ref" tags, followed by a TEXFLUSH.
+- **Models:**
+  - setting one up turns the file's offsets into pointers and adds the texture's base to each
+    part's VIF packets;
+  - each part is sent after a VU1 header chosen by its kind (`0x004062F0` or `0x00406310`).
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The

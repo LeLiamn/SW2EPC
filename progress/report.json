@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 62656,
-    "non_matching": 268988
+    "matching": 63504,
+    "non_matching": 272720
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10623,
-    "matching": 529
+    "matching": 548
   },
   "layout": "treemap",
   "areas": [
@@ -603,11 +603,11 @@
         },
         {
           "name": "font.c",
-          "description": "Estimated range 0x124CC8-0x154290; 30 function(s) decompiled",
+          "description": "Estimated range 0x124CC8-0x154290; 65 function(s) decompiled",
           "code": {
             "total": 193992,
-            "matching": 976,
-            "non_matching": 14332
+            "matching": 1824,
+            "non_matching": 18064
           }
         },
         {
