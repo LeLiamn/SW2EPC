@@ -1,0 +1,24 @@
+{
+  "$schema": "https://recomp.fyi/schema/v1.json",
+  "game": "Samurai Warriors 2: Empires",
+  "wikidata": "Q137425175",
+  "system": "PS2",
+  "type": ["decomp", "port"],
+  "original": {
+    "region": "Europe",
+    "revision": "1.00",
+    "serial": "SLES-54624"
+  },
+  "project": "SW2EPC",
+  "status": "exploring",
+  "targets": ["Windows"],
+  "approach": "Decompilation of the PS2 executable (matching if the original compiler is available), then a native PC port running the player's own copy of the game",
+  "started": "2026-11-26",
+  "maintainers": [{ "name": "LeLiamn", "link": "https://github.com/LeLiamn" }],
+  "help": [
+    "Koei PS2 file formats",
+    "Identifying the original compiler"
+  ],
+  "tags": ["koei", "omega-force", "preservation"],
+  "notes": "Works on the PS2 release (a separate Xbox 360 recomp exists: rbxrootx/samurai_warriors_2_empires_recomp). Just started: tools for the disc and the executable are in place; file formats and the compiler are the first steps. No game files in the repository."
+}
