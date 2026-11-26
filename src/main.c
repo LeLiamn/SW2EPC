@@ -12,6 +12,14 @@ void func_001067D0(void);
 void func_00106810(void);
 void func_00117E50(void);
 void func_00117E90(void);
+void func_001014D0(int phase);
+
+/* 0x00106810, 0x24 bytes. Called once per pass of the main loop. */
+void func_00106810(void)
+{
+    func_001014D0(0);             /* same function, two phases (update, then draw?) */
+    func_001014D0(1);
+}
 
 /* 0x00102A20, 0x58 bytes. Called by the start-up code (crt0) with argc/argv, followed by exit(). */
 int main(int argc, char **argv)

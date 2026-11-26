@@ -26,8 +26,9 @@ The entry point `0x00100008` is the runtime start-up code, not game code:
 | `0x00102A20` | 0x58 | `main` | Decompiled, not compiler-verified (`src/main.c`) | Set-up, main loop, shutdown |
 | `0x00117E50` | | `func_00117E50` | Unknown | First call of main: system set-up? |
 | `0x00106750` | | `func_00106750` | Unknown | Game set-up? |
-| `0x001005A0` | | `func_001005A0` | Unknown | Loop condition: non-zero leaves the main loop |
-| `0x00106810` | | `func_00106810` | Unknown | Called once per loop: one frame? |
+| `0x001005A0` | large | `func_001005A0` | Unknown | Loop condition: non-zero leaves the main loop. Starts with `func_001014D0(0)`, then reads globals at `0x0045D888`, `0x0045D8A0`, `0x0045D898` (game state machine?) |
+| `0x00106810` | 0x24 | `func_00106810` | Decompiled (`src/main.c`) | Called once per loop: `func_001014D0(0)` then `func_001014D0(1)` |
+| `0x001014D0` | | `func_001014D0` | Unknown | Takes a phase number (0, 1): update / draw? |
 | `0x001067D0` | | `func_001067D0` | Unknown | Game shutdown? |
 | `0x00117E90` | | `func_00117E90` | Unknown | System shutdown? |
 
