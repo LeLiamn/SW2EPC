@@ -479,43 +479,81 @@ static void main_menu_move(const int *available, unsigned step)
     }
 }
 
-/* 0x001E7830, 0x4CC bytes. Mode 0: the gallery's main menu, 10 entries; entry n opens mode n + 1.
+/* 0x001E7830, 0x4CC bytes, matching. Mode 0: the gallery's main menu, 10 entries; entry n opens mode n + 1.
  * Entries whose flag (from func_003BD290) is 0 are skipped. A fresh press wraps around, a held
  * one stops at the last available entry. */
 void func_001E7830(void)
 {
     int pressed = pad1_pressed();
     int held = pad1_held();
-    const int *available = func_003BD290();
     int found = 0;
-    int i;
+    int *available = func_003BD290();
+    unsigned i;
 
     if (func_002ED150() != 0)                   /* animation still running */
         return;
 
     if (pressed & BTN_OK) {
-        func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-        if (g_0073135A == 0x10)                 /* never true (10 entries): leftover in the original */
+        if (g_0073135A == 0x10) {               /* never true (10 entries): leftover in the original */
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             func_001E7110(15);
-        else
+        } else {
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             func_001E7110(g_0073135A + 1);
+        }
     } else if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_001E7110(15);
     } else if (pressed & BTN_UP) {
-        main_menu_move(available, MAIN_ENTRIES - 1);
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_0073135A = (g_0073135A + 9) % MAIN_ENTRIES;
+        while (!available[g_0073135A])
+            g_0073135A = (g_0073135A + 9) % MAIN_ENTRIES;
     } else if (pressed & BTN_DOWN) {
-        main_menu_move(available, 1);
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_0073135A = (g_0073135A + 1) % MAIN_ENTRIES;
+        while (!available[g_0073135A])
+            g_0073135A = (g_0073135A + 1) % MAIN_ENTRIES;
     } else if (held & BTN_UP) {
-        for (i = g_0073135A - 1; i >= 0; i--)
-            if (available[i] != 0) { found = 1; break; }
-        if (found)
-            main_menu_move(available, MAIN_ENTRIES - 1);
+        int k = g_0073135A - 1;
+        if (k >= 0) {
+            int *p = &available[k];
+            do {
+                if (!!*p) {
+                    found = 1;
+                    break;
+                }
+                k--;
+                p--;
+            } while (k >= 0);
+        }
+        if (found) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073135A = (g_0073135A + 9) % MAIN_ENTRIES;
+            while (!available[g_0073135A])
+                g_0073135A = (g_0073135A + 9) % MAIN_ENTRIES;
+        }
     } else if (held & BTN_DOWN) {
-        for (i = g_0073135A + 1; i < MAIN_ENTRIES; i++)
-            if (available[i] != 0) { found = 1; break; }
-        if (found)
-            main_menu_move(available, 1);
+        int *p;
+        int k = g_0073135A + 1;
+
+        if (k < MAIN_ENTRIES) {
+            p = &available[k];
+            do {
+                if (!!*p) {
+                    found = 1;
+                    break;
+                }
+                k++;
+                p++;
+            } while (k < MAIN_ENTRIES);
+        }
+        if (found) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073135A = (g_0073135A + 1) % MAIN_ENTRIES;
+            while (!available[g_0073135A])
+                g_0073135A = (g_0073135A + 1) % MAIN_ENTRIES;
+        }
     }
 }
 
