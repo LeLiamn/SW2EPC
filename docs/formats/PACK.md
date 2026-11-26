@@ -39,7 +39,7 @@ single error, which would not happen if sub-file boundaries were wrong. With the
 | Leaf format | Count | Size | Share | Status |
 |---|---:|---:|---:|---|
 | `TIM2` textures | 16,036 | 205 MB | 36.6% | ✅ [TIM2.md](TIM2.md) |
-| `TMD2` (battlefield descriptors) | 26,623 | 97 MB | 17.3% | to study |
+| `TMD2` (static scene objects) | 26,623 | 97 MB | 17.3% | ✅ [TMD2.md](TMD2.md) |
 | Battlefield pieces (`00 C0 04 66`) | 186 | 59 MB | 10.4% | to study |
 | `PS2 ` models | 476 | 51 MB | 9.1% | ✅ [PS2MODEL.md](PS2MODEL.md) |
 | Motions (`51 00 00 00`) | 10,714 | 46 MB | 8.2% | ✅ [MOTION.md](MOTION.md) |

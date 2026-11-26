@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 1897396994
+    "done": 1994108706
   },
   "layout": "treemap",
   "areas": [
@@ -59,10 +59,10 @@
         },
         {
           "name": "TMD2",
-          "description": "Files starting with 'TMD2'",
+          "description": "Static scene objects (geometry, UVs, colours, normals), exportable to OBJ",
           "data": {
             "total": 96711712,
-            "done": 0
+            "done": 96711712
           }
         },
         {

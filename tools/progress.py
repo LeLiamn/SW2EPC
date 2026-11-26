@@ -41,7 +41,7 @@ FORMAT_STATUS = {
     "Motion (atypical)": ("todo", "Motions with an unknown track type"),
     "PS2 variant": ("todo", "'PS2 ' files without nodes (different layout)"),
     "tm3": ("todo", "Files starting with 'tm3 '"),
-    "TMD2": ("todo", "Files starting with 'TMD2'"),
+    "TMD2": ("done", "Static scene objects (geometry, UVs, colours, normals), exportable to OBJ"),
     "IPU": ("todo", "IPU images (ipu2)"),
     "PAC0": ("todo", "PAC0 files"),
     "EFB": ("todo", "EFB files (effects?)"),
