@@ -815,6 +815,13 @@ of `font.c`, whose name the next function passes.
 - **Helpers:** functions measure a string, count its characters, squeeze it into a box, and
   break its lines at spaces.
 
+## Loading the fonts (`src/font.c`)
+
+`font.c` (0x00147580-0x00147778, 3 functions, 1 of which matches) loads the two fonts at
+`0x004053C0` from LINKDATA.BNS entries 1 and 2: TIM2 pictures loaded into the GS memory once.
+Font 1's second texture is the same picture with the next CLUT. It then sets the text state's
+defaults: flat style, colour 5, opaque, scale 16, lines 20 pixels apart.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
