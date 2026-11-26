@@ -654,6 +654,40 @@ which match. Its source file name is unknown. It is built on Sony's pad library,
 - **Soft reset:** holding Start + Select on any pad for 10 frames sets the soft reset request
   `g_0045D20C` (see `main.c`), when `func_001037F0` allows it.
 
+## The GS packets (`src/gs_packet.c`)
+
+The code at 0x00104250-0x00106414 builds what the Graphics Synthesizer draws: 55 functions, 12
+of which match. Its source file name is unknown.
+
+- **Scratch buffers:** each frame has 0x30000 bytes (two buffers at `0x00500810`, picked by the
+  frame index in the scratchpad at `0x70000150`). The bytes used are counted at `0x00560810`.
+  When a buffer is full, its start is handed out again (the packets then overwrite each other).
+- **Two ways to send a packet:**
+  - *queued:* a 16-byte node (next, address, quadword count) goes into one of ten layers. The
+    layers form one chain with a sentinel per layer, at the start of the buffer. A node is put
+    just before its layer's sentinel, so the chain runs through the layers in order (a caller's
+    layer `n` is list `n + 1`, at most 9). At the end of the frame, `func_00105F90` turns the
+    chain into DMA tags after a header of GS settings, then starts the chain again.
+  - *at once:* the same tags are written straight into the DMA chain (cursor at `0x70000158`),
+    between a header and a tail.
+- **DMA tags:** a "ref" tag for each packet, then two VIF codes: FLUSHA (or NOP, for texture
+  data: its node's address has bit 0 set), then DIRECT, which passes the data to the GIF.
+- **Packets:** GIF tags in register-list mode for sprites and quads (flat, one colour per
+  corner, textured with ST or UV coordinates), A+D register writes, a screen clear (a sprite
+  drawn with the depth test set to "always").
+- **Textures:** TIM2 pictures and their CLUTs are uploaded as GS transfers (BITBLTBUF, TRXPOS,
+  TRXREG, TRXDIR, IMAGE), followed by a TEXFLUSH. The functions return the TEX0 value to draw
+  with: 4-bit pictures have 16-colour CLUTs (8 x 2), 8-bit pictures 256-colour CLUTs (16 x 16).
+
+## Starting the IOP (`src/iop_boot.c`)
+
+The code at 0x00106420-0x00106748, just before `main.c`'s game set-up, has 4 functions, 1 of
+which matches. It reboots the IOP with the disc's `MODULES\IOPRP300.IMG` and sets the drive to
+DVD. Then it loads the game's nine IOP modules from a single file, `MODULES\MODULES.BIN`: the
+table at `0x00400C30` gives each module's offset and size in quadwords. The file is read into
+the EE's memory, and each module is copied to the IOP by DMA and started there. A module that
+fails to start is tried again.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
