@@ -33,3 +33,13 @@ jobs:
             -H "Authorization: Bearer $DECOMP_API_KEY" \
             -H "Content-Type: application/json" \
             --data @progress/report.json
+
+      # GitHub shows README images through its own cache (camo), which may keep a badge for days.
+      # Ask it to drop the cached badges so the README shows the new numbers.
+      - name: Refresh the README badges
+        continue-on-error: true
+        run: |
+          sleep 20
+          curl -s "https://github.com/$GITHUB_REPOSITORY" \
+            | grep -o 'https://camo.githubusercontent.com/[0-9a-f]*/[0-9a-f]*' | sort -u \
+            | while read -r url; do curl -s -m 30 -X PURGE "$url"; echo; done
