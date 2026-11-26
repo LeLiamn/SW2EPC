@@ -84,7 +84,7 @@ assertion string), "probable" when its functions sit right next to that file's c
 | `0x0F` | `0x002F1790` | SceneLoading.c | certain (loading screen, `src/scene_loading.c`) |
 | `0x10` | `0x0015FF70` | StateInitialize.c | probable (after a soft reset, `src/scene_initialize.c`) |
 | `0x11` | `0x003F2A50` | SceneTutorial.c | probable (starts a tutorial, `src/scene_tutorial.c`) |
-| `0x12` | `0x002F2620` | StateConquest.c | probable |
+| `0x12` | `0x002F2620` | StateConquest.c | certain (Empire map, `src/scene_conquest.c`) |
 | `0x13` | `0x003694B0` |  | unknown |
 | `0x14` | `0x0037D060` |  | unknown |
 | `0x15` | `0x00390C70` | StateSetupEmpMogi.c | certain |
@@ -294,6 +294,16 @@ and 563). Scene 0x05 (the battle itself) is the rest of the file, not decompiled
 - **0x06** (enter only): frees all battle systems and goes to the results (0x0A), or on to 0x10
   / 0x12 when `func_0032E7B0` says the series is over. Scene 0x05's on_reset (`0x001D4150`) marks
   the battle as ended by a reset (`0x00669F70` = 7) and runs this tear-down.
+
+## Scene 0x12: the Empire map (`src/scene_conquest.c`)
+
+Original source file `StateConquest.c` (`0x002F1950`-`0x002F2718`, 15 functions, all decompiled;
+9 match). The frame of an Empire turn: an animated background (LINKDATA entry 4, its player at
+`0x0045D680`, one frame every other frame), the map, and the current Empire screen
+(`0x007B4E4C`, 0-0x1F): the update calls that screen's handler (a jump table, case 31 placed after
+23), the draw its drawer. Screens that can open on top are run first and return 2 when done
+(`0x0030E1F0`, `0x0030E4D0`, `0x0038C7C0`, `0x003F13E0`). Screen 0x1F starts a battle (scene 9,
+with `0x00669F6C` = 1). Leaving goes to `0x007B4E50` (reset to 0x12 afterwards).
 
 ## Scene 0x15: Empire set-up (`src/scene_setup_emp_mogi.c`)
 

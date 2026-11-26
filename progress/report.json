@@ -2,16 +2,16 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 36136,
-    "non_matching": 60928
+    "matching": 36828,
+    "non_matching": 63684
   },
   "data": {
     "total": 2155890688,
     "done": 2155890688
   },
   "functions": {
-    "total": 10613,
-    "matching": 165
+    "total": 10614,
+    "matching": 174
   },
   "layout": "treemap",
   "areas": [
@@ -110,11 +110,11 @@
         },
         {
           "name": "StateConquest.c",
-          "description": "Estimated range 0x2F1798-0x2FF3F0; 4 function(s) decompiled",
+          "description": "Estimated range 0x2F1798-0x2FF3F0; 19 function(s) decompiled",
           "code": {
             "total": 56408,
-            "matching": 72,
-            "non_matching": 284
+            "matching": 764,
+            "non_matching": 3040
           }
         },
         {
