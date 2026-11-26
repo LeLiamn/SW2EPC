@@ -351,21 +351,34 @@ Original source file `StatePreBattle.c` (`0x00220780`-`0x00228174`, 82 functions
 
 ## Scene 0x13: the start of an Empire game (`src/scene_start_up.c`)
 
-Original source file `StateStartUp.c` (0x003654A0-0x00369560). The scene's own part
-(0x00368980-0x00369560, 11 functions, 4 match) is decompiled; the phase handlers before it are not.
+Original source file `StateStartUp.c` (0x00365440-0x00369560). The whole file is decompiled:
+55 functions, 26 of which match.
 
-- The scene runs in phases (`g_007B7070`, 0-10): 0-3 are the first set-up screens; 4 and 5 choose
-  the officers of seven slots; 6 is another screen; 7 is the save / start check, which stops the
-  music and fades out; 8 waits for the fade; 9 and 10 leave the scene. When nothing was requested,
-  9 falls back to scene 0x11.
+- The scene runs in phases (`g_007B7070`, 0-10):
+  - 0: the main menu. A wheel of up to 11 entries: 0-6 are always there, 7-10 once unlocked
+    (`func_0039FD80`), and four are shown. OK picks an entry; Cancel goes back to the title.
+  - 1: the level (`g_007B7078`, 0-4).
+  - 3: the options screen. Six rows of up to five values (table `0x00415EB0`), then OK. Start
+    resets the values.
+  - 2: the entry list (`func_003748C0`: 1 start, 0 back, 3 delete, 4 edit an existing game's
+    officers, 5 choose the officers of a new one).
+  - 4 and 5: the officers of seven slots. Slot 0 is the ruler, 1-3 and 4-6 are two groups, and 7
+    is OK. A new game with no ruler takes the first officer as its ruler.
+  - 6: waits for a dialog.
+  - 7: the save / start check, which stops the music and fades out.
+  - 8: waits for the fade-out.
+  - 9 and 10: leave the scene. When nothing was requested, 9 falls back to scene 0x11.
 - The state object at `0x007B7104` holds:
-  - the slot (+0) and the list mode (+2);
-  - one "in use" byte per officer (+3, 0x19F officers);
-  - the counts of officers in use (+0x1BA0, +0x1BA4);
-  - the officers set free (+0x1C10, count at +0x228C);
-  - the officer of each slot (+0x22AC, 7 entries, 0x19F = none).
-- The draw shows the help line of the current phase. The entry list offers Edit when
-  `func_003A1A80` allows it, and Delete unless the entry is protected.
+  - the slot and the list mode;
+  - one "choosable" byte per officer (0x19F officers; 400-0x19E are edited officers);
+  - four officer lists of 0x19F entries: choosable, choosable 0x1C-0x18F, rulers, and the list
+    shown;
+  - their counts;
+  - the officers set free and the slots' officers (with a copy taken when the choice starts).
+- The scene loads LINKDATA entries 0x7F, 0x82 and 0x81 through the file loader, passing the
+  file name and the line.
+- The officers allowed per level are `step * (n - 1) + 6`, capped (table `0x00415E80`: 0/6,
+  1/20, 2/50, 4/100, 6/150).
 
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
