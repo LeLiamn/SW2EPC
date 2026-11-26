@@ -105,7 +105,19 @@ Original source file `StateConfig.c`. Fully decompiled (5 functions):
   icon in these strings);
 - **leave** (`0x001E6960`) destroys the window and restores a value saved at enter.
 
-The page handlers (`0x001E4080`...) and page drawers (`0x002B6450`...) are not decompiled yet.
+Also decompiled: the page opener `0x001E3DB0` (starts closing the current page, prepares the next
+one; page 14 = leave the menu), the page switch `0x001E4030`, page 0 `0x001E4080` (main options page:
+3 entries, up/down with wrap-around on a fresh press only, OK/Cancel sounds, and the message boxes
+"The abilities and experience of all officers will be reset to default levels. Proceed?" and "Void
+interim data?"), a table lookup `0x001E6670` and four small helpers.
+
+Two findings while checking against the machine code:
+- page 0 tests "message box 1 open" twice in a row; the second branch can never run (a small bug in
+  the original code, kept as is);
+- in the page opener, case 3 calls `func_002B3CF0` with the value 2 left in the argument register;
+  Ghidra shows the call without argument.
+
+Pages 1 to 10 (`0x001E44C0`...) and the page drawers (`0x002B6450`...) are not decompiled yet.
 
 ## Where each source file is
 

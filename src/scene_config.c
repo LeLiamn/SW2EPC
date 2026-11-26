@@ -95,6 +95,290 @@ void func_003F8B30(int value);
 void func_003F8B80(void);
 void func_003F8BB0(void);
 
+/* ---- Helpers and page 0 (main options page) ------------------------------------------------ */
+
+/* Controller state kept by the pad code (0x00500740...). */
+extern u8 g_00500764;            /* bit 0: pad ready? */
+extern u8 g_00500765;            /* bit 0: pad connected? */
+extern unsigned short g_0050074C; /* buttons pressed this frame */
+extern unsigned short g_0050074E; /* buttons pressed or repeating */
+
+/* Game button bits as used by the menus (meaning deduced from how page 0 reacts to them). */
+#define BTN_CANCEL 0x0010
+#define BTN_OK     0x0040
+#define BTN_UP     0x1000
+#define BTN_DOWN   0x4000
+
+#define SE_CURSOR 0x2CDC          /* sound effect played on cursor moves and choices */
+
+/* Two message boxes (0x006934B4 + n * 0x128, n = 0 or 1); their first byte is non-zero while open,
+ * the byte at +1 (0x006934B4 + n * 0x128) holds the answer (4 = yes?). */
+extern char g_006934B3;
+extern char g_006935DB;
+extern char g_006934B4[];
+
+extern int g_007311F4;            /* page to open after closing */
+extern int g_00731208;
+extern u8 g_00731218, g_0073121E, g_0073121F, g_00731223, g_00731224;
+extern u32 g_00799A68;
+extern u8 g_00429030[];           /* lookup tables used by func_001E6670 */
+
+/* Dialog texts (pointers to English strings). */
+extern const char *g_0043C32C;    /* "The abilities and experience of all officers will be reset to
+                                     default levels. Proceed?" */
+extern const char *g_0043C330;    /* "All abilities have been reset to default levels." */
+extern const char *g_0043C334;    /* "Interim data has been voided." */
+extern const char *g_0043C338;    /* "There is no interim data." */
+extern const char *g_0043C33C;    /* "Void interim data?" */
+
+void func_001204B0(char *dst, const char *src);
+void func_0017DF10(void);
+void func_0017E110(u8 value);
+void func_001AE9F0(int kind, const char *text, ...);
+void func_001AFC50(int kind);
+void func_001E3300(void *data);
+void func_001E33D0(int value, void *data);
+void func_001E3500(void *data);
+void func_0023A480(int value);
+void func_0023A4F0(int value);
+void func_0023AA40(void);
+void func_0023AB70(u8 value);
+void func_0023AD10(int a, int b, int c, int d, int e);
+void func_0023B530(u8 value);
+void func_0023C050(u8 value);
+void func_002B9CC0(int page);
+int func_002EFBB0(void);
+void func_002EFB40(void);
+void func_003A32C0(void);
+
+/* 0x001E3D00, 0x4C bytes. Apply the four settings stored at 0x0073117C. */
+void func_001E3D00(void)
+{
+    func_001E3500(g_0073117C);
+    func_0023C050(g_0073117C[0]);
+    func_0017E110(g_0073117C[1]);
+    func_0023B530(g_0073117C[2]);
+    func_0023AB70(g_0073117C[3]);
+}
+
+/* 0x001E3D50, 0x1C bytes. */
+void func_001E3D50(void)
+{
+    func_0023A4F0(0x44);
+}
+
+/* 0x001E3D70, 0x1C bytes. */
+void func_001E3D70(void)
+{
+    func_0023A480(0x44);
+}
+
+/* 0x001E3D90, 0x1C bytes. */
+void func_001E3D90(void)
+{
+    func_0023AA40();
+}
+
+/* 0x001E3DB0, 0x278 bytes. Start closing the current page to open `page` (0xE = leave the menu). */
+void func_001E3DB0(int page)
+{
+    g_007311F8 = 2;
+    switch (page) {
+    case 0:
+        func_002B3CF0(1);
+        break;
+    case 1:
+        if (g_007311F0 < page)
+            g_0073121A = 0;
+        func_002B3CF0(2);
+        break;
+    case 2:
+        if (g_007311F0 < page) {
+            g_0073121E = 0;
+            g_0073121F = 0;
+            g_00731223 = 0;
+            func_002B3CF0(0x0B);
+            func_002B3CF0(0x1A);
+            func_002B3CF0(0x1B);
+            func_002B3CF0(0x1D);
+        }
+        func_002B3CF0(9);
+        func_002B3CF0(0x18);
+        break;
+    case 3:
+        /* The original passes the value left in the argument register by "phase = 2" above. */
+        func_002B3CF0(2);
+        break;
+    case 5:
+        if (g_007311F0 < page) {
+            g_0073121B = 0;
+            func_001E3300(g_00731140);
+        }
+        func_002B3CF0(8);
+        break;
+    case 6:
+        func_002B3CF0(0x0D);
+        break;
+    case 7:
+        if (g_007311F0 < page)
+            func_001E3500(g_0073117C);
+        func_002B3CF0(0x12);
+        break;
+    case 9:
+        if (g_007311F0 < page) {
+            g_0073121C = 0;
+            func_001E33D0(g_00731208, g_00731158);
+            func_002B3CF0(0x10);
+        }
+        if (g_007311F0 == 6) {
+            func_002B3CF0(0x14);
+            g_0073122C = 0;
+            g_00731218 = 0;
+            func_002B3CF0(g_00731208 + 0x0E);
+        }
+        break;
+    case 10:
+        g_0073121D = 0;
+        func_002B3CF0(0x11);
+        func_002B3CF0(0x18);
+        func_002B3CF0(0x1A);
+        break;
+    case 13:
+        g_00799A68 = 0;
+        func_002B3CF0(5);
+        g_00731224 = 0;
+        g_00731223 = 0x28;
+        break;
+    case 14:
+        func_001B8F60(0, 6, 8);
+        g_007311F8 = 3;
+        break;
+    }
+    g_00731225 = 0;
+    g_007311F4 = page;
+    func_002B9CC0(page);
+}
+
+/* 0x001E4030, 0x44 bytes. Closing finished: switch to the page chosen by func_001E3DB0. */
+void func_001E4030(void)
+{
+    func_002C59F0();
+    func_002C5A30();
+    g_007311F0 = g_007311F4;
+    g_007311F8 = 0;
+    g_0073122C = 0;
+}
+
+/* 0x001E4080, 0x440 bytes. Page 0, the main options page: three entries, plus the message boxes
+ * for "reset all officers' abilities" and "void interim data". */
+void func_001E4080(void)
+{
+    unsigned short pressed, held;
+    int box;
+    char answer;
+    char text[256];
+
+    pressed = ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074C : 0;
+    held = ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074E : 0;
+
+    box = 5;                                       /* 5 = no message box open */
+    if (g_006934B3 != 0)
+        box = 0;
+    else if (g_006935DB != 0)
+        box = 1;
+    answer = (box == 5) ? 0 : g_006934B4[box * 0x128];
+
+    if (box == 0)
+        return;
+    if (box == 1) {                                /* a question box is open */
+        if (answer == 4) {
+            if (g_00731219 == 3) {
+                func_002EFB40();
+                func_001204B0(text, g_0043C334);   /* "Interim data has been voided." */
+            }
+            if (g_00731219 == 1) {
+                func_003A32C0();
+                func_001204B0(text, g_0043C330);   /* "All abilities have been reset..." */
+            }
+            func_001AE9F0(0, text, 1);
+            func_001AFC50(0);
+        }
+    } else if (box == 1) {
+        /* Unreachable: the original code tests box == 1 twice. */
+        if (answer == 4) {
+            func_001AE9F0(0, text);
+            func_001AFC50(0);
+        }
+    } else if (pressed & BTN_OK) {
+        if (g_00731219 == 3) {
+            if (func_002EFBB0() == 0) {
+                func_001204B0(text, g_0043C33C);   /* "Void interim data?" */
+                func_001AE9F0(1, text, 1);
+                func_001AFC50(1);
+            } else {
+                func_001204B0(text, g_0043C338);   /* "There is no interim data." */
+                func_001AE9F0(0, text, 1);
+                func_001AFC50(0);
+            }
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        } else if (g_00731219 == 1) {
+            func_001204B0(text, g_0043C32C);       /* "...will be reset to default levels. Proceed?" */
+            func_001AE9F0(1, text, 1);
+            func_001AFC50(1);
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        } else {
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            func_001E3DB0(g_00731219 + 1);         /* open the chosen page */
+        }
+    } else if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0017DF10();
+        func_001E3DB0(14);                          /* leave the options menu */
+    } else if (held & BTN_UP) {
+        if (g_00731219 != 0) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00731219 = (u8)((g_00731219 + 2) % 3);
+        } else if (pressed & BTN_UP) {             /* wrap around only on a fresh press */
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00731219 = 2;
+        }
+    } else if (held & BTN_DOWN) {
+        if (g_00731219 < 2) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00731219 = (u8)((g_00731219 + 1) % 3);
+        } else if (pressed & BTN_DOWN) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00731219 = 0;
+        }
+    }
+}
+
+/* 0x001E6670, 0x1E8 bytes. Look up a byte in one of the tables at 0x00429030 (selected by `table`,
+ * row chosen by whether `flag` is 0); out-of-range indexes return the table's first byte. */
+u8 func_001E6670(int table, int flag, unsigned int index)
+{
+    unsigned int row = (flag == 0);
+    u8 value = g_00429030[0];
+
+    if (flag >= 0 || flag < 2) {   /* always true in the original code */
+        switch (table) {
+        case 0: if (index < 6) value = g_00429030[0x40 + index + row * 6]; break;
+        case 1: if (index < 6) value = g_00429030[0x50 + index + row * 6]; break;
+        case 2:
+            if (index == 0x19)
+                index = 8;
+            if (index < 9)
+                value = g_00429030[0x60 + index + row * 9];
+            break;
+        case 3: if (index < 6) value = g_00429030[0x78 + index + row * 6]; break;
+        case 4: if (index < 8) value = g_00429030[0x90 + index + row * 8]; break;
+        case 5: if (index < 6) value = g_00429030[0xA0 + index + row * 6]; break;
+        default: if (index < 0x1E) value = g_00429030[index + row * 0x1E]; break;
+        }
+    }
+    return value;
+}
+
 /* 0x001E6860, 0xF4 bytes. Enter: create the menu and reset its state. */
 void func_001E6860(void)
 {
