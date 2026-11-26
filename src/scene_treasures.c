@@ -114,13 +114,20 @@ extern struct {
 
 
 /* Scene state. */
-extern u8 g_00731340[];              /* per entry: how many of its 4 records are in use */
 
 typedef struct {                     /* 0x00731240 */
     int ids[26];                     /* +0x00 */
     u8 count;                        /* +0x68 */
 } IdList;
-extern IdList g_00731240;
+
+/* 0x00731240: the gallery's lists (one object: the counts are reached as base + 0x100 + i). */
+extern struct {
+    IdList ids;                      /* +0x000 */
+    u8 unknown_6c[0x94];
+    u8 counts[0x20];                 /* +0x100 per entry: how many of its 4 records are in use */
+} s_00731240;
+#define g_00731240 (s_00731240.ids)
+#define g_00731340 (s_00731240.counts)
 extern u8 g_007312AC[];              /* data block shared with the drawers */
 
 extern u8 g_00429230[];
@@ -156,7 +163,8 @@ void func_003BD430(void);
 void func_002D6890(void);
 void func_00102960(int value);
 void func_002D0DC0(void *data);
-const u8 *func_0035DEC0(int entry, int record);
+typedef struct { char c[20]; } Record20;
+const Record20 *func_0035DEC0(int entry, int record);
 void func_002ED190(int value);
 int func_002ED150(void);
 void func_002C5A60(void);
@@ -756,7 +764,7 @@ void func_001E8AB0(IdList *list)
     list->count++;
 }
 
-/* 0x001E8B30, 0x298 bytes. Scene enter. */
+/* 0x001E8B30, 0x298 bytes, matching. Scene enter. */
 void func_001E8B30(void)
 {
     char *res = func_003BD290();
@@ -778,11 +786,10 @@ void func_001E8B30(void)
     for (i = 0; i < g_00731314; i++) {
         g_00731340[i] = 0;
         for (j = 0; j < 4; j++) {
-            const u8 *rec = func_0035DEC0(i, j);
-            u8 copy[20];
-            for (k = 0; k < 20; k++)            /* the original copies the record first */
-                copy[k] = rec[k];
-            if (copy[0] < 0x7F)
+            /* the original copies the 20-byte record before testing its first byte */
+            Record20 rec;
+            rec = *func_0035DEC0(i, j);
+            if ((u8)rec.c[0] < 0x7F)
                 g_00731340[i]++;
         }
     }
