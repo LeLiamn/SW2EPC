@@ -127,7 +127,7 @@ extern struct {
 
 /* Globals 0x00773138-0x007731A4: one object in the original (not reached through $gp). */
 extern struct {
-    char g_00773138;              /* (inside it) non-zero: the "Guards" variant of the hire screen */
+    u8 g_00773138;                /* (inside it) non-zero: the "Guards" variant of the hire screen */
     char pad_0[0x7];
     u8 g_00773140;                /* (inside it) cursor of screens 5 and 7 */
     char pad_1[0x3];
@@ -777,7 +777,7 @@ void func_002A1E90(int player)
     }
 }
 
-/* 0x002A3300, 0x274 bytes. Mode 15 (screen 8, "Select  Back"): a list of g_00773138 entries, cursor
+/* 0x002A3300, 0x274 bytes, matching. Mode 15 (screen 8, "Select  Back"): a list of g_00773138 entries, cursor
  * g_00773186; Cancel or the third button goes back to mode 2. Unlike mode 12 there is no "more than
  * one entry" test: with 0 entries the original divides by zero. */
 void func_002A3300(int player)

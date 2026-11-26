@@ -500,7 +500,7 @@ void func_001E7D60(float dt)
         func_001E7110(0);
 }
 
-/* 0x001E7DC0, 0x24C bytes. Mode 3: a sub-menu of 3 entries opening modes 12, 13 and 14. A fresh
+/* 0x001E7DC0, 0x24C bytes, matching. Mode 3: a sub-menu of 3 entries opening modes 12, 13 and 14. A fresh
  * press wraps around, a held one does not. */
 void func_001E7DC0(void)
 {
@@ -520,7 +520,7 @@ void func_001E7DC0(void)
         func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         g_0073135A = (u8)((g_0073135A + 1) % 3);
     } else if (held & BTN_UP) {
-        if (g_0073135A != 0) {
+        if (g_0073135A > 0) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             g_0073135A = (u8)((g_0073135A + 2) % 3);
         }
