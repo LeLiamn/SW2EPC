@@ -40,6 +40,7 @@ import ipu  # noqa: E402
 import soundbank  # noqa: E402
 import ps2icon  # noqa: E402
 import text  # noqa: E402
+import lz  # noqa: E402
 import motion  # noqa: E402
 import event  # noqa: E402
 
@@ -54,6 +55,7 @@ FORMAT_STATUS = {
     "Motion (atypical)": ("todo", "Motions with an unknown track type"),
     "ADPCM sounds": ("done", "Sound-effect bank and other raw SPU ADPCM files, decodable to WAV"),
     "Sound bank headers": ("done", "Sony HD sound bank headers (IECS chunks) for the ADPCM banks"),
+    "LZ archive": ("done", "LZ-compressed LINKDATA containers (title screen textures)"),
     "Text": ("done", "Text tables (messages, event dialogues): offsets and NUL-terminated strings"),
     "Save icon": ("done", "PS2 memory-card 3D icon (vertices, animation, 128x128 texture)"),
     "Event motions": ("done", "Motions embedded in the in-engine cutscene (event) files"),
@@ -181,6 +183,17 @@ def motion_parses(leaf):
     return not tail or (len(tail) < 16 and not any(tail))
 
 
+def lz_archive(leaf):
+    """An LZ-compressed LINKDATA container whose leaves all have known formats (SceneTitle.c)."""
+    try:
+        lz.header(leaf)
+        out = lz.decompress(leaf)
+    except lz.LzError:
+        return False
+    return out[:4] == pack.LINKDATA_SIG and all(
+        LEAF_KIND[pack.kind_of(x)] != "Unidentified" for _, x in pack.iter_leaves(out))
+
+
 def known_entries(data):
     """{entry name: format} of whole LINKDATA entries recognised by their structure (their leaves
     carry no signature of their own)."""
@@ -247,6 +260,8 @@ def count_container(data, sizes, forced_kind=None):
                     kind = "Sound bank headers"
                 except ValueError:
                     pass
+            elif kind == "Unidentified" and lz_archive(leaf):
+                kind = "LZ archive"
             elif kind == "Unidentified" and text.strings(leaf) is not None:
                 kind = "Text"
             elif kind == "Unidentified" and leaf == b"X" * len(leaf):

@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2150077249
+    "done": 2150692241
   },
   "functions": {
     "total": 10587,
@@ -761,8 +761,16 @@
           "name": "Unidentified",
           "description": "Leaves without a known signature (models, motions, scripts...)",
           "data": {
-            "total": 5499335,
+            "total": 4884343,
             "done": 0
+          }
+        },
+        {
+          "name": "LZ archive",
+          "description": "LZ-compressed LINKDATA containers (title screen textures)",
+          "data": {
+            "total": 614992,
+            "done": 614992
           }
         },
         {
