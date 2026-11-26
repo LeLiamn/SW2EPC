@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 51068,
-    "non_matching": 212856
+    "matching": 51236,
+    "non_matching": 215444
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10621,
-    "matching": 395
+    "matching": 398
   },
   "layout": "treemap",
   "areas": [
@@ -390,11 +390,11 @@
         },
         {
           "name": "BgManager.c",
-          "description": "Estimated range 0x3F6A18-0x4050A8; 63 function(s) decompiled",
+          "description": "Estimated range 0x3F6A18-0x4050A8; 72 function(s) decompiled",
           "code": {
             "total": 59024,
-            "matching": 2100,
-            "non_matching": 5888
+            "matching": 2268,
+            "non_matching": 8476
           }
         },
         {

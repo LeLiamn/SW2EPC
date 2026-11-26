@@ -549,6 +549,25 @@ that `func_003EA000` returns: +0 holds the step, +8 the player's officer.
      entry. When `func_0036B260` holds, message 0x11D is shown instead.
   2. The opponent goes back free once the message is closed.
 
+## Backgrounds (`src/bg_manager.c`)
+
+Original source file `BgManager.c`, whose name is passed to the file loader at `0x003F8B30`.
+The file covers 0x003F8B30-0x003F961C: 9 functions, 3 of which match.
+
+- **The background** is LINKDATA entry 0x9B + n, with n from 0 to 4, loaded into
+  `g_0045D870`. It is drawn either full-screen (512 x 384) or as one sprite at its own size, in
+  the colour `g_0045D128`.
+- **The picker** uses the object at `func_002FC2C0() + 0x694`. It holds twelve lists of up to
+  ten entries:
+  - entries 0-0x58 are sorted into lists by their group (`func_00313CB0`);
+  - list 11 is made of the table at `0x0041DD60`, then 0x65;
+  - an empty place in a list holds 100.
+
+  The picker is drawn in two sliding windows (`0x007BFF10`, `0x007BFF30`). Up and Down move
+  the cursor, and Cancel gives -1.
+- **After the file,** from `0x003F9680` to `0x00403D30`, the text section holds VU1
+  microprograms (VIF `MPG` packets, command 0x4A), not C code.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
