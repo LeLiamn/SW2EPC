@@ -25,6 +25,17 @@ the layout data of the battlefields (grid, zones, navigation, heights...). 124 o
 | 0xCCD50–0xCCDB0 | 96 bytes of `00 / 7F / FF` patterns (directions? masks?) |
 | 0xCCDB0–end | floats (44, 68, 84, 128...): heights or ranges? |
 
+## The common small variant (124 files of 150,608 bytes)
+
+A table at 0x80 gives section offsets: 272, 288, 30,304, 60,320, 90,336, 120,352, 150,368, then two
+more near the end. Between 288 and 150,368 there are **five sections of exactly 30,016 bytes**: five
+same-sized layers, typical of stacked grids (height, ground type, zones...?). These 124 files are 96%
+identical to each other: mostly default values (65535 = none), so they look like nearly empty
+layouts or per-battle variants of a shared base.
+
+The large files use the same table position but a different layout (272, zeros, then offsets near
+the end of the file), and their sections do not split into regular grids.
+
 ## Next steps
 
 Decoding the meaning of the sections needs either the game code that reads them, or a comparison
