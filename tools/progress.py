@@ -186,7 +186,12 @@ def motion_parses(leaf):
         tail = leaf[motion.parse(leaf)["end"]:]
     except (motion.MotionError, ValueError, Exception):
         return False
-    return not tail or (len(tail) < 16 and not any(tail))
+    if not tail or (len(tail) < 16 and not any(tail)):
+        return True
+    # A few motions end with extra track headers that carry no data ((header >> 13) & 7 == 0, the
+    # number of floats per key the game's reader uses, func_00167730).
+    return len(tail) % 4 == 0 and all((h >> 13) & 7 == 0
+                                      for h in struct.unpack_from(f"<{len(tail) // 4}I", tail))
 
 
 def lz_archive(leaf):

@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2155545839
+    "done": 2155587823
   },
   "functions": {
     "total": 10587,
@@ -705,8 +705,8 @@
           "name": "Motion",
           "description": "Animations (keyframed cubic curves per node and component)",
           "data": {
-            "total": 47691428,
-            "done": 47691428
+            "total": 47733412,
+            "done": 47733412
           }
         },
         {
@@ -827,14 +827,6 @@
           "data": {
             "total": 69976,
             "done": 69976
-          }
-        },
-        {
-          "name": "Motion (atypical)",
-          "description": "Motions with an unknown track type",
-          "data": {
-            "total": 41984,
-            "done": 0
           }
         }
       ]
