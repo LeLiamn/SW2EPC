@@ -149,9 +149,9 @@ void func_002A2770(void);
 void func_002A29E0(void);
 int func_002A3DB0(int player);
 void func_002A3580(int officer);
-void func_002A2EF0(int officer);
+int func_002A2EF0(int player);
 void func_002A18D0(int officer);
-void func_002A21B0(int officer, int kind);
+void func_002A21B0(int player, int back);
 void func_002A0B40(int officer);
 void func_002A3920(int officer);
 void func_002A1E90(int officer);
@@ -810,4 +810,431 @@ int func_002A3DB0(int player)
         }
     }
     return 0;
+}
+
+/* ---- Gold, prices and confirmation boxes ------------------------------------------------------ */
+
+/* Message boxes: two records of 0x128 bytes; +0 (0x006934B3 / 0x006935DB) non-zero while the box is
+ * open, +1 (0x006934B4...) the answer (4 = yes). Box 0 shows a message, box 1 asks yes / no. */
+extern char g_006934B3, g_006935DB;
+extern char g_006934B4[];
+#define BOX_NONE 5
+#define BOX_YES  4
+
+extern const char *g_0043C3A0;       /* "You do not have enough gold." */
+extern const char *g_0043C3BC;       /* "Are you sure you want to hire %s?" */
+extern const char *g_0043C3C8;       /* "You cannot employ any more officers." */
+extern const char *g_0043C3DC;       /* "Purchasing %s. Proceed?" */
+extern const char *g_0043C3E4;       /* "You cannot purchase any more mounts. Would you like to sell
+                                      * one of your current mounts?" */
+extern const char *g_0043C420;       /* "Selling %s. Proceed?" */
+
+void func_001204B0(char *dst, const char *format, ...);   /* sprintf */
+void func_001AE9F0(int box, const char *text, int c);     /* open a message box */
+void func_001AFC70(int box, int player);                  /* give the box to a player's controller */
+void func_001AFFB0(void);                                 /* close the yes / no box */
+u32 func_00327D50(void);                                  /* the player's force? */
+int func_002F9190(u32 force);                             /* its gold */
+void func_002F90D0(u32 force, int amount);                /* add gold (in tens) */
+void func_002F9130(u32 force, int amount);                /* remove gold (in tens) */
+void func_0039F960(void);
+u8 *func_0019FBC0(int item);                              /* item record (name at +0x13) */
+int func_002F3F20(int officer);
+int func_00300560(int *slot_a, int *slot_b);
+void func_002F7300(int officer, u32 force, int slot, int kind);
+void func_002A85C0(int officer);
+const char *func_002A85D0(int officer);                   /* officer name */
+int func_002C5220(int player, u8 *top, u8 *cursor, u8 rows, u8 count);   /* scrolling list */
+u32 func_001A0670(void);
+int func_001A06D0(void);
+void func_0019FD50(u32 a, void *mount);
+int func_003DD680(int player);                            /* mount the player rides */
+void func_003DD660(int player, int mount);
+
+/* Which message box is open (0, 1 or BOX_NONE), and its answer. */
+static int open_box(char *answer)
+{
+    int box = BOX_NONE;
+
+    if (g_006934B3 != 0)
+        box = 0;
+    else if (g_006935DB != 0)
+        box = 1;
+    *answer = (box == BOX_NONE) ? 0 : g_006934B4[box * 0x128];
+    return box;
+    /* (the handlers then test the state of a box other than 0, 1 and BOX_NONE: dead code, left
+     * out here) */
+}
+
+/* Shows `text` in box `box` for the player's controller. */
+static void show_box(int box, int player, const char *format, const char *name)
+{
+    char text[256];
+
+    func_001204B0(text, format, name);
+    func_001AE9F0(box, text, 1);
+    func_001AFC70(box, player);
+}
+
+/* 0x0029FB70, 0x24 bytes. The player's gold. */
+int func_0029FB70(void)
+{
+    return func_002F9190(func_00327D50());
+}
+
+/* 0x0029FBA0, 0x94 bytes. Adds `amount` gold (negative: spends it); gold is kept in tens. */
+void func_0029FBA0(int amount)
+{
+    if (amount < 1)
+        func_002F9130(func_00327D50(), -amount / 10);
+    else
+        func_002F90D0(func_00327D50(), amount / 10);
+    func_0039F960();
+}
+
+/* 0x0029FC40, 0xC4 bytes. Selling price of a mount: 5000 for type 0x0C, 4000 for 0x0D-0x0F, else
+ * (rank + 1) * 100 + 1400 when byte +6 is 3, or + 900. */
+int func_0029FC40(int mount)
+{
+    u8 type = func_0019FBC0(mount)[5];
+    int rank;
+
+    if (type == 0x0C)
+        return 5000;
+    if (type == 0x0D || (unsigned)(type - 0x0E) < 2)
+        return 4000;
+    rank = func_0019FBC0(mount)[8] + 1;
+    if (func_0019FBC0(mount)[6] == 3)
+        return rank * 100 + 0x578;
+    return rank * 100 + 900;
+}
+
+/* ---- Mode 3: buy mounts ------------------------------------------------------------------------ */
+
+/* Mounts for sale: 8 records of 12 bytes at 0x00773070: +0 price, +4 mount type (0x10 = sold). */
+typedef struct {
+    int price;
+    u8 type;
+    u8 pad[3];
+    int unknown_8;
+} MountOffer;
+#define g_MountOffers ((MountOffer *)g_00773070)
+
+/* 0x002A1740, 0x1C bytes. Copies a mount offer. */
+void func_002A1740(MountOffer *dst, const MountOffer *src)
+{
+    dst->type = src->type;
+    dst->price = src->price;
+    dst->unknown_8 = src->unknown_8;
+}
+
+/* 0x002A1760, 0x16C bytes. Buys the mount under the cursor (g_00773183): pays, gives it to the
+ * player and removes it from the offers (the last offer becomes "sold"). */
+void func_002A1760(void)
+{
+    MountOffer *offer = &g_MountOffers[g_00773183];
+    void *mount;
+    u32 owner;
+    int i;
+
+    func_0029FBA0(-offer->price);
+    g_0077318A++;                               /* purchases this visit (farewell voice) */
+    mount = func_0029FD90(offer->type);
+    owner = func_001A0670();
+    if (func_001A06D0() != 0) {
+        func_0019FD50(owner, mount);
+        for (i = g_00773183; i < 7; i++)
+            func_002A1740(&g_MountOffers[i], &g_MountOffers[i + 1]);
+        g_MountOffers[i].type = 0x10;
+        g_0077317C--;
+        if (g_0077317C != 0 && g_00773183 > g_0077317C - 1)
+            g_00773183 = g_0077317C - 1;
+        func_002CAD90(g_0077313C);
+    }
+}
+
+/* 0x002A18D0, 0x5BC bytes. Mode 3 (screen 3, "Select  Mounts  Back  Buy"): the mounts for sale
+ * (g_0077317C offers, cursor g_00773183). OK asks to confirm (or explains why not); "yes" buys,
+ * or, when the player already has 4 mounts, opens the sell screen (mode 11). The third button
+ * shows the player's mounts (mode 12). */
+void func_002A18D0(int player)
+{
+    unsigned short pressed, held;
+    char answer;
+    int box;
+
+    read_pad(player, &pressed, &held);
+    box = open_box(&answer);
+    if (box == 0)
+        return;
+    if (box == 1) {
+        if (answer == BOX_YES) {
+            if (g_00773140 < 4)
+                func_002A1760();
+            else
+                func_0029FDB0(11);
+        } else if (pressed & BTN_CANCEL) {
+            func_001AFFB0();
+            func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        }
+        return;
+    }
+
+    if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(0);
+    } else if (pressed & BTN_OK) {
+        MountOffer *offer = &g_MountOffers[g_00773183];
+        if (g_0077317C == 0 || offer->type == 0x10) {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        } else if (func_0029FB70() < offer->price) {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            show_box(0, player, g_0043C3A0, 0);
+        } else if (g_00773140 < 4) {
+            const char *name = (const char *)func_0029FD90(offer->type) + 0x13;
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            show_box(1, player, g_0043C3DC, name);
+        } else {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            show_box(1, player, g_0043C3E4, 0);
+        }
+    } else if (pressed & BTN_EXTRA) {
+        if (func_0029FD10() != 0) {
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            func_0029FDB0(12);
+        }
+    } else if (g_0077317C > 1) {
+        u8 count = g_0077317C;
+        if (held & BTN_UP) {
+            if (g_00773183 != 0) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773183 = (u8)((g_00773183 + count - 1) % count);
+            } else if (pressed & BTN_UP) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773183 = count - 1;
+            }
+        } else if (held & BTN_DOWN) {
+            if (g_00773183 < count - 1) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773183 = (u8)((g_00773183 + 1) % count);
+            } else if (pressed & BTN_DOWN) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773183 = 0;
+            }
+        }
+    }
+}
+
+/* ---- Modes 4 and 11: sell a mount -------------------------------------------------------------- */
+
+/* The player's mounts: g_0077313C[0..3], count g_00773140. */
+
+/* 0x002A2110, 0x9C bytes. Sells the player's mount under the cursor (g_00773186): adds its price
+ * to the gold, frees it, and unmounts the player if it was the one ridden. */
+void func_002A2110(int player)
+{
+    int mount = g_0077313C[g_00773186];
+    int price = func_0029FC40(mount);
+    int ridden = func_003DD680(player);
+
+    func_0029FBA0(price);
+    func_0019FBC0(mount)[4] = 4;
+    if (ridden == mount)
+        func_003DD660(player, 4);
+    func_002CAD90(g_0077313C);
+}
+
+/* 0x002A21B0, 0x488 bytes. Modes 4 and 11 (screen 5, "Select  Back  Sell"): the player's mounts;
+ * OK asks to confirm, "yes" sells. Leaving goes to `back` (mode 0 from the menu, mode 3 when the
+ * player was buying with 4 mounts already). */
+void func_002A21B0(int player, int back)
+{
+    unsigned short pressed, held;
+    char answer;
+    int box;
+
+    read_pad(player, &pressed, &held);
+    box = open_box(&answer);
+    if (box == 0)
+        return;
+    if (box == 1) {
+        if (answer == BOX_YES) {
+            func_002A2110(player);
+            if (func_0029FD10() == 0)
+                func_0029FDB0(back);
+            if (func_0029FD10() == 0) {         /* (asked twice in the original) */
+                g_00773186 = 0;
+                func_0029FDB0(back);
+            } else if (g_00773186 > g_00773140 - 1) {
+                g_00773186 = g_00773140 - 1;
+            }
+        }
+        return;
+    }
+
+    if (func_0029FD10() == 0) {                 /* nothing left to sell */
+        func_0029FDB0(back);
+    } else if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(back);
+    } else if (pressed & BTN_OK) {
+        if (func_0029FD10() == 0) {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        } else {
+            const char *name = (const char *)func_0019FBC0(g_0077313C[g_00773186]) + 0x13;
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            show_box(1, player, g_0043C420, name);
+        }
+    } else if (g_00773140 > 1) {
+        u8 count = g_00773140;
+        if (held & BTN_UP) {
+            if (g_00773186 != 0) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773186 = (u8)((g_00773186 + count - 1) % count);
+            } else if (pressed & BTN_UP) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773186 = count - 1;
+            }
+        } else if (held & BTN_DOWN) {
+            if (g_00773186 < count - 1) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773186 = (u8)((g_00773186 + 1) % count);
+            } else if (pressed & BTN_DOWN) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773186 = 0;
+            }
+        }
+    }
+}
+
+/* ---- Mode 2: hire officers --------------------------------------------------------------------- */
+
+/* Officers for hire: records of 12 bytes at 0x007730D0: +0 price, +4 officer (0x19F = none),
+ * +9 non-zero when the player has room for him. */
+typedef struct {
+    int price;
+    int officer;
+    u8 unknown_8;
+    u8 can_hire;
+    u8 pad[2];
+} HireOffer;
+#define g_HireOffers ((HireOffer *)g_007730D0)
+#define SLOT_COUNT 0x19          /* officer slots 0..24 */
+
+/* 0x002A2AE0, 0x1C bytes. Copies a hire offer. */
+void func_002A2AE0(HireOffer *dst, const HireOffer *src)
+{
+    *dst = *src;
+}
+
+/* 0x002A2B00, 0x8C bytes. Can `officer` be hired? `slot_a` / `slot_b` are the free slots found by
+ * func_00300560 (0..24, else none) and `room` its result. */
+int func_002A2B00(int officer, int slot_a, int slot_b, int room)
+{
+    if (room < 1)
+        return 0;
+    if ((slot_a < 0 || slot_a >= SLOT_COUNT) && (slot_b < 0 || slot_b >= SLOT_COUNT))
+        return 0;
+    return func_002F3F20(officer) == 0 || (slot_a >= 0 && slot_a < SLOT_COUNT);
+}
+
+/* 0x002A2B90, 0x4C bytes. Can `officer` be hired now? */
+int func_002A2B90(int officer)
+{
+    int slot_a = SLOT_COUNT, slot_b = SLOT_COUNT;
+    int room = func_00300560(&slot_a, &slot_b);
+
+    return func_002A2B00(officer, slot_a, slot_b, room);
+}
+
+/* 0x002A2BE0, 0x308 bytes. Hires the officer under the cursor (g_00773185): pays, places him in a
+ * free slot, removes him from the offers and updates which offers can still be hired. */
+void func_002A2BE0(void)
+{
+    int slot_a = SLOT_COUNT, slot_b = SLOT_COUNT;
+    int officer, room, i;
+
+    func_00300560(&slot_a, &slot_b);
+    officer = g_HireOffers[g_00773185].officer;
+    func_0029FBA0(-g_HireOffers[g_00773185].price);
+    if (func_002F3F20(officer) != 0 && slot_a >= 0 && slot_a < SLOT_COUNT)
+        func_002F7300(officer, func_00327D50(), slot_a, 2);
+    else if (slot_b >= 0 && slot_b < SLOT_COUNT)
+        func_002F7300(officer, func_00327D50(), slot_b, 1);
+    else if (slot_a >= 0 && slot_a < SLOT_COUNT)
+        func_002F7300(officer, func_00327D50(), slot_a, 2);
+    func_002A85C0(officer);
+    g_0077318A++;                               /* purchases this visit (farewell voice) */
+
+    for (i = g_00773185; i < g_0077317D - 1; i++)
+        func_002A2AE0(&g_HireOffers[i], &g_HireOffers[i + 1]);
+    g_HireOffers[g_0077317D].officer = OFFICER_NONE;   /* (one past the last offer: as in the original) */
+    g_0077317D--;
+
+    if (g_0077317D < 8) {                       /* the whole list fits: no scrolling */
+        int last = g_0077317D - 1;
+        g_00773184 = g_00773185 = (u8)(g_00773185 <= last ? g_00773185 : last);
+    } else if (g_0077317D - 8 < g_00773185 - g_00773184) {
+        g_00773185--;
+    }
+
+    room = func_00300560(&slot_a, &slot_b);
+    for (i = 0; i < g_0077317D; i++)
+        g_HireOffers[i].can_hire = (u8)func_002A2B00(g_HireOffers[i].officer, slot_a, slot_b, room);
+    g_00773138++;
+    func_002CAD60(g_00773130);
+}
+
+/* 0x002A2EF0, 0x410 bytes. Mode 2 (screen 2, "Select  Back  Hire"): officers for hire, a list of
+ * g_0077317D offers shown 8 at a time (top g_00773184, cursor g_00773185). OK asks to confirm (or
+ * explains why not); "yes" hires. Returns what the list scrolling returns. */
+int func_002A2EF0(int player)
+{
+    unsigned short pressed, held;
+    u8 rows = g_0077317D > 7 ? 8 : g_0077317D;
+    char answer;
+    int box;
+
+    read_pad(player, &pressed, &held);
+    box = open_box(&answer);
+    if (box == 0)
+        return 0;
+    if (box == 1) {
+        if (answer == BOX_YES) {
+            func_002A2BE0();
+            return 1;
+        }
+        if (pressed & BTN_CANCEL) {
+            func_001AFFB0();
+            func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        }
+        return 0;
+    }
+
+    if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(0);
+    } else if (pressed & BTN_OK) {
+        int officer;
+        if (g_0077317D == 0)
+            return 0;
+        officer = g_HireOffers[g_00773185].officer;
+        if (officer == OFFICER_NONE) {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            return 0;
+        }
+        if (func_0029FB70() < g_HireOffers[g_00773185].price) {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            show_box(0, player, g_0043C3A0, 0);
+        } else if (func_002A2B90(officer) == 0) {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            show_box(0, player, g_0043C3C8, 0);
+        } else {
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            show_box(1, player, g_0043C3BC, func_002A85D0(officer));
+        }
+    } else if (g_0077317D < 2) {
+        return 0;
+    }
+    return func_002C5220(player, &g_00773184, &g_00773185, rows, g_0077317D);
 }

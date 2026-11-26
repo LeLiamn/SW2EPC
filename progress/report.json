@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 0,
-    "non_matching": 36032
+    "non_matching": 41648
   },
   "data": {
     "total": 2155890688,
@@ -97,11 +97,11 @@
         },
         {
           "name": "StateShop.c",
-          "description": "Estimated range 0x299DB8-0x2A5E80; 21 function(s) decompiled",
+          "description": "Estimated range 0x299DB8-0x2A5E80; 34 function(s) decompiled",
           "code": {
             "total": 49352,
             "matching": 0,
-            "non_matching": 9292
+            "non_matching": 14908
           }
         },
         {
