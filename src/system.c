@@ -47,6 +47,7 @@ void EI(void);
 /* The scene manager (see main.c), the word passed to the frame functions. */
 extern struct {
     float update_arg;
+    u8 unknown_4[0x44];
 } g_0045D880;
 
 /* Requests to the IOP: one sent at once (0x0045D8D0) and a queue (0x0045D8F0), sorted by the
@@ -71,7 +72,7 @@ extern void (*g_0045D19C)(void);          /* called before waiting for the frame
 extern void (*g_0045D1A0)(void);          /* called by func_00102380 */
 extern int g_0045D1A4;                    /* frames */
 extern int g_0045D1A8;                    /* 1: waiting for the frame */
-extern int g_0045D1AC;                    /* 1: flip at vblank */
+extern volatile int g_0045D1AC;           /* 1: flip at vblank */
 extern int g_0045D1B0;                    /* the frame semaphore */
 extern float g_0045D1B4, g_0045D1B8, g_0045D1BC, g_0045D1C0;
 extern int g_0045D1C4;                    /* draw (see main.c) */
@@ -175,7 +176,7 @@ void func_00100410(void)
     func_00103F30();
 }
 
-/* 0x001004B0, 0x4C bytes. The work after each frame's draw. */
+/* 0x001004B0, 0x4C bytes, matching. The work after each frame's draw. */
 void func_001004B0(void)
 {
     func_001B9260();
@@ -186,10 +187,10 @@ void func_001004B0(void)
     func_0019EFD0();
 }
 
-/* 0x00100870, 0x4C bytes. Sends until accepted. */
+/* 0x00100870, 0x4C bytes, matching. Sends until accepted. */
 void func_00100870(u32 a, u32 b)
 {
-    while (func_00115A50(a, b, 0) == 0)
+    while (!func_00115A50(a, b, 0))
         ;
 }
 
@@ -214,10 +215,12 @@ void func_001008C0(void)
     }
 }
 
-/* 0x00100980, 0xA8 bytes. Sends the queue (sorted, ended by -1) when the IOP is free. */
+/* 0x00100980, 0xA8 bytes, matching. Sends the queue (sorted, ended by -1) when the IOP is free. */
 void func_00100980(void)
 {
-    if (func_00115C80(1) != 1 && g_0045D180 != 0) {
+    if (func_00115C80(1) == 1 || g_0045D180 == 0)
+        return;
+    {
         func_001008C0();
         g_0045D8F0[g_0045D180].d = 0xFFFFFFFF;
         g_0045D8F0[g_0045D180].c = 0xFFFFFFFF;
@@ -594,7 +597,7 @@ int func_00101C20(int cause)
     if (g_0045D190 < g_0045D184 && g_0045D198 != 0)
         g_0045D198(g_0045D184);
     __asm__ volatile("sync.l");
-    EI();
+    __asm__ volatile("ei");
     return cause;
 }
 
@@ -688,13 +691,16 @@ void func_00102020(void)
     g_70000158 = p + 4;
 }
 
-/* 0x00102070, 0x48 bytes. Sets the two packet buffers (by default 0x00460130 and 0x004B0130,
+/* 0x00102070, 0x48 bytes, matching. Sets the two packet buffers (by default 0x00460130 and 0x004B0130,
  * 0x50000 bytes each). */
+extern u32 g_00460130[], g_004B0130[];    /* the default packet buffers */
+
 void func_00102070(u32 *base, int size)
 {
+    g_0045D1AC = 0;
     if (base == 0) {
-        g_0045D1F8[0] = (u32 *)0x460130;
-        g_0045D1F8[1] = (u32 *)0x4B0130;
+        g_0045D1F8[0] = g_00460130;
+        g_0045D1F8[1] = g_004B0130;
         g_0045D1F4 = 0x50000;
     } else {
         g_0045D1F8[0] = base;
@@ -737,12 +743,12 @@ int func_00102150(int cause)
 
     if (cause == 2) {
         g_0045D1F0 = (u32)((REG_GS_CSR & 0x2000) >> 13);
-        if (g_0045D1A8 == 0 || g_0045D1AC == 0) {
-            REG_RCNT1_COUNT = 0;
-            g_0045D188 = 0;
-        } else {
+        if (g_0045D1A8 != 0 && g_0045D1AC != 0) {
             func_00101C90(0, 1);
             g_0045D188 = 1;
+        } else {
+            REG_RCNT1_COUNT = 0;
+            g_0045D188 = 0;
         }
         iReferSemaStatus(g_0045D1B0, status);
         if (status[3] != 0)
