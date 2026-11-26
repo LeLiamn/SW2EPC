@@ -597,6 +597,24 @@ clears the BSS and calls `main`.
 
 For the PC port, this file is to be replaced by the platform layer.
 
+## Reading the containers (`src/file.c`)
+
+Original source file `file.c`, whose name is passed with the line number to its own reads. It
+covers 0x00102410-0x00102A00: 10 functions, 6 of which match. `main` (0x00102A20, in `main.c`)
+follows, then the memory allocator.
+
+- **The four containers:** 0 ANS, 1 BNS, 2 CNS, 3 DNS. DNS is not on the disc and is never
+  opened.
+- **At start-up:** each container's first sector is found by name (`\LINKDATA.ANS` ...).
+  Then its header is read: 0x800 bytes, or 0x7000 bytes for BNS. A header starts with the magic
+  0x33B59, and from +0x10 it holds each entry's offset and size.
+- **Reading an entry** (`func_001026D0`): it is read by sectors into a buffer, which is
+  allocated when none is given. The read goes through the request queue of `system.c`, either
+  queued or at once.
+  - A BNS entry can come from a second source (`g_0045CC04`) when `func_00115C70` holds and the
+    buffer is aligned: a preloaded or host copy?
+  - Other files are read by path (`func_00102880`); the end of the last sector is cleared.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
