@@ -6,8 +6,8 @@
     "non_matching": 0
   },
   "data": {
-    "total": 2156239632,
-    "done": 0
+    "total": 2155890688,
+    "done": 45003581
   },
   "layout": "treemap",
   "areas": [
@@ -26,34 +26,58 @@
       "weight": 3166376,
       "children": [
         {
-          "name": ".ANS",
-          "description": "Not studied yet",
+          "name": "ANS stream",
+          "description": "Audio streams (music?)",
           "data": {
-            "total": 873093120,
+            "total": 873091072,
             "done": 0
           }
         },
         {
-          "name": ".CNS",
-          "description": "Not studied yet",
+          "name": "MPEG2",
+          "description": "Movies (MPEG-2 program streams)",
           "data": {
-            "total": 716763136,
+            "total": 716718164,
             "done": 0
           }
         },
         {
-          "name": ".BNS",
-          "description": "Not studied yet",
+          "name": "Unidentified",
+          "description": "Entries without a known signature",
           "data": {
-            "total": 566034432,
+            "total": 517185975,
             "done": 0
           }
         },
         {
-          "name": ".BIN",
-          "description": "Not studied yet",
+          "name": "TIM2",
+          "description": "Textures (Sony TIM2), convertible to PNG",
           "data": {
-            "total": 348944,
+            "total": 40186784,
+            "done": 40186784
+          }
+        },
+        {
+          "name": "LINKDATA",
+          "description": "Container tables and padding",
+          "data": {
+            "total": 4816797,
+            "done": 4816797
+          }
+        },
+        {
+          "name": "PS2",
+          "description": "Files starting with 'PS2 '",
+          "data": {
+            "total": 3764976,
+            "done": 0
+          }
+        },
+        {
+          "name": "PAC0",
+          "description": "PAC0 archives",
+          "data": {
+            "total": 126920,
             "done": 0
           }
         }

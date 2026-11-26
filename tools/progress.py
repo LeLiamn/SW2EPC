@@ -7,8 +7,10 @@ What is measured:
 - code: the boot executable named in SYSTEM.CNF. "total" is its code size (the .text section
   if it has one, else an estimate up to the last `jr $ra`). "matching" / "non_matching" come
   from MATCHED_CODE below until a real build/objdiff report replaces them.
-- data: every file on the disc except the executable, SYSTEM.CNF and IOP modules, grouped by
-  extension. A format counts as "done" when it is fully documented in docs/formats and readable
+- data: every file on the disc except the executable, SYSTEM.CNF and IOP modules. LINKDATA
+  containers are opened (nested ones too) and their entries grouped by real format (signature);
+  the container structure itself (tables, padding) counts as "LINKDATA". Other files are grouped
+  by extension. A format counts as "done" when it is fully documented in docs/formats and readable
   by the tools. Statuses live in FORMAT_STATUS below.
 
 Usage:
@@ -23,15 +25,44 @@ from collections import defaultdict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import elf_info  # noqa: E402
 from disc_info import system_cnf  # noqa: E402
-from iso_list import list_image, read_file  # noqa: E402
+from iso_list import SECTOR, list_image, read_file  # noqa: E402
+import linkdata  # noqa: E402
 
-# Extension (upper case, without the dot) -> ("done" | "todo", description).
-# Keep in sync with docs/formats/README.md.
-FORMAT_STATUS = {}
+# Format -> ("done" | "todo", description). Keep in sync with docs/formats/README.md.
+FORMAT_STATUS = {
+    "LINKDATA": ("done", "Container tables and padding"),
+    "TIM2": ("done", "Textures (Sony TIM2), convertible to PNG"),
+    "MPEG2": ("todo", "Movies (MPEG-2 program streams)"),
+    "ANS stream": ("todo", "Audio streams (music?)"),
+    "PAC0": ("todo", "PAC0 archives"),
+    "PS2": ("todo", "Files starting with 'PS2 '"),
+    "Unidentified": ("todo", "Entries without a known signature"),
+}
 
 MATCHED_CODE = {"matching": 0, "non_matching": 0}
 
 SKIP_EXTENSIONS = {"IRX", "IMG", "CNF"}
+CONTAINER_KIND = {"ANS": "ANS stream", "CNS": "MPEG2"}
+SIGNATURE_KIND = {b"TIM2": "TIM2", b"PAC0": "PAC0", b"PS2 ": "PS2", b"\x00\x00\x01\xba": "MPEG2"}
+LINKDATA_SIG = linkdata.MAGIC.to_bytes(4, "little")
+
+
+def count_linkdata(read, size, sizes, forced_kind=None):
+    """Add the bytes of a LINKDATA blob to `sizes`, by entry format. `read(off, n)` reads it."""
+    head = read(0, linkdata.HEADER)
+    count = int.from_bytes(head[4:8], "little")
+    table = linkdata.parse_header(head + read(linkdata.HEADER, 8 * count))
+    used = 0
+    for e in table["entries"]:
+        used += e["size"]
+        sig = read(e["offset"], 4)
+        if forced_kind:
+            sizes[forced_kind] += e["size"]
+        elif sig == LINKDATA_SIG:
+            count_linkdata(lambda o, n, base=e["offset"]: read(base + o, n), e["size"], sizes)
+        else:
+            sizes[SIGNATURE_KIND.get(sig, "Unidentified")] += e["size"]
+    sizes["LINKDATA"] += size - used
 
 
 def code_total(elf):
@@ -48,17 +79,25 @@ def build_report(image):
     total = code_total(elf)
 
     sizes = defaultdict(int)
-    for name, _, size in list_image(image)[2]:
+    disc = open(image, "rb")
+    for name, lba, size in list_image(image)[2]:
         base = os.path.basename(name)
         ext = base.rsplit(".", 1)[-1].upper() if "." in base else "(none)"
-        if base.upper() == exe.upper() or ext in SKIP_EXTENSIONS:
+        if base.upper() == exe.upper() or ext in SKIP_EXTENSIONS or "/MODULES/" in name.upper():
             continue
-        sizes[ext] += size
+        if base.upper().startswith("LINKDATA."):
+            def read(off, n, start=lba * SECTOR):
+                disc.seek(start + off)
+                return disc.read(n)
+            count_linkdata(read, size, sizes, CONTAINER_KIND.get(ext))
+        else:
+            sizes[ext] += size
+    disc.close()
 
     areas = []
-    for ext, size in sorted(sizes.items(), key=lambda kv: -kv[1]):
-        status, description = FORMAT_STATUS.get(ext, ("todo", "Not studied yet"))
-        areas.append({"name": f".{ext}", "description": description,
+    for kind, size in sorted(sizes.items(), key=lambda kv: -kv[1]):
+        status, description = FORMAT_STATUS.get(kind, ("todo", "Not studied yet"))
+        areas.append({"name": kind, "description": description,
                       "data": {"total": size, "done": size if status == "done" else 0}})
 
     code = {"total": total, **MATCHED_CODE}
