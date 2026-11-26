@@ -295,7 +295,7 @@ void func_0017DF10(void);
 void func_0017E110(u8 value);
 void func_001AE9F0(int kind, const char *text, ...);
 void func_001AFC50(int kind);
-void func_001E3300(void *data);
+void *func_001E3300(void *data);   /* declared as returning its argument; see below */
 void func_001E33D0(int value, void *data);
 void func_001E3500(void *data);
 void func_0023A480(int value);
@@ -1169,7 +1169,7 @@ void func_0017E0C0(u8 volume, int b);
 #define PAD_MAP(pad, i) (((u8 *)&g_00669D8C[pad])[g_0040CC20[i]])
 
 /* 0x001E3300, 0xCC bytes, matching. Copies the live display settings into `out`. */
-void func_001E3300(void *out)
+void *func_001E3300(void *out)
 {
     DisplaySettings *d = out;
 
@@ -1371,32 +1371,32 @@ int func_001E3B90(void *in)
     return s[5] != g_00669DB1.option;
 }
 
-/* 0x001E3C30, 0x64 bytes. Applies all live settings again (display, both pads, sound), by reading
+/* 0x001E3C30, 0x64 bytes, matching. Applies all live settings again (display, both pads, sound), by reading
  * them and writing them back. */
 void func_001E3C30(void)
 {
-    PadSettings pad0, pad1;
     DisplaySettings display;
+    PadSettings pads[2];
     u8 sound[8];
 
     func_001E3300(&display);
-    func_001E33D0(0, &pad0);
-    func_001E33D0(1, &pad1);
+    func_001E33D0(0, &pads[0]);
+    func_001E33D0(1, &pads[1]);
     func_001E3500(sound);
     func_001E3560(&display);
-    func_001E37E0(0, &pad0);
-    func_001E37E0(1, &pad1);
+    func_001E37E0(0, &pads[0]);
+    func_001E37E0(1, &pads[1]);
     func_001E3AD0(sound);
 }
 
 /* 0x001E3CA0, 0x30 bytes. Reloads the menu's display copy and applies its saved screen offset.
- * (The original keeps the struct address in v0 across the call, which func_001E3300 never
- * changes.) */
+ * It uses the value func_001E3300 "returns": that function is declared as returning a pointer but
+ * has no return statement, so the result is whatever $v0 held, here the address it was given (the
+ * original code relies on the same accident). */
 void func_001E3CA0(void)
 {
-    DisplaySettings *d = (DisplaySettings *)g_00731140;
+    DisplaySettings *d = func_001E3300(g_00731140);
 
-    func_001E3300(d);
     func_00100ED0(&d->saved_x, &d->saved_y);
 }
 

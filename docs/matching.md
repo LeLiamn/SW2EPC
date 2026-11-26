@@ -66,5 +66,5 @@ What makes the compiler produce the game's exact code, learnt so far:
 
 ## Status
 
-47 functions match (4,040 bytes, 0.13 % of the code). The other functions are equivalent C that
+49 functions match. The other functions are equivalent C that
 still needs reshaping.
