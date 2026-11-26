@@ -1,0 +1,43 @@
+# No game files in the repository: no executable, no assets, no disc image
+Iso/
+*.iso
+*.bin
+*.cue
+*.img
+*.mdf
+*.mds
+*.chd
+
+# Files extracted from the disc (executable, data)
+extracted/
+SLUS_*
+SLES_*
+SLPM_*
+SLPS_*
+SCUS_*
+SCES_*
+SCPS_*
+SLKA_*
+*.ELF
+*.elf
+*.IRX
+*.irx
+
+# Third-party compilers (downloaded locally, never committed)
+compilers/
+
+# Build outputs
+build/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Ghidra
+*.gpr
+*.rep/
+
+# Private working notes (kept local)
+CLAUDE.md
+.claude/
