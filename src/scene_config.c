@@ -1471,11 +1471,32 @@ void func_001E6960(void)
 }
 
 /* 0x001E69B0, 0x200 bytes. Update: run the current phase; always returns 1 (so step() runs). */
+/* Message box 1 open (inlined in the original). */
+static inline int box1_open(void)
+{
+    int open;
+
+    if (g_0069395E == 0 || g_0069395E == 0xFF)
+        open = 0;
+    else
+        open = 1;
+    return open;
+}
+
 int func_001E69B0(float dt)
 {
     func_00376450();
-    if (g_007311F8 == 3) {                       /* leaving */
-        if (g_0069395E == 0 || g_0069395E == 0xFF) {
+    switch (g_007311F8) {
+    case 0:
+        if (g_00731228 == 0)                   /* opening finished */
+            g_007311F8 = 1;
+        break;
+    case 2:                                     /* closing */
+        if (g_00731228 == 0)
+            func_001E4030();
+        break;
+    case 3:                                     /* leaving */
+        if (!box1_open()) {
             if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {
                 g_0045D894 = g_0045D898;        /* go to the requested scene */
                 g_0045D898 = g_0045D8A0;
@@ -1486,10 +1507,8 @@ int func_001E69B0(float dt)
                 g_0045D89C = g_0045D8A0;
             }
         }
-    } else if (g_007311F8 == 2) {                /* closing */
-        if (g_00731228 == 0)
-            func_001E4030();
-    } else if (g_007311F8 != 0) {                /* in use: run the current page */
+        break;
+    case 1:                                     /* in use: run the current page */
         switch (g_007311F0) {
         case 0: func_001E4080(); return 1;
         case 1: func_001E44C0(); break;
@@ -1501,8 +1520,7 @@ int func_001E69B0(float dt)
         case 9: func_001E51C0(); break;
         case 10: func_001E5750(); break;
         }
-    } else if (g_00731228 == 0) {               /* opening finished */
-        g_007311F8 = 1;
+        break;
     }
     return 1;
 }
