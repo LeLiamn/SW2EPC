@@ -765,6 +765,23 @@ The code at 0x001171A0-0x00117E4C has 28 functions, 18 of which match.
   offset) record of the sound bank, which sits in the IOP's memory.
 - **Voices:** a second bank holds voices that are played by streaming.
 
+## Run-time helpers (`src/runtime.c`)
+
+The code at 0x00117EB0-0x00118E94, just before libcdvd, has 11 functions, 1 of which matches.
+
+- **Compiler run-time:** the destructor chain run at exit, and the static constructors run
+  before main (the game has none). These use branch-likely instructions, which the game's own
+  code never uses: they come from a library built with other settings.
+- **VU0 set-up:** constant vectors are loaded into vf21-vf31. A unit matrix, two rotations by pi
+  and constant vectors are written into the scratchpad.
+- **Sorting:** an insertion sort and a quicksort of 16-byte records, keyed by their first
+  float. The quicksort leaves runs of 10 or fewer records to the insertion sort.
+- **Memory:** a quadword clear, two memory fills and a copy for blocks over 0x1B800 bytes.
+  - The copy writes the quadwords from the start of the destination, not after the first bytes,
+    so it is only right when the source is 16-aligned.
+  - These loops are unrolled by 8 in the original, so this code was built without
+    `opt_unroll_loops off`.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
