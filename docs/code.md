@@ -71,7 +71,7 @@ assertion string), "probable" when its functions sit right next to that file's c
 | `0x02` | `0x001BFFA0` | StateDemo.c | certain (demo, `src/scene_demo.c`) |
 | `0x03` | `0x00236D40` |  | empty scene (`src/scene_empty.c`) |
 | `0x04` | `0x001D4490` | StateBattleInitialize.c | certain (battle set-up, `src/scene_battle_initialize.c`) |
-| `0x05` | `0x001D2A90` | StateBattleInitialize.c | probable |
+| `0x05` | `0x001D2A90` | StateBattleInitialize.c | certain (the battle, `src/scene_battle_initialize.c`) |
 | `0x06` | `0x001D1F30` | StateBattleInitialize.c | certain (battle tear-down, `src/scene_battle_initialize.c`) |
 | `0x07` | `0x001D5F00` | StateBattleInitialize.c | certain (battle intro, `src/scene_battle_initialize.c`) |
 | `0x08` | `0x00235A70` |  | unknown |
@@ -280,8 +280,8 @@ at `0x007A2640` (speed 1.2, six layers of 0x34 bytes, the pack).
 
 ## Scenes 0x04, 0x06, 0x07: around a battle (`src/scene_battle_initialize.c`)
 
-Original source file `StateBattleInitialize.c` (the intro data is loaded with that name, lines 561
-and 563). Scene 0x05 (the battle itself) is the rest of the file, not decompiled yet.
+Original source file `StateBattleInitialize.c` (`0x001D1E80`-`0x001D6B40`, 67 functions, all
+decompiled; 30 match; the intro data is loaded with that name, lines 561 and 563).
 
 - **0x04** (enter only): while data loads, goes to the loading screen (0x0F) and comes back; then
   builds the battle (player units at `0x005B4BC0`, 0x240 bytes each, two with two armies; music
@@ -291,6 +291,16 @@ and 563). Scene 0x05 (the battle itself) is the rest of the file, not decompiled
   0x174 bytes), played at 1.2 times the frame time, drawn as split views with two armies. Start
   (either controller) skips it unless the camera forbids it. Then on to 0x05 (flag 21 of
   `0x00669F60` set), or 0x06.
+- **0x05** the battle (time x 1.2). Phases (`0x00730350`): wait for box 1, the battle (pause with
+  Start = scene 8; in a demo Start ends it), special sequences (2-5), leave, and the ending camera
+  (7, a 250-frame countdown). The end comes from flags of `0x00669F60` and the ending in
+  `0x00669F70` (0 / 3 / 4: a jingle 0x1F or 0x21, then scene 7; 5 / 6: a demo cut short). A
+  frame: stage, armies, combos (per player, up to 9999 hits, 90 frames to keep a combo; the best
+  goes to the player record +0x94), the right stick turns the camera (dead zone 64), effects, and
+  the battle clock `0x00669F9C` (frames, up to 180000 = 50 minutes). The soldier groups
+  (`0x006A1D58`, 0x47 of 0x68 bytes: 13 soldiers, 5 leaders, strength, timer, flags) pick
+  targets and decide to retreat (facing leaders 200 stronger on average), with events queued
+  through `func_0023EB40`. Two armies: split-screen drawing, one view per player.
 - **0x06** (enter only): frees all battle systems and goes to the results (0x0A), or on to 0x10
   / 0x12 when `func_0032E7B0` says the series is over. Scene 0x05's on_reset (`0x001D4150`) marks
   the battle as ended by a reset (`0x00669F70` = 7) and runs this tear-down.

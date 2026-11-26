@@ -78,7 +78,8 @@ extern struct {
 } g_00669D60;
 #define g_00669DB2 (g_00669D60.g_00669DB2)
 #define g_00669DB3 (g_00669D60.g_00669DB3)
-extern int g_70000154;                    /* (scratchpad) screen scale divisor? */
+/* (scratchpad) screen scale divisor? */
+#define g_70000154 (*(int *)0x70000154)
 extern const char g_00424AD0[];           /* "StateInitialize.c" */
 
 /* Scene 0x00 state, small data ($gp). */
@@ -158,7 +159,7 @@ int func_00161030(void)
     return 1;
 }
 
-/* 0x00161170, 0xD4 bytes. Draws the picture as one full-screen sprite (GS packet: colour
+/* 0x00161170, 0xD4 bytes, matching. Draws the picture as one full-screen sprite (GS packet: colour
  * 0x80808080 with Q = 1.0, the X range scaled by g_70000154). */
 void func_00161170(void)
 {

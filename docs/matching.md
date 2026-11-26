@@ -102,6 +102,8 @@ What makes the compiler produce the game's exact code, learnt so far:
   slot * 0x50`), in that order, not an array index.
 - **Keep the slot of modes 5-8 as a small `switch`** (`case 5: slot = 0` ...): the game tests
   `mode == 8, 7, 6, 5`, and leaves the slot unset for other modes.
+- **Scratchpad words are constant addresses** (`#define g_70000154 (*(int *)0x70000154)`): an
+  `extern int` goes to the small-data area and is read through `$gp`.
 - **Check struct layouts**: `py tools/check_layout.py` checks that every `g_XXXXXXXX` field of a
   one-object struct sits at its address (relocations are masked by the matching check, so a wrong
   padding can stay invisible; the shop state had 4 bytes too many after `0x00773170`).
@@ -111,5 +113,5 @@ What makes the compiler produce the game's exact code, learnt so far:
 **StateTreasures.c is fully matching** (all 24 functions of `src/scene_treasures.c`), and so is
 `src/main.c` (start-up and the scene manager).
 
-174 functions match (37 of the 42 functions of `src/scene_shop.c`, 24 of the 33 of `src/scene_config.c`, 6 of the 8 of `src/scene_setup_emp_mogi.c`, 2 of the 37 of `src/scene_post_battle.c`, 17 of 23 in `src/scene_initialize.c`, 7 of 25 in `src/scene_demo.c`, 9 of 10 in `src/scene_empty.c`, 13 of 18 in `src/scene_loading.c`, 7 of 14 in `src/scene_battle_initialize.c`, 9 of 15 in `src/scene_conquest.c`, all of `src/scene_tutorial.c` and `src/scene_season_anime.c`). The other functions are equivalent C that
+199 functions match (37 of the 42 functions of `src/scene_shop.c`, 24 of the 33 of `src/scene_config.c`, 6 of the 8 of `src/scene_setup_emp_mogi.c`, 2 of the 37 of `src/scene_post_battle.c`, 18 of 23 in `src/scene_initialize.c`, 7 of 25 in `src/scene_demo.c`, 9 of 10 in `src/scene_empty.c`, 14 of 18 in `src/scene_loading.c`, 30 of 67 in `src/scene_battle_initialize.c`, 9 of 15 in `src/scene_conquest.c`, all of `src/scene_tutorial.c` and `src/scene_season_anime.c`). The other functions are equivalent C that
 still needs reshaping.

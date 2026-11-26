@@ -48,7 +48,8 @@ extern struct {
 } g_00669D60;
 #define g_00669F60 (g_00669D60.g_00669F60)
 
-extern int g_70000154;                    /* (scratchpad) screen scale divisor? */
+/* (scratchpad) screen scale divisor? */
+#define g_70000154 (*(int *)0x70000154)
 extern u8 g_0045D678;                     /* 1 once the fade-out started */
 extern const char g_00445AE8[];           /* "SceneLoading.c" */
 
@@ -395,7 +396,7 @@ void func_002F16B0(void)
     func_002F1360(&g_007A2640);
 }
 
-/* 0x002F16D0, 0xC0 bytes. Draws the loading screen: a black full-screen rectangle, then the
+/* 0x002F16D0, 0xC0 bytes, matching. Draws the loading screen: a black full-screen rectangle, then the
  * layers. */
 void func_002F16D0(void)
 {

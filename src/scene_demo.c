@@ -56,7 +56,8 @@ extern struct {
 #define box1_open() (g_0069395E != 0 && g_0069395E != 0xFF)
 
 /* The game's random generator (see scene_shop.c). */
-extern u32 g_7000015C;
+/* 0x7000015C: the random seed in the scratchpad (see main.c). */
+#define g_7000015C (*(u32 *)0x7000015C)
 #define random16() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, (g_7000015C >> 16) & 0xFFFF)
 
 #define OFFICER_NONE 0x19F
