@@ -1426,3 +1426,114 @@ int func_0021ED70(int pad, int box)
     }
     return 0;
 }
+
+
+typedef unsigned long long u64;
+
+extern int g_0056CCA4, g_0056CCA8, g_0056CCAC, g_0056CCB0;    /* drawing modes */
+extern u8 *g_005BD724;
+extern const char *g_0043C5EC, *g_0043C610, *g_0043C6E4, *g_0043C6E8, *g_0043C804;
+extern const char *g_00456368;            /* "Please select the weapon whose d..." */
+
+void func_00285E50(u32 a, u32 b, u32 c, int d, int e);
+u8 *func_001050F0(void);
+void func_00105390(u8 *packet);
+u8 *func_00105410(void);
+void func_00105560(u8 *packet);
+void func_003F11D0(void);
+int func_0036B260(void);
+void func_003DACA0(void);
+void func_003DAF70(void);
+void func_003DC300(void);
+void func_0028D0D0(u32 a, u32 b, int c, int d, int player, PlayerResult *r);
+void func_0028A420(u32 a, u32 b, SkillEntry *list);
+void func_003DE580(void);
+void func_003E0910(void);
+void func_003E0290(void);
+void func_003E0730(void);
+int func_003F1160(int value);
+void func_001A7DC0(const char *text, int alpha, int b);
+void func_003838B0(const char *text, int b);
+void func_00285D50(u32 a, int page, u8 b, int c);
+void func_002DAE50(void);
+
+/* 0x00220150, 0x484 bytes. Scene draw: the background, a darkened band (two GS packets), the
+ * current page (with the drawing modes forced to 3), then its button help line. */
+void func_00220150(void)
+{
+    u8 *packet;
+    int saved;
+
+    if (g_00747934 >= 9) {
+        func_002DAE50();
+        return;
+    }
+    func_00285E50(g_00747950, g_00747960, g_00669D60.players[g_0074794C].data_0, 0, g_0074796C);
+    packet = func_001050F0();
+    *(u64 *)(packet + 0x10) = 0x32001;
+    *(u64 *)(packet + 0x18) = 0x48;
+    func_00105390(packet);
+    packet = func_00105410();
+    *(u64 *)(packet + 0x20) = 0x79007000;
+    *(u64 *)(packet + 0x28) = 0x87009000;
+    *(u64 *)(packet + 0x18) = 0x3F80000080808080ULL;
+    func_00105560(packet);
+    packet = func_001050F0();
+    *(u64 *)(packet + 0x10) = 0x5000D;
+    *(u64 *)(packet + 0x18) = 0x48;
+    func_00105390(packet);
+
+    saved = g_0056CCA4;
+    g_0056CCAC = 3;
+    g_0056CCA4 = 3;
+    g_0056CCA8 = 3;
+    g_0056CCB0 = 3;
+    func_003F11D0();
+    switch (g_00747934) {
+    case 0:
+        if (func_0036B260() != 0)
+            func_003DACA0();
+        break;
+    case 1: func_003DAF70(); break;
+    case 2:
+        func_003DC300();
+        func_002857E0(0x13);
+        break;
+    case 3:
+        func_0028D0D0(g_00747958, g_00747950, 0, 0, g_0074794C, &g_00747DF8[g_0074794C]);
+        break;
+    case 4:
+        func_0028A420(g_00747958, g_00747950,
+                      &g_00747B60[g_0074794C].entries[g_00748A2D - g_00748A2C]);
+        break;
+    case 5: func_003DE580(); break;
+    case 6: func_003E0910(); break;
+    case 7: func_003E0290(); break;
+    case 8: func_003E0730(); break;
+    }
+    g_0056CCA8 = saved;
+    g_0056CCAC = saved;
+    g_0056CCB0 = saved;
+    g_0056CCA4 = saved;
+
+    if (func_003F1160(0) == 0) {
+        switch (g_00747934) {
+        case 5:
+            if (g_00748AA4[0] != 0)
+                func_001A7DC0(g_0043C6E8, 0x80, 0);
+            else if (g_00748AA4[1] == 6)
+                func_001A7DC0(g_0043C804, 0x80, 0);
+            else
+                func_001A7DC0(g_0043C6E4, 0x80, 0);
+            break;
+        case 6:
+            func_003838B0(g_00456368, 0);
+            func_001A7DC0(g_0043C610, 0x80, 0);
+            break;
+        case 0: case 1: case 2: case 3: case 4: case 7: case 8:
+            func_001A7DC0(g_0043C5EC, 0x80, 0);
+            break;
+        }
+    }
+    func_00285D50(g_00747950, g_00747934, g_005BD724[4], 0);
+}
