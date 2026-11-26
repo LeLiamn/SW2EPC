@@ -304,7 +304,7 @@ void func_003F8BB0(void);
  * the byte at +1 (0x006934B4 + n * 0x128) holds the answer (4 = yes?). */
 extern char g_006934B4[];
 
-extern u8 g_00429030[];
+extern u8 g_00429030[2][0x1E];
 extern u8 g_004290F8[];          /* layout data of the options menu window */           /* lookup tables used by func_001E6670 */
 
 /* Dialog texts (pointers to English strings). */
@@ -1410,27 +1410,34 @@ void func_001E3CD0(void)
     func_00100ED0(&d->x, &d->y);
 }
 
-/* 0x001E6670, 0x1E8 bytes. Look up a byte in one of the tables at 0x00429030 (selected by `table`,
+/* 0x001E6670, 0x1E8 bytes, matching. Look up a byte in one of the tables at 0x00429030 (selected by `table`,
  * row chosen by whether `flag` is 0); out-of-range indexes return the table's first byte. */
-u8 func_001E6670(int table, int flag, unsigned int index)
-{
-    unsigned int row = (flag == 0);
-    u8 value = g_00429030[0];
+extern u8 g_00429070[2][6], g_00429080[2][6], g_00429090[2][9], g_004290A8[2][6];
+extern u8 g_004290C0[2][8], g_004290D0[2][6];
 
-    if (flag >= 0 || flag < 2) {   /* always true in the original code */
+u8 func_001E6670(int table, int flag, int index)
+{
+    u8 value = g_00429030[0][0];
+    int row = 0;
+
+    if (flag == 0)
+        row = 1;
+    if (flag < 0 && flag >= 2)      /* never true in the original code */
+        return value;
+    {
         switch (table) {
-        case 0: if (index < 6) value = g_00429030[0x40 + index + row * 6]; break;
-        case 1: if (index < 6) value = g_00429030[0x50 + index + row * 6]; break;
+        case 0: if (index >= 0 && (unsigned)index < 6) value = g_00429070[row][index]; break;
+        case 1: if (index >= 0 && (unsigned)index < 6) value = g_00429080[row][index]; break;
         case 2:
             if (index == 0x19)
                 index = 8;
-            if (index < 9)
-                value = g_00429030[0x60 + index + row * 9];
+            if (index >= 0 && (unsigned)index < 9)
+                value = g_00429090[row][index];
             break;
-        case 3: if (index < 6) value = g_00429030[0x78 + index + row * 6]; break;
-        case 4: if (index < 8) value = g_00429030[0x90 + index + row * 8]; break;
-        case 5: if (index < 6) value = g_00429030[0xA0 + index + row * 6]; break;
-        default: if (index < 0x1E) value = g_00429030[index + row * 0x1E]; break;
+        case 3: if (index >= 0 && (unsigned)index < 6) value = g_004290A8[row][index]; break;
+        case 4: if (index >= 0 && (unsigned)index < 8) value = g_004290C0[row][index]; break;
+        case 5: if (index >= 0 && (unsigned)index < 6) value = g_004290D0[row][index]; break;
+        default: if (index >= 0 && (unsigned)index < 0x1E) value = g_00429030[row][index]; break;
         }
     }
     return value;
