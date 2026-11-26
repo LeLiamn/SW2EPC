@@ -511,6 +511,29 @@ The module covers 0x003F5550-0x003F6BA0: 53 functions, 27 of which match. It com
   `func_0035D300` announces the result, and a reminder plays at each of the last three minutes.
 - **Display:** the text is message 0x96 + kind, and page 15 of the battle menu shows it.
 
+## Formations during a battle (`src/battle_formation.c`)
+
+The module covers 0x003F6BA0-0x003F84A4: 54 functions, 23 of which match. It comes after the
+missions; its source file name is unknown.
+
+- **State:** each side (0 the player, 1 the enemy) has 16 bytes at `0x007BFEF0`:
+  - the slot in use;
+  - six slots, each holding a formation (0-9, 10 = none) and a "used" bit;
+  - points (0-180);
+  - three flags: bit 0 the advantage, bit 1 the first change made, bit 2 a warning given;
+  - a counter (0-300).
+- **Rules:**
+  - Changing formation costs points (table `0x0041DC70`).
+  - The advantage of one formation over another is a 10 x 10 table (`0x0041DAE0`). After a
+    change, the side with the advantage gets a bonus of 10 per point of advantage
+    (`func_0033BE80`).
+  - Each side gains one point every 100 frames. The player also gains 30 points each time a
+    count passes a multiple of 50, and 150 more at each multiple of 1000.
+- **Enemy:** at the start of a battle, the enemy picks a formation that is worse than the
+  player's 30% of the time, equal 50% of the time, and better 20% of the time.
+- **Saving:** an Empire battle keeps this state in its save (record +0xAE8). Page 10 of the
+  battle menu changes the player's formation.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
