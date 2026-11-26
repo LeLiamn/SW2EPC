@@ -77,5 +77,8 @@ What makes the compiler produce the game's exact code, learnt so far:
 
 ## Status
 
+**StateTreasures.c is fully matching** (all 24 functions of `src/scene_treasures.c`), and so is
+`src/main.c` (start-up and the scene manager).
+
 49 functions match. The other functions are equivalent C that
 still needs reshaping.

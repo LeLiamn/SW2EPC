@@ -236,7 +236,7 @@ void func_002EE610(u32 a, u8 b);
 void func_002EF7F0(void);
 void func_002EF870(void);
 void func_002EEB60(u32 a, u8 b);
-void func_002EF150(u32 a, u32 b, u32 c, u32 d, u32 e, void *f, u8 g, u8 h);
+void func_002EF150(u32 a, u32 b, u32 c, u32 d, u32 e, void *f, u8 g, u8 h, u8 i);
 void func_002EF360(u32 a, u32 b, void *c, u32 d, u8 e, u8 f);
 void func_002EF300(u32 a, void *b, u32 c, u8 d, u8 e);
 void func_002EF390(u32 a, u32 b, u32 c, u8 d);
@@ -968,7 +968,7 @@ void func_001E9140(void)
 {
 }
 
-/* 0x001E9150, 0x498 bytes. Scene draw: the current mode's screen, then its button help line. */
+/* 0x001E9150, 0x498 bytes, matching. Scene draw: the current mode's screen, then its button help line. */
 void func_001E9150(void)
 {
     func_00278A20();
@@ -978,52 +978,59 @@ void func_001E9150(void)
     case 1: func_002EF7F0(); break;
     case 2: func_002EF870(); break;
     case 3: func_002EEB60(g_0073131C, g_0073135A); break;
-    case 4:
-        func_002EF150(g_00731324, g_0073131C, g_00731318, g_0073132C, g_00731330, g_007312AC,
-                      g_0073135B, g_0073135A);
-        break;
-    case 5:
-        func_002EF360(g_0073132C, g_00731328, g_007312AC, g_00731330, g_0073135B, g_0073135C);
-        break;
-    case 6: func_002EF300(g_0073132C, g_007312AC, g_00731330, g_0073135B, g_0073135C); break;
-    case 7: func_002EF390(g_00731320, g_0073131C, g_00731318, g_0073135A); break;
-    case 8: func_002EF8F0(); break;
-    case 9: func_002EF970(); break;
-    case 10: func_002EF9F0(); break;
-    case 11:
-        func_002EF330(g_0073132C, g_007312AC, g_00731330, g_0073135B, g_0073135A, g_0073135C);
-        break;
     case 12: func_002EF180(g_0073131C); break;
     case 13:
         func_002EF200(g_0073131C, g_0073132C, 0, &g_00731240, g_00731330, g_0073135B, g_0073135A,
                       g_0073135C);
         break;
     case 14: func_002EF280(); break;
+    case 4:
+        func_002EF150(g_00731324, g_0073131C, g_00731318, g_0073132C, g_00731330, g_007312AC,
+                      g_0073135B, g_0073135A, g_0073135C);
+        break;
+    case 5:
+        func_002EF360(g_0073132C, g_00731328, g_007312AC, g_00731330, g_0073135B, g_0073135C);
+        break;
+    case 11:
+        func_002EF330(g_0073132C, g_007312AC, g_00731330, g_0073135B, g_0073135A, g_0073135C);
+        break;
+    case 6: func_002EF300(g_0073132C, g_007312AC, g_00731330, g_0073135B, g_0073135C); break;
+    case 7: func_002EF390(g_00731320, g_0073131C, g_00731318, g_0073135A); break;
+    case 8: func_002EF8F0(); break;
+    case 9: func_002EF970(); break;
+    case 10: func_002EF9F0(); break;
     }
     func_00375F90();
 
     switch (g_00731334) {
-    case 0: case 3: func_001A7DC0(g_0043C578, 0x80, 2); break;
-    case 1: case 2: func_00391DA0(); break;
-    case 4: func_003EEDD0(); break;
-    case 5: func_001A7DC0(g_0043C658, 0x80, 2); break;
-    case 6: func_001A7DC0(g_0043C664, 0x80, 2); break;
-    case 7: func_001A7DC0(g_0043C670, 0x80, 2); break;
-    case 8: case 9: {
-        char *game = func_002FC2C0();
-        int kind = *(int *)(*(char **)(game + 0x694) + 0x220);
-        func_001A7DC0(kind == 1 ? g_0043C648 : g_0043C578, 0x80, 2);
-        break;
-    }
-    case 10: func_001A7DC0(g_0043C648, 0x80, 2); break;
-    case 11:
-        if (g_0073135F == 1)
-            func_001A7DC0(g_0043C660, 0x80, 2);
-        else if (g_0073135F == 0)
-            func_001A7DC0(g_0043C65C, 0x80, 2);
-        break;
+    case 0: func_001A7DC0(g_0043C578, 0x80, 2); break;
+    case 1: func_00391DA0(); break;
+    case 2: func_00391DA0(); break;
+    case 3: func_001A7DC0(g_0043C578, 0x80, 2); break;
     case 12: func_001A7DC0(g_0043C774, 0x80, 2); break;
     case 13: func_001A7DC0(g_0043C778, 0x80, 2); break;
     case 14: func_003B20B0(); break;
+    case 4: func_003EEDD0(); break;
+    case 5: func_001A7DC0(g_0043C658, 0x80, 2); break;
+    case 11:
+        switch (g_0073135F) {
+        case 0: func_001A7DC0(g_0043C65C, 0x80, 2); break;
+        case 1: func_001A7DC0(g_0043C660, 0x80, 2); break;
+        }
+        break;
+    case 6: func_001A7DC0(g_0043C664, 0x80, 2); break;
+    case 7: func_001A7DC0(g_0043C670, 0x80, 2); break;
+    case 8:
+    case 9: {
+        char *game = func_002FC2C0();
+        int kind = *(int *)(*(char **)(game + 0x694) + 0x220);
+        switch (kind) {
+        case 0: func_001A7DC0(g_0043C578, 0x80, 2); break;
+        case 1: func_001A7DC0(g_0043C648, 0x80, 2); break;
+        default: func_001A7DC0(g_0043C578, 0x80, 2); break;
+        }
+        break;
+    }
+    case 10: func_001A7DC0(g_0043C648, 0x80, 2); break;
     }
 }
