@@ -377,7 +377,7 @@ void func_002ACC30(u32 a, u32 b, u32 c, u8 d, void *e, int f);
 void func_002ACEC0(u32 a, u32 b, u32 c, u8 d, void *e, int f);
 u32 func_0029FD70(void);
 void func_0029C140(u32 a, u8 b, int c);
-int func_0029FD10(void);
+static int func_0029FD10(void);
 void func_001A7DC0(const char *text, int alpha, int b);
 
 /* Inlined in the original: a macro. */
@@ -404,7 +404,7 @@ void func_001A7DC0(const char *text, int alpha, int b);
 #define random16() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, (g_7000015C >> 16) & 0xFFFF)
 
 /* 0x0029FD10, 0x10 bytes, matching. Non-zero when the shop also sells mounts. */
-int func_0029FD10(void)
+static int func_0029FD10(void)
 {
     return g_00773140 > 0;
 }
@@ -1318,7 +1318,7 @@ void func_002A2110(int player)
     func_002CAD90(g_0077313C);
 }
 
-/* 0x002A21B0, 0x488 bytes. Modes 4 and 11 (screen 5, "Select  Back  Sell"): the player's mounts;
+/* 0x002A21B0, 0x488 bytes, matching. Modes 4 and 11 (screen 5, "Select  Back  Sell"): the player's mounts;
  * OK asks to confirm, "yes" sells. Leaving goes to `back` (mode 0 from the menu, mode 3 when the
  * player was buying with 4 mounts already). */
 void func_002A21B0(int player, int back)
@@ -1339,14 +1339,14 @@ void func_002A21B0(int player, int back)
         return;
     if (box == 1) {
         if (answer == BOX_YES) {
-            func_002A2110(port);
+            func_002A2110(player);
             if (func_0029FD10() == 0)
                 func_0029FDB0(back);
             if (func_0029FD10() == 0) {         /* (asked twice in the original) */
                 g_00773186 = 0;
                 func_0029FDB0(back);
-            } else if (g_00773186 > g_00773140 - 1) {
-                g_00773186 = g_00773140 - 1;
+            } else {
+                g_00773186 = g_00773186 > g_00773140 - 1 ? g_00773140 - 1 : g_00773186;
             }
         }
         return;
@@ -1363,24 +1363,27 @@ void func_002A21B0(int player, int back)
         if (func_0029FD10() == 0) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         } else {
-            const char *name = (const char *)func_0019FBC0(g_0077313C[g_00773186]) + 0x13;
+            const char *name;
             func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            name = (const char *)func_0019FBC0(g_0077313C[g_00773186]) + 0x13;
             show_box(1, port, g_0043C420, name);
         }
-    } else if (g_00773140 > 1) {
-        u8 count = g_00773140;
+    } else {
+        int count = g_00773140;
+        if (count <= 1)
+            return;
         if (held & BTN_UP) {
-            if (g_00773186 != 0) {
+            if (g_00773186 > 0) {
                 func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773186 = (u8)((g_00773186 + count - 1) % count);
+                g_00773186 = (u8)((g_00773186 + g_00773140 - 1) % g_00773140);
             } else if (pressed & BTN_UP) {
                 func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773186 = count - 1;
+                g_00773186 = g_00773140 - 1;
             }
         } else if (held & BTN_DOWN) {
             if (g_00773186 < count - 1) {
                 func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773186 = (u8)((g_00773186 + 1) % count);
+                g_00773186 = (u8)((g_00773186 + 1) % g_00773140);
             } else if (pressed & BTN_DOWN) {
                 func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
                 g_00773186 = 0;
