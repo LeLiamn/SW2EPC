@@ -2,16 +2,16 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 60272,
-    "non_matching": 245788
+    "matching": 61664,
+    "non_matching": 250604
   },
   "data": {
     "total": 2155890688,
     "done": 2155890688
   },
   "functions": {
-    "total": 10621,
-    "matching": 495
+    "total": 10623,
+    "matching": 518
   },
   "layout": "treemap",
   "areas": [
@@ -612,11 +612,11 @@
         },
         {
           "name": "file.c",
-          "description": "Estimated range 0x102410-0x124CC8; 179 function(s) decompiled",
+          "description": "Estimated range 0x102410-0x124CC8; 222 function(s) decompiled",
           "code": {
             "total": 141496,
-            "matching": 4144,
-            "non_matching": 23536
+            "matching": 5536,
+            "non_matching": 28352
           }
         },
         {

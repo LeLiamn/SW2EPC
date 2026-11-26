@@ -737,6 +737,34 @@ up to 255 requests, each a sector or a file path, an offset, a sector count and 
 - **Destinations:** bit 31 means the IOP's memory, bit 1 a read through the sound driver.
 - **Cancel:** `func_00115D40` cancels the reads under way.
 
+## The movies (`src/movie.c`)
+
+The code at 0x00116610-0x0011719C sets up the MPEG movie player and runs it: 15 functions, 5
+of which match. The player itself (`func_00107578`) is linked before the sound library.
+
+- **Parameters:** a block at `0x00400C78` gives the player its sizes (640 x 512), its buffers
+  and its callbacks: the end of the movie, a stream header, the stop test, each frame, each
+  vblank, and the game's allocator.
+- **Thread:** the player runs in a thread of its own (priority 2, work area of 0x5014 bytes). The
+  scratchpad is saved and restored around it.
+- **Display:** the movie has its own double buffer at `0x00562830`. At each vblank the display
+  is moved one line down and made one line shorter, for the interlaced field. At the end, the
+  game's frame settings are sent again.
+- **Caller's callbacks:** one is called with each frame's number (counted from 1); the other
+  can stop the movie (the pads are read once, before its first call).
+
+## Sound commands and channels (`src/sound_cmd.c`)
+
+The code at 0x001171A0-0x00117E4C has 28 functions, 18 of which match.
+
+- **Command buffer:** commands for the sound driver are written into a buffer at
+  `0x00562A80`, under the sound semaphore. The buffer is sent when it holds more than 0x3F2
+  bytes, and otherwise once per frame.
+- **Channels:** there are 16 sound channels at `0x00562E80`, 0x40 bytes each. A channel keeps
+  its settings, its volume (0-0x7F) and up to 15 sounds; each sound is a pointer to a (size,
+  offset) record of the sound bank, which sits in the IOP's memory.
+- **Voices:** a second bank holds voices that are played by streaming.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
