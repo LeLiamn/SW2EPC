@@ -63,6 +63,8 @@ What makes the compiler produce the game's exact code, learnt so far:
   gives "load, load, store, store".
 - A symbol, not an integer cast, where the game builds an address with `lui` / `addiu`.
 - Four different symbols when the same address is loaded four times.
+- **Controller values are `int` locals holding a 16-bit value**: `int pressed = (u16)(...)`. With
+  `unsigned short` locals, the compiler re-extends them before each first use.
 
 ## Status
 

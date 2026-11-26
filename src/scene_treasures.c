@@ -238,8 +238,8 @@ void func_001E86D0(void);            /* mode 7: select mount */
 
 /* Inlined in the original: a macro. */
 #define pad1_ready() ((g_00500764 & 1) ? (g_00500765 & 1) == 1 : 0)
-#define pad1_pressed() (pad1_ready() ? g_0050074C : 0)
-#define pad1_held() (pad1_ready() ? g_0050074E : 0)
+#define pad1_pressed() ((unsigned short)(pad1_ready() ? g_0050074C : 0))
+#define pad1_held() ((unsigned short)(pad1_ready() ? g_0050074E : 0))
 
 /* 0x001E7110, 0x180 bytes. Requests mode `mode`: starts the transition (phase 4), prepares the
  * mode's screen, and moves the two layout layers (func_00376100) to the mode's positions.
@@ -400,7 +400,7 @@ void func_001E7290(void)
  * 2 right). Returns 1 when the cursor moved. `data` is not used. */
 int func_001E7680(void *data)
 {
-    unsigned short held = pad1_held();
+    int held = pad1_held();
 
     g_00731330 = 0;
     if (held & BTN_RIGHT) {
@@ -443,8 +443,8 @@ static void main_menu_move(const int *available, unsigned step)
  * one stops at the last available entry. */
 void func_001E7830(void)
 {
-    unsigned short pressed = pad1_pressed();
-    unsigned short held = pad1_held();
+    int pressed = pad1_pressed();
+    int held = pad1_held();
     const int *available = func_003BD290();
     int found = 0;
     int i;
@@ -504,8 +504,8 @@ void func_001E7D60(float dt)
  * press wraps around, a held one does not. */
 void func_001E7DC0(void)
 {
-    unsigned short pressed = pad1_pressed();
-    unsigned short held = pad1_held();
+    int pressed = pad1_pressed();
+    int held = pad1_held();
 
     if (pressed & BTN_OK) {
         func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
@@ -568,7 +568,7 @@ void func_001E80B0(float dt)
 /* 0x001E8110, 0xE4 bytes, matching. Mode 5 ("Select Officer  Skills  Back"). */
 void func_001E8110(void)
 {
-    unsigned short pressed = pad1_pressed();
+    int pressed = pad1_pressed();
 
     if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
@@ -589,8 +589,8 @@ void func_001E8110(void)
  * the column in g_0073135E), Down from it comes back. Cancel returns to step 0. */
 void func_001E8200(void)
 {
-    unsigned short pressed = pad1_pressed();
-    unsigned short held = pad1_held();
+    int pressed = pad1_pressed();
+    int held = pad1_held();
 
     if (g_0073135F == 0) {
         if (pressed & BTN_OK) {
@@ -655,7 +655,7 @@ void func_001E8200(void)
 /* 0x001E8600, 0xA0 bytes, matching. Mode 6 ("Select Officer  Back"). */
 void func_001E8600(void)
 {
-    unsigned short pressed = pad1_pressed();
+    int pressed = pad1_pressed();
 
     if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
@@ -680,8 +680,8 @@ void func_001E86A0(void)
  * "unreachable" blocks Ghidra removed are the negative fix-ups of `% 4`. */
 void func_001E86D0(void)
 {
-    unsigned short pressed = pad1_pressed();
-    unsigned short held = pad1_held();
+    int pressed = pad1_pressed();
+    int held = pad1_held();
     int found = 0;
     int i;
 

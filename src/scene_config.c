@@ -434,7 +434,7 @@ void func_001E4030(void)
  * for "reset all officers' abilities" and "void interim data". */
 void func_001E4080(void)
 {
-    unsigned short pressed, held;
+    int pressed, held;
     int box;
     char answer;
     char text[256];
@@ -536,14 +536,14 @@ void func_002DBAB0(void);
 
 /* Inlined in the original: a macro. */
 #define pad1_ready() ((g_00500764 & 1) ? (g_00500765 & 1) == 1 : 0)
-#define pad1_pressed() (pad1_ready() ? g_0050074C : 0)
-#define pad1_held() (pad1_ready() ? g_0050074E : 0)
+#define pad1_pressed() ((unsigned short)(pad1_ready() ? g_0050074C : 0))
+#define pad1_held() ((unsigned short)(pad1_ready() ? g_0050074E : 0))
 
-/* 0x001E44C0, 0x220 bytes. Page 1: a three-entry sub-menu opening pages 5, 6 and 7. */
+/* 0x001E44C0, 0x220 bytes, matching. Page 1: a three-entry sub-menu opening pages 5, 6 and 7. */
 void func_001E44C0(void)
 {
-    unsigned short pressed = pad1_pressed();
-    unsigned short held = pad1_held();
+    int pressed = pad1_pressed();
+    int held = pad1_held();
 
     if (pressed & BTN_OK) {
         func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
@@ -574,7 +574,7 @@ void func_001E44C0(void)
  * running in mode 2 or 3 until it reports 1 = done or 2 = cancelled). */
 void func_001E4BF0(void)
 {
-    unsigned short pressed = pad1_pressed();
+    int pressed = pad1_pressed();
     int r;
 
     if (g_0073120C == 2) {
@@ -622,8 +622,8 @@ void func_001E4BF0(void)
 /* 0x001E4E70, 0x1F0 bytes. Page 8: adjust the screen position (offsets clamped to -24..24). */
 void func_001E4E70(void)
 {
-    unsigned short pressed = pad1_pressed();
-    unsigned short held = pad1_held();
+    int pressed = pad1_pressed();
+    int held = pad1_held();
     int *x = (int *)g_00731140;
 
     if (pressed & BTN_CANCEL) {
@@ -698,8 +698,8 @@ static void toggle_option(u8 *option, int on)
  * waits 16 frames before going back, unless nothing had changed. */
 void func_001E46E0(void)
 {
-    unsigned short pressed = pad1_pressed();
-    unsigned short held = pad1_held();
+    int pressed = pad1_pressed();
+    int held = pad1_held();
 
     if (g_0073122C != 0) {                          /* waiting after a cancel */
         if (++g_00731218 > 0x0F) {
@@ -784,7 +784,7 @@ static void switch_option(u8 *option, int on)
  * OK and Cancel both wait a few frames, then go back to page 6. */
 void func_001E51C0(void)
 {
-    unsigned short pressed, held;
+    int pressed, held;
 
     if (g_0073122C != 0) {                          /* waiting before leaving */
         if (++g_00731218 > 0x0F) {
@@ -857,7 +857,7 @@ void func_001A2610(int pad);
 void func_001E5750(void)
 {
     u32 *slots = (u32 *)g_00731158;
-    unsigned short pressed, held;
+    int pressed, held;
 
     if (g_00731208 == 0) {
         pressed = pad1_pressed();
@@ -994,8 +994,8 @@ static void play_menu_music(void)
  * Cancel restores the settings, waits a few frames and goes back to page 1. */
 void func_001E5EF0(void)
 {
-    unsigned short pressed = pad1_pressed();
-    unsigned short held = pad1_held();
+    int pressed = pad1_pressed();
+    int held = pad1_held();
 
     if (g_0073122C != 0) {                          /* waiting before leaving */
         if (++g_00731218 > 0x0F) {

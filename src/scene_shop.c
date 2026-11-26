@@ -253,7 +253,14 @@ extern int g_0045CE98, g_0045CE9C;   /* a pair saved at enter and restored at le
 /* Reading a player's controller, inlined in the original (a macro). `player` picks the controller
  * (the original leaves it unset, and the pad unread, when player is neither 0 nor 1). */
 #define pad_ready(ps) (((ps)->ready & 1) ? ((ps)->connected & 1) == 1 : 0)
-#define read_pad(player, pressed, held) do {                                            int port_;                                                                  PadState *ps_;                                                              if ((player) == 0) port_ = 0; else if ((player) == 1) port_ = 1;            ps_ = &g_00500700[port_];                                                   pressed = pad_ready(ps_) ? g_00500700[port_].pressed : 0;                   held = pad_ready(ps_) ? g_00500700[port_].held : 0;                     } while (0)
+#define read_pad(player, pressed, held) do {                                        \
+        int port_;                                                                  \
+        PadState *ps_;                                                              \
+        if ((player) == 0) port_ = 0; else if ((player) == 1) port_ = 1;            \
+        ps_ = &g_00500700[port_];                                                   \
+        pressed = (unsigned short)(pad_ready(ps_) ? g_00500700[port_].pressed : 0); \
+        held = (unsigned short)(pad_ready(ps_) ? g_00500700[port_].held : 0);       \
+    } while (0)
 
 extern u8 g_007731D0[];              /* 0x24-byte records */
 extern int g_0045D56C;               /* (gp - 0x7684) officer shown by the skill list, 0x19F = none */
@@ -328,7 +335,7 @@ void func_001A7DC0(const char *text, int alpha, int b);
 
 /* Inlined in the original: a macro. */
 #define pad1_ready() ((g_00500764 & 1) ? (g_00500765 & 1) == 1 : 0)
-#define pad1_pressed() (pad1_ready() ? g_0050074C : 0)
+#define pad1_pressed() ((unsigned short)(pad1_ready() ? g_0050074C : 0))
 
 /* Next value of the game's random generator (a linear congruential generator, 0..65535). */
 static unsigned random16(void)
@@ -572,7 +579,7 @@ void func_002A45E0(void)
 /* 0x002A4600, 0x334 bytes. Scene update: phases, then the current mode's handler. */
 int func_002A4600(float dt)
 {
-    unsigned short pressed = pad1_pressed();
+    int pressed = pad1_pressed();
 
     func_00376450();
     if (func_00102960(0) == 0)
@@ -742,7 +749,7 @@ void func_002A01A0(u32 *dst, const u32 *src)
  * fresh press wraps around. */
 void func_002A1E90(int player)
 {
-    unsigned short pressed, held;
+    int pressed, held;
     u8 count = g_00773140;
 
     read_pad(player, pressed, held);
@@ -775,7 +782,7 @@ void func_002A1E90(int player)
  * one entry" test: with 0 entries the original divides by zero. */
 void func_002A3300(int player)
 {
-    unsigned short pressed, held;
+    int pressed, held;
 
     read_pad(player, pressed, held);
     if (pressed & BTN_CANCEL) {
@@ -809,7 +816,7 @@ void func_002A3300(int player)
  * "unreachable" blocks Ghidra removed are the negative fix-ups of `% 4`. */
 void func_002A3580(int player)
 {
-    unsigned short pressed, held;
+    int pressed, held;
 
     read_pad(player, pressed, held);
     if (pressed & BTN_CANCEL) {
@@ -860,7 +867,7 @@ void func_002A3580(int player)
  * Cancel or the third button go back to the mode the list was opened from. */
 void func_002A3920(int player)
 {
-    unsigned short pressed, held;
+    int pressed, held;
     u8 cursor = g_00773187;
 
     read_pad(player, pressed, held);
@@ -915,7 +922,7 @@ void func_002A3920(int player)
  * made. */
 int func_002A3DB0(int player)
 {
-    unsigned short pressed, held;
+    int pressed, held;
     int count = func_0029FD20();
     u8 *cursor = &g_0077317E + player;
 
@@ -1108,7 +1115,7 @@ void func_002A1760(void)
  * shows the player's mounts (mode 12). */
 void func_002A18D0(int player)
 {
-    unsigned short pressed, held;
+    int pressed, held;
     char answer;
     int box;
 
@@ -1198,7 +1205,7 @@ void func_002A2110(int player)
  * player was buying with 4 mounts already). */
 void func_002A21B0(int player, int back)
 {
-    unsigned short pressed, held;
+    int pressed, held;
     char answer;
     int box;
 
@@ -1341,7 +1348,7 @@ void func_002A2BE0(void)
  * explains why not); "yes" hires. Returns what the list scrolling returns. */
 int func_002A2EF0(int player)
 {
-    unsigned short pressed, held;
+    int pressed, held;
     u8 rows = g_0077317D > 7 ? 8 : g_0077317D;
     char answer;
     int box;
@@ -1424,7 +1431,7 @@ static void back_to_slots(void)
  * list (mode 9). */
 void func_002A0B40(int player)
 {
-    unsigned short pressed, held;
+    int pressed, held;
     int slot = g_00773148 - 5;                  /* (left unset by the original for other modes) */
     SkillOffer *offers = (SkillOffer *)&g_00772DF0[g_0077315C * 0x140 + slot * 0x50];
     u8 *count = &g_00773174[player * 4 + slot];
