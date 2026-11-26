@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2155587823
+    "done": 2155745494
   },
   "functions": {
     "total": 10587,
@@ -761,8 +761,8 @@
           "name": "Text",
           "description": "Text tables (messages, event dialogues): offsets and NUL-terminated strings",
           "data": {
-            "total": 1270573,
-            "done": 1270573
+            "total": 1305130,
+            "done": 1305130
           }
         },
         {
@@ -774,19 +774,19 @@
           }
         },
         {
+          "name": "Event commands",
+          "description": "Typed command records of the event files and scenario scripts (+ padding)",
+          "data": {
+            "total": 698722,
+            "done": 698722
+          }
+        },
+        {
           "name": "LZ archive",
           "description": "LZ-compressed LINKDATA containers (title screen textures)",
           "data": {
             "total": 614992,
             "done": 614992
-          }
-        },
-        {
-          "name": "Event commands",
-          "description": "Typed command records of the event files and scenario scripts (+ padding)",
-          "data": {
-            "total": 597304,
-            "done": 597304
           }
         },
         {
@@ -798,11 +798,11 @@
           }
         },
         {
-          "name": "Unidentified",
-          "description": "Leaves without a known signature (models, motions, scripts...)",
+          "name": "PAC0",
+          "description": "PAC0 files: per-voice data in three sections of 3-byte entries (ev_main.c)",
           "data": {
-            "total": 302865,
-            "done": 0
+            "total": 165512,
+            "done": 165512
           }
         },
         {
@@ -814,11 +814,11 @@
           }
         },
         {
-          "name": "PAC0",
-          "description": "PAC0 files: per-voice data in three sections of 3-byte entries (ev_main.c)",
+          "name": "Unidentified",
+          "description": "Leaves without a known signature (models, motions, scripts...)",
           "data": {
-            "total": 143816,
-            "done": 143816
+            "total": 145194,
+            "done": 0
           }
         },
         {

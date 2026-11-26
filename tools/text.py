@@ -105,6 +105,25 @@ def plain(d):
     text = d.rstrip(b"\0")
     return bool(text) and len(d) > len(text) and b"\0" not in text and _printable(text)
 
+
+def telop(d):
+    """Movie subtitles (BNS entries 3388+, MovieTelop.c): u32 n, n (start, end) frame pairs, then
+    the n NUL-terminated lines. Returns [(start, end, text)] or None."""
+    if len(d) < 12:
+        return None
+    n = struct.unpack_from("<I", d, 0)[0]
+    if not 0 < n < 1000 or 4 + 8 * n >= len(d):
+        return None
+    frames = struct.unpack_from(f"<{2 * n}I", d, 4)
+    p, out = 4 + 8 * n, []
+    for i in range(n):
+        e = d.find(bytes(1), p)
+        if e < 0 or not _printable(d[p:e]) or frames[2 * i] > frames[2 * i + 1]:
+            return None
+        out.append((frames[2 * i], frames[2 * i + 1], d[p:e]))
+        p = e + 1
+    return out if not any(d[p:]) else None
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     if len(sys.argv) < 2:

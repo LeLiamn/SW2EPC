@@ -129,6 +129,22 @@ def check_dialogues(data):
                 raise EventError(f"record at 0x{o:x}: bad line table")
     return len(records)
 
+
+def check_emp_sc(data):
+    """Empire scenario tables (BNS entries 1197-1281, emp_sc.c's func_003E5970, entry chosen from a
+    table at 0x0041D360 by scenario, 0x4AD by default): u32 n, u32, u32 n, n record offsets (the
+    first right after them); a record has a byte of flags, a count k at +4, then k entries of
+    0x12 bytes from +6 (the game keeps pointers to both parts). True when everything fits."""
+    if len(data) < 16:
+        return False
+    n, _, n2 = struct.unpack_from("<3I", data, 0)
+    if n != n2 or not 0 < n < 4096 or 12 + 4 * n > len(data):
+        return False
+    offs = list(struct.unpack_from(f"<{n}I", data, 12)) + [len(data)]
+    if offs[0] != 12 + 4 * n or offs != sorted(offs):
+        return False
+    return all(6 + 0x12 * data[a + 4] <= b - a for a, b in zip(offs, offs[1:]))
+
 def motions(data, start):
     """Find the embedded motions after the command chain: (prefix word, offset, parsed motion)."""
     found, pos = [], start

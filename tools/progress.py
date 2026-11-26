@@ -298,6 +298,12 @@ def count_container(data, sizes, forced_kind=None):
                     pass
             elif kind == "Unidentified" and tim2.is_clt2(leaf):
                 kind = "TIM2"                       # palette-only TIM2 (CLT2)
+            elif kind == "Unidentified" and event.check_emp_sc(leaf):
+                kind = "Event commands"             # Empire scenario tables (emp_sc.c)
+            elif kind == "Unidentified" and pac0.parse_wrapped(leaf) is not None:
+                kind = "PAC0"
+            elif kind == "Unidentified" and text.telop(leaf) is not None:
+                kind = "Text"
             elif kind == "Unidentified" and motion.check_action_table(leaf):
                 kind = "Motion"                     # action table of a motion pack
             elif kind == "Unidentified" and lz_archive(leaf):

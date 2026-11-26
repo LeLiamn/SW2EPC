@@ -27,6 +27,14 @@ def parse(data):
     return out
 
 
+
+def parse_wrapped(data):
+    """The PAC0 files of ev_message.c (BNS entries 3262+): a 16-byte header (u16, u16 0x10, ...),
+    then a PAC0 file."""
+    if len(data) < 0x30 or data[2:4] != bytes((0x10, 0)):
+        return None
+    return parse(data[16:])
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__)
