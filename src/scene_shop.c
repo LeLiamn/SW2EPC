@@ -1792,38 +1792,36 @@ void func_002A1650(void)
     }
 }
 
-/* 0x002A2640, 0x124 bytes. How many officers the shop offers for hire: room left in the force
+/* 0x002A2640, 0x124 bytes, matching. How many officers the shop offers for hire: room left in the force
  * (6 per something, minus those already there), limited by another count while func_00327E50()
  * is below 150; between 0 and 8. */
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) > (b) ? (b) : (a))
+
 int func_002A2640(void)
 {
     u32 force = func_00327D50();
     int n;
 
-    if (func_00327E50() < 150) {
+    if (func_00327E50() >= 150) {
+        int capacity = func_002FB3B0(force);
+        int used = func_002FB430(force);
+
+        n = capacity * 6 - used;
+        n = MIN(n, 8);
+    } else {
         int capacity = func_002FB3B0(force);
         int limit = func_00309FB0();
         int used = func_002FB430(force);
-        int take;
+        int room;
 
         n = capacity * 6 - used;
-        limit -= used;
-        if (limit < 1) {
-            limit = 0;
-            take = n > 0;
-        } else {
-            take = limit < n;
-        }
-        if (take)
-            n = limit;
-    } else {
-        n = func_002FB3B0(force) * 6 - func_002FB430(force);
+        room = limit - used;
+        room = MAX(room, 0);
+        n = MIN(n, room);
+        n = MIN(n, 8);
     }
-    if (n > 8)
-        n = 8;
-    if (n < 1)
-        n = 0;
-    return n;
+    return MIN(MAX(n, 0), 8);
 }
 
 /* 0x002A2770, 0x268 bytes. The officers for hire: a shuffled list of candidates (func_002F7D90 with

@@ -67,6 +67,8 @@ What makes the compiler produce the game's exact code, learnt so far:
 - Four different symbols when the same address is loaded four times.
 - **Switch cases in the game's order** (read it from the jump table), empty cases written out
   when the table has them, and clamps written as `?:` (`x = v < lo ? lo : v`).
+- **MIN / MAX macros** `MAX(a, b) ((a) > (b) ? (a) : (b))`, `MIN(a, b) ((a) > (b) ? (b) : (a))`;
+  the game's random generator is an inlined macro, not a function.
 - **A pointer to a struct member stays in a register** (`lui s0; addiu s0, +off`), where a pointer
   to a whole object is folded into each access: the options menu's state at `0x00731140` is one
   object whose members are the settings copies.
