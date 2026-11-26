@@ -1,0 +1,63 @@
+{
+  "unit": "bytes",
+  "code": {
+    "total": 3166376,
+    "matching": 0,
+    "non_matching": 0
+  },
+  "data": {
+    "total": 2156239632,
+    "done": 0
+  },
+  "layout": "treemap",
+  "areas": [
+    {
+      "name": "Executable",
+      "description": "SLES_546.24 code",
+      "code": {
+        "total": 3166376,
+        "matching": 0,
+        "non_matching": 0
+      }
+    },
+    {
+      "name": "Game data",
+      "description": "Files on the disc, by format",
+      "weight": 3166376,
+      "children": [
+        {
+          "name": ".ANS",
+          "description": "Not studied yet",
+          "data": {
+            "total": 873093120,
+            "done": 0
+          }
+        },
+        {
+          "name": ".CNS",
+          "description": "Not studied yet",
+          "data": {
+            "total": 716763136,
+            "done": 0
+          }
+        },
+        {
+          "name": ".BNS",
+          "description": "Not studied yet",
+          "data": {
+            "total": 566034432,
+            "done": 0
+          }
+        },
+        {
+          "name": ".BIN",
+          "description": "Not studied yet",
+          "data": {
+            "total": 348944,
+            "done": 0
+          }
+        }
+      ]
+    }
+  ]
+}

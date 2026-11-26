@@ -13,9 +13,10 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 
 | Area | State |
 |---|---|
-| Disc image | Waiting for the first dump |
-| Executable | Not analysed yet |
-| File formats | Not studied yet |
+| Disc image | Europe SLES-54624 v1.00, verified against [Redump #17102](http://redump.org/disc/17102/) |
+| Executable | Analysed: no symbols, CodeWarrior compiler, 70 original source file names recovered |
+| Data containers (`LINKDATA`) | Fully understood, all 3,629 entries extractable |
+| File formats inside | Signatures identified (TIM2 textures, MPEG-2 movies, audio streams, PAC0...) |
 | Decompilation | Not started |
 
 ## Related projects
@@ -37,6 +38,7 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | `tools/hash_image.py` | CRC32, MD5 and SHA-1 of an image, to compare with Redump |
 | `tools/iso_list.py` | List the ISO with file positions, including the second layer of a DVD-9 |
 | `tools/disc_info.py` | Boot executable (from `SYSTEM.CNF`), its hashes, compiler and code size, largest files |
+| `tools/linkdata.py` | List and extract the LINKDATA containers straight from the disc image |
 | `tools/elf_info.py` | Sections, symbols, compiler and code size of an executable |
 | `tools/find_strings.py` | Readable strings of a binary, with a report of file names |
 | `tools/mips_disasm.py` | Minimal MIPS (R5900) disassembler for quick looks |
@@ -44,7 +46,9 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 
 ## Documentation
 
-- [docs/](docs/README.md)
+- [docs/disc.md](docs/disc.md): the disc
+- [docs/executable.md](docs/executable.md): the `SLES_546.24` executable
+- [docs/formats/](docs/formats/README.md): file formats
 
 ## Contributing rules
 
