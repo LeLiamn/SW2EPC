@@ -147,6 +147,20 @@ def iter_bns_tim2(image):
             yield path.replace("/", "_"), leaf
 
 
+
+def is_clt2(data):
+    """A CLT2 file: a palette alone in the TIM2 layout (header 16 bytes, then a picture header of
+    0x30 bytes with no image: total size, palette size, image size 0, header size, colours), e.g.
+    BNS entry 2030. True when every size matches."""
+    if data[:4] != b"CLT2" or len(data) < 0x40:
+        return False
+    total, clut, image = struct.unpack_from("<3I", data, 0x10)
+    header, colours = struct.unpack_from("<HH", data, 0x1C)
+    clut_type = data[0x22]
+    size = {1: 2, 2: 3, 3: 4}.get(clut_type & 0x3F, 0)
+    return (len(data) == 0x10 + total and total == header + clut + image and image == 0
+            and size and clut == colours * size)
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     if len(sys.argv) < 2:

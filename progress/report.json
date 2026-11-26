@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2155072347
+    "done": 2155417535
   },
   "functions": {
     "total": 10587,
@@ -673,8 +673,8 @@
           "name": "TIM2",
           "description": "Textures (Sony TIM2), convertible to PNG",
           "data": {
-            "total": 205318528,
-            "done": 205318528
+            "total": 205364032,
+            "done": 205364032
           }
         },
         {
@@ -790,14 +790,6 @@
           }
         },
         {
-          "name": "Unidentified",
-          "description": "Leaves without a known signature (models, motions, scripts...)",
-          "data": {
-            "total": 504237,
-            "done": 0
-          }
-        },
-        {
           "name": "Sound bank headers",
           "description": "Sony HD sound bank headers (IECS chunks) for the ADPCM banks",
           "data": {
@@ -806,11 +798,27 @@
           }
         },
         {
+          "name": "Unidentified",
+          "description": "Leaves without a known signature (models, motions, scripts...)",
+          "data": {
+            "total": 302865,
+            "done": 0
+          }
+        },
+        {
+          "name": "Sound tables",
+          "description": "SeManager.c's table of sound streams (position and size in sectors)",
+          "data": {
+            "total": 155868,
+            "done": 155868
+          }
+        },
+        {
           "name": "PAC0",
-          "description": "PAC0 files",
+          "description": "PAC0 files: per-voice data in three sections of 3-byte entries (ev_main.c)",
           "data": {
             "total": 143816,
-            "done": 0
+            "done": 143816
           }
         },
         {

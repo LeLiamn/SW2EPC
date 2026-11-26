@@ -41,6 +41,8 @@ import soundbank  # noqa: E402
 import ps2icon  # noqa: E402
 import text  # noqa: E402
 import lz  # noqa: E402
+import tim2  # noqa: E402
+import pac0  # noqa: E402
 import motion  # noqa: E402
 import event  # noqa: E402
 
@@ -57,6 +59,7 @@ FORMAT_STATUS = {
     "Sound bank headers": ("done", "Sony HD sound bank headers (IECS chunks) for the ADPCM banks"),
     "LZ archive": ("done", "LZ-compressed LINKDATA containers (title screen textures)"),
     "Game state tables": ("done", "Fixed-size tables copied whole into the game state (Empire starts, event predata, 1309)"),
+    "Sound tables": ("done", "SeManager.c's table of sound streams (position and size in sectors)"),
     "Text": ("done", "Text tables (messages, event dialogues): offsets and NUL-terminated strings"),
     "Save icon": ("done", "PS2 memory-card 3D icon (vertices, animation, 128x128 texture)"),
     "Event motions": ("done", "Motions embedded in the in-engine cutscene (event) files"),
@@ -67,7 +70,8 @@ FORMAT_STATUS = {
     "TMD2": ("done", "Static scene objects (geometry, UVs, colours, normals), exportable to OBJ"),
     "IPU": ("done", "IPU movies (ipu2: frame table + PS2 IPU frames), convertible to video"),
     "IPU (unparsed)": ("todo", "ipu2 files that do not parse"),
-    "PAC0": ("todo", "PAC0 files"),
+    "PAC0": ("done", "PAC0 files: per-voice data in three sections of 3-byte entries (ev_main.c)"),
+    "PAC0 (unparsed)": ("todo", "PAC0 files that do not parse"),
     "EFB": ("done", "Visual effects: sprite and emitter layers, parameters mapped from effect.c"),
     "EFB (unparsed)": ("todo", "EFB files that do not parse"),
     "Battlefield": ("done", "Battlefields: terrain (height grid, layers, tiles) and second pack (nodes, objects, ranges)"),
@@ -213,6 +217,9 @@ def known_entries(data):
             known["0171"] = "Game state tables"                 # emp_ev_predata.c, 0x3C-byte records
         if e["index"] == 1309 and size % 0x140 == 0:
             known["1309"] = "Game state tables"                 # SecretSorts.c, 0x140-byte records
+        if e["index"] == 1385 and size >= 8:    # SeManager.c: stream table, 20-byte records
+            if 8 + 20 * struct.unpack_from("<I", data, e["offset"])[0] == size:
+                known["1385"] = "Sound tables"
         if e["index"] == 172:                   # event dialogues (emp_ev_still.c)
             try:
                 event.check_dialogues(data[e["offset"]:e["offset"] + e["size"]])
@@ -255,6 +262,8 @@ def count_container(data, sizes, forced_kind=None):
             entry = path.split(".")[0]
             if kind == "Unidentified" and entry in known:
                 kind = known[entry]
+            if kind == "PAC0" and pac0.parse(leaf) is None:
+                kind = "PAC0 (unparsed)"
             if kind == "IPU":
                 try:
                     ipu.parse(leaf)
@@ -281,6 +290,8 @@ def count_container(data, sizes, forced_kind=None):
                     kind = "Sound bank headers"
                 except ValueError:
                     pass
+            elif kind == "Unidentified" and tim2.is_clt2(leaf):
+                kind = "TIM2"                       # palette-only TIM2 (CLT2)
             elif kind == "Unidentified" and motion.check_action_table(leaf):
                 kind = "Motion"                     # action table of a motion pack
             elif kind == "Unidentified" and lz_archive(leaf):
