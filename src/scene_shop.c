@@ -1862,13 +1862,17 @@ void func_002A2770(void)
 void func_002A29E0(void)
 {
     int i;
+    HireOffer *o = g_HireOffers;
 
-    for (i = 0; i < g_0077317D; i++) {
-        HireOffer *o = &g_HireOffers[i];
-        int unit = ((o->officer >= 0 && o->officer < 0x1C) || (o->officer >= 400 && o->officer < 0x19F))
-                   ? 500 : 400;
-        int price = unit * (func_002F41E0(o->officer) / 4 + 1) + 1000;
+    for (i = 0; i < g_0077317D; i++, o++) {
+        int unit;
+        int price;
 
+        if ((o->officer >= 0 && o->officer < 0x1C) || (o->officer >= 400 && o->officer < 0x19F))
+            unit = 500;
+        else
+            unit = 400;
+        price = unit * (func_002F41E0(o->officer) / 4 + 1) + 1000;
         if (o->bargain == 1)
             price = price * 8 / 10;
         o->price = price;

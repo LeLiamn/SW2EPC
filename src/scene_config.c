@@ -389,11 +389,6 @@ void func_001E3DB0(int page)
     case 6:
         func_002B3CF0(0x0D);
         break;
-    case 7:
-        if (g_007311F0 < page)
-            func_001E3500(g_0073117C);
-        func_002B3CF0(0x12);
-        break;
     case 9:
         if (g_007311F0 < page) {
             g_0073121C = 0;
@@ -412,6 +407,11 @@ void func_001E3DB0(int page)
         func_002B3CF0(0x11);
         func_002B3CF0(0x18);
         func_002B3CF0(0x1A);
+        break;
+    case 7:
+        if (g_007311F0 < page)
+            func_001E3500(g_0073117C);
+        func_002B3CF0(0x12);
         break;
     case 13:
         g_00799A68 = 0;
