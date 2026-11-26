@@ -123,7 +123,15 @@ position: offsets clamped to −24..24, a reset button). Ghidra flagged 4 "unrea
 they are the compiler's negative fix-up for `(cursor + 1) % 2`, which never runs since the cursor is
 unsigned, and they show the original source used `% 2`.
 
-Pages 5, 7, 9 and 10 and the page drawers (`0x002B6450`...) are not decompiled yet.
+Also decompiled: page 5 (three On/Off options and a value from 0 upwards), page 7 (sound: output mode
+0..3, three volumes 0..15, an On/Off option, a sound test that plays the chosen track; leaving puts
+the menu music, track 0x1C, back), page 9 (settings of the pad chosen on page 6: three On/Off
+options, button set-up, OK) and page 10 (button set-up: eight slots; choosing a value for a slot
+swaps it with the slot that had it; a reset button restores the defaults). Page 10's 8 "unreachable"
+blocks are again `%` fix-ups for negative values. If the value is in no slot, page 10 writes a ninth
+word past the slots: kept as in the original.
+
+All 11 page handlers are decompiled. The page drawers (`0x002B6450`...) are not decompiled yet.
 
 ## Where each source file is
 

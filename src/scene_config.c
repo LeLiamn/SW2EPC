@@ -520,6 +520,469 @@ void func_001E5060(void)
     }
 }
 
+/* ---- Page 5 ------------------------------------------------------------------------------------ */
+
+/* The settings edited by page 5 live in g_00731140: +0 / +4 screen offset being edited, +8 / +0xC
+ * screen offset to restore on cancel, then option bytes. */
+extern u8 g_00731150, g_00731151, g_00731153;   /* three On/Off options of page 5 */
+extern int g_00731148, g_0073114C;               /* screen offset saved when the page opened */
+extern u8 g_00669DB5, g_00669DB6;                /* screen offset used by the display code */
+
+int func_001E36D0(void *settings);
+void func_001E3560(void *settings);
+void func_001E3CA0(void);
+
+/* Turn an On/Off option on (Right) or off (Left), with the cursor sound only when it changes. */
+static void toggle_option(u8 *option, int on)
+{
+    if (on && *option == 0) {
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        *option = 1;
+    } else if (!on && *option != 0) {
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        *option = 0;
+    }
+}
+
+/* 0x001E46E0, 0x510 bytes. Page 5: settings with five entries: three On/Off options (0, 1, 2),
+ * "adjust screen" (3, opens page 8) and "OK" (4, keeps the settings). Cancel restores them and
+ * waits 16 frames before going back, unless nothing had changed. */
+void func_001E46E0(void)
+{
+    unsigned short pressed = pad1_pressed();
+    unsigned short held = pad1_held();
+
+    if (g_0073122C != 0) {                          /* waiting after a cancel */
+        if (++g_00731218 > 0x0F) {
+            func_001E3DB0(1);
+            g_00731218 = 0;
+            g_0073122C = 0;
+        }
+        return;
+    }
+
+    if (pressed & BTN_OK) {
+        if (g_0073121B == 4) {
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            func_001E3DB0(1);
+            func_001E3560(g_00731140);              /* keep the new settings */
+        } else if (g_0073121B == 3) {
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            func_001E3DB0(8);
+        }
+    } else if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_00731218 = (func_001E36D0(g_00731140) == 0) ? 0x0F : 0;
+        g_0073122C = 1;
+        func_001E3CA0();
+        g_00669DB6 = (u8)g_0073114C;
+        g_00669DB5 = (u8)g_00731148;
+        func_00100ED0(&g_00731148, &g_0073114C);
+    } else if (held & BTN_UP) {
+        if (g_0073121B != 0) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121B = (char)((g_0073121B + 4) % 5);
+        } else if (pressed & BTN_UP) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121B = 4;
+        }
+    } else if (held & BTN_DOWN) {
+        if (g_0073121B < 4) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121B = (char)((g_0073121B + 1) % 5);
+        } else if (pressed & BTN_DOWN) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121B = 0;
+        }
+    } else if ((held & (BTN_LEFT | BTN_RIGHT)) && g_0073121B != 4 && g_0073121B != 3) {
+        int on = !(held & BTN_LEFT);                /* Left wins when both are held */
+        switch (g_0073121B) {
+        case 2: toggle_option(&g_00731153, on); break;
+        case 1: toggle_option(&g_00731151, on); break;
+        case 0:                                     /* the original counts up/down here */
+            if (on && g_00731150 == 0) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00731150++;
+            } else if (!on && g_00731150 != 0) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00731150--;
+            }
+            break;
+        }
+    }
+}
+
+/* ---- Page 9 ------------------------------------------------------------------------------------ */
+
+extern unsigned short g_005007D6;                /* controller 2: buttons pressed or repeating */
+extern u8 g_00731178, g_00731179, g_0073117A;    /* three On/Off options of the chosen pad */
+
+int func_001E39F0(int pad, void *settings);
+void func_001E37E0(int pad, void *settings);
+
+/* Same as toggle_option, but "off" requires the value to be exactly 1 (as in the original). */
+static void switch_option(u8 *option, int on)
+{
+    if (on && *option == 0) {
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        *option = 1;
+    } else if (!on && *option == 1) {
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        *option = 0;
+    }
+}
+
+/* 0x001E51C0, 0x590 bytes. Page 9: settings of the controller chosen on page 6 (read from that
+ * controller): three On/Off options (0, 1, 2), button set-up (3, opens page 10) and "OK" (4).
+ * OK and Cancel both wait a few frames, then go back to page 6. */
+void func_001E51C0(void)
+{
+    unsigned short pressed, held;
+
+    if (g_0073122C != 0) {                          /* waiting before leaving */
+        if (++g_00731218 > 0x0F) {
+            func_001E3DB0(6);
+            g_00731208 = 0;
+            g_0073122C = 0;
+        }
+        return;
+    }
+
+    if (g_00731208 == 0) {
+        pressed = pad1_pressed();
+        held = pad1_held();
+    } else if (g_00731208 == 1) {
+        int ready = (g_005007EC & 1) && (g_005007ED & 1) == 1;
+        pressed = ready ? g_005007D4 : 0;
+        held = ready ? g_005007D6 : 0;
+    } else {
+        return;
+    }
+
+    if (pressed & BTN_OK) {
+        if (g_0073121C == 4) {
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            func_001E37E0(g_00731208, g_00731158);   /* keep the new settings */
+            g_0073122C = 1;
+            g_00731218 = 10;
+        } else if (g_0073121C == 3) {
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            func_001E3DB0(10);
+        }
+    } else if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_00731218 = (func_001E39F0(g_00731208, g_00731158) == 0) ? 10 : 0;
+        g_0073122C = 1;
+        func_001E33D0(g_00731208, g_00731158);       /* restore the saved settings */
+    } else if (held & BTN_UP) {
+        if (g_0073121C != 0) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121C = (char)((g_0073121C + 4) % 5);
+        } else if (pressed & BTN_UP) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121C = 4;
+        }
+    } else if (held & BTN_DOWN) {
+        if (g_0073121C < 4) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121C = (char)((g_0073121C + 1) % 5);
+        } else if (pressed & BTN_DOWN) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121C = 0;
+        }
+    } else if (held & (BTN_LEFT | BTN_RIGHT)) {
+        int on = !(held & BTN_LEFT);                /* Left wins when both are held */
+        if (g_0073121C == 2) switch_option(&g_00731178, on);
+        if (g_0073121C == 1) switch_option(&g_0073117A, on);
+        if (g_0073121C == 0) switch_option(&g_00731179, on);
+    }
+}
+
+/* ---- Page 10 ----------------------------------------------------------------------------------- */
+
+void func_001A2610(int pad);
+
+/* 0x001E5750, 0x7A0 bytes. Page 10: button set-up of the controller chosen on page 6. The settings
+ * hold 8 words (one action per slot). Cursor g_0073121D: entries 0-1 in the left column, 2-7 (the
+ * eight slots' list?) in the right one. In mode 0 the player picks a slot; OK enters mode 1, where
+ * g_00731225 picks the value to give it, and OK swaps it with the slot that had that value.
+ * Reset (BTN_RESET) restores the defaults. Up/Down wrap only on a fresh press. */
+void func_001E5750(void)
+{
+    u32 *slots = (u32 *)g_00731158;
+    unsigned short pressed, held;
+
+    if (g_00731208 == 0) {
+        pressed = pad1_pressed();
+        held = pad1_held();
+    } else if (g_00731208 == 1) {
+        int ready = (g_005007EC & 1) && (g_005007ED & 1) == 1;
+        pressed = ready ? g_005007D4 : 0;
+        held = ready ? g_005007D6 : 0;
+    } else {
+        return;
+    }
+
+    if (pressed & BTN_OK) {
+        if (g_00731200 == 1) {                      /* give the chosen value to the slot */
+            int other;
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00731200 = 0;
+            for (other = 0; other < 8; other++)
+                if (slots[other] == g_00731225)
+                    break;
+            slots[other] = slots[g_0073121D];       /* (other == 8 if not found, as in the original) */
+            slots[g_0073121D] = g_00731225;
+            func_002B3CF0(0x1A);
+        } else if (g_00731200 == 0) {               /* start choosing a value for this slot */
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00731200 = 1;
+            g_00731225 = (u8)slots[g_0073121D];
+            func_002B3CF0(0x19);
+        }
+    } else if (pressed & BTN_CANCEL) {
+        if (g_00731200 == 1) {
+            func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00731200 = 0;
+            func_002B3CF0(0x1A);
+        } else if (g_00731200 == 0) {
+            func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            func_001E3DB0(9);
+        }
+    } else if (pressed & BTN_RESET) {
+        if (g_00731200 == 0) {
+            func_001A2610(g_00731208);
+            func_001E33D0(g_00731208, g_00731158);
+            func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        }
+    } else if (held & BTN_UP) {
+        if (g_00731200 == 1) {
+            if (g_00731225 != 0) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00731225 = (g_00731225 + 7) & 7;
+            } else if (pressed & BTN_UP) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00731225 = 7;
+            }
+        } else if (g_00731200 == 0) {
+            if (g_0073121D < 2) {                   /* left column: 0 <-> 1 */
+                if (pressed & BTN_UP) {
+                    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                    g_0073121D = (g_0073121D + 1) & 1;
+                }
+            } else if (g_0073121D < 3) {
+                if (pressed & BTN_UP) {
+                    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                    g_0073121D = 7;
+                }
+            } else {                                /* right column: 2..7 */
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_0073121D = (u8)((g_0073121D + 3) % 6 + 2);
+            }
+        }
+    } else if (held & BTN_DOWN) {
+        if (g_00731200 == 1) {
+            if (g_00731225 < 7) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00731225 = (g_00731225 + 1) & 7;
+            } else if (pressed & BTN_DOWN) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00731225 = 0;
+            }
+        } else if (g_00731200 == 0) {
+            if (g_0073121D < 2) {
+                if (pressed & BTN_DOWN) {
+                    func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                    g_0073121D = (g_0073121D + 1) & 1;
+                }
+            } else if (g_0073121D < 7) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_0073121D = (u8)((g_0073121D - 1) % 6 + 2);
+            } else if (pressed & BTN_DOWN) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_0073121D = 2;
+            }
+        }
+    } else if (held & BTN_LEFT) {                   /* right column -> left column */
+        if (g_00731200 == 0 && g_0073121D >= 2) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121D = (g_0073121D < 4) ? 0 : 1;
+        }
+    } else if (held & BTN_RIGHT) {                  /* left column -> right column */
+        if (g_00731200 == 0 && g_0073121D < 2) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121D = g_0073121D + 3;
+        }
+    }
+}
+
+/* ---- Page 7 ------------------------------------------------------------------------------------ */
+
+/* g_0073117C[0..5]: sound settings edited by page 7. */
+#define SOUND_OUTPUT  g_0073117C[0]   /* 0..3 (output mode?), applied by func_0023C050 */
+#define SOUND_VOL_1   g_0073117C[1]   /* 0..15, applied by func_0017E110 (music volume?) */
+#define SOUND_VOL_2   g_0073117C[2]   /* 0..15, applied by func_0023B530 */
+#define SOUND_VOL_3   g_0073117C[3]   /* 0..15, applied by func_0023AB70 */
+#define SOUND_TOGGLE  g_0073117C[5]   /* byte 0x731181: On/Off */
+#define SOUND_TRACK   g_0073117C[4]   /* byte 0x731180: track chosen in the sound test */
+#define MENU_BGM      0x1C            /* music of the options menu */
+
+int func_0017DCE0(void);              /* number of tracks in the sound test */
+int func_0017DCF0(u8 index);          /* track id of a sound-test entry */
+void func_0017E080(int track);        /* play a track */
+int func_0017E0A0(void);              /* track playing now */
+void func_001E3AD0(void *settings);
+int func_001E3B90(void *settings);
+
+static void play_menu_music(void)
+{
+    if (func_0017E0A0() != MENU_BGM) {
+        func_0017DF10();
+        func_0017E010(MENU_BGM);
+    }
+}
+
+/* 0x001E5EF0, 0x774 bytes. Page 7: sound settings (controller 1). Entries: 0 output mode, 1-3
+ * volumes, 4 On/Off, 5 sound test (OK plays the track), 6 "OK" (keep and go back to page 1).
+ * Cancel restores the settings, waits a few frames and goes back to page 1. */
+void func_001E5EF0(void)
+{
+    unsigned short pressed = pad1_pressed();
+    unsigned short held = pad1_held();
+
+    if (g_0073122C != 0) {                          /* waiting before leaving */
+        if (++g_00731218 > 0x0F) {
+            func_001E3DB0(1);
+            g_00731218 = 0;
+            g_0073122C = 0;
+        }
+        return;
+    }
+
+    if (pressed & BTN_OK) {
+        if (g_00731225 == 6) {
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            play_menu_music();
+            func_001E3DB0(1);
+            func_001E3AD0(g_0073117C);              /* keep the new settings */
+            func_001E3D90();
+        } else if (g_00731225 == 5) {
+            func_0017DCF0(SOUND_TRACK);             /* result unused (as in the original) */
+            if (func_0017E0A0() != func_0017DCF0(SOUND_TRACK)) {
+                func_0017DF10();
+                func_0017E080(func_0017DCF0(SOUND_TRACK));
+            }
+        }
+    } else if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_00731218 = (func_001E3B90(g_0073117C) == 0) ? 0x0F : 0;
+        g_0073122C = 1;
+        func_001E3D00();
+        play_menu_music();
+        func_001E3D90();
+    } else if (held & BTN_UP) {
+        if (g_00731225 != 0) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00731225 = (u8)((g_00731225 + 6) % 7);
+        } else if (pressed & BTN_UP) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00731225 = 6;
+        }
+    } else if (held & BTN_DOWN) {
+        if (g_00731225 < 6) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00731225 = (u8)((g_00731225 + 1) % 7);
+        } else if (pressed & BTN_DOWN) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00731225 = 0;
+        }
+    } else if (held & BTN_LEFT) {
+        switch (g_00731225) {
+        case 0:
+            if (SOUND_OUTPUT != 0) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                func_0023C050(--SOUND_OUTPUT);
+            }
+            break;
+        case 1:
+            if (SOUND_VOL_1 != 0) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                func_0017E110(--SOUND_VOL_1);
+            }
+            break;
+        case 2:
+            if (SOUND_VOL_2 != 0) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                func_0023B530(--SOUND_VOL_2);
+            }
+            break;
+        case 3:
+            if (SOUND_VOL_3 != 0) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                func_0023AB70(--SOUND_VOL_3);
+                func_001E3D70();
+            }
+            break;
+        case 4:
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            SOUND_TOGGLE = (SOUND_TOGGLE == 0);
+            break;
+        case 5:                                     /* wraps only on a fresh press */
+            if (SOUND_TRACK != 0) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                SOUND_TRACK--;
+            } else if (pressed & BTN_LEFT) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                SOUND_TRACK = (u8)(func_0017DCE0() - 1);
+            }
+            break;
+        }
+    } else if (held & BTN_RIGHT) {
+        switch (g_00731225) {
+        case 0:
+            if (SOUND_OUTPUT < 3) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                func_0023C050(++SOUND_OUTPUT);
+            }
+            break;
+        case 1:
+            if (SOUND_VOL_1 < 0x0F) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                func_0017E110(++SOUND_VOL_1);
+            }
+            break;
+        case 2:
+            if (SOUND_VOL_2 < 0x0F) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                func_0023B530(++SOUND_VOL_2);
+            }
+            break;
+        case 3:
+            if (SOUND_VOL_3 < 0x0F) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                func_0023AB70(++SOUND_VOL_3);
+                func_001E3D70();
+            }
+            break;
+        case 4:
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            SOUND_TOGGLE = (SOUND_TOGGLE == 0);
+            break;
+        case 5: {
+            int count = func_0017DCE0();
+            if (SOUND_TRACK < count - 1) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                SOUND_TRACK++;
+            } else if (pressed & BTN_RIGHT) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                SOUND_TRACK = 0;
+            }
+            break;
+        }
+        }
+    }
+}
+
 /* 0x001E6670, 0x1E8 bytes. Look up a byte in one of the tables at 0x00429030 (selected by `table`,
  * row chosen by whether `flag` is 0); out-of-range indexes return the table's first byte. */
 u8 func_001E6670(int table, int flag, unsigned int index)
