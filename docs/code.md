@@ -74,7 +74,7 @@ assertion string), "probable" when its functions sit right next to that file's c
 | `0x05` | `0x001D2A90` | StateBattleInitialize.c | certain (the battle, `src/scene_battle_initialize.c`) |
 | `0x06` | `0x001D1F30` | StateBattleInitialize.c | certain (battle tear-down, `src/scene_battle_initialize.c`) |
 | `0x07` | `0x001D5F00` | StateBattleInitialize.c | certain (battle intro, `src/scene_battle_initialize.c`) |
-| `0x08` | `0x00235A70` |  | unknown |
+| `0x08` | `0x00235A70` |  | probable (menu during a battle, `src/scene_battle_menu.c`) |
 | `0x09` | `0x002267F0` | StatePreBattle.c | certain (pre-battle menu, `src/scene_pre_battle.c`) |
 | `0x0A` | `0x0021C5F0` | StatePostBattle.c | certain |
 | `0x0B` | `0x00236C50` |  | leaves at once (`src/scene_empty.c`) |
@@ -400,6 +400,24 @@ Original source file `SceneTutorial.c`. The scene part (0x003F2B20-0x003F4840) i
 - **Update** waits for the fade and goes to the Empire map (scene 0x12).
 - **Leave** frees the buffers. Nothing in this part restores the copies, so a later step
   probably does.
+
+## Scene 0x08: the menu during a battle (`src/scene_battle_menu.c`)
+
+Probable: the scene fades in when it comes from the battle (scene 5). No source file name is
+used in it. Its own functions and the two small pages just before them are decompiled
+(0x00235870-0x00236C44, 13 functions, 8 match). The pages (0x0022F000?-0x00235870) are not.
+
+- **Pages:** there are 19 (`g_0074B724`, 0-0x12) for player `g_0074B734`, shown over the
+  battle map; `func_002300B0` changes page. Page 17 opens a dialog (`func_002DB990`, 4 or 7 in
+  an Empire battle). Page 18 asks "Exiting game. Proceed?" and goes to page 21 on yes.
+- **Enter:** it sets the menu camera up from the battle type, with the same tables as the
+  pre-battle menu (`0x00442EA0`-`0x00443640`).
+- **Update:** it runs in phases (`g_0074B72C`). 0 opens the menu and 1 runs the page's handler
+  (after `func_003F1400`). 2-4 leave through `func_00230160`, after the boxes close and, in an
+  Empire battle, after the fade.
+- **Draw:** it sets two GS registers, draws the map (not in game mode 2), then the page's drawer
+  (`func_00282020`...) and its help line. Page 3's help line depends on the unit in the chosen
+  cell.
 
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
