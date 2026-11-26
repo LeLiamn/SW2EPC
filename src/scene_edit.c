@@ -469,10 +469,10 @@ void func_00376D20(const char *name, u8 *cursor)
     }
 }
 
-/* 0x00376DA0, 0x40 bytes. The cursor left in a name. */
+/* 0x00376DA0, 0x40 bytes, matching. The cursor left in a name. */
 void func_00376DA0(u8 *cursor)
 {
-    if (*cursor != 0) {
+    if (*cursor > 0) {
         (*cursor)--;
         SE(0);
     }

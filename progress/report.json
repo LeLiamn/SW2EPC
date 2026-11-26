@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 51236,
-    "non_matching": 215444
+    "matching": 51840,
+    "non_matching": 214840
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10621,
-    "matching": 398
+    "matching": 405
   },
   "layout": "treemap",
   "areas": [
@@ -122,8 +122,8 @@
           "description": "Estimated range 0x36DE68-0x382E28; 117 function(s) decompiled",
           "code": {
             "total": 85952,
-            "matching": 1468,
-            "non_matching": 27520
+            "matching": 1532,
+            "non_matching": 27456
           }
         },
         {
@@ -167,8 +167,8 @@
           "description": "Estimated range 0x3EDD28-0x3F6A18; 103 function(s) decompiled",
           "code": {
             "total": 36080,
-            "matching": 3404,
-            "non_matching": 12412
+            "matching": 3428,
+            "non_matching": 12388
           }
         }
       ]
@@ -393,8 +393,8 @@
           "description": "Estimated range 0x3F6A18-0x4050A8; 72 function(s) decompiled",
           "code": {
             "total": 59024,
-            "matching": 2268,
-            "non_matching": 8476
+            "matching": 2784,
+            "non_matching": 7960
           }
         },
         {

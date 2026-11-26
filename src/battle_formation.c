@@ -77,8 +77,8 @@ u32 func_00362D70(int side);
 void func_00362BD0(u32 side, u32 slot, u32 formation);
 
 void func_003F7640(void);
-u8 func_003F6CA0(u32 side, u32 slot);
-u8 func_003F6E60(u32 side);
+u32 func_003F6CA0(u32 side, u32 slot);
+u32 func_003F6E60(u32 side);
 
 /* 0x003F6BA0, 0x3C bytes. */
 void func_003F6BA0(u32 side, u32 slot)
@@ -88,15 +88,15 @@ void func_003F6BA0(u32 side, u32 slot)
 }
 
 /* 0x003F6BE0, 0x30 bytes, matching. */
-u8 func_003F6BE0(u32 side)
+u32 func_003F6BE0(u32 side)
 {
     if (side < 2)
         return g_007BFEF0[side].slot;
     return 10;
 }
 
-/* 0x003F6C10, 0x30 bytes. The formation in use. */
-u8 func_003F6C10(u32 side)
+/* 0x003F6C10, 0x30 bytes, matching. The formation in use. */
+u32 func_003F6C10(u32 side)
 {
     return func_003F6CA0(side, func_003F6BE0(side));
 }
@@ -113,7 +113,7 @@ void func_003F6C40(u32 side, u32 slot, u8 formation)
 }
 
 /* 0x003F6CA0, 0x44 bytes. */
-u8 func_003F6CA0(u32 side, u32 slot)
+u32 func_003F6CA0(u32 side, u32 slot)
 {
     if (side < 2 && slot < 6)
         return g_007BFEF0[side].formation[slot] & 0x7F;
@@ -162,7 +162,7 @@ void func_003F6DF0(u32 side, int add)
 }
 
 /* 0x003F6E60, 0x30 bytes, matching. */
-u8 func_003F6E60(u32 side)
+u32 func_003F6E60(u32 side)
 {
     if (side < 2)
         return g_007BFEF0[side].points;
@@ -205,14 +205,14 @@ void func_003F6F70(u32 side, u32 value)
 }
 
 /* 0x003F6FC0, 0x30 bytes, matching. */
-u16 func_003F6FC0(u32 side)
+u32 func_003F6FC0(u32 side)
 {
     if (side < 2)
         return g_007BFEF0[side].counter;
     return 0;
 }
 
-/* 0x003F6FF0, 0x40 bytes. */
+/* 0x003F6FF0, 0x40 bytes, matching. */
 void func_003F6FF0(u32 side)
 {
     if (side < 2)
@@ -349,7 +349,7 @@ void func_003F75F0(u32 side)
     func_003F6E90(side, 2, 0);
 }
 
-/* 0x003F7640, 0x108 bytes. Judges the advantage (flag 0 of the side that has it); a side with
+/* 0x003F7640, 0x108 bytes, matching. Judges the advantage (flag 0 of the side that has it); a side with
  * fewer than 3 groups and a formation is warned. */
 void func_003F7640(void)
 {
@@ -415,7 +415,7 @@ int func_003F78A0(u32 side, u32 slot)
     return 0;
 }
 
-/* 0x003F7920, 0x8C bytes. The first change of the battle (flag 1): announced
+/* 0x003F7920, 0x8C bytes, matching. The first change of the battle (flag 1): announced
  * (func_0035D360), the slot marked used. */
 void func_003F7920(u32 side, u32 slot, int a)
 {

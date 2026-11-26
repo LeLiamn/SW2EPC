@@ -109,7 +109,7 @@ void func_003F5550(u8 group)
 }
 
 /* 0x003F5560, 0x8 bytes, matching. */
-u8 func_003F5560(void)
+u32 func_003F5560(void)
 {
     return g_0045D868.group;
 }
@@ -132,9 +132,9 @@ void func_003F55D0(u8 kind, u8 minutes, u8 target)
     g_0045D868.target = target;
 }
 
-u8 func_003F55E0(void) { return g_0045D868.kind; }       /* 0x003F55E0, 0x8 bytes, matching. */
-u8 func_003F55F0(void) { return g_0045D868.minutes; }    /* 0x003F55F0, 0x8 bytes, matching. */
-u8 func_003F5600(void) { return g_0045D868.target; }     /* 0x003F5600, 0x8 bytes, matching. */
+u32 func_003F55E0(void) { return g_0045D868.kind; }       /* 0x003F55E0, 0x8 bytes, matching. */
+u32 func_003F55F0(void) { return g_0045D868.minutes; }    /* 0x003F55F0, 0x8 bytes, matching. */
+u32 func_003F5600(void) { return g_0045D868.target; }     /* 0x003F5600, 0x8 bytes, matching. */
 
 /* 0x003F5610, 0x8 bytes, matching. */
 void func_003F5610(u8 status)
@@ -143,12 +143,12 @@ void func_003F5610(u8 status)
 }
 
 /* 0x003F5620, 0x8 bytes, matching. */
-u8 func_003F5620(void)
+u32 func_003F5620(void)
 {
     return g_0045D868.status;
 }
 
-/* 0x003F5630, 0x20 bytes. Whether there is a mission. */
+/* 0x003F5630, 0x20 bytes, matching. Whether there is a mission. */
 int func_003F5630(void)
 {
     return func_003F5560() < 0x47;
@@ -542,7 +542,7 @@ void func_003F65F0(void)
         func_003F65B0();
 }
 
-/* 0x003F6630, 0x78 bytes, matching. When a free battle starts: maybe offers a mission (func_0035D2D0
+/* 0x003F6630, 0x78 bytes. When a free battle starts: maybe offers a mission (func_0035D2D0
  * announces it), then builds its text. */
 void func_003F6630(void)
 {
@@ -563,7 +563,7 @@ void func_003F66B0(void)
 
 /* The kinds' goals (table 0x0041DAC0). */
 
-/* 0x003F66C0, 0x34 bytes. Kind 0: func_003531F0 reached the target. */
+/* 0x003F66C0, 0x34 bytes, matching. Kind 0: func_003531F0 reached the target. */
 int func_003F66C0(void)
 {
     u32 a = func_003531F0(0);
@@ -571,7 +571,7 @@ int func_003F66C0(void)
     return func_003F5600() <= a;
 }
 
-/* 0x003F6700, 0x38 bytes. Kind 1: the enemy groups down to the target. */
+/* 0x003F6700, 0x38 bytes, matching. Kind 1: the enemy groups down to the target. */
 int func_003F6700(void)
 {
     u32 a = func_0033F7D0(1, 1);
@@ -587,7 +587,7 @@ int func_003F6740(void)
     return func_0035F2D0(1) < a;
 }
 
-/* 0x003F6780, 0x30 bytes. Kind 3: g_00669DEC reached the target. */
+/* 0x003F6780, 0x30 bytes, matching. Kind 3: g_00669DEC reached the target. */
 int func_003F6780(void)
 {
     u32 a = g_00669D60.g_00669DEC;
@@ -595,7 +595,7 @@ int func_003F6780(void)
     return func_003F5600() <= a;
 }
 
-/* 0x003F67B0, 0x34 bytes. Kind 4: func_001D22D0 reached the target. */
+/* 0x003F67B0, 0x34 bytes, matching. Kind 4: func_001D22D0 reached the target. */
 int func_003F67B0(void)
 {
     u32 a = func_001D22D0(0);
@@ -649,14 +649,14 @@ int func_003F6910(void)
     return goals[func_003F55E0()]();
 }
 
-/* 0x003F69A0, 0x30 bytes, matching. The mission is won. */
+/* 0x003F69A0, 0x30 bytes. The mission is won. */
 void func_003F69A0(void)
 {
     func_0035D300(func_003F5560(), 1);
     func_003F5610(2);
 }
 
-/* 0x003F69D0, 0x30 bytes, matching. The mission is lost. */
+/* 0x003F69D0, 0x30 bytes. The mission is lost. */
 void func_003F69D0(void)
 {
     func_0035D300(func_003F5560(), 0);
