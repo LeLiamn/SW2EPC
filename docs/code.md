@@ -91,6 +91,22 @@ assertion string), "probable" when its functions sit right next to that file's c
 | `0x16` | `0x003DABC0` | SeasonAnime.c | probable |
 | `0x17` | `0x003F46B0` | SceneTutorial.c | probable |
 
+## Scene 0x0C: the options menu (`src/scene_config.c`)
+
+Original source file `StateConfig.c`. Fully decompiled (5 functions):
+
+- **enter** (`0x001E6860`) creates the menu window and resets its page and phase;
+- **update** (`0x001E69B0`) runs a 4-phase state machine (opening, in use, closing, leaving); in use,
+  it calls the handler of the current page (pages 0 to 10). When leaving, the scene itself switches
+  the manager to the requested scene, or back to the one it came from;
+- **step** (`0x001E6BB0`) is empty;
+- **draw** (`0x001E6BC0`) draws the current page, then its button help line ("Select  Back  OK",
+  "Default  Adjust  Back", "Select  Change  Cancel  Play"...; `0xF0` + a letter inserts a button
+  icon in these strings);
+- **leave** (`0x001E6960`) destroys the window and restores a value saved at enter.
+
+The page handlers (`0x001E4080`...) and page drawers (`0x002B6450`...) are not decompiled yet.
+
 ## Where each source file is
 
 The game's code names 68 source files in assertion strings; 66 of them are referenced by
