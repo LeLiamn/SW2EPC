@@ -704,7 +704,7 @@ void func_001E86A0(void)
 
 #define MOUNT_LOCKED 4
 
-/* 0x001E86D0, 0x348 bytes. Mode 7 ("Select Mount  Back"): 4 mounts, locked ones skipped. A fresh
+/* 0x001E86D0, 0x348 bytes, matching. Mode 7 ("Select Mount  Back"): 4 mounts, locked ones skipped. A fresh
  * press wraps and skips locked mounts; a held press moves by one only when an unlocked mount lies
  * further that way (so it can stop on a locked one, as in the original). OK does nothing. The 8
  * "unreachable" blocks Ghidra removed are the negative fix-ups of `% 4`. */
@@ -722,14 +722,14 @@ void func_001E86D0(void)
         func_001E7110(0);
     } else if (pressed & BTN_DOWN) {
         func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-        do
+        g_0073135A = (u8)((g_0073135A + 1) % 4);
+        while (func_003A1FC0(g_0073135A) == MOUNT_LOCKED)
             g_0073135A = (u8)((g_0073135A + 1) % 4);
-        while (func_003A1FC0(g_0073135A) == MOUNT_LOCKED);
     } else if (pressed & BTN_UP) {
         func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-        do
+        g_0073135A = (u8)((g_0073135A + 3) % 4);
+        while (func_003A1FC0(g_0073135A) == MOUNT_LOCKED)
             g_0073135A = (u8)((g_0073135A + 3) % 4);
-        while (func_003A1FC0(g_0073135A) == MOUNT_LOCKED);
     } else if (held & BTN_DOWN) {
         for (i = g_0073135A + 1; i < 4; i++)
             if (func_003A1FC0(i) != MOUNT_LOCKED) { found = 1; break; }
