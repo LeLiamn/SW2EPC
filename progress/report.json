@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 1083140033
+    "done": 1799858197
   },
   "layout": "treemap",
   "areas": [
@@ -35,10 +35,10 @@
         },
         {
           "name": "MPEG2",
-          "description": "Movies (MPEG-2 program streams)",
+          "description": "Movies (Sony PSS: MPEG-2 + ADPCM + AC-3), exportable to MKV",
           "data": {
             "total": 716718164,
-            "done": 0
+            "done": 716718164
           }
         },
         {

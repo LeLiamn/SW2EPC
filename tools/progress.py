@@ -33,7 +33,7 @@ import pack  # noqa: E402
 FORMAT_STATUS = {
     "Containers": ("done", "LINKDATA and pack tables, padding"),
     "TIM2": ("done", "Textures (Sony TIM2), convertible to PNG"),
-    "MPEG2": ("todo", "Movies (MPEG-2 program streams)"),
+    "MPEG2": ("done", "Movies (Sony PSS: MPEG-2 + ADPCM + AC-3), exportable to MKV"),
     "ANS stream": ("done", "Music streams (SPU ADPCM), decodable to WAV"),
     "PS2": ("todo", "Files starting with 'PS2 '"),
     "tm3": ("todo", "Files starting with 'tm3 '"),

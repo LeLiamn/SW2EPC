@@ -8,7 +8,7 @@ gets understood. All game data is inside the three [LINKDATA](LINKDATA.md) conta
 | LINKDATA | `LINKDATA.ANS/.BNS/.CNS`, nested in BNS | 3 + 36 | `59 3B 03 00` | Numbered containers, no names. [LINKDATA.md](LINKDATA.md) | ✅ container understood, extraction tool |
 | Pack | BNS, nested | many | none (u32 count + offsets) | Koei's offset-table archives, up to 3 levels deep. [PACK.md](PACK.md) | ✅ understood, extraction tool |
 | TIM2 | BNS, inside containers and packs | 16,027 | `TIM2` | Textures, standard Sony format. [TIM2.md](TIM2.md) | ✅ understood, PNG export |
-| MPEG-2 PS | CNS | 21 | `00 00 01 BA` | Movies, standard Sony PSS | 🟢 standard format |
+| PSS movies | CNS | 21 | `00 00 01 BA` | MPEG-2 video + stereo SPU ADPCM + Dolby Digital 5.1 (byte-swapped). [PSS.md](PSS.md) | ✅ understood, MKV export |
 | Music streams | ANS | 105 | `00 08 00 00` | Stereo 48 kHz SPU ADPCM, 2 h 46 min with loop points. [ANS.md](ANS.md) | ✅ understood, WAV export |
 | PAC0 | BNS | 847 | `PAC0` | Archives? | 🔴 to study |
 | `PS2 ` | BNS | 247 | `PS2 ` | ? | 🔴 to study |
