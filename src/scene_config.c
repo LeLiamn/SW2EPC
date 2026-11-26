@@ -154,11 +154,13 @@ void func_003A32C0(void);
 /* 0x001E3D00, 0x4C bytes. Apply the four settings stored at 0x0073117C. */
 void func_001E3D00(void)
 {
-    func_001E3500(g_0073117C);
-    func_0023C050(g_0073117C[0]);
-    func_0017E110(g_0073117C[1]);
-    func_0023B530(g_0073117C[2]);
-    func_0023AB70(g_0073117C[3]);
+    u8 *sound = g_0073117C;
+
+    func_001E3500(sound);
+    func_0023C050(sound[0]);
+    func_0017E110(sound[1]);
+    func_0023B530(sound[2]);
+    func_0023AB70(sound[3]);
 }
 
 /* 0x001E3D50, 0x1C bytes, matching. */

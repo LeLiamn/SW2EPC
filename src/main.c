@@ -136,7 +136,7 @@ void func_00117E90(void)
     func_00117EB0();
 }
 
-/* 0x00106750, 0x80 bytes. Game set-up: eleven initialisation calls, bracketed by the flag. */
+/* 0x00106750, 0x80 bytes, matching. Game set-up: eleven initialisation calls, bracketed by the flag. */
 void func_00106750(void)
 {
     func_001014D0(0);

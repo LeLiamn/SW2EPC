@@ -197,7 +197,7 @@ int func_0029FD20(void)
     return func_0029FD10() == 0 ? 3 : 4;
 }
 
-/* 0x0029FD50, 0x20 bytes. Sets the officer shown by the skill list when `officer` is valid
+/* 0x0029FD50, 0x20 bytes, matching. Sets the officer shown by the skill list when `officer` is valid
  * (0..0x19E), and returns the current one. */
 int func_0029FD50(int officer)
 {
@@ -1139,7 +1139,7 @@ int func_002A2B00(int officer, int slot_a, int slot_b, int room)
     return func_002F3F20(officer) == 0 || (slot_a >= 0 && slot_a < SLOT_COUNT);
 }
 
-/* 0x002A2B90, 0x4C bytes. Can `officer` be hired now? */
+/* 0x002A2B90, 0x4C bytes, matching. Can `officer` be hired now? */
 int func_002A2B90(int officer)
 {
     int slot_a = SLOT_COUNT, slot_b = SLOT_COUNT;

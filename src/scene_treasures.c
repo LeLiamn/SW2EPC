@@ -415,7 +415,7 @@ void func_001E7830(void)
     }
 }
 
-/* 0x001E7D00, 0x60 bytes. Mode 1 (viewer, shared with func_00391xxx). */
+/* 0x001E7D00, 0x60 bytes, matching. Mode 1 (viewer, shared with func_00391xxx). */
 void func_001E7D00(float dt)
 {
     char *viewer = func_00391250();
@@ -426,7 +426,7 @@ void func_001E7D00(float dt)
         func_001E7110(0);
 }
 
-/* 0x001E7D60, 0x60 bytes. Mode 2 (same as mode 1 with another viewer). */
+/* 0x001E7D60, 0x60 bytes, matching. Mode 2 (same as mode 1 with another viewer). */
 void func_001E7D60(float dt)
 {
     char *viewer = func_00391250();
@@ -467,7 +467,7 @@ void func_001E7DC0(void)
     }
 }
 
-/* 0x001E8010, 0x40 bytes. Mode 12 ("Turn Page  Select  Back  Enlarge": an art book?). */
+/* 0x001E8010, 0x40 bytes, matching. Mode 12 ("Turn Page  Select  Back  Enlarge": an art book?). */
 void func_001E8010(void)
 {
     char *book = func_00397160();
@@ -477,7 +477,7 @@ void func_001E8010(void)
         func_001E7110(3);
 }
 
-/* 0x001E8050, 0x5C bytes. Mode 13 ("Category  Select  Back  Play": a sound or movie player?). */
+/* 0x001E8050, 0x5C bytes, matching. Mode 13 ("Category  Select  Back  Play": a sound or movie player?). */
 void func_001E8050(void)
 {
     char *player = func_003E46F0();
@@ -491,7 +491,7 @@ void func_001E8050(void)
     }
 }
 
-/* 0x001E80B0, 0x60 bytes. Mode 14. */
+/* 0x001E80B0, 0x60 bytes, matching. Mode 14. */
 void func_001E80B0(float dt)
 {
     char *screen = func_003B2000();
@@ -600,7 +600,7 @@ void func_001E8600(void)
     }
 }
 
-/* 0x001E86A0, 0x2C bytes. Mode 4: back to the main menu when its screen is done. */
+/* 0x001E86A0, 0x2C bytes, matching. Mode 4: back to the main menu when its screen is done. */
 void func_001E86A0(void)
 {
     if (func_003EF070() != 0)
@@ -652,21 +652,21 @@ void func_001E86D0(void)
     }
 }
 
-/* 0x001E8A20, 0x2C bytes. Mode 8. */
+/* 0x001E8A20, 0x2C bytes, matching. Mode 8. */
 void func_001E8A20(void)
 {
     if (func_0039F7E0() != 0)
         func_001E7110(0);
 }
 
-/* 0x001E8A50, 0x2C bytes. Mode 9. */
+/* 0x001E8A50, 0x2C bytes, matching. Mode 9. */
 void func_001E8A50(void)
 {
     if (func_003E7E60() != 0)
         func_001E7110(0);
 }
 
-/* 0x001E8A80, 0x2C bytes. Mode 10. */
+/* 0x001E8A80, 0x2C bytes, matching. Mode 10. */
 void func_001E8A80(void)
 {
     if (func_003F95E0() != 0)
