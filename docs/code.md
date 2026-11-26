@@ -193,6 +193,24 @@ Original quirks kept: mode 15 divides by zero on an empty list; hiring writes on
 last offer; the mount shuffle starts from 0, 1, 2, 3, 4, 2 (no 5); selling asks "any mount left?"
 twice; a final test for kind-3 skills can never succeed.
 
+## Scene 0x0A: after a battle (`src/scene_post_battle.c`)
+
+Original source file `StatePostBattle.c`. In progress: enter (`0x0021C5F0`) and leave
+(`0x0021D050`) are decompiled. The scene's state is one object at `0x00747930` (0x1C00 bytes); it
+reads the battle's results from the game state at `0x00669D60` (one 0x48-byte record per player
+at `0x00669DE8`, bit 1 of `0x00669F60` = two players, `0x00669F70` = how the battle ended).
+
+- **enter** loads 7 LINKDATA entries (0x38, 0x8D, 0x36, 0x39, 0x37, 0x81 and one chosen by
+  `0x0021BE80`; the loader is given `__FILE__` and the lines 1303 to 1309), saves each side's
+  officers' levels and nine stats (`0x00747F5C`, 0xA0 bytes per officer), gives the gold earned
+  (sum of `0x00749180` plus `0x00749434`, in tens) when `0x00669DB8` is 0, plays music 0x1A, or
+  for results 5 to 7 leaves the scene at once, and builds the list of officers shown
+  (`0x00748DC8`, 0x24 bytes each, count `0x00748F0C`).
+- **leave** frees the 7 entries.
+
+Still to do: update (`0x0021F680`), step (`0x00220140`), draw (`0x00220150`) and the helpers
+between `0x0021D0D0` and `0x0021F680` (and probably `0x0021A840`-`0x0021C390` before enter).
+
 ## Scene 0x15: Empire set-up (`src/scene_setup_emp_mogi.c`)
 
 Original source file `StateSetupEmpMogi.c` (`0x00390940`-`0x00391250`, 8 functions, all decompiled;
