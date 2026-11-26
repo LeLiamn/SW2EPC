@@ -84,28 +84,26 @@ extern struct {
 #define g_0043C6CC (s_0043C32C.g_0043C6CC)
 #define g_0043C6D0 (s_0043C32C.g_0043C6D0)
 
-/* Globals 0x0050074C-0x005007EE: one object in the original (not reached through $gp). */
-extern struct {
-    unsigned short g_0050074C; /* buttons pressed this frame */
-    unsigned short g_0050074E; /* buttons pressed or repeating */
-    char pad_0[0x14];
-    u8 g_00500764;            /* bit 0: pad ready? */
-    u8 g_00500765;            /* bit 0: pad connected? */
-    char pad_1[0x6E];
-    unsigned short g_005007D4;
-    unsigned short g_005007D6;                /* controller 2: buttons pressed or repeating */
-    char pad_2[0x14];
-    u8 g_005007EC;
-    u8 g_005007ED;
-} s_0050074C;
-#define g_0050074C (s_0050074C.g_0050074C)
-#define g_0050074E (s_0050074C.g_0050074E)
-#define g_00500764 (s_0050074C.g_00500764)
-#define g_00500765 (s_0050074C.g_00500765)
-#define g_005007D4 (s_0050074C.g_005007D4)
-#define g_005007D6 (s_0050074C.g_005007D6)
-#define g_005007EC (s_0050074C.g_005007EC)
-#define g_005007ED (s_0050074C.g_005007ED)
+/* 0x00500700: the controllers' state, 0x88 bytes per controller. */
+typedef struct {
+    u8 unknown_00[0x4C];
+    unsigned short pressed;  /* +0x4C buttons pressed this frame */
+    unsigned short held;     /* +0x4E pressed or repeating */
+    u8 unknown_50[0x14];
+    u8 ready;                /* +0x64 bit 0 (bit 3: vibration off?) */
+    u8 connected;            /* +0x65 bit 0 */
+    u8 unknown_66[0x22];
+} PadState;
+
+extern PadState g_00500700[2];
+#define g_0050074C (g_00500700[0].pressed)
+#define g_0050074E (g_00500700[0].held)
+#define g_00500764 (g_00500700[0].ready)
+#define g_00500765 (g_00500700[0].connected)
+#define g_005007D4 (g_00500700[1].pressed)
+#define g_005007D6 (g_00500700[1].held)
+#define g_005007EC (g_00500700[1].ready)
+#define g_005007ED (g_00500700[1].connected)
 
 /* 0x00669D60: the game's system settings (saved with the system data?). The code reaches its parts
  * from this base: the two pads' settings at +0x2C, display and sound flags at +0x50... */
@@ -1294,19 +1292,33 @@ int func_001E36D0(void *in)
 void func_001E37E0(int pad, void *in)
 {
     PadSettings *p = in;
-    u8 o20 = p->option_20, o21 = p->option_21;
-    int o22_off = (p->option_22 == 0);
-    int port = pad;                             /* original: undefined unless pad is 0 or 1 */
-    u8 *state;
+    int vibration;
+    int off20, on21, off22;
+    int port;                                   /* (unset unless pad is 0 or 1, as in the original) */
+    PadFlags *flags;
+    PadState *state;
 
-    g_00669D8C[pad].flags.off_20 = (o20 == 0);
-    func_001036B0(port, o20 != 0);              /* vibration on/off? */
-    g_00669D8C[pad].flags.on_21 = (o21 != 0);
-    g_00669D8C[pad].flags.off_22 = o22_off;
+    if (p->option_20 != 0)
+        vibration = 1;
+    else
+        vibration = 0;
+    off20 = p->option_20 == 0;
+    on21 = p->option_21 != 0;
+    off22 = p->option_22 == 0;
+    if (pad == 0)
+        port = 0;
+    if (pad == 1)
+        port = 1;
 
-    state = &g_00500764 + port * 0x88;          /* the pad's state block */
-    if ((state[0] & 1) && (state[1] & 1) == 1)
-        state[0] = (state[0] & 0xF7) | (o22_off << 3);
+    flags = &g_00669D8C[pad].flags;
+    flags->off_20 = off20 != 0;
+    func_001036B0(port, vibration);             /* vibration on/off? */
+    flags->on_21 = on21 != 0;
+    flags->off_22 = off22 != 0;
+
+    state = &g_00500700[port];
+    if (((state->ready & 1) ? (state->connected & 1) == 1 : 0))
+        state->ready = (state->ready & 0xF7) | ((off22 != 0) << 3);
 
     PAD_MAP(pad, 0) = (u8)p->slots[0];
     PAD_MAP(pad, 1) = (u8)p->slots[1];
