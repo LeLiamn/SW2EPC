@@ -1,6 +1,6 @@
 /*
  * model.c - motion curves, tm3 textures and 3D models (original source file unknown; 0x00147780-
- * 0x0014F0B8, after font.c).
+ * 0x001508E4, after font.c).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -71,7 +71,7 @@ typedef struct {
     u16 nodes;               /* +0x26 */
     u8 range[6];             /* +0x28 node ranges (first, count): other modes, then mode 0's
                               * two (see func_00149730) */
-    u8 pad2;
+    u8 flag2e;               /* +0x2E the texture's base and alpha are sent to VU1 */
     u8 alpha;                /* +0x2F */
 } Model;
 
@@ -1524,4 +1524,387 @@ u32 func_0014E6F0(Actor *a, float base[4][4], float world[4][4], int frame)
         func_001436C8(cur[3], target);
     }
     return r;
+}
+
+/* Writes a DMA tag (or any quadword) into the chain. */
+static inline void dma_put(u32 a, u32 b, u32 c, u32 d)
+{
+    u32 *p = g_70000158;
+
+    p[0] = a;
+    p[1] = b;
+    p[2] = c;
+    p[3] = d;
+    g_70000158 = p + 4;
+}
+
+/* Copies `n` words into the chain. */
+static inline void dma_copy(const void *from, int n)
+{
+    const u32 *s = from;
+    u32 *p = g_70000158;
+    int i;
+
+    for (i = 0; i < n; i++)
+        p[i] = s[i];
+    g_70000158 = p + n;
+}
+
+/* Starts an object's VU1 data for this frame: its packet (alpha, texture, node count) and its
+ * node matrices, with their UNPACK headers (two when there are more than 256 quadwords). */
+static inline void actor_begin(Actor *a, Model *m, u32 alpha)
+{
+    int frame = g_70000150;
+    u32 *packet = a->packets[frame];
+    u32 *buf = (u32 *)a->matrices[frame];
+    u32 *head = buf + 3;
+    u32 n = m->a * 4, qwc = n + 1, at = 0x14;
+
+    packet[0xCC / 4] = alpha;
+    *(u64 *)(packet + 8) = m->tex0;
+    packet[0xC8 / 4] = m->a;
+    buf[0] = 0;
+    buf[1] = 0;
+    buf[2] = 0;
+    if (n > 0x100) {
+        at = 0x114;
+        qwc = n + 2;
+        *head = 0x6C000014;
+        buf[0x404] = 0;
+        buf[0x405] = 0;
+        buf[0x406] = 0;
+        head = buf + 0x407;
+    }
+    *head = at | (n & 0xFF) << 16 | 0x6C000000;
+    dma_put(0x3000000D, (u32)packet, 0, 0);
+    dma_put(qwc | 0x30000000, (u32)a->matrices[frame], 0, 0);
+}
+
+/* 0x0014F0C0, 0x1C bytes, matching. Draws an object, opaque. */
+void func_0014F0E0(Actor *a, u32 alpha);
+
+void func_0014F0C0(Actor *a)
+{
+    func_0014F0E0(a, 0x80);
+}
+
+/* 0x0014F0E0, 0x268 bytes. Draws an object with alpha `alpha`: its packet and matrices, the
+ * texture's base and alpha for the models that use them (+0x2E), then the model's parts. */
+void func_0014F0E0(Actor *a, u32 alpha)
+{
+    Model *m = ACTOR_MODEL(a);
+
+    actor_begin(a, ACTOR_MODEL(a), alpha & 0xFF);
+    if (m->flag2e == 0) {
+        dma_put(0x10000000, 0, 0, 0x14000000);
+    } else {
+        dma_put(0x10000001, 0, 0, 0x6C010013);
+        dma_put(0, (u32)(m->tex0 >> 32) & 0x7FFE0, 0, alpha & 0xFF);
+    }
+    func_00148460(m);
+}
+
+/* 0x0014F350, 0x158 bytes. The matrix projecting onto the plane `plane` (normal, distance)
+ * along `light`: a planar shadow. */
+void func_0014F350(float *out, const float *light, const float *plane)
+{
+    float d = plane[0] * light[0] + plane[1] * light[1] + plane[2] * light[2]
+              + plane[3] * light[3];
+    float inv = 1.0f / d;
+
+    out[0] = inv * ((d + 0.0f) - plane[0] * light[0]);
+    out[1] = light[1] * inv * -plane[0];
+    out[2] = light[2] * inv * -plane[0];
+    out[3] = 0.0f;
+    out[4] = light[0] * inv * -plane[1];
+    out[5] = inv * ((d + 0.0f) - plane[1] * light[1]);
+    out[6] = light[2] * inv * -plane[1];
+    out[7] = 0.0f;
+    out[8] = light[0] * inv * -plane[2];
+    out[9] = light[1] * inv * -plane[2];
+    out[10] = inv * ((d + 0.0f) - plane[2] * light[2]);
+    out[11] = 0.0f;
+    out[12] = light[0] * inv * plane[3];
+    out[13] = light[1] * inv * plane[3];
+    out[14] = light[2] * inv * plane[3];
+    out[15] = 1.0f;
+}
+
+/* 0x0014F4B0, 0x354 bytes. Draws an object's shadow on the plane through `point` with normal
+ * `normal`, along `light`, in colour `colour` (RGBA; its alpha for the packet). */
+void func_0014F4B0(Actor *a, const float *light, const float *normal, const float *point,
+                   const u8 *colour)
+{
+    Model *m = ACTOR_MODEL(a);
+    float plane[4], shadow[16];
+    u32 *p;
+
+    actor_begin(a, m, colour[3]);
+    plane[0] = normal[0];
+    plane[1] = normal[1];
+    plane[2] = normal[2];
+    plane[3] = normal[2] * point[2] + normal[0] * point[0] + normal[1] * point[1];
+    func_0014F350(shadow, light, plane);
+    dma_put(0x10000005, 0, 0, 0x6C05000B);
+    dma_copy(shadow, 16);
+    p = g_70000158;
+    p[0] = colour[0];
+    p[1] = colour[1];
+    p[2] = colour[2];
+    p[3] = colour[3];
+    g_70000158 = p + 4;
+    if (m->flag2e == 0) {
+        dma_put(0x10000000, 0, 0, 0x14000000);
+    } else {
+        dma_put(0x10000001, 0, 0, 0x6C010013);
+        dma_put(0, 0, 0, colour[3]);
+    }
+    func_001484E0(m);
+}
+
+/* 0x0014F810, 0x34 bytes. A node's matrix for this frame. */
+float (*func_0014F810(Actor *a, u32 node))[4]
+{
+    return NODE_WORLD(&a->e[node & 0xFF], g_70000150);
+}
+
+/* 0x0014F850, 0x54 bytes. Clears a simple object (0x170 bytes) with a unit matrix at +0x120. */
+void func_0014F850(u8 *o)
+{
+    func_001185E0(o, 0x170, 0);
+    unit_matrix((float *)(o + 0x120));
+}
+
+/* 0x0014F8B0, 0x94 bytes, matching. Sets a simple object up for model `m`: two VU1 packets (0x90 bytes
+ * each: TEX0_1, then an UNPACK of 5 quadwords), opaque. */
+void func_0014F8B0(u32 *o, Model *m)
+{
+    int i;
+
+    o[0x58] = (u32)m;
+    ((u8 *)o)[0x164] = 0x80;
+    for (i = 0; i < 2; i++, o += 0x24) {
+        o[0] = 0x11000000;
+        o[1] = 0;
+        o[2] = 0;
+        o[3] = 0x50000002;
+        *(u64 *)(o + 4) = 0x1000000000008001;
+        *(u64 *)(o + 6) = 0xE;
+        *(u64 *)(o + 8) = 0;
+        *(u64 *)(o + 10) = 6;
+        o[0xC] = 0;
+        o[0xD] = 0;
+        o[0xE] = 0;
+        o[0xF] = 0x6C050013;
+        o[0x10] = 0;
+        o[0x11] = 0;
+        o[0x12] = 0;
+        o[0x13] = 0x80;
+    }
+}
+
+/* 0x0014F950, 0x1C bytes, matching. */
+void func_0014F950(u8 *o)
+{
+    func_0014F850(o);
+}
+
+/* Fills a simple object's packet for this frame: texture, its base, a node count (+0x165) and
+ * alpha (+0x164), its matrix; then sends it. */
+static inline void simple_begin(u8 *o)
+{
+    u8 *p = o + g_70000150 * 0x90;
+    Model *m = *(Model **)(o + 0x160);
+
+    *(u64 *)(p + 0x20) = m->tex0;
+    *(u32 *)(p + 0x44) = (u32)(m->tex0 >> 32) & 0x7FFE0;
+    *(u32 *)(p + 0x48) = o[0x165] << 2;
+    *(u32 *)(p + 0x4C) = o[0x164];
+    {
+        int i;
+
+        for (i = 0; i < 16; i++)
+            ((u32 *)(p + 0x50))[i] = ((u32 *)(o + 0x120))[i];
+    }
+    dma_put(0x30000009, (u32)p, 0, 0);
+}
+
+/* 0x0014F970, 0xD8 bytes. Draws a simple object. */
+void func_0014F970(u8 *o)
+{
+    simple_begin(o);
+    func_00148460(*(Model **)(o + 0x160));
+}
+
+/* 0x0014FA50, 0xD8 bytes. The same, each part after its VU1 header. */
+void func_0014FA50(u8 *o)
+{
+    simple_begin(o);
+    func_001484E0(*(Model **)(o + 0x160));
+}
+
+/* 0x0014FB30, 0x104 bytes. Sends the lights (directions, colours and ambient) to VU1. */
+void func_0014FB30(u8 *dir, u8 *colour, void *ambient)
+{
+    float l[16], c[16];
+
+    func_00143268(l, dir, dir + 0x10, dir + 0x20);
+    func_00143328(c, colour, colour + 0x10, colour + 0x20, ambient);
+    dma_put(0x10000008, 0, 0, 0x6C08000B);
+    dma_copy(l, 16);
+    dma_copy(c, 16);
+}
+
+/* 0x0014FC40, 0x60 bytes. Sends one quadword to VU1 address 0x12. */
+void func_0014FC40(const u32 *v)
+{
+    dma_put(0x10000001, 0, 0, 0x6C010012);
+    dma_copy(v, 4);
+}
+
+/* 0x0014FCA0, 0x8 bytes, matching. */
+void func_0014FCA0(u8 *o, Model *m)
+{
+    *(Model **)(o + 0x160) = m;
+}
+
+extern u32 g_00406340[];                 /* a VU1 set-up packet (4 quadwords) */
+extern struct {
+    u32 a, b, c;             /* 0x0056CCD0 */
+    float d;                 /* 0x0056CCDC */
+} g_0056CCD0;
+extern u8 g_0041FD00[], g_0041EC00[], g_00420E00[];   /* VU1 microprograms (MPG packets) */
+
+/* 0x0014FCB0, 0x148 bytes. Sends a camera to VU1: the set-up packet, the fog / depth settings
+ * (the camera's +0x210 scaled by 65525), its position (+0x1C0) and its matrix (+0x100). */
+void func_0014FCB0(u8 *cam)
+{
+    dma_put(0x30000004, (u32)g_00406340, 0x13000000, 0);
+    g_0056CCD0.d = *(float *)(cam + 0x210);
+    g_0056CCD0.d = g_0056CCD0.d * 65525.0f;
+    dma_put(0x10000001, 0, 0, 0x6C010000);
+    dma_copy(&g_0056CCD0, 4);
+    dma_put(0x10000005, 0, 0, 0x6C050002);
+    dma_copy(cam + 0x1C0, 4);
+    dma_copy(cam + 0x100, 16);
+}
+
+/* 0x0014FE00, 0xA8 bytes. Loads the VU1 microprogram at 0x0041FD00 and starts it. */
+void func_0014FE00(void)
+{
+    dma_put(0x3000010F, (u32)g_0041FD00, 0x0300023C, 0x0200008B);
+    dma_put(0x10000000, 0, 0, 0x1500000C);
+}
+
+/* 0x0014FEB0, 0xA8 bytes. Loads the VU1 microprogram at 0x0041EC00 and starts it. */
+void func_0014FEB0(void)
+{
+    dma_put(0x30000106, (u32)g_0041EC00, 0x0300023C, 0x0200008B);
+    dma_put(0x10000000, 0, 0, 0x1500000C);
+}
+
+/* 0x0014FF60, 0x178 bytes. Sends a camera's two matrices (+0xC0 to VU1 address 3, +0x80 to 7),
+ * then loads the microprogram at 0x00420E00 and starts it. */
+void func_0014FF60(u8 *cam)
+{
+    dma_put(0x10000004, 0, 0, 0x6C040003);
+    dma_copy(cam + 0xC0, 16);
+    dma_put(0x10000004, 0, 0, 0x6C040007);
+    dma_copy(cam + 0x80, 16);
+    dma_put(0x30000111, (u32)g_00420E00, 0x0300023C, 0x0200008B);
+    dma_put(0x10000000, 0, 0, 0x1500000C);
+}
+
+u32 func_00100FE0(void);
+
+/* Sends three GS register writes: TEST_1 `test`, ALPHA_1 = 0x44, ZBUF_1 (the game's Z buffer). */
+static inline void gs_test_alpha_zbuf(u64 test)
+{
+    u64 *q;
+
+    dma_put(0x10000004, 0, 0, 0x50000004);
+    q = (u64 *)g_70000158;
+    q[0] = 0x1000000000008003;
+    q[1] = 0xE;
+    q[2] = test;
+    q[3] = 0x47;
+    q[4] = 0x44;
+    q[5] = 0x42;
+    q[6] = (u64)func_00100FE0() | 0x3A000000;
+    q[7] = 0x4E;
+    g_70000158 = (u32 *)(q + 8);
+}
+
+/* 0x001500E0, 0xD8 bytes. The depth and alpha tests, the alpha reference being `ref`. */
+void func_001500E0(u32 ref)
+{
+    gs_test_alpha_zbuf((u64)(ref & 0xFF) << 4 | 0x5000B);
+}
+
+/* 0x001501C0, 0xCC bytes. The same with the alpha test off. */
+void func_001501C0(void)
+{
+    gs_test_alpha_zbuf(0x5C00D);
+}
+
+/* The direction code of an angle (eight sectors, from behind round to the left). */
+static inline u32 direction_code(float a)
+{
+    if (-2.7576203f < a && a <= -1.9896754f)
+        return 0x18000000;
+    if (-1.9896754f < a && a < -1.1519173f)
+        return 0x10000000;
+    if (-1.1519173f <= a && a < -0.38397247f)
+        return 0x14000000;
+    if (-0.38397247f <= a && a <= 0.38397247f)
+        return 0x04000000;
+    if (0.38397247f < a && a <= 1.1519173f)
+        return 0x24000000;
+    if (1.1519173f < a && a < 1.9896754f)
+        return 0x20000000;
+    if (1.9896754f <= a && a < 2.7576203f)
+        return 0x28000000;
+    return 0x08000000;
+}
+
+/* A direction's code relative to the camera's yaw (+0x54), 0 for a vertical one. */
+static inline u32 camera_direction(u8 *cam, const float *dir)
+{
+    float a;
+
+    if (!(0.0001f < fabsf(dir[0]) || 0.0001f < fabsf(dir[2])))
+        return 0;
+    a = vu0_angle(dir[0], dir[2]) - *(float *)(cam + 0x54);
+    if (PI < a)
+        a -= TWO_PI;
+    else if (a < -PI)
+        a += TWO_PI;
+    return direction_code(a);
+}
+
+/* Stores a direction, normalised, at +0x1D0. */
+static inline void camera_store_dir(u8 *cam, const float *dir)
+{
+    float len = sqrtf(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2] + dir[3] * dir[3]);
+    float *to = (float *)(cam + 0x1D0);
+    int i;
+
+    for (i = 0; i < 4; i++)
+        to[i] = dir[i] / len;
+}
+
+/* 0x00150290, 0x320 bytes. Sets a camera's light direction: its code relative to the camera
+ * (with `flags`) at +0x13C, the direction normalised at +0x1D0. */
+void func_00150290(u8 *cam, const float *dir, u32 flags)
+{
+    *(u32 *)(cam + 0x13C) = flags | camera_direction(cam, dir);
+    camera_store_dir(cam, dir);
+}
+
+/* 0x001505B0, 0x334 bytes. The same, keeping the flags already there. */
+void func_001505B0(u8 *cam, const float *dir)
+{
+    *(u32 *)(cam + 0x13C) &= 0x3FFFFFF;
+    *(u32 *)(cam + 0x13C) |= camera_direction(cam, dir);
+    camera_store_dir(cam, dir);
 }
