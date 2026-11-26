@@ -40,7 +40,7 @@ single error, which would not happen if sub-file boundaries were wrong. With the
 |---|---:|---:|---:|---|
 | `TIM2` textures | 16,036 | 205 MB | 36.6% | ✅ [TIM2.md](TIM2.md) |
 | `TMD2` (static scene objects) | 26,623 | 97 MB | 17.3% | ✅ [TMD2.md](TMD2.md) |
-| Battlefield pieces (`00 C0 04 66`) | 186 | 59 MB | 10.4% | to study |
+| Battlefield layouts (`00 C0 04 66`) | 186 | 59 MB | 10.4% | 🟡 [BATTLEFIELD.md](BATTLEFIELD.md) |
 | `PS2 ` models | 476 | 51 MB | 9.1% | ✅ [PS2MODEL.md](PS2MODEL.md) |
 | Motions (`51 00 00 00`) | 10,714 | 46 MB | 8.2% | ✅ [MOTION.md](MOTION.md) |
 | Starting `10 00 00 00 00 00 01 06` | 447 | 26 MB | 4.6% | to study |

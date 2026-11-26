@@ -16,6 +16,7 @@ gets understood. All game data is inside the three [LINKDATA](LINKDATA.md) conta
 | `TMD2` | BNS, in packs | 26,623 | `TMD2` + version `0060` | Static scene objects of the battlefields: VIF batches of UVs, colours, positions, normals. All parse. [TMD2.md](TMD2.md) | ✅ understood, OBJ export |
 | `ipu2` | BNS | 2 | `ipu2` | PS2 IPU images | 🔴 to study |
 | Motions | BNS, in packs | 10,714 | `51 00 00 00` | Animations: per node and component, cubic curve keys. 10,641 of 10,714 read exactly; poses a model. [MOTION.md](MOTION.md) | ✅ understood, posing tool |
+| Battlefield layouts | BNS, in packs | 186 | `00 C0 04 66` | Layout data of the battlefields, packed with their minimap. Sections partly mapped. [BATTLEFIELD.md](BATTLEFIELD.md) | 🟡 in progress |
 | Other leaves | BNS | ~13,000 | none | Geometry packets (`00 C0 04 66`), `51 00 00 00` files, tables... 278 MB: see [PACK.md](PACK.md) | 🔴 to study |
 
 Legend: ✅ understood · 🟢 standard format, already documented elsewhere · 🟡 in progress · 🔴 unknown
