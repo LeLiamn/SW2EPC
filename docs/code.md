@@ -117,7 +117,13 @@ Two findings while checking against the machine code:
 - in the page opener, case 3 calls `func_002B3CF0` with the value 2 left in the argument register;
   Ghidra shows the call without argument.
 
-Pages 1 to 10 (`0x001E44C0`...) and the page drawers (`0x002B6450`...) are not decompiled yet.
+Pages decompiled so far: 0 (main options page), 1 (sub-menu opening pages 5, 6, 7), 3 (save or load
+the settings on the memory card), 6 ("press OK on controller 1 or 2", remembers which pad), 8 (screen
+position: offsets clamped to −24..24, a reset button). Ghidra flagged 4 "unreachable" blocks in page 3:
+they are the compiler's negative fix-up for `(cursor + 1) % 2`, which never runs since the cursor is
+unsigned, and they show the original source used `% 2`.
+
+Pages 5, 7, 9 and 10 and the page drawers (`0x002B6450`...) are not decompiled yet.
 
 ## Where each source file is
 

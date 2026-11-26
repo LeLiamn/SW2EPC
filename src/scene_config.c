@@ -353,6 +353,173 @@ void func_001E4080(void)
     }
 }
 
+/* ---- Pages 1, 3, 6 and 8 ----------------------------------------------------------------------- */
+
+/* Second controller (0x005007C8...), read by page 6. */
+extern u8 g_005007EC;
+extern u8 g_005007ED;
+extern unsigned short g_005007D4;
+
+#define BTN_RESET  0x0800         /* page 8: back to default position */
+#define BTN_RIGHT  0x2000
+#define BTN_LEFT   0x8000
+
+/* Page 8 keeps the screen offset x (-24..24) in the first word of g_00731140, and y here. */
+extern int g_00731144;
+
+void func_00100ED0(int *x, int *y);
+void func_001E3C30(void);
+void func_001E3CD0(void);
+void func_002D8060(int value);
+void func_002D8160(void);
+int func_002DA090(void);
+int func_002DAC30(void);
+void func_002DBAA0(void);
+void func_002DBAB0(void);
+
+static unsigned short pad1_pressed(void)
+{
+    return ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074C : 0;
+}
+
+static unsigned short pad1_held(void)
+{
+    return ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074E : 0;
+}
+
+/* 0x001E44C0, 0x220 bytes. Page 1: a three-entry sub-menu opening pages 5, 6 and 7. */
+void func_001E44C0(void)
+{
+    unsigned short pressed = pad1_pressed();
+    unsigned short held = pad1_held();
+
+    if (pressed & BTN_OK) {
+        func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_001E3DB0(g_0073121A + 5);
+    } else if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_001E3DB0(0);
+    } else if (held & BTN_UP) {
+        if (g_0073121A != 0) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121A = (u8)((g_0073121A + 2) % 3);
+        } else if (pressed & BTN_UP) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121A = 2;
+        }
+    } else if (held & BTN_DOWN) {
+        if (g_0073121A < 2) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121A = (u8)((g_0073121A + 1) % 3);
+        } else if (pressed & BTN_DOWN) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_0073121A = 0;
+        }
+    }
+}
+
+/* 0x001E4BF0, 0x280 bytes. Page 3: save or load the settings (two choices, then an operation
+ * running in mode 2 or 3 until it reports 1 = done or 2 = cancelled). */
+void func_001E4BF0(void)
+{
+    unsigned short pressed = pad1_pressed();
+    int r;
+
+    if (g_0073120C == 2) {
+        r = func_002DAC30();
+        if (r == 1) {
+            func_002D8160();
+            g_0073120C = 1;
+        } else if (r == 2) {
+            func_002D8160();
+            g_0073120C = 1;
+        }
+        func_001037F0(0);
+    } else if (g_0073120C == 3) {
+        r = func_002DA090();
+        if (r == 1) {
+            func_002D8160();
+            func_001E3C30();                    /* apply what was loaded? */
+            g_0073120C = 1;
+        } else if (r == 2) {
+            func_002D8160();
+            g_0073120C = 1;
+        }
+        func_001037F0(0);
+    } else if (pressed & BTN_OK) {
+        func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        if (g_00731225 == 0) {
+            func_002DBAA0();
+            func_002D8060(0);
+            g_0073120C = 2;
+        } else {
+            func_002DBAB0();
+            func_002D8060(1);
+            g_0073120C = 3;
+        }
+    } else if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_001E3DB0(0);
+    } else if (pressed & (BTN_UP | BTN_DOWN)) {
+        /* Up and down are two separate branches in the original, with the same effect. */
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_00731225 = (u8)((g_00731225 + 1) % 2);
+    }
+}
+
+/* 0x001E4E70, 0x1F0 bytes. Page 8: adjust the screen position (offsets clamped to -24..24). */
+void func_001E4E70(void)
+{
+    unsigned short pressed = pad1_pressed();
+    unsigned short held = pad1_held();
+    int *x = (int *)g_00731140;
+
+    if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_001E3DB0(5);
+    } else if (pressed & BTN_RESET) {
+        func_001E3CD0();
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+    } else if (held & BTN_LEFT) {
+        if (--*x < -0x18)
+            *x = -0x18;
+        func_00100ED0(x, &g_00731144);
+    } else if (held & BTN_RIGHT) {
+        if (++*x > 0x17)
+            *x = 0x18;
+        func_00100ED0(x, &g_00731144);
+    } else if (held & BTN_UP) {
+        if (--g_00731144 < -0x18)
+            g_00731144 = -0x18;
+        func_00100ED0(x, &g_00731144);
+    } else if (held & BTN_DOWN) {
+        if (++g_00731144 > 0x17)
+            g_00731144 = 0x18;
+        func_00100ED0(x, &g_00731144);
+    }
+}
+
+/* 0x001E5060, 0x154 bytes. Page 6: press OK on controller 1 or 2; remembers which one, then
+ * opens page 9. */
+void func_001E5060(void)
+{
+    unsigned short pad1 = pad1_pressed();
+    unsigned short pad2 = ((g_005007EC & 1) && (g_005007ED & 1) == 1) ? g_005007D4 : 0;
+
+    if (pad1 & BTN_OK) {
+        func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_00731208 = 0;
+        func_001E3DB0(9);
+    } else if (pad2 & BTN_OK) {
+        func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_00731208 = 1;
+        func_001E3DB0(9);
+    } else if (pad1 & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_001E3DB0(1);
+    }
+}
+
 /* 0x001E6670, 0x1E8 bytes. Look up a byte in one of the tables at 0x00429030 (selected by `table`,
  * row chosen by whether `flag` is 0); out-of-range indexes return the table's first byte. */
 u8 func_001E6670(int table, int flag, unsigned int index)
