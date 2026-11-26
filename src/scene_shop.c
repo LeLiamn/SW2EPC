@@ -348,6 +348,9 @@ void func_001A7DC0(const char *text, int alpha, int b);
 /* Inlined in the original: a macro. */
 #define pad1_ready() ((g_00500764 & 1) ? (g_00500765 & 1) == 1 : 0)
 #define pad1_pressed() ((unsigned short)(pad1_ready() ? g_0050074C : 0))
+#define pad1_held() ((unsigned short)(pad1_ready() ? g_00500700[0].held : 0))
+#define pad2_ready() ((g_00500700[1].ready & 1) ? (g_00500700[1].connected & 1) == 1 : 0)
+#define pad2_pressed() ((unsigned short)(pad2_ready() ? g_00500700[1].pressed : 0))
 
 /* Next value of the game's random generator (a linear congruential generator, 0..65535), inlined
  * in the original (a macro). */
@@ -607,48 +610,59 @@ void func_002A45E0(void)
 }
 
 /* 0x002A4600, 0x334 bytes. Scene update: phases, then the current mode's handler. */
+/* Message box 1 open (inlined in the original). */
+static inline int box1_open(void)
+{
+    int open;
+
+    if (g_0069395E == 0 || g_0069395E == 0xFF)
+        open = 0;
+    else
+        open = 1;
+    return open;
+}
+
 int func_002A4600(float dt)
 {
     int pressed = pad1_pressed();
+    int pressed2 = pad2_pressed();              /* (read but not used, as in the original) */
 
     func_00376450();
     if (func_00102960(0) == 0)
         return 1;
 
-    if (g_00773154 == 2) {                      /* leaving: wait for the music and message box */
-        if (func_0017DDA0() != 0)
-            return 1;
-        if (g_0069395E != 0 && g_0069395E != 0xFF)
-            return 1;
-        func_0029FE50();
-        return 1;
-    }
-    if (g_00773154 == 1) {
-        if (g_0077314C != 16) {
-            func_0029FE50();
-            g_00773154 = 0;
-            return 1;
-        }
-        if (func_0023A260() == 0) {             /* the shopkeeper's voice has finished */
-            if (func_0017DDA0() != 0)
-                func_0017DF10();
-            func_001B8F60(0, 6, 8);
-            g_00773154 = 2;
-        }
-        if (pressed & BTN_CANCEL) {             /* skip the goodbye */
-            func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            if (func_0017DDA0() != 0)
-                func_0017DF10();
-            func_0023AA40();
-            func_002A86A0(1);
-            g_00773154 = 2;
-            func_001B8F60(0, 6, 8);
-        }
-        return 1;
-    }
-    if (g_00773154 == 0) {
+    switch (g_00773154) {
+    case 0:
         g_00773154 = 3;
         return 1;
+    case 1:
+        if (g_0077314C == 16) {
+            if (func_0023A260() == 0) {         /* the shopkeeper's voice has finished */
+                if (func_0017DDA0() != 0)
+                    func_0017DF10();
+                func_001B8F60(0, 6, 8);
+                g_00773154 = 2;
+            }
+            if (pressed & BTN_CANCEL) {         /* skip the goodbye */
+                func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                if (func_0017DDA0() != 0)
+                    func_0017DF10();
+                func_0023AA40();
+                func_002A86A0(1);
+                g_00773154 = 2;
+                func_001B8F60(0, 6, 8);
+            }
+        } else {
+            func_0029FE50();
+            g_00773154 = 0;
+        }
+        return 1;
+    case 2:                                     /* leaving: wait for the music and message box */
+        if (func_0017DDA0() == 0 && !box1_open())
+            func_0029FE50();
+        return 1;
+    case 3:
+        break;
     }
 
     switch (g_00773148) {
