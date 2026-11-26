@@ -64,6 +64,8 @@ What makes the compiler produce the game's exact code, learnt so far:
   gives "load, load, store, store".
 - A symbol, not an integer cast, where the game builds an address with `lui` / `addiu`.
 - Four different symbols when the same address is loaded four times.
+- **Switch cases in the game's order** (read it from the jump table), empty cases written out
+  when the table has them, and clamps written as `?:` (`x = v < lo ? lo : v`).
 - **A pointer to a struct member stays in a register** (`lui s0; addiu s0, +off`), where a pointer
   to a whole object is folded into each access: the options menu's state at `0x00731140` is one
   object whose members are the settings copies.

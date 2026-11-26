@@ -251,39 +251,39 @@ void func_001E86D0(void);            /* mode 7: select mount */
 #define pad1_pressed() ((unsigned short)(pad1_ready() ? g_0050074C : 0))
 #define pad1_held() ((unsigned short)(pad1_ready() ? g_0050074E : 0))
 
-/* 0x001E7110, 0x180 bytes. Requests mode `mode`: starts the transition (phase 4), prepares the
+/* 0x001E7110, 0x180 bytes, matching. Requests mode `mode`: starts the transition (phase 4), prepares the
  * mode's screen, and moves the two layout layers (func_00376100) to the mode's positions.
  * Mode 15 leaves the gallery (phase 2). */
 void func_001E7110(int mode)
 {
-    int second = -1;                 /* second layer (-1: none) */
-    int first = -1;                  /* first layer (-1: do not move) */
+    int layer = -1;                  /* first layer (-1: do not move) */
+    int sub = layer;                 /* second layer (-1: none) */
 
     g_00731338 = mode;
     g_0073133C = 4;
     switch (mode) {
-    case 0: first = 0; break;
-    case 1: first = 1; func_00391390(0); func_003914C0(); break;
-    case 2: first = 2; func_00391390(1); func_00397660(); break;
-    case 3: first = 3; break;
-    case 4: func_003EEE50(); first = 4; break;
-    case 5: first = 5; break;
-    case 6: first = 6; break;
-    case 7: first = 7; break;
-    case 8: func_0039F340(); first = 8; break;
-    case 9: func_003E79C0(); first = 9; break;
-    case 10: func_003F90A0(); first = 10; break;
-    case 12: second = 2; func_003963D0(); first = 3; break;
-    case 13: second = 3; func_003E4700(); first = 3; break;
-    case 14: second = 4; first = 3; break;
+    case 0: layer = 0; break;
+    case 1: layer = 1; func_00391390(0); func_003914C0(); break;
+    case 2: layer = 2; func_00391390(1); func_00397660(); break;
+    case 3: layer = 3; break;
+    case 4: layer = 4; func_003EEE50(); break;
+    case 5: layer = 5; break;
+    case 6: layer = 6; break;
+    case 7: layer = 7; break;
+    case 8: layer = 8; func_0039F340(); break;
+    case 9: layer = 9; func_003E79C0(); break;
+    case 10: layer = 10; func_003F90A0(); break;
+    case 12: layer = 3; sub = 2; func_003963D0(); break;
+    case 13: layer = 3; sub = layer; func_003E4700(); break;
+    case 14: sub = 4; layer = 3; break;
     case 15:                         /* leave the gallery */
         func_001B8F60(0, 6, 8);
         func_0017DF10();
         g_0073133C = 2;
         break;
     }
-    if (first >= 0)
-        func_00376100(first + 4, second < 0 ? -1 : second + 0x0F, -1);
+    if (layer >= 0)
+        func_00376100(layer + 4, sub >= 0 ? sub + 0x0F : -1, -1);
 }
 
 /* 0x001E7290, 0x3F0 bytes. End of a transition: tidies up the mode being left, prepares the
@@ -405,7 +405,7 @@ void func_001E7290(void)
     g_0073133C = 0;
 }
 
-/* 0x001E7680, 0x1A8 bytes. Officer list (modes 5, 6, 11): Left/Right move through 28 officers,
+/* 0x001E7680, 0x1A8 bytes, matching. Officer list (modes 5, 6, 11): Left/Right move through 28 officers,
  * wrapping; g_0073135B follows as a scroll position 0..5, g_00731330 is the direction (1 left,
  * 2 right). Returns 1 when the cursor moved. `data` is not used. */
 int func_001E7680(void *data)
@@ -415,17 +415,27 @@ int func_001E7680(void *data)
     g_00731330 = 0;
     if (held & BTN_RIGHT) {
         g_00731330 = 2;
-        g_0073135C = (g_0073135C < 0x1B) ? g_0073135C + 1 : 0;
-        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        if (g_0073135C < 0x1B) {
+            g_0073135C++;
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        } else {
+            g_0073135C = 0;
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        }
         if (g_0073135B < 5)
             g_0073135B++;
         return 1;
     }
     if (held & BTN_LEFT) {
         g_00731330 = 1;
-        g_0073135C = (g_0073135C == 0) ? 0x1B : g_0073135C - 1;
-        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-        if (g_0073135B != 0)
+        if (g_0073135C > 0) {
+            g_0073135C--;
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        } else {
+            g_0073135C = 0x1B;
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        }
+        if (g_0073135B > 0)
             g_0073135B--;
         return 1;
     }
