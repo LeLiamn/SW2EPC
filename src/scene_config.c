@@ -582,7 +582,7 @@ void func_001E44C0(void)
     }
 }
 
-/* 0x001E4BF0, 0x280 bytes. Page 3: save or load the settings (two choices, then an operation
+/* 0x001E4BF0, 0x280 bytes, matching. Page 3: save or load the settings (two choices, then an operation
  * running in mode 2 or 3 until it reports 1 = done or 2 = cancelled). */
 void func_001E4BF0(void)
 {
@@ -624,19 +624,21 @@ void func_001E4BF0(void)
     } else if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_001E3DB0(0);
-    } else if (pressed & (BTN_UP | BTN_DOWN)) {
-        /* Up and down are two separate branches in the original, with the same effect. */
+    } else if (pressed & BTN_UP) {
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_00731225 = (u8)((g_00731225 + 1) % 2);
+    } else if (pressed & BTN_DOWN) {
         func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         g_00731225 = (u8)((g_00731225 + 1) % 2);
     }
 }
 
-/* 0x001E4E70, 0x1F0 bytes. Page 8: adjust the screen position (offsets clamped to -24..24). */
+/* 0x001E4E70, 0x1F0 bytes, matching. Page 8: adjust the screen position (offsets clamped to -24..24). */
 void func_001E4E70(void)
 {
     int pressed = pad1_pressed();
     int held = pad1_held();
-    int *x = (int *)g_00731140;
+    DisplaySettings *d = &s_00731140.display;
 
     if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
@@ -645,21 +647,17 @@ void func_001E4E70(void)
         func_001E3CD0();
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
     } else if (held & BTN_LEFT) {
-        if (--*x < -0x18)
-            *x = -0x18;
-        func_00100ED0(x, &g_00731144);
+        d->x = d->x - 1 < -0x18 ? -0x18 : d->x - 1;
+        func_00100ED0(&d->x, &d->y);
     } else if (held & BTN_RIGHT) {
-        if (++*x > 0x17)
-            *x = 0x18;
-        func_00100ED0(x, &g_00731144);
+        d->x = d->x + 1 < 0x18 ? d->x + 1 : 0x18;
+        func_00100ED0(&d->x, &d->y);
     } else if (held & BTN_UP) {
-        if (--g_00731144 < -0x18)
-            g_00731144 = -0x18;
-        func_00100ED0(x, &g_00731144);
+        d->y = d->y - 1 < -0x18 ? -0x18 : d->y - 1;
+        func_00100ED0(&d->x, &d->y);
     } else if (held & BTN_DOWN) {
-        if (++g_00731144 > 0x17)
-            g_00731144 = 0x18;
-        func_00100ED0(x, &g_00731144);
+        d->y = d->y + 1 < 0x18 ? d->y + 1 : 0x18;
+        func_00100ED0(&d->x, &d->y);
     }
 }
 
