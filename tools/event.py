@@ -98,6 +98,37 @@ def old_script(data):
             return out, pos
 
 
+
+def _pack2(d):
+    """(offset, size) entries of a `count, (offset, size)...` pack."""
+    n = struct.unpack_from("<I", d, 0)[0]
+    return [struct.unpack_from("<II", d, 4 + 8 * i) for i in range(n)]
+
+
+def check_dialogues(data):
+    """Event dialogues (BNS entry 0172, emp_ev_still.c): a pack of records, each itself a pack
+    of 3 parts: a table of offsets (relocated by the game), 16 bytes, and the lines (offset table
+    then lines of text with their voice numbers). Returns the number of records."""
+    records = _pack2(data)
+    for o, s in records:
+        rec = data[o:o + s]
+        parts = _pack2(rec)
+        if len(parts) != 3:
+            raise EventError(f"record at 0x{o:x}: not 3 parts")
+        (a0, s0), (a1, s1), (a2, s2) = parts
+        if not (a0 + s0 <= a1 and a1 + s1 <= a2 and a2 + s2 <= s):
+            raise EventError(f"record at 0x{o:x}: parts out of order")
+        c = struct.unpack_from("<I", rec, a0)[0]
+        offs = struct.unpack_from(f"<{c}I", rec, a0 + 4)
+        if list(offs) != sorted(offs) or (offs and offs[-1] >= s0):
+            raise EventError(f"record at 0x{o:x}: bad offset table")
+        if s2:
+            k = struct.unpack_from("<I", rec, a2)[0] // 4
+            lines = struct.unpack_from(f"<{k}I", rec, a2)
+            if list(lines) != sorted(lines) or lines[-1] >= s2:
+                raise EventError(f"record at 0x{o:x}: bad line table")
+    return len(records)
+
 def motions(data, start):
     """Find the embedded motions after the command chain: (prefix word, offset, parsed motion)."""
     found, pos = [], start

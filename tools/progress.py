@@ -39,6 +39,7 @@ import efb  # noqa: E402
 import ipu  # noqa: E402
 import soundbank  # noqa: E402
 import ps2icon  # noqa: E402
+import text  # noqa: E402
 import motion  # noqa: E402
 import event  # noqa: E402
 
@@ -53,6 +54,7 @@ FORMAT_STATUS = {
     "Motion (atypical)": ("todo", "Motions with an unknown track type"),
     "ADPCM sounds": ("done", "Sound-effect bank and other raw SPU ADPCM files, decodable to WAV"),
     "Sound bank headers": ("done", "Sony HD sound bank headers (IECS chunks) for the ADPCM banks"),
+    "Text": ("done", "Text tables (messages, event dialogues): offsets and NUL-terminated strings"),
     "Save icon": ("done", "PS2 memory-card 3D icon (vertices, animation, 128x128 texture)"),
     "Event motions": ("done", "Motions embedded in the in-engine cutscene (event) files"),
     "Event commands": ("done", "Typed command records of the event files and scenario scripts (+ padding)"),
@@ -190,6 +192,12 @@ def known_entries(data):
                 known["0061"] = "Save icon"
             except (ps2icon.IconError, struct.error):
                 pass
+        if e["index"] == 172:                   # event dialogues (emp_ev_still.c)
+            try:
+                event.check_dialogues(data[e["offset"]:e["offset"] + e["size"]])
+                known["0172"] = "Text"
+            except (event.EventError, struct.error):
+                pass
         if 2486 <= e["index"] < 2672:          # second pack of each battlefield (Stage.c)
             try:
                 battlefield.parse_pack2(data[e["offset"]:e["offset"] + e["size"]])
@@ -239,6 +247,8 @@ def count_container(data, sizes, forced_kind=None):
                     kind = "Sound bank headers"
                 except ValueError:
                     pass
+            elif kind == "Unidentified" and text.strings(leaf) is not None:
+                kind = "Text"
             elif kind == "Unidentified" and leaf == b"X" * len(leaf):
                 kind = "Containers"                 # filler entries of a pack ("XXXX...")
             elif kind == "Unidentified" and is_raw_adpcm(leaf):

@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2149470426
+    "done": 2150077249
   },
   "functions": {
     "total": 10587,
@@ -750,19 +750,27 @@
           }
         },
         {
-          "name": "Unidentified",
-          "description": "Leaves without a known signature (models, motions, scripts...)",
-          "data": {
-            "total": 6106158,
-            "done": 0
-          }
-        },
-        {
           "name": "Containers",
           "description": "LINKDATA and pack tables (3 pack variants), padding",
           "data": {
             "total": 5920298,
             "done": 5920298
+          }
+        },
+        {
+          "name": "Unidentified",
+          "description": "Leaves without a known signature (models, motions, scripts...)",
+          "data": {
+            "total": 5499335,
+            "done": 0
+          }
+        },
+        {
+          "name": "Text",
+          "description": "Text tables (messages, event dialogues): offsets and NUL-terminated strings",
+          "data": {
+            "total": 606823,
+            "done": 606823
           }
         },
         {
