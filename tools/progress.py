@@ -83,16 +83,36 @@ SRC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 FUNCTION_TAG = re.compile(r"/\* 0x([0-9A-Fa-f]{8}), (0x[0-9A-Fa-f]+|\d+) bytes(, matching)?")
 
 
+# The executable's code segment, set by build_report: (bytes, start address). With it, the alignment
+# padding after a function (zero words, the MIPS nop, up to the next 16-byte boundary) counts
+# with that function: it is not code, and no tag can cover it otherwise.
+TEXT = None
+
+
+def padding_after(end):
+    """Bytes of nop padding from `end` to the next 16-byte boundary (0 if not all nops)."""
+    if TEXT is None:
+        return 0
+    data, base = TEXT
+    pad = (-end) % 16
+    off = end - base
+    if pad and 0 <= off and off + pad <= len(data) and data[off:off + pad] == bytes(pad):
+        return pad
+    return 0
+
+
 def decompiled_functions():
     """{address: (size, matching)} of the functions decompiled in src/, each tagged
-    '/* 0xADDRESS, SIZE bytes' (', matching' after it when proven on decomp.me)."""
+    '/* 0xADDRESS, SIZE bytes' (', matching' after it when proven on decomp.me). The size
+    includes the function's alignment padding when the executable is known."""
     seen = {}
     for root, _, files in os.walk(SRC_DIR):
         for name in files:
             if name.endswith((".c", ".h")):
                 text = open(os.path.join(root, name), encoding="utf-8").read()
                 for addr, size, matching in FUNCTION_TAG.findall(text):
-                    seen[int(addr, 16)] = (int(size, 0), bool(matching))
+                    a, s = int(addr, 16), int(size, 0)
+                    seen[a] = (s + padding_after(a + s), bool(matching))
     return seen
 
 
@@ -375,6 +395,10 @@ def build_report(image):
     _, exe = system_cnf(image)
     elf = elf_info.parse(read_file(image, exe))
     total = code_total(elf)
+    global TEXT
+    seg = next((s for s in elf["segments"] if s["type"] == 1 and s["filesz"]), None)
+    if seg:                                      # (the sections have no names: use the segment)
+        TEXT = (elf["data"][seg["offset"]:seg["offset"] + seg["filesz"]], seg["vaddr"])
 
     sizes = defaultdict(int)
     disc = open(image, "rb")

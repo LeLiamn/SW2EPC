@@ -7,7 +7,10 @@ executable (relocated fields aside). Its tag then says so:
 /* 0x001E3D50, 0x1C bytes, matching. ... */
 ```
 
-`tools/progress.py` counts tagged functions as matching instead of non-matching.
+`tools/progress.py` counts tagged functions as matching instead of non-matching. The size in a
+tag ends at the function's last instruction. The report adds the alignment padding after it:
+`nop` words, up to the next 16-byte boundary. That padding is not code, and no tag could cover it
+otherwise. The start-up code at `0x00100008` is assembly, so it is never counted.
 
 ## Compiler and settings
 
