@@ -1,6 +1,6 @@
 /*
  * model.c - motion curves, tm3 textures and 3D models (original source file unknown; 0x00147780-
- * 0x0014D384, after font.c).
+ * 0x0014F0B8, after font.c).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -22,6 +22,10 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 typedef unsigned long long u64;
+typedef signed char s8;
+
+float fabsf(float x);
+float sqrtf(float x);
 
 #define g_70000158 (*(u32 **)0x70000158)         /* the DMA chain's write cursor */
 
@@ -924,7 +928,7 @@ void func_00149720(Actor *a)
     a->d = 0;
 }
 
-void func_0014E6F0(Actor *a, float base[4][4], float m[4][4], int frame);
+u32 func_0014E6F0(Actor *a, float base[4][4], float world[4][4], int frame);
 
 /* out = a * b (4 x 4, column vectors: out[j] = a * b[j]), as the VU0's vmulabc / vmaddabc
  * sequences do. */
@@ -1060,4 +1064,464 @@ void func_00149730(Actor *a, char mode, int frame)
     }
     if (a->d != (u32)-1)
         a->d++;
+}
+
+#define g_70000150 (*(int *)0x70000150)          /* frame index: 0 or 1 */
+
+#define PI     3.1415927f
+#define TWO_PI 6.2831855f
+
+/* An angle brought back into (-pi, pi]. */
+#define WRAP(a) ((a) > PI ? (a) - TWO_PI : (a) <= -PI ? (a) + TWO_PI : (a))
+
+float vu0_angle(float x, float z);               /* VU0 micro subroutine 0x30 (atan2?) */
+void vu0_sincos(float a, float *s, float *c);    /* VU0 micro subroutine 0x20 */
+void func_001436C8(float *to, const float *from);   /* copies x, y, z */
+
+/* The node list and model in use (the second ones when flag 2 is set and they exist). */
+#define ACTOR_MODEL(a) (((a)->flags & 2) ? (a)->model2 : (a)->model)
+
+/* 0x0014D390, 0x20 bytes, matching. Brings the matrices up to date for this frame. */
+void func_0014D390(Actor *a, char mode)
+{
+    func_00149730(a, mode, g_70000150);
+}
+
+/* Copies the last frame's matrix of `count` nodes from `n` into this frame's. */
+static inline void keep_matrices(Node *n, int count, int frame)
+{
+    int i, k;
+
+    for (i = 0; i < count; i++, n++) {
+        float (*to)[4] = NODE_WORLD(n, frame);
+        float (*from)[4] = NODE_WORLD(n, frame ^ 1);
+
+        for (k = 0; k < 16; k++)
+            ((float *)to)[k] = ((float *)from)[k];
+    }
+}
+
+/* 0x0014D3B0, 0x1A8 bytes. Keeps last frame's matrices for the model's ranges (the second range
+ * of mode 0 only with the first model). */
+void func_0014D3B0(Actor *a)
+{
+    int frame = g_70000150;
+    Model *m = ACTOR_MODEL(a);
+
+    keep_matrices(&a->e[m->range[0]], m->range[1], frame);
+    keep_matrices(&a->e[m->range[4]], m->range[5], frame);
+    if ((a->flags & 2) == 0)
+        keep_matrices(&a->e[m->range[2]], m->range[3], frame);
+}
+
+void func_0014D6C0(Actor *a);
+
+/* 0x0014D560, 0x154 bytes. Settles an object (without a second node list): local matrices
+ * rebuilt, both frames' matrices computed, then `n` more updates, each frame in turn (for the
+ * swing nodes); flags 2 and 4 put back. */
+void func_0014D560(Actor *a, char mode, int n)
+{
+    int frame = g_70000150;
+    u8 saved = a->flags;
+    int i;
+
+    if (a->nodes2 == 0) {
+        a->flags &= ~2;
+        func_0014D6C0(a);
+        a->d = 0;
+        func_00149730(a, mode, frame ^ 1);
+        a->d = 0;
+        func_00149730(a, mode, frame);
+        a->flags |= 4;
+        for (i = 0; i < n; i++) {
+            frame ^= 1;
+            func_00149730(a, mode, frame);
+        }
+        a->flags = (a->flags & ~6) | (saved & 6);
+    }
+}
+
+/* 0x0014D6C0, 0x120 bytes. Rebuilds the local matrices of the changed nodes: the first
+ * range[1] nodes of the list, then the range range[4] / range[5]. */
+void func_0014D6C0(Actor *a)
+{
+    Model *m = ACTOR_MODEL(a);
+    Node *n;
+    int i;
+
+    a->e = ((a->flags & 2) && a->nodes2 != 0) ? a->nodes2 : a->nodes;
+    for (i = 0, n = a->e; i < m->range[1]; i++, n++) {
+        if (n->dirty) {
+            n->dirty = 0;
+            NODE_MATRIX(n);
+        }
+    }
+    for (i = 0, n = &a->e[m->range[4]]; i < m->range[5]; i++, n++) {
+        if (n->dirty) {
+            n->dirty = 0;
+            NODE_MATRIX(n);
+        }
+    }
+}
+
+/* Sets component `comp` of a node (0-2 rotation, 3-5 translation) and marks it changed. */
+static inline void node_set(Node *n, u32 comp, float v)
+{
+    n->dirty = 1;
+    switch (comp) {
+    case 0: n->rot[0] = v; break;
+    case 1: n->rot[1] = v; break;
+    case 2: n->rot[2] = v; break;
+    case 3: n->pos[0] = v; break;
+    case 4: n->pos[1] = v; break;
+    case 5: n->pos[2] = v; break;
+    }
+}
+
+/* 0x0014D7E0, 0x1BC bytes. Applies a motion at time `t` to nodes `first` to `last`. */
+void func_0014D7E0(float t, Actor *a, MotionState *s, u32 first, u32 last)
+{
+    Node *list;
+    u32 *m;
+    const float *p;
+    u32 i;
+
+    if (s == 0)
+        return;
+    list = ((a->flags & 2) && a->nodes2 != 0) ? a->nodes2 : a->nodes;
+    m = s->motion;
+    p = (const float *)(m + 3);
+    for (i = 0; i < m[1]; i++) {
+        u32 w = *(const u32 *)p++;
+        u32 node = w & 0xFF;
+        u32 size = w >> 13 & 7;
+
+        if (first <= node && node <= last)
+            node_set(&list[node], w >> 8 & 0x1F, track_value(p, size, t));
+        p += size * (w >> 18);
+    }
+}
+
+/* 0x0014D9A0, 0x40 bytes. The same for all the model's nodes. */
+void func_0014D9A0(float t, Actor *a, MotionState *s)
+{
+    func_0014D7E0(t, a, s, 0, ACTOR_MODEL(a)->a);
+}
+
+/* 0x0014D9E0, 0x5D4 bytes. Applies a blend of three poses of a face motion to the face's nodes
+ * (from node 47: part 0 nodes 0-7, part 1 nodes 8-13, part 2 nodes 14-15): v1 at `t1` is blended
+ * towards v2 (`t2`, weight `w2`) and towards v3 (`t3`, `w3`), and the two by `w` (angles kept in
+ * (-pi, pi]). With `single`, the pose at `t1` only. */
+void func_0014D9E0(float t1, float w, float t2, float t3, float w2, float w3, Actor *a,
+                   MotionState *s, int part, int single)
+{
+    u32 first, last, i;
+    Node *face;
+    u32 *m;
+    const float *p;
+
+    if (s == 0)
+        return;
+    if (part == 2) {
+        first = 0xE;
+        last = 0xF;
+    } else if (part == 1) {
+        first = 8;
+        last = 0xD;
+    } else if (part == 0) {
+        first = 0;
+        last = 7;
+    } else {
+        first = 0;
+        last = 0;
+    }
+    face = a->nodes == 0 ? 0 : (Node *)((u8 *)a->nodes + 0x1490);
+    m = s->motion;
+    p = (const float *)(m + 3);
+    for (i = 0; i < m[1]; i++) {
+        u32 w0 = *(const u32 *)p++;
+        u32 node = w0 & 0xFF;
+        u32 comp = w0 >> 8 & 0x1F;
+        u32 size = w0 >> 13 & 7;
+
+        if (single == 0) {
+            float v1 = track_value(p, size, t1);
+            float v2 = track_value(p, size, t2);
+            float v3 = track_value(p, size, t3);
+            float v;
+
+            if (comp < 3) {
+                float b2 = v1 * (1.0f - w2) + v2 * w2;
+                float b3;
+
+                b2 = WRAP(b2);
+                b3 = v1 * (1.0f - w3) + v3 * w3;
+                b3 = WRAP(b3);
+                v = b2 * (1.0f - w) + b3 * w;
+                v = WRAP(v);
+            } else {
+                v = (v1 * (1.0f - w2) + v2 * w2) * (1.0f - w) + (v1 * (1.0f - w3) + v3 * w3) * w;
+            }
+            if (first <= node && node <= last)
+                node_set(&face[node], comp, v);
+        } else if (first <= node && node <= last) {
+            node_set(&face[node], comp, track_value(p, size, t1));
+        }
+        p += size * (w0 >> 18);
+    }
+}
+
+u32 func_00147C00(u8 **f, int which);
+u8 *func_00147C50(u8 **f, int which);
+u8 func_00147CD0(u8 **f, int which);
+
+/* 0x0014DFC0, 0x3BC bytes. Plays part `part` of a face expression at time `t`: the
+ * expression's keys (pose, weight 0-127, frames) are blended in turn from the part's base pose.
+ * (When `t` is before the end of the first key, the start time is not set by the original.) */
+void func_0014DFC0(float t, Actor *a, MotionState *s, u8 **expr, int part)
+{
+    u8 *key = func_00147C50(expr, part);
+    int base = func_00147CD0(expr, part);
+    u32 count = func_00147C00(expr, part);
+    u8 *cur, *next;
+    int start = 0;
+    float k;
+
+    if (count == 0)
+        return;
+    if (count == 1) {
+        float w = (float)key[1] / 127.0f;
+        float f;
+
+        if (w >= 1.0f)
+            w = 1.0f;
+        f = (float)base * (1.0f - w) + (float)key[0] * w;
+        func_0014D9E0((float)base, 1.0f, f, f, w, w, a, s, part, 0);
+        return;
+    }
+    cur = key;
+    next = key + 3;
+    if ((int)key[2] < (int)t) {
+        u32 i;
+        int at = 0;
+
+        for (i = 0; i < count - 1; i++) {
+            cur = key;
+            start = at;
+            next = cur + 3;
+            if (t <= (float)(int)(start + cur[5]))
+                break;
+            at = start + cur[5];
+            key = next;
+        }
+    }
+    k = (t - (float)start) / (float)next[2];
+    if (k >= 1.0f)
+        k = 1.0f;
+    if (k < 0.0f)
+        k = 0.0f;
+    func_0014D9E0((float)base, k, (float)cur[0], (float)next[0], (float)cur[1] / 127.0f,
+                  (float)next[1] / 127.0f, a, s, part, 0);
+}
+
+/* 0x0014E380, 0x370 bytes. A transition: the changed nodes are blended back from the pose saved
+ * at +0x218 (1 - time / length, +0x210 / +0x214), rotations by the shorter way round; the root
+ * keeps the saved height only (or this frame's height, or all of its position: +0x21D,
+ * +0x21E). */
+void func_0014E380(Actor *a)
+{
+    Model *m = ACTOR_MODEL(a);
+    u8 *t = a->transforms;
+    float k = 1.0f - *(float *)(t + 0) / *(float *)(t + 4);
+    Node *n = ((a->flags & 2) && a->nodes2 != 0) ? a->nodes2 : a->nodes;
+    float *saved = *(float **)(t + 8);
+    int i;
+
+    if (t[0xE] == 0) {
+        if (t[0xD] == 0) {
+            saved[4] = 0.0f;
+            saved[6] = 0.0f;
+            saved[7] = 1.0f;
+        } else {
+            saved[4] = 0.0f;
+            saved[5] = n->pos[1];
+            saved[6] = 0.0f;
+            saved[7] = 1.0f;
+        }
+    } else {
+        saved[4] = n->pos[0];
+        saved[5] = n->pos[1];
+        saved[6] = n->pos[2];
+        saved[7] = n->pos[3];
+    }
+    for (i = 0; i < m->range[1]; i++, n++, saved += 8) {
+        if (n->dirty) {
+            float alt[3], best[3], d;
+            int c;
+
+            for (c = 0; c < 4; c++)
+                n->pos[c] = n->pos[c] * k + saved[4 + c] * (1.0f - k);
+            alt[0] = saved[0] + PI;
+            alt[1] = PI - saved[1];
+            alt[2] = saved[2] + PI;
+            for (c = 0; c < 3; c++)
+                alt[c] = WRAP(alt[c]);
+            if (fabsf(n->rot[2] - saved[2]) + fabsf(n->rot[0] - saved[0])
+                + fabsf(n->rot[1] - saved[1])
+                < fabsf(n->rot[2] - alt[2]) + fabsf(n->rot[0] - alt[0])
+                  + fabsf(n->rot[1] - alt[1])) {
+                for (c = 0; c < 3; c++)
+                    best[c] = saved[c];
+            } else {
+                for (c = 0; c < 3; c++)
+                    best[c] = alt[c];
+            }
+            for (c = 0; c < 3; c++) {
+                d = n->rot[c] - best[c];
+                d = WRAP(d);
+                n->rot[c] = d * k + best[c] + 0.0f;
+            }
+        }
+    }
+}
+
+/* A swing node's description (32 bytes, from the model's description at +0x20). */
+typedef struct {
+    float a[4];
+    float limit;             /* +0x10 */
+    float min;               /* +0x14 the distance kept from the body */
+    float length;            /* +0x18 */
+    float drop;              /* +0x1C */
+} Swing;
+
+extern float g_00406330[4];              /* the forward vector */
+
+/* A position's distance from another. */
+static inline float dist3(const float *a, const float *b)
+{
+    float x = a[0] - b[0], y = a[1] - b[1], z = a[2] - b[2];
+
+    return sqrtf(x * x + y * y + z * z);
+}
+
+/* 0x0014E6F0, 0x9C8 bytes. The swing nodes (range[2] / range[3], a skirt?): each keeps last
+ * frame's position, is pulled towards its parent at its length, pushed out of the body by its
+ * kind (0-4: by the side, front, back or between the legs, nodes 4 and 5), and kept within its
+ * limit. `base` is the root's base matrix, `world` the object's. */
+u32 func_0014E6F0(Actor *a, float base[4][4], float world[4][4], int frame)
+{
+    Model *m = ACTOR_MODEL(a);
+    float fwd[4];
+    float yaw;
+    u32 r = 0;
+    Node *n;
+    Swing *sw;
+    int i, c;
+
+    for (c = 0; c < 4; c++)
+        fwd[c] = world[0][c] * g_00406330[0] + world[1][c] * g_00406330[1]
+                 + world[2][c] * g_00406330[2] + world[3][c] * g_00406330[3];
+    yaw = vu0_angle(fwd[0], fwd[2]);
+    if ((u8 *)m->texture == 0)
+        return r;
+    n = &a->e[m->range[2]];
+    for (i = 0; i < m->range[3]; i++, n++) {
+        float keep[4];
+
+        for (c = 0; c < 4; c++)
+            keep[c] = NODE_WORLD(n, frame ^ 1)[3][c];
+        node_world(n, base, frame);
+        for (c = 0; c < 4; c++)
+            NODE_WORLD(n, frame)[3][c] = keep[c];
+    }
+    sw = (Swing *)m->texture;
+    n = &a->e[m->range[2]];
+    for (i = 0; i < m->range[3]; i++, n++, sw++) {
+        float (*cur)[4] = NODE_WORLD(n, frame);
+        float (*pm)[4] = NODE_WORLD(&a->e[n->parent->index], frame);
+        float parent[4], dir[4], target[4], len, limit, d;
+        s8 kind = ((u8 *)m->texture)[0x8C + i];
+
+        for (c = 0; c < 4; c++)
+            parent[c] = pm[3][c] / pm[3][3];
+        for (c = 0; c < 4; c++)
+            dir[c] = parent[c] - cur[3][c];
+        len = sqrtf(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
+        for (c = 0; c < 4; c++)
+            dir[c] = dir[c] / len;
+        for (c = 0; c < 4; c++)
+            target[c] = dir[c] * sw->length;
+        target[1] += sw->drop;
+        for (c = 0; c < 4; c++)
+            target[c] += cur[3][c];
+        if (kind < 5) {
+            float ang = yaw, rx, rz, s, co, s2, c2, push[3] = { 0.0f, 0.0f, 0.0f };
+            float *root = NODE_WORLD(&a->e[0], frame)[3];
+            float rel[3];
+            int pi = n->parent->index;
+
+            if (pi == 1)
+                ang = yaw + a->e[1].rot[0];
+            else if (pi == 9)
+                ang = yaw - a->e[8].rot[0];
+            ang = (ang + 0.0f) - (float)(int)(ang / TWO_PI) * TWO_PI;
+            ang = WRAP(ang);
+            for (c = 0; c < 3; c++)
+                rel[c] = target[c] - root[c];
+            vu0_sincos(-ang, &s, &co);
+            rx = rel[0] * co + rel[2] * s;
+            rz = -rel[0] * s + rel[2] * co;
+            vu0_sincos(ang, &s2, &c2);
+            if (kind == 4) {
+                if (rz < sw->min) {
+                    d = sw->min - rz;
+                    push[0] = d * s2;
+                    push[2] = d * c2;
+                }
+            } else if (kind == 3) {
+                if (-rz < sw->min) {
+                    d = -sw->min - rz;
+                    push[0] = d * s2;
+                    push[2] = d * c2;
+                }
+            } else if (kind == 2) {
+                float *l4 = NODE_WORLD(&a->e[4], frame)[3];
+                float *l5 = NODE_WORLD(&a->e[5], frame)[3];
+                float d4 = dist3(root, l4), d5 = dist3(root, l5);
+                float mx = d5 < d4 ? d4 : d5;
+                float low;
+
+                mx = sw->min < mx ? mx : sw->min;
+                if (rz < mx) {
+                    d = mx - rz;
+                    push[0] = d * s2;
+                    push[2] = d * c2;
+                }
+                low = (l4[1] < l5[1] ? l4[1] : l5[1]) - 8.0f;
+                if (low < target[1])
+                    push[1] = low - target[1];
+            } else if (kind == 1) {
+                if (-rx < sw->min) {
+                    d = -sw->min - rx;
+                    push[0] = d * c2;
+                    push[2] = -d * s2;
+                }
+            } else if (kind == 0 && rx < sw->min) {
+                d = sw->min - rx;
+                push[0] = d * c2;
+                push[2] = -d * s2;
+            }
+            target[1] += push[1];
+            target[0] += push[0];
+            target[2] += push[2];
+        }
+        limit = (sw->limit + 0.0f) - dist3(parent, target) * 0.5f;
+        d = dist3(target, parent);
+        if (limit < d) {
+            for (c = 0; c < 3; c++)
+                target[c] = parent[c] + limit * (target[c] - parent[c]) / d;
+        }
+        func_001436C8(cur[3], target);
+    }
+    return r;
 }
