@@ -29,7 +29,8 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | Scene objects (26,623 TMD2) | Geometry decoded; whole battlefield packs export to OBJ |
 | tm3 textures (176) | All convert to PNG, one image per palette (characters' textures) |
 | Sound effects (1,610) | Bank split and decoded to WAV (17 minutes) |
-| Other formats inside | Signatures identified (battlefield pieces, `TMD2`, `tm3`...) |
+| Battlefield terrain (186) | Decoded from the game code (Stage.c); terrain exports to OBJ |
+| Other formats inside | Signatures identified (`TMD2`, `tm3`...) |
 | Decompilation | Started: start-up code mapped, main loop decompiled (7 functions), Ghidra set up ([docs/code.md](docs/code.md)) |
 
 ## Related projects
@@ -58,6 +59,7 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | `tools/ps2model.py` | Export the 3D models (with skeleton and skinning applied) to OBJ, with a PNG preview |
 | `tools/motion.py` | Read the animations and pose a model at any frame (OBJ / PNG) |
 | `tools/tmd2.py` | Export the battlefields' static scene objects (TMD2) to OBJ |
+| `tools/battlefield.py` | Check the battlefield terrain files and export a terrain to OBJ |
 | `tools/tm3.py` | Convert tm3 textures (GS upload packets) to PNG, one per palette |
 | `tools/event.py` | List the commands and motions of the in-engine cutscene (event) files |
 | `tools/soundbank.py` | Split the sound-effect bank into 1,610 WAV files |

@@ -1,42 +1,80 @@
-# Battlefield layout files (starting `00 C0 04 66`)
+# Battlefield terrain files (starting `00 C0 04 66`)
 
-**Status: in progress.** Role identified, structure partly understood.
+**Status: decoded.** Tool: `tools/battlefield.py` (structure check, export of the terrain to OBJ).
 
-There are **186 files** (59 MB), each in its own pack together with two `TMD2` objects
-([TMD2.md](TMD2.md)) and one `TIM2` texture: `[layout, TMD2, TMD2, TIM2]`. The texture is a **top-down
-map of a battlefield** (forest, rivers, paths, cleared base areas), which tells what these files are:
-the layout data of the battlefields (grid, zones, navigation, heights...). 124 of them are exactly
-150,608 bytes; the others range up to 902,720 bytes.
+There are **186 files** (59 MB), LINKDATA.BNS entries 2300 to 2485, each a pack
+`[terrain, TMD2, TMD2, TIM2]`: the terrain described here, two static object sets
+([TMD2.md](TMD2.md)) and the battlefield's top-down map ([TIM2.md](TIM2.md)).
 
-## What holds for all 186 files
+The structure comes from the game code (source file `Stage.c`): `func_00193B90` loads entry
+`2300 + battlefield number` (and `2486 + number`), `func_00194010` turns the pack's offsets into
+pointers and gives the first file to `func_00196540`, which copies its 0x100-byte header to the
+scratchpad (`0x70000770`) and keeps a pointer to each section. The terrain drawing code
+(`func_00194D10`, `func_00200490`, `func_002007A0`) reads the sections.
 
-- The file starts with a short VIF prologue (`UNPACK V2-8`, `UNPACK V4-32`, `UNPACK V3-16`, `MSCNT`):
-  the first bytes are the command `00 C0 04 66`.
-- At 0x98, three u32 offsets split the rest of the file into sections. In all 186 files they are in
-  increasing order and inside the file; section 2 (between the first two offsets) is always a whole
-  number of 4-byte entries.
+## Header (0x100 bytes)
 
-## Observed in file 2300.0 (858,656 bytes)
-
-| Range | Content |
+| Offset | Content |
 |---|---|
-| 0x114–0x76C60 | 24,311 records of 20 bytes (u16, u16, −1, 0x2000, 0x40, 0) at the start: cells? This record size does not hold in most other files |
-| 0x76C60–0xCCD50 | 88,124 pairs of small u16 values |
-| 0xCCD50–0xCCDB0 | 96 bytes of `00 / 7F / FF` patterns (directions? masks?) |
-| 0xCCDB0–end | floats (44, 68, 84, 128...): heights or ranges? |
+| 0x00-0x7F | VIF/GIF command templates used when drawing (the file starts with `UNPACK V2-8`, hence `00 C0 04 66`) |
+| 0x80 | offset of section 0, the terrain grid |
+| 0x84-0x94 | offsets of sections 1-5, the five layers (0 when the file has no layers) |
+| 0x98 | offset of section 6, the tiles |
+| 0x9C | offset of section 7, the register sets |
+| 0xA0 | offset of section 8, the texture coordinates |
+| 0xD0, 0xD1 | grid size in cells: width, height (u8) |
+| 0xD2-0xDB | origin (x, z cell) of each layer, two u8 per layer |
+| 0xDC | non-zero when the layers are used (u32) |
 
-## The common small variant (124 files of 150,608 bytes)
+Offsets count from the start of the file. Every section is padded to a 16-byte boundary with
+`00 CC CC CC...` (and leftovers of the tool's memory after it); when the padding starts in the slot
+of a last record, that slot is padding too.
 
-A table at 0x80 gives section offsets: 272, 288, 30,304, 60,320, 90,336, 120,352, 150,368, then two
-more near the end. Between 288 and 150,368 there are **five sections of exactly 30,016 bytes**: five
-same-sized layers, typical of stacked grids (height, ground type, zones...?). These 124 files are 96%
-identical to each other: mostly default values (65535 = none), so they look like nearly empty
-layouts or per-battle variants of a shared base.
+## Section 0: the terrain grid
 
-The large files use the same table position but a different layout (272, zeros, then offsets near
-the end of the file), and their sections do not split into regular grids.
+`(width + 1) x (height + 1)` vertices of 20 bytes, row by row (x first). Two vertices are 500 world
+units apart.
 
-## Next steps
+| Offset | Content |
+|---|---|
+| 0x00 | 4 bytes, unknown |
+| 0x04 | s16 height (the game's Y axis points down) |
+| 0x06, 0x08, 0x0A | u16 tile of the cell at this vertex, one per drawing pass (0xFFFF = none) |
+| 0x0C | colour index (low 7 bits: one of the 16-byte colours of a table at `0x70000A10`) |
+| 0x0D | low 2 bits: which diagonal splits the cell; the other bits are not used by the drawing code |
+| 0x0E | 6 bytes, unknown |
 
-Decoding the meaning of the sections needs either the game code that reads them, or a comparison
-with the minimap (for example looking for a grid whose cells match the forest/river/path areas).
+The 140 small files (all 150,560-150,624 bytes, grid size 60 x 60) have **no grid**: section 0 is
+16 bytes of padding. They are placeholders (they also have only a dozen tiles).
+
+## Sections 1-5: layers (when header 0xDC is non-zero)
+
+Five layers of 50 x 50 cells of 12 bytes, placed on the grid at the origin given in the header
+(`func_00194480`: a cell outside the 50 x 50 square, or whose byte 7 has its low 2 bits clear, is
+empty). In a cell: +4 u16 tile (0xFFFF = none), +6 colour index (low 7 bits), +7 flags.
+
+## Section 6: tiles (12 bytes)
+
+| Offset | Content |
+|---|---|
+| 0x0 | u16 material: index of a 16-byte texture set at the start of the scene's data (`0x70000760`) |
+| 0x2 | u16 register set (section 7) |
+| 0x4-0xA | four u16 indices into section 8, the texture coordinates of the cell's four corners |
+
+## Section 7: register sets (8 bytes)
+
+Copied as they are into the drawing packet before the tile's vertices (GS register data).
+
+## Section 8: texture coordinates (16 bytes)
+
+Four floats, multiplied by the vertex colour before being sent to the GS.
+
+## Checked
+
+`py tools/battlefield.py --check image.iso`: the 186 files parse, every section ends with its
+padding only, and every tile, register set and coordinate index is in range (140 placeholders).
+`py tools/battlefield.py FILE OUT.obj` exports the terrain heights; battlefield 2301 shows bases
+joined by paths, a river and hills around the edges, matching its top-down map.
+
+Not decoded yet: the first 4 and last 6 bytes of a vertex, the meaning of the layer flags, and the
+content of the register sets beyond "GS data copied as is".

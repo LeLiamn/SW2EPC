@@ -33,6 +33,7 @@ from disc_info import system_cnf  # noqa: E402
 from iso_list import SECTOR, list_image, read_file  # noqa: E402
 import linkdata  # noqa: E402
 import pack  # noqa: E402
+import battlefield  # noqa: E402
 import motion  # noqa: E402
 import event  # noqa: E402
 
@@ -54,6 +55,7 @@ FORMAT_STATUS = {
     "IPU": ("todo", "IPU images (ipu2)"),
     "PAC0": ("todo", "PAC0 files"),
     "EFB": ("todo", "Visual effects: structure known, parameters not yet"),
+    "Battlefield": ("done", "Battlefield terrain: height grid, texture layers and tiles, exportable to OBJ"),
     "Unidentified": ("todo", "Leaves without a known signature (models, motions, scripts...)"),
 }
 
@@ -181,6 +183,14 @@ def count_container(data, sizes, forced_kind=None):
                 kind = "PS2 variant"
             elif kind == "Unidentified" and leaf[:4] == bytes((0x51, 0, 0, 0)):
                 kind = "Motion" if motion_parses(leaf) else "Motion (atypical)"
+            elif kind == "Unidentified" and leaf[:4] == battlefield.MAGIC:
+                try:
+                    battlefield.parse(leaf)
+                    kind = "Battlefield"
+                except battlefield.BattlefieldError:
+                    pass
+            elif kind == "Unidentified" and leaf == b"X" * len(leaf):
+                kind = "Containers"                 # filler entries of a pack ("XXXX...")
             elif kind == "Unidentified" and is_raw_adpcm(leaf):
                 kind = "ADPCM sounds"
             elif kind == "Unidentified" and event.is_event(leaf):

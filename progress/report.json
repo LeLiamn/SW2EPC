@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2051296606
+    "done": 2109942990
   },
   "functions": {
     "total": 10587,
@@ -686,11 +686,11 @@
           }
         },
         {
-          "name": "Unidentified",
-          "description": "Leaves without a known signature (models, motions, scripts...)",
+          "name": "Battlefield",
+          "description": "Battlefield terrain: height grid, texture layers and tiles, exportable to OBJ",
           "data": {
-            "total": 71912886,
-            "done": 0
+            "total": 58530192,
+            "done": 58530192
           }
         },
         {
@@ -734,6 +734,14 @@
           }
         },
         {
+          "name": "Unidentified",
+          "description": "Leaves without a known signature (models, motions, scripts...)",
+          "data": {
+            "total": 13266502,
+            "done": 0
+          }
+        },
+        {
           "name": "tm3",
           "description": "Textures as GS upload packets (8-bit + palettes), convertible to PNG",
           "data": {
@@ -753,8 +761,8 @@
           "name": "Containers",
           "description": "LINKDATA and pack tables (3 pack variants), padding",
           "data": {
-            "total": 5804106,
-            "done": 5804106
+            "total": 5920298,
+            "done": 5920298
           }
         },
         {
