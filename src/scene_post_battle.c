@@ -1237,3 +1237,64 @@ void func_0021AD10(int player)
         list->count++;
     }
 }
+
+
+/* The item comparison of the item screen, per player (0x2C bytes at 0x00748B80): six values and
+ * a copy of the offered item. */
+typedef struct {
+    int value[6];
+    u8 item[0x14];
+} ItemCompare;
+extern ItemCompare g_00748B80[2];
+extern int g_00748B7C;
+extern int g_00748C90, g_00748C94, g_00748C98, g_00748C9C;
+extern u8 g_00748CA8;
+
+/* 0x002205E0, 0x98 bytes. Copies player `player`'s offered and kept items to the item screen's
+ * pair (0x00748C30 / 0x00748C58), the kept one taking the offered one's kind. */
+void func_002205E0(int player)
+{
+    u8 *offered = &g_00748C30[player * 0x14];
+    u8 *kept = &g_00748C58[player * 0x14];
+
+    func_0011EB80(offered, &g_007489DC[player * 0x14], 0x14);
+    func_0011EB80(kept, &g_00748A04[player * 0x14], 0x14);
+    if (offered[0] != kept[0])
+        kept[0] = offered[0];
+    g_00748CA8 = 0;
+}
+
+/* 0x00220680, 0x28 bytes. */
+u8 *func_00220680(int player)
+{
+    return g_00748B80[player].item;
+}
+
+void func_002206F0(int player);
+
+/* 0x002206B0, 0x34 bytes. */
+void func_002206B0(int player)
+{
+    g_00748C94 = 0;
+    g_00748C90 = 4;
+    g_00748C98 = 0;
+    g_00748C9C = 0;
+    func_002206F0(player);
+}
+
+/* 0x002206F0, 0x8C bytes. Resets player `player`'s item comparison with the offered item. */
+void func_002206F0(int player)
+{
+    int i;
+
+    func_0011EB80(func_00220680(player), &g_00748C30[player * 0x14], 0x14);
+    for (i = 0; i < 6; i++)
+        g_00748B80[player].value[i] = 0;
+    g_00748B7C = 0;
+    g_00748C94 = 0;
+}
+
+/* 0x00220140, 0x8 bytes. Scene step: empty. */
+void func_00220140(void)
+{
+}
