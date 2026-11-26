@@ -195,8 +195,8 @@ twice; a final test for kind-3 skills can never succeed.
 
 ## Scene 0x0A: after a battle (`src/scene_post_battle.c`)
 
-Original source file `StatePostBattle.c`. In progress: enter (`0x0021C5F0`) and leave
-(`0x0021D050`) are decompiled. The scene's state is one object at `0x00747930` (0x1C00 bytes); it
+Original source file `StatePostBattle.c` (`0x0021A720`-`0x0022077C`, 37 functions, **all
+decompiled**, non-matching except leave and the empty step). The scene's state is one object at `0x00747930` (0x1C00 bytes); it
 reads the battle's results from the game state at `0x00669D60` (one 0x48-byte record per player
 at `0x00669DE8`, bit 1 of `0x00669F60` = two players, `0x00669F70` = how the battle ended).
 
@@ -208,8 +208,27 @@ at `0x00669DE8`, bit 1 of `0x00669F60` = two players, `0x00669F70` = how the bat
   (`0x00748DC8`, 0x24 bytes each, count `0x00748F0C`).
 - **leave** frees the 7 entries.
 
-Still to do: update (`0x0021F680`), step (`0x00220140`), draw (`0x00220150`) and the helpers
-between `0x0021D0D0` and `0x0021F680` (and probably `0x0021A840`-`0x0021C390` before enter).
+- **update** (`0x0021F680`) runs a window phase (`0x00747940`: opening, in use, closing, waiting
+  for the message boxes) and, while the window is in use, the handler of the page shown
+  (`0x00747930`, opened by `0x0021B660`):
+
+  | page | handler | shows |
+  |---|---|---|
+  | 0 | `0x0021D0D0` | the army's experience: five values counting up by 8 a frame (or "no experience") |
+  | 1 | (in update) | an item was earned (message box 0) |
+  | 2 | `0x0021D6A0` | the officer's results counting up, then a level-up (experience gauge) |
+  | 3, 4 | (in update) | the officer's skills, two at a time |
+  | 5 | `0x0021E520` | item screen: apply the player's choices (kind, bonus, attributes in slots) |
+  | 6 | `0x0021ED70` | keep the new item or the old one |
+  | 7, 8 | `0x003DFAB0`, `0x0021EF50` | the officers' rows slide in, then each officer's level-up |
+  | 9 | (in update) | save? (memory card through `0x002DAC30`); "no" keeps the items |
+
+- **draw** (`0x00220150`) draws the background, a darkened band (two GS packets), the page (with
+  the four drawing modes at `0x0056CCA4` forced to 3) and the button help line.
+- The page state lives in small groups: counters `0x00748A30` (army) and `0x00748A60` (officer),
+  item screen `0x00748AA4` (mode, cursor, slot, choices still free) and `0x00748AC8` (the item being
+  edited, a 0x14-byte item record) with the replay list `0x00748ADC`, per-player choices
+  `0x0074901C` (type, value pairs: 0-9 attribute, 10-14 kind, 15 bonus).
 
 ## Scene 0x15: Empire set-up (`src/scene_setup_emp_mogi.c`)
 

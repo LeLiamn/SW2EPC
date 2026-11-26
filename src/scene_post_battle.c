@@ -160,10 +160,11 @@ extern struct {
 /* Globals 0x00748F0C-0x00748FA4: one object in the original (not reached through $gp). */
 extern struct {
     int g_00748F0C;                           /* entries in g_00748DC8 */
-    char pad_0[0x4];
+    int g_00748F10;                           /* experience shown on the level-up step */
     int g_00748F14;
     int g_00748F18;
-    char pad_1[0x4C];
+    int g_00748F1C[9][2];                     /* (side, slot) of the officers that levelled up */
+    int g_00748F64;                           /* their number */
     int g_00748F68;
     u8 g_00748F6C;
     char pad_2[0x4];
@@ -185,8 +186,11 @@ extern struct {
     u32 g_00748FA0;                           /* random seed when the scene started */
 } s_00748F0C;
 #define g_00748F0C (s_00748F0C.g_00748F0C)
+#define g_00748F10 (s_00748F0C.g_00748F10)
 #define g_00748F14 (s_00748F0C.g_00748F14)
 #define g_00748F18 (s_00748F0C.g_00748F18)
+#define g_00748F1C (s_00748F0C.g_00748F1C)
+#define g_00748F64 (s_00748F0C.g_00748F64)
 #define g_00748F68 (s_00748F0C.g_00748F68)
 #define g_00748F6C (s_00748F0C.g_00748F6C)
 #define g_00748F71 (s_00748F0C.g_00748F71)
@@ -1294,7 +1298,7 @@ void func_002206F0(int player)
     g_00748C94 = 0;
 }
 
-/* 0x00220140, 0x8 bytes. Scene step: empty. */
+/* 0x00220140, 0x8 bytes, matching. Scene step: empty. */
 void func_00220140(void)
 {
 }
@@ -1546,10 +1550,10 @@ extern u8 *g_005BA6A0_bases;              /* sc_ubase.c records, 0x2C bytes (see
 extern const char *g_00456318;            /* "... %s ... %s" (item earned) */
 extern const char *g_0042DC10[];          /* item names ("Cross Spear"...) */
 
-void func_0021D0D0(int pad, int box);
-void func_0021D6A0(int pad, int box);
-void func_0021E520(int pad);
-void func_0021EF50(int pad);
+int func_0021D0D0(int pad, int box);
+int func_0021D6A0(int pad);
+int func_0021E520(int pad);
+int func_0021EF50(int pad);
 int func_003F13E0(void);
 void func_002872E0(PlayerResult *r);
 void func_0028A3D0(void);
@@ -1640,7 +1644,7 @@ int func_0021F680(void)
             return 1;
         }
         case 2:
-            func_0021D6A0(pad, box);
+            func_0021D6A0(pad);
             return 1;
         case 3:
             if (box == 0)
@@ -1794,3 +1798,529 @@ int func_0021F680(void)
     return 1;
 }
 
+
+/* ---- Counting pages: numbers that count up by 8 a frame, with a tick sound every other frame - */
+
+#define PAD_REPEAT(n) (*(unsigned short *)&g_00500700_pads[(n) * 0x88 + 0x4E])
+
+extern int g_00749410, g_00749414, g_00749418;   /* army page targets (0x00749414 negated) */
+extern const char *g_0044D990;            /* "Your army has earned no experience..." */
+
+/* One counting step: `value` goes up by 8 towards `target`, with a tick sound on odd frames
+ * (`blink`). Sets `counting` to 0 once it got there. */
+#define COUNT_UP(counting, value, target, blink)                            do {                                                                        (counting) = (value) < (target);                                        if (counting) {                                                             if (((blink) & 1) == 1)                                                     func_0023AD10(3, 0, 0x2CDC, 0x2CDC, 0x1000);                        (value) += 8;                                                           if ((value) > (target))                                                     (value) = (target);                                                 (blink) = ((blink) + 1) & 1;                                        }                                                                   } while (0)
+
+/* 0x0021D0D0, 0x5CC bytes. Army experience page (controller `pad`, open box `box`): without
+ * results (func_0036B260) shows "no experience" in box 0 and moves on (page 1) on its answer;
+ * otherwise counts up five values one after another (g_00748A44 is the one counting; the 4th is
+ * skipped when g_00669DB8 is set). OK shows them all at once, then moves on. */
+int func_0021D0D0(int pad, int box)
+{
+    unsigned short pressed = PAD_READY(pad) ? PAD_PRESSED(pad) : 0;
+    int counting;
+    char text[256];
+    char answer = box == 5 ? 0 : (char)g_006934B4_answers[box * 0x128];
+
+    if (func_0036B260() == 0) {
+        if (box == 0) {
+            if (answer == 1)
+                func_0021B660(1);
+            return 1;
+        }
+        func_001204B0(text, g_0044D990);
+        func_001B8BF0();
+        func_001AE9F0(0, text, 1);
+        func_001AFC50(0);
+        return 1;
+    }
+    if (func_0036B260() != 0) {
+        switch (g_00748A44) {
+        case 0:
+            COUNT_UP(counting, g_00748A30, g_00749410, g_00748A48);
+            if (!counting) {
+                g_00748A44 = 1;
+                g_00748A48 = 0;
+            }
+            break;
+        case 1:
+            COUNT_UP(counting, g_00748A34, -g_00749414, g_00748A48);
+            if (!counting) {
+                g_00748A44 = 2;
+                g_00748A48 = 0;
+            }
+            break;
+        case 2:
+            COUNT_UP(counting, g_00748A38, g_00749418, g_00748A48);
+            if (!counting) {
+                g_00748A44 = 3;
+                g_00748A48 = 0;
+            }
+            break;
+        case 3:
+            COUNT_UP(counting, g_00748A3C, g_0074941C, g_00748A48);
+            if (!counting) {
+                if (g_00669DB8 == 0) {
+                    g_00748A44 = 4;
+                    g_00748A48 = 0;
+                } else {
+                    g_00748A44 = 5;
+                }
+            }
+            break;
+        case 4:
+            COUNT_UP(counting, g_00748A40, g_00749434, g_00748A48);
+            if (!counting)
+                g_00748A44 = 5;
+            break;
+        }
+        if (pressed & 0x40) {
+            if (g_00748A44 < 5) {
+                func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                g_00748A30 = g_00749410;
+                g_00748A44 = 5;
+                g_00748A34 = -g_00749414;
+                g_00748A38 = g_00749418;
+                g_00748A3C = g_0074941C;
+                g_00748A40 = g_00749434;
+            } else {
+                func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                func_0021B660(1);
+            }
+        }
+    }
+    return 0;
+}
+
+/* The officer results page's counters, in g_00748A60. */
+#define PB_COUNT0  (g_00748A60[0])         /* 0x00748A60 */
+#define PB_COUNT1  (g_00748A60[1])
+#define PB_COUNT2  (g_00748A60[2])
+#define PB_COUNT3  (g_00748A60[3])
+#define PB_COUNT5  (g_00748A60[5])         /* 0x00748A74: points */
+#define PB_COUNT6  (g_00748A60[6])         /* 0x00748A78: gold */
+#define PB_PHASE   (g_00748A60[7])         /* 0x00748A7C */
+#define PB_BLINK   (g_00748A60[8])         /* 0x00748A80 (read as a byte) */
+#define PB_WAIT    (g_00748A60[9])         /* 0x00748A84 */
+#define PB_LEVEL   (g_00748A60[10])        /* 0x00748A88: experience shown */
+
+/* Per officer slot targets of the officer results page. */
+extern int g_0074907C[], g_007490A0[], g_007490C4, g_007490C8[];
+
+/* The level gauge (0x00772674): two bytes of colour, a byte and a word. */
+extern struct {
+    u8 a, b, c, pad;
+    int d;
+} g_00772674_gauge;
+#define SET_GAUGE(x) (g_00772674_gauge.a = (x), g_00772674_gauge.b = (x), \
+                      g_00772674_gauge.c = 0, g_00772674_gauge.d = 0)
+
+void func_002868F0(void);
+int func_002861B0(void);
+void func_003DC9E0(void);
+void func_0028C330(int a, int b);
+void func_003E0320(int value);
+
+/* 0x0021D6A0, 0xB50 bytes. Officer results page: counts up the officer's values (phases 0-5),
+ * runs an animation (6, 7), then on OK either shows a level-up (9 waits for box 1, 10 counts the
+ * experience) or stores the skills and opens the skills page (3). OK during the counts shows
+ * every value. */
+int func_0021D6A0(int pad)
+{
+    unsigned short pressed = PAD_READY(pad) ? PAD_PRESSED(pad) : 0;
+    int target, counting;
+
+    switch (PB_PHASE) {
+    case 0:
+        COUNT_UP(counting, PB_COUNT0, g_0074907C[func_00362320(g_0074794C)], PB_BLINK);
+        if (!counting) {
+            PB_BLINK = 0;
+            PB_PHASE = 1;
+        }
+        break;
+    case 1:
+        COUNT_UP(counting, PB_COUNT1, g_007490A0[func_00362320(g_0074794C)], PB_BLINK);
+        if (!counting) {
+            PB_BLINK = 0;
+            PB_PHASE = 2;
+        }
+        break;
+    case 2:
+        COUNT_UP(counting, PB_COUNT2, g_007490C4, PB_BLINK);
+        if (!counting) {
+            PB_BLINK = 0;
+            PB_PHASE = 3;
+        }
+        break;
+    case 3:
+        COUNT_UP(counting, PB_COUNT3, g_007490C8[func_00362320(g_0074794C)], PB_BLINK);
+        if (!counting) {
+            PB_BLINK = 0;
+            PB_PHASE = 4;
+        }
+        break;
+    case 4:
+        COUNT_UP(counting, PB_COUNT5, g_00749110[func_00362320(g_0074794C)] + g_0074941C, PB_BLINK);
+        if (!counting) {
+            if (g_00669DB8 == 0)
+                PB_PHASE = 5;
+            else
+                PB_PHASE = 6;
+            PB_BLINK = 0;
+        }
+        break;
+    case 5:
+        COUNT_UP(counting, PB_COUNT6, g_00749180[g_0074794C], PB_BLINK);
+        if (!counting) {
+            PB_BLINK = 0;
+            PB_PHASE = 6;
+        }
+        break;
+    case 6:
+        PB_PHASE = 7;
+        func_002868F0();
+        break;
+    case 7:
+        if (func_002861B0() != 0)
+            PB_PHASE = 8;
+        break;
+    case 9:
+        if (PB_WAIT == 0) {
+            if (g_0069395E_state == 0 || g_0069395E_state == 0xFF) {
+                func_001B8F60(1, 6, 8);
+                PB_WAIT = 1;
+            }
+        } else if (g_0069395E_state == 0 || g_0069395E_state == 0xFF) {
+            PB_PHASE = 10;
+        }
+        break;
+    case 10:
+        target = func_002F34E0(g_00748FA4[g_0074794C]);
+        COUNT_UP(counting, PB_LEVEL, target, PB_BLINK);
+        if (!counting) {
+            SET_GAUGE(0x40);
+            func_0028C310();
+            PB_PHASE = 11;
+        }
+        break;
+    }
+
+    if ((pressed & 0x40) && (g_0069395E_state == 0 || g_0069395E_state == 0xFF)) {
+        if (PB_PHASE < 6) {
+            func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+            PB_COUNT0 = g_0074907C[func_00362320(g_0074794C)];
+            PB_COUNT1 = g_007490A0[func_00362320(g_0074794C)];
+            PB_COUNT2 = g_007490C4;
+            PB_COUNT3 = g_007490C8[func_00362320(g_0074794C)];
+            PB_COUNT5 = g_00749110[func_00362320(g_0074794C)] + g_0074941C;
+            PB_COUNT6 = g_00749180[g_0074794C];
+            PB_PHASE = 6;
+        } else if (PB_PHASE == 8) {
+            func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+            PB_WAIT = 0;
+            if (func_0021A7C0(PB_COUNT5 + func_003DCBB0(g_0074794C)) >
+                func_0021A7C0(func_003DCBB0(g_0074794C))) {        /* level up */
+                PB_LEVEL = func_003DCBB0(g_0074794C);
+                PB_PHASE = 9;
+                func_003DC9E0();
+            } else {
+                func_0021AD10(g_0074794C);
+                func_0021AC60(g_0074794C, g_00747B60[g_0074794C].entries);
+                func_0021B660(3);
+            }
+        } else if (PB_PHASE == 10) {
+            func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+            func_0023AD10(7, 0, 0x2CDC, 0x2CDC, 0x1000);
+            SET_GAUGE(0x40);
+            func_0028C310();
+            PB_LEVEL = func_002F34E0(g_00748FA4[g_0074794C]);
+            PB_PHASE = 11;
+        } else if (PB_PHASE == 11) {
+            func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+            func_0021AD10(g_0074794C);
+            func_0021AC60(g_0074794C, g_00747B60[g_0074794C].entries);
+            func_0021B660(3);
+        }
+    }
+    return 0;
+}
+
+/* ---- Item screen ------------------------------------------------------------------------------ */
+
+#define ITEM_MODE    (g_00748AA4[0])       /* 0 choosing a choice, 1 choosing its slot */
+#define ITEM_CURSOR  (g_00748AA4[1])       /* choice (0-5), 6 = done */
+#define ITEM_SLOT    (g_00748AA4[2])       /* attribute slot (two columns) */
+#define ITEM_FREE(i) (g_00748AA4[3 + (i)]) /* choice not used yet */
+extern u8 g_00748A9E, g_00748A9F;         /* item screen animation: busy while they differ */
+
+/* Clears the slot marks set by func_0021E430. */
+static void clear_marks(void)
+{
+    int i;
+
+    for (i = 13; i < 21; i++)
+        g_00748ADC[i] = 1;
+}
+
+/* 0x0021E520, 0x850 bytes. Item screen, choice step: Up/Down pick one of the player's choices
+ * (g_00748FAC of them) or "done" (6); OK applies it (kind, bonus, or an attribute: then Left/Right/
+ * Up/Down pick the slot, OK writes it); Cancel undoes the last choice, Triangle undoes all. */
+int func_0021E520(int pad)
+{
+    unsigned short pressed = PAD_READY(pad) ? PAD_PRESSED(pad) : 0;
+    unsigned short repeat = PAD_READY(pad) ? PAD_REPEAT(pad) : 0;
+    int busy;
+
+    if (g_00748A9E == 0)
+        busy = 0;
+    else if (g_00748A9F == g_00748A9E)
+        busy = 0;
+    else
+        busy = 1;
+    if (busy)
+        return 0;
+
+    if (ITEM_MODE == 0) {
+        if (pressed & 0x40) {
+            if (ITEM_CURSOR == 6) {
+                func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                func_0021B660(6);
+            } else if (ITEM_FREE(ITEM_CURSOR) == 0) {
+                func_0023AD10(4, 0, 0x2CDC, 0x2CDC, 0x1000);
+            } else {
+                ItemChoice *c;
+
+                func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                g_00748ADC[1 + 2 * g_00748ADC[0]] = ITEM_CURSOR;
+                c = &g_0074901C[g_0074794C][ITEM_CURSOR];
+                if (c->type >= 10 && c->type <= 14) {
+                    static const u8 kinds[5] = { 1, 3, 2, 4, 5 };    /* types 10-14 */
+                    g_00748AC9 = kinds[c->type - 10];
+                    ITEM_FREE(ITEM_CURSOR) = 0;
+                    g_00748ADC[2 + 2 * g_00748ADC[0]] = 8;
+                    g_00748ADC[0]++;
+                } else if (c->type == 15) {
+                    g_00748ADB = (u8)(c->value - g_00428138[g_00748AC8[0]]);
+                    ITEM_FREE(ITEM_CURSOR) = 0;
+                    g_00748ADC[2 + 2 * g_00748ADC[0]] = 8;
+                    g_00748ADC[0]++;
+                } else {
+                    ITEM_MODE = 1;
+                    ITEM_SLOT = func_0021E430(c->type);
+                }
+            }
+        } else if (pressed & 0x10) {                /* cancel: undo the last choice */
+            if (g_00748ADC[0] < 1) {
+                func_0023AD10(4, 0, 0x2CDC, 0x2CDC, 0x1000);
+            } else {
+                func_0023AD10(2, 0, 0x2CDC, 0x2CDC, 0x1000);
+                func_0021E1F0(g_00748ADC[0] - 1);
+            }
+        } else if (pressed & 0x80) {                /* undo every choice */
+            func_0023AD10(2, 0, 0x2CDC, 0x2CDC, 0x1000);
+            func_0021E1F0(0);
+        } else if (repeat & 0x1000) {               /* up */
+            if (ITEM_CURSOR == 0) {
+                if (pressed & 0x1000) {
+                    func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                    ITEM_CURSOR = 6;
+                }
+            } else if (ITEM_CURSOR == 6) {
+                func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                ITEM_CURSOR = g_00748FAC[g_0074794C] - 1;
+            } else {
+                func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                ITEM_CURSOR--;
+            }
+        } else if (repeat & 0x4000) {               /* down */
+            if (ITEM_CURSOR == g_00748FAC[g_0074794C] - 1) {
+                func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                ITEM_CURSOR = 6;
+            } else if (ITEM_CURSOR == 6) {
+                if (pressed & 0x4000) {
+                    func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                    ITEM_CURSOR = 0;
+                }
+            } else {
+                func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                ITEM_CURSOR++;
+            }
+        }
+    } else if (pressed & 0x40) {                    /* write the attribute in the slot */
+        if (g_00748ADC[13 + ITEM_SLOT] == 0) {
+            func_0023AD10(4, 0, 0x2CDC, 0x2CDC, 0x1000);
+        } else {
+            ItemChoice *c = &g_0074901C[g_0074794C][ITEM_CURSOR];
+
+            func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+            g_00748AC8[2 + ITEM_SLOT] = (u8)c->type;
+            g_00748AC8[10 + ITEM_SLOT] = (u8)c->value;
+            ITEM_FREE(ITEM_CURSOR) = 0;
+            ITEM_MODE = 0;
+            g_00748ADC[2 + 2 * g_00748ADC[0]] = ITEM_SLOT;
+            g_00748ADC[0]++;
+            clear_marks();
+        }
+    } else if (pressed & 0x10) {                    /* cancel the slot choice */
+        func_0023AD10(2, 0, 0x2CDC, 0x2CDC, 0x1000);
+        ITEM_MODE = 0;
+        clear_marks();
+    } else if (repeat & 0x1000) {                   /* up: previous row (wraps on Up press) */
+        if (g_00748ADA > 2) {
+            if (ITEM_SLOT < 2) {
+                if (pressed & 0x1000) {
+                    func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                    ITEM_SLOT = (ITEM_SLOT + (g_00748ADA - 2)) % g_00748ADA;
+                }
+            } else {
+                func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                ITEM_SLOT = (ITEM_SLOT + (g_00748ADA - 2)) % g_00748ADA;
+            }
+        }
+    } else if (repeat & 0x4000) {                   /* down: next row */
+        if (g_00748ADA > 2) {
+            if (ITEM_SLOT == g_00748ADA - 2 || ITEM_SLOT == g_00748ADA - 1) {
+                if (pressed & 0x4000) {
+                    func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                    ITEM_SLOT = (ITEM_SLOT + 2) % g_00748ADA;
+                }
+            } else {
+                func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                ITEM_SLOT = (ITEM_SLOT + 2) % g_00748ADA;
+            }
+        }
+    } else if (pressed & 0xA000) {                  /* left/right: other column */
+        func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+        if (ITEM_SLOT % 2 == 0)
+            ITEM_SLOT++;
+        else
+            ITEM_SLOT--;
+    }
+    return 0;
+}
+
+/* ---- Officers page ---------------------------------------------------------------------------- */
+
+#define MAX0(x) ((x) > 0 ? (x) : 0)
+
+/* Moves `value` 16 towards `target` (as the game does it: clamped to [0, value] going down and to
+ * [0, target] going up). */
+#define SLIDE(value, target)                                                    \
+    do {                                                                        \
+        if ((target) < (value)) {                                               \
+            int n_ = (value) - 0x10;                                            \
+            (value) = MAX0(n_) > (value) ? (value) : MAX0(n_);                  \
+        } else if ((value) < (target)) {                                        \
+            int n_ = (value) + 0x10;                                            \
+            (value) = MAX0(n_) > (target) ? (target) : MAX0(n_);                \
+        }                                                                       \
+    } while (0)
+
+extern u8 g_00748D26, g_00748D27;         /* level-up animation: busy while they differ */
+
+/* 0x0021EF50, 0x728 bytes. Officers page (controller `pad`): slides the officer rows into place
+ * (g_00748F18 = 0), shows the army's level-up (1), then the level-up of each officer in
+ * g_00748F1C (3-6, the experience counting up); OK skips each step; at the end (7) opens the save
+ * page (9). */
+int func_0021EF50(int pad)
+{
+    unsigned short pressed = PAD_READY(pad) ? PAD_PRESSED(pad) : 0;
+    int i, officer, busy, counting;
+
+    switch (g_00748F18) {
+    case 0:
+        for (i = 0; i < g_00748F0C; i++) {
+            ShownOfficer *e = &g_00748DC8[i];
+            if (e->value_20 != 0) {
+                SLIDE(e->value_c, e->value_14);
+                SLIDE(e->value_10, e->value_18);
+                if (e->value_c == e->value_14 && e->value_10 == e->value_18)
+                    e->value_20 = 0;
+            }
+        }
+        for (i = 0; i < g_00748F0C; i++) {
+            if (g_00748DC8[i].value_20 != 0)
+                break;
+        }
+        if (i < g_00748F0C) {
+            if ((g_00748F6C & 1) == 1)
+                func_0023AD10(3, 0, 0x2CDC, 0x2CDC, 0x1000);
+            g_00748F6C = (g_00748F6C + 1) & 1;
+        } else if (g_00748F84 == 0 && g_00748F14 != 0) {
+            func_003E0320(1);
+            g_00748F18 = 1;
+        } else {
+            g_00748F18 = 2;
+        }
+        break;
+    case 1:
+        if (g_00748D26 == 0)
+            busy = 0;
+        else if (g_00748D27 == g_00748D26)
+            busy = 0;
+        else
+            busy = 1;
+        if (!busy) {
+            func_0023AD10(7, 0, 0x2CDC, 0x2CDC, 0x1000);
+            g_00748F18 = 2;
+        }
+        break;
+    case 3:
+        g_00748F18 = 4;
+        break;
+    case 4:
+        officer = func_003620E0(g_00748F1C[g_00748F68][0], g_00748F1C[g_00748F68][1]);
+        COUNT_UP(counting, g_00748F10, func_002F34E0(officer), g_00748F6C);
+        if (!counting) {
+            SET_GAUGE(0x40);
+            func_0028C310();
+            g_00748F18 = 5;
+        }
+        break;
+    case 6:
+        g_00748F68++;
+        if (g_00748F68 < g_00748F64) {
+            g_00748F10 = g_00747F5C[g_00748F1C[g_00748F68][0]][g_00748F1C[g_00748F68][1]].stats[0];
+            func_003E0320(3);
+            SET_GAUGE(0);
+            func_0028C330(0x12E, 0x44);
+            g_00748F18 = 3;
+        } else {
+            g_00748F18 = 7;
+        }
+        break;
+    }
+
+    if (pressed & 0x40) {
+        if (g_00748F18 == 2) {
+            func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+            g_00748F18 = g_00748F64 < 1 ? 7 : 3;
+        } else if (g_00748F18 == 5) {
+            if (g_00748F68 == g_00748F64) {
+                func_0021B660(9);
+                func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                func_0021C390();
+            } else {
+                g_00748F18 = 6;
+                func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+            }
+        } else if (g_00748F18 == 4) {
+            officer = func_003620E0(g_00748F1C[g_00748F68][0], g_00748F1C[g_00748F68][1]);
+            g_00748F10 = func_002F34E0(officer);
+            SET_GAUGE(0x40);
+            func_0028C310();
+            g_00748F18 = 5;
+        } else if (g_00748F18 == 0) {
+            func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+            for (i = 0; i < g_00748F0C; i++) {
+                g_00748DC8[i].value_c = g_00748DC8[i].value_14;
+                g_00748DC8[i].value_10 = g_00748DC8[i].value_18;
+            }
+        }
+    }
+    if (g_00748F18 == 7) {
+        func_0021B660(9);
+        func_0021C390();
+        g_007729FC = 0;
+    }
+    return 0;
+}

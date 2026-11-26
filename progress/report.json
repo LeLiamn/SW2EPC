@@ -2,16 +2,16 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 26564,
-    "non_matching": 26708
+    "matching": 26572,
+    "non_matching": 48332
   },
   "data": {
     "total": 2155890688,
     "done": 2155890688
   },
   "functions": {
-    "total": 10587,
-    "matching": 96
+    "total": 10588,
+    "matching": 97
   },
   "layout": "treemap",
   "areas": [
@@ -74,11 +74,11 @@
         },
         {
           "name": "StatePostBattle.c",
-          "description": "Estimated range 0x219898-0x2214B8; 2 function(s) decompiled",
+          "description": "Estimated range 0x219898-0x2214B8; 37 function(s) decompiled",
           "code": {
             "total": 31776,
-            "matching": 120,
-            "non_matching": 2636
+            "matching": 128,
+            "non_matching": 24260
           }
         },
         {
