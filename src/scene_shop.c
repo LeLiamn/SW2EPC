@@ -14,10 +14,20 @@ typedef unsigned char u8;
 typedef unsigned int u32;
 
 /* Scene manager fields (see main.c). */
-extern int g_0045D894;   /* previous state */
-extern int g_0045D898;   /* current state */
-extern int g_0045D89C;   /* state to return to */
-extern int g_0045D8A0;   /* requested state (0x18 = none) */
+/* The scene manager (0x0045D880, see main.c): one object, reached through lui / %lo. */
+extern struct {
+    float update_arg;
+    u32 result;
+    int quit, skip_update_test, force_draw;
+    int previous;            /* 0x0045D894 */
+    int current;             /* 0x0045D898 */
+    int return_to;           /* 0x0045D89C state to return to */
+    int requested;           /* 0x0045D8A0 requested state (0x18 = none) */
+} g_0045D880;
+#define g_0045D894 (g_0045D880.previous)
+#define g_0045D898 (g_0045D880.current)
+#define g_0045D89C (g_0045D880.return_to)
+#define g_0045D8A0 (g_0045D880.requested)
 
 /* Globals 0x0043C3A0-0x0043C898: one object in the original (not reached through $gp). */
 extern struct {
@@ -120,7 +130,7 @@ extern struct {
     char pad_0[0x127];
     char g_006935DB;
     char pad_1[0x382];
-    char g_0069395E;  /* message box 1 open when neither 0 nor -1 */
+    u8 g_0069395E;    /* message box 1 open when neither 0 nor -1 */
 } s_006934B3;
 #define g_006934B3 (s_006934B3.g_006934B3)
 #define g_006935DB (s_006934B3.g_006935DB)
@@ -611,7 +621,7 @@ int func_002A4600(float dt)
     if (g_00773154 == 2) {                      /* leaving: wait for the music and message box */
         if (func_0017DDA0() != 0)
             return 1;
-        if (g_0069395E != 0 && g_0069395E != -1)
+        if (g_0069395E != 0 && g_0069395E != 0xFF)
             return 1;
         func_0029FE50();
         return 1;

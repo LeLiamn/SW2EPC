@@ -14,10 +14,20 @@ typedef unsigned char u8;
 typedef unsigned int u32;
 
 /* Scene manager fields (see main.c). */
-extern int g_0045D894;   /* previous state */
-extern int g_0045D898;   /* current state */
-extern int g_0045D89C;   /* state to return to */
-extern int g_0045D8A0;   /* requested state (0x18 = none) */
+/* The scene manager (0x0045D880, see main.c): one object, reached through lui / %lo. */
+extern struct {
+    float update_arg;
+    u32 result;
+    int quit, skip_update_test, force_draw;
+    int previous;            /* 0x0045D894 */
+    int current;             /* 0x0045D898 */
+    int return_to;           /* 0x0045D89C state to return to */
+    int requested;           /* 0x0045D8A0 requested state (0x18 = none) */
+} g_0045D880;
+#define g_0045D894 (g_0045D880.previous)
+#define g_0045D898 (g_0045D880.current)
+#define g_0045D89C (g_0045D880.return_to)
+#define g_0045D8A0 (g_0045D880.requested)
 
 /* Globals 0x0043C578-0x0043C77C: one object in the original (not reached through $gp). */
 extern struct {
@@ -60,7 +70,7 @@ extern struct {
 
 /* Globals 0x0069395E-0x0069395F: one object in the original (not reached through $gp). */
 extern struct {
-    char g_0069395E;  /* message box 1 open when neither 0 nor -1 */
+    u8 g_0069395E;    /* message box 1 open when neither 0 nor -1 */
     char size_unknown[8];   /* the whole object is larger (not reached through $gp) */
 } s_0069395E;
 #define g_0069395E (s_0069395E.g_0069395E)
@@ -778,7 +788,7 @@ void func_001E8AB0(IdList *list)
 void func_001E8B30(void)
 {
     char *res = func_003BD290();
-    int i, j, k;
+    int i, j;
 
     func_00101470(1);
     func_003F8B30(2);
@@ -852,53 +862,65 @@ void func_001E8DD0(void)
     func_003F8B80();
 }
 
-/* 0x001E8EB0, 0x288 bytes. Scene update: phases, then the current mode's handler. */
+/* 0x001E8EB0, 0x288 bytes, matching. Scene update: phases, then the current mode's handler. */
+/* Message box 1 open (inlined in the original). */
+static inline int box1_open(void)
+{
+    int open;
+
+    if (g_0069395E == 0 || g_0069395E == 0xFF)
+        open = 0;
+    else
+        open = 1;
+    return open;
+}
+
 int func_001E8EB0(float dt)
 {
     func_00376450();
-    if (g_0073133C == 2) {                      /* leaving */
-        if (g_0069395E != 0 && g_0069395E != -1)
-            return 1;
-        if (func_0017DDA0() != 0)
-            return 1;
-        if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {
-            g_0045D894 = g_0045D898;            /* go to the requested scene */
-            g_0045D898 = g_0045D8A0;
-            g_0045D89C = 0x18;
-        } else {
-            g_0045D894 = g_0045D898;            /* go back to the scene we came from */
-            g_0045D898 = g_0045D89C;
-            g_0045D89C = g_0045D8A0;
-        }
-        return 1;
-    }
-    if (g_0073133C == 4) {                      /* changing mode */
-        if (func_002ED150() == 0)
-            func_001E7290();
-        return 1;
-    }
-    if (g_0073133C == 0) {                      /* opening */
+    switch (g_0073133C) {
+    case 0:                                     /* opening */
         if (func_002ED150() == 0)
             g_0073133C = 3;
         return 1;
+    case 3:
+        break;
+    case 4:                                     /* changing mode */
+        if (func_002ED150() == 0)
+            func_001E7290();
+        return 1;
+    case 2:                                     /* leaving */
+        if (!box1_open() && func_0017DDA0() == 0) {
+            if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {
+                g_0045D894 = g_0045D898;        /* go to the requested scene */
+                g_0045D898 = g_0045D8A0;
+                g_0045D89C = 0x18;
+            } else {
+                g_0045D894 = g_0045D898;        /* go back to the scene we came from */
+                g_0045D898 = g_0045D89C;
+                g_0045D89C = g_0045D8A0;
+            }
+        }
+        return 1;
+    case 5:
+        break;
     }
-
     switch (g_00731334) {
     case 0: func_001E7830(); break;
     case 1: func_001E7D00(dt); break;
     case 2: func_001E7D60(dt); break;
     case 3: func_001E7DC0(); break;
+    case 12: func_001E8010(); break;
+    case 13: func_001E8050(); break;
+    case 14: func_001E80B0(dt); break;
     case 4: func_001E86A0(); break;
     case 5: func_001E8110(); break;
+    case 11: func_001E8200(); break;
     case 6: func_001E8600(); break;
     case 7: func_001E86D0(); break;
     case 8: func_001E8A20(); break;
     case 9: func_001E8A50(); break;
     case 10: func_001E8A80(); break;
-    case 11: func_001E8200(); break;
-    case 12: func_001E8010(); break;
-    case 13: func_001E8050(); break;
-    case 14: func_001E80B0(dt); break;
     }
     return 1;
 }
