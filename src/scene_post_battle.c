@@ -1161,3 +1161,79 @@ void func_0021C390(void)
         func_0011EB80(func_00328B30(item[0]), item, 0x14);
     }
 }
+
+
+int func_002F6A60(int officer);           /* the officer's weapon skill */
+int func_002F47A0(int officer, int skill);/* skill level */
+int func_003DCB30(int player, int skill); /* the skill's level before the battle */
+
+/* A skill learnt during the battle, in the game state (8 records of 8 bytes at 0x00669F20). */
+typedef struct {
+    int skill;
+    u8 level;
+    u8 player;
+    u8 state;                /* 2 = not to show */
+    u8 pad;
+} LearntSkill;
+#define g_00669F20 ((LearntSkill *)((u8 *)&g_00669D60 + 0x1C0))
+
+/* 0x0021AD10, 0x550 bytes. Builds player `player`'s list of skills that went up in the battle
+ * (0x00747B60): the weapon skill first, then skills 0-0x27 whose level rose, then (when the
+ * player's results are shown) the skills learnt in the battle, inserted in skill order (a skill
+ * already listed keeps the higher level). Skills 0x28-0x34 are skipped when looking for the place. */
+void func_0021AD10(int player)
+{
+    SkillList *list = &g_00747B60[player];
+    SkillEntry *p = list->entries;
+    int officer = func_003620E0(0, func_00362320(player));
+    int i, skill;
+
+    for (i = 0; i < 41; i++) {
+        list->entries[i].skill = 0xFF;
+        list->entries[i].state = 2;
+        list->entries[i].level = 4;
+        list->count = 0;
+    }
+
+    if (func_003DCB30(g_0074794C, func_002F6A60(g_00748FA4[g_0074794C])) <
+        (int)(func_002F47A0(officer, func_002F6A60(officer)) & 0xFF)) {
+        p->skill = func_002F6A60(officer);
+        p->state = 0;
+        p++;
+        list->count++;
+    }
+    for (skill = 0; skill < 0x28; skill++) {
+        if (func_003DCB30(g_0074794C, skill) < (int)(func_002F47A0(officer, skill) & 0xFF)) {
+            p->skill = skill;
+            p->level = (u8)func_002F47A0(officer, skill);
+            p->state = 0;
+            p++;
+            list->count++;
+        }
+    }
+
+    if (g_00747DF8[player].shown == 0)
+        return;
+    for (i = 0; i < 8; i++) {
+        LearntSkill *l = &g_00669F20[i];
+        SkillEntry *q;
+        int at = 0, n;
+
+        if (l->player != player || l->state == 2)
+            continue;
+        for (q = list->entries; q->skill < l->skill || (q->skill >= 0x28 && q->skill < 0x35); q++)
+            at++;
+        if (q->skill == l->skill) {
+            if (q->level <= l->level)
+                q->level = l->level;
+            continue;
+        }
+        for (n = list->count; n > at; n--)             /* make room */
+            list->entries[n] = list->entries[n - 1];
+        q = &list->entries[list->count > at ? at : list->count];
+        q->skill = l->skill;
+        q->level = l->level;
+        q->state = 0;
+        list->count++;
+    }
+}
