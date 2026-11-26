@@ -1309,7 +1309,7 @@ void func_00220140(void)
 /* The choices made on the item screen, per player (0x30 bytes at 0x0074901C): (type, value)
  * pairs. */
 typedef struct {
-    int type;                /* 0-9 attribute, 10-14 kind, 15 bonus */
+    int type;                /* 10-14 kind, 15 bonus, else an attribute */
     int value;
 } ItemChoice;
 extern ItemChoice g_0074901C[2][6];
@@ -1337,8 +1337,6 @@ void func_0021E1F0(int count)
         if (c->type >= 10 && c->type <= 14) {
             static const u8 kinds[5] = { 1, 3, 2, 4, 5 };        /* types 10-14 */
             g_00748AC9 = kinds[c->type - 10];
-        } else if (c->type >= 0 && c->type <= 9) {
-            g_00748AC9 = (u8)c->type;
         } else if (c->type == 15) {
             g_00748ADB = (u8)(c->value - g_00428138[g_00748AC8[0]]);
         } else {
