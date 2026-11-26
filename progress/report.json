@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2155417535
+    "done": 2155545839
   },
   "functions": {
     "total": 10587,
@@ -697,8 +697,8 @@
           "name": "PS2",
           "description": "3D models with skeleton and skinning, exportable to OBJ",
           "data": {
-            "total": 50761696,
-            "done": 50761696
+            "total": 50890000,
+            "done": 50890000
           }
         },
         {
@@ -819,14 +819,6 @@
           "data": {
             "total": 143816,
             "done": 143816
-          }
-        },
-        {
-          "name": "PS2 variant",
-          "description": "'PS2 ' files without nodes (different layout)",
-          "data": {
-            "total": 128304,
-            "done": 0
           }
         },
         {

@@ -200,6 +200,42 @@ def preview_png(model, path, size=512, yaw=0.6):
         f.write(png_bytes(size, size, bytes(img)))
 
 
+
+def vif_walk(data, p):
+    """Follow a VIF code stream from `p`; returns where it ends, or None on an unknown code."""
+    while p + 4 <= len(data):
+        imm, num, cmd = struct.unpack_from("<HBB", data, p)
+        c = cmd & 0x7F
+        p += 4
+        if c >= 0x60:                                         # UNPACK
+            bits = (32, 16, 8, 5)[c & 3] * (((c >> 2) & 3) + 1)
+            p += (bits * (num or 256) + 31) // 32 * 4
+        elif c in (0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x10, 0x11, 0x13, 0x14, 0x15,
+                   0x17):
+            pass
+        elif c == 0x20:                                       # STMASK
+            p += 4
+        elif c in (0x30, 0x31):                               # STROW, STCOL
+            p += 16
+        elif c == 0x4A:                                       # MPG
+            p += (num or 256) * 8
+        elif c in (0x50, 0x51):                               # DIRECT, DIRECTHL
+            p += (imm or 65536) * 16
+        else:
+            return None
+    return p
+
+
+def check_variant(data):
+    """The node-less variant (21 files): no skeleton (0 nodes, geometry at 0x20), a 0x20-byte
+    geometry header, then a VIF stream (UNPACKs of vertex arrays between GIF tags, as in TMD2)
+    that ends exactly at the end of the file."""
+    if data[:4] != MAGIC or struct.unpack_from("<HH", data, 0x10) != (0, 0):
+        return False
+    if struct.unpack_from("<I", data, 8)[0] != 0x20:
+        return False
+    return vif_walk(data, 0x40) == len(data)
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     if len(sys.argv) < 3:

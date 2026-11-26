@@ -43,6 +43,7 @@ import text  # noqa: E402
 import lz  # noqa: E402
 import tim2  # noqa: E402
 import pac0  # noqa: E402
+import ps2model  # noqa: E402
 import motion  # noqa: E402
 import event  # noqa: E402
 
@@ -275,7 +276,7 @@ def count_container(data, sizes, forced_kind=None):
                 except efb.EfbError:
                     kind = "EFB (unparsed)"
             if kind == "PS2" and leaf[0x10:0x12] == bytes(2):
-                kind = "PS2 variant"
+                kind = "PS2" if ps2model.check_variant(leaf) else "PS2 variant"
             elif kind == "Unidentified" and leaf[:4] == bytes((0x51, 0, 0, 0)):
                 kind = "Motion" if motion_parses(leaf) else "Motion (atypical)"
             elif kind == "Unidentified" and leaf[:4] == battlefield.MAGIC:
