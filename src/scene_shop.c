@@ -124,17 +124,25 @@ extern struct {
 } s_00669D82;
 #define g_00669D82 (s_00669D82.g_00669D82)
 
-/* Globals 0x006934B3-0x0069395F: one object in the original (not reached through $gp). */
+/* 0x0068F3E0: the message boxes' object (the code indexes the boxes from this base). Two boxes of
+ * 0x128 bytes at +0x40D3: +0 state (non-zero while open), +1 the answer (4 = yes). */
+typedef struct {
+    u8 state;
+    u8 answer;
+    u8 unknown_2[0x126];
+} MessageBox;
 extern struct {
-    char g_006934B3;
-    char pad_0[0x127];
-    char g_006935DB;
-    char pad_1[0x382];
-    u8 g_0069395E;    /* message box 1 open when neither 0 nor -1 */
-} s_006934B3;
-#define g_006934B3 (s_006934B3.g_006934B3)
-#define g_006935DB (s_006934B3.g_006935DB)
-#define g_0069395E (s_006934B3.g_0069395E)
+    u8 unknown_0[0x40D3];
+    MessageBox box[2];       /* 0x006934B3, 0x006935DB */
+    u8 unknown_4323[0x25B];
+    u8 g_0069395E;           /* message box 1 open when neither 0 nor -1 */
+} s_0068F3E0;
+#define g_006934B3 (s_0068F3E0.box[0].state)
+#define g_006935DB (s_0068F3E0.box[1].state)
+#define g_0069395E (s_0068F3E0.g_0069395E)
+/* Box `b`'s state and answer, as the code reads them (an index from the object's base). */
+#define box_state(b) (((u8 *)&s_0068F3E0)[(b) * 0x128 + 0x40D3])
+#define box_answer(b) (((u8 *)&s_0068F3E0)[(b) * 0x128 + 0x40D4])
 
 /* Mounts for sale: 8 records of 12 bytes at 0x00773070: +0 price, +4 index of the mount record
  * in g_007731D0 (0x10 = sold), +8 non-zero for the day's bargain (20 % off). */
@@ -293,13 +301,12 @@ extern int g_0045CE98, g_0045CE9C;   /* a pair saved at enter and restored at le
 /* Reading a player's controller, inlined in the original (a macro). `player` picks the controller
  * (the original leaves it unset, and the pad unread, when player is neither 0 nor 1). */
 #define pad_ready(ps) (((ps)->ready & 1) ? ((ps)->connected & 1) == 1 : 0)
-#define read_pad(player, pressed, held) do {                                        \
-        int port_;                                                                  \
-        PadState *ps_;                                                              \
-        if ((player) == 0) port_ = 0; else if ((player) == 1) port_ = 1;            \
-        ps_ = &g_00500700[port_];                                                   \
-        pressed = (unsigned short)(pad_ready(ps_) ? g_00500700[port_].pressed : 0); \
-        held = (unsigned short)(pad_ready(ps_) ? g_00500700[port_].held : 0);       \
+#define read_pad(player, port, pressed, held) do {                                 \
+        PadState *ps_;                                                             \
+        if ((player) == 0) port = 0; else if ((player) == 1) port = 1;             \
+        ps_ = &g_00500700[port];                                                   \
+        pressed = (unsigned short)(pad_ready(ps_) ? g_00500700[port].pressed : 0); \
+        held = (unsigned short)(pad_ready(ps_) ? g_00500700[port].held : 0);       \
     } while (0)
 
 extern u8 g_007731D0[];              /* 0x24-byte records */
@@ -726,7 +733,7 @@ void func_002A4940(void)
 }
 
 /* Help line chosen from a "slot state": 0 = only `none`, 1 = `one`, 2 or more = `more`. */
-static void help_by_state(u8 state, const char *more, const char *one, const char *none)
+static inline void help_by_state(u8 state, const char *more, const char *one, const char *none)
 {
     if (state >= 2)
         func_001A7DC0(more, 0x80, 1);
@@ -820,7 +827,7 @@ void func_002A5000(int reload)
 }
 
 /* 0x002A01A0, 0x24 bytes, matching. Copies a 16-byte record (three words and the byte at +8). */
-void func_002A01A0(u32 *dst, const u32 *src)
+static void func_002A01A0(u32 *dst, const u32 *src)
 {
     dst[0] = src[0];
     dst[1] = src[1];
@@ -833,9 +840,10 @@ void func_002A01A0(u32 *dst, const u32 *src)
  * fresh press wraps around. */
 void func_002A1E90(int player)
 {
+    int port;
     int pressed, held;
 
-    read_pad(player, pressed, held);
+    read_pad(player, port, pressed, held);
     if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(3);
@@ -868,9 +876,10 @@ void func_002A1E90(int player)
  * one entry" test: with 0 entries the original divides by zero. */
 void func_002A3300(int player)
 {
+    int port;
     int pressed, held;
 
-    read_pad(player, pressed, held);
+    read_pad(player, port, pressed, held);
     if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(2);
@@ -1067,7 +1076,6 @@ int func_002A3DB0(int player)
 
 /* Message boxes: two records of 0x128 bytes; +0 (0x006934B3 / 0x006935DB) non-zero while the box is
  * open, +1 (0x006934B4...) the answer (4 = yes). Box 0 shows a message, box 1 asks yes / no. */
-extern char g_006934B4[];
 #define BOX_NONE 5
 #define BOX_YES  4
 
@@ -1095,7 +1103,7 @@ int func_003DD680(int player);                            /* mount the player ri
 void func_003DD660(int player, int mount);
 
 /* Which message box is open (0, 1 or BOX_NONE), and its answer. */
-static int open_box(char *answer)
+static inline int open_box(int *answer)
 {
     int box = BOX_NONE;
 
@@ -1103,21 +1111,24 @@ static int open_box(char *answer)
         box = 0;
     else if (g_006935DB != 0)
         box = 1;
-    *answer = (box == BOX_NONE) ? 0 : g_006934B4[box * 0x128];
+    *answer = (box == BOX_NONE) ? 0 : box_answer(box);
     return box;
-    /* (the handlers then test the state of a box other than 0, 1 and BOX_NONE: dead code, left
-     * out here) */
 }
 
-/* Shows `text` in box `box` for the player's controller. */
-static void show_box(int box, int player, const char *format, const char *name)
+/* Non-zero when box `box` is in state 2 or 7 (the handlers test it for a box other than 0 and 1). */
+static inline int box_busy(int box)
 {
-    char text[256];
+    u8 state = box_state(box);
 
-    func_001204B0(text, format, name);
-    func_001AE9F0(box, text, 1);
-    func_001AFC70(box, player);
+    if (state == 2 || state == 7)
+        return 1;
+    return 0;
 }
+
+/* Shows a message in box `box` for the player's controller (inlined in the original, with one
+ * text buffer per function). */
+#define show_box(box, player, format, name) do {           func_001204B0(text, format, name);                  func_001AE9F0(box, text, 1);                        func_001AFC70(box, player);                     } while (0)
+#define show_msg(box, player, format) do {                  func_001204B0(text, format);                        func_001AE9F0(box, text, 1);                        func_001AFC70(box, player);                     } while (0)
 
 /* 0x0029FB70, 0x24 bytes, matching. The player's gold. */
 int func_0029FB70(void)
@@ -1198,11 +1209,13 @@ void func_002A1760(void)
  * shows the player's mounts (mode 12). */
 void func_002A18D0(int player)
 {
+    int port;
+    char text[256];
     int pressed, held;
-    char answer;
+    int answer;
     int box;
 
-    read_pad(player, pressed, held);
+    read_pad(player, port, pressed, held);
     box = open_box(&answer);
     if (box == 0)
         return;
@@ -1228,14 +1241,14 @@ void func_002A18D0(int player)
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         } else if (func_0029FB70() < offer->price) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            show_box(0, player, g_0043C3A0, 0);
+            show_msg(0, port, g_0043C3A0);
         } else if (g_00773140 < 4) {
             const char *name = (const char *)func_0029FD90(offer->index) + 0x13;
             func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            show_box(1, player, g_0043C3DC, name);
+            show_box(1, port, g_0043C3DC, name);
         } else {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            show_box(1, player, g_0043C3E4, 0);
+            show_msg(1, port, g_0043C3E4);
         }
     } else if (pressed & BTN_EXTRA) {
         if (func_0029FD10() != 0) {
@@ -1288,17 +1301,19 @@ void func_002A2110(int player)
  * player was buying with 4 mounts already). */
 void func_002A21B0(int player, int back)
 {
+    int port;
+    char text[256];
     int pressed, held;
-    char answer;
+    int answer;
     int box;
 
-    read_pad(player, pressed, held);
+    read_pad(player, port, pressed, held);
     box = open_box(&answer);
     if (box == 0)
         return;
     if (box == 1) {
         if (answer == BOX_YES) {
-            func_002A2110(player);
+            func_002A2110(port);
             if (func_0029FD10() == 0)
                 func_0029FDB0(back);
             if (func_0029FD10() == 0) {         /* (asked twice in the original) */
@@ -1322,7 +1337,7 @@ void func_002A21B0(int player, int back)
         } else {
             const char *name = (const char *)func_0019FBC0(g_0077313C[g_00773186]) + 0x13;
             func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            show_box(1, player, g_0043C420, name);
+            show_box(1, port, g_0043C420, name);
         }
     } else if (g_00773140 > 1) {
         u8 count = g_00773140;
@@ -1351,7 +1366,7 @@ void func_002A21B0(int player, int back)
 #define SLOT_COUNT 0x19          /* officer slots 0..24 */
 
 /* 0x002A2AE0, 0x1C bytes, matching. Copies a hire offer. */
-void func_002A2AE0(HireOffer *dst, const HireOffer *src)
+static void func_002A2AE0(HireOffer *dst, const HireOffer *src)
 {
     *dst = *src;
 }
@@ -1403,8 +1418,8 @@ void func_002A2BE0(void)
     g_0077317D--;
 
     if (g_0077317D < 8) {                       /* the whole list fits: no scrolling */
-        int last = g_0077317D - 1;
-        g_00773184 = g_00773185 = (u8)(g_00773185 <= last ? g_00773185 : last);
+        g_00773185 = g_00773185 > g_0077317D - 1 ? g_0077317D - 1 : g_00773185;
+        g_00773184 = g_00773185;
     } else if (g_0077317D - 8 < g_00773185 - g_00773184) {
         g_00773185--;
     }
@@ -1416,18 +1431,27 @@ void func_002A2BE0(void)
     func_002CAD60(g_00773130);
 }
 
-/* 0x002A2EF0, 0x410 bytes. Mode 2 (screen 2, "Select  Back  Hire"): officers for hire, a list of
+/* 0x002A2EF0, 0x410 bytes, matching. Mode 2 (screen 2, "Select  Back  Hire"): officers for hire, a list of
  * g_0077317D offers shown 8 at a time (top g_00773184, cursor g_00773185). OK asks to confirm (or
  * explains why not); "yes" hires. Returns what the list scrolling returns. */
 int func_002A2EF0(int player)
 {
-    int pressed, held;
-    u8 rows = g_0077317D > 7 ? 8 : g_0077317D;
-    char answer;
-    int box;
+    int officer;
+    char text[256];
+    int pressed;
+    int held;
+    int count = g_0077317D;
+    int answer;
+    int box = BOX_NONE;
+    int port;
+    u8 rows = count < 8 ? count : 8;
 
-    read_pad(player, pressed, held);
-    box = open_box(&answer);
+    read_pad(player, port, pressed, held);
+    if (g_006934B3 != 0)
+        box = 0;
+    else if (g_006935DB != 0)
+        box = 1;
+    answer = (box == BOX_NONE) ? 0 : box_answer(box);
     if (box == 0)
         return 0;
     if (box == 1) {
@@ -1441,13 +1465,14 @@ int func_002A2EF0(int player)
         }
         return 0;
     }
+    if (box != BOX_NONE && box_busy(box))
+        return 0;
 
     if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(0);
     } else if (pressed & BTN_OK) {
-        int officer;
-        if (g_0077317D == 0)
+        if (count <= 0)
             return 0;
         officer = g_HireOffers[g_00773185].officer;
         if (officer == OFFICER_NONE) {
@@ -1456,18 +1481,18 @@ int func_002A2EF0(int player)
         }
         if (func_0029FB70() < g_HireOffers[g_00773185].price) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            show_box(0, player, g_0043C3A0, 0);
+            show_msg(0, port, g_0043C3A0);
         } else if (func_002A2B90(officer) == 0) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            show_box(0, player, g_0043C3C8, 0);
+            show_msg(0, port, g_0043C3C8);
         } else {
             func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            show_box(1, player, g_0043C3BC, func_002A85D0(officer));
+            show_box(1, port, g_0043C3BC, func_002A85D0(officer));
         }
-    } else if (g_0077317D < 2) {
+    } else if (count < 2) {
         return 0;
     }
-    return func_002C5220(player, &g_00773184, &g_00773185, rows, g_0077317D);
+    return func_002C5220(port, &g_00773184, &g_00773185, rows, g_0077317D);
 }
 
 /* ---- Modes 5 to 8: buy a skill for slot 0 to 3 ------------------------------------------------- */
@@ -1490,7 +1515,7 @@ int func_002F47A0(u32 officer, int skill);                /* skill level */
 void func_002F4820(u32 officer, int skill, int level);
 
 /* Back to the slot choice (mode 1). */
-static void back_to_slots(void)
+static inline void back_to_slots(void)
 {
     g_00799A28 = 1;
     g_00799A24 = g_00799A26;
@@ -1504,14 +1529,16 @@ static void back_to_slots(void)
  * list (mode 9). */
 void func_002A0B40(int player)
 {
+    int port;
+    char text[256];
     int pressed, held;
     int slot = g_00773148 - 5;                  /* (left unset by the original for other modes) */
     SkillOffer *offers = (SkillOffer *)&g_00772DF0[g_0077315C * 0x140 + slot * 0x50];
     u8 *count = &g_00773174[player * 4 + slot];
-    char answer;
+    int answer;
     int box;
 
-    read_pad(player, pressed, held);
+    read_pad(player, port, pressed, held);
     box = open_box(&answer);
     if (box == 0)
         return;
@@ -1556,11 +1583,11 @@ void func_002A0B40(int player)
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         } else if (func_0029FB70() < offers[g_00773186].price) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            show_box(0, player, g_0043C3A0, 0);
+            show_msg(0, port, g_0043C3A0);
         } else {
             func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             func_002F47A0(func_0029FD70(), skill);   /* result unused (as in the original) */
-            show_box(1, player, g_0043C3A8, g_0042D3E0[skill]);
+            show_box(1, port, g_0043C3A8, g_0042D3E0[skill]);
         }
     } else if (held & BTN_EXTRA) {
         func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
@@ -1614,7 +1641,7 @@ int func_002FB430(u32 force);
 int func_00309FB0(void);
 
 /* The level-4 "ultimate" form of skills 9, 0x13 and 0x25: fixed price, never a bargain. */
-static int is_ultimate(const SkillOffer *o)
+static inline int is_ultimate(const SkillOffer *o)
 {
     return (o->skill == 9 || o->skill == 0x13 || o->skill == 0x25) && o->level == 4;
 }
@@ -1735,32 +1762,35 @@ void func_002A01D0(int player)
  * other type; x 0.8 again for the bargain. */
 void func_002A0920(int player)
 {
-    SkillOffer *base = (SkillOffer *)&g_00772DF0[player * 0x140];
     int type = func_002F67B0(func_0029FD70());
+    SkillOffer *base = (SkillOffer *)&g_00772DF0[player * 0x140];
     int s, k;
 
     for (k = 0; k < 5; k++)
         for (s = 0; s < 4; s++) {
             SkillOffer *o = &base[s * 5 + k];
-            unsigned price;
-            u8 kind;
+            int skill = o->skill;
+            int price;
+            int kind;
+            u8 level;
 
-            if (o->skill >= SKILL_COUNT)
+            if (skill >= SKILL_COUNT)
                 continue;
-            kind = SKILL_KIND(o->skill);
-            if (is_ultimate(o))
+            level = o->level;
+            kind = SKILL_KIND(skill);
+            if ((skill == 9 && level == 4) || (skill == 0x13 && level == 4) || (skill == 0x25 && level == 4))
                 price = 10000;
             else if (kind == 3)
-                price = o->level * 500;
+                price = level * 500;
             else
-                price = o->level * 400;
+                price = level * 400;
             if ((type == 1 && kind == 1) || (type == 2 && kind == 2))
                 price = price * 8 / 10;
             else if ((type == 1 && kind == 2) || (type == 2 && kind == 1))
                 price = price * 12 / 10;
             if (o->bargain == 1)
                 price = price * 8 / 10;
-            o->price = (int)price;
+            o->price = price;
         }
 }
 

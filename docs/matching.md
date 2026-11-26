@@ -82,6 +82,11 @@ What makes the compiler produce the game's exact code, learnt so far:
 - **Declaration order picks the registers**: when only the `s` registers differ, reorder the locals.
 - **Several `return` statements**: a branch that ends with its own `return 0` gives a separate
   `v0 = 0` before the jump to the epilogue.
+- **Inlined helpers have one buffer per function**: the message helper's 256-byte text buffer is
+  a local of each caller, and a message without a name calls the formatter with two arguments.
+- **The message boxes are indexed from their object's base** (`0x0068F3E0`), with the box offset in
+  the load (`lbu 0x40D4(base + box * 0x128)`).
+- **After reading the controller, the code uses the port number**, not the player argument.
 - **A count used twice around a random draw is read into a local**:
   `int n = count; r = n != 0 ? random16() % n : 0;`.
 
@@ -90,5 +95,5 @@ What makes the compiler produce the game's exact code, learnt so far:
 **StateTreasures.c is fully matching** (all 24 functions of `src/scene_treasures.c`), and so is
 `src/main.c` (start-up and the scene manager).
 
-86 functions match (31 of the 42 functions of `src/scene_shop.c`). The other functions are equivalent C that
+89 functions match (32 of the 42 functions of `src/scene_shop.c`, 24 of the 33 of `src/scene_config.c`). The other functions are equivalent C that
 still needs reshaping.

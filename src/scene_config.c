@@ -131,17 +131,25 @@ extern struct {
 #define g_00669DB5 (g_00669D60.offset_x)
 #define g_00669DB6 (g_00669D60.offset_y)
 
-/* Globals 0x006934B3-0x0069395F: one object in the original (not reached through $gp). */
+/* 0x0068F3E0: the message boxes' object (the code indexes the boxes from this base). Two boxes of
+ * 0x128 bytes at +0x40D3: +0 state (non-zero while open), +1 the answer (4 = yes). */
+typedef struct {
+    u8 state;
+    u8 answer;
+    u8 unknown_2[0x126];
+} MessageBox;
 extern struct {
-    char g_006934B3;
-    char pad_0[0x127];
-    char g_006935DB;
-    char pad_1[0x382];
-    u8 g_0069395E;  
-} s_006934B3;
-#define g_006934B3 (s_006934B3.g_006934B3)
-#define g_006935DB (s_006934B3.g_006935DB)
-#define g_0069395E (s_006934B3.g_0069395E)
+    u8 unknown_0[0x40D3];
+    MessageBox box[2];       /* 0x006934B3, 0x006935DB */
+    u8 unknown_4323[0x25B];
+    u8 g_0069395E;           /* message box 1 open when neither 0 nor -1 */
+} s_0068F3E0;
+#define g_006934B3 (s_0068F3E0.box[0].state)
+#define g_006935DB (s_0068F3E0.box[1].state)
+#define g_0069395E (s_0068F3E0.g_0069395E)
+/* Box `b`'s state and answer, as the code reads them (an index from the object's base). */
+#define box_state(b) (((u8 *)&s_0068F3E0)[(b) * 0x128 + 0x40D3])
+#define box_answer(b) (((u8 *)&s_0068F3E0)[(b) * 0x128 + 0x40D4])
 
 typedef struct {             /* 0x00731140, edited by pages 5 and 8 */
     int x, y;                /* +0x00 screen offset */
@@ -300,7 +308,6 @@ void func_003F8BB0(void);
 
 /* Two message boxes (0x006934B4 + n * 0x128, n = 0 or 1); their first byte is non-zero while open,
  * the byte at +1 (0x006934B4 + n * 0x128) holds the answer (4 = yes?). */
-extern char g_006934B4[];
 
 extern u8 g_00429030[2][0x1E];
 extern u8 g_004290F8[];          /* layout data of the options menu window */           /* lookup tables used by func_001E6670 */
@@ -312,7 +319,7 @@ void func_0017DF10(void);
 void func_0017E110(u8 value);
 void func_001AE9F0(int kind, const char *text, ...);
 void func_001AFC50(int kind);
-void *func_001E3300(void *data);   /* declared as returning its argument; see below */
+static void func_001E3300(void *data);
 void func_001E33D0(int value, void *data);
 void func_001E3500(void *data);
 void func_0023A480(int value);
@@ -464,7 +471,7 @@ void func_001E4080(void)
         box = 0;
     else if (g_006935DB != 0)
         box = 1;
-    answer = (box == 5) ? 0 : g_006934B4[box * 0x128];
+    answer = (box == 5) ? 0 : box_answer(box);
 
     if (box == 0)
         return;
@@ -1167,7 +1174,7 @@ void func_0017E0C0(u8 volume, int b);
 #define PAD_MAP(pad, i) (((u8 *)&g_00669D8C[pad])[g_0040CC20[i]])
 
 /* 0x001E3300, 0xCC bytes, matching. Copies the live display settings into `out`. */
-void *func_001E3300(void *out)
+static void func_001E3300(void *out)
 {
     DisplaySettings *d = out;
 
@@ -1292,16 +1299,17 @@ int func_001E36D0(void *in)
 void func_001E37E0(int pad, void *in)
 {
     PadSettings *p = in;
-    int vibration;
-    int off20, on21, off22;
-    int port;                                   /* (unset unless pad is 0 or 1, as in the original) */
-    PadFlags *flags;
+    int off22;
+    int on21;
+    int off20;
     PadState *state;
+    int vibration;
+    PadFlags *flags;
+    int port;                                   /* (unset unless pad is 0 or 1, as in the original) */
 
+    vibration = 0;
     if (p->option_20 != 0)
         vibration = 1;
-    else
-        vibration = 0;
     off20 = p->option_20 == 0;
     on21 = p->option_21 != 0;
     off22 = p->option_22 == 0;
@@ -1337,16 +1345,19 @@ void func_001E37E0(int pad, void *in)
 int func_001E39F0(int pad, void *in)
 {
     PadSettings *p = in;
+    int a = p->option_20 == 0;
+    int c = p->option_22 == 0;
+    int b = p->option_21 == 0;
     int i;
 
-    if ((p->option_20 == 0) != g_00669D8C[pad].flags.off_20)
+    if (a != (g_00669D8C[pad].flags.off_20 != 0))
         return 1;
-    if ((p->option_22 == 0) != g_00669D8C[pad].flags.off_22)
+    if (c != (g_00669D8C[pad].flags.off_22 != 0))
         return 1;
-    if ((p->option_21 == 0) != g_00669D8C[pad].flags.on_21)
+    if (b != (g_00669D8C[pad].flags.on_21 != 0))
         return 1;
     for (i = 0; i < 8; i++)
-        if (p->slots[i] != PAD_MAP(pad, i))
+        if (g_00669D8C[pad].map[g_0040CC20[i]] != p->slots[i])
             return 1;
     return 0;
 }
@@ -1401,14 +1412,14 @@ void func_001E3C30(void)
     func_001E3AD0(sound);
 }
 
-/* 0x001E3CA0, 0x30 bytes. Reloads the menu's display copy and applies its saved screen offset.
- * It uses the value func_001E3300 "returns": that function is declared as returning a pointer but
- * has no return statement, so the result is whatever $v0 held, here the address it was given (the
- * original code relies on the same accident). */
+/* 0x001E3CA0, 0x30 bytes, matching. Reloads the menu's display copy and applies its saved screen offset.
+ * (The original keeps the copy's address in $v0 across the call: the compiler knows the static
+ * helper leaves that register alone.) */
 void func_001E3CA0(void)
 {
-    DisplaySettings *d = func_001E3300(g_00731140);
+    DisplaySettings *d = (DisplaySettings *)g_00731140;
 
+    func_001E3300(d);
     func_00100ED0(&d->saved_x, &d->saved_y);
 }
 
@@ -1489,7 +1500,7 @@ void func_001E6960(void)
     func_003F8B80();
 }
 
-/* 0x001E69B0, 0x200 bytes. Update: run the current phase; always returns 1 (so step() runs). */
+/* 0x001E69B0, 0x200 bytes, matching. Update: run the current phase; always returns 1 (so step() runs). */
 /* Message box 1 open (inlined in the original). */
 static inline int box1_open(void)
 {
@@ -1509,11 +1520,13 @@ int func_001E69B0(float dt)
     case 0:
         if (g_00731228 == 0)                   /* opening finished */
             g_007311F8 = 1;
+        return 1;
+    case 1:                                     /* in use: run the current page (below) */
         break;
     case 2:                                     /* closing */
         if (g_00731228 == 0)
             func_001E4030();
-        break;
+        return 1;
     case 3:                                     /* leaving */
         if (!box1_open()) {
             if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {
@@ -1526,20 +1539,19 @@ int func_001E69B0(float dt)
                 g_0045D89C = g_0045D8A0;
             }
         }
-        break;
-    case 1:                                     /* in use: run the current page */
-        switch (g_007311F0) {
-        case 0: func_001E4080(); return 1;
-        case 1: func_001E44C0(); break;
-        case 3: func_001E4BF0(); break;
-        case 5: func_001E46E0(); break;
-        case 6: func_001E5060(); break;
-        case 7: func_001E5EF0(); break;
-        case 8: func_001E4E70(); break;
-        case 9: func_001E51C0(); break;
-        case 10: func_001E5750(); break;
-        }
-        break;
+        return 1;
+    }
+    switch (g_007311F0) {
+    case 0: func_001E4080(); break;
+    case 1: func_001E44C0(); break;
+    case 3: func_001E4BF0(); break;
+    case 5: func_001E46E0(); break;
+    case 6: func_001E5060(); break;
+    case 7: func_001E5EF0(); break;
+    case 8: func_001E4E70(); break;
+    case 9: func_001E51C0(); break;
+    case 10: func_001E5750(); break;
+    case 13: break;                             /* (no page 13: an empty case, as in the original) */
     }
     return 1;
 }
