@@ -745,10 +745,13 @@ void func_001E8AB0(IdList *list)
 
     list->count = 0;
     for (id = 0; id < 0x1A; id++) {
-        if (id != 12 && id != 6)
-            list->ids[list->count++] = id;
+        if (id != 12 && id != 6) {
+            list->ids[list->count] = id;
+            list->count++;
+        }
     }
-    list->ids[list->count++] = 0x1A;
+    list->ids[list->count] = 0x1A;
+    list->count++;
 }
 
 /* 0x001E8B30, 0x298 bytes. Scene enter. */

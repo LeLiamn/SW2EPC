@@ -91,16 +91,21 @@ extern struct {
 #define g_0043C890 (s_0043C3A0.g_0043C890)
 #define g_0043C894 (s_0043C3A0.g_0043C894)
 
-/* Globals 0x0050074C-0x00500766: one object in the original (not reached through $gp). */
-extern struct {
-    unsigned short g_0050074C;
-    char pad_0[0x16];
-    u8 g_00500764;
-    u8 g_00500765;
-} s_0050074C;
-#define g_0050074C (s_0050074C.g_0050074C)
-#define g_00500764 (s_0050074C.g_00500764)
-#define g_00500765 (s_0050074C.g_00500765)
+/* 0x00500700: the controllers' state, 0x88 bytes per controller. */
+typedef struct {
+    u8 unknown_00[0x4C];
+    unsigned short pressed;  /* +0x4C buttons pressed this frame */
+    unsigned short held;     /* +0x4E pressed or repeating */
+    u8 unknown_50[0x14];
+    u8 ready;                /* +0x64 bit 0 */
+    u8 connected;            /* +0x65 bit 0 */
+    u8 unknown_66[0x22];
+} PadState;
+
+extern PadState g_00500700[2];
+#define g_0050074C (g_00500700[0].pressed)
+#define g_00500764 (g_00500700[0].ready)
+#define g_00500765 (g_00500700[0].connected)
 
 /* Globals 0x00669D82-0x00669D83: one object in the original (not reached through $gp). */
 extern struct {
@@ -231,7 +236,7 @@ extern u8 g_00773174[];              /* 4 bytes per officer: state of slots 0-3 
 extern u8 g_00772DF0[];              /* 0x140 bytes per officer, 0x50 per slot */
 extern u8 g_00773070[], g_007730D0[];
 extern u8 g_00440CD8[];
-extern u8 g_0045CEA8[];
+extern u8 g_0045CEA8[8];            /* (small data: reached through $gp) */
 extern int g_0045CE98, g_0045CE9C;   /* a pair saved at enter and restored at leave */
 
 /* Controller 1 (see scene_config.c). */
@@ -245,17 +250,10 @@ extern int g_0045CE98, g_0045CE9C;   /* a pair saved at enter and restored at le
 #define BTN_LEFT   0x8000
 #define SE_CURSOR 0x2CDC
 
-/* Controller state blocks, 0x88 bytes per player (block of player 0 at 0x0050074C):
- * +0x00 buttons pressed this frame, +0x02 pressed or repeating, +0x18 / +0x19 ready flags. */
-static void read_pad(int player, unsigned short *pressed, unsigned short *held)
-{
-    /* (the original leaves the pad unread when player is neither 0 nor 1) */
-    const u8 *pad = (const u8 *)&g_0050074C + player * 0x88;
-    int ready = (pad[0x18] & 1) && (pad[0x19] & 1) == 1;
-
-    *pressed = ready ? *(const unsigned short *)pad : 0;
-    *held = ready ? *(const unsigned short *)(pad + 2) : 0;
-}
+/* Reading a player's controller, inlined in the original (a macro). `player` picks the controller
+ * (the original leaves it unset, and the pad unread, when player is neither 0 nor 1). */
+#define pad_ready(ps) (((ps)->ready & 1) ? ((ps)->connected & 1) == 1 : 0)
+#define read_pad(player, pressed, held) do {                                            int port_;                                                                  PadState *ps_;                                                              if ((player) == 0) port_ = 0; else if ((player) == 1) port_ = 1;            ps_ = &g_00500700[port_];                                                   pressed = pad_ready(ps_) ? g_00500700[port_].pressed : 0;                   held = pad_ready(ps_) ? g_00500700[port_].held : 0;                     } while (0)
 
 extern u8 g_007731D0[];              /* 0x24-byte records */
 extern int g_0045D56C;               /* (gp - 0x7684) officer shown by the skill list, 0x19F = none */
@@ -484,7 +482,7 @@ void func_0029FE50(void)
     g_00773148 = g_0077314C;
 }
 
-/* 0x002A41D0, 0x40 bytes. Places the shop's layout layers. */
+/* 0x002A41D0, 0x40 bytes, matching. Places the shop's layout layers. */
 void func_002A41D0(void)
 {
     func_00375C20(0, g_00773168, 2, g_0045CEA8, 1);
@@ -747,7 +745,7 @@ void func_002A1E90(int player)
     unsigned short pressed, held;
     u8 count = g_00773140;
 
-    read_pad(player, &pressed, &held);
+    read_pad(player, pressed, held);
     if ((pressed & BTN_CANCEL) || (pressed & BTN_EXTRA)) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(3);
@@ -778,24 +776,26 @@ void func_002A1E90(int player)
 void func_002A3300(int player)
 {
     unsigned short pressed, held;
-    u8 count = (u8)g_00773138;
 
-    read_pad(player, &pressed, &held);
-    if ((pressed & BTN_CANCEL) || (pressed & BTN_EXTRA)) {
+    read_pad(player, pressed, held);
+    if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(2);
+    } else if (pressed & BTN_EXTRA) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(2);
     } else if (held & BTN_UP) {
-        if (g_00773186 != 0) {
+        if (g_00773186 > 0) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            g_00773186 = (u8)((g_00773186 + count - 1) % count);
+            g_00773186 = (g_00773186 + (u8)g_00773138 - 1) % (u8)g_00773138;
         } else if (pressed & BTN_UP) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            g_00773186 = count - 1;
+            g_00773186 = g_00773138 - 1;
         }
     } else if (held & BTN_DOWN) {
-        if (g_00773186 < (u8)(count - 1)) {
+        if (g_00773186 < (u8)(g_00773138 - 1)) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            g_00773186 = (u8)((g_00773186 + 1) % count);
+            g_00773186 = (g_00773186 + 1) % (u8)g_00773138;
         } else if (pressed & BTN_DOWN) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             g_00773186 = 0;
@@ -811,7 +811,7 @@ void func_002A3580(int player)
 {
     unsigned short pressed, held;
 
-    read_pad(player, &pressed, &held);
+    read_pad(player, pressed, held);
     if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(0);
@@ -863,7 +863,7 @@ void func_002A3920(int player)
     unsigned short pressed, held;
     u8 cursor = g_00773187;
 
-    read_pad(player, &pressed, &held);
+    read_pad(player, pressed, held);
     if ((pressed & BTN_CANCEL) || (pressed & BTN_EXTRA)) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(g_00773150);
@@ -921,7 +921,7 @@ int func_002A3DB0(int player)
 
     if (*cursor >= count)
         *cursor = (u8)(count - 1);
-    read_pad(player, &pressed, &held);
+    read_pad(player, pressed, held);
 
     if (pressed & BTN_CANCEL) {
         if (g_0077318A >= 3 && random16() % 100 <= 49) {
@@ -1038,7 +1038,7 @@ void func_0029FBA0(int amount)
     func_0039F960();
 }
 
-/* 0x0029FC40, 0xC4 bytes. Selling price of a mount: 5000 for type 0x0C, 4000 for 0x0D-0x0F, else
+/* 0x0029FC40, 0xC4 bytes, matching. Selling price of a mount: 5000 for type 0x0C, 4000 for 0x0D-0x0F, else
  * (rank + 1) * 100 + 1400 when byte +6 is 3, or + 900. */
 int func_0029FC40(int mount)
 {
@@ -1047,7 +1047,9 @@ int func_0029FC40(int mount)
 
     if (type == 0x0C)
         return 5000;
-    if (type == 0x0D || (unsigned)(type - 0x0E) < 2)
+    if (type == 0x0D)
+        return 4000;
+    if ((unsigned)(type - 0x0E) < 2)
         return 4000;
     rank = func_0019FBC0(mount)[8] + 1;
     if (func_0019FBC0(mount)[6] == 3)
@@ -1110,7 +1112,7 @@ void func_002A18D0(int player)
     char answer;
     int box;
 
-    read_pad(player, &pressed, &held);
+    read_pad(player, pressed, held);
     box = open_box(&answer);
     if (box == 0)
         return;
@@ -1200,7 +1202,7 @@ void func_002A21B0(int player, int back)
     char answer;
     int box;
 
-    read_pad(player, &pressed, &held);
+    read_pad(player, pressed, held);
     box = open_box(&answer);
     if (box == 0)
         return;
@@ -1274,7 +1276,7 @@ void func_002A2AE0(HireOffer *dst, const HireOffer *src)
     *dst = *src;
 }
 
-/* 0x002A2B00, 0x8C bytes. Can `officer` be hired? `slot_a` / `slot_b` are the free slots found by
+/* 0x002A2B00, 0x8C bytes, matching. Can `officer` be hired? `slot_a` / `slot_b` are the free slots found by
  * func_00300560 (0..24, else none) and `room` its result. */
 int func_002A2B00(int officer, int slot_a, int slot_b, int room)
 {
@@ -1282,7 +1284,9 @@ int func_002A2B00(int officer, int slot_a, int slot_b, int room)
         return 0;
     if ((slot_a < 0 || slot_a >= SLOT_COUNT) && (slot_b < 0 || slot_b >= SLOT_COUNT))
         return 0;
-    return func_002F3F20(officer) == 0 || (slot_a >= 0 && slot_a < SLOT_COUNT);
+    if (func_002F3F20(officer) != 0 && (slot_a < 0 || slot_a >= SLOT_COUNT))
+        return 0;
+    return 1;
 }
 
 /* 0x002A2B90, 0x4C bytes, matching. Can `officer` be hired now? */
@@ -1342,7 +1346,7 @@ int func_002A2EF0(int player)
     char answer;
     int box;
 
-    read_pad(player, &pressed, &held);
+    read_pad(player, pressed, held);
     box = open_box(&answer);
     if (box == 0)
         return 0;
@@ -1427,7 +1431,7 @@ void func_002A0B40(int player)
     char answer;
     int box;
 
-    read_pad(player, &pressed, &held);
+    read_pad(player, pressed, held);
     box = open_box(&answer);
     if (box == 0)
         return;

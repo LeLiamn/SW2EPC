@@ -552,7 +552,7 @@ void func_001E44C0(void)
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_001E3DB0(0);
     } else if (held & BTN_UP) {
-        if (g_0073121A != 0) {
+        if (g_0073121A > 0) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             g_0073121A = (u8)((g_0073121A + 2) % 3);
         } else if (pressed & BTN_UP) {
