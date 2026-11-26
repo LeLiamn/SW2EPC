@@ -135,20 +135,25 @@ extern struct {
 #define g_006935DB (s_006934B3.g_006935DB)
 #define g_0069395E (s_006934B3.g_0069395E)
 
-/* Globals 0x00731144-0x00731240: one object in the original (not reached through $gp). */
+typedef struct {             /* 0x00731140, edited by pages 5 and 8 */
+    int x, y;                /* +0x00 screen offset */
+    int saved_x, saved_y;    /* +0x08 offset when the page opened */
+    u8 mode;                 /* +0x10 0..7 */
+    u8 option_11, option_12, option_13;
+    u8 value_14;             /* +0x14 copy of 0x669D9C */
+} DisplaySettings;
+typedef struct {             /* 0x00731158 (one pad at a time), edited by pages 9 and 10 */
+    u32 slots[8];            /* +0x00 button map */
+    u8 option_20, option_21, option_22;
+} PadSettings;
+
+/* 0x00731140: the options menu's state (one object: the code reaches the settings copies as
+ * members of it, e.g. the sound settings as base + 0x3C). */
 extern struct {
-    int g_00731144;
-    int g_00731148;
-    int g_0073114C;
-    u8 g_00731150;
-    u8 g_00731151;
-    char pad_0[0x1];
-    u8 g_00731153;
-    char pad_1[0x24];
-    u8 g_00731178;
-    u8 g_00731179;
-    u8 g_0073117A;
-    char pad_2[0x75];
+    DisplaySettings display;     /* +0x00 copy edited by pages 5 and 8 */
+    PadSettings pad;             /* +0x18 copy edited by pages 9 and 10 */
+    u8 sound[8];                 /* +0x3C copy edited by page 7 */
+    u8 unknown_44[0x6C];         /* +0x44 (0x00731184: data block given to func_002D0DC0) */
     int g_007311F0;   /* current page of the menu (0..10) */
     int g_007311F4;            /* page to open after closing */
     int g_007311F8;   /* phase: 0 opening, 1 in use, 2 closing, 3 leaving */
@@ -176,37 +181,41 @@ extern struct {
     int g_0073122C;
     char pad_8[0xC];
     int g_0073123C;   /* value saved at enter, restored at leave */
-} s_00731144;
-#define g_00731144 (s_00731144.g_00731144)
-#define g_00731148 (s_00731144.g_00731148)
-#define g_0073114C (s_00731144.g_0073114C)
-#define g_00731150 (s_00731144.g_00731150)
-#define g_00731151 (s_00731144.g_00731151)
-#define g_00731153 (s_00731144.g_00731153)
-#define g_00731178 (s_00731144.g_00731178)
-#define g_00731179 (s_00731144.g_00731179)
-#define g_0073117A (s_00731144.g_0073117A)
-#define g_007311F0 (s_00731144.g_007311F0)
-#define g_007311F4 (s_00731144.g_007311F4)
-#define g_007311F8 (s_00731144.g_007311F8)
-#define g_00731200 (s_00731144.g_00731200)
-#define g_00731208 (s_00731144.g_00731208)
-#define g_0073120C (s_00731144.g_0073120C)
-#define g_00731214 (s_00731144.g_00731214)
-#define g_00731218 (s_00731144.g_00731218)
-#define g_00731219 (s_00731144.g_00731219)
-#define g_0073121A (s_00731144.g_0073121A)
-#define g_0073121B (s_00731144.g_0073121B)
-#define g_0073121C (s_00731144.g_0073121C)
-#define g_0073121D (s_00731144.g_0073121D)
-#define g_0073121E (s_00731144.g_0073121E)
-#define g_0073121F (s_00731144.g_0073121F)
-#define g_00731223 (s_00731144.g_00731223)
-#define g_00731224 (s_00731144.g_00731224)
-#define g_00731225 (s_00731144.g_00731225)
-#define g_00731228 (s_00731144.g_00731228)
-#define g_0073122C (s_00731144.g_0073122C)
-#define g_0073123C (s_00731144.g_0073123C)
+} s_00731140;
+#define g_00731140 ((u8 *)&s_00731140.display)
+#define g_00731158 ((u8 *)&s_00731140.pad)
+#define g_0073117C (s_00731140.sound)
+#define g_00731184 (s_00731140.unknown_44)
+#define g_00731144 (s_00731140.display.y)
+#define g_00731148 (s_00731140.display.saved_x)
+#define g_0073114C (s_00731140.display.saved_y)
+#define g_00731150 (s_00731140.display.mode)
+#define g_00731151 (s_00731140.display.option_11)
+#define g_00731153 (s_00731140.display.option_13)
+#define g_00731178 (s_00731140.pad.option_20)
+#define g_00731179 (s_00731140.pad.option_21)
+#define g_0073117A (s_00731140.pad.option_22)
+#define g_007311F0 (s_00731140.g_007311F0)
+#define g_007311F4 (s_00731140.g_007311F4)
+#define g_007311F8 (s_00731140.g_007311F8)
+#define g_00731200 (s_00731140.g_00731200)
+#define g_00731208 (s_00731140.g_00731208)
+#define g_0073120C (s_00731140.g_0073120C)
+#define g_00731214 (s_00731140.g_00731214)
+#define g_00731218 (s_00731140.g_00731218)
+#define g_00731219 (s_00731140.g_00731219)
+#define g_0073121A (s_00731140.g_0073121A)
+#define g_0073121B (s_00731140.g_0073121B)
+#define g_0073121C (s_00731140.g_0073121C)
+#define g_0073121D (s_00731140.g_0073121D)
+#define g_0073121E (s_00731140.g_0073121E)
+#define g_0073121F (s_00731140.g_0073121F)
+#define g_00731223 (s_00731140.g_00731223)
+#define g_00731224 (s_00731140.g_00731224)
+#define g_00731225 (s_00731140.g_00731225)
+#define g_00731228 (s_00731140.g_00731228)
+#define g_0073122C (s_00731140.g_0073122C)
+#define g_0073123C (s_00731140.g_0073123C)
 
 /* Globals 0x00799A68-0x00799A6C: one object in the original (not reached through $gp). */
 extern struct {
@@ -215,7 +224,6 @@ extern struct {
 } s_00799A68;
 #define g_00799A68 (s_00799A68.g_00799A68)
 
-extern u8 g_00731140[], g_00731158[], g_0073117C[], g_00731184[];
 
 /* 0x0069395E: a byte checked before leaving (0 or 0xFF = nothing pending). */
 
@@ -311,7 +319,7 @@ int func_002EFBB0(void);
 void func_002EFB40(void);
 void func_003A32C0(void);
 
-/* 0x001E3D00, 0x4C bytes. Apply the four settings stored at 0x0073117C. */
+/* 0x001E3D00, 0x4C bytes, matching. Apply the four settings stored at 0x0073117C. */
 void func_001E3D00(void)
 {
     u8 *sound = g_0073117C;
@@ -1142,19 +1150,6 @@ void func_001E5EF0(void)
  *   0x669DB2..DB4: three volumes; 0x669DB5/DB6: screen offset (signed).
  * The menu pages edit copies of them (the structs below) and write them back with "OK".
  */
-
-typedef struct {             /* 0x00731140, edited by pages 5 and 8 */
-    int x, y;                /* +0x00 screen offset */
-    int saved_x, saved_y;    /* +0x08 offset when the page opened */
-    u8 mode;                 /* +0x10 0..7 */
-    u8 option_11, option_12, option_13;
-    u8 value_14;             /* +0x14 copy of 0x669D9C */
-} DisplaySettings;
-
-typedef struct {             /* 0x00731158 (one pad at a time), edited by pages 9 and 10 */
-    u32 slots[8];            /* +0x00 button map */
-    u8 option_20, option_21, option_22;
-} PadSettings;
 
 /* Settings of each pad at 0x00669D8C: the button map (one byte per action, at the offsets of the
  * table g_0040CC20) and flags. */
