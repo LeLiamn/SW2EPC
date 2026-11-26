@@ -1373,3 +1373,56 @@ int func_0021E430(u32 attribute)
     }
     return first_marked;
 }
+
+
+/* Controllers (see scene_shop.c): 0x88 bytes each at 0x00500700. */
+extern u8 g_00500700_pads[];
+#define PAD_READY(n) ((g_00500700_pads[(n) * 0x88 + 0x64] & 1) ? \
+                      (g_00500700_pads[(n) * 0x88 + 0x65] & 1) == 1 : 0)
+#define PAD_PRESSED(n) (*(unsigned short *)&g_00500700_pads[(n) * 0x88 + 0x4C])
+
+extern u8 g_006934B4_answers[];           /* message box answers, 0x128 bytes per box */
+extern const char *g_004563A0;            /* "This weapon's data will be saved..." */
+void func_0023AD10(int a, int b, int c, int d, int e);
+void func_001AEDE0(int box, int width);
+void func_001AFC70(int box, int pad);
+
+/* 0x0021ED70, 0x1D4 bytes. Item screen, "keep which one" step (controller `pad`, open box `box`):
+ * a "yes" in the question box keeps the choice and moves on (page 7); OK asks to confirm, Up or
+ * Down switches between the new and the old item (g_00748CB0). Returns 1 while a box is busy. */
+int func_0021ED70(int pad, int box)
+{
+    unsigned short pressed = PAD_READY(pad) ? PAD_PRESSED(pad) : 0;
+    char text[256];
+    char answer;
+
+    if (g_00748CAC == 0)
+        g_00748CAC = 1;
+    if (g_00748CAC != 1)
+        return 0;
+    answer = box == 5 ? 0 : (char)g_006934B4_answers[box * 0x128];
+    if (box == 1) {
+        if (answer == 4) {
+            func_0021C280();
+            func_0021B660(7);
+        }
+        return 1;
+    }
+    if (pressed & 0x40) {
+        func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+        func_001204B0(text, g_004563A0);
+        func_001B8BF0();
+        func_001AEDE0(1, 0x96);
+        func_001AE9F0(1, text, 1);
+        func_001AFC70(1, pad);
+        return 1;
+    }
+    if (pressed & 0x5000) {
+        func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+        if (g_00748CB0 == 0)
+            g_00748CB0 = 1;
+        else if (g_00748CB0 == 1)
+            g_00748CB0 = 0;
+    }
+    return 0;
+}
