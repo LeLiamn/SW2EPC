@@ -28,7 +28,12 @@ extern struct {
     int return_to;           /* 0x0045D89C state to return to */
     int requested;           /* 0x0045D8A0 requested state (0x18 = none) */
 } g_0045D880;
+#define g_0045D894 (g_0045D880.previous)
 #define g_0045D898 (g_0045D880.current)
+#define g_0045D89C (g_0045D880.return_to)
+#define g_0045D8A0 (g_0045D880.requested)
+#define GO_TO_NEXT_SCENE() do {                                                 if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {                        g_0045D894 = g_0045D898;                                                g_0045D898 = g_0045D8A0;                                                g_0045D89C = 0x18;                                                  } else {                                                                    g_0045D894 = g_0045D898;                                                g_0045D898 = g_0045D89C;                                                g_0045D89C = g_0045D8A0;                                            }                                                                   } while (0)
+#define SWITCH_SCENE() do {                                                     if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {                        g_0045D898 = g_0045D8A0;                                                g_0045D89C = 0x18;                                                  } else {                                                                    g_0045D898 = g_0045D89C;                                                g_0045D89C = g_0045D8A0;                                            }                                                                   } while (0)
 
 /* The game state (0x00669D60), the fields used here. */
 extern struct {
@@ -241,28 +246,45 @@ extern struct {
 #define g_00772D3C (s_00772D34.g_00772D3C)
 #define g_00772D54 (s_00772D34.g_00772D54)
 
-/* Globals 0x007A1BA4-0x007A1C2C: one object in the original (not reached through $gp). */
+/* The menu camera (0x007A1B70): a target that moves from `target` to `target_to` over `frames`,
+ * the camera itself at +0x50 (func_002EBD80 / func_002EBAA0), distance limits, and defaults. */
 extern struct {
+    float g_007A1B70[4];     /* target */
+    float g_007A1B80[4];     /* target to reach */
+    u8 unknown_20[0x14];
     u32 g_007A1BA4;
-    u32 g_007A1BA8;
-    char pad_0[0x64];
-    u32 g_007A1C10;
-    u32 g_007A1C14;
-    u32 g_007A1C18;
-    u32 g_007A1C1C;
+    u32 g_007A1BA8;          /* frames to reach it */
+    u8 unknown_3c[0x14];
+    u8 g_007A1BC0[0x50];     /* the camera (+0x10 a vector, +0x38 its frames) */
+    float g_007A1C10, g_007A1C14;        /* distance range */
+    float g_007A1C18, g_007A1C1C;        /* distance range to reach */
     u32 g_007A1C20;
-    u32 g_007A1C24;
-    u32 g_007A1C28;
-} s_007A1BA4;
-#define g_007A1BA4 (s_007A1BA4.g_007A1BA4)
-#define g_007A1BA8 (s_007A1BA4.g_007A1BA8)
-#define g_007A1C10 (s_007A1BA4.g_007A1C10)
-#define g_007A1C14 (s_007A1BA4.g_007A1C14)
-#define g_007A1C18 (s_007A1BA4.g_007A1C18)
-#define g_007A1C1C (s_007A1BA4.g_007A1C1C)
-#define g_007A1C20 (s_007A1BA4.g_007A1C20)
-#define g_007A1C24 (s_007A1BA4.g_007A1C24)
-#define g_007A1C28 (s_007A1BA4.g_007A1C28)
+    u32 g_007A1C24;          /* frames to reach it */
+    u32 g_007A1C28;          /* camera mode */
+    u8 unknown_bc[0x1C4];
+    float g_007A1DF0[4];     /* default eye */
+    float g_007A1E00[4];     /* default target */
+    u8 unknown_2a0[0x20];
+    float g_007A1E30, g_007A1E34;        /* default distance range */
+} s_007A1B70;
+#define g_007A1B70 (s_007A1B70.g_007A1B70)
+#define g_007A1B80 (s_007A1B70.g_007A1B80)
+#define g_007A1BA4 (s_007A1B70.g_007A1BA4)
+#define g_007A1BA8 (s_007A1B70.g_007A1BA8)
+#define g_007A1BC0 (s_007A1B70.g_007A1BC0)
+#define g_007A1BD0 ((float *)(g_007A1BC0 + 0x10))
+#define g_007A1BF8 (*(u32 *)(g_007A1BC0 + 0x38))
+#define g_007A1C10 (s_007A1B70.g_007A1C10)
+#define g_007A1C14 (s_007A1B70.g_007A1C14)
+#define g_007A1C18 (s_007A1B70.g_007A1C18)
+#define g_007A1C1C (s_007A1B70.g_007A1C1C)
+#define g_007A1C20 (s_007A1B70.g_007A1C20)
+#define g_007A1C24 (s_007A1B70.g_007A1C24)
+#define g_007A1C28 (s_007A1B70.g_007A1C28)
+#define g_007A1DF0 (s_007A1B70.g_007A1DF0)
+#define g_007A1E00 (s_007A1B70.g_007A1E00)
+#define g_007A1E30 (s_007A1B70.g_007A1E30)
+#define g_007A1E34 (s_007A1B70.g_007A1E34)
 
 extern u8 g_00749A28[2][0x52];            /* per player: items */
 extern u8 g_00749530[], g_007496F0[], g_007499EC[], g_00749ACC[], g_00749AD8[], g_00749AE4[];
@@ -304,15 +326,13 @@ extern struct {
 #define g_00749BB8 (s_00749BB6.g_00749BB8)
 #define g_00749BB9 (s_00749BB6.g_00749BB9)
 #define g_00749BBA (s_00749BB6.g_00749BBA)
-extern u32 g_007A1B70[4], g_007A1B80[4];
-extern u8 g_007A1BC0[];
 extern const char g_00429EA0[];           /* "StatePreBattle.c" */
 
 /* Tables of the battle types (0x00442EA0-0x00443640). */
-extern u8 g_00442EA0[][0x10];
-extern u32 g_00443290[][4];
-extern struct { u32 a, b, c; } g_00443530[];
-extern struct { u32 a, b; } g_00443630[];
+extern u8 g_00442EA0[][0x10];              /* camera directions per battle type */
+extern float g_00443290[][4];              /* camera targets per battle type */
+extern struct { float a, b, c; } g_00443530[];   /* camera distances per battle type */
+extern struct { float a, b; } g_00443630[];  /* distance ranges per battle type */
 extern void (*g_0040DF40[3])(void);       /* page 10 handlers */
 extern void (*g_0040DF50[3])(int pad);    /* page 13 handlers (the last one empty) */
 
@@ -352,8 +372,8 @@ void func_0028F860(u8 *data);
 void func_0028EFC0(u8 *data);
 void func_0028F4C0(u8 *data);
 void func_002EBE40(void);
-void func_002EBD80(u32 a, u8 *b, u8 *c);
-void func_002EBAA0(u32 a, u8 *b, u8 *c, int d);
+void func_002EBD80(float distance, u8 *camera, const void *direction);
+void func_002EBAA0(float distance, u8 *camera, const void *direction, int frames);
 void func_0028D5D0(int value);
 void func_002C59F0(void);
 void func_002C5A30(void);
@@ -457,7 +477,7 @@ void func_00290CE0(void *a, u32 b, int c, int d, int e);
 void func_003764B0(void);
 int func_003F1160(int value);
 void func_001A7DC0(const char *text, int alpha, int b);
-int func_00328A60(void);
+int func_00328A60(int officer);
 int func_0036D780(void);
 int func_002208D0(u32 officer);
 u32 func_002F6A60(u32 officer);
@@ -470,6 +490,577 @@ void func_003F11D0(void);
 void func_00236450(void);
 void func_002F16D0(void);
 void func_001D1E80(void);
+
+/* ---- The menu and its first pages (0x00220780-0x00224D60) ------------------------------------- */
+
+extern u8 g_007499E9;                     /* unit shown on page 3 */
+extern u8 g_0073DCA3[];                   /* player records, 0x290 bytes (+0: bit 2 a flag) */
+extern int g_00772D4C;
+extern int g_00799A68;
+extern u32 g_00429E60[];                  /* main menu entries: what each one opens */
+extern int g_0040DF10[7];                 /* main menu entries 0-6: their page */
+extern u8 g_00442FF0[][0x10], g_00443140[][0x10];      /* camera directions of pages 2 and 3 */
+extern float g_004433E0[][4];             /* camera targets of page 2 */
+extern float g_004436D8, g_004436DC;      /* distance range of page 2 */
+extern const char *g_0043C3EC;            /* "You do not have any mounts." */
+
+#define g_00749AE8 (g_00749AE4[4])        /* non-zero: the player has mounts */
+#define PLAYER_CURSOR(p) ((&g_00749AEC)[p])            /* main menu cursor per player */
+#define PLAYER_READY(p) ((&g_00749B08)[p])             /* two armies: player ready */
+
+int func_00362570(void);
+u32 func_0033F7D0(int a, int b);
+u8 *func_0035DEC0(u32 officer, int i);
+void func_0017DEA0(int value);
+float (*func_001942C0(void))[4];
+void func_002EC0C0(u8 *camera, int mode);
+void func_001911A0(float *out, u8 *pos);
+void func_003DCA30(void);
+u32 func_00290C10(void);
+u32 func_00290C90(int page);
+int func_003F1070(int value);
+int func_0035F440(void);
+void func_002ECB80(int pad);
+int func_00328B00(int officer);
+void func_00328AA0(int officer, int value);
+void func_001AE9F0(int box, const char *text, int a);
+void func_001AFC70(int box, int pad);
+void func_00223100(void);
+void func_00224DD0(void);
+void func_00224DF0(void);
+void func_00225130(void);
+void func_002254F0(void);
+
+#define LEAVE_IF_NONE(scene) do {                                       \
+        if (g_0045D89C >= 0x18 && g_0045D8A0 >= 0x18)                   \
+            g_0045D89C = (scene);                                       \
+    } while (0)
+
+/* 0x00220780, 0x68 bytes. Non-zero when page 10 is offered: not in battle types 6-0x12, and
+ * with entries. */
+int func_00220780(void)
+{
+    u32 type = func_00362570();
+
+    if (type >= 6 && type <= 0x0F)
+        return 0;
+    if (type >= 0x10 && type <= 0x12)
+        return 0;
+    return g_00749B91 != 0;
+}
+
+/* 0x002207F0, 0xC4 bytes. Non-zero when page 11 / 12 is offered: not in battle types 6-0x12,
+ * with values (or 2 formations in an Empire battle), and func_0033F7D0 at least 3. */
+int func_002207F0(void)
+{
+    u32 type = func_00362570();
+
+    if (type >= 6 && type <= 0x0F)
+        return 0;
+    if (type >= 0x10 && type <= 0x12)
+        return 0;
+    if (func_0036D2E0() == 0) {
+        if (g_00749BB4 == 0)
+            return 0;
+    } else if (func_00362D70(0) < 2) {
+        return 0;
+    }
+    return func_0033F7D0(0, 1) < 3 ? 0 : 1;
+}
+
+/* 0x002208C0, 0x10 bytes. */
+int func_002208C0(void)
+{
+    return g_00749AE8 != 0;
+}
+
+/* 0x002208D0, 0x9C bytes. How many of `officer`'s four records (func_0035DEC0) are set (first
+ * byte below 0x7F). */
+int func_002208D0(u32 officer)
+{
+    int i, n = 0;
+
+    for (i = 0; i < 4; i++) {
+        u8 rec[20];
+        u8 *src = func_0035DEC0(officer, i);
+        int k;
+
+        for (k = 0; k < 20; k++)
+            rec[k] = src[k];
+        if (rec[0] < 0x7F)
+            n++;
+    }
+    return n;
+}
+
+/* 0x00220970, 0x6C bytes. Requests page `page` (applied by func_002209E0); 14 also stops the
+ * music and fades out, 15 stops it. */
+void func_00220970(int page)
+{
+    g_00749A18 = 1;
+    g_00749A14 = page;
+    if (page == 0x0E) {
+        func_0017DF10();
+        func_001B8F60(0, 6, 8);
+    }
+    if (page == 0x0F)
+        func_0017DEA0(1);
+}
+
+/* Starts a camera move to `target` over 15 frames with a distance range (inlined). */
+#define CAMERA_TARGET(t) do {                   \
+        g_007A1B80[0] = (t)[0];                 \
+        g_007A1B80[1] = (t)[1];                 \
+        g_007A1B80[2] = (t)[2];                 \
+        g_007A1B80[3] = (t)[3];                 \
+        g_007A1BA8 = 0x0F;                      \
+    } while (0)
+
+/* 0x002209E0, 0xD24 bytes. Applies the requested page (g_00749A14): resets the camera to the
+ * map's default view, then sets up the page (its camera, its window layers through
+ * func_0028D5D0, its cursor); 14 leaves for the requested scene (the battle), 15 leaves and frees
+ * the battle. */
+void func_002209E0(void)
+{
+    float (*box)[4] = func_001942C0();
+    float dir[4], len;
+    int current;
+    int i;
+
+    func_002C59F0();
+    func_002C5A30();
+    g_007A1C20 = 0;
+    g_007A1C14 = g_007A1E34;
+    g_007A1BA4 = 0;
+    g_007A1C10 = g_007A1E30;
+    g_007A1B70[0] = g_007A1E00[0];
+    g_007A1B70[1] = g_007A1E00[1];
+    g_007A1B70[2] = g_007A1E00[2];
+    g_007A1B70[3] = g_007A1E00[3];
+    for (i = 0; i < 4; i++)                       /* (VU0) the eye's direction and distance */
+        dir[i] = g_007A1DF0[i] - g_007A1E00[i];
+    len = __builtin_sqrtf(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
+    for (i = 0; i < 4; i++)
+        dir[i] = dir[i] * (1.0f / len);
+    func_002EBD80(len, g_007A1BC0, dir);
+    func_002EBAA0(g_00443530[BATTLE_TYPE()].a, g_007A1BC0, g_00442EA0[BATTLE_TYPE()], 0x0F);
+    current = g_0045D898;
+    g_00749AF0 = 0;
+    switch (g_00749A14) {
+    case 0:                                       /* the main menu */
+        func_0028D5D0(8);
+        g_007A1C28 = 2;
+        g_007A1C1C = g_00443630[BATTLE_TYPE()].b;
+        g_007A1C18 = g_00443630[BATTLE_TYPE()].a;
+        g_007A1C24 = 0x0F;
+        CAMERA_TARGET(g_00443290[BATTLE_TYPE()]);
+        func_002EBAA0(g_00443530[BATTLE_TYPE()].a, g_007A1BC0, g_00442EA0[BATTLE_TYPE()], 0x0F);
+        g_00749B00 = 1;
+        if (g_00749A10 == 2)
+            g_007A1C28 = 0;
+        else
+            func_002EC0C0(g_007A1BC0, 2);
+        func_00221890();
+        break;
+    case 1:
+        func_0028D5D0(10);
+        if (g_00749A10 == 0)
+            func_0028D5D0(1);
+        if (g_00749A10 == 0)
+            func_0028D5D0(7);
+        if (g_00749A10 < g_00749A14)
+            g_00749AEE = 0;
+        break;
+    case 2:
+        g_007A1C28 = 0;
+        g_007A1C24 = 0x0F;
+        g_007A1C1C = g_004436DC;
+        g_007A1C18 = g_004436D8;
+        CAMERA_TARGET(g_004433E0[BATTLE_TYPE()]);
+        func_002EBAA0(g_00443530[BATTLE_TYPE()].b, g_007A1BC0, g_00442FF0[BATTLE_TYPE()], 0x0F);
+        func_0028D5D0(0x16);
+        if (g_00749A10 == 0) {
+            func_0028D5D0(1);
+            func_0028D5D0(7);
+        }
+        g_00772D4C = g_00749A1C;
+        g_00749B00 = 1;
+        break;
+    case 3:
+        g_00749AF2 = 0;
+        g_00749AF1 = 0;
+        g_00749AF5 = 0;
+        if (g_0073DCA3[g_00749A1C * 0x290] & 4) {
+            float centre[4];
+
+            g_007A1C18 = 2048.0f;
+            g_007A1C24 = 0x0F;
+            g_007A1C1C = 2020.0f;
+            for (i = 0; i < 4; i++)               /* (VU0) the middle of the map's box */
+                centre[i] = (box[0][i] + box[1][i]) * 0.5f;
+            CAMERA_TARGET(centre);
+            g_007A1BF8 = 0x0F;
+            g_007A1BD0[0] = ((float *)g_00443140[BATTLE_TYPE()])[0];
+            g_007A1BD0[1] = ((float *)g_00443140[BATTLE_TYPE()])[1];
+            g_007A1BD0[2] = ((float *)g_00443140[BATTLE_TYPE()])[2];
+            g_007A1BD0[3] = ((float *)g_00443140[BATTLE_TYPE()])[3];
+            func_002EC0C0(g_007A1BC0, 1);
+        } else {
+            u8 *unit = *(u8 **)(g_00749530 + 0x340 + g_007499E9 * 0x78);
+            float pos[4];
+
+            g_007A1C28 = 1;
+            g_007A1C24 = 0x0F;
+            g_007A1C18 = 2048.0f;
+            g_007A1C1C = 2048.0f;
+            func_001911A0(pos, (*(u32 *)(unit + 0x80) & 0x20000) ? unit + 0x30 : unit + 0x28);
+            CAMERA_TARGET(pos);
+            func_002EBAA0(g_00443530[BATTLE_TYPE()].c, g_007A1BC0, g_00443140[BATTLE_TYPE()], 0x0F);
+            func_002EC0C0(g_007A1BC0, 1);
+        }
+        g_00749B00 = 1;
+        g_00772D4C = g_00749A1C;
+        func_0028D5D0(0x18);
+        if (g_00749A10 == 0) {
+            func_0028D5D0(1);
+            func_0028D5D0(7);
+        }
+        func_00223100();
+        break;
+    case 4:
+        func_0028D5D0(0x1A);
+        if (g_00749A10 == 0) {
+            func_0028D5D0(1);
+            func_0028D5D0(7);
+        }
+        break;
+    case 5:
+        func_0028D5D0(0x1C);
+        if (g_00749A10 == 1)
+            func_0028D5D0(2);
+        break;
+    case 6:
+        func_0028D5D0(0x10);
+        func_0028D5D0(2);
+        g_00749AF0 = g_00749A28[g_00749A1C][0x51];
+        g_00749AEF = -1;
+        break;
+    case 7: {                                     /* items: the equipped one, or the first usable */
+        u32 officer = PLAYER_OFFICER(g_00749A1C);
+        u32 item;
+
+        g_00799A68 = g_00749A1C;
+        func_0028D5D0(0x0C);
+        func_0028D5D0(2);
+        item = func_002F6A60(officer);
+        if (func_0036DBA0(officer, item) < 1 || func_002F4900(officer, item) == 0) {
+            g_00749AF0 = 0;
+            for (i = 0; i < 0x28; i++)
+                if (func_0036DBA0(officer, i) > 0 && func_002F4900(officer, i) != 0) {
+                    g_00749AF0 = (u8)i;
+                    break;
+                }
+        } else {
+            g_00749AF0 = 0xFF;
+        }
+        break;
+    }
+    case 9:                                       /* mounts: the current one */
+        func_0028D5D0(0x14);
+        func_0028D5D0(2);
+        if (g_00749AE4[5 + g_00749A1C] < 4) {
+            for (i = 0; i < 4; i++)
+                if (g_00749AE4[5 + g_00749A1C] == g_00749AE4[i])
+                    break;
+            g_00749AF0 = (u8)i;
+        } else {
+            g_00749AF0 = 0;
+        }
+        break;
+    case 10:
+        func_0028D5D0(10);
+        func_0028D5D0(1);
+        func_0028D5D0(7);
+        func_00224DD0();
+        break;
+    case 11:
+        func_0028D5D0(1);
+        func_0028D5D0(7);
+        func_0028D5D0(5);
+        func_00224DF0();
+        break;
+    case 12:
+        func_0028D5D0(1);
+        func_0028D5D0(7);
+        func_0028D5D0(4);
+        func_00225130();
+        break;
+    case 13:
+        func_0028D5D0(1);
+        func_0028D5D0(7);
+        func_0028D5D0(3);
+        func_002254F0();
+        break;
+    case 14:                                      /* to the battle */
+        if (g_00669F6C != 1)
+            func_003DCA30();
+        GO_TO_NEXT_SCENE();
+        break;
+    case 15:                                      /* leave without fighting */
+        SWITCH_SCENE();
+        g_0045D894 = current;
+        func_001D1E80();
+        break;
+    }
+    g_00749A10 = g_00749A14;
+    func_00376100(0, func_00290C10(), func_00290C90(g_00749A10));
+}
+
+/* 0x00221710, 0xFC bytes. Player `player` is ready: with one army (or both ready) on to the
+ * battle (page 14, scene 4). */
+void func_00221710(int player)
+{
+    if ((g_00669F60 & 2) == 0) {
+        LEAVE_IF_NONE(4);
+        func_00220970(0x0E);
+    } else if (PLAYER_READY((player + 1) % 2) == 0) {
+        if (PLAYER_READY(player) == 0)
+            PLAYER_READY(player) = 1;
+    } else {
+        LEAVE_IF_NONE(4);
+        func_00220970(0x0E);
+    }
+}
+
+/* 0x00221810, 0x8 bytes, matching. Main menu entries. */
+int func_00221810(void)
+{
+    return 7;
+}
+
+/* 0x00221820, 0x18 bytes, matching. What main menu entry `i` opens. */
+u32 func_00221820(int i)
+{
+    return g_00429E60[i];
+}
+
+/* 0x00221840, 0x48 bytes. Whether an entry is offered (2: page 11 / 12, 1: page 10, else yes). */
+int func_00221840(u32 what)
+{
+    if (what == 2)
+        return func_002207F0();
+    if (what == 1)
+        return func_00220780();
+    return 1;
+}
+
+/* 0x00221890, 0xB8 bytes. Moves both players' main menu cursors to an offered entry. */
+void func_00221890(void)
+{
+    int count = func_00221810();
+    int p;
+
+    if (count <= 0)
+        return;
+    for (p = 0; p < 2; p++) {
+        u32 i = PLAYER_CURSOR(p);
+
+        while (func_00221840(func_00221820(i)) == 0)
+            i = (i + 1) % count;
+        PLAYER_CURSOR(p) = (u8)i;
+    }
+}
+
+/* Shows message `id` (func_003F1070) and asks for a re-check afterwards (inlined, four times). */
+#define CHECK_MESSAGE(id) (func_003F1070(id) != 0 ?                                     \
+    (g_00772D34 = g_00772D36, g_00772D38 = 0, g_00772D3C = 1, 1) : 0)
+
+/* 0x00221950, 0x15C bytes. Before the menu of an Empire battle: the warnings (messages 0x16,
+ * 6, 0x0D, 0x0E) that still have to be shown. Returns 1 while one is shown. */
+int func_00221950(int player)
+{
+    if (func_0036D2E0() == 0)
+        return 0;
+    if (CHECK_MESSAGE(0x16))
+        return 1;
+    if (func_0036D780() != 0 && CHECK_MESSAGE(6))
+        return 1;
+    if (func_002208C0() != 0 && g_00749AE4[5 + player] > 3 && CHECK_MESSAGE(0x0D))
+        return 1;
+    if (func_0035F440() == 0 && (func_00220780() != 0 || func_002207F0() != 0) &&
+        CHECK_MESSAGE(0x0E))
+        return 1;
+    return 0;
+}
+
+/* 0x00221AB0, 0x48C bytes. Page 0, the main menu, for player `player`: Up / Down move among the
+ * offered entries (repeating; wrapping only on a new press), OK opens the entry's page (or
+ * declares the player ready: entry 6), Start goes to "ready" directly. With two armies a ready
+ * player only can cancel (Cancel). Returns 1 when something happened. */
+int func_00221AB0(int player)
+{
+    int port = 0;
+    unsigned short pressed, repeat;
+    int count;
+    u8 *cursor;
+    u32 what;
+
+    if (player == 0)
+        port = 0;
+    else if (player == 1)
+        port = 1;
+    pressed = PAD_PRESSED_N(port);
+    repeat = PAD_REPEAT_N(port);
+    count = func_00221810();
+    cursor = &PLAYER_CURSOR(player);
+    what = func_00221820(*cursor);
+    if ((g_00669F60 & 2) != 0 && PLAYER_READY(player) == 1) {
+        if ((pressed & BTN_CANCEL) == 0)
+            return 0;
+        PLAYER_READY(player) = 0;
+        SE(2);
+        return 1;
+    }
+    if (pressed & BTN_OK) {
+        if (what <= 5) {
+            int pages[7];
+            int page;
+
+            for (page = 0; page < 7; page++)
+                pages[page] = g_0040DF10[page];
+            page = pages[what];
+            if (page == 0x0B && func_0036D2E0() == 0 && g_00749BB4 != 0)
+                page = 0x0C;
+            SE(1);
+            func_00220970(page);
+            g_00749A1C = player;
+            return 1;
+        }
+        if (what == 6) {
+            SE(1);
+            func_00221710(player);
+            g_00749A1C = player;
+            return 1;
+        }
+    } else if ((pressed & BTN_CANCEL) == 0) {
+        if (pressed & 0x800) {                    /* Start: ready */
+            if (what == 6) {
+                SE(1);
+                func_00221710(player);
+                return 1;
+            }
+            SE(0);
+            *cursor = (u8)(count - 1);
+            return 1;
+        }
+        if ((repeat & 0x1000) || (pressed & 0x1000)) {
+            int i = (*cursor + count - 1) % count;
+
+            while (func_00221840(func_00221820(i)) == 0)
+                i = (i + count - 1) % count;
+            if (i < *cursor || (pressed & 0x1000)) {
+                SE(0);
+                *cursor = (u8)i;
+            }
+        } else if ((repeat & 0x4000) || (pressed & 0x4000)) {
+            int i = (*cursor + 1) % count;
+
+            while (func_00221840(func_00221820(i)) == 0)
+                i = (i + 1) % count;
+            if (*cursor < i || (pressed & 0x4000)) {
+                SE(0);
+                *cursor = (u8)i;
+            }
+        }
+    }
+    func_002ECB80(port);
+    return 0;
+}
+
+/* 0x00221F40, 0x2C bytes. Whether line `line` of page 1 is offered (11: only with mounts). */
+int func_00221F40(int line)
+{
+    if (line == 0x0B)
+        return func_002208C0();
+    return 1;
+}
+
+/* 0x00221F70, 0x4DC bytes. Page 1, the officer (four lines: equipment 6, items 7, mounts 9,
+ * bodyguards 5; line 1 needs mounts). The extra button switches the officer's costume (an
+ * officer below 0x1C with more than one costume). Cancel goes back. */
+void func_00221F70(int player)
+{
+    int port = 0;
+    unsigned short pressed, repeat;
+
+    if (player == 0)
+        port = 0;
+    else if (player == 1)
+        port = 1;
+    pressed = PAD_PRESSED_N(port);
+    repeat = PAD_REPEAT_N(port);
+    if (pressed & BTN_OK) {
+        if (g_00749AEE == 3) {
+            SE(1);
+            func_00220970(5);
+        } else if (g_00749AEE == 1) {
+            if (g_00749AE8 == 0) {
+                SE(4);
+                func_001AE9F0(0, g_0043C3EC, 1);
+                func_001AFC70(0, port);
+            } else {
+                SE(1);
+                func_00220970(9);
+            }
+        } else if (g_00749AEE == 2) {
+            SE(1);
+            func_00220970(7);
+        } else if (g_00749AEE == 0) {
+            SE(1);
+            func_00220970(6);
+        }
+    } else if (pressed & BTN_CANCEL) {
+        SE(2);
+        func_00220970(0);
+    } else if (pressed & BTN_EXTRA) {
+        int officer = PLAYER_OFFICER(player);
+
+        if (officer >= 0 && officer < 0x19F) {
+            if (officer < 0x1C) {
+                u32 costume = (func_00328B00(officer) + 1) % 2;
+
+                if (func_00328A60(officer) < (int)costume)
+                    costume = 0;
+                if (costume == (u32)func_00328B00(officer)) {
+                    SE(4);
+                } else {
+                    SE(1);
+                    func_00328AA0(officer, costume);
+                }
+            } else {
+                SE(4);
+            }
+        }
+    } else if ((repeat & 0x1000) || (pressed & 0x1000)) {
+        u32 i = (g_00749AEE + 3) & 3;
+
+        while (func_00221F40(i + 10) == 0)
+            i = (i + 3) & 3;
+        if ((int)i < (int)g_00749AEE || (pressed & 0x1000)) {
+            SE(0);
+            g_00749AEE = (u8)i;
+        }
+    } else if ((repeat & 0x4000) || (pressed & 0x4000)) {
+        u32 i = (g_00749AEE + 1) & 3;
+
+        while (func_00221F40(i + 10) == 0)
+            i = (i + 1) & 3;
+        if ((int)g_00749AEE < (int)i || (pressed & 0x4000)) {
+            SE(0);
+            g_00749AEE = (u8)i;
+        }
+    }
+}
 
 /* 0x00224D70, 0x54 bytes. Page 10: runs the handler of its mode (g_00749B6C[0], 0-2). */
 void func_00224D70(void)
@@ -1386,7 +1977,7 @@ void func_002275C0(void)
         return;
     case 1: {
         int o = PLAYER_OFFICER(g_00749A1C);
-        if (o < 0 || o > 0x1B || func_00328A60() < 1)
+        if (o < 0 || o > 0x1B || func_00328A60(o) < 1)
             func_001A7DC0(g_0043C5A8, 0x80, 1);
         else
             func_001A7DC0(g_0043C760, 0x80, 1);
