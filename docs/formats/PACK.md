@@ -34,7 +34,7 @@ not happen if sub-file boundaries were wrong.
 | Leaf format | Count | Size | Share |
 |---|---:|---:|---:|
 | `TIM2` textures | 16,027 | 205 MB | 36.5% |
-| Starting `00 C0 04 66` (VIF UNPACK command: GS geometry packets? models) | 186 | 59 MB | 10.4% |
+| Starting `00 C0 04 66`: battlefield pieces (header wrapped in VIF UNPACK commands, cell grid, height/collision tables, float coordinates); always packed as [this, `TMD2`, `TMD2`, `TIM2`] | 186 | 59 MB | 10.4% |
 | `PS2 ` | 476 | 51 MB | 9.1% |
 | Starting `51 00 00 00` | 10,714 | 46 MB | 8.2% |
 | Starting with a large count (e.g. `8B 01 00 00`) followed by a size-like table | ~300 | ~110 MB | ~20% |

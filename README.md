@@ -18,7 +18,8 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | Data containers (`LINKDATA`) | Fully understood, all 3,629 entries extractable |
 | Packs (nested archives) | Understood: 41,079 leaf files in `LINKDATA.BNS` |
 | Textures (TIM2) | 16,027 textures, all convertible to PNG |
-| Other formats inside | Signatures identified (MPEG-2 movies, audio streams, PAC0...) |
+| Music (`LINKDATA.ANS`) | 105 tracks (2 h 46 min), decoded to WAV |
+| Other formats inside | Signatures identified (MPEG-2 movies, battlefield pieces, `PS2 `, `TMD2`...) |
 | Decompilation | Not started |
 
 ## Related projects
@@ -42,6 +43,7 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | `tools/disc_info.py` | Boot executable (from `SYSTEM.CNF`), its hashes, compiler and code size, largest files |
 | `tools/linkdata.py` | List and extract the LINKDATA containers straight from the disc image |
 | `tools/pack.py` | Open Koei's nested offset-table packs: tree, statistics, extraction |
+| `tools/ans.py` | Decode the music streams (`LINKDATA.ANS`) to WAV |
 | `tools/tim2.py` | Convert TIM2 textures to PNG, every texture of the disc at once |
 | `tools/elf_info.py` | Sections, symbols, compiler and code size of an executable |
 | `tools/find_strings.py` | Readable strings of a binary, with a report of file names |
