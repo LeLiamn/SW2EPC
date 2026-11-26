@@ -816,7 +816,7 @@ int func_001E8EB0(float dt)
     return 1;
 }
 
-/* 0x001E9140, 8 bytes. Scene step: empty. */
+/* 0x001E9140, 8 bytes, matching. Scene step: empty. */
 void func_001E9140(void)
 {
 }

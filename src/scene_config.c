@@ -161,19 +161,19 @@ void func_001E3D00(void)
     func_0023AB70(g_0073117C[3]);
 }
 
-/* 0x001E3D50, 0x1C bytes. */
+/* 0x001E3D50, 0x1C bytes, matching. */
 void func_001E3D50(void)
 {
     func_0023A4F0(0x44);
 }
 
-/* 0x001E3D70, 0x1C bytes. */
+/* 0x001E3D70, 0x1C bytes, matching. */
 void func_001E3D70(void)
 {
     func_0023A480(0x44);
 }
 
-/* 0x001E3D90, 0x1C bytes. */
+/* 0x001E3D90, 0x1C bytes, matching. */
 void func_001E3D90(void)
 {
     func_0023AA40();
@@ -1191,7 +1191,7 @@ void func_001E3CA0(void)
     func_00100ED0(&d->saved_x, &d->saved_y);
 }
 
-/* 0x001E3CD0, 0x2C bytes. Centres the screen (offset 0, 0) in the menu's copy and applies it. */
+/* 0x001E3CD0, 0x2C bytes, matching. Centres the screen (offset 0, 0) in the menu's copy and applies it. */
 void func_001E3CD0(void)
 {
     DisplaySettings *d = (DisplaySettings *)g_00731140;
@@ -1298,7 +1298,7 @@ int func_001E69B0(float dt)
     return 1;
 }
 
-/* 0x001E6BB0, 0x08 bytes. Step: nothing to do. */
+/* 0x001E6BB0, 0x08 bytes, matching. Step: nothing to do. */
 void func_001E6BB0(void)
 {
 }

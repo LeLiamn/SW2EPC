@@ -118,7 +118,7 @@ void func_0022DE80(void);
 void func_00143F50(void);
 void func_00143FB0(void);
 
-/* 0x001014D0, 8 bytes. */
+/* 0x001014D0, 8 bytes, matching. */
 void func_001014D0(int value)
 {
     g_0045D1C4 = value;
@@ -130,7 +130,7 @@ void func_00117E50(void)
     func_00117F10(g_0045CB80, g_0045CB80, g_0045CB80, g_0045CB80);
 }
 
-/* 0x00117E90, 0x1C bytes. Last call of main. */
+/* 0x00117E90, 0x1C bytes, matching. Last call of main. */
 void func_00117E90(void)
 {
     func_00117EB0();
@@ -154,7 +154,7 @@ void func_00106750(void)
     func_001014D0(1);
 }
 
-/* 0x001067D0, 0x3C bytes. Game shutdown, bracketed by the flag. */
+/* 0x001067D0, 0x3C bytes, matching. Game shutdown, bracketed by the flag. */
 void func_001067D0(void)
 {
     func_001014D0(0);
@@ -164,7 +164,7 @@ void func_001067D0(void)
     func_001014D0(1);
 }
 
-/* 0x00106810, 0x24 bytes. Called after each pass of the main loop: only toggles the flag. */
+/* 0x00106810, 0x24 bytes, matching. Called after each pass of the main loop: only toggles the flag. */
 void func_00106810(void)
 {
     func_001014D0(0);

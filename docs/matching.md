@@ -1,55 +1,52 @@
-# Matching functions on decomp.me
+# Matching functions
 
-The project is non-matching (see the roadmap): the game was built with CodeWarrior for PS2
-(`MW MIPS C Compiler 2.4.1.01`), which cannot run locally. decomp.me runs CodeWarrior compilers on its
-server, so a few functions can still be proven byte-identical there, by hand, in the browser.
+A function is **matching** when its C in `src/` compiles to exactly the bytes of the original
+executable (relocated fields aside). Its tag then says so:
 
-## Preparing scratches
+```c
+/* 0x001E3D50, 0x1C bytes, matching. ... */
+```
+
+`tools/progress.py` counts tagged functions as matching instead of non-matching.
+
+## Compiler and settings
+
+The game was built with Metrowerks CodeWarrior for PlayStation 2 (the executable names its back end
+`MW MIPS C Compiler 2.4.1.01`). Functions are verified with CodeWarrior for PS2 **3.0 (build of
+2001-11-26)**, which reproduces the game's code where the 2.4 release does not (2.4 saves `$ra`
+with 128-bit `sq`, the game with 64-bit `sd`). Settings:
+
+- `-O4` (`-O3` gives the same results so far);
+- `#pragma tailcall off` (the game never turns a final call into a jump);
+- default small-data settings (small globals through `$gp`, as in the game).
+
+Later 3.0.x builds (2003-2006) have not been compared yet; one of them may be the exact build used.
+Using CodeWarrior for PS2 is done with the rights holder's written permission, for this
+non-commercial project; the compiler is not distributed with the project.
+
+## On decomp.me
+
+The same compilers are available on decomp.me (platform PlayStation 2, preset
+`mwcps2-3.0-011126`), which anyone can use to check or improve a function by hand:
 
 ```
 py tools/decompme.py path/SLES_546.24 ADDR [ADDR ...]
 ```
 
-For each function already decompiled in `src/`, this writes `build/decompme/<ADDR>/` (git-ignored:
-the assembly comes from the game's executable):
+writes `build/decompme/<ADDR>/` (git-ignored: the assembly comes from the game's executable):
 
 | File | Paste into |
 |---|---|
 | `target.s` | "Target assembly" when creating the scratch |
 | `context.h` | the scratch's "Context" tab |
-| `code.c` | the scratch's "Source" tab |
-
-`build/decompme/README.txt` lists the functions and their sizes.
-
-## On decomp.me
-
-1. New scratch, platform **PlayStation 2**, a **MWCC** compiler (CodeWarrior). Several versions
-   exist; the game's is 2.4.1.01, so try the MWCC presets one after the other and keep the one whose
-   prologue (`addiu $sp`, `sd $ra`) and delay-slot use look like the target.
-2. Paste `target.s`, then `context.h` and `code.c`.
-3. Compare. Usual differences and what to try:
-   - globals read through `$gp` instead of `lui`/`%lo` (or the reverse): change the small-data
-     threshold flag;
-   - instructions in a different order: optimisation level, or reorder the C statements;
-   - a different register: declare locals in another order or write the expression differently.
-4. At 100 %, save the scratch and note its link.
+| `code.c` | the scratch's "Source" tab (add `#pragma tailcall off` at the top) |
 
 Scratches are public on decomp.me.
 
-## Recording a match
+## Status
 
-Add `, matching` after the size in the function's tag, then the scratch link:
-
-```c
-/* 0x001E86A0, 0x2C bytes, matching: https://decomp.me/scratch/XXXXX. Mode 4: ... */
-```
-
-Change the C in `src/` to exactly what matched on decomp.me. `tools/progress.py` then counts the
-function as matching instead of non-matching.
-
-## First batch
-
-11 small functions, 408 bytes (about 0.013 % of the code):
-`0x001E86A0`, `0x001E8A20`, `0x001E8A50`, `0x001E8A80` (call, test, call),
-`0x001E3D50`, `0x001E3D70`, `0x001E3D90`, `0x00117E90` (single call),
-`0x001E9140` (empty), `0x001E3CD0` (struct writes and a call), `0x001E4030` (global copies).
+18 functions match (496 bytes): `0x001014D0`, `0x00106810`, `0x001067D0`, `0x00117E90`,
+`0x001E3CD0`, `0x001E3D50`, `0x001E3D70`, `0x001E3D90`, `0x001E6BB0`, `0x001E9140`,
+`0x0029FB70`, `0x0029FD70`, `0x0029FD90`, `0x002A01A0`, `0x002A1740`, `0x002A2AE0`, `0x002A45E0`,
+`0x002A4940`. They matched as first written: the other functions are equivalent C that still
+needs reshaping (register use, statement order, local variables) to match.

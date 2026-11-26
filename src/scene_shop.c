@@ -206,13 +206,13 @@ int func_0029FD50(int officer)
     return g_0045D56C;
 }
 
-/* 0x0029FD70, 0x1C bytes. The officer shown by the skill list. */
+/* 0x0029FD70, 0x1C bytes, matching. The officer shown by the skill list. */
 u32 func_0029FD70(void)
 {
     return func_0029FD50(OFFICER_NONE);
 }
 
-/* 0x0029FD90, 0x1C bytes. Record `index` of the 0x24-byte table at 0x007731D0. */
+/* 0x0029FD90, 0x1C bytes, matching. Record `index` of the 0x24-byte table at 0x007731D0. */
 void *func_0029FD90(int index)
 {
     return &g_007731D0[index * 0x24];
@@ -411,7 +411,7 @@ void func_002A4550(void)
     func_00375D60();
 }
 
-/* 0x002A45E0, 0x1C bytes. Scene leave_alt (used when another scene was requested). */
+/* 0x002A45E0, 0x1C bytes, matching. Scene leave_alt (used when another scene was requested). */
 void func_002A45E0(void)
 {
     func_00375D60();
@@ -477,7 +477,7 @@ int func_002A4600(float dt)
     return 1;
 }
 
-/* 0x002A4940, 8 bytes. Scene step: empty. */
+/* 0x002A4940, 8 bytes, matching. Scene step: empty. */
 void func_002A4940(void)
 {
 }
@@ -576,7 +576,7 @@ void func_002A5000(int reload)
     }
 }
 
-/* 0x002A01A0, 0x24 bytes. Copies a 16-byte record (three words and the byte at +8). */
+/* 0x002A01A0, 0x24 bytes, matching. Copies a 16-byte record (three words and the byte at +8). */
 void func_002A01A0(u32 *dst, const u32 *src)
 {
     dst[0] = src[0];
@@ -876,7 +876,7 @@ static void show_box(int box, int player, const char *format, const char *name)
     func_001AFC70(box, player);
 }
 
-/* 0x0029FB70, 0x24 bytes. The player's gold. */
+/* 0x0029FB70, 0x24 bytes, matching. The player's gold. */
 int func_0029FB70(void)
 {
     return func_002F9190(func_00327D50());
@@ -921,7 +921,7 @@ typedef struct {
 } MountOffer;
 #define g_MountOffers ((MountOffer *)g_00773070)
 
-/* 0x002A1740, 0x1C bytes. Copies a mount offer. */
+/* 0x002A1740, 0x1C bytes, matching. Copies a mount offer. */
 void func_002A1740(MountOffer *dst, const MountOffer *src)
 {
     dst->index = src->index;
@@ -1122,7 +1122,7 @@ typedef struct {
 #define g_HireOffers ((HireOffer *)g_007730D0)
 #define SLOT_COUNT 0x19          /* officer slots 0..24 */
 
-/* 0x002A2AE0, 0x1C bytes. Copies a hire offer. */
+/* 0x002A2AE0, 0x1C bytes, matching. Copies a hire offer. */
 void func_002A2AE0(HireOffer *dst, const HireOffer *src)
 {
     *dst = *src;
