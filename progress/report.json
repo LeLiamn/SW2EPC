@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 0,
-    "non_matching": 14912
+    "non_matching": 17408
   },
   "data": {
     "total": 2155890688,
@@ -79,11 +79,11 @@
         },
         {
           "name": "StateConfig.c",
-          "description": "Estimated range 0x1E10A0-0x1E6D78; 21 function(s) decompiled",
+          "description": "Estimated range 0x1E10A0-0x1E6D78; 33 function(s) decompiled",
           "code": {
             "total": 23768,
             "matching": 0,
-            "non_matching": 13216
+            "non_matching": 15712
           }
         },
         {

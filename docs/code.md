@@ -131,6 +131,12 @@ swaps it with the slot that had it; a reset button restores the defaults). Page 
 blocks are again `%` fix-ups for negative values. If the value is in no slot, page 10 writes a ninth
 word past the slots: kept as in the original.
 
+The settings helpers (`0x001E3300`..`0x001E3CD0`, 12 functions) are decompiled too: they copy the
+live settings at `0x00669D8C` (button map of each pad, pad flags, display flags at `0x669DB0`, sound
+flags and volumes at `0x669DB1`..`DB4`, screen offset at `0x669DB5`/`DB6`) to the menu's working copies
+and back, apply them, and compare them. A small bug: the pad comparison (`0x001E39F0`) tests one pad
+option the opposite way to how it is read, so page 9 always sees the pad settings as changed.
+
 All 11 page handlers are decompiled. The page drawers (`0x002B6450`...) are not decompiled yet.
 
 ## Where each source file is

@@ -983,6 +983,224 @@ void func_001E5EF0(void)
     }
 }
 
+/* ---- Settings helpers ------------------------------------------------------------------------- */
+/*
+ * The game's live settings sit at 0x00669D8C (saved with the game's system data?):
+ * - 0x669D8C + pad * 0x12: the button map of each pad (one byte per action, at the offsets of the
+ *   table g_0040CC20), and at +0x11 (0x669D9D) three flag bits (bits 1, 2, 3) of that pad;
+ * - 0x669D9C: one byte of display settings; 0x669DB0: display flags (bits 1-3 a mode 0..7, bits 4, 5
+ *   and 6-7 three options); 0x669DB1: sound flags (bits 2-3 output mode, bit 4 an option);
+ *   0x669DB2..DB4: three volumes; 0x669DB5/DB6: screen offset (signed).
+ * The menu pages edit copies of them (the structs below) and write them back with "OK".
+ */
+
+typedef struct {             /* 0x00731140, edited by pages 5 and 8 */
+    int x, y;                /* +0x00 screen offset */
+    int saved_x, saved_y;    /* +0x08 offset when the page opened */
+    u8 mode;                 /* +0x10 0..7 */
+    u8 option_11, option_12, option_13;
+    u8 value_14;             /* +0x14 copy of 0x669D9C */
+} DisplaySettings;
+
+typedef struct {             /* 0x00731158 (one pad at a time), edited by pages 9 and 10 */
+    u32 slots[8];            /* +0x00 button map */
+    u8 option_20, option_21, option_22;
+} PadSettings;
+
+extern u8 g_00669D8C[];                 /* 2 x 0x12 bytes of pad settings */
+extern u8 g_00669D9C, g_00669DB0, g_00669DB1, g_00669DB2, g_00669DB3, g_00669DB4;
+extern int g_0040CC20[8];               /* offset of each button-map entry in a pad's settings */
+
+void func_001036B0(int port, int on);
+void func_0017E0C0(u8 volume, int b);
+
+#define PAD_FLAGS(pad) g_00669D8C[(pad) * 0x12 + 0x11]
+
+/* 0x001E3300, 0xCC bytes. Copies the live display settings into `out`. */
+void func_001E3300(void *out)
+{
+    DisplaySettings *d = out;
+
+    d->mode = (g_00669DB0 & 0x0F) >> 1;
+    d->option_11 = (g_00669DB0 & 0x10) ? 0 : 1;
+    d->option_12 = (g_00669DB0 & 0x20) ? 1 : 0;
+    d->option_13 = (g_00669DB0 >> 6 == 0) ? 1 : 0;
+    d->value_14 = g_00669D9C;
+    d->saved_x = (signed char)g_00669DB5;
+    d->saved_y = (signed char)g_00669DB6;
+    d->x = (signed char)g_00669DB5;
+    d->y = (signed char)g_00669DB6;
+}
+
+/* 0x001E33D0, 0x12C bytes. Copies the live settings of pad `pad` (0 or 1) into `out`. */
+void func_001E33D0(int pad, void *out)
+{
+    PadSettings *p = out;
+    u8 flags = PAD_FLAGS(pad);
+    int i;
+
+    p->option_20 = (flags & 0x02) ? 0 : 1;
+    p->option_21 = (flags & 0x04) ? 1 : 0;
+    p->option_22 = (flags & 0x08) ? 0 : 1;
+    for (i = 0; i < 8; i++)                     /* unrolled in the original */
+        p->slots[i] = g_00669D8C[pad * 0x12 + g_0040CC20[i]];
+}
+
+/* 0x001E3500, 0x58 bytes. Copies the live sound settings into `out` (6 bytes, see page 7). */
+void func_001E3500(void *out)
+{
+    u8 *s = out;
+
+    s[0] = (g_00669DB1 & 0x0F) >> 2;
+    s[1] = g_00669DB2;
+    s[2] = g_00669DB3;
+    s[3] = g_00669DB4;
+    s[4] = 0x2D;                                /* sound test: first track shown */
+    s[5] = (g_00669DB1 & 0x1F) >> 4;
+}
+
+/* 0x001E3560, 0x16C bytes. Writes display settings back and applies the screen offset. */
+void func_001E3560(void *in)
+{
+    DisplaySettings *d = in;
+    u8 mode = (d->mode & 7) << 1;
+
+    g_00669DB0 = (g_00669DB0 & 0xE1) | mode | (d->option_11 == 0 ? 0x10 : 0);
+    g_00669DB0 = (g_00669DB0 & 0xDF) | (d->option_12 == 1 ? 0x20 : 0);
+    g_00669DB0 = (g_00669DB0 & 0x3F) | (d->option_13 == 0 ? 0x40 : 0);
+    g_00669D9C = d->value_14;
+    g_00669DB5 = (u8)d->x;
+    g_00669DB6 = (u8)d->y;
+    func_00100ED0(&d->x, &d->y);
+}
+
+/* 0x001E36D0, 0x10C bytes. Non-zero when `in` differs from the live display settings (the screen
+ * offset is not compared). */
+int func_001E36D0(void *in)
+{
+    DisplaySettings *d = in;
+
+    if (d->mode != (g_00669DB0 & 0x0F) >> 1)
+        return 1;
+    if (d->option_11 == 0 ? !(g_00669DB0 & 0x10) : (g_00669DB0 & 0x10) != 0)
+        return 1;
+    if (d->option_12 == 1 ? !(g_00669DB0 & 0x20) : (g_00669DB0 & 0x20) != 0)
+        return 1;
+    if (d->option_13 == 0 ? (g_00669DB0 >> 6) != 1 : (g_00669DB0 >> 6) != 0)
+        return 1;
+    return 0;
+}
+
+/* 0x001E37E0, 0x210 bytes. Writes the settings of pad `pad` back and applies them. */
+void func_001E37E0(int pad, void *in)
+{
+    PadSettings *p = in;
+    u8 o20 = p->option_20, o21 = p->option_21;
+    int o22_off = (p->option_22 == 0);
+    int port = pad;                             /* original: undefined unless pad is 0 or 1 */
+    u8 *state;
+    int i;
+
+    PAD_FLAGS(pad) = (PAD_FLAGS(pad) & 0xFD) | ((o20 == 0) << 1);
+    func_001036B0(port, o20 != 0);              /* vibration on/off? */
+    PAD_FLAGS(pad) = (PAD_FLAGS(pad) & 0xFB) | ((o21 != 0) << 2);
+    PAD_FLAGS(pad) = (PAD_FLAGS(pad) & 0xF7) | (o22_off << 3);
+
+    state = &g_00500764 + port * 0x88;          /* the pad's state block */
+    if ((state[0] & 1) && (state[1] & 1) == 1)
+        state[0] = (state[0] & 0xF7) | (o22_off << 3);
+
+    for (i = 0; i < 8; i++)                     /* unrolled in the original */
+        g_00669D8C[pad * 0x12 + g_0040CC20[i]] = (u8)p->slots[i];
+}
+
+/* 0x001E39F0, 0xDC bytes. Non-zero when `in` differs from the live settings of pad `pad`.
+ * Note: option_21 is compared the opposite way to how func_001E33D0 reads it (bit 2 set gives
+ * option_21 = 1 there, but counts as "same" here only when option_21 == 0). Kept as in the
+ * original: page 9 therefore always sees the settings as changed when cancelling. */
+int func_001E39F0(int pad, void *in)
+{
+    PadSettings *p = in;
+    u8 flags = PAD_FLAGS(pad);
+    int i;
+
+    if ((p->option_20 == 0) != ((flags >> 1) & 1))
+        return 1;
+    if ((p->option_22 == 0) != ((flags >> 3) & 1))
+        return 1;
+    if ((p->option_21 == 0) != ((flags >> 2) & 1))
+        return 1;
+    for (i = 0; i < 8; i++)
+        if (p->slots[i] != g_00669D8C[pad * 0x12 + g_0040CC20[i]])
+            return 1;
+    return 0;
+}
+
+/* 0x001E3AD0, 0xB8 bytes. Writes the sound settings back and applies them. */
+void func_001E3AD0(void *in)
+{
+    u8 *s = in;
+
+    g_00669DB2 = s[1];
+    g_00669DB3 = s[2];
+    g_00669DB4 = s[3];
+    g_00669DB1 = (g_00669DB1 & 0xE3) | ((s[0] & 3) << 2) | ((s[5] & 1) << 4);
+    func_0023C050(s[0]);
+    func_0017E0C0(s[1], 0);
+    func_0023B530(s[2]);
+    func_0023AB70(s[3]);
+}
+
+/* 0x001E3B90, 0x94 bytes. Non-zero when `in` differs from the live sound settings. */
+int func_001E3B90(void *in)
+{
+    u8 *s = in;
+
+    if (s[0] != (g_00669DB1 & 0x0F) >> 2 || s[1] != g_00669DB2 || s[2] != g_00669DB3 ||
+        s[3] != g_00669DB4)
+        return 1;
+    return s[5] != (g_00669DB1 & 0x1F) >> 4;
+}
+
+/* 0x001E3C30, 0x64 bytes. Applies all live settings again (display, both pads, sound), by reading
+ * them and writing them back. */
+void func_001E3C30(void)
+{
+    PadSettings pad0, pad1;
+    DisplaySettings display;
+    u8 sound[8];
+
+    func_001E3300(&display);
+    func_001E33D0(0, &pad0);
+    func_001E33D0(1, &pad1);
+    func_001E3500(sound);
+    func_001E3560(&display);
+    func_001E37E0(0, &pad0);
+    func_001E37E0(1, &pad1);
+    func_001E3AD0(sound);
+}
+
+/* 0x001E3CA0, 0x30 bytes. Reloads the menu's display copy and applies its saved screen offset.
+ * (The original keeps the struct address in v0 across the call, which func_001E3300 never
+ * changes.) */
+void func_001E3CA0(void)
+{
+    DisplaySettings *d = (DisplaySettings *)g_00731140;
+
+    func_001E3300(d);
+    func_00100ED0(&d->saved_x, &d->saved_y);
+}
+
+/* 0x001E3CD0, 0x2C bytes. Centres the screen (offset 0, 0) in the menu's copy and applies it. */
+void func_001E3CD0(void)
+{
+    DisplaySettings *d = (DisplaySettings *)g_00731140;
+
+    d->x = 0;
+    d->y = 0;
+    func_00100ED0(&d->x, &d->y);
+}
+
 /* 0x001E6670, 0x1E8 bytes. Look up a byte in one of the tables at 0x00429030 (selected by `table`,
  * row chosen by whether `flag` is 0); out-of-range indexes return the table's first byte. */
 u8 func_001E6670(int table, int flag, unsigned int index)
