@@ -6,8 +6,9 @@ disc image, so it is generated locally and committed as progress/report.json.
 What is measured:
 - code: the boot executable named in SYSTEM.CNF. "total" is its code size (the .text section
   if it has one, else an estimate up to the last `jr $ra`). "non_matching" = the original size of the
-  functions decompiled in src/ (each tagged '/* 0xADDRESS, SIZE bytes'); "matching" stays 0 (the
-  original compiler is not available to verify byte-identical output).
+  functions decompiled in src/ (each tagged '/* 0xADDRESS, SIZE bytes'); "matching" = those whose
+  tag goes on with ', matching' (proven byte-identical with the original compiler on decomp.me, the
+  scratch link follows the tag).
 - data: every file on the disc except the executable, SYSTEM.CNF and IOP modules. LINKDATA
   containers and the packs inside them are opened (see tools/pack.py) and their leaves grouped by
   real format (signature); the container structure itself (tables, padding) counts as "Containers". Other files are grouped
@@ -55,25 +56,33 @@ FORMAT_STATUS = {
 }
 
 SRC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
-FUNCTION_TAG = re.compile(r"/\* 0x([0-9A-Fa-f]{8}), (0x[0-9A-Fa-f]+|\d+) bytes")
+FUNCTION_TAG = re.compile(r"/\* 0x([0-9A-Fa-f]{8}), (0x[0-9A-Fa-f]+|\d+) bytes(, matching)?")
 
 
 def decompiled_functions():
-    """{address: size} of the functions decompiled in src/, each tagged '/* 0xADDRESS, SIZE bytes'."""
+    """{address: (size, matching)} of the functions decompiled in src/, each tagged
+    '/* 0xADDRESS, SIZE bytes' (', matching' after it when proven on decomp.me)."""
     seen = {}
     for root, _, files in os.walk(SRC_DIR):
         for name in files:
             if name.endswith((".c", ".h")):
                 text = open(os.path.join(root, name), encoding="utf-8").read()
-                for addr, size in FUNCTION_TAG.findall(text):
-                    seen[int(addr, 16)] = int(size, 0)
+                for addr, size, matching in FUNCTION_TAG.findall(text):
+                    seen[int(addr, 16)] = (int(size, 0), bool(matching))
     return seen
 
 
 def decompiled_code():
-    """Bytes of original code covered by src/ (non-matching: equivalent C, not verified by compiling)."""
-    seen = decompiled_functions()
-    return {"matching": 0, "non_matching": sum(seen.values())}, len(seen)
+    """Bytes of original code covered by src/: matching (proven on decomp.me) and non-matching
+    (equivalent C, not verified by compiling)."""
+    return split(decompiled_functions().values()), len(decompiled_functions())
+
+
+def split(functions):
+    """{"matching": bytes, "non_matching": bytes} of (size, matching) pairs."""
+    functions = list(functions)
+    return {"matching": sum(s for s, m in functions if m),
+            "non_matching": sum(s for s, m in functions if not m)}
 
 
 CODE_MAP = os.path.join(os.path.dirname(SRC_DIR), "progress", "code_map.json")
@@ -108,7 +117,7 @@ def code_areas(start, end):
         mine = {f: s for f, s in done.items() if any(a <= f < b for a, b in spans)}
         where = ", ".join(f"0x{a:06X}-0x{b:06X}" for a, b in spans)
         return {"name": name, "description": f"Estimated range {where}; {len(mine)} function(s) decompiled",
-                "code": {"total": total, "matching": 0, "non_matching": sum(mine.values())}}
+                "code": {"total": total, **split(mine.values())}}
 
     areas = [leaf("(start-up and main loop)")]
     areas[0]["description"] = "Runtime start-up, scene manager and main loop. " + areas[0]["description"]
