@@ -22,7 +22,7 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | Movies (`LINKDATA.CNS`) | 21 movies exported to MKV with stereo and Dolby Digital 5.1 tracks |
 | 3D models (`PS2 `) | Skeleton and skinning decoded: characters, soldiers and weapons export to OBJ in bind pose (455 of 476) |
 | Other formats inside | Signatures identified (battlefield pieces, `TMD2`, `tm3`...) |
-| Decompilation | Not started |
+| Decompilation | Started: start-up code mapped, `main` decompiled ([docs/code.md](docs/code.md)) |
 
 ## Related projects
 
