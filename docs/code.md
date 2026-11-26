@@ -169,8 +169,13 @@ dismiss, 9 skill list. At enter the shopkeeper is picked with the game's random 
 (`seed = seed * 0x41C64E6D + 0x3039` on the scratchpad word `0x7000015C`): 0xB9 (50 %) or 0xB8
 (25 %) when their conditions hold, otherwise 0xB5 or 0xB6. Shop music: track 0x2C.
 
-Decompiled: enter, leave, leave_alt, update, step, draw, the mode switch and two helpers. Not yet:
-the mode handlers (`0x002A0B40`...`0x002A3DB0`) and the list builders (`0x002A01D0`...).
+`0x0077315C` is the player using the shop (0 or 1): it picks the controller and the player's
+records. Decompiled: enter, leave, leave_alt, update, step, draw, the mode request and mode switch,
+small helpers, and the handlers of modes 0 (main menu, 3 or 4 entries; on Cancel the farewell voice
+is also picked at random), 1 (one of four skill slots), 9 (skill list, 4 columns of 10, L1/R1 swap
+all / own skills), 12 and 15 (lists). Original quirk kept: mode 15 has no empty-list test and
+would divide by zero. Not yet: modes 2, 3, 4/11 and 5-8 (`0x002A2EF0`, `0x002A18D0`,
+`0x002A21B0`, `0x002A0B40`) and the list builders (`0x002A01D0`...).
 
 ## Sony libraries and C runtime (compiled with another compiler)
 

@@ -34,7 +34,8 @@ extern int g_00773148;               /* current mode (0..16) */
 extern int g_0077314C;               /* requested mode */
 extern int g_00773154;               /* phase: 0 opening, 1 leaving with a sound, 2 leaving, 3 running */
 extern int g_00773158;               /* scene we came from */
-extern int g_0077315C;               /* chosen officer? (index of a 0x140-byte record) */
+extern int g_0077315C;               /* player using the shop (0 or 1): picks the controller and
+                                      * the 0x140-byte record of g_00772DF0 */
 extern int g_00773160;               /* shopkeeper picture? (0xB5..0xB9) */
 extern int g_00773164;               /* shopkeeper sound bank? (0x20..0x24) */
 extern u32 g_00773168, g_0077316C, g_00773170;   /* layouts made at enter */
@@ -55,8 +56,39 @@ extern u32 g_00799A68;
 /* Controller 1 (see scene_config.c). */
 extern u8 g_00500764, g_00500765;
 extern unsigned short g_0050074C;
+#define BTN_L1R1   0x000C            /* L1 or R1 (swap "All Skills" / "Own Skills") */
 #define BTN_CANCEL 0x0010
+#define BTN_EXTRA  0x0020            /* the third face button ("Skills", "Mounts", "Guards") */
+#define BTN_OK     0x0040
+#define BTN_UP     0x1000
+#define BTN_RIGHT  0x2000
+#define BTN_DOWN   0x4000
+#define BTN_LEFT   0x8000
 #define SE_CURSOR 0x2CDC
+
+/* Controller state blocks, 0x88 bytes per player (block of player 0 at 0x0050074C):
+ * +0x00 buttons pressed this frame, +0x02 pressed or repeating, +0x18 / +0x19 ready flags. */
+static void read_pad(int player, unsigned short *pressed, unsigned short *held)
+{
+    /* (the original leaves the pad unread when player is neither 0 nor 1) */
+    const u8 *pad = (const u8 *)&g_0050074C + player * 0x88;
+    int ready = (pad[0x18] & 1) && (pad[0x19] & 1) == 1;
+
+    *pressed = ready ? *(const unsigned short *)pad : 0;
+    *held = ready ? *(const unsigned short *)(pad + 2) : 0;
+}
+
+extern int g_00773150;               /* mode before the last request */
+extern u8 g_007731D0[];              /* 0x24-byte records */
+extern int g_0045D56C;               /* (gp - 0x7684) officer shown by the skill list, 0x19F = none */
+extern unsigned char g_00799A24, g_00799A26;
+extern int g_00799A28, g_00799A2C;
+
+#define OFFICER_NONE 0x19F
+
+void func_00376100(int a, int b, int c);
+void func_002A86A0(int value);
+int func_0036DC30(u32 officer, u8 skill);
 
 /* Button help lines (0xF0 + letter = a button icon). */
 extern const char *g_0043C55C;       /* "Back" */
@@ -115,7 +147,7 @@ void func_002A1380(void);
 void func_002A1650(void);
 void func_002A2770(void);
 void func_002A29E0(void);
-void func_002A3DB0(int value);
+int func_002A3DB0(int player);
 void func_002A3580(int officer);
 void func_002A2EF0(int officer);
 void func_002A18D0(int officer);
@@ -151,6 +183,57 @@ static unsigned random16(void)
 {
     g_7000015C = g_7000015C * 0x41C64E6D + 0x3039;
     return g_7000015C >> 16;
+}
+
+/* 0x0029FD10, 0x10 bytes. Non-zero when the shop also sells mounts. */
+int func_0029FD10(void)
+{
+    return g_00773140 != 0;
+}
+
+/* 0x0029FD20, 0x30 bytes. Number of entries of the shop's main menu: 4 with mounts, else 3. */
+int func_0029FD20(void)
+{
+    return func_0029FD10() == 0 ? 3 : 4;
+}
+
+/* 0x0029FD50, 0x20 bytes. Sets the officer shown by the skill list when `officer` is valid
+ * (0..0x19E), and returns the current one. */
+int func_0029FD50(int officer)
+{
+    if (officer >= 0 && officer < OFFICER_NONE)
+        g_0045D56C = officer;
+    return g_0045D56C;
+}
+
+/* 0x0029FD70, 0x1C bytes. The officer shown by the skill list. */
+u32 func_0029FD70(void)
+{
+    return func_0029FD50(OFFICER_NONE);
+}
+
+/* 0x0029FD90, 0x1C bytes. Record `index` of the 0x24-byte table at 0x007731D0. */
+void *func_0029FD90(int index)
+{
+    return &g_007731D0[index * 0x24];
+}
+
+/* 0x0029FDB0, 0x9C bytes. Requests mode `mode` (applied by func_0029FE50 on the next update) and
+ * moves the layout layer to the mode's position: modes 1-4 use layers 5-8, mode 11 layer 8. */
+void func_0029FDB0(int mode)
+{
+    int layer = -1;
+
+    g_00773150 = g_00773148;
+    if (mode == 16)
+        g_00780494 = 1;
+    g_00773154 = 1;
+    if (mode > 0 && mode < 5)
+        layer = mode + 4;
+    if (mode == 11)
+        layer = 8;
+    g_0077314C = mode;
+    func_00376100(3, 4, layer);
 }
 
 /* 0x0029FE50, 0x350 bytes. Applies the requested mode (g_0077314C): picks its screen, resets the
@@ -491,4 +574,240 @@ void func_002A5000(int reload)
         func_002A2770();
         func_002A29E0();
     }
+}
+
+/* 0x002A01A0, 0x24 bytes. Copies a 16-byte record (three words and the byte at +8). */
+void func_002A01A0(u32 *dst, const u32 *src)
+{
+    dst[0] = src[0];
+    dst[1] = src[1];
+    *(u8 *)&dst[2] = *(const u8 *)&src[2];
+    dst[3] = src[3];
+}
+
+/* 0x002A1E90, 0x27C bytes. Mode 12 (screen 7, "Select  Back"): a list of g_00773140 entries, cursor
+ * g_00773186; Cancel or the third button goes back to mode 3. A held Up/Down stops at the ends, a
+ * fresh press wraps around. */
+void func_002A1E90(int player)
+{
+    unsigned short pressed, held;
+    u8 count = g_00773140;
+
+    read_pad(player, &pressed, &held);
+    if ((pressed & BTN_CANCEL) || (pressed & BTN_EXTRA)) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(3);
+    } else if (count > 1) {
+        if (held & BTN_UP) {
+            if (g_00773186 != 0) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773186 = (u8)((g_00773186 + count - 1) % count);
+            } else if (pressed & BTN_UP) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773186 = count - 1;
+            }
+        } else if (held & BTN_DOWN) {
+            if (g_00773186 < count - 1) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773186 = (u8)((g_00773186 + 1) % count);
+            } else if (pressed & BTN_DOWN) {
+                func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+                g_00773186 = 0;
+            }
+        }
+    }
+}
+
+/* 0x002A3300, 0x274 bytes. Mode 15 (screen 8, "Select  Back"): a list of g_00773138 entries, cursor
+ * g_00773186; Cancel or the third button goes back to mode 2. Unlike mode 12 there is no "more than
+ * one entry" test: with 0 entries the original divides by zero. */
+void func_002A3300(int player)
+{
+    unsigned short pressed, held;
+    u8 count = (u8)g_00773138;
+
+    read_pad(player, &pressed, &held);
+    if ((pressed & BTN_CANCEL) || (pressed & BTN_EXTRA)) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(2);
+    } else if (held & BTN_UP) {
+        if (g_00773186 != 0) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00773186 = (u8)((g_00773186 + count - 1) % count);
+        } else if (pressed & BTN_UP) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00773186 = count - 1;
+        }
+    } else if (held & BTN_DOWN) {
+        if (g_00773186 < (u8)(count - 1)) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00773186 = (u8)((g_00773186 + 1) % count);
+        } else if (pressed & BTN_DOWN) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00773186 = 0;
+        }
+    }
+}
+
+/* 0x002A3580, 0x3A0 bytes. Mode 1 (screen 1, "Select  Skills  Back  OK"): choose one of the four
+ * skill slots of the player (g_00773181). OK on an empty slot plays the error sound, otherwise it
+ * goes straight to mode 5 + slot. The third button opens the skill list (mode 9). The 4
+ * "unreachable" blocks Ghidra removed are the negative fix-ups of `% 4`. */
+void func_002A3580(int player)
+{
+    unsigned short pressed, held;
+
+    read_pad(player, &pressed, &held);
+    if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(0);
+    } else if (pressed & BTN_OK) {
+        if (g_00773174[player * 4 + g_00773181] == 0) {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);   /* error */
+        } else {
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00773148 = g_00773181 + 5;
+            g_00773186 = 0;
+            g_00799A28 = 0;
+            g_00799A24 = g_00799A26;
+            g_00799A2C = 1;
+        }
+    } else if (pressed & BTN_EXTRA) {
+        func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(9);
+    } else if (held & BTN_UP) {
+        if (g_00773181 != 0) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00773181 = (u8)((g_00773181 + 3) % 4);
+            func_002A86A0(0x10);
+        } else if (pressed & BTN_UP) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00773181 = 3;
+            func_002A86A0(0x10);
+        }
+    } else if (held & BTN_DOWN) {
+        if (g_00773181 < 3) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00773181 = (u8)((g_00773181 + 1) % 4);
+            func_002A86A0(0x10);
+        } else if (pressed & BTN_DOWN) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00773181 = 0;
+            func_002A86A0(0x10);
+        }
+    }
+}
+
+#define SKILL_HEADER 0xFF   /* cursor on the header row above the skill columns */
+
+/* 0x002A3920, 0x484 bytes. Mode 9 (screen 9, "All Skills / Own Skills  Select  Back"): the skill
+ * list, 4 columns of 10 (cursor g_00773187, column = cursor / 10), with a header row above
+ * (g_00773188 remembers the column). L1/R1 swap between all skills and the officer's own skills.
+ * Cancel or the third button go back to the mode the list was opened from. */
+void func_002A3920(int player)
+{
+    unsigned short pressed, held;
+    u8 cursor = g_00773187;
+
+    read_pad(player, &pressed, &held);
+    if ((pressed & BTN_CANCEL) || (pressed & BTN_EXTRA)) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(g_00773150);
+    } else if (pressed & BTN_L1R1) {
+        func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        g_007731A0 = (g_007731A0 == 0);
+        if (g_007731A0 != 0 && func_0036DC30(func_0029FD70(), g_00773187) != 0)
+            func_002A86A0(0x11);
+    } else if (held & BTN_DOWN) {
+        if (g_00773187 == SKILL_HEADER) {
+            g_00773187 = (u8)(g_00773188 * 10);
+            func_002A86A0(0x11);
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        } else if (g_00773187 % 10 < 9) {
+            g_00773187++;
+            func_002A86A0(0x11);
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        }
+    } else if (held & BTN_UP) {
+        if (g_00773187 % 10 == 0) {
+            g_00773187 = SKILL_HEADER;
+            g_00773188 = cursor / 10;
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            func_002A86A0(0x11);
+        } else if (g_00773187 != SKILL_HEADER) {
+            g_00773187 = (u8)((g_00773187 + 9) % 10 + (g_00773187 / 10) * 10);
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            func_002A86A0(0x11);
+        }
+    } else if (held & BTN_RIGHT) {
+        if (g_00773187 != SKILL_HEADER && g_00773187 < 0x1E) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00773187 += 10;
+            func_002A86A0(0x11);
+        }
+    } else if (held & BTN_LEFT) {
+        if (g_00773187 != SKILL_HEADER && g_00773187 > 9) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            g_00773187 -= 10;
+            func_002A86A0(0x11);
+        }
+    }
+}
+
+/* 0x002A3DB0, 0x414 bytes. Mode 0 (screen 0, "Select  Back  OK"): the shop's main menu, 3 or 4
+ * entries (cursor g_0077317E[player]); OK requests mode cursor + 1. Cancel says goodbye: the
+ * shopkeeper's farewell voice is picked at random (0xBB when g_0077318A >= 3, 50 %; 0xBC when
+ * g_0077319C == 1, 50 %; else 0xBA) and mode 16 (leave) is requested. Returns 1 when a choice was
+ * made. */
+int func_002A3DB0(int player)
+{
+    unsigned short pressed, held;
+    int count = func_0029FD20();
+    u8 *cursor = &g_0077317E + player;
+
+    if (*cursor >= count)
+        *cursor = (u8)(count - 1);
+    read_pad(player, &pressed, &held);
+
+    if (pressed & BTN_CANCEL) {
+        if (g_0077318A >= 3 && random16() % 100 <= 49) {
+            g_00773160 = 0xBB;
+            g_00773164 = 0x26;
+        } else if (g_0077319C == 1 && random16() % 100 < 50) {
+            g_00773160 = 0xBC;
+            g_00773164 = 0x27;
+        } else {
+            g_00773160 = 0xBA;
+            g_00773164 = 0x25;
+        }
+        if (func_0023A260() != 0)
+            func_0023AA40();
+        func_0023A290(g_00773164);
+        func_0029FDB0(16);
+        return 1;
+    }
+    if (pressed & BTN_OK) {
+        func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(*cursor + 1);
+        g_0077315C = player;
+        return 1;
+    }
+    if (held & BTN_UP) {
+        if (*cursor != 0) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            *cursor = (u8)((*cursor + count - 1) % count);
+        } else if (pressed & BTN_UP) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            *cursor = (u8)(count - 1);
+        }
+    } else if (held & BTN_DOWN) {
+        if (*cursor < count - 1) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            *cursor = (u8)((*cursor + count + 1) % count);
+        } else if (pressed & BTN_DOWN) {
+            func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            *cursor = 0;
+        }
+    }
+    return 0;
 }
