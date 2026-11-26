@@ -37,6 +37,67 @@ def commands(data):
         pos = nxt
 
 
+# Parameter types (func_001D6BD0 reads one value of a type; the sizes of the types above 8 come
+# from the step lists of the event files).
+TYPE_SIZE = {0: 1, 3: 1, 1: 2, 4: 2, 2: 4, 5: 4, 6: 4, 7: 4, 8: 4, 13: 4, 15: 4}
+TYPE_NAME = {0: "s8", 1: "s16", 2: "s32", 3: "u8", 4: "u16", 5: "u32", 6: "f32", 7: "u32",
+             8: "u32"}
+OLD_SIGNATURE = bytes.fromhex("0000000000000106")  # scenario scripts: record number instead of link
+
+
+def typed_record(data, pos, end=None):
+    """One command record: +4 command, +5 sub-command, +6 number of parameters n, +7 their n type
+    codes, then (event files) the offset of the values from +7 and n steps from one value to the
+    next. Returns (command, sub, [(type, value bytes)], end of the values)."""
+    cmd, sub, n = data[pos + 4], data[pos + 5], data[pos + 6]
+    types = list(data[pos + 7:pos + 7 + n])
+    params = []
+    if n and end is not None:                         # event files: use the offset and steps
+        p = pos + 7 + data[pos + 7 + n]
+        steps = data[pos + 8 + n:pos + 8 + 2 * n]
+        for t, step in zip(types, steps):
+            size = TYPE_SIZE.get(t, 2)
+            params.append((t, data[p:p + size]))
+            p += step if step else size
+        return cmd, sub, params, p
+    p = pos + 8 + 2 * n if n else pos + 8              # scenario scripts: natural alignment
+    for t in types:
+        size = TYPE_SIZE.get(t, 2)
+        p = (p + size - 1) // size * size
+        params.append((t, data[p:p + size]))
+        p += size
+    return cmd, sub, params, p
+
+
+def check_commands(data):
+    """Check that every record of an event file holds exactly its typed values (then zeros)."""
+    cmds, _ = commands(data)
+    for c in cmds[:-1]:
+        end = c["offset"] + 8 + len(c["payload"])
+        _, _, _, p = typed_record(data, c["offset"], end)
+        if p > end or any(data[p:end]):
+            raise EventError(f"record at 0x{c['offset']:x}: values do not fill it")
+    return cmds
+
+
+def is_old_script(data):
+    return data[:8] == OLD_SIGNATURE
+
+
+def old_script(data):
+    """Records of a scenario script (no links: records follow each other, each starting with its
+    number, values naturally aligned, records aligned to 4); returns (records, end)."""
+    out, pos, i = [], 0, 0
+    while True:
+        if pos + 8 > len(data) or struct.unpack_from("<I", data, pos)[0] != i:
+            raise EventError(f"record {i} not found at 0x{pos:x}")
+        cmd, sub, params, p = typed_record(data, pos)
+        out.append(dict(offset=pos, command=cmd, sub=sub, params=params))
+        pos, i = (p + 3) & ~3, i + 1
+        if cmd == 0xFF:
+            return out, pos
+
+
 def motions(data, start):
     """Find the embedded motions after the command chain: (prefix word, offset, parsed motion)."""
     found, pos = [], start

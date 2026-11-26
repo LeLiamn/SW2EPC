@@ -55,7 +55,8 @@ FORMAT_STATUS = {
     "Sound bank headers": ("done", "Sony HD sound bank headers (IECS chunks) for the ADPCM banks"),
     "Save icon": ("done", "PS2 memory-card 3D icon (vertices, animation, 128x128 texture)"),
     "Event motions": ("done", "Motions embedded in the in-engine cutscene (event) files"),
-    "Event commands": ("todo", "Command chains of the event files (meaning not decoded yet)"),
+    "Event commands": ("done", "Typed command records of the event files and scenario scripts (+ padding)"),
+    "Event commands (unparsed)": ("todo", "Event command records that do not parse"),
     "PS2 variant": ("todo", "'PS2 ' files without nodes (different layout)"),
     "tm3": ("done", "Textures as GS upload packets (8-bit + palettes), convertible to PNG"),
     "TMD2": ("done", "Static scene objects (geometry, UVs, colours, normals), exportable to OBJ"),
@@ -242,14 +243,19 @@ def count_container(data, sizes, forced_kind=None):
                 kind = "Containers"                 # filler entries of a pack ("XXXX...")
             elif kind == "Unidentified" and is_raw_adpcm(leaf):
                 kind = "ADPCM sounds"
-            elif kind == "Unidentified" and event.is_event(leaf):
+            elif kind == "Unidentified" and (event.is_event(leaf) or event.is_old_script(leaf)):
                 try:
-                    _, end = event.commands(leaf)
+                    if event.is_event(leaf):
+                        event.check_commands(leaf)
+                        _, end = event.commands(leaf)
+                    else:
+                        _, end = event.old_script(leaf)
                     played = sum(m["end"] for _, _, m in event.motions(leaf, end))
-                except (event.EventError, ValueError):
-                    played = 0
+                    script = "Event commands"
+                except (event.EventError, ValueError, struct.error):
+                    played, script = 0, "Event commands (unparsed)"
                 sizes["Event motions"] += played
-                sizes["Event commands"] += len(leaf) - played
+                sizes[script] += len(leaf) - played
                 used += len(leaf)
                 continue
             sizes[kind] += len(leaf)

@@ -7,7 +7,7 @@
   },
   "data": {
     "total": 2155890688,
-    "done": 2146747558
+    "done": 2149470426
   },
   "functions": {
     "total": 10587,
@@ -713,8 +713,8 @@
           "name": "Event motions",
           "description": "Motions embedded in the in-engine cutscene (event) files",
           "data": {
-            "total": 24992380,
-            "done": 24992380
+            "total": 27117944,
+            "done": 27117944
           }
         },
         {
@@ -742,19 +742,19 @@
           }
         },
         {
-          "name": "Unidentified",
-          "description": "Leaves without a known signature (models, motions, scripts...)",
-          "data": {
-            "total": 8254318,
-            "done": 0
-          }
-        },
-        {
           "name": "IPU",
           "description": "IPU movies (ipu2: frame table + PS2 IPU frames), convertible to video",
           "data": {
             "total": 7633520,
             "done": 7633520
+          }
+        },
+        {
+          "name": "Unidentified",
+          "description": "Leaves without a known signature (models, motions, scripts...)",
+          "data": {
+            "total": 6106158,
+            "done": 0
           }
         },
         {
@@ -767,10 +767,10 @@
         },
         {
           "name": "Event commands",
-          "description": "Command chains of the event files (meaning not decoded yet)",
+          "description": "Typed command records of the event files and scenario scripts (+ padding)",
           "data": {
-            "total": 574708,
-            "done": 0
+            "total": 597304,
+            "done": 597304
           }
         },
         {
