@@ -43,7 +43,8 @@ extern SceneManager g_0045D880;
 
 /*
  * 0x00422000: the scene table, 24 entries of 0x24 bytes, indexed by state number. Each entry is
- * copied into the manager (from `running` to `on_reset`) when its scene becomes current.
+ * copied into the manager (from `running` to `on_reset`, one struct copy) when its scene becomes
+ * current.
  * Scenes identified so far (see docs/code.md): 0x0A StatePostBattle.c, 0x0C StateConfig.c,
  * 0x0D StateTreasures.c, 0x0E StateShop.c, 0x15 StateSetupEmpMogi.c.
  */
@@ -173,36 +174,20 @@ void func_00106810(void)
     func_001014D0(1);
 }
 
-/* Copy a scene table entry into the manager (running .. on_reset). */
-static void load_scene(SceneManager *s, const SceneEntry *e)
-{
-    s->running = e->running;
-    s->enter = e->enter;
-    s->leave = e->leave;
-    s->update = e->update;
-    s->step = e->step;
-    s->draw = e->draw;
-    s->enter_alt = e->enter_alt;
-    s->leave_alt = e->leave_alt;
-    s->on_reset = e->on_reset;
-}
-
-/* 0x00100260, 0x1A8 bytes. Resets the scene manager to scene 0, then initialises 20 subsystems
+/* 0x00100260, 0x1A8 bytes, matching. Resets the scene manager to scene 0, then initialises 20 subsystems
  * (font.c, cmnparts.c, effect.c, Stage.c, RelayCamera.c, StationEmp.c... are among the callees). */
 void func_00100260(void)
 {
-    SceneManager *s = &g_0045D880;
-
-    s->result = 0;
-    s->quit = 0;
-    s->skip_update_test = 0;
-    s->force_draw = 0;
-    s->update_arg = 1.0f;
-    s->previous = 0x18;
-    s->current = 0;
-    s->unknown_1c = 0x18;
-    s->requested = 0x18;
-    load_scene(s, &g_00422000[0]);
+    g_0045D880.result = 0;
+    g_0045D880.quit = 0;
+    g_0045D880.skip_update_test = 0;
+    g_0045D880.force_draw = 0;
+    g_0045D880.update_arg = 1.0f;
+    g_0045D880.previous = 0x18;
+    g_0045D880.current = 0;
+    g_0045D880.unknown_1c = 0x18;
+    g_0045D880.requested = 0x18;
+    *(SceneEntry *)&g_0045D880.running = g_00422000[g_0045D880.current];
 
     func_00103FA0();
     func_001037F0(0);
@@ -228,13 +213,11 @@ void func_00100260(void)
     func_001023D0(func_00100230, 0xF0);
 }
 
-/* 0x00100500, 0xA0 bytes. Loads the current scene's functions from the scene table. */
+/* 0x00100500, 0xA0 bytes, matching. Loads the current scene's functions from the scene table. */
 void func_00100500(void)
 {
-    SceneManager *s = &g_0045D880;
-
-    if (s->current < SCENE_COUNT)
-        load_scene(s, &g_00422000[s->current]);
+    if (g_0045D880.current < SCENE_COUNT)
+        *(SceneEntry *)&g_0045D880.running = g_00422000[g_0045D880.current];
 }
 
 /* 0x001005A0, 0x2C4 bytes. Runs the scene manager until the game quits, then returns its result.
@@ -242,37 +225,35 @@ void func_00100500(void)
  */
 int func_001005A0(void)
 {
-    SceneManager *s = &g_0045D880;
-
     func_001014D0(0);
     func_00100260();
-    while (s->quit == 0) {
+    while (g_0045D880.quit == 0) {
         func_00100500();
 
         /* Enter the current scene (once, when it was just requested). */
-        if (s->requested < 0x18 && s->current == s->requested) {
-            s->requested = 0x18;
-            if (s->enter_alt != 0)
-                s->enter_alt();
+        if (g_0045D880.requested < 0x18 && g_0045D880.current == g_0045D880.requested) {
+            g_0045D880.requested = 0x18;
+            if (g_0045D880.enter_alt != 0)
+                g_0045D880.enter_alt();
             else
-                s->enter();
+                g_0045D880.enter();
         } else {
-            s->enter();
+            g_0045D880.enter();
         }
         func_001014D0(1);
 
         /* Run the scene while it stays current. */
-        if (s->current == s->running) {
+        if (g_0045D880.current == g_0045D880.running) {
             do {
-                if (s->skip_update_test != 0)
-                    s->step();
-                else if (s->update(s->update_arg) != 0)
-                    s->step();
+                if (g_0045D880.skip_update_test != 0)
+                    g_0045D880.step();
+                else if (g_0045D880.update(g_0045D880.update_arg) != 0)
+                    g_0045D880.step();
 
-                if ((s->current == s->running || s->force_draw != 0) &&
+                if ((g_0045D880.current == g_0045D880.running || g_0045D880.force_draw != 0) &&
                     g_0045D20C == 0 && g_0045D210 == 0) {
-                    s->draw();
-                    s->force_draw = 0;
+                    g_0045D880.draw();
+                    g_0045D880.force_draw = 0;
                 } else {
                     func_001014D0(0);
                 }
@@ -281,27 +262,27 @@ int func_001005A0(void)
                 if (g_0045D20C != 0 || g_0045D210 != 0) {   /* reset requested */
                     func_001020E0();
                     func_001020E0();
-                    if (s->on_reset != 0)
-                        s->on_reset();
+                    if (g_0045D880.on_reset != 0)
+                        g_0045D880.on_reset();
                     g_0045D20C = 0;
                     g_0045D210 = 0;
-                    s->previous = s->current;
-                    s->current = 0x10;
-                    s->requested = 0x18;
-                    s->unknown_1c = 0x18;
+                    g_0045D880.previous = g_0045D880.current;
+                    g_0045D880.current = 0x10;
+                    g_0045D880.requested = 0x18;
+                    g_0045D880.unknown_1c = 0x18;
                 }
-            } while (s->current == s->running);
+            } while (g_0045D880.current == g_0045D880.running);
         }
 
         /* Leave the scene. */
-        if (s->requested < 0x18 && s->leave_alt != 0)
-            s->leave_alt();
+        if (g_0045D880.requested < 0x18 && g_0045D880.leave_alt != 0)
+            g_0045D880.leave_alt();
         else
-            s->leave();
+            g_0045D880.leave();
     }
     func_001014D0(0);
     func_00100410();
-    return s->result;
+    return g_0045D880.result;
 }
 
 /* 0x00102A20, 0x58 bytes. Called by the start-up code (crt0) with argc/argv, followed by exit().
