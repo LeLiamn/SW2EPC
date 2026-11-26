@@ -5,8 +5,9 @@ disc image, so it is generated locally and committed as progress/report.json.
 
 What is measured:
 - code: the boot executable named in SYSTEM.CNF. "total" is its code size (the .text section
-  if it has one, else an estimate up to the last `jr $ra`). "matching" / "non_matching" come
-  from MATCHED_CODE below until a real build/objdiff report replaces them.
+  if it has one, else an estimate up to the last `jr $ra`). "non_matching" = the original size of the
+  functions decompiled in src/ (each tagged '/* 0xADDRESS, SIZE bytes'); "matching" stays 0 (the
+  original compiler is not available to verify byte-identical output).
 - data: every file on the disc except the executable, SYSTEM.CNF and IOP modules. LINKDATA
   containers and the packs inside them are opened (see tools/pack.py) and their leaves grouped by
   real format (signature); the container structure itself (tables, padding) counts as "Containers". Other files are grouped
@@ -18,6 +19,7 @@ Usage:
   py tools/progress.py image.iso --stdout   print it instead
 """
 import json
+import re
 import os
 import sys
 from collections import defaultdict
@@ -52,7 +54,21 @@ FORMAT_STATUS = {
     "Unidentified": ("todo", "Leaves without a known signature (models, motions, scripts...)"),
 }
 
-MATCHED_CODE = {"matching": 0, "non_matching": 0}
+SRC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
+FUNCTION_TAG = re.compile(r"/\* 0x([0-9A-Fa-f]{8}), (0x[0-9A-Fa-f]+|\d+) bytes")
+
+
+def decompiled_code():
+    """Bytes of original code covered by the decompiled functions in src/ (non-matching: equivalent
+    C, not verified by compiling). Each function is tagged '/* 0xADDRESS, SIZE bytes'."""
+    seen = {}
+    for root, _, files in os.walk(SRC_DIR):
+        for name in files:
+            if name.endswith((".c", ".h")):
+                text = open(os.path.join(root, name), encoding="utf-8").read()
+                for addr, size in FUNCTION_TAG.findall(text):
+                    seen[int(addr, 16)] = int(size, 0)
+    return {"matching": 0, "non_matching": sum(seen.values())}, len(seen)
 
 SKIP_EXTENSIONS = {"IRX", "IMG", "CNF"}
 CONTAINER_KIND = {"ANS": "ANS stream", "CNS": "MPEG2"}
@@ -142,7 +158,8 @@ def build_report(image):
         areas.append({"name": kind, "description": description,
                       "data": {"total": size, "done": size if status == "done" else 0}})
 
-    code = {"total": total, **MATCHED_CODE}
+    matched, functions = decompiled_code()
+    code = {"total": total, **matched}
     return {
         "unit": "bytes",
         "code": code,

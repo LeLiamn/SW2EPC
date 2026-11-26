@@ -26,7 +26,7 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | tm3 textures (176) | All convert to PNG, one image per palette (characters' textures) |
 | Sound effects (1,610) | Bank split and decoded to WAV (17 minutes) |
 | Other formats inside | Signatures identified (battlefield pieces, `TMD2`, `tm3`...) |
-| Decompilation | Started: start-up code mapped, `main` decompiled ([docs/code.md](docs/code.md)) |
+| Decompilation | Started: start-up code mapped, main loop decompiled (7 functions), Ghidra set up ([docs/code.md](docs/code.md)) |
 
 ## Related projects
 

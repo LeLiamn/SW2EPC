@@ -24,18 +24,23 @@ The entry point `0x00100008` is the runtime start-up code, not game code:
 
 ## Functions
 
+Decompiled functions live in `src/`, each tagged with its original address and size
+(`/* 0x00106750, 0x80 bytes`); `tools/progress.py` adds those sizes up as "non-matching" code for
+decompilati.onl (equivalent C, not verified by compiling).
+
 | Address | Size | Name | Status | Notes |
 |---|---:|---|---|---|
-| `0x00102A20` | 0x58 | `main` | Decompiled, not compiler-verified (`src/main.c`) | Set-up, main loop, shutdown |
-| `0x00117E50` | | `func_00117E50` | Unknown | First call of main: system set-up? |
-| `0x00106750` | | `func_00106750` | Unknown | Game set-up? |
-| `0x001005A0` | large | `func_001005A0` | Unknown | Loop condition: non-zero leaves the main loop. Starts with `func_001014D0(0)`, then reads globals at `0x0045D888`, `0x0045D8A0`, `0x0045D898` (game state machine?) |
-| `0x00106810` | 0x24 | `func_00106810` | Decompiled (`src/main.c`) | Called once per loop: `func_001014D0(0)` then `func_001014D0(1)` |
-| `0x001014D0` | | `func_001014D0` | Unknown | Takes a phase number (0, 1): update / draw? |
-| `0x001067D0` | | `func_001067D0` | Unknown | Game shutdown? |
-| `0x00117E90` | | `func_00117E90` | Unknown | System shutdown? |
+| `0x00102A20` | 0x58 | `main` | Decompiled (`src/main.c`) | System set-up, game set-up, main loop, shutdowns |
+| `0x00117E50` | 0x38 | `func_00117E50` | Decompiled | System set-up: `func_00117F10(g_0045CB80 ×4)` |
+| `0x00106750` | 0x80 | `func_00106750` | Decompiled | Game set-up: 10 init calls, writes 12345 to scratchpad `0x7000015C` (random seed?) |
+| `0x001005A0` | large | `func_001005A0` | Not yet | Main loop condition: **does the work of each frame** (game state machine?); non-zero leaves the loop |
+| `0x00106810` | 0x24 | `func_00106810` | Decompiled | After each loop pass: sets the flag `g_0045D1C4` to 0 then 1 |
+| `0x001014D0` | 0x08 | `func_001014D0` | Decompiled | Stores its argument in `g_0045D1C4` (gp − 0x7A2C) |
+| `0x001067D0` | 0x3C | `func_001067D0` | Decompiled | Game shutdown: 3 calls, bracketed by the flag |
+| `0x00117E90` | 0x1C | `func_00117E90` | Decompiled | System shutdown: calls `func_00117EB0` |
 
-Question marks are hypotheses from the structure of `main` only.
+Correction (2026-11-26): an earlier version guessed that `func_001014D0` ran an update or draw phase.
+It only stores a flag; the per-frame work is in `func_001005A0`.
 
 ## Other finds
 
