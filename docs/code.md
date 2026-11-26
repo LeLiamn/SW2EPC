@@ -70,10 +70,10 @@ assertion string), "probable" when its functions sit right next to that file's c
 | `0x01` | `0x00160220` | StateInitialize.c | certain (title screen, `src/scene_initialize.c`) |
 | `0x02` | `0x001BFFA0` | StateDemo.c | certain (demo, `src/scene_demo.c`) |
 | `0x03` | `0x00236D40` |  | empty scene (`src/scene_empty.c`) |
-| `0x04` | `0x001D4490` | StateBattleInitialize.c | probable |
+| `0x04` | `0x001D4490` | StateBattleInitialize.c | certain (battle set-up, `src/scene_battle_initialize.c`) |
 | `0x05` | `0x001D2A90` | StateBattleInitialize.c | probable |
-| `0x06` | `0x001D1F30` |  | unknown |
-| `0x07` | `0x001D5F00` | StateBattleInitialize.c | probable |
+| `0x06` | `0x001D1F30` | StateBattleInitialize.c | certain (battle tear-down, `src/scene_battle_initialize.c`) |
+| `0x07` | `0x001D5F00` | StateBattleInitialize.c | certain (battle intro, `src/scene_battle_initialize.c`) |
 | `0x08` | `0x00235A70` |  | unknown |
 | `0x09` | `0x002267F0` | StatePreBattle.c | probable |
 | `0x0A` | `0x0021C5F0` | StatePostBattle.c | certain |
@@ -277,6 +277,23 @@ at `0x007A2640` (speed 1.2, six layers of 0x34 bytes, the pack).
 - Corners are turned with VU0 micro subroutines 0x10 (cosine) and 0x00 (sine), written as
   `vu0_cos` / `vu0_sin` stand-ins, then converted with `vftoi4` and scaled from 480 to 448 lines.
 - The scene waits for the loading (`func_00102960`), fades out and leaves.
+
+## Scenes 0x04, 0x06, 0x07: around a battle (`src/scene_battle_initialize.c`)
+
+Original source file `StateBattleInitialize.c` (the intro data is loaded with that name, lines 561
+and 563). Scene 0x05 (the battle itself) is the rest of the file, not decompiled yet.
+
+- **0x04** (enter only): while data loads, goes to the loading screen (0x0F) and comes back; then
+  builds the battle (player units at `0x005B4BC0`, 0x240 bytes each, two with two armies; music
+  from the stage record `0x005BA694 + stage * 100 + 2`) and goes to the battle (0x05), or, with an
+  intro, loads it (LINKDATA `0xAD + type` and `0xC8 + type`) and goes to 0x07.
+- **0x07** the intro: one camera per army (`0x00730480`, 0x60 bytes; shot lists at `0x00730A44`,
+  0x174 bytes), played at 1.2 times the frame time, drawn as split views with two armies. Start
+  (either controller) skips it unless the camera forbids it. Then on to 0x05 (flag 21 of
+  `0x00669F60` set), or 0x06.
+- **0x06** (enter only): frees all battle systems and goes to the results (0x0A), or on to 0x10
+  / 0x12 when `func_0032E7B0` says the series is over. Scene 0x05's on_reset (`0x001D4150`) marks
+  the battle as ended by a reset (`0x00669F70` = 7) and runs this tear-down.
 
 ## Scene 0x15: Empire set-up (`src/scene_setup_emp_mogi.c`)
 
