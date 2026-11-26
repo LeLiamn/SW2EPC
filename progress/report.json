@@ -2,16 +2,16 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 43664,
-    "non_matching": 125208
+    "matching": 45576,
+    "non_matching": 130576
   },
   "data": {
     "total": 2155890688,
     "done": 2155890688
   },
   "functions": {
-    "total": 10616,
-    "matching": 263
+    "total": 10618,
+    "matching": 276
   },
   "layout": "treemap",
   "areas": [
@@ -164,11 +164,11 @@
         },
         {
           "name": "SceneTutorial.c",
-          "description": "Estimated range 0x3EDD28-0x3F6A18; 5 function(s) decompiled",
+          "description": "Estimated range 0x3EDD28-0x3F6A18; 31 function(s) decompiled",
           "code": {
             "total": 36080,
-            "matching": 184,
-            "non_matching": 0
+            "matching": 2096,
+            "non_matching": 5368
           }
         }
       ]

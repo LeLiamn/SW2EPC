@@ -83,13 +83,13 @@ assertion string), "probable" when its functions sit right next to that file's c
 | `0x0E` | `0x002A4210` | StateShop.c | certain |
 | `0x0F` | `0x002F1790` | SceneLoading.c | certain (loading screen, `src/scene_loading.c`) |
 | `0x10` | `0x0015FF70` | StateInitialize.c | probable (after a soft reset, `src/scene_initialize.c`) |
-| `0x11` | `0x003F2A50` | SceneTutorial.c | probable (starts a tutorial, `src/scene_tutorial.c`) |
+| `0x11` | `0x003F2A50` | SceneTutorial.c | certain (starts a tutorial, `src/scene_tutorial.c`) |
 | `0x12` | `0x002F2620` | StateConquest.c | certain (Empire map, `src/scene_conquest.c`) |
 | `0x13` | `0x003694B0` | StateStartUp.c | certain (start of an Empire game, `src/scene_start_up.c`) |
 | `0x14` | `0x0037D060` | StateEdit.c | probable (officer editor, `src/scene_edit.c`) |
 | `0x15` | `0x00390C70` | StateSetupEmpMogi.c | certain |
 | `0x16` | `0x003DABC0` | SeasonAnime.c | probable (season animation, `src/scene_season_anime.c`) |
-| `0x17` | `0x003F46B0` | SceneTutorial.c | probable |
+| `0x17` | `0x003F46B0` | SceneTutorial.c | certain (prepared Empire game, `src/scene_tutorial.c`) |
 
 ## Scene 0x0C: the options menu (`src/scene_config.c`)
 
@@ -379,6 +379,27 @@ Original source file `StateStartUp.c` (0x00365440-0x00369560). The whole file is
   file name and the line.
 - The officers allowed per level are `step * (n - 1) + 6`, capped (table `0x00415E80`: 0/6,
   1/20, 2/50, 4/100, 6/150).
+
+## Scene 0x17: a prepared Empire game (`src/scene_tutorial.c`)
+
+Original source file `SceneTutorial.c`. The scene part (0x003F2B20-0x003F4840) is decompiled:
+26 functions, 13 of which match.
+
+- **Enter** allocates five buffers (`g_0045D850`-`g_0045D860`) and copies into them:
+  - the game state (`0x00669D60`, 0x25310 bytes);
+  - the 0x19F officer records (0x9C bytes each);
+  - two per-entry tables (25 x 0x14, 25 x 0x78);
+  - a set-up record (0xE0 bytes).
+- Then it rebuilds the game around the player's entry:
+  - the entries of a list chosen by the main menu entry (`g_0045C9C0`, up to eight, -1 =
+    none) are emptied, and their places go to random neighbours;
+  - the player's officers are sorted; the best half and the next half are shared out over
+    those entries, two and three each, and the first entry gets the ruler `func_00327820`;
+  - the counters, the edited officers (400-0x19E) and every officer's state are reset;
+  - the player's places are scaled by two ratios (50-100 %).
+- **Update** waits for the fade and goes to the Empire map (scene 0x12).
+- **Leave** frees the buffers. Nothing in this part restores the copies, so a later step
+  probably does.
 
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
