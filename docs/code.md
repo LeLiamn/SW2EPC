@@ -632,6 +632,28 @@ match. Its source file name is unknown.
   its free neighbours and moves the cursor back to it.
 - **Saving the state:** `func_00102B80` saves both heaps' state.
 
+## The controllers (`src/pad.c`)
+
+The pad code covers 0x00103090-0x0010424C, after the memory allocator: 22 functions, 4 of
+which match. Its source file name is unknown. It is built on Sony's pad library, libpad.
+
+- **Ports:** there are two, at `0x00500700`, 0x88 bytes each.
+- **Each frame** (`func_001038D0`), every open pad first goes through libpad's set-up steps:
+  the analog mode is locked, then the pressure mode and the actuators are set. Then its data is
+  read.
+  - The buttons are active low.
+  - The sticks are re-centred inside a radius of 64, and the left stick also works as the
+    D-pad unless flag 0x10 says otherwise.
+  - Pressure values below 0x20 are dropped.
+  - The mode must be analog (0x73) or with pressure (0x79). The original compares with 0x73
+    twice.
+- **Pressed and held:** "pressed" means a button went down this frame (+0x4C). "Held" (+0x4E)
+  also repeats every 4 frames once the button has been down for 16 frames.
+- **Vibration:** two motors, each with a level and a frame count; the levels are sent when they
+  change.
+- **Soft reset:** holding Start + Select on any pad for 10 frames sets the soft reset request
+  `g_0045D20C` (see `main.c`), when `func_001037F0` allows it.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
