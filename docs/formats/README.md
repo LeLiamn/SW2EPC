@@ -15,6 +15,7 @@ gets understood. All game data is inside the three [LINKDATA](LINKDATA.md) conta
 | `tm3 ` | BNS | 176 | `tm3 ` | ? (texture-like name) | 🔴 to study |
 | `TMD2` | BNS | 372 | `TMD2` + version `0060` | Battlefield piece descriptors (world coordinates), two per piece | 🔴 to study |
 | `ipu2` | BNS | 2 | `ipu2` | PS2 IPU images | 🔴 to study |
-| Other leaves | BNS | ~24,000 | none | Geometry packets (`00 C0 04 66`), `51 00 00 00` files, tables... 278 MB: see [PACK.md](PACK.md) | 🔴 to study |
+| Motions | BNS, in packs | 10,714 | `51 00 00 00` | Animations: tracks of keyframes. Header understood, key layout partly. [MOTION.md](MOTION.md) | 🟡 in progress |
+| Other leaves | BNS | ~13,000 | none | Geometry packets (`00 C0 04 66`), `51 00 00 00` files, tables... 278 MB: see [PACK.md](PACK.md) | 🔴 to study |
 
 Legend: ✅ understood · 🟢 standard format, already documented elsewhere · 🟡 in progress · 🔴 unknown
