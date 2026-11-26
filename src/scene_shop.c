@@ -1213,62 +1213,82 @@ void func_002A18D0(int player)
     char text[256];
     int pressed, held;
     int answer;
-    int box;
+    int box = BOX_NONE;
+    MountOffer *offers = g_MountOffers;
 
     read_pad(player, port, pressed, held);
-    box = open_box(&answer);
+    if (g_006934B3 != 0)
+        box = 0;
+    else if (g_006935DB != 0)
+        box = 1;
+    answer = (box == BOX_NONE) ? 0 : box_answer(box);
     if (box == 0)
         return;
     if (box == 1) {
         if (answer == BOX_YES) {
-            if (g_00773140 < 4)
-                func_002A1760();
-            else
+            if ((unsigned)g_00773140 >= 4)
                 func_0029FDB0(11);
+            else
+                func_002A1760();
         } else if (pressed & BTN_CANCEL) {
             func_001AFFB0();
             func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         }
         return;
     }
+    if (box != BOX_NONE && box_busy(box))
+        return;
 
     if (pressed & BTN_CANCEL) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(0);
     } else if (pressed & BTN_OK) {
-        MountOffer *offer = &g_MountOffers[g_00773183];
-        if (g_0077317C == 0 || offer->index == 0x10) {
+        int index;
+        if (!(g_0077317C > 0)) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-        } else if (func_0029FB70() < offer->price) {
+            return;
+        }
+        if (offers[g_00773183].index == 0x10) {
+            func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            return;
+        }
+        index = g_MountOffers[g_00773183].index;
+        if (func_0029FB70() < g_MountOffers[g_00773183].price) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             show_msg(0, port, g_0043C3A0);
-        } else if (g_00773140 < 4) {
-            const char *name = (const char *)func_0029FD90(offer->index) + 0x13;
-            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-            show_box(1, port, g_0043C3DC, name);
-        } else {
+            return;
+        }
+        if ((unsigned)g_00773140 >= 4) {
             func_0023AD10(4, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             show_msg(1, port, g_0043C3E4);
+            return;
+        }
+        {
+            u8 *mount = func_0029FD90(index);
+            func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+            show_box(1, port, g_0043C3DC, (const char *)mount + 0x13);
         }
     } else if (pressed & BTN_EXTRA) {
         if (func_0029FD10() != 0) {
             func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             func_0029FDB0(12);
         }
-    } else if (g_0077317C > 1) {
-        u8 count = g_0077317C;
+    } else {
+        int count = g_0077317C;
+        if (count < 2)
+            return;
         if (held & BTN_UP) {
-            if (g_00773183 != 0) {
+            if (g_00773183 > 0) {
                 func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773183 = (u8)((g_00773183 + count - 1) % count);
+                g_00773183 = (u8)((g_00773183 + g_0077317C - 1) % g_0077317C);
             } else if (pressed & BTN_UP) {
                 func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773183 = count - 1;
+                g_00773183 = g_0077317C - 1;
             }
         } else if (held & BTN_DOWN) {
             if (g_00773183 < count - 1) {
                 func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-                g_00773183 = (u8)((g_00773183 + 1) % count);
+                g_00773183 = (u8)((g_00773183 + 1) % g_0077317C);
             } else if (pressed & BTN_DOWN) {
                 func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
                 g_00773183 = 0;
@@ -1305,10 +1325,14 @@ void func_002A21B0(int player, int back)
     char text[256];
     int pressed, held;
     int answer;
-    int box;
+    int box = BOX_NONE;
 
     read_pad(player, port, pressed, held);
-    box = open_box(&answer);
+    if (g_006934B3 != 0)
+        box = 0;
+    else if (g_006935DB != 0)
+        box = 1;
+    answer = (box == BOX_NONE) ? 0 : box_answer(box);
     if (box == 0)
         return;
     if (box == 1) {
@@ -1325,6 +1349,8 @@ void func_002A21B0(int player, int back)
         }
         return;
     }
+    if (box != BOX_NONE && box_busy(box))
+        return;
 
     if (func_0029FD10() == 0) {                 /* nothing left to sell */
         func_0029FDB0(back);
@@ -1536,10 +1562,14 @@ void func_002A0B40(int player)
     SkillOffer *offers = (SkillOffer *)&g_00772DF0[g_0077315C * 0x140 + slot * 0x50];
     u8 *count = &g_00773174[player * 4 + slot];
     int answer;
-    int box;
+    int box = BOX_NONE;
 
     read_pad(player, port, pressed, held);
-    box = open_box(&answer);
+    if (g_006934B3 != 0)
+        box = 0;
+    else if (g_006935DB != 0)
+        box = 1;
+    answer = (box == BOX_NONE) ? 0 : box_answer(box);
     if (box == 0)
         return;
     if (box == 1) {

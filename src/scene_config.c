@@ -304,6 +304,11 @@ void func_003F8BB0(void);
 #define BTN_UP     0x1000
 #define BTN_DOWN   0x4000
 
+/* Controller 1, inlined in the original (macros). */
+#define pad1_ready() ((g_00500764 & 1) ? (g_00500765 & 1) == 1 : 0)
+#define pad1_pressed() ((unsigned short)(pad1_ready() ? g_0050074C : 0))
+#define pad1_held() ((unsigned short)(pad1_ready() ? g_0050074E : 0))
+
 #define SE_CURSOR 0x2CDC          /* sound effect played on cursor moves and choices */
 
 /* Two message boxes (0x006934B4 + n * 0x128, n = 0 or 1); their first byte is non-zero while open,
@@ -458,15 +463,12 @@ void func_001E4030(void)
  * for "reset all officers' abilities" and "void interim data". */
 void func_001E4080(void)
 {
-    int pressed, held;
-    int box;
-    char answer;
+    int pressed = pad1_pressed();
+    int held = pad1_held();
+    int box = 5;                                   /* 5 = no message box open */
+    int answer;
     char text[256];
 
-    pressed = ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074C : 0;
-    held = ((g_00500764 & 1) && (g_00500765 & 1) == 1) ? g_0050074E : 0;
-
-    box = 5;                                       /* 5 = no message box open */
     if (g_006934B3 != 0)
         box = 0;
     else if (g_006935DB != 0)
@@ -496,14 +498,14 @@ void func_001E4080(void)
         }
     } else if (pressed & BTN_OK) {
         if (g_00731219 == 3) {
-            if (func_002EFBB0() == 0) {
-                func_001204B0(text, g_0043C33C);   /* "Void interim data?" */
-                func_001AE9F0(1, text, 1);
-                func_001AFC50(1);
-            } else {
+            if (func_002EFBB0() != 0) {
                 func_001204B0(text, g_0043C338);   /* "There is no interim data." */
                 func_001AE9F0(0, text, 1);
                 func_001AFC50(0);
+            } else {
+                func_001204B0(text, g_0043C33C);   /* "Void interim data?" */
+                func_001AE9F0(1, text, 1);
+                func_001AFC50(1);
             }
             func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         } else if (g_00731219 == 1) {
@@ -520,7 +522,7 @@ void func_001E4080(void)
         func_0017DF10();
         func_001E3DB0(14);                          /* leave the options menu */
     } else if (held & BTN_UP) {
-        if (g_00731219 != 0) {
+        if (g_00731219 > 0) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             g_00731219 = (u8)((g_00731219 + 2) % 3);
         } else if (pressed & BTN_UP) {             /* wrap around only on a fresh press */
@@ -559,9 +561,6 @@ void func_002DBAA0(void);
 void func_002DBAB0(void);
 
 /* Inlined in the original: a macro. */
-#define pad1_ready() ((g_00500764 & 1) ? (g_00500765 & 1) == 1 : 0)
-#define pad1_pressed() ((unsigned short)(pad1_ready() ? g_0050074C : 0))
-#define pad1_held() ((unsigned short)(pad1_ready() ? g_0050074E : 0))
 #define pad2_ready() ((g_005007EC & 1) ? (g_005007ED & 1) == 1 : 0)
 #define pad2_pressed() ((unsigned short)(pad2_ready() ? g_005007D4 : 0))
 #define pad2_held() ((unsigned short)(pad2_ready() ? g_005007D6 : 0))
