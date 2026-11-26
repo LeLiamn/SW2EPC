@@ -9,6 +9,8 @@ What is measured:
   functions decompiled in src/ (each tagged '/* 0xADDRESS, SIZE bytes'); "matching" = those whose
   tag goes on with ', matching' (proven byte-identical with the original compiler on decomp.me, the
   scratch link follows the tag).
+- functions: the number of functions (those found by Ghidra's analysis, kept locally, plus decompiled
+  ones it missed) and how many of them match.
 - data: every file on the disc except the executable, SYSTEM.CNF and IOP modules. LINKDATA
   containers and the packs inside them are opened (see tools/pack.py) and their leaves grouped by
   real format (signature); the container structure itself (tables, padding) counts as "Containers". Other files are grouped
@@ -70,6 +72,20 @@ def decompiled_functions():
                 for addr, size, matching in FUNCTION_TAG.findall(text):
                     seen[int(addr, 16)] = (int(size, 0), bool(matching))
     return seen
+
+
+GHIDRA_LIST = os.path.join(os.path.dirname(SRC_DIR), "ghidra_project", "out_r5900", "all.c")
+
+
+def function_counts():
+    """{"total", "matching"}: functions found by Ghidra's analysis (local file, if present) plus
+    the decompiled ones it missed, and how many of them match."""
+    seen = decompiled_functions()
+    addrs = set(seen)
+    if os.path.exists(GHIDRA_LIST):
+        text = open(GHIDRA_LIST, encoding="utf-8", errors="replace").read()
+        addrs |= {int(a, 16) for a in re.findall(r"// ==== \S+ at 0x([0-9a-f]{8}), \d+ bytes", text)}
+    return {"total": len(addrs), "matching": sum(1 for s, m in seen.values() if m)}
 
 
 def decompiled_code():
@@ -223,6 +239,7 @@ def build_report(image):
         "code": code,
         "data": {"total": sum(a["data"]["total"] for a in areas),
                  "done": sum(a["data"]["done"] for a in areas)},
+        "functions": function_counts(),
         "layout": "treemap",
         "areas": code_areas(start, start + total) + [
             {"name": "Game data", "description": "Files on the disc, by format (data only)",

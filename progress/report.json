@@ -9,6 +9,10 @@
     "total": 2155890688,
     "done": 2051296606
   },
+  "functions": {
+    "total": 10586,
+    "matching": 53
+  },
   "layout": "treemap",
   "areas": [
     {
