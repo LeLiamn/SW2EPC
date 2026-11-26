@@ -105,6 +105,8 @@ What makes the compiler produce the game's exact code, learnt so far:
 - **Small page objects are reached through a pointer**: when the game computes an object's
   address once and stores at offsets from it, write `u8 *page = (u8 *)&s_00749B9E; page[1] = 0;`
   (separate objects, not one big struct: check what the code clears with one memset).
+- **Parameter types show in the narrowing**: an `andi 0xFF` before a call means the caller had an
+  `int` and the callee takes a `u8` (and a function returning `u8` from an `int` result masks it).
 - **Scratchpad words are constant addresses** (`#define g_70000154 (*(int *)0x70000154)`): an
   `extern int` goes to the small-data area and is read through `$gp`.
 - **Check struct layouts**: `py tools/check_layout.py` checks that every `g_XXXXXXXX` field of a
@@ -116,5 +118,5 @@ What makes the compiler produce the game's exact code, learnt so far:
 **StateTreasures.c is fully matching** (all 24 functions of `src/scene_treasures.c`), and so is
 `src/main.c` (start-up and the scene manager).
 
-214 functions match (37 of the 42 functions of `src/scene_shop.c`, 24 of the 33 of `src/scene_config.c`, 6 of the 8 of `src/scene_setup_emp_mogi.c`, 2 of the 37 of `src/scene_post_battle.c`, 18 of 23 in `src/scene_initialize.c`, 7 of 25 in `src/scene_demo.c`, 9 of 10 in `src/scene_empty.c`, 14 of 18 in `src/scene_loading.c`, 30 of 67 in `src/scene_battle_initialize.c`, 9 of 15 in `src/scene_conquest.c`, 15 of 82 in `src/scene_pre_battle.c`, all of `src/scene_tutorial.c` and `src/scene_season_anime.c`). The other functions are equivalent C that
+223 functions match (37 of the 42 functions of `src/scene_shop.c`, 24 of the 33 of `src/scene_config.c`, 6 of the 8 of `src/scene_setup_emp_mogi.c`, 2 of the 37 of `src/scene_post_battle.c`, 18 of 23 in `src/scene_initialize.c`, 7 of 25 in `src/scene_demo.c`, 9 of 10 in `src/scene_empty.c`, 14 of 18 in `src/scene_loading.c`, 30 of 67 in `src/scene_battle_initialize.c`, 9 of 15 in `src/scene_conquest.c`, 15 of 82 in `src/scene_pre_battle.c`, 9 of 30 in `src/scene_edit.c`, all of `src/scene_tutorial.c` and `src/scene_season_anime.c`). The other functions are equivalent C that
 still needs reshaping.

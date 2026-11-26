@@ -86,7 +86,7 @@ assertion string), "probable" when its functions sit right next to that file's c
 | `0x11` | `0x003F2A50` | SceneTutorial.c | probable (starts a tutorial, `src/scene_tutorial.c`) |
 | `0x12` | `0x002F2620` | StateConquest.c | certain (Empire map, `src/scene_conquest.c`) |
 | `0x13` | `0x003694B0` |  | unknown |
-| `0x14` | `0x0037D060` |  | unknown |
+| `0x14` | `0x0037D060` | StateEdit.c | probable (officer editor, `src/scene_edit.c`) |
 | `0x15` | `0x00390C70` | StateSetupEmpMogi.c | certain |
 | `0x16` | `0x003DABC0` | SeasonAnime.c | probable (season animation, `src/scene_season_anime.c`) |
 | `0x17` | `0x003F46B0` | SceneTutorial.c | probable |
@@ -348,6 +348,26 @@ Original source file `StatePreBattle.c` (`0x00220780`-`0x00228174`, 82 functions
   `0x00749B9E`, `0x00749BB6`) that the code reaches through a pointer to the object.
 - Camera calls: `func_002EBD80(distance, camera, direction)` and `func_002EBAA0(distance, camera,
   direction, frames)`, the distance passed in `$f12` (tables per battle type at `0x00443530`).
+
+## Scene 0x14: the officer editor (`src/scene_edit.c`)
+
+Original source file `StateEdit.c` (probable: its name is referenced at `0x003767A0`, in the same
+block of code). Decompiled: the scene and the page set-ups (`0x0037BB60`-`0x0037DA64`, 30
+functions, 9 match); the page handlers (table `0x004169A0`, `0x003789B0`-...) and the small
+accessors at `0x003766C0`-`0x00376870` are still to do.
+
+- The editor's state is a 0xBA0-byte block (`0x0045D7C8`, plus a 0x780-byte one at
+  `0x0045D7CC`): the 15 created officers (copied from the game state at `0x00669D60 + 0x254`,
+  0x38 bytes each, at +0xBC), the officer being edited at +0x404 (+0x18 body, +0x1C colour,
+  +0x20 weapon, +0x24 and +0x2A-0x2E choices) and its copy at +0x43C (a page's changes are undone
+  from it), the page (+0xB4, asked for at +0xB0), per page a cursor and its scroll.
+- Pages: 0 the name (two parts, at most 7 characters each), 1 body, 2 weapon (lists by body
+  group), 3-8 other choices, 9, 10 and 11 confirmations / the officer list; 12 leaves for the
+  title (scene 1). Changing page goes through phases (in, out, timer).
+- A model of the officer is shown (unit `0x00574DE0`): the weapon gives a model kind (weapons
+  0x3E-0x67 share four kinds), the view height comes from `0x00416720` / `0x00416780`.
+- The accessors are leaf functions the compiler knows not to touch other registers: Ghidra then
+  loses the values kept across their calls; the disassembly shows them.
 
 ## Scene 0x15: Empire set-up (`src/scene_setup_emp_mogi.c`)
 
