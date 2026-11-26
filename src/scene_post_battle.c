@@ -37,7 +37,9 @@ extern struct {
 typedef struct {
     u32 data_0;              /* +0x00 given to func_002CAC30 */
     u32 value_4;             /* +0x04 above 999: see func_0021C5F0 */
-    u8 unknown_8[0x10];
+    u32 value_8;
+    u32 value_c;             /* +0x0C */
+    u8 unknown_10[0x8];
     int active;              /* +0x18 non-zero for a player in the game */
     u8 unknown_1c[0x2C];
 } PlayerRecord;
@@ -112,14 +114,30 @@ extern struct {
 #define g_00747968 (s_00747930.g_00747968)
 #define g_0074796C (s_00747930.g_0074796C)
 
-/* Globals 0x00747E90-0x00747F34: one object in the original (not reached through $gp). */
-extern struct {
-    int g_00747E90;
-    char pad_0[0x9C];
-    int g_00747F30;
-} s_00747E90;
-#define g_00747E90 (s_00747E90.g_00747E90)
-#define g_00747F30 (s_00747E90.g_00747F30)
+/* A player's results (0xA0 bytes, at 0x00747DF8 and 0x00747E98). */
+typedef struct {
+    u8 unknown_0[0x24];
+    int level;               /* +0x24 level + 1 (func_003DCB00) */
+    int stats[9];            /* +0x28 func_003DCBB0 ... func_003DCD30 */
+    u8 block_4c[0x24];       /* +0x4C filled by func_002CA590 */
+    int value_70;            /* +0x70 (0x00747E68) */
+    int value_74;
+    int rating_points;       /* +0x78 points scaled by the difficulty (0x00747E70) */
+    int value_7c;
+    int value_80;            /* +0x80 game state player +0x04 */
+    int value_84;            /* +0x84 0x00669F9C */
+    int value_88;            /* +0x88 game state player +0x0C */
+    int points;              /* +0x8C 0..0xFFFF (0x00747E84) */
+    int value_90;
+    u8 rank;                 /* +0x94 0 (best) .. 4 */
+    u8 pad_95[3];
+    int shown;               /* +0x98 (0x00747E90) */
+    int value_9c;            /* +0x9C (0x00747E94) */
+} PlayerResult;
+
+extern PlayerResult g_00747DF8[2];
+#define g_00747E90 (g_00747DF8[0].shown)
+#define g_00747F30 (g_00747DF8[1].shown)
 
 /* Globals 0x00748A30-0x00748A49: one object in the original (not reached through $gp). */
 extern struct {
@@ -505,4 +523,485 @@ void func_0021D050(void)
     func_00102EC0(g_00747964);
     func_00102EC0(g_00747968);
     func_001A2960();
+}
+
+/* ---- Helpers (0x0021A720-0x0021BC80) ------------------------------------------------------------ */
+
+extern int g_00749110[];                  /* per officer slot: points earned in the battle */
+extern int g_0074941C;                    /* points added to every player */
+extern char g_00669D81;                   /* difficulty (0..4) */
+extern u32 g_00669F9C;
+
+u8 func_003A0EC0(int item);
+u8 func_003A1070(int item, int i);
+u8 func_003A1180(int item, int i);
+u8 func_003A0F60(int item);
+u8 func_003A1260(int item);
+int func_003DCB00(int player);
+int func_003DCBB0(int player);
+int func_003DCBE0(int player);
+int func_003DCC10(int player);
+int func_003DCC40(int player);
+int func_003DCC70(int player);
+int func_003DCCA0(int player);
+int func_003DCCD0(int player);
+int func_003DCD00(int player);
+int func_003DCD30(int player);
+void func_002CA590(u32 data, void *dst);
+void func_002F4820(int officer, int skill, int level);
+extern u32 g_00428348[];                  /* 20 thresholds (u32) */
+
+/* 0x0021A720, 0x9C bytes. Fills a 0x14-byte item record: the item, its kind, 8 pairs of values,
+ * then two more values (func_003A0EC0 ... func_003A1260). */
+void func_0021A720(u8 *out, int item)
+{
+    int i;
+
+    out[0] = (u8)item;
+    out[1] = func_003A0EC0(item);
+    for (i = 0; i < 8; i++) {
+        out[i + 2] = func_003A1070(item, i);
+        out[i + 10] = func_003A1180(item, i);
+    }
+    out[0x12] = func_003A0F60(item);
+    out[0x13] = func_003A1260(item);
+}
+
+/* 0x0021A7C0, 0x80 bytes. Index (0..18) of the band of g_00428348 that holds `value`, else 19. */
+u32 func_0021A7C0(u32 value)
+{
+    u32 i;
+
+    for (i = 0; (int)i <= 0x12; i++)
+        if (g_00428348[i & 0xFF] <= value && value < g_00428348[(i + 1) & 0xFF])
+            return i & 0xFF;
+    return 0x13;
+}
+
+/* 0x0021A840, 0x350 bytes. Fills player `player`'s results: level, nine stats, the game state's
+ * values, and the battle points (own slot + g_0074941C, between 0 and 0xFFFF), their rank (4 below
+ * 2000 points ... 0 from 10000) and the rating points scaled by the difficulty. */
+void func_0021A840(int player)
+{
+    PlayerResult *r = &g_00747DF8[player];
+    int points;
+
+    r->value_9c = 0;
+    r->level = func_003DCB00(player) + 1;
+    r->stats[0] = func_003DCBB0(player);
+    r->stats[1] = func_003DCBE0(player);
+    r->stats[2] = func_003DCC10(player);
+    r->stats[3] = func_003DCC40(player);
+    r->stats[4] = func_003DCC70(player);
+    r->stats[5] = func_003DCCA0(player);
+    r->stats[6] = func_003DCCD0(player);
+    r->stats[7] = func_003DCD00(player);
+    r->stats[8] = func_003DCD30(player);
+    func_002CA590(g_00669D60.players[player].data_0, r->block_4c);
+    r->value_80 = g_00669D60.players[player].value_4;
+    r->value_88 = g_00669D60.players[player].value_c;
+    r->value_84 = g_00669F9C;
+
+    if (g_00749110[func_00362320(player)] + g_0074941C < 1)
+        points = 0;
+    else
+        points = g_00749110[func_00362320(player)] + g_0074941C;
+    if (points >= 0x10000)
+        points = 0xFFFF;
+    r->points = points;
+
+    if (points >= 0 && points < 2000)
+        r->rank = 4;
+    else if (points >= 2000 && points < 3000)
+        r->rank = 3;
+    else if (points >= 3000 && points < 4000)
+        r->rank = 2;
+    else if (points >= 4000 && points < 10000)
+        r->rank = 1;
+    else
+        r->rank = 0;
+
+    if (g_00669D81 == 4)
+        r->rating_points = r->points * 2;
+    else if (g_00669D81 == 3)
+        r->rating_points = r->points;
+    else if (g_00669D81 == 2 || g_00669D81 == 1 || g_00669D81 == 0)
+        r->rating_points = r->points / 3;
+}
+
+/* 0x0021AB90, 0xC8 bytes. Non-zero when the player's level (halved, at most 6) is below the
+ * officer's (func_002F41E0, halved, at most 6): a new rank of something? */
+int func_0021AB90(int player)
+{
+    u32 a, b;
+
+    if (func_003DCB00(player) / 2 < 7)
+        a = func_003DCB00(player) / 2;
+    else
+        a = 6;
+    if ((func_002F41E0(g_00669D60.players[player].data_0) & 0xFF) >> 1 < 7)
+        b = (func_002F41E0(g_00669D60.players[player].data_0) & 0xFF) >> 1;
+    else
+        b = 6;
+    return (a & 0xFF) < b;
+}
+
+/* A skill on a player's list (8 bytes). */
+typedef struct {
+    int skill;               /* 0xFF = none */
+    u8 level;
+    u8 state;
+    u8 pad[2];
+} SkillEntry;
+
+/* 0x0021AC60, 0xAC bytes. Gives `player`'s officer the skills of the list `list` (except skills
+ * 0x28-0x34). */
+void func_0021AC60(int player, SkillEntry *list)
+{
+    int i;
+
+    for (i = 0; i < ((u8 *)list)[0x148]; i++)
+        if (list[i].skill < 0x28 || list[i].skill > 0x34)
+            func_002F4820(g_00669D60.players[player].data_0, list[i].skill, list[i].level);
+}
+
+
+
+/* A skill on a player's list (8 bytes); each player has 0x14C bytes of them at 0x00747B60, the
+ * count in the byte at +0x148. */
+typedef struct {
+    SkillEntry entries[41];
+    u8 count;                /* +0x148 */
+    u8 pad[3];
+} SkillList;
+extern SkillList g_00747B60[2];
+
+extern u8 g_00428B79[];                   /* default item records, 0x13 bytes per kind */
+extern u8 g_00748C30[];                   /* per player, 0x14 bytes: the item being offered */
+extern u8 g_00748C58[];                   /* per player, 0x14 bytes: the item it replaces */
+extern u8 g_007489DC[], g_007489F0[], g_00748AC8[];
+extern int g_00748FAC[2];
+extern u8 g_00748F70;
+extern int g_00747948;
+extern int g_007729DC;
+extern u8 g_00748A2C, g_00748A2D;
+extern int g_00669F6C;
+extern u8 g_006935DB_state;               /* message box 1 state (see scene_shop.c) */
+extern const char *g_0043C31C;            /* "Saving here will update your per..." */
+
+void func_00328BA0(int item, int value);
+int func_002F57A0(int item);
+u8 *func_00328B30(int item);
+int func_002F57F0(int item);
+u8 func_002F5840(int kind);
+int func_003278B0(void);
+int func_003A02F0(int item);
+int func_00328C00(int item);
+int func_0030AAD0(int kind);
+int func_002F9480(u32 force, int kind);
+void func_0021C090(void);
+void func_0021C0D0(void);
+void func_0021C1D0(void);
+void func_0021C1F0(void);
+void func_0021C280(void);
+void func_0011EB80(void *dst, const void *src, int size);
+void func_0019DDC0(void *item);
+void func_0017DF10(void);
+int func_0019FB90(void);
+int func_0036B2F0(void);
+void func_002EFB40(void);
+void func_002885E0(void *data);
+void func_0028C310(void);
+void func_00289100(void);
+void func_001A2940(void);
+void func_001204B0(char *dst, const char *format, ...);
+void func_001B8BF0(void);
+void func_001AE9F0(int box, const char *text, int c);
+void func_001AFC50(int box);
+
+/* 0x0021B270, 0x104 bytes. Gives the player item `item` with the default values of its kind
+ * (table 0x00428B79, 0x13 bytes per kind). */
+void func_0021B270(int item)
+{
+    const u8 *def;
+    u8 *rec;
+    int i;
+
+    func_00328BA0(item, 1);
+    def = &g_00428B79[func_002F57A0(item & 0xFF) * 0x13];
+    rec = func_00328B30(item);
+    rec[1] = def[0];                       /* (byte 1 of the default is not used) */
+    for (i = 2; i < 0x12; i++)
+        rec[i] = def[i];
+    rec[0x12] = func_002F5840(func_002F57F0(item));
+    rec[0x13] = 0;
+}
+
+/* 0x0021B380, 0x1A8 bytes. Non-zero (and the item is given, func_0021B270) when the current
+ * player earns the item of their last result: not in the Empire game (g_00748F84), when the item
+ * is not owned yet, the force has at least 4 of its kind and items are allowed (g_00748F94). */
+int func_0021B380(void)
+{
+    int player = g_00749528 != 0;
+    u8 *rec = &g_00748938[player * 0x52];
+    int kind = func_002F57A0(rec[rec[0x51] * 0x14]);
+    int item;
+
+    if (g_00748FA4[player] == 0x1A) {
+        kind = 0x1D;
+        item = 0x78;
+    } else {
+        item = kind * 4 + 3;
+    }
+    if (g_00748F84 != 0)
+        return 0;
+    if (func_002F59A0(0) == 0 && (func_003278B0() == 0 || func_003A02F0(item) == 0) &&
+        g_00669D60.players[player].value_4 < 500)
+        return 0;
+    if (func_00328C00(item) != 0)
+        return 0;
+    if (func_002F9480(func_00327D50(), func_0030AAD0(kind)) < 4)
+        return 0;
+    if (g_00748F94 == 0)
+        return 0;
+    func_0021B270(item);
+    return 1;
+}
+
+/* 0x0021B530, 0x110 bytes. Non-zero when the item offered to the current player differs from the
+ * one it replaces (kind, values or the last byte). */
+int func_0021B530(void)
+{
+    u8 *a = &g_00748C30[g_0074794C * 0x14];
+    u8 *b = &g_00748C58[g_0074794C * 0x14];
+    int i;
+
+    if (func_003A02F0(a[0]) == 0)
+        return 0;
+    if (a[1] != b[1])
+        return 1;
+    for (i = 0; i < func_002F5840(func_002F57F0(a[0])); i++)
+        if (a[i + 2] != b[i + 2] || a[i + 10] != b[i + 10])
+            return 1;
+    return a[0x13] != b[0x13];
+}
+
+/* 0x0021B640, 0x20 bytes. */
+int func_0021B640(void)
+{
+    return g_00749520[g_0074794C];
+}
+
+/* 0x0021B660, 0x3D8 bytes. Goes to page `page` of the results (0 summary ... 10 leaving), or
+ * skips it when it has nothing to show, and starts the page's window (func_002857E0). */
+void func_0021B660(int page)
+{
+    int next = g_00747938;
+
+    g_00772A00 = 1;
+    switch (page) {
+    case 0:
+        g_00747938 = page;
+        func_002857E0(10);
+        next = g_00747938;
+        break;
+    case 1:
+        if (func_0021B380() == 0) {
+            func_0021C090();
+            func_0021B660(2);
+            next = g_00747938;
+        } else {
+            g_00747938 = page;
+            func_002857E0(0x0B);
+            next = g_00747938;
+        }
+        break;
+    case 2:
+        g_00747938 = page;
+        func_002857E0(0);
+        next = g_00747938;
+        break;
+    case 3:
+        if (func_0021AB90(g_0074794C) == 0) {
+            func_0021B660(4);
+            next = g_00747938;
+        } else {
+            g_00747938 = page;
+            func_002857E0(0x0D);
+            next = g_00747938;
+        }
+        break;
+    case 4:
+        if (g_00747B60[g_0074794C].count == 0) {
+            func_0021C0D0();
+            func_0021C1D0();
+            func_0021B660(5);
+            next = g_00747938;
+        } else {
+            g_00747938 = page;
+            func_002857E0(9);
+            next = g_00747938;
+        }
+        break;
+    case 5:
+        if (g_00748FAC[g_0074794C] == 0) {
+            if (g_0074794C == 1 && g_00748F98 == 2 && g_007489DC[0] == g_007489F0[0])
+                func_0011EB80(g_007489F0, g_007489DC, 0x14);
+            func_0021B660(7);
+            next = g_00747938;
+        } else {
+            func_002857E0(0x0F);
+            g_00748F70 = 0;
+            g_00748F71 = 0;
+            g_00748F72 = 0;
+            g_00748F73 = 0;
+            next = page;
+        }
+        break;
+    case 6:
+        func_0011EB80(&g_007489DC[g_0074794C * 0x14], g_00748AC8, 0x14);
+        func_0019DDC0(&g_007489DC[g_0074794C * 0x14]);
+        if (func_0021B530() == 0) {
+            func_0021C280();
+            func_0021B660(7);
+            next = g_00747938;
+        } else {
+            g_00747938 = page;
+            func_002857E0(0x10);
+            next = g_00747938;
+        }
+        break;
+    case 7:
+        if (func_0021B640() == 0) {
+            func_0021B660(8);
+            next = g_00747938;
+        } else {
+            func_0021C1F0();
+            g_00747938 = page;
+            func_002857E0(0x11);
+            next = g_00747938;
+        }
+        break;
+    case 8:
+        if (!TWO_PLAYERS() || g_0074794C != 0) {
+            g_00747938 = page;
+            func_002857E0(0x12);
+            next = g_00747938;
+        } else {
+            g_00749528 = 1;
+            func_0021B660(1);
+            next = g_00747938;
+        }
+        break;
+    case 9:
+        if (g_00748F84 == 1) {
+            func_0017DF10();
+            next = page;
+        } else if (g_00748F84 == 0) {
+            func_0017DF10();
+            func_0021B660(10);
+            next = g_00747938;
+        }
+        break;
+    case 10:
+        next = page;
+        if (g_00748F84 == 1 && func_0019FB90() != 0 &&
+            (func_0036B2F0() != 0 || (g_00669F6C == 0 && g_0074952C != 0)))
+            func_002EFB40();
+        break;
+    case 11:
+        next = page;
+        break;
+    }
+    g_00747938 = next;
+    g_00747940 = 2;
+}
+
+/* 0x0021BA40, 0x234 bytes. Moves to the page asked for (g_00747938); pages 9-11 leave the scene. */
+void func_0021BA40(void)
+{
+    g_0074793C = g_00747934;
+    g_00772A00 = 0;
+    g_00748F80 = 1;
+    g_00747934 = g_00747938;
+    if (TWO_PLAYERS() && g_00749528 != 0) {
+        g_0074794C = 1;
+        g_00772D4C = 1;
+    }
+    if (g_00747938 == 9) {
+        if (g_0045D89C >= 0x18 && g_0045D8A0 >= 0x18)
+            g_0045D89C = 1;
+    } else if (g_00747938 == 10 || g_00747938 == 11) {
+        if (g_00747938 == 10) {
+            if (g_00669DB8 == 0 && g_0045D89C >= 0x18 && g_0045D8A0 >= 0x18)
+                g_0045D89C = 0x12;
+        } else if (g_0045D89C >= 0x18 && g_0045D8A0 >= 0x18) {
+            g_0045D89C = 1;
+        }
+        if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {
+            g_0045D894 = g_0045D898;
+            g_0045D898 = g_0045D8A0;
+            g_0045D89C = 0x18;
+        } else {
+            g_0045D894 = g_0045D898;
+            g_0045D898 = g_0045D89C;
+            g_0045D89C = g_0045D8A0;
+        }
+    }
+}
+
+/* 0x0021BC80, 0x200 bytes. Opens page g_00747934 (sets the shown page g_00747930); page 9 asks
+ * whether to save. */
+void func_0021BC80(void)
+{
+    char text[256];
+
+    switch (g_00747934) {
+    case 0: g_00747930 = 0; break;
+    case 1: g_00747930 = 1; break;
+    case 2:
+        if (g_00747E90 != 0) {
+            func_002857E0(0x0C);
+            func_002885E0(&g_00747DF8[g_0074794C]);
+        }
+        g_00747930 = 2;
+        break;
+    case 3:
+        g_00747930 = 3;
+        func_0028C310();
+        break;
+    case 4:
+        g_007729DC = g_0074794C;
+        if (g_00747B60[g_0074794C].count == 1) {
+            g_00748A2C = 1;
+            g_00748A2D = 1;
+        } else {
+            g_00748A2C = 2;
+            g_00748A2D = 2;
+        }
+        g_00747930 = 4;
+        func_00289100();
+        break;
+    case 5:
+        g_00748F70 = 0;
+        g_00747930 = 5;
+        break;
+    case 6: g_00747930 = 6; break;
+    case 7: g_00747930 = 7; break;
+    case 8: g_00747930 = 8; break;
+    case 9:
+        func_0017DF10();
+        func_001A2940();
+        func_001204B0(text, g_0043C31C);
+        func_001B8BF0();
+        func_001AE9F0(1, text, 1);
+        func_001AFC50(1);
+        g_006935DB_state = 5;
+        g_00747948 = 0;
+        g_00747930 = 9;
+        break;
+    case 10:
+        g_00747930 = 10;
+        break;
+    }
 }
