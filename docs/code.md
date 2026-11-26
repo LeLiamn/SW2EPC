@@ -85,7 +85,7 @@ assertion string), "probable" when its functions sit right next to that file's c
 | `0x10` | `0x0015FF70` | StateInitialize.c | probable (after a soft reset, `src/scene_initialize.c`) |
 | `0x11` | `0x003F2A50` | SceneTutorial.c | probable (starts a tutorial, `src/scene_tutorial.c`) |
 | `0x12` | `0x002F2620` | StateConquest.c | certain (Empire map, `src/scene_conquest.c`) |
-| `0x13` | `0x003694B0` |  | unknown |
+| `0x13` | `0x003694B0` | StateStartUp.c | certain (start of an Empire game, `src/scene_start_up.c`) |
 | `0x14` | `0x0037D060` | StateEdit.c | probable (officer editor, `src/scene_edit.c`) |
 | `0x15` | `0x00390C70` | StateSetupEmpMogi.c | certain |
 | `0x16` | `0x003DABC0` | SeasonAnime.c | probable (season animation, `src/scene_season_anime.c`) |
@@ -348,6 +348,24 @@ Original source file `StatePreBattle.c` (`0x00220780`-`0x00228174`, 82 functions
   `0x00749B9E`, `0x00749BB6`) that the code reaches through a pointer to the object.
 - Camera calls: `func_002EBD80(distance, camera, direction)` and `func_002EBAA0(distance, camera,
   direction, frames)`, the distance passed in `$f12` (tables per battle type at `0x00443530`).
+
+## Scene 0x13: the start of an Empire game (`src/scene_start_up.c`)
+
+Original source file `StateStartUp.c` (0x003654A0-0x00369560). The scene's own part
+(0x00368980-0x00369560, 11 functions, 4 match) is decompiled; the phase handlers before it are not.
+
+- The scene runs in phases (`g_007B7070`, 0-10): 0-3 are the first set-up screens; 4 and 5 choose
+  the officers of seven slots; 6 is another screen; 7 is the save / start check, which stops the
+  music and fades out; 8 waits for the fade; 9 and 10 leave the scene. When nothing was requested,
+  9 falls back to scene 0x11.
+- The state object at `0x007B7104` holds:
+  - the slot (+0) and the list mode (+2);
+  - one "in use" byte per officer (+3, 0x19F officers);
+  - the counts of officers in use (+0x1BA0, +0x1BA4);
+  - the officers set free (+0x1C10, count at +0x228C);
+  - the officer of each slot (+0x22AC, 7 entries, 0x19F = none).
+- The draw shows the help line of the current phase. The entry list offers Edit when
+  `func_003A1A80` allows it, and Delete unless the entry is protected.
 
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
