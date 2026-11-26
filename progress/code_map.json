@@ -1,0 +1,318 @@
+{
+ "note": "Functions that reference each original source file name (assertion strings), found by scanning lui/addiu pairs in SLES_546.24. Used by tools/progress.py to estimate code areas.",
+ "themes": {
+  "Scenes": [
+   "StateInitialize.c",
+   "StateStartUp.c",
+   "StateDemo.c",
+   "StateBattleInitialize.c",
+   "StatePreBattle.c",
+   "StatePostBattle.c",
+   "StateConfig.c",
+   "StateTreasures.c",
+   "StateShop.c",
+   "StateConquest.c",
+   "StateEdit.c",
+   "StateSetupEmpMogi.c",
+   "SceneTitle.c",
+   "SceneLoading.c",
+   "ScenePreBattle.c",
+   "SceneTutorial.c",
+   "CSecretsScene.c"
+  ],
+  "Empire mode": [
+   "emp_FldBase.c",
+   "emp_cq_main.c",
+   "emp_cq_text.c",
+   "emp_ending.c",
+   "emp_ending_nenpyou.c",
+   "emp_ev_predata.c",
+   "emp_ev_station.c",
+   "emp_ev_still.c",
+   "emp_free_setup.c",
+   "emp_sc.c",
+   "emp_war_fix.c",
+   "emp_war_tl.c",
+   "emp_war_wllt.c",
+   "emp_zuroku.c",
+   "emp_zuroku_bushou.c",
+   "emp_zuroku_graph.c",
+   "emp_zuroku_movie.c",
+   "StationEmp.c"
+  ],
+  "Battlefield": [
+   "Field.c",
+   "Stage.c",
+   "StgAmbient.c",
+   "StgTexture.c",
+   "DistantView.c",
+   "BgManager.c",
+   "Bullet.c",
+   "Weapon.c",
+   "ObjAction.c",
+   "RelayCamera.c",
+   "MiniMap.c",
+   "effect.c"
+  ],
+  "Models and motion": [
+   "ModelManager.c",
+   "MotionManager.c",
+   "HorseModel.c",
+   "FlagModel.c",
+   "ItemModel.c"
+  ],
+  "Events and scripts": [
+   "ev_main.c",
+   "ev_config.c",
+   "ev_message.c",
+   "sc_ctrl.c",
+   "sc_sysmsg.c",
+   "sc_ubase.c",
+   "MovieTelop.c",
+   "SeasonAnime.c",
+   "BriefingCmnParts.c"
+  ],
+  "Interface and system": [
+   "cmnparts.c",
+   "font.c",
+   "file.c",
+   "Gsaveload.c",
+   "SeManager.c",
+   "sd_call.c",
+   "JapanMap.c",
+   "SecretSorts.c",
+   "P.c"
+  ]
+ },
+ "anchors": {
+  "BgManager.c": [
+   "0x3f8b30"
+  ],
+  "BriefingCmnParts.c": [
+   "0x2d6890"
+  ],
+  "Bullet.c": [
+   "0x1ae4f0"
+  ],
+  "DistantView.c": [
+   "0x22dec0"
+  ],
+  "Field.c": [
+   "0x18c490"
+  ],
+  "FlagModel.c": [
+   "0x2a7af0"
+  ],
+  "HorseModel.c": [
+   "0x2ad4c0"
+  ],
+  "ItemModel.c": [
+   "0x24bca0"
+  ],
+  "JapanMap.c": [
+   "0x3a5c40"
+  ],
+  "MiniMap.c": [
+   "0x20fa70"
+  ],
+  "ModelManager.c": [
+   "0x1bc8c0",
+   "0x1bd180",
+   "0x1bd6d0",
+   "0x1bd9b0"
+  ],
+  "MotionManager.c": [
+   "0x17c4a0",
+   "0x17c6d0",
+   "0x17cc40"
+  ],
+  "MovieTelop.c": [
+   "0x1e98e0"
+  ],
+  "ObjAction.c": [
+   "0x27f610"
+  ],
+  "RelayCamera.c": [
+   "0x2e6210"
+  ],
+  "SceneLoading.c": [
+   "0x2f15e0"
+  ],
+  "ScenePreBattle.c": [
+   "0x28f960"
+  ],
+  "SceneTitle.c": [
+   "0x278760",
+   "0x278870"
+  ],
+  "SceneTutorial.c": [
+   "0x3f4900"
+  ],
+  "SeManager.c": [
+   "0x23aa60",
+   "0x23ab20",
+   "0x23ae30",
+   "0x23b020"
+  ],
+  "SeasonAnime.c": [
+   "0x3da7f0"
+  ],
+  "SecretSorts.c": [
+   "0x254210",
+   "0x258130"
+  ],
+  "Stage.c": [
+   "0x193b90",
+   "0x194130"
+  ],
+  "StateBattleInitialize.c": [
+   "0x1d47c0"
+  ],
+  "StateConfig.c": [
+   "0x1e6860"
+  ],
+  "StateConquest.c": [
+   "0x2f1950"
+  ],
+  "StateDemo.c": [
+   "0x1beae0"
+  ],
+  "StateEdit.c": [
+   "0x3767a0"
+  ],
+  "StateInitialize.c": [
+   "0x160fa0"
+  ],
+  "StatePostBattle.c": [
+   "0x21c5f0"
+  ],
+  "StatePreBattle.c": [
+   "0x226380"
+  ],
+  "StateSetupEmpMogi.c": [
+   "0x390c70"
+  ],
+  "StateShop.c": [
+   "0x2a4210"
+  ],
+  "StateStartUp.c": [
+   "0x365530"
+  ],
+  "StateTreasures.c": [
+   "0x1e7290",
+   "0x1e8b30"
+  ],
+  "StationEmp.c": [
+   "0x3b38f0"
+  ],
+  "StgAmbient.c": [
+   "0x216b40"
+  ],
+  "StgTexture.c": [
+   "0x1f4b90",
+   "0x1f4dc0"
+  ],
+  "Weapon.c": [
+   "0x16cd30"
+  ],
+  "cmnparts.c": [
+   "0x1a9030",
+   "0x1a9140",
+   "0x1ac2a0",
+   "0x1ac3a0"
+  ],
+  "effect.c": [
+   "0x1c7620",
+   "0x1c77d0"
+  ],
+  "emp_FldBase.c": [
+   "0x34f5a0"
+  ],
+  "emp_cq_main.c": [
+   "0x30ce90",
+   "0x30cef0",
+   "0x30d820",
+   "0x30d860",
+   "0x30d8d0"
+  ],
+  "emp_cq_text.c": [
+   "0x3907b0"
+  ],
+  "emp_ending.c": [
+   "0x3b5f70",
+   "0x3b67f0"
+  ],
+  "emp_ending_nenpyou.c": [
+   "0x3bb8e0",
+   "0x3bc450"
+  ],
+  "emp_ev_predata.c": [
+   "0x32f670"
+  ],
+  "emp_ev_station.c": [
+   "0x3d36d0",
+   "0x3d3720",
+   "0x3d3980",
+   "0x3d39f0"
+  ],
+  "emp_ev_still.c": [
+   "0x32b7b0",
+   "0x32b950"
+  ],
+  "emp_free_setup.c": [
+   "0x38f4b0"
+  ],
+  "emp_sc.c": [
+   "0x3e5970",
+   "0x3e5d80"
+  ],
+  "emp_war_fix.c": [
+   "0x35ed20"
+  ],
+  "emp_war_tl.c": [
+   "0x3e3100",
+   "0x3e4280",
+   "0x3e4480"
+  ],
+  "emp_war_wllt.c": [
+   "0x3e7150"
+  ],
+  "emp_zuroku.c": [
+   "0x3bd2a0"
+  ],
+  "emp_zuroku_bushou.c": [
+   "0x395330"
+  ],
+  "emp_zuroku_graph.c": [
+   "0x395e20"
+  ],
+  "emp_zuroku_movie.c": [
+   "0x3e4cd0"
+  ],
+  "ev_config.c": [
+   "0x20e8c0",
+   "0x20eda0"
+  ],
+  "ev_main.c": [
+   "0x1d9750"
+  ],
+  "ev_message.c": [
+   "0x1db8e0"
+  ],
+  "file.c": [
+   "0x102410"
+  ],
+  "font.c": [
+   "0x147580"
+  ],
+  "sc_ctrl.c": [
+   "0x185d10"
+  ],
+  "sc_sysmsg.c": [
+   "0x23ed90"
+  ],
+  "sc_ubase.c": [
+   "0x19a7b0"
+  ]
+ }
+}

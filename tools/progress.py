@@ -58,9 +58,8 @@ SRC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 FUNCTION_TAG = re.compile(r"/\* 0x([0-9A-Fa-f]{8}), (0x[0-9A-Fa-f]+|\d+) bytes")
 
 
-def decompiled_code():
-    """Bytes of original code covered by the decompiled functions in src/ (non-matching: equivalent
-    C, not verified by compiling). Each function is tagged '/* 0xADDRESS, SIZE bytes'."""
+def decompiled_functions():
+    """{address: size} of the functions decompiled in src/, each tagged '/* 0xADDRESS, SIZE bytes'."""
     seen = {}
     for root, _, files in os.walk(SRC_DIR):
         for name in files:
@@ -68,7 +67,56 @@ def decompiled_code():
                 text = open(os.path.join(root, name), encoding="utf-8").read()
                 for addr, size in FUNCTION_TAG.findall(text):
                     seen[int(addr, 16)] = int(size, 0)
+    return seen
+
+
+def decompiled_code():
+    """Bytes of original code covered by src/ (non-matching: equivalent C, not verified by compiling)."""
+    seen = decompiled_functions()
     return {"matching": 0, "non_matching": sum(seen.values())}, len(seen)
+
+
+CODE_MAP = os.path.join(os.path.dirname(SRC_DIR), "progress", "code_map.json")
+
+
+def code_areas(start, end):
+    """Split the code into areas by original source file, grouped by theme.
+
+    Each source file is placed by the functions that reference its name (progress/code_map.json);
+    a file's estimated range runs from halfway after the previous file's anchors to halfway before
+    the next one's. These ranges are estimates until the files' real boundaries are known."""
+    cmap = json.load(open(CODE_MAP, encoding="utf-8"))
+    anchors = sorted((int(a, 16), name) for name, addrs in cmap["anchors"].items() for a in addrs)
+    runs = []                                    # consecutive anchors of the same file
+    for addr, name in anchors:
+        if runs and runs[-1][0] == name:
+            runs[-1][2] = addr
+        else:
+            runs.append([name, addr, addr])
+    ranges = defaultdict(list)
+    first = runs[0][1]
+    ranges["(start-up and main loop)"].append((start, first))
+    for i, (name, lo, hi) in enumerate(runs):
+        a = first if i == 0 else (runs[i - 1][2] + lo) // 2
+        b = end if i == len(runs) - 1 else (hi + runs[i + 1][1]) // 2
+        ranges[name].append((a, b))
+    done = decompiled_functions()
+
+    def leaf(name):
+        spans = ranges[name]
+        total = sum(b - a for a, b in spans)
+        mine = {f: s for f, s in done.items() if any(a <= f < b for a, b in spans)}
+        where = ", ".join(f"0x{a:06X}-0x{b:06X}" for a, b in spans)
+        return {"name": name, "description": f"Estimated range {where}; {len(mine)} function(s) decompiled",
+                "code": {"total": total, "matching": 0, "non_matching": sum(mine.values())}}
+
+    areas = [leaf("(start-up and main loop)")]
+    areas[0]["description"] = "Runtime start-up, scene manager and main loop. " + areas[0]["description"]
+    for theme, files in cmap["themes"].items():
+        children = [leaf(f) for f in files if f in ranges]
+        if children:
+            areas.append({"name": theme, "children": children})
+    return areas
 
 SKIP_EXTENSIONS = {"IRX", "IMG", "CNF"}
 CONTAINER_KIND = {"ANS": "ANS stream", "CNS": "MPEG2"}
@@ -160,16 +208,16 @@ def build_report(image):
 
     matched, functions = decompiled_code()
     code = {"total": total, **matched}
+    start, _, _ = elf_info.estimate_code(elf)
     return {
         "unit": "bytes",
         "code": code,
         "data": {"total": sum(a["data"]["total"] for a in areas),
                  "done": sum(a["data"]["done"] for a in areas)},
         "layout": "treemap",
-        "areas": [
-            {"name": "Executable", "description": f"{exe} code", "code": code},
-            {"name": "Game data", "description": "Files on the disc, by format",
-             "weight": total, "children": areas},
+        "areas": code_areas(start, start + total) + [
+            {"name": "Game data", "description": "Files on the disc, by format (data only)",
+             "weight": total // 10, "children": areas},
         ],
     }
 
