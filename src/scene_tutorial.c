@@ -1,7 +1,7 @@
 /*
  * scene_tutorial.c - scenes 0x11 and 0x17 (original source file SceneTutorial.c: its name is
- * passed to the file loader at 0x003F4900). Decompiled: 0x003F2A50-0x003F4840; the tutorial
- * window code after it (0x003F4840...) is not yet.
+ * passed to the file loader at 0x003F4900). The whole file is decompiled (0x003F2A50-0x003F5550):
+ * scenes 0x11 and 0x17, then the tutorial window that other scenes open (func_003F4D60).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -787,4 +787,468 @@ void func_003F46B0(void)
     func_003BAB70(func_003BA7F0(0));
     func_003BA8F0(0, func_0032EEB0(), func_002F5CC0(func_0032EEB0()), -1, -1);
     func_0030E090(6);
+}
+
+/* ---- The tutorial window (0x003F4840-0x003F5550) ---- */
+
+typedef unsigned long long u64;
+
+/* A window's animation (0x14 bytes, see battle_menu_draw.c). */
+typedef struct {
+    short x0, y0, w0, h0;
+    short x1, y1, w1, h1;
+    u8 alpha0, alpha1;
+    u8 frames;
+    u8 timer;
+} WindowAnim;
+
+/* The tutorial window (0x2C bytes, allocated by func_003F5430): its animation, the tutorial,
+ * two page buffers loaded in turn, and the page shown. */
+typedef struct {
+    WindowAnim anim;
+    int tutorial;            /* +0x14 (0-0x17) */
+    u8 *page[2];             /* +0x18 the pictures of two pages */
+    u8 loaded[2];            /* +0x20 per buffer: 1 loading, 2 loaded, 3 cancelled */
+    u8 timer;                /* +0x22 */
+    u8 mode;                 /* +0x23 0 closed, 1 open, 2 opening, 3 closing, 4 a page in, 5 a page out */
+    u8 page_no;              /* +0x24 */
+    u8 pages;                /* +0x25 */
+    u8 shown;                /* +0x26 the buffer shown */
+    u8 loading;              /* +0x27 the buffer loaded next */
+    u8 had_box;              /* +0x28 the message box flags were free when it opened */
+    u8 had_list;             /* +0x29 */
+    u8 unknown_2a[2];
+} TutorialWindow;
+
+extern TutorialWindow *g_0045D864;        /* (small data) */
+
+/* Shared menu flags (0x00799A24, see scene_edit.c). */
+extern struct {
+    u8 g_00799A24;
+    u8 pad_0;
+    u8 g_00799A26;
+    u8 pad_1;
+    int g_00799A28;
+    int g_00799A2C;
+    u8 pad_2[0xC];
+    u8 g_00799A3C;
+    u8 pad_3;
+    u8 g_00799A3E;
+    u8 pad_4;
+    int g_00799A40;
+    int g_00799A44;
+} s_00799A24;
+
+/* 0x00500700: the controllers' state, 0x88 bytes per controller (see scene_config.c). */
+typedef struct {
+    u8 unknown_00[0x4C];
+    unsigned short pressed;
+    unsigned short held;
+    u8 unknown_50[0x14];
+    u8 ready;
+    u8 connected;
+    u8 unknown_66[0x22];
+} PadState;
+extern PadState g_00500700[2];
+#define PAD_READY(p) ((g_00500700[p].ready & 1) ? (g_00500700[p].connected & 1) == 1 : 0)
+#define PAD_PRESSED(p) ((unsigned short)(PAD_READY(p) ? g_00500700[p].pressed : 0))
+
+void func_0023AD10(int a, int b, int c, int d, int e);
+#define SE(kind) func_0023AD10((kind), 0, 0x2CDC, 0x2CDC, 0x1000)
+
+#define g_70000154 (*(int *)0x70000154)    /* (scratchpad) the vertical scale */
+#define GS_XYZ(x, y, z) ((u64)(long long)((x) * 16 + 0x7000) |                  \
+                         (u64)(long long)(((y) * 16 - 0xE00) / g_70000154 + 0x8000) << 16 | \
+                         (u64)(z) << 32)
+
+extern int g_0041DA40[16];
+void *func_001026D0(int a, int b, void *to, int d, int e, int f, const void *file, int line);
+int func_00102960(int a);
+int func_00102680(int a, int entry);
+void func_00102990(void);
+void func_00118850(void *to, int size);
+void func_003A1CF0(int tutorial, int a);
+int func_003A1DF0(void);
+int func_001AE550(float speed, WindowAnim *window, short *pos, u8 *alpha, int a);
+u64 *func_00105410(void);
+void func_001054B0(u64 *packet, int a);
+void func_001A4340(int x, int y, int z, int w, int h, u8 alpha, int a);
+void func_001ABA70(u8 *picture, int x, int y, int z, int w, int h, u8 alpha, int a);
+void func_003F4A00(int mode);
+
+/* 0x003F4840, 0x8 bytes, matching. */
+TutorialWindow *func_003F4840(void)
+{
+    return g_0045D864;
+}
+
+/* 0x003F4850, 0x54 bytes. The LINKDATA entry of a tutorial's page (-1 = none). The original
+ * copies a 16-entry table (0x0041DA40) but reads 72 words below it, outside the copy (on the
+ * stack below its own frame); kept as it is. */
+int func_003F4850(int tutorial, u8 page)
+{
+    int table[16];
+    int i;
+
+    for (i = 0; i < 16; i++)
+        table[i] = g_0041DA40[i];
+    return table[tutorial * 4 + page - 72];
+}
+
+/* 0x003F48B0, 0x48 bytes. How many pages a tutorial has (at most 4). */
+int func_003F48B0(int tutorial)
+{
+    int i;
+
+    for (i = 0; i < 4; i++)
+        if (func_003F4850(tutorial, (u8)i) == -1)
+            return i;
+    return 4;
+}
+
+/* 0x003F4900, 0x78 bytes. Starts loading page `page` into the next buffer. */
+void func_003F4900(int tutorial, u8 page)
+{
+    TutorialWindow *w = func_003F4840();
+    int entry = func_003F4850(tutorial, page);
+
+    if (entry != -1) {
+        func_001026D0(1, entry, w->page[w->loading], 0, 0, 0, "SceneTutorial.c", 0x6B);
+        w->loaded[w->loading] = 1;
+    }
+}
+
+/* 0x003F4980, 0x3C bytes, matching. Swaps the buffer shown. */
+void func_003F4980(void)
+{
+    TutorialWindow *w = func_003F4840();
+
+    w->shown++;
+    if (w->shown > 1)
+        w->shown = 0;
+}
+
+/* 0x003F49C0, 0x3C bytes, matching. Swaps the buffer loaded next. */
+void func_003F49C0(void)
+{
+    TutorialWindow *w = func_003F4840();
+
+    w->loading++;
+    if (w->loading > 1)
+        w->loading = 0;
+}
+
+/* The window's animation (inlined). */
+#define WINDOW(w, fx, fy, fw, fh, tx, ty, tw, th) do {                  \
+        (w)->anim.x0 = (fx);                                            \
+        (w)->anim.y0 = (fy);                                            \
+        (w)->anim.w0 = (fw);                                            \
+        (w)->anim.h0 = (fh);                                            \
+        (w)->anim.x1 = (tx);                                            \
+        (w)->anim.y1 = (ty);                                            \
+        (w)->anim.w1 = (tw);                                            \
+        (w)->anim.h1 = (th);                                            \
+    } while (0)
+
+/* 0x003F4A00, 0x2A8 bytes. Sets the window's mode and its animation: 0 closed (everything
+ * reset), 1 open, 2 opening (10 frames), 3 closing (5), 4 the next page fading in (10), 5 the
+ * page fading out (5). */
+void func_003F4A00(int mode)
+{
+    TutorialWindow *w = func_003F4840();
+
+    w->mode = mode;
+    switch (mode) {
+    case 0:
+        w->tutorial = 0;
+        w->timer = 0;
+        w->page_no = 0;
+        w->pages = 0;
+        w->loaded[0] = 0;
+        w->loaded[1] = 0;
+        w->shown = 0;
+        w->loading = 0;
+        WINDOW(w, 0x100, 0xC9, 0, 0, 0x100, 0xC9, 0, 0);
+        w->anim.frames = 0;
+        w->anim.timer = 0;
+        w->anim.alpha0 = 0;
+        w->anim.alpha1 = 0;
+        break;
+    case 1:
+        WINDOW(w, 0x10, 0x3B, 0x1E0, 0x11C, 0x10, 0x3B, 0x1E0, 0x11C);
+        w->anim.frames = 0;
+        w->anim.timer = 0;
+        w->anim.alpha0 = 0x80;
+        w->anim.alpha1 = 0x80;
+        break;
+    case 2:
+        w->timer = 0;
+        w->shown = 0;
+        w->loading = 0;
+        WINDOW(w, 0x100, 0xC9, 0, 0, 0x100, 0xC9, 0, 0);
+        w->anim.frames = 0;
+        w->anim.timer = 0;
+        w->anim.alpha0 = 0;
+        w->anim.alpha1 = 0;
+        w->anim.x1 = 0x10;
+        w->anim.y1 = 0x3B;
+        w->anim.w1 = 0x1E0;
+        w->anim.h1 = 0x11C;
+        w->anim.alpha1 = 0x80;
+        w->anim.frames = 10;
+        break;
+    case 3:
+        w->timer = 0;
+        WINDOW(w, 0x10, 0x3B, 0x1E0, 0x11C, 0x10, 0x3B, 0x1E0, 0x11C);
+        w->anim.frames = 0;
+        w->anim.timer = 0;
+        w->anim.alpha0 = 0x80;
+        w->anim.alpha1 = 0x80;
+        w->anim.x1 = 0x100;
+        w->anim.y1 = 0xC9;
+        w->anim.w1 = 0;
+        w->anim.h1 = 0;
+        w->anim.alpha1 = 0;
+        w->anim.frames = 5;
+        break;
+    case 4:
+        func_003F4980();
+        w->timer = 0;
+        WINDOW(w, 0x10, 0x3B, 0x1E0, 0x11C, 0x10, 0x3B, 0x1E0, 0x11C);
+        w->anim.frames = 0;
+        w->anim.timer = 0;
+        w->anim.alpha0 = 0;
+        w->anim.alpha1 = 0;
+        WINDOW(w, 0x10, 0x3B, 0x1E0, 0x11C, 0x10, 0x3B, 0x1E0, 0x11C);
+        w->anim.alpha1 = 0x80;
+        w->anim.frames = 10;
+        break;
+    case 5:
+        w->timer = 0;
+        WINDOW(w, 0x10, 0x3B, 0x1E0, 0x11C, 0x10, 0x3B, 0x1E0, 0x11C);
+        w->anim.frames = 0;
+        w->anim.timer = 0;
+        w->anim.alpha0 = 0x80;
+        w->anim.alpha1 = 0x80;
+        WINDOW(w, 0x10, 0x3B, 0x1E0, 0x11C, 0x10, 0x3B, 0x1E0, 0x11C);
+        w->anim.alpha1 = 0;
+        w->anim.frames = 5;
+        break;
+    }
+}
+
+/* 0x003F4CB0, 0x68 bytes. Whether the window is shown (modes 1-5). */
+int func_003F4CB0(void)
+{
+    TutorialWindow *w = func_003F4840();
+
+    if (w == 0)
+        return 0;
+    switch (w->mode) {
+    case 0:
+        return 0;
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+        return 1;
+    }
+    return 0;                                     /* (the original returns an unset register) */
+}
+
+/* 0x003F4D20, 0x1C bytes, matching. Marks a tutorial as seen. */
+void func_003F4D20(int tutorial)
+{
+    func_003A1CF0(tutorial, 1);
+}
+
+/* 0x003F4D40, 0x1C bytes, matching. */
+int func_003F4D40(void)
+{
+    return func_003A1DF0();
+}
+
+/* 0x003F4D60, 0x104 bytes. Opens tutorial `tutorial` (at most 0x17) unless func_003F4D40
+ * holds: marks it seen, takes the message box and list flags, opens the window and loads its
+ * first page. */
+int func_003F4D60(int tutorial)
+{
+    TutorialWindow *w = func_003F4840();
+
+    if (w == 0 || func_003F4D40() != 0)
+        return 0;
+    func_003A1CF0(tutorial, 1);
+    if (tutorial > 0x17)
+        tutorial = 0x17;
+    w->tutorial = tutorial;
+    w->page_no = 0;
+    w->pages = func_003F48B0(w->tutorial);
+    w->had_box = s_00799A24.g_00799A2C == 0;
+    w->had_list = s_00799A24.g_00799A44 == 0;
+    s_00799A24.g_00799A28 = 0;
+    s_00799A24.g_00799A2C = 1;
+    s_00799A24.g_00799A44 = 1;
+    s_00799A24.g_00799A40 = 0;
+    s_00799A24.g_00799A24 = s_00799A24.g_00799A26;
+    s_00799A24.g_00799A3C = s_00799A24.g_00799A3E;
+    func_003F4A00(2);
+    func_003F4900(w->tutorial, w->page_no);
+    return 1;
+}
+
+/* 0x003F4E70, 0x30 bytes, matching. Whether the next buffer is loading. */
+int func_003F4E70(void)
+{
+    TutorialWindow *w = func_003F4840();
+
+    return w->loaded[w->loading] == 1;
+}
+
+/* 0x003F4EA0, 0x2C bytes. Whether buffer `i` is loaded. */
+int func_003F4EA0(u8 i)
+{
+    return func_003F4840()->loaded[i] == 2;
+}
+
+/* 0x003F4ED0, 0x2C bytes, matching. */
+void func_003F4ED0(void)
+{
+    TutorialWindow *w = func_003F4840();
+
+    w->loaded[w->loading] = 2;
+}
+
+/* 0x003F4F00, 0x38 bytes, matching. Cancels the load. */
+void func_003F4F00(void)
+{
+    TutorialWindow *w = func_003F4840();
+
+    func_00102990();
+    w->loaded[w->loading] = 3;
+}
+
+/* 0x003F4F40, 0x1D4 bytes. Draws the window: the screen darkened (alpha / 4), the frame, and
+ * the page shown once loaded. */
+void func_003F4F40(void)
+{
+    TutorialWindow *w = func_003F4840();
+    short pos[4];
+    u8 alpha, frame_alpha;
+    int dark;
+    u64 *p;
+
+    if (w == 0 || w->mode == 0)
+        return;
+    func_001AE550(1.0f, &w->anim, pos, &alpha, 0);
+    dark = (alpha * 0x20) >> 7;
+    frame_alpha = alpha;
+    if ((u32)(w->mode - 4) < 2) {
+        frame_alpha = 0x80;
+        dark = 0x20;
+    }
+    p = func_00105410();
+    p[3] = (u64)(long long)dark << 24 | 0x3F80000000000000ULL;
+    p[4] = GS_XYZ(0, 0, 0xFFFE);
+    p[5] = GS_XYZ(0x200, 0x1C0, 0xFFFE);
+    func_001054B0(p, 3);
+    func_001A4340(pos[0], pos[1], 0, pos[2], pos[3], frame_alpha, 3);
+    if (func_003F4EA0(w->shown) != 0)
+        func_001ABA70(w->page[w->shown], pos[0], pos[1], 0, pos[2], pos[3], alpha, 3);
+}
+
+/* 0x003F5120, 0x2E8 bytes. Steps the window (controller `port`): finishes the loads, preloads
+ * the next page, runs the animations; while open, OK turns the page or closes the window on the
+ * last one. Gives 0 when closed, 2 the frame it closes, else 1. */
+int func_003F5120(int port)
+{
+    TutorialWindow *w = func_003F4840();
+
+    if (w == 0 || w->mode == 0)
+        return 0;
+    if (func_003F4E70() != 0 && func_00102960(0) != 0)
+        func_003F4ED0();
+    if (func_003F4EA0(w->loading) != 0 && w->shown == w->loading && w->page_no < w->pages - 1) {
+        func_003F49C0();
+        func_003F4900(w->tutorial, w->page_no + 1);
+    }
+    if (w->mode == 2 || w->mode == 4) {
+        w->timer++;
+        if (w->timer > 9)
+            func_003F4A00(1);
+        return 1;
+    }
+    if (w->mode == 5) {
+        w->timer++;
+        if (w->timer > 4)
+            func_003F4A00(4);
+        return 1;
+    }
+    if (w->mode == 3) {
+        w->timer++;
+        if (w->timer < 5)
+            return 1;
+        if (w->had_box == 1) {
+            s_00799A24.g_00799A24 = s_00799A24.g_00799A26;
+            s_00799A24.g_00799A28 = 1;
+            s_00799A24.g_00799A2C = 0;
+            w->had_box = 0;
+        }
+        if (w->had_list == 1) {
+            s_00799A24.g_00799A40 = 1;
+            s_00799A24.g_00799A44 = 0;
+            s_00799A24.g_00799A3C = s_00799A24.g_00799A3E;
+            w->had_list = 0;
+        }
+        func_003F4A00(0);
+        return 2;
+    }
+    if (func_003F4EA0(w->shown) == 0)
+        return 1;
+    if (PAD_PRESSED(port) & 0x40) {
+        if (w->page_no >= w->pages - 1) {
+            SE(1);
+            func_003F4A00(3);
+            return 1;
+        }
+        SE(1);
+        w->page_no++;
+        func_003F4A00(5);
+    }
+    return 1;
+}
+
+/* 0x003F5410, 0x1C bytes, matching. */
+int func_003F5410(void)
+{
+    return func_003F5120(0);
+}
+
+/* 0x003F5430, 0x88 bytes. Creates the window and its two page buffers (the size of LINKDATA
+ * entry 0x91, rounded up to 0x800). */
+void func_003F5430(void)
+{
+    g_0045D864 = func_00102DB0(0x10, 0x2C);
+    func_00118850(g_0045D864, 0x2C);
+    g_0045D864->page[0] = func_00102DB0(0x40, (func_00102680(1, 0x91) + 0x7FF) & ~0x7FF);
+    g_0045D864->page[1] = func_00102DB0(0x40, (func_00102680(1, 0x91) + 0x7FF) & ~0x7FF);
+    func_003F4A00(0);
+}
+
+/* 0x003F54C0, 0x90 bytes, matching. Frees the window (cancelling a load). */
+void func_003F54C0(void)
+{
+    if (g_0045D864 == 0)
+        return;
+    if (func_003F4E70() != 0)
+        func_003F4F00();
+    if (g_0045D864->page[1] != 0)
+        func_00102EC0(g_0045D864->page[1]);
+    g_0045D864->page[1] = 0;
+    if (g_0045D864->page[0] != 0)
+        func_00102EC0(g_0045D864->page[0]);
+    g_0045D864->page[0] = 0;
+    if (g_0045D864 != 0)
+        func_00102EC0(g_0045D864);
+    g_0045D864 = 0;
 }

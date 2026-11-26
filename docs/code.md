@@ -470,6 +470,26 @@ the code before it handles object actions (`ObjAction.c`). No source file name i
   - 9 and 10: two lists;
   - 15: a mission text (messages `func_00372CF0` 0-11).
 
+## The tutorial window (`src/scene_tutorial.c`, 0x003F4840-0x003F5550)
+
+The window is the end of `SceneTutorial.c`: 20 functions, 10 of which match. Other scenes
+open it with `func_003F4D60(tutorial)`; for example, the Empire start-up opens tutorials 0x12
+and 0x13.
+
+- **Its state** is a 0x2C-byte object (`g_0045D864`, created by `func_003F5430`): a window
+  animation record, the tutorial (0-0x17), two page buffers, the page shown and the page count.
+  The buffers are sized for LINKDATA entry 0x91 and filled in turn.
+- **Pages:** a tutorial has up to four. Each page is a LINKDATA entry (-1 = none), and the next
+  page is loaded while the current one is shown. The table lookup `func_003F4850` reads below
+  its copy of the table at `0x0041DA40` (an original bug, kept as it is).
+- **Modes:** 0 closed, 1 open, 2 opening, 3 closing, 4 a page fading in, 5 a page fading out.
+  While the window is open, OK turns the page; on the last page it closes the window. The window
+  takes the message box and list flags while it is open and gives them back when it closes.
+- **Draw:** the screen is darkened, then the frame (`func_001A4340`) and the page picture
+  (`func_001ABA70`) are drawn.
+- **Update:** `func_003F5120` returns 0 when the window is closed, 2 on the frame it closes,
+  and 1 otherwise. The scenes wait while it returns non-zero.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
