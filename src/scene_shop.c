@@ -316,7 +316,7 @@ extern int g_0045D56C;               /* (gp - 0x7684) officer shown by the skill
 
 void func_00376100(int a, int b, int c);
 void func_002A86A0(int value);
-int func_0036DC30(u32 officer, u8 skill);
+int func_0036DC30(u32 officer, int skill);
 
 /* Button help lines (0xF0 + letter = a button icon). */
 
@@ -955,23 +955,25 @@ void func_002A3580(int player)
 
 #define SKILL_HEADER 0xFF   /* cursor on the header row above the skill columns */
 
-/* 0x002A3920, 0x484 bytes. Mode 9 (screen 9, "All Skills / Own Skills  Select  Back"): the skill
+/* 0x002A3920, 0x484 bytes, matching. Mode 9 (screen 9, "All Skills / Own Skills  Select  Back"): the skill
  * list, 4 columns of 10 (cursor g_00773187, column = cursor / 10), with a header row above
  * (g_00773188 remembers the column). L1/R1 swap between all skills and the officer's own skills.
  * Cancel or the third button go back to the mode the list was opened from. */
 void func_002A3920(int player)
 {
     int pressed, held;
-    u8 cursor = g_00773187;
 
     read_pad_fixed(player, pressed, held);
-    if ((pressed & BTN_CANCEL) || (pressed & BTN_EXTRA)) {
+    if (pressed & BTN_CANCEL) {
+        func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
+        func_0029FDB0(g_00773150);
+    } else if (pressed & BTN_EXTRA) {
         func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         func_0029FDB0(g_00773150);
     } else if (pressed & BTN_L1R1) {
         func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
-        g_007731A0 = (g_007731A0 == 0);
-        if (g_007731A0 != 0 && func_0036DC30(func_0029FD70(), g_00773187) != 0)
+        g_007731A0 = !g_007731A0;
+        if (g_007731A0 != 0 && func_0036DC30(func_0029FD70(), (int)g_00773187) != 0)
             func_002A86A0(0x11);
     } else if (held & BTN_DOWN) {
         if (g_00773187 == SKILL_HEADER) {
@@ -985,8 +987,8 @@ void func_002A3920(int player)
         }
     } else if (held & BTN_UP) {
         if (g_00773187 % 10 == 0) {
+            g_00773188 = g_00773187 / 10;
             g_00773187 = SKILL_HEADER;
-            g_00773188 = cursor / 10;
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             func_002A86A0(0x11);
         } else if (g_00773187 != SKILL_HEADER) {
@@ -1001,7 +1003,7 @@ void func_002A3920(int player)
             func_002A86A0(0x11);
         }
     } else if (held & BTN_LEFT) {
-        if (g_00773187 != SKILL_HEADER && g_00773187 > 9) {
+        if (g_00773187 != SKILL_HEADER && g_00773187 >= 10) {
             func_0023AD10(0, 0, SE_CURSOR, SE_CURSOR, 0x1000);
             g_00773187 -= 10;
             func_002A86A0(0x11);
