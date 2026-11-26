@@ -91,7 +91,7 @@ u32 func_003519E0(void);
 u32 func_0035F2D0(int side);
 int func_0033BA60(u8 **group);
 u8 **func_0035DD10(int side);
-void func_0035D2D0(u8 group);
+void func_0035D2D0(u32 group);
 u32 func_001D22D0(int a);
 u8 **func_003E2D90(int a, u32 i);
 u8 **func_0033F1A0(u8 **unit);
@@ -99,7 +99,7 @@ u32 func_0033B7B0(u8 **group);
 u32 func_0035F200(int a);
 u32 func_0034EC80(u32 target);
 int func_0033CB60(u8 **group, u32 target);
-void func_0035D300(u8 group, int won);
+void func_0035D300(u32 group, int won);
 void func_0035D330(void);
 
 /* 0x003F5550, 0x8 bytes, matching. */
@@ -542,7 +542,7 @@ void func_003F65F0(void)
         func_003F65B0();
 }
 
-/* 0x003F6630, 0x78 bytes. When a free battle starts: maybe offers a mission (func_0035D2D0
+/* 0x003F6630, 0x78 bytes, matching. When a free battle starts: maybe offers a mission (func_0035D2D0
  * announces it), then builds its text. */
 void func_003F6630(void)
 {
@@ -649,14 +649,14 @@ int func_003F6910(void)
     return goals[func_003F55E0()]();
 }
 
-/* 0x003F69A0, 0x30 bytes. The mission is won. */
+/* 0x003F69A0, 0x30 bytes, matching. The mission is won. */
 void func_003F69A0(void)
 {
     func_0035D300(func_003F5560(), 1);
     func_003F5610(2);
 }
 
-/* 0x003F69D0, 0x30 bytes. The mission is lost. */
+/* 0x003F69D0, 0x30 bytes, matching. The mission is lost. */
 void func_003F69D0(void)
 {
     func_0035D300(func_003F5560(), 0);

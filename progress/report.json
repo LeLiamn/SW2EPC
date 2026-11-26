@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 51840,
-    "non_matching": 214840
+    "matching": 52056,
+    "non_matching": 214624
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10621,
-    "matching": 405
+    "matching": 408
   },
   "layout": "treemap",
   "areas": [
@@ -167,8 +167,8 @@
           "description": "Estimated range 0x3EDD28-0x3F6A18; 103 function(s) decompiled",
           "code": {
             "total": 36080,
-            "matching": 3428,
-            "non_matching": 12388
+            "matching": 3644,
+            "non_matching": 12172
           }
         }
       ]
