@@ -159,6 +159,28 @@ officer's skills in 4 columns of 10. Original quirks kept: a dead test in the ma
 list that can stop on a locked mount. The functions after `0x001E95F0` seem to belong to the next
 source file.
 
+## Sony libraries and C runtime (compiled with another compiler)
+
+Besides the game's own code (CodeWarrior), the executable links Sony's EE libraries, release 3.0
+(version strings `PsIIlibcdvd 3000`, `libdma 3000`, `libgraph 3000`, `libipu 3000`, `libkernl 3000`,
+`libmc 3020`, `libpad 3020`, `libvu0 3000`), a C library (`vfprintf`, the `SceStdio...` semaphores of
+Sony's stdio) and one sound module (`sd_call.c`). Their code is not written like the game's: they
+save callee-saved registers with 64-bit `sd`, where CodeWarrior code uses 128-bit `sq`. Sony built
+these libraries with its GCC (ee-gcc 2.9x), so they could be matched locally with that compiler
+(GPL, no license); not verified yet.
+
+Functions grouped by that save style (leaf functions counted with their neighbours):
+
+| Range | Size | Contents |
+|---|---|---|
+| `0x107578`-`0x114C10` | 54 KB | few strings; `sd_call.c` (sound RPC, `0x10FAC8`), probably maths and runtime code |
+| `0x118E98`-`0x1206AC` | 29 KB | libcdvd (`0x1194A0`...), libdma (`0x11AEF8`) |
+| `0x120E00`-`0x143964` | 128 KB | C library (printf family), libkernl (TTY, SIF RPC `0x12B880`, `rom0:UDNL` `0x131510`), libgraph (`0x126178`, `0x126908`), libipu (`0x13A878`, `0x13C0C8`), libmc (`0x141348`, `0x142038`) |
+| `0x1708A8`-`0x171FA4` | 4.5 KB | libpad (`0x1708A8`, `0x170D00`), linked among the game's files |
+| `0x403D30`-`0x405028` | 2.7 KB | end of the code, no strings (compiler runtime?) |
+
+In all, about 218 KB, 6.9 % of the code. The ranges are estimates from the register-save style.
+
 ## Where each source file is
 
 The game's code names 68 source files in assertion strings; 66 of them are referenced by
