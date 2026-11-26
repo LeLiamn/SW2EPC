@@ -127,8 +127,7 @@ void func_00106810(void)
     func_001014D0(1);
 }
 
-/*
- * 0x001005A0, 0x2C4 bytes. Runs the scene manager until the game quits, then returns its result.
+/* 0x001005A0, 0x2C4 bytes. Runs the scene manager until the game quits, then returns its result.
  * This is where each frame of the game happens (main's loop calls it until it returns non-zero).
  */
 int func_001005A0(void)
