@@ -265,6 +265,10 @@ def main():
         fh.write(text)
     print(f"Wrote {out}: code {report['code']['matching']}/{report['code']['total']} bytes, "
           f"data {report['data']['done']}/{report['data']['total']} bytes")
+    # Our own badges, history and summary (tools/badges.py), independent of decompilati.onl.
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import badges
+    badges.main()
 
 
 if __name__ == "__main__":

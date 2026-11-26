@@ -1,9 +1,12 @@
 # SW2EPC
 
-[![Decompiled](https://decompilati.onl/badge/samurai-warriors-2-empire.svg)](https://decompilati.onl/projects/samurai-warriors-2-empire)
-[![Matching](https://decompilati.onl/badge/samurai-warriors-2-empire/matching.svg)](https://decompilati.onl/projects/samurai-warriors-2-empire)
-[![Functions](https://decompilati.onl/badge/samurai-warriors-2-empire/functions.svg)](https://decompilati.onl/projects/samurai-warriors-2-empire)
-[![Data](https://decompilati.onl/badge/samurai-warriors-2-empire/data.svg)](https://decompilati.onl/projects/samurai-warriors-2-empire)
+[![Decompiled](progress/badges/decompiled.svg)](progress/PROGRESS.md)
+[![Matching](progress/badges/matching.svg)](progress/PROGRESS.md)
+[![Functions](progress/badges/functions.svg)](progress/PROGRESS.md)
+[![Data](progress/badges/data.svg)](progress/PROGRESS.md)
+
+Progress is tracked in this repository ([progress/PROGRESS.md](progress/PROGRESS.md), with its
+history) and also sent to [decompilati.onl](https://decompilati.onl/projects/samurai-warriors-2-empire).
 
 A preservation project for **Samurai Warriors 2: Empires** (PS2, Omega Force / Koei, 2006):
 documentation of its file formats, extraction tools, and a decompilation of the PS2 executable.
@@ -62,7 +65,8 @@ documentation of its file formats, extraction tools, and a decompilation of the 
 | `tools/elf_info.py` | Sections, symbols, compiler and code size of an executable |
 | `tools/find_strings.py` | Readable strings of a binary, with a report of file names |
 | `tools/mips_disasm.py` | Minimal MIPS (R5900) disassembler for quick looks |
-| `tools/progress.py` | Build a progress report in the decompilati.onl format |
+| `tools/progress.py` | Build a progress report in the decompilati.onl format (also runs `tools/badges.py`) |
+| `tools/badges.py` | Our own progress badges, history (`progress/history.csv`) and `progress/PROGRESS.md` |
 
 ## Documentation
 
