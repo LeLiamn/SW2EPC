@@ -45,3 +45,6 @@ CLAUDE.md
 # Ghidra install and projects (local tools, never committed)
 /ghidra_*/
 *.gpr
+
+# Local compiler binaries (never commit)
+/Matching/
