@@ -41,8 +41,7 @@ writes `build/decompme/<ADDR>/` (git-ignored: the assembly comes from the game's
 |---|---|
 | `target.s` | "Target assembly" when creating the scratch |
 | `context.h` | the scratch's "Context" tab |
-| `code.c` | the scratch's "Source" tab (add `#pragma tailcall off` and
-`#pragma no_branch_likely on` at the top) |
+| `code.c` | the scratch's "Source" tab, with `#pragma tailcall off` and `#pragma no_branch_likely on` at the top |
 
 Scratches are public on decomp.me.
 
