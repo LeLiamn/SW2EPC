@@ -538,6 +538,9 @@ void func_002DBAB0(void);
 #define pad1_ready() ((g_00500764 & 1) ? (g_00500765 & 1) == 1 : 0)
 #define pad1_pressed() ((unsigned short)(pad1_ready() ? g_0050074C : 0))
 #define pad1_held() ((unsigned short)(pad1_ready() ? g_0050074E : 0))
+#define pad2_ready() ((g_005007EC & 1) ? (g_005007ED & 1) == 1 : 0)
+#define pad2_pressed() ((unsigned short)(pad2_ready() ? g_005007D4 : 0))
+#define pad2_held() ((unsigned short)(pad2_ready() ? g_005007D6 : 0))
 
 /* 0x001E44C0, 0x220 bytes, matching. Page 1: a three-entry sub-menu opening pages 5, 6 and 7. */
 void func_001E44C0(void)
@@ -651,12 +654,12 @@ void func_001E4E70(void)
     }
 }
 
-/* 0x001E5060, 0x154 bytes. Page 6: press OK on controller 1 or 2; remembers which one, then
+/* 0x001E5060, 0x154 bytes, matching. Page 6: press OK on controller 1 or 2; remembers which one, then
  * opens page 9. */
 void func_001E5060(void)
 {
-    unsigned short pad1 = pad1_pressed();
-    unsigned short pad2 = ((g_005007EC & 1) ? (g_005007ED & 1) == 1 : 0) ? g_005007D4 : 0;
+    int pad1 = pad1_pressed();
+    int pad2 = pad2_pressed();
 
     if (pad1 & BTN_OK) {
         func_0023AD10(1, 0, SE_CURSOR, SE_CURSOR, 0x1000);
@@ -799,9 +802,8 @@ void func_001E51C0(void)
         pressed = pad1_pressed();
         held = pad1_held();
     } else if (g_00731208 == 1) {
-        int ready = (g_005007EC & 1) && (g_005007ED & 1) == 1;
-        pressed = ready ? g_005007D4 : 0;
-        held = ready ? g_005007D6 : 0;
+        pressed = pad2_pressed();
+        held = pad2_held();
     } else {
         return;
     }
@@ -863,9 +865,8 @@ void func_001E5750(void)
         pressed = pad1_pressed();
         held = pad1_held();
     } else if (g_00731208 == 1) {
-        int ready = (g_005007EC & 1) && (g_005007ED & 1) == 1;
-        pressed = ready ? g_005007D4 : 0;
-        held = ready ? g_005007D6 : 0;
+        pressed = pad2_pressed();
+        held = pad2_held();
     } else {
         return;
     }
