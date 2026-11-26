@@ -688,6 +688,25 @@ table at `0x00400C30` gives each module's offset and size in quadwords. The file
 the EE's memory, and each module is copied to the IOP by DMA and started there. A module that
 fails to start is tried again.
 
+## TIM2 textures (`src/texture.c`)
+
+The code at 0x00106840-0x00107574, after `main.c` and before Sony's libraries, has 22
+functions, 11 of which match. The first three are the frame's steps: the start (the random seed
+moves on, the pads are read) and the end (the GS packets go out). They may belong to `main.c`'s
+file. The rest loads TIM2 files into the GS memory:
+
+- **Check:** `func_00106E00` accepts version 4, format 0, one picture. Pictures with mipmaps
+  are not loaded.
+- **Loading:** the pixels and every CLUT are loaded straight away by Sony's image transfer; the
+  vblank flip is held meanwhile. The CLUTs follow the same layout as in `gs_packet.c`: 8-bit
+  pictures have 16 x 16 entries, 4 buffers apart; 4-bit pictures have 8 x 2 entries, 1 apart.
+  Their colours are 32-bit or 16-bit.
+- **Sizes:** `func_00106AA0` rounds a texture up to the GS memory's layout (blocks while it fits
+  in a page, then whole pages), so that callers can place the next texture right after it.
+- **TEX0:** the functions return the value to draw with. It holds the base, the buffer width
+  (rounded to 128 pixels for 4-bit and 8-bit pictures), the format, the log2 of the size,
+  colours with alpha, and the CLUT's base and format.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
