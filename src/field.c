@@ -21,6 +21,8 @@ typedef unsigned int u32;
 #define S32(o, off) (*(int *)((u8 *)(o) + (off)))
 #define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
 
+float fabsf(float x);
+
 #pragma opt_unroll_loops on
 
 extern u8 g_005BD750[5][0x5C8];          /* the map objects */
@@ -29,6 +31,7 @@ extern const char g_004251D0[];          /* "Field.c" */
 extern u32 g_00424F20[];                 /* the map files by map number */
 extern u32 g_00424F30[];                 /* the map files by scenario map */
 extern u8 g_00669D60[];                  /* the settings */
+extern u32 g_00669F60[4];                /* (settings) +0: the battle flags */
 extern u32 g_00669DB8[4];                /* (settings) +0: the game mode */
 extern u32 g_00669DC0[2];                /* (settings) +0: the scenario */
 extern u32 g_00669DD4[5];                /* (settings) the five maps of mode 2 */
@@ -783,4 +786,183 @@ int func_0018F800(u8 *cell, int dir)
     if (e == 0)
         return 0;
     return (U8(e, dir + 0x18) & 1) != 0;
+}
+
+#define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+
+
+
+void func_0027DE50(u8 a, u16 *p, u16 *q);
+void func_0022B9B0(u8 *map, u8 *cell, u8 *next);
+void func_0018E350(u8 *cell, int dir);
+void func_0027DF90(u8 a, u16 *p, u16 *q, float *pos, float *dir);
+void func_002E6410(float yaw, float *pos, u8 a);
+void func_0018F9A0(u8 *cell, u32 dir);
+int func_0018FC00(u8 *cell, int dir, char kind);
+void func_0018FF30(u8 *cell, int dir, float *pos, float *v);
+void func_001902D0(int a);
+
+/* The current map number (mode 2: one of five by the counter). */
+#define CUR_MAP() (g_00669DB8[0] == 2 ? (int)g_00669DD4[g_00669F98[0] % 5] : (int)g_00669DD4[0])
+
+/* 0x0018F890, 0x10C bytes. Opens or closes (`kind`) the link `dir` of `cell`; on the first 39
+ * maps an opening (kinds 0, 1) is shown (func_0018F9A0). Whether it changed. */
+int func_0018F890(u8 *cell, int dir, char kind)
+{
+    int show;
+
+    if (func_0018FC00(cell, dir, kind) == 0)
+        return 0;
+    show = CUR_MAP() < 0x27 && (kind == 1 || kind == 0);
+    if (show)
+        func_0018F9A0(cell, dir);
+    return 1;
+}
+
+/* 0x0018F9A0, 0x260 bytes. Shows the gate at link `dir` of `cell` opening (once: battle flag
+ * 0x400000): the camera looks at it along the link's direction. */
+void func_0018F9A0(u8 *cell, u32 dir)
+{
+    u8 c[2], c2[2], *e, b;
+    float pos[4], v[4], yaw;
+
+    if (g_00669F60[0] & 0x400000)
+        return;
+    if ((int)dir < 4) {
+        c[0] = cell[0];
+        c[1] = cell[1];
+    } else {
+        c[0] = cell[0] + g_00424EF0[dir];
+        c[1] = cell[1] + g_00424F10[dir];
+        dir = (dir + 4) & 7;
+    }
+    e = province_at(g_0045D2F0, c);
+    b = U8(PTR(e, 0), dir + 0x28);
+    if (b & 0x40) {
+        c2[0] = c[0] + g_00424EF0[dir];
+        c2[1] = c[1] + g_00424F10[dir];
+        func_0018FF30(c2, (dir + 4) & 7, pos, v);
+    } else {
+        func_0018FF30(c, dir, pos, v);
+    }
+    if (fabsf(v[2] - 1.0f) < 0.0001f)
+        yaw = 0.0f;
+    else if (fabsf(v[0] - 1.0f) < 0.0001f)
+        yaw = 1.5707964f;
+    else if (fabsf(v[2] + 1.0f) < 0.0001f)
+        yaw = 3.1415927f;
+    else if (fabsf(v[0] + 1.0f) < 0.0001f)
+        yaw = -1.5707964f;
+    else
+        yaw = 0.0f;
+    g_00669F60[0] |= 0x400000;
+    func_002E6410(yaw, pos, b & 0x3F);
+}
+
+/* 0x0018FC00, 0x32C bytes. Opens (`kind` 0 or 2) or closes (1 or 3) the link `dir` between
+ * `cell` and its neighbour (flags 0x18 of both sides); an opening relaxes the route tables, a
+ * closing restores the links' file state and marks the routes to be rebuilt (+0x56). Whether
+ * it changed. */
+int func_0018FC00(u8 *cell, int dir, char kind)
+{
+    u8 *m = g_0045D2F0, *a, *b, d[2];
+    int open;
+    u16 pa, pb;
+    u32 back = (dir + 4) & 7;
+
+    d[0] = cell[0] + g_00424EF0[dir];
+    d[1] = cell[1] + g_00424F10[dir];
+    a = province_at(g_0045D2F0, cell);
+    b = province_at(g_0045D2F0, d);
+    if (a == 0 || b == 0)
+        return 0;
+    open = !(kind == 3 || kind == 1) && (kind == 2 || kind == 0);
+    pa = U16(PTR(a, 0), 6);
+    pb = U16(PTR(b, 0), 6);
+    if ((U8(a, dir + 0x18) & 0x18) == 0) {
+        if (!open)
+            return 0;
+        func_0027DE50(U8(PTR(b, 0), 9), &pa, &pb);
+        U8(a, dir + 0x18) |= 0x18;
+        U8(b, back + 0x18) |= 0x18;
+        func_0018E060(m, PROV_INDEX(m, a), PROV_INDEX(m, b), dir);
+        func_0018E060(m, PROV_INDEX(m, b), PROV_INDEX(m, a), back);   /* (the reverse link?) */
+    } else {
+        if (open)
+            return 0;
+        func_0027DE50(U8(PTR(b, 0), 9), &pa, &pb);
+        U8(a, dir + 0x18) = (U8(a, dir + 0x18) & ~0x18) | U8(PTR(a, 0), dir + 0x10);
+        U8(b, back + 0x18) = (U8(b, back + 0x18) & ~0x18) | U8(PTR(b, 0), back + 0x10);
+        U8(m, 0x56) |= 3;
+        U8(m, 0x57) = 0;
+    }
+    func_0018E350(cell, dir);
+    func_0022B9B0(m, cell, d);
+    return 1;
+}
+
+/* 0x0018FF30, 0x12C bytes. The position and direction of the gate at link `dir` of `cell`
+ * (func_0027DF90). */
+void func_0018FF30(u8 *cell, int dir, float *pos, float *v)
+{
+    u8 d[2], *a, *b;
+    u16 pa, pb;
+
+    d[0] = cell[0] + g_00424EF0[dir];
+    d[1] = cell[1] + g_00424F10[dir];
+    a = province_at(g_0045D2F0, cell);
+    b = province_at(g_0045D2F0, d);
+    pa = U16(PTR(a, 0), 6);
+    pb = U16(PTR(b, 0), 6);
+    func_0027DF90(U8(PTR(b, 0), 9), &pa, &pb, pos, v);
+}
+
+/* 0x00190060, 0x240 bytes. Opens or closes (`kind`) every gate link of the map; on the first
+ * 39 maps one of the opened ones, at random, is shown. */
+void func_00190060(u32 kind)
+{
+    u8 *m = g_0045D2F0;
+    u32 n = U8(g_0045D2F0, 0xF9), i;
+    u16 *cells;
+    u8 *dirs;
+    int found = 0;
+
+    if (n == 0)
+        return;
+    cells = func_00102D30(n << 1);
+    dirs = func_00102D30(n);
+    for (i = 0; i < U8(m, 0x54); i++) {
+        u8 *e = PTR(m, 0x50) + i * 0x88;
+        int d;
+
+        for (d = 0; d < 4; d++) {
+            u16 c = U16(PTR(e, 0), 4);
+
+            if ((U8(e, d + 0x18) & 1) && func_0018FC00((u8 *)&c, d, (char)kind) != 0) {
+                dirs[found] = (u8)d;
+                cells[found] = c;
+                found++;
+            }
+        }
+    }
+    if (CUR_MAP() < 0x27 && ((kind & 0xFF) == 1 || (kind & 0xFF) == 0)) {
+        int k = found == 0 ? 0 : (int)RANDOM() % found;
+
+        func_0018F9A0((u8 *)&cells[k], dirs[k]);
+    }
+    func_00102EC0(cells);
+    func_00102EC0(dirs);
+}
+
+/* 0x001902A0, 0x10 bytes. Whether the routes must be rebuilt. */
+int func_001902A0(void)
+{
+    return U8(g_0045D2F0, 0x56) != 0;
+}
+
+/* 0x001902B0, 0x20 bytes. func_001902D0(480000). */
+void func_001902B0(void)
+{
+    func_001902D0(480000);
 }
