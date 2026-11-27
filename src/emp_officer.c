@@ -534,7 +534,6 @@ void func_002F4610(u32 i);
 int func_002F4660(u32 i);
 void func_002F46D0(u32 i, int v);
 void func_002F4760(u32 i, int n);
-int func_002F4A70(u32 i);
 void func_002F4B70(u32 i, int n);
 int func_002F4BB0(u32 i, int v);
 int func_002F4C40(u32 i);
@@ -622,6 +621,37 @@ int func_002F76B0(u32 i, u32 j);
 int func_002F77A0(u32 i, u32 j);
 int func_002F77F0(u32 i, u32 j);
 int func_002F78C0(u32 i, u32 j);
+int func_002F7900(u32 i, u32 j);
+int func_002F7AD0(u32 i, u32 j, u32 a, u32 b);
+u32 *func_002F7B10(void);
+void func_002F7B20(int a, u32 *l, int n);
+void func_002F7C40(u32 *l, int n);
+int func_002F7CE0(u32 i, u32 j);
+int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort);
+int func_002F7EC0(u32 i, int f);
+int func_002F7F80(u32 i, int f);
+int func_002F8020(u32 i, int f);
+int func_002F8070(u32 i, int f);
+int func_002F80C0(u32 i, int f);
+int func_002F8110(u32 i, int f);
+int func_002F8160(u32 i, int f);
+int func_002F8200(u32 i, int f, u32 x);
+int func_002F8250(u32 i, int f);
+int func_002F82A0(u32 i, int f);
+int func_002F82F0(u32 i, int f);
+int func_002F8340(u32 i, int f);
+int func_002F8390(u32 i, int f);
+int func_002F8430(u32 i, int f);
+int func_002F8480(u32 i);
+int func_002F8500(u32 i, int f);
+int func_002F8570(u32 i);
+int func_002F85E0(u32 i);
+int func_002F8630(u32 i, int r);
+int func_002F86B0(u32 i, int f);
+int func_002F8710(u32 i);
+int func_002F8740(u32 i, int r);
+int func_002F87A0(u32 i);
+int func_002F8900(u32 i, u32 j);
 int func_0016CC80(u8 w);
 int func_0039E7A0(int k);
 u8 *func_0019FBA0(int k);
@@ -636,10 +666,9 @@ int func_00327C80(void);
 int func_00327A60(void);
 int func_00328270(void);
 void func_00328240(int v);
-int func_002F7D90(int a, void *f, u32 b, int c, int d, int e);
-void func_002F80C0(void);
-void func_002F8110(void);
-int func_002F7AD0(u32 i, u32 j, u32 a, u32 b);
+int func_003282C0(void);
+int func_0030AFF0(int f);
+int func_0030B2F0(int f);
 int func_002F8F90();
 int func_002F9060();
 int func_0030AD80();
@@ -1523,17 +1552,14 @@ void func_002F7610(u32 i)
     func_002F3C30(i);
 }
 
-int func_002F7D90(int a, void *f, u32 b, int c, int d, int e);
-void func_002F80C0(void);
-void func_002F8110(void);
 
 /* 0x002F76B0, 0xEC bytes. The kind of officer `i`'s next post for officer `j` (2 or 6), from
  * two counts. */
 int func_002F76B0(u32 i, u32 j)
 {
     int named = func_002F3F20(i) == 0 ? 1 : 2, ok = 0;
-    int a = func_002F7D90(0, (void *)func_002F80C0, j, 0, 0, 0);
-    int b = func_002F7D90(0, (void *)func_002F8110, j, 0, 0, 0);
+    int a = func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, j, 0, 0);
+    int b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, j, 0, 0);
 
     if (named == 2) {
         b = a;
@@ -1551,7 +1577,6 @@ int func_002F77A0(u32 i, u32 j)
     return j == func_002F2E20(i) || i == func_002F2E20(j);
 }
 
-int func_002F7AD0(u32 i, u32 j, u32 a, u32 b);
 
 /* 0x002F77F0, 0xC4 bytes. Whether officers `i` and `j` are related (the same +0xC, or one of 14
  * pairs). */
@@ -1573,4 +1598,380 @@ int func_002F77F0(u32 i, u32 j)
 int func_002F78C0(u32 i, u32 j)
 {
     return func_002F2DA0(i) == func_002F2DA0(j);
+}
+
+extern u32 g_00414580[9][3];             /* nine groups of three related officers */
+extern u32 g_007A2650[];                 /* officer lists */
+
+int func_003282C0(void);
+int func_0030AFF0(int f);
+int func_0030B2F0(int f);
+int func_002F2840(u32 i);
+int func_002F4A70(u32 i);
+
+/* 0x002F7900, 0x1C8 bytes. Whether officers `i` and `j` are in one of the nine groups (groups 2
+ * to 8 only once the story allows them; 5-8 only when every member has +0x97 at 7). */
+int func_002F7900(u32 i, u32 j)
+{
+    int g, a, b;
+
+    for (g = 0; g <= 8; g++) {
+        if (g == 2) {
+            if (func_00328270() != 1)
+                continue;
+        } else if (g == 3) {
+            if (func_00328270() != 3)
+                continue;
+        } else if (g == 4) {
+            if (func_003282C0() != 1)
+                continue;
+        } else if ((u32)(g - 5) < 4) {
+            int bad = 0;
+
+            for (a = 0; a < 3; a++) {
+                if (g_00414580[g][a] != 0x19F && func_002F4A70(g_00414580[g][a]) != 7) {
+                    bad = 1;
+                    break;
+                }
+            }
+            if (bad)
+                continue;
+        }
+        for (a = 0; a < 3; a++) {
+            if (i == g_00414580[g][a]) {
+                for (b = 0; b < 3; b++) {
+                    if (j == g_00414580[g][b])
+                        return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+/* 0x002F7AD0, 0x40 bytes. Whether (i, j) is the pair (a, b) either way round. */
+int func_002F7AD0(u32 i, u32 j, u32 a, u32 b)
+{
+    if (i == a && j == b)
+        return 1;
+    return i == b && j == a;
+}
+
+/* 0x002F7B10, 0xC bytes, matching. The officer lists. */
+u32 *func_002F7B10(void)
+{
+    return g_007A2650;
+}
+
+/* 0x002F7B20, 0x118 bytes. Sorts officer list `l` (`n` long, up to the first number past 0x19E,
+ * as in the original the test is inverted: it stops at the first real one) by role. */
+void func_002F7B20(int a, u32 *l, int n)
+{
+    int x, y;
+
+    for (x = 0; x < n; x++) {
+        u32 u = l[x];
+
+        if (u > 0x19E) {
+            int r = func_002F3DC0(u);
+
+            for (y = x + 1; y < n; y++) {
+                u32 v = l[y];
+                int s;
+
+                if (v > 0x19E)
+                    break;
+                s = func_002F3DC0(v);
+                if (r < s) {
+                    l[x] = v;
+                    l[y] = u;
+                    r = s;
+                    u = v;
+                }
+            }
+        }
+    }
+}
+
+/* 0x002F7C40, 0x94 bytes, matching. Shuffles list `l` of `n`. */
+void func_002F7C40(u32 *l, int n)
+{
+    int k;
+
+    for (k = 0; k < n; k++) {
+        int a = func_0030CB00(n), b = func_0030CB00(n);
+
+        if (a != b) {
+            u32 t = l[a];
+
+            l[a] = l[b];
+            l[b] = t;
+        }
+    }
+}
+
+/* 0x002F7CE0, 0xAC bytes, matching. Officer order: higher role first, then lower second force, then lower
+ * number. */
+int func_002F7CE0(u32 i, u32 j)
+{
+    int a = func_002F3DC0(i), b = func_002F3DC0(j);
+
+    if (b < a)
+        return 1;
+    if (a < b)
+        return 0;
+    a = func_002F5CC0(i);
+    b = func_002F5CC0(j);
+    if (a < b)
+        return 1;
+    if (b < a)
+        return 0;
+    return (int)i < (int)j;
+}
+
+void func_002F87D0(u32 *l, int n, int (*less)(u32, u32, int, int), int a, int b);
+
+/* 0x002F7D90, 0x12C bytes. Lists into list `k` the living officers (rank not 3) that `keep`
+ * accepts (all without it), sorted when `sort`. Returns how many. */
+int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort)
+{
+    u32 *l = g_007A2650 + k;
+    u8 *p = func_0030CCB0();
+    int n = 0, i;
+
+    for (i = 0; i < 0x19F; i++, p += 0x9C) {
+        u32 id = OFC_NUM(p);
+
+        if (func_002F3BA0(p) == 3)
+            continue;
+        if (keep == 0 || keep(id, a, b) != 0)
+            l[n++] = id;
+    }
+    if (sort != 0)
+        func_002F87D0(l, n, (int (*)(u32, u32, int, int))func_002F7CE0, 0, 0);
+    return n;
+}
+
+/* Whether officer `i`'s role counts (not 0, 4 or 5). */
+#define ACTIVE_ROLE(i) (func_002F3DC0(i) != 0 && func_002F3DC0(i) != 4 && func_002F3DC0(i) != 5)
+
+/* 0x002F7EC0, 0xBC bytes. Whether officer `i` (rank 2) of second force `f` serves it actively
+ * in its own region (func_0030AFF0). */
+int func_002F7EC0(u32 i, int f)
+{
+    int region = func_0030AFF0(f);
+
+    if (func_002F2840(i) == 0)
+        return 0;
+    return f == func_002F5CC0(i) && ACTIVE_ROLE(i) && region == func_002F4080(i);
+}
+
+/* 0x002F7F80, 0x94 bytes. Whether officer `i` serves second force `f` actively. */
+int func_002F7F80(u32 i, int f)
+{
+    if (func_002F2840(i) == 0)
+        return 0;
+    return f == func_002F5CC0(i) && ACTIVE_ROLE(i);
+}
+
+/* 0x002F8020, 0x50 bytes, matching. Whether officer `i` (rank 2) has second force `f`. */
+int func_002F8020(u32 i, int f)
+{
+    if (func_002F2840(i) == 0)
+        return 0;
+    return f == func_002F5CC0(i);
+}
+
+/* 0x002F8070, 0x48 bytes. */
+int func_002F8070(u32 i, int f)
+{
+    return func_002F7EC0(i, f) != 0 && func_002F3E70(i) == 0;
+}
+
+/* 0x002F80C0, 0x4C bytes. */
+int func_002F80C0(u32 i, int f)
+{
+    return func_002F7EC0(i, f) != 0 && func_002F3DC0(i) >= 2;
+}
+
+/* 0x002F8110, 0x48 bytes. */
+int func_002F8110(u32 i, int f)
+{
+    return func_002F7EC0(i, f) != 0 && func_002F3EF0(i) != 0;
+}
+
+/* 0x002F8160, 0x94 bytes. Whether officer `i` serves force `f` actively. */
+int func_002F8160(u32 i, int f)
+{
+    if (func_002F2840(i) == 0)
+        return 0;
+    return f == func_002F4080(i) && ACTIVE_ROLE(i);
+}
+
+/* 0x002F8200, 0x4C bytes. The same, other than officer `x`. */
+int func_002F8200(u32 i, int f, u32 x)
+{
+    return func_002F8160(i, f) != 0 && i != x;
+}
+
+/* 0x002F8250, 0x48 bytes. */
+int func_002F8250(u32 i, int f)
+{
+    return func_002F8160(i, f) != 0 && func_002F3E70(i) == 0;
+}
+
+/* 0x002F82A0, 0x4C bytes. */
+int func_002F82A0(u32 i, int f)
+{
+    return func_002F8160(i, f) != 0 && func_002F3DC0(i) >= 2;
+}
+
+/* 0x002F82F0, 0x4C bytes. */
+int func_002F82F0(u32 i, int f)
+{
+    return func_002F8160(i, f) != 0 && func_002F3DC0(i) == 2;
+}
+
+/* 0x002F8340, 0x48 bytes. */
+int func_002F8340(u32 i, int f)
+{
+    return func_002F8160(i, f) != 0 && func_002F3EF0(i) != 0;
+}
+
+/* 0x002F8390, 0x94 bytes. Whether officer `i` serves actively another force than `f`. */
+int func_002F8390(u32 i, int f)
+{
+    if (func_002F2840(i) == 0)
+        return 0;
+    return f != func_002F4080(i) && ACTIVE_ROLE(i);
+}
+
+/* 0x002F8430, 0x48 bytes. */
+int func_002F8430(u32 i, int f)
+{
+    return func_002F8390(i, f) != 0 && func_002F3E70(i) == 0;
+}
+
+/* 0x002F8480, 0x80 bytes. Whether officer `i` of role 1 or 2 has a second force for which
+ * func_0030B2F0 holds. */
+int func_002F8480(u32 i)
+{
+    if (func_002F2840(i) == 0)
+        return 0;
+    if (func_0030B2F0(func_002F5CC0(i)) == 0)
+        return 0;
+    return func_002F3DC0(i) == 2 || func_002F3DC0(i) == 1;
+}
+
+/* 0x002F8500, 0x6C bytes. Whether officer `i` (role 0) has second force `f`. */
+int func_002F8500(u32 i, int f)
+{
+    if (func_002F2840(i) == 0)
+        return 0;
+    return func_002F3DC0(i) == 0 && f == func_002F5CC0(i);
+}
+
+/* 0x002F8570, 0x68 bytes. */
+int func_002F8570(u32 i)
+{
+    if (func_002F2840(i) != 0 && func_002F3DC0(i) == 0 && func_0030B2F0(func_002F5CC0(i)) != 0)
+        return 1;
+    return 0;
+}
+
+/* 0x002F85E0, 0x44 bytes, matching. */
+int func_002F85E0(u32 i)
+{
+    if (func_002F2840(i) == 0)
+        return 0;
+    return func_002F3DC0(i) == 0;
+}
+
+/* 0x002F8630, 0x74 bytes. Whether officer `i` (role 0) has a second force of region `r`. */
+int func_002F8630(u32 i, int r)
+{
+    if (func_002F2840(i) != 0 && func_002F3DC0(i) == 0 && r == func_0030AFF0(func_002F5CC0(i)))
+        return 1;
+    return 0;
+}
+
+/* 0x002F86B0, 0x58 bytes. Whether officer `i` (rank 1) has second force `f`. */
+int func_002F86B0(u32 i, int f)
+{
+    return func_002F3BB0(i) == 1 && f == func_002F5CC0(i);
+}
+
+/* 0x002F8710, 0x24 bytes, matching. */
+int func_002F8710(u32 i)
+{
+    return func_002F3BB0(i) == 1;
+}
+
+/* 0x002F8740, 0x60 bytes, matching. */
+int func_002F8740(u32 i, int r)
+{
+    if (func_002F3BB0(i) == 1 && r == func_0030AFF0(func_002F5CC0(i)))
+        return 1;
+    return 0;
+}
+
+/* 0x002F87A0, 0x24 bytes, matching. */
+int func_002F87A0(u32 i)
+{
+    return func_002F3BB0(i) == 0;
+}
+
+/* 0x002F87D0, 0x128 bytes. Sorts officer list `l` of `n` with `less` (the same inverted
+ * stop as func_002F7B20). */
+void func_002F87D0(u32 *l, int n, int (*less)(u32, u32, int, int), int a, int b)
+{
+    int x, y;
+
+    for (x = 0; x < n; x++) {
+        u32 u = l[x];
+
+        if (u > 0x19E) {
+            for (y = x + 1; y < n; y++) {
+                u32 v = l[y];
+
+                if (v > 0x19E)
+                    break;
+                if (less != 0 && less(u, v, a, b) == 0) {
+                    l[x] = v;
+                    l[y] = u;
+                    u = v;
+                }
+            }
+        }
+    }
+}
+
+/* 0x002F8900, 0x220 bytes. Officer order for promotions: role 3 / 5 officers first, then
+ * created officers last, named ones (below 0x1C) first, then by experience plus a quarter of
+ * their service time x 100, then by number. */
+int func_002F8900(u32 i, u32 j)
+{
+    int ci, cj, si, sj;
+
+    if (func_002F3E70(i) != 0 && func_002F3E70(j) == 0)
+        return 1;
+    if (func_002F3E70(j) != 0 && func_002F3E70(i) == 0)
+        return 0;
+    ci = CREATED(i);
+    cj = CREATED(j);
+    if (ci && !cj)
+        return 0;
+    if (cj && !ci)
+        return 1;
+    if ((int)i < 0x1C && (int)j > 0x1B)
+        return 1;
+    if ((int)j < 0x1C && (int)i > 0x1B)
+        return 0;
+    si = func_002F34E0(i) + (func_00327C70() - func_002F3380(i)) * 100 / 4;
+    sj = func_002F34E0(j) + (func_00327C70() - func_002F3380(j)) * 100 / 4;
+    if (sj < si)
+        return 1;
+    if (si < sj)
+        return 0;
+    return (int)i < (int)j;
 }
