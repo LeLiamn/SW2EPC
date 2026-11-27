@@ -2654,3 +2654,318 @@ void func_003036B0(int *out, u32 i, int k, int a, int b)
         }
     }
 }
+
+extern void (*g_004148B0[12])(int *out, u32 i, int k, int a, int b);   /* command group choosers */
+extern int g_004148E0[][12];             /* by officer mood: the groups to try in order (-1 end) */
+
+int func_002F3DC0(u32 i);
+int func_002FD280(int f, int c);
+
+/* Whether force `f`'s officer `i` may give command `c` now (lists `a`, `b`). */
+static inline int command_ok(int f, u32 i, int c, int a, int b)
+{
+    return func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
+        && func_002FD050(c) == 0 && func_002FD1D0(f, c, 0) != 0 && func_002FD280(f, c) != 0
+        && func_00314C40(c, i, a, b) != 0;
+}
+
+/* 0x00303930, 0x184 bytes. For the reinforcing commands 0x14-0x16: the officer of list `l`
+ * (`n`) missing more than 0 / 1000 / 2000 soldiers with the fewest soldiers, then the highest
+ * func_002F3DC0; -1 for none. */
+int func_00303930(int c, u32 *l, int n)
+{
+    int need, top = 0, t2 = 0, k;
+    u32 best;
+
+    if (n == 0)
+        return -1;
+    need = c == 0x14 ? 0 : c == 0x15 ? 1000 : 2000;
+    best = 0x19F;
+    for (k = 0; k < n; k++, l++) {
+        int s = func_002F3770(*l);
+
+        if (need < func_002F38F0(*l) - s) {
+            int v = func_002F3DC0(*l);
+
+            if (best >= 0x19F || s < top || (s == top && (t2 < v || (v == t2 && func_0030CB50(0x32) != 0)))) {
+                best = *l;
+                t2 = v;
+                top = s;
+            }
+        }
+    }
+    if ((int)best < 0 || (int)best > 0x19E)
+        return -1;
+    return best;
+}
+
+/* 0x00303AC0, 0x21C bytes. For commands 0x17-0x1A: 0 when enough officers of list `l` (`n`)
+ * lack soldiers (0x1A: six missing over 200 and at most 80% filled overall), else -1. */
+int func_00303AC0(int c, u32 *l, int n)
+{
+    int cnt, big = 0, many = 0, s = 0, mx = 0, k;
+
+    if (n == 0)
+        return -1;
+    cnt = c == 0x19 ? 6 : 0;
+    for (k = 0; k < n; k++, l++) {
+        int d = func_002F38F0(*l) - func_002F3770(*l);
+
+        s += func_002F3770(*l);
+        mx += func_002F38F0(*l);
+        if (c == 0x1A || c == 0x19) {
+            if (c == 0x19 && d > 2000)
+                big++;
+            if (d > 200)
+                many++;
+        } else if (c == 0x18) {
+            if (d < 2000 && d > 500)
+                cnt++;
+            if (d > 1000)
+                big++;
+        } else if (c == 0x17) {
+            if (d < 1000 && d > 10)
+                cnt++;
+            if (d > 500)
+                big++;
+        }
+    }
+    if (c == 0x1A)
+        return many < 6 || s * 10 / mx > 8 ? -1 : 0;
+    return cnt > 5 && big >= 3 ? 0 : -1;
+}
+
+/* 0x00303CF0, 0xA0 bytes. 0 when all of the six or more officers `l` (`n`) are 90% full. */
+int func_00303CF0(u32 *l, int n)
+{
+    int k;
+
+    if (n < 6)
+        return -1;
+    for (k = 0; k < n; k++, l++) {
+        if (func_002F3770(*l) * 10 / func_002F38F0(*l) < 9)
+            break;
+    }
+    return k != n ? -1 : 0;
+}
+
+/* 0x00303D90, 0xC8 bytes. 0 when none of officers `l` (`n`) is over 70% full and six of them
+ * lack more than 2000 soldiers. */
+int func_00303D90(u32 *l, int n)
+{
+    int m = 0, k;
+
+    for (k = 0; k < n; k++, l++) {
+        int s = func_002F3770(*l), mx = func_002F38F0(*l);
+
+        if (s * 10 / mx > 7)
+            break;
+        if (mx - s > 2000)
+            m++;
+    }
+    return k == n && m >= 6 ? 0 : -1;
+}
+
+/* 0x00303E60, 0x298 bytes. The same as func_002FF710 for the troop commands 0x14-0x1C (those
+ * for soldiers wanted more when the officers are under 80% full). */
+void func_00303E60(int *out, u32 i, int k, int a, int b)
+{
+    int avg = func_002FE240((u32 *)a, b), f = func_002F4080(i), cmd[100], val[100], n = 0, c, j;
+
+    for (c = 0x14; c < 0x1D; c++) {
+        if (func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
+            && func_002FD050(c) == 0 && func_002FD1D0(f, c, 0) != 0
+            && func_00314C40(c, i, a, b) != 0
+            && (c != 0x1A || func_00327C00() == 4 || func_00328190(0x1A) != 0)) {
+            cmd[n] = c;
+            val[n] = func_002FF230(c, i);
+            if (c > 0x16 && c < 0x1B && avg < 0x50)
+                val[n] += 5;
+            n++;
+        }
+    }
+    if (n == 0)
+        return;
+    func_002FF330(cmd, val, n);
+    for (j = 0; j < n; j++) {
+        int t = -1;
+
+        switch (cmd[j]) {
+        case 0x14: case 0x15: case 0x16:
+            t = func_00303930(cmd[j], (u32 *)a, b);
+            break;
+        case 0x17: case 0x18: case 0x19: case 0x1A:
+            t = func_00303AC0(cmd[j], (u32 *)a, b);
+            break;
+        case 0x1B:
+            t = func_00303CF0((u32 *)a, b);
+            break;
+        case 0x1C:
+            t = func_00303D90((u32 *)a, b);
+            break;
+        }
+        if (t != -1) {
+            out[k + 1] = cmd[j];
+            out[k + 3] = t;
+            return;
+        }
+    }
+}
+
+/* The player's officer's most wanted command of `first`..`last`, without a target. */
+#define PLAYER_CHOICE(cond)                                                        \
+    int f = func_002F4080(i), cmd[100], val[100], n = 0, c;                       \
+                                                                                   \
+    if (func_002FB2A0(f) == 0)                                                    \
+        return;                                                                    \
+    for (c = FIRST; c < LAST; c++) {                                               \
+        if (!(cond) || !command_ok(f, i, c, a, b))                                 \
+            continue;                                                              \
+        cmd[n] = c;                                                                \
+        val[n] = func_002FF230(c, i);                                              \
+        n++;                                                                       \
+    }                                                                              \
+    if (n != 0) {                                                                  \
+        func_002FF330(cmd, val, n);                                                \
+        out[k + 1] = cmd[0];                                                       \
+    }
+
+/* 0x00304110, 0x18C bytes. For the player's officers: commands 0x3B-0x40. */
+void func_00304110(int *out, u32 i, int k, int a, int b)
+{
+#define FIRST 0x3B
+#define LAST 0x41
+    PLAYER_CHOICE(1)
+#undef FIRST
+#undef LAST
+}
+
+/* 0x003042A0, 0x1B8 bytes. Commands 0x41-0x47 (0x43 not while the force holds all regions but
+ * one). */
+void func_003042A0(int *out, u32 i, int k, int a, int b)
+{
+#define FIRST 0x41
+#define LAST 0x48
+    PLAYER_CHOICE(c != 0x43 || func_002FB3B0(f) != func_0030AB90() - 1)
+#undef FIRST
+#undef LAST
+}
+
+/* 0x00304460, 0x1C4 bytes. Commands 0x48-0x4F (0x4F only in year kind 5 or when unlocked). */
+void func_00304460(int *out, u32 i, int k, int a, int b)
+{
+#define FIRST 0x48
+#define LAST 0x50
+    PLAYER_CHOICE(c != 0x4F || func_00327C00() == 5 || func_00328190(0x4F) != 0)
+#undef FIRST
+#undef LAST
+}
+
+/* 0x00304630, 0x1BC bytes. Commands 0x50-0x59 (0x58 only in year kind 0 or when unlocked). */
+void func_00304630(int *out, u32 i, int k, int a, int b)
+{
+#define FIRST 0x50
+#define LAST 0x5A
+    PLAYER_CHOICE(c != 0x58 || func_00327C00() == 0 || func_00328190(0x58) != 0)
+#undef FIRST
+#undef LAST
+}
+
+/* 0x003047F0, 0x18C bytes. Commands 0x5A-0x62. */
+void func_003047F0(int *out, u32 i, int k, int a, int b)
+{
+#define FIRST 0x5A
+#define LAST 99
+    PLAYER_CHOICE(1)
+#undef FIRST
+#undef LAST
+}
+
+/* 0x00304980, 0x64 bytes, matching. 1 with `a`% chance, 2 with `b`%, else 3. */
+int func_00304980(int a, int b)
+{
+    int r = func_0030CB00(100);
+
+    if (r < a)
+        return 1;
+    if (r < a + b)
+        return 2;
+    return 3;
+}
+
+/* 0x003049F0, 0x88 bytes. 0 with `a`% chance, 1 with `b`%, 2 with `c`%, else 3. */
+int func_003049F0(int a, int b, int c)
+{
+    int r = func_0030CB00(100);
+
+    if (r < a)
+        return 0;
+    if (r < a + b)
+        return 1;
+    if (r < c + a + b)
+        return 2;
+    return 3;
+}
+
+/* 0x00304A80, 0x1BC bytes. Officer `i`'s mood this turn (the row of command groups it tries):
+ * 4 for a waiting computer force short of officers, otherwise drawn by its kind's row. */
+int func_00304A80(u32 i)
+{
+    int m = 2, f = func_002F4080(i);
+
+    if (func_002FB2A0(f) == 0) {
+        int plan = func_002FA160(f);
+
+        if (plan == 0 || plan == 3) {
+            if (func_002FB430(f) / func_002FB3B0(f) < 3)
+                m = 4;
+            else
+                m = func_00304980(0x32, 0x28);
+        } else {
+            switch (func_002FF130(i)) {
+            case 0: case 5: m = func_00304980(0x55, 5); break;
+            case 1: case 4: m = func_00304980(0x3C, 0x19); break;
+            case 2: m = func_00304980(0x41, 10); break;
+            case 3: m = func_00304980(0x46, 0xF); break;
+            }
+        }
+    } else {
+        switch (func_002FF130(i)) {
+        case 0: case 5: m = func_003049F0(0x28, 0x1E, 0x14); break;
+        case 1: case 4: m = func_003049F0(10, 0x1E, 0x28); break;
+        case 2: m = func_003049F0(0x14, 10, 0x1E); break;
+        case 3: m = func_003049F0(0x19, 0x19, 0x19); break;
+        }
+    }
+    return m;
+}
+
+/* 0x00304C40, 0x3C bytes. Whether force `f` is short of gold (its func_002FCE40 + 500 or less). */
+int func_00304C40(int f)
+{
+    return func_002F9190(f) <= func_002FCE40(f) + 500;
+}
+
+/* 0x00304C80, 0x15C bytes. Officer `i`'s command into slot `k` of `out`: the command groups of
+ * its mood (mood 2 when short of gold) in order until one gives a command (below 100);
+ * clamped to 99. */
+void func_00304C80(int *out, u32 i, int k, int a, int b)
+{
+    int f = func_002F4080(i), m = 2, j;
+
+    if (func_00304C40(f) == 0)
+        m = func_00304A80(i);
+    if (m < 5) {
+        int *g = g_004148E0[m];
+
+        for (j = 0; j < 12; j++, g++) {
+            if (*g != -1) {
+                g_004148B0[*g](out, i, k, a, b);
+                if ((u32)out[k + 1] < 100)
+                    break;
+            }
+        }
+    }
+    if ((u32)out[k + 1] > 99)
+        out[k + 1] = 99;
+}
