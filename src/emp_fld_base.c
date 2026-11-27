@@ -37,42 +37,42 @@ int func_00362320(int side);
 int func_00362160(int a, int b);
 int func_0034AF30(u8 *u, int a, int b);
 
-/* 0x0034A430, 8 bytes, matching. */
-/* 0x0034A430, 0x8 bytes, matching. */
+/* 0x0034A430, 8 bytes. */
+/* 0x0034A430, 0x8 bytes. */
 void func_0034A430(u8 *u, u8 v)
 {
     u[0x75] = v;
 }
 
-/* 0x0034A440, 8 bytes, matching. */
-/* 0x0034A440, 0x8 bytes, matching. */
+/* 0x0034A440, 8 bytes. */
+/* 0x0034A440, 0x8 bytes. */
 u8 func_0034A440(u8 *u)
 {
     return u[0x75];
 }
 
 /* 0x0034A450-0x0034A590, 0x20 bytes each. The halfwords of func_00347980's record. */
-/* 0x0034A450, 0x20 bytes, matching. */
+/* 0x0034A450, 0x20 bytes. */
 u16 func_0034A450(void) { return *(u16 *)(func_00347980() + 4); }
-/* 0x0034A470, 0x20 bytes, matching. */
+/* 0x0034A470, 0x20 bytes. */
 u16 func_0034A470(void) { return *(u16 *)(func_00347980() + 0xC); }
-/* 0x0034A490, 0x20 bytes, matching. */
+/* 0x0034A490, 0x20 bytes. */
 u16 func_0034A490(void) { return *(u16 *)(func_00347980() + 0xE); }
-/* 0x0034A4B0, 0x20 bytes, matching. */
+/* 0x0034A4B0, 0x20 bytes. */
 u16 func_0034A4B0(void) { return *(u16 *)(func_00347980() + 0x10); }
-/* 0x0034A4D0, 0x20 bytes, matching. */
+/* 0x0034A4D0, 0x20 bytes. */
 u16 func_0034A4D0(void) { return *(u16 *)(func_00347980() + 0x12); }
-/* 0x0034A4F0, 0x20 bytes, matching. */
+/* 0x0034A4F0, 0x20 bytes. */
 u16 func_0034A4F0(void) { return *(u16 *)(func_00347980() + 0x14); }
-/* 0x0034A510, 0x20 bytes, matching. */
+/* 0x0034A510, 0x20 bytes. */
 u16 func_0034A510(void) { return *(u16 *)(func_00347980() + 0x16); }
-/* 0x0034A530, 0x20 bytes, matching. */
+/* 0x0034A530, 0x20 bytes. */
 u16 func_0034A530(void) { return *(u16 *)(func_00347980() + 0x18); }
-/* 0x0034A550, 0x20 bytes, matching. */
+/* 0x0034A550, 0x20 bytes. */
 u16 func_0034A550(void) { return *(u16 *)(func_00347980() + 6); }
-/* 0x0034A570, 0x20 bytes, matching. */
+/* 0x0034A570, 0x20 bytes. */
 u16 func_0034A570(void) { return *(u16 *)(func_00347980() + 0x1A); }
-/* 0x0034A590, 0x20 bytes, matching. */
+/* 0x0034A590, 0x20 bytes. */
 u16 func_0034A590(void) { return *(u16 *)(func_00347980() + 0x1C); }
 
 /* 0x0034A5B0, 0x34 bytes. Unit `u`'s record value +0x0A (func_00347900 of its +0x79 / +0x75). */
@@ -112,7 +112,7 @@ int func_0034A6C0(u8 *a, u8 *b)
     return *(short *)(a + 0x40) == *(short *)(b + 0x40);
 }
 
-/* 0x0034A6F0, 0x20 bytes, matching. func_0035D560 of the two units' +0x79 bytes. */
+/* 0x0034A6F0, 0x20 bytes. func_0035D560 of the two units' +0x79 bytes. */
 int func_0034A6F0(u8 *a, u8 *b)
 {
     return func_0035D560(a[0x79], b[0x79]);
@@ -134,7 +134,7 @@ u8 *func_0034A740(u8 *u)
     return g_006A1D58[g];
 }
 
-/* 0x0034A790, 0x60 bytes, matching. The officer of unit `u`'s group (0x19F for none). */
+/* 0x0034A790, 0x60 bytes. The officer of unit `u`'s group (0x19F for none). */
 u16 func_0034A790(u8 *u)
 {
     u8 *g = func_0034A740(u);
@@ -163,7 +163,7 @@ u32 func_0034A7F0(u8 *u)
     return 0x14;
 }
 
-/* 0x0034A890, 0x3C bytes, matching. */
+/* 0x0034A890, 0x3C bytes. */
 int func_0034A890(u8 *u)
 {
     u32 k = func_0034A7F0(u);
@@ -174,7 +174,7 @@ int func_0034A890(u8 *u)
 /* 0x0034A8D0-0x0034A9C0. Unit numbers: the bodyguards `i`, side `s`'s slot `k` (0x10), its five
  * escorts (0x3A), their sub-slots (0x8A), and three more blocks (0x166, 0x170, 0x184), the
  * reserves (0x1A2). */
-/* 0x0034A8D0, 0x8 bytes, matching. */
+/* 0x0034A8D0, 0x8 bytes. */
 int func_0034A8D0(int i) { return i; }
 /* 0x0034A8E0, 0x18 bytes. */
 int func_0034A8E0(int s, int k) { return k + s * 0x14 + 0x10; }
@@ -188,25 +188,25 @@ int func_0034A950(int s, int k, int j) { return (s + k) * 5 + 0x166 + j; }
 int func_0034A970(int s, int k, int j) { return j + s * 10 + 0x170 + k * 5; }
 /* 0x0034A9A0, 0x20 bytes. */
 int func_0034A9A0(int s, int k, int j) { return j + s * 0xF + 0x184 + k * 5; }
-/* 0x0034A9C0, 0x8 bytes, matching. */
+/* 0x0034A9C0, 0x8 bytes. */
 int func_0034A9C0(int i) { return i + 0x1A2; }
 
 /* 0x0034A9D0-0x0034AB90, 0x34 bytes each. The same as unit records. */
-/* 0x0034A9D0, 0x34 bytes, matching. */
+/* 0x0034A9D0, 0x34 bytes. */
 u8 *func_0034A9D0(int i) { return UNIT(func_0034A8D0(i)); }
-/* 0x0034AA10, 0x34 bytes, matching. */
+/* 0x0034AA10, 0x34 bytes. */
 u8 *func_0034AA10(int s, int k) { return UNIT(func_0034A8E0(s, k)); }
-/* 0x0034AA50, 0x34 bytes, matching. */
+/* 0x0034AA50, 0x34 bytes. */
 u8 *func_0034AA50(int s, int k) { return UNIT(func_0034A900(s, k)); }
-/* 0x0034AA90, 0x34 bytes, matching. */
+/* 0x0034AA90, 0x34 bytes. */
 u8 *func_0034AA90(int s, int k, int j) { return UNIT(func_0034A920(s, k, j)); }
-/* 0x0034AAD0, 0x34 bytes, matching. */
+/* 0x0034AAD0, 0x34 bytes. */
 u8 *func_0034AAD0(int s, int k, int j) { return UNIT(func_0034A950(s, k, j)); }
-/* 0x0034AB10, 0x34 bytes, matching. */
+/* 0x0034AB10, 0x34 bytes. */
 u8 *func_0034AB10(int s, int k, int j) { return UNIT(func_0034A970(s, k, j)); }
-/* 0x0034AB50, 0x34 bytes, matching. */
+/* 0x0034AB50, 0x34 bytes. */
 u8 *func_0034AB50(int s, int k, int j) { return UNIT(func_0034A9A0(s, k, j)); }
-/* 0x0034AB90, 0x34 bytes, matching. */
+/* 0x0034AB90, 0x34 bytes. */
 u8 *func_0034AB90(int i) { return UNIT(func_0034A9C0(i)); }
 
 /* 0x0034ABD0, 0x64 bytes. A free escort unit of side `s` (0 for none). */
@@ -297,7 +297,7 @@ u32 func_0034AE20(u32 *out, u32 max, int (*test)(u8 *, int, int), u32 lo, u32 hi
     return n;
 }
 
-/* 0x0034AFA0, 0x30 bytes, matching. The same for units 0x170-0x183 with func_0034AF30. */
+/* 0x0034AFA0, 0x30 bytes. The same for units 0x170-0x183 with func_0034AF30. */
 u32 func_0034AFA0(u32 *out, u32 max, int a)
 {
     return func_0034AE20(out, max, func_0034AF30, 0x170, 0x184, a, 0);
@@ -319,25 +319,25 @@ u8 *func_0034AFD0(int (*test)(u8 *, int, int), u32 lo, u32 hi, int a, int b)
     return 0;
 }
 
-/* 0x0034B0A0, 0x28 bytes, matching. The same over all units. */
+/* 0x0034B0A0, 0x28 bytes. The same over all units. */
 u8 *func_0034B0A0(int (*test)(u8 *, int, int), int a, int b)
 {
     return func_0034AFD0(test, 0, 0x1AD, a, b);
 }
 
-/* 0x0034B0D0, 0x28 bytes, matching. Officer `i`'s unit. */
+/* 0x0034B0D0, 0x28 bytes. Officer `i`'s unit. */
 u8 *func_0034B0D0(int i)
 {
     return func_0034B0A0((int (*)(u8 *, int, int))func_0034AD70, i, 0);
 }
 
-/* 0x0034B100, 0x28 bytes, matching. The same over the bodyguards. */
+/* 0x0034B100, 0x28 bytes. The same over the bodyguards. */
 u8 *func_0034B100(int (*test)(u8 *, int, int), int a, int b)
 {
     return func_0034AFD0(test, 0, 0x10, a, b);
 }
 
-/* 0x0034B130, 0x28 bytes, matching. Officer `i`'s bodyguard unit. */
+/* 0x0034B130, 0x28 bytes. Officer `i`'s bodyguard unit. */
 u8 *func_0034B130(int i)
 {
     return func_0034B100((int (*)(u8 *, int, int))func_0034AD70, i, 0);
@@ -445,7 +445,7 @@ void func_0034B430(u8 *g)
     func_003385E0(g, 3, SIDE_STATE(GROUP_UNIT(g)[0x79])[1]);
 }
 
-/* 0x0034B470, 0x20 bytes, matching. Group `g` has no order. */
+/* 0x0034B470, 0x20 bytes. Group `g` has no order. */
 void func_0034B470(u8 *g)
 {
     func_003385E0(g, 4, 0xFF);
@@ -506,13 +506,13 @@ u8 *func_0034B680(u8 *st)
     return g_006A1D58[st[1]];
 }
 
-/* 0x0034B700, 0x10 bytes, matching. */
+/* 0x0034B700, 0x10 bytes. */
 int func_0034B700(u8 *p)
 {
     return (p[6] & 3) + 1;
 }
 
-/* 0x0034B710, 0x10 bytes, matching. */
+/* 0x0034B710, 0x10 bytes. */
 int func_0034B710(u8 *p)
 {
     return (p[6] & 3) + 5;
@@ -576,14 +576,14 @@ void func_0034B8B0(void)
     g_006AA624 = 0;
 }
 
-/* 0x0034B980, 8 bytes, matching. */
-/* 0x0034B980, 0x8 bytes, matching. */
+/* 0x0034B980, 8 bytes. */
+/* 0x0034B980, 0x8 bytes. */
 void func_0034B980(void)
 {
 }
 
-/* 0x0034B990, 8 bytes, matching. */
-/* 0x0034B990, 0x8 bytes, matching. */
+/* 0x0034B990, 8 bytes. */
+/* 0x0034B990, 0x8 bytes. */
 void func_0034B990(void)
 {
 }
@@ -602,7 +602,7 @@ void func_0034BA00(u8 *g, int force)
         SIDE_STATE(func_0035D5A0(GROUP_UNIT(g)[0x79]))[8] |= 1;
 }
 
-/* 0x0034BAB0, 0x2C bytes, matching. Marks both side states. */
+/* 0x0034BAB0, 0x2C bytes. Marks both side states. */
 void func_0034BAB0(void)
 {
     SIDE_STATE(0)[8] |= 1;
@@ -615,14 +615,14 @@ void func_0034BAE0(u8 *g)
     SIDE_STATE(GROUP_UNIT(g)[0x79])[8] |= 1;
 }
 
-/* 0x0034BB20, 0x2C bytes, matching. The same as func_0034BAB0. */
+/* 0x0034BB20, 0x2C bytes. The same as func_0034BAB0. */
 void func_0034BB20(void)
 {
     SIDE_STATE(0)[8] |= 1;
     SIDE_STATE(1)[8] |= 1;
 }
 
-/* 0x0034BB50, 0xE4 bytes, matching. Lists the groups in use passing `test` (with `x`, `y`) into list `a`. */
+/* 0x0034BB50, 0xE4 bytes. Lists the groups in use passing `test` (with `x`, `y`) into list `a`. */
 int func_0034BB50(int a, int (*test)(u8 *, int, int), int x, int y)
 {
     u32 k;
@@ -648,7 +648,7 @@ int func_0034BC40(u8 *g, u32 side)
     return func_0033B580(g) == 0;
 }
 
-/* 0x0034BD20, 0x28 bytes, matching. Side `side`'s free groups into list `a`. */
+/* 0x0034BD20, 0x28 bytes. Side `side`'s free groups into list `a`. */
 int func_0034BD20(int a, int side)
 {
     return func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BC40, side, 0);
@@ -667,7 +667,7 @@ int func_0034BD50(u8 *g, u32 side, u32 key)
     return (key & 0xFFFF) == 0xFF || (key & 0xFFFF) == GROUP_INFO(g)[6];
 }
 
-/* 0x0034BE80, 0x30 bytes, matching. Such groups into list `a`. */
+/* 0x0034BE80, 0x30 bytes. Such groups into list `a`. */
 int func_0034BE80(int a, int side, int k, u32 j)
 {
     return func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BD50, side, k << 0x10 | j);
@@ -685,7 +685,7 @@ int func_0034BEB0(u8 *g, u32 side, u32 key)
     return (key & 0xFFFF) == 0xFF || (key & 0xFFFF) == GROUP_INFO(g)[9];
 }
 
-/* 0x0034BFE0, 0x30 bytes, matching. Such groups into list `a`. */
+/* 0x0034BFE0, 0x30 bytes. Such groups into list `a`. */
 int func_0034BFE0(int a, int side, int k, u32 j)
 {
     return func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BEB0, side, k << 0x10 | j);
@@ -713,7 +713,7 @@ u32 func_00352B00(u8 *b, int c);
 
 #define BASE(k) ((u8 *)func_0034EC80(k))
 
-/* 0x0034C010, 0xB4 bytes, matching. The bases linked to base `b` not owned by `skip`, into list `l`. */
+/* 0x0034C010, 0xB4 bytes. The bases linked to base `b` not owned by `skip`, into list `l`. */
 int func_0034C010(int l, u8 *b, int skip)
 {
     u32 n, k;
@@ -764,7 +764,7 @@ int func_0034C0D0(int l, int side)
     return func_00365050(l);
 }
 
-/* 0x0034C270, 0xF0 bytes, matching. The bases side `side` does not own and may take (func_003521B0; only
+/* 0x0034C270, 0xF0 bytes. The bases side `side` does not own and may take (func_003521B0; only
  * unowned ones with `free`), into list `l`. */
 int func_0034C270(int l, int side, int free)
 {
@@ -918,25 +918,25 @@ int func_003531F0(int k);
 int func_003519E0(void);
 int func_0035F0C0(void);
 
-/* 0x0034CAB0, 0x30 bytes, matching. func_0034C910 by number. */
+/* 0x0034CAB0, 0x30 bytes. func_0034C910 by number. */
 int func_0034CAB0(int b, int side)
 {
     return func_0034C910(BASE(b), side);
 }
 
-/* 0x0034CAE0, 0x30 bytes, matching. The base of list `l` side `side` most wants to take. */
+/* 0x0034CAE0, 0x30 bytes. The base of list `l` side `side` most wants to take. */
 u8 *func_0034CAE0(int l, int side)
 {
     return BASE(func_00365350(l, func_0034CAB0, side, 0));
 }
 
-/* 0x0034CB10, 0x30 bytes, matching. func_0034C9E0 by number. */
+/* 0x0034CB10, 0x30 bytes. func_0034C9E0 by number. */
 int func_0034CB10(int b, int side)
 {
     return func_0034C9E0(BASE(b), side);
 }
 
-/* 0x0034CB40, 0x30 bytes, matching. The base of list `l` side `side` most wants to hold. */
+/* 0x0034CB40, 0x30 bytes. The base of list `l` side `side` most wants to hold. */
 u8 *func_0034CB40(int l, int side)
 {
     return BASE(func_00365350(l, func_0034CB10, side, 0));
@@ -1054,15 +1054,15 @@ u32 func_0034D040(int l, u32 n, int bl, u32 per, int side)
     return k;
 }
 
-/* 0x0034D160, 8 bytes, matching. */
-/* 0x0034D160, 0x8 bytes, matching. */
+/* 0x0034D160, 8 bytes. */
+/* 0x0034D160, 0x8 bytes. */
 u32 func_0034D160(void)
 {
     return 1;
 }
 
-/* 0x0034D170, 8 bytes, matching. */
-/* 0x0034D170, 0x8 bytes, matching. */
+/* 0x0034D170, 8 bytes. */
+/* 0x0034D170, 0x8 bytes. */
 void func_0034D170(void)
 {
 }
@@ -1137,19 +1137,19 @@ void func_0034D2E0(u8 *st)
 }
 
 /* 0x0034D470, 0x0034D490, 0x1C bytes each. */
-/* 0x0034D470, 0x1C bytes, matching. */
+/* 0x0034D470, 0x1C bytes. */
 void func_0034D470(u8 *st)
 {
     func_0034D2E0(st);
 }
 
-/* 0x0034D490, 0x1C bytes, matching. */
+/* 0x0034D490, 0x1C bytes. */
 void func_0034D490(u8 *st)
 {
     func_0034D2E0(st);
 }
 
-/* 0x0034D4B0, 0x1C bytes, matching. */
+/* 0x0034D4B0, 0x1C bytes. */
 void func_0034D4B0(u8 *st)
 {
     func_0034D280(st);
@@ -1162,19 +1162,19 @@ void func_0034D4D0(u8 *st)
 }
 
 /* 0x0034D660, 0x0034D680, 0x1C bytes each. */
-/* 0x0034D660, 0x1C bytes, matching. */
+/* 0x0034D660, 0x1C bytes. */
 void func_0034D660(u8 *st)
 {
     func_0034D4D0(st);
 }
 
-/* 0x0034D680, 0x1C bytes, matching. */
+/* 0x0034D680, 0x1C bytes. */
 void func_0034D680(u8 *st)
 {
     func_0034D4D0(st);
 }
 
-/* 0x0034D6A0, 0x1C bytes, matching. */
+/* 0x0034D6A0, 0x1C bytes. */
 void func_0034D6A0(u8 *st)
 {
     func_0034D280(st);
@@ -1336,7 +1336,7 @@ void func_0034DDB0(u8 *st)
     }
 }
 
-/* 0x0034DE20, 0x44 bytes, matching. The computer side's turn: its plan chosen and run, then its steps. */
+/* 0x0034DE20, 0x44 bytes. The computer side's turn: its plan chosen and run, then its steps. */
 void func_0034DE20(u8 *st)
 {
     if (func_0034B160((int)st) != 0) {
@@ -1403,7 +1403,7 @@ int func_0034E060(void)
     return 0;
 }
 
-/* 0x0034E130, 0x7C bytes, matching. */
+/* 0x0034E130, 0x7C bytes. */
 void func_0034E130(int x, u8 *g)
 {
     int s = GROUP_UNIT(g)[0x79];
@@ -1467,19 +1467,19 @@ void func_0034F300(u8 *b, u8 m);
 void func_0034F310(u8 *b, u8 m);
 
 /* 0x0034E430, 0x0034E450, 0x0034E470, 0x20 bytes each. The elapsed-time chance. */
-/* 0x0034E430, 0x20 bytes, matching. */
+/* 0x0034E430, 0x20 bytes. */
 int func_0034E430(void)
 {
     return func_0034DFB0() != 0;
 }
 
-/* 0x0034E450, 0x20 bytes, matching. */
+/* 0x0034E450, 0x20 bytes. */
 int func_0034E450(void)
 {
     return func_0034DFB0() != 0;
 }
 
-/* 0x0034E470, 0x20 bytes, matching. */
+/* 0x0034E470, 0x20 bytes. */
 int func_0034E470(void)
 {
     return func_0034DFB0() != 0;
@@ -1505,7 +1505,7 @@ int func_0034E490(u8 *g)
     return func_0034DFB0() != 0;
 }
 
-/* 0x0034E5A0, 0x48 bytes, matching. Whether the other side is strong (300 or more), then the chance. */
+/* 0x0034E5A0, 0x48 bytes. Whether the other side is strong (300 or more), then the chance. */
 int func_0034E5A0(u8 *g)
 {
     if (func_00361D40(func_0035D5A0(GROUP_UNIT(g)[0x79])) < 300)
@@ -1540,7 +1540,7 @@ int func_0034E6C0(u8 *g)
     return func_0034DFB0() != 0;
 }
 
-/* 0x0034E720, 0x40 bytes, matching. The same for event 0x1E. */
+/* 0x0034E720, 0x40 bytes. The same for event 0x1E. */
 int func_0034E720(u8 *g)
 {
     if (func_0036F520(GROUP_UNIT(g)[0x79], 0x1E) != 0)
@@ -1548,7 +1548,7 @@ int func_0034E720(u8 *g)
     return func_0034DFB0() != 0;
 }
 
-/* 0x0034E910, 0x1C bytes, matching. */
+/* 0x0034E910, 0x1C bytes. */
 u8 *func_0034E910(u8 *st)
 {
     return func_0034DE70(st);
@@ -1609,7 +1609,7 @@ void func_0034EBE0(void)
     }
 }
 
-/* 0x0034EC80, 0x1C bytes, matching. Base `k` (0x3C bytes each). */
+/* 0x0034EC80, 0x1C bytes. Base `k` (0x3C bytes each). */
 int func_0034EC80(int k)
 {
     return (int)(g_0045D2F0 + k * 0x3C + 0x110);
@@ -1632,13 +1632,13 @@ u8 *func_0034ECA0(u8 *code)
     return 0;
 }
 
-/* 0x0034ED40, 0x4C bytes, matching. Base `b`'s number. */
+/* 0x0034ED40, 0x4C bytes. Base `b`'s number. */
 int func_0034ED40(u8 *b)
 {
     return ((int)b - func_0034EC80(0)) / 0x3C;
 }
 
-/* 0x0034ED90, 0x14 bytes, matching. Base or unit `b`'s position code. */
+/* 0x0034ED90, 0x14 bytes. Base or unit `b`'s position code. */
 void func_0034ED90(u8 *b, u8 *out)
 {
     out[0] = b[0];
@@ -1670,7 +1670,7 @@ void func_0034EE00(u8 *b, int o)
         b[6] = 1;
 }
 
-/* 0x0034EE50, 0xC bytes, matching. Whether base `b` exists. */
+/* 0x0034EE50, 0xC bytes. Whether base `b` exists. */
 int func_0034EE50(u8 *b)
 {
     return b[6] != 0;
@@ -1689,20 +1689,20 @@ int func_0034EE80(u8 *b)
     return func_0034F330(b, 2);
 }
 
-/* 0x0034EEA0, 0x1C bytes, matching. */
+/* 0x0034EEA0, 0x1C bytes. */
 void func_0034EEA0(u8 *b)
 {
     func_0034F300(b, 2);
 }
 
-/* 0x0034EEC0, 0x1C bytes, matching. */
+/* 0x0034EEC0, 0x1C bytes. */
 void func_0034EEC0(u8 *b)
 {
     func_0034F310(b, 2);
 }
 
-/* 0x0034EEE0, 8 bytes, matching. */
-/* 0x0034EEE0, 0x8 bytes, matching. */
+/* 0x0034EEE0, 8 bytes. */
+/* 0x0034EEE0, 0x8 bytes. */
 void func_0034EEE0(u8 *b, u8 v)
 {
     b[7] = v;
@@ -1720,7 +1720,7 @@ u32 func_0034EEF0(u8 *b)
     return k;
 }
 
-/* 0x0034EF50, 0xC bytes, matching. */
+/* 0x0034EF50, 0xC bytes. */
 u8 func_0034EF50(u8 *b, int k)
 {
     return b[k + 2];
@@ -1785,7 +1785,7 @@ void func_0034F0C0(u8 *b)
         BASE_UNIT(b, k) = 0x1AD;
 }
 
-/* 0x0034F100, 0x40 bytes, matching. Empties every base's unit slots. */
+/* 0x0034F100, 0x40 bytes. Empties every base's unit slots. */
 void func_0034F100(void)
 {
     u32 k;
@@ -1829,7 +1829,7 @@ u16 func_0034F270(u8 *b, int k)
     return BASE_UNIT(b, k);
 }
 
-/* 0x0034F280, 0x4C bytes, matching. Base `b`'s unit `k` (0 for none). */
+/* 0x0034F280, 0x4C bytes. Base `b`'s unit `k` (0 for none). */
 u8 *func_0034F280(u8 *b, int k)
 {
     u32 i = func_0034F270(b, k) & 0xFFFF;
@@ -1839,31 +1839,31 @@ u8 *func_0034F280(u8 *b, int k)
 
 /* 0x0034F2D0-0x0034F3E0. Base fields: a counter (+0x30), flags (+0x31), two halfwords
  * (+0x32, +0x34), a 4-byte value (+0x36) and per-side bytes (+0x3A). */
-/* 0x0034F2D0, 0x10 bytes, matching. */
+/* 0x0034F2D0, 0x10 bytes. */
 void func_0034F2D0(u8 *b)
 {
     b[0x30]++;
 }
 
-/* 0x0034F2E0, 0x8 bytes, matching. */
+/* 0x0034F2E0, 0x8 bytes. */
 void func_0034F2E0(u8 *b)
 {
     b[0x30] = 0;
 }
 
-/* 0x0034F2F0, 0x8 bytes, matching. */
+/* 0x0034F2F0, 0x8 bytes. */
 u8 func_0034F2F0(u8 *b)
 {
     return b[0x30];
 }
 
-/* 0x0034F300, 0x10 bytes, matching. */
+/* 0x0034F300, 0x10 bytes. */
 void func_0034F300(u8 *b, u8 m)
 {
     b[0x31] |= m;
 }
 
-/* 0x0034F310, 0x1C bytes, matching. */
+/* 0x0034F310, 0x1C bytes. */
 void func_0034F310(u8 *b, u8 m)
 {
     b[0x31] &= ~m;
@@ -1875,7 +1875,7 @@ u8 func_0034F330(u8 *b, u8 m)
     return b[0x31] & m;
 }
 
-/* 0x0034F340, 0x14 bytes, matching. */
+/* 0x0034F340, 0x14 bytes. */
 void func_0034F340(u8 *b, u16 v)
 {
     if (b != 0)
@@ -1890,14 +1890,14 @@ u16 func_0034F360(u8 *b)
     return *(u16 *)(b + 0x32);
 }
 
-/* 0x0034F380, 0x1C bytes, matching. */
+/* 0x0034F380, 0x1C bytes. */
 void func_0034F380(u8 *b)
 {
     if (b != 0)
         (*(short *)(b + 0x32))--;
 }
 
-/* 0x0034F3A0, 0x8 bytes, matching. */
+/* 0x0034F3A0, 0x8 bytes. */
 void func_0034F3A0(u8 *b, u16 v)
 {
     *(u16 *)(b + 0x34) = v;
@@ -1909,19 +1909,19 @@ u16 func_0034F3B0(u8 *b)
     return *(u16 *)(b + 0x34);
 }
 
-/* 0x0034F3C0, 0x8 bytes, matching. */
+/* 0x0034F3C0, 0x8 bytes. */
 u8 *func_0034F3C0(u8 *b)
 {
     return b + 0x36;
 }
 
-/* 0x0034F3D0, 0xC bytes, matching. */
+/* 0x0034F3D0, 0xC bytes. */
 void func_0034F3D0(u8 *b, int k, u8 v)
 {
     b[k + 0x3A] = v;
 }
 
-/* 0x0034F3E0, 0xC bytes, matching. */
+/* 0x0034F3E0, 0xC bytes. */
 u8 func_0034F3E0(u8 *b, int k)
 {
     return b[k + 0x3A];
@@ -1936,7 +1936,7 @@ void func_0034F3F0(u8 *b, int k)
         func_0034F3D0(b, k, v - 1);
 }
 
-/* 0x0034F440, 0x38 bytes, matching. Saves the bases into `p` (+0xBE). */
+/* 0x0034F440, 0x38 bytes. Saves the bases into `p` (+0xBE). */
 void func_0034F440(u8 *p)
 {
     func_0011EB80(p + 0xBE, BASE(0), 0x4B0);
@@ -2081,7 +2081,7 @@ int func_00348AE0(void)
     return RANDOM() % 7 + 0x1B;
 }
 
-/* 0x00348BA0, 0xE4 bytes, matching. Unit `u`'s event action (events 0xD-0x13), else 0x25. */
+/* 0x00348BA0, 0xE4 bytes. Unit `u`'s event action (events 0xD-0x13), else 0x25. */
 u32 func_00348BA0(u8 *u)
 {
     if (func_0036F390(u, 0xD) != 0)
@@ -2166,7 +2166,7 @@ int func_00348EB0(u8 *u, u8 *v)
     return GROUP_INFO(g)[10] < 0x32;
 }
 
-/* 0x00348F90, 0x58 bytes, matching. Whether unit `u` (flag 0x20000) faces flagged unit `v`. */
+/* 0x00348F90, 0x58 bytes. Whether unit `u` (flag 0x20000) faces flagged unit `v`. */
 int func_00348F90(u8 *u, u8 *v)
 {
     func_0034A740(u);
@@ -2175,13 +2175,13 @@ int func_00348F90(u8 *u, u8 *v)
     return (UNIT_FLAGS(v) & 0x30) != 0;
 }
 
-/* 0x00348FF0, 0x1C bytes, matching. */
+/* 0x00348FF0, 0x1C bytes. */
 void func_00348FF0(void)
 {
     func_001EF900();
 }
 
-/* 0x00349010, 0x38 bytes, matching. Whether unflagged unit `u` passes func_00348E80. */
+/* 0x00349010, 0x38 bytes. Whether unflagged unit `u` passes func_00348E80. */
 int func_00349010(u8 *u)
 {
     if ((UNIT_FLAGS(u) & 0x30) != 0)
@@ -2249,4 +2249,274 @@ int func_003493C0(u8 *u, u8 *v)
     if (func_0034A660(u, (u8 *)b) != 0 && func_0034A660(v, (u8 *)b) != 0)
         return 1;
     return func_00348E80(u) != 0;
+}
+
+extern int (*g_004154A0[13])(u8 *u, u8 *v);   /* by group kind: whether a unit may act */
+
+int func_0033B050(u8 *g);
+int func_0033B090(u8 *g);
+int func_001EFD50(u8 *u, u8 *v);
+void func_001EABE0(u8 *u, int v, int a);
+int func_003F7780(int s, int k);
+void func_001F11E0(int w, float *out);
+void func_00253B50(int a, int w);
+int func_0018C160(u8 *cell);
+
+#define OFFICER(i) (g_006A3A30 + (i) * 0xC0)
+
+/* 0x00349450, 0x90 bytes. The same as func_003493C0. */
+int func_00349450(u8 *u, u8 *v)
+{
+    u8 *g = func_0034A740(u);
+    int b = func_0033C160(g);
+
+    if (func_0034A660(u, (u8 *)b) != 0 && func_0034A660(v, (u8 *)b) != 0)
+        return 1;
+    return func_00348E80(u) != 0;
+}
+
+/* 0x003494E0, 0x78 bytes. Whether unit `v` belongs to the group unit `u`'s group follows. */
+int func_003494E0(u8 *u, u8 *v)
+{
+    int x = func_0033C1E0(func_0034A740(u));
+
+    if (x == 0)
+        return 0;
+    if ((int)func_0034A740(v) == x) {
+        func_00348E80(u);
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00349560, 0x90 bytes. The same as func_003493C0. */
+int func_00349560(u8 *u, u8 *v)
+{
+    u8 *g = func_0034A740(u);
+    int b = func_0033C160(g);
+
+    if (func_0034A660(u, (u8 *)b) != 0 && func_0034A660(v, (u8 *)b) != 0)
+        return 1;
+    return func_00348E80(u) != 0;
+}
+
+/* 0x00349600, 0xD0 bytes. The same as func_00349050. */
+int func_00349600(u8 *u, u8 *v)
+{
+    return on_base_or(u, v, 0x1E);
+}
+
+/* 0x003496E0, 0x11C bytes. Whether unit `u` may act on unit `v` (by its group's kind; with
+ * func_0036D310 only func_00348F90), then func_00348FF0. */
+int func_003496E0(u8 *u, u8 *v)
+{
+    int (*tbl[16])(u8 *, u8 *);
+    u8 *g;
+    int k;
+
+    for (k = 0; k < 13; k++)
+        tbl[k] = g_004154A0[k];
+    g = func_0034A740(u);
+    if (func_0036D310() == 0) {
+        if (func_00348EB0(u, v) != 0)
+            return 1;
+        k = GROUP_INFO(g)[5];
+        if (tbl[k] != 0 && tbl[k](u, v) == 0)
+            return 0;
+    } else if (func_00348F90(u, v) == 0) {
+        return 0;
+    }
+    return func_00348FF0(u, v);
+}
+
+/* 0x00349800, 0xAC bytes. Whether units `u` and `v` both stand on `u`'s group's base, or `v` is
+ * flagged and shares `u`'s position. */
+int func_00349800(u8 *u, u8 *v)
+{
+    u8 *b = (u8 *)func_0034A890(u);
+
+    if (b == 0)
+        return 0;
+    if (func_0034A660(u, b) != 0 && func_0034A660(v, b) != 0)
+        return 1;
+    return (UNIT_FLAGS(v) & 0x30) != 0 && func_0034A6C0(u, v) != 0;
+}
+
+/* 0x003498B0, 0xA8 bytes. Whether unit `u` may act on unit `v` (by its group's state), then
+ * func_001EFD50. */
+int func_003498B0(u8 *u, u8 *v)
+{
+    u8 *g = func_0034A740(u);
+
+    if (g != 0) {
+        if (func_0033B050(g) == 0) {
+            if (func_0033B090(g) != 0 && func_00349800(u, v) == 0)
+                return 0;
+        } else if (func_003496E0(u, v) == 0) {
+            return 0;
+        }
+    }
+    return func_001EFD50(u, v);
+}
+
+/* 0x00349960, 0x118 bytes. The officers of unit `u` lose `pct`% of their soldiers (+0x82, at
+ * least one when any, at most their +0x80); +0x84 keeps the highest. */
+void func_00349960(u8 *u, int pct)
+{
+    u32 k;
+
+    for (k = 0; k < 0x8F; k++) {
+        u8 *o = OFFICER(k);
+
+        if ((*(u32 *)(o + 0xB8) & 1) != 0 && *(int *)(o + 0x10) == (int)u) {
+            short v = *(short *)(o + 0x82) * pct / 100, cur = *(short *)(o + 0x80), m;
+
+            if (pct > 0 && v < 2)
+                v = 1;
+            m = cur < v ? cur : v;
+            *(short *)(o + 0x82) = m < 1 ? 0 : m;
+            if (*(short *)(o + 0x84) < *(short *)(o + 0x82))
+                *(short *)(o + 0x84) = *(short *)(o + 0x82);
+        }
+    }
+}
+
+/* 0x00349A80, 0x68 bytes. Unit `u` loses `pct`% of its strength (+0x52, at least one). */
+void func_00349A80(u8 *u, int pct)
+{
+    int v = *(short *)(u + 0x52) * pct / 100;
+
+    if (pct > 0 && v < 2)
+        v = 1;
+    func_001EABE0(u, *(short *)(u + 0x52) - v, 0);
+}
+
+/* 0x00349AF0, 0x40 bytes. The same through its officers for flag 0x20000 units. */
+void func_00349AF0(u8 *u, int pct)
+{
+    if ((UNIT_FLAGS(u) & 0x20000) == 0)
+        func_00349A80(u, pct);
+    else
+        func_00349960(u, pct);
+}
+
+/* 0x00349B30, 0xB0 bytes. Unit `u`'s +0x54 value (tripled in a held group of +0x27 kind 0). */
+short func_00349B30(u8 *u)
+{
+    short v = *(short *)(u + 0x54);
+    u8 *g = func_0034A740(u);
+
+    if (g != 0 && func_0033B050(g) != 0 && GROUP_INFO(g)[0x27] == 0)
+        v = (short)(int)((float)v * 3.0f);
+    return v;
+}
+
+/* 0x00349BE0, 0xB4 bytes. Its +0x56 value (tripled for +0x27 kind 1). */
+short func_00349BE0(u8 *u)
+{
+    short v = *(short *)(u + 0x56);
+    u8 *g = func_0034A740(u);
+
+    if (g != 0 && func_0033B050(g) != 0 && GROUP_INFO(g)[0x27] == 1)
+        v = (short)(int)((float)v * 3.0f);
+    return v;
+}
+
+/* 0x00349CA0, 0x144 bytes. Unit `u`'s +0x24 rate, raised by its side's formation boosts 7-9,
+ * halved by the enemy's event 0x1C, tripled for +0x27 kind 2. */
+float func_00349CA0(u8 *u)
+{
+    float f = *(float *)(u + 0x24);
+    u8 s = u[0x79], *g;
+
+    if (func_003F7780(s, 7) != 0)
+        f *= 2.0f;
+    if (func_003F7780(s, 8) != 0)
+        f *= 4.0f;
+    if (func_003F7780(s, 9) != 0)
+        f *= 6.0f;
+    if (func_0036F520(func_0035D5A0(s), 0x1C) != 0)
+        f *= 0.5f;
+    g = func_0034A740(u);
+    if (g != 0 && func_0033B050(g) != 0 && GROUP_INFO(g)[0x27] == 2)
+        f *= 3.0f;
+    return f;
+}
+
+/* Clamps `v` to 1-1000. */
+static short clamp1000(int v)
+{
+    short s = (short)(v > 1000 ? 1000 : v), m = s > 1000 ? 1000 : s;
+
+    return m < 2 ? 1 : m;
+}
+
+/* 0x0034A020, 0x1A0 bytes. Unit `u` changes weapon to `w`; its officer's two values (+0x8A,
+ * +0x8C) scale with the weapons' ratings (when flag 0x80). */
+void func_0034A020(u8 *u, u8 w)
+{
+    u8 old = u[0x7E];
+    float a, b;
+
+    u[0x7E] = w;
+    if ((UNIT_FLAGS(u) & 0x20000) == 0)
+        return;
+    func_001F11E0(old, &a);
+    func_001F11E0(w, &b);
+    {
+        u8 *o = OFFICER(*(int *)(u + 0x14));
+
+        if ((*(u32 *)(o + 0xB8) & 0x80) != 0) {
+            int x = (int)(b * ((float)*(short *)(o + 0x8A) / a));
+            int y = (int)(b * ((float)*(short *)(o + 0x8C) / a));
+
+            *(short *)(o + 0x8A) = clamp1000(x);
+            *(short *)(o + 0x8C) = clamp1000(y);
+        }
+        func_00253B50(*(int *)(o + 0x14), w);
+    }
+}
+
+/* 0x0034A1C0, 0x38 bytes. Unit `u`'s side (0 / 1 by flags 0x10 / 0x20, else 2). */
+int func_0034A1C0(u8 *u)
+{
+    if (UNIT_FLAGS(u) & 0x10)
+        return 0;
+    if (UNIT_FLAGS(u) & 0x20)
+        return 1;
+    return 2;
+}
+
+/* 0x0034A200, 0x44 bytes. Unit `u`'s strength in percent of its most. */
+int func_0034A200(u8 *u)
+{
+    u32 m = *(short *)(u + 0x50);
+
+    if (m < 2)
+        m = 1;
+    return *(short *)(u + 0x52) * 100 / (int)m;
+}
+
+/* 0x0034A250, 0x1E0 bytes. A free spot of map cell `cell` (5x5 sub-cells, starting by unit
+ * `u`'s number) into `out`; the cell's centre when none. */
+void func_0034A250(u8 *u, u8 *cell, float *out)
+{
+    u32 k;
+    int i = cell[1] + cell[0] * 0x19 + (u - g_00693970) / 0x88;
+
+    for (k = 0; k < 0x19; k++) {
+        u32 j = i % 0x19;
+        u8 c[2];
+
+        c[0] = (int)j % 5 + cell[0] * 5;
+        c[1] = j / 5 + cell[1] * 5;
+        if (func_0018C160(c) != 0) {
+            out[0] = (float)c[0] * 1000.0f + 500.0f;
+            out[1] = (float)c[1] * 1000.0f + 500.0f;
+            return;
+        }
+        i = j + 1;
+    }
+    out[0] = (float)cell[0] * 5000.0f + 2500.0f;
+    out[1] = (float)cell[1] * 5000.0f + 2500.0f;
 }
