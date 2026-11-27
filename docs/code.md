@@ -1025,6 +1025,22 @@ so far (13 functions, 5 match):
 - the perspective and screen matrices, and a camera object's defaults (a 15-degree view angle,
   depth 64 to 50000).
 
+## Scenario control (`src/sc_ctrl.c`)
+
+Original source file `sc_ctrl.c` (its name is passed to the file loader at `0x00185D10`, from
+line 1922 of the original, so the file starts well before). Done so far: `0x00185CA0`-
+`0x001864A4`, 16 functions, 9 match. Like `Weapon.c`, it was built with the loop unroller on.
+
+- A table file (LINKDATA entry 0x35) is loaded at start; the scenario's frame calls one of two
+  updates by the game mode.
+- Officer ids: 0x1AD means none, 0x1AE / 0x1AF the players' officers; an officer counts as on
+  the field with flag 1 and none of 0x8C40002 in its 0x88-byte record (`0x00693970`, +0x80).
+- **Commands** (`0x005BA7CC`): each command has conditions (0x12 bytes each, +1 their state)
+  and entries. Each frame the commands not yet met are tested; a met command runs its entries
+  or first asks `0x00183410`, and is cleared if refused. A second kind of command runs on
+  request. Their states are saved and restored with the game (a byte per command and per
+  condition).
+
 ## Motion data (`src/motion_manager.c`)
 
 Original source file `MotionManager.c` (its name is passed to the file loader at
