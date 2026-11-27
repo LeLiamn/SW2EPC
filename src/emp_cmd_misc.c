@@ -1916,3 +1916,152 @@ int func_003C74D0(void)
 {
     return func_00329540(0xBD) == 0 && face(4, 0x14);
 }
+
+int func_00327CC0(void);
+
+#define KNOWS(o, how) (func_0032EB40(func_00327820(), (o), (how)) != 0)
+
+/* 0x003C76C0, 0xE0 bytes. */
+int func_003C76C0(void)
+{
+    if (func_00329540(0xBF) != 0 || func_00327C70() < 6)
+        return 0;
+    if (!KNOWS(4, 1) || !KNOWS(func_00337A10(0x56), 0))
+        return 0;
+    if (func_002F33F0(4) < 5)
+        return 0;
+    return func_002F33F0(func_00337A10(0x56)) > 4;
+}
+
+/* 0x003C77A0, 0x168 bytes. Event 0xC0 (once, after 0xEF, before 0xF0). */
+int func_003C77A0(void)
+{
+    int v;
+
+    if (func_00329540(0xC0) != 0 || func_00329540(0xEF) == 0 || func_00329540(0xF0) != 0)
+        return 0;
+    if (!KNOWS(7, 0) || !KNOWS(5, 0) || !KNOWS(0xD, 0) || KNOWS(0x12, 1) || KNOWS(0x1B, 1))
+        return 0;
+    v = func_00328270();
+    return v == 0 || func_00328270() == 2 || func_00328270() == 4;
+}
+
+/* 0x003C7910, 0x138 bytes. */
+int func_003C7910(void)
+{
+    if (func_00329540(0xC1) != 0)
+        return 0;
+    if (!KNOWS(0x13, 0) || !KNOWS(5, 1) || KNOWS(0x12, 1) || KNOWS(0x1B, 1))
+        return 0;
+    if (func_002F33F0(0x13) < 5 || func_002F33F0(5) < 5)
+        return 0;
+    return func_00328270() == 2 || func_00328270() == 4;
+}
+
+/* 0x003C7A50, 0xE4 bytes. */
+int func_003C7A50(void)
+{
+    if (func_00329540(0xC2) != 0 || func_00327C70() < 0xB)
+        return 0;
+    if (!KNOWS(0x12, 1) || !KNOWS(5, 0))
+        return 0;
+    if (func_00328270() != 0 && func_00328270() != 1)
+        return 0;
+    return func_00327CC0() != 3;
+}
+
+/* 0x003C7B40, 0x12C bytes. */
+int func_003C7B40(void)
+{
+    if (func_00329540(0xC3) != 0)
+        return 0;
+    if (!KNOWS(5, 0) || !KNOWS(0xC, 0) || KNOWS(0x12, 1))
+        return 0;
+    if (func_002F33F0(5) < 5 || func_002F33F0(0xC) < 5)
+        return 0;
+    if (func_00328270() != 0 && func_00328270() != 2 && func_00328270() != 4)
+        return 0;
+    return func_00327CC0() != 3;
+}
+
+/* 0x003C7C70, 0x8C bytes. */
+int func_003C7C70(void)
+{
+    if (func_00329540(0xC4) != 0 || func_00327C70() < 6 || !KNOWS(6, 0))
+        return 0;
+    return KNOWS(1, 0);
+}
+
+/* 0x003C7D00, 0x80 bytes. */
+int func_003C7D00(void)
+{
+    if (func_00329540(0xC5) != 0 || func_003C23A0() == 0 || func_002F4080(6) == func_002F4080(1))
+        return 0;
+    return func_003C2AE0(1, 6) != 0;
+}
+
+/* 0x003C7D80, 0x64 bytes. */
+int func_003C7D80(void)
+{
+    if (func_00329540(0xC6) != 0 || func_00327820() != 0xD)
+        return 0;
+    return KNOWS(6, 0);
+}
+
+/* 0x003C7DF0, 0xE4 bytes. */
+int func_003C7DF0(void)
+{
+    if (func_00329540(199) != 0 || func_00327C70() < 0x10)
+        return 0;
+    if (!KNOWS(0x12, 1) || !KNOWS(6, 1) || KNOWS(5, 1))
+        return 0;
+    if (func_002F3BB0(5) == 0)
+        return 0;
+    return func_00328270() != 0;
+}
+
+/* 0x003C7EE0, 0x8C bytes. */
+int func_003C7EE0(void)
+{
+    if (func_00329540(200) != 0 || func_00327C70() < 0xB || !KNOWS(7, 0))
+        return 0;
+    return KNOWS(0xC, 0);
+}
+
+/* 0x003C7F70, 0x8C bytes. */
+int func_003C7F70(void)
+{
+    if (func_00329540(0xC9) != 0 || func_00327C70() < 6 || !KNOWS(7, 1))
+        return 0;
+    return KNOWS(10, 0);
+}
+
+/* 0x003C8000, 0x8C bytes. */
+int func_003C8000(void)
+{
+    if (func_00329540(0xCA) != 0 || func_00327C70() < 0x10 || !KNOWS(7, 1))
+        return 0;
+    return KNOWS(0x15, 0);
+}
+
+/* 0x003C8090, 0x100 bytes. Event 0xCB (once): officers 8 and 4 face each other as the two
+ * commanders. */
+int func_003C8090(void)
+{
+    if (func_00329540(0xCB) != 0 || face(8, 4) == 0)
+        return 0;
+    if (func_003620E0(0, 0) != 4 && func_003620E0(1, 0) != 4)
+        return 0;
+    return func_003620E0(0, 0) == 8 || func_003620E0(1, 0) == 8;
+}
+
+/* 0x003C8190, 0xA4 bytes. Event 0xCC (once; mode 10 or after 0xCD): officers 8 and 4 together on
+ * side 0. */
+int func_003C8190(void)
+{
+    if (func_00327C00() != 10 && func_00329540(0xCD) == 0)
+        return 0;
+    if (func_00329540(0xCC) != 0 || func_0032EC50(func_00327820(), 8, 4, 1) == 0)
+        return 0;
+    return func_003C27A0(0, 8, 4, 0x19F, 0x19F) == 2;
+}
