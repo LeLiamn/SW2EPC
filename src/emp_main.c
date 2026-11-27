@@ -2261,3 +2261,396 @@ int func_00302300(int f)
 {
     return func_00313FC0(0x32, 0, f) / 3 < func_002F9190(f) ? 0 : -1;
 }
+
+extern int (*g_00414860[9])(int f, u32 i);   /* targets of commands 0x2B-0x33 */
+extern int (*g_00414890[7])(int f);          /* targets of commands 0x34-0x3A */
+
+int func_002FD430(int c);
+int func_002FD460(int c);
+int func_002F9260(u32 i);
+int func_002FB470(int f);
+int func_002FB430(int f);
+int func_0030C660(int r);
+int func_00308BF0(u32 i, int f);
+int func_00309780(int f);
+int func_002FA790(u32 i);
+int func_002FA6B0(u32 f);
+int func_002F77A0(u32 i, u32 j);
+int func_002F77F0(u32 i, u32 j);
+int func_002F78C0(u32 i, u32 j);
+int func_002F8070(u32 i, int f);
+int func_002F8160(u32 i, int f);
+int func_002F8B60(u32 i, u32 j);
+
+/* Whether a computer force may give diplomacy or war commands this year (early in the game
+ * only); the player's force always may. */
+static inline int may_plan(int player)
+{
+    u32 lim;
+
+    if (player != 0)
+        return 1;
+    lim = func_00327C40() < 3 ? 4 : 2;
+    return (u32)func_00327C70() <= lim;
+}
+
+/* 0x00302360, 0x2CC bytes. The same as func_002FF710 for the diplomacy commands 0x2B-0x33
+ * (computer forces only in the early years; 0x2F not against a kind 3 relation with the player;
+ * 0x2F wanted more at peace). */
+void func_00302360(int *out, u32 i, int k, int a, int b)
+{
+    int f = func_002F4080(i), player = func_002FB2A0(f), cmd[100], val[100], n = 0, c, j;
+
+    if (!may_plan(player))
+        return;
+    for (c = 0x2B; c < 0x34; c++) {
+        if (func_002FD000(c) != 0 || func_002FD3C0(c) != 0 || func_002FD310(f, c) == 0
+            || func_002FD050(c) != 0 || func_002FD1D0(f, c, 0) == 0 || func_002FD430(c) != 0
+            || func_002FD460(c) != 0)
+            continue;
+        if (c == 0x2F && player == 0 && func_002F9C90(f, func_00327D50()) == 3)
+            continue;
+        if (func_00314C40(c, i, a, b) == 0)
+            continue;
+        cmd[n] = c;
+        val[n] = func_002FF230(c, i);
+        if (c == 0x2F) {
+            if (func_003014E0(f) != 0)
+                val[n] += 10;
+            else if (func_003015B0(f) != 0)
+                val[n] += 5;
+        }
+        n++;
+    }
+    if (n == 0)
+        return;
+    func_002FF330(cmd, val, n);
+    for (j = 0; j < n; j++) {
+        int t;
+
+        if ((u32)(cmd[j] - 0x2B) < 9 && (t = g_00414860[cmd[j] - 0x2B](f, i)) != -1) {
+            out[k + 1] = cmd[j];
+            out[k + 3] = t;
+            return;
+        }
+    }
+}
+
+/* 0x00302630, 0x2CC bytes. The enemy officer (of an attackable neighbour's regions near force
+ * `f`'s home, the most soldiers) force `f` would try to win over, while it has no envoy yet,
+ * by chance from func_00308BF0; -1 for none. */
+int func_00302630(int f)
+{
+    int l[28], reg[28], player, plan, n, m, c, x, y, z, top = 0;
+    u32 best = 0x19F, *o;
+
+    func_002F7B10();
+    if ((u32)func_002F9260(f) <= 0x19E)
+        return -1;
+    player = func_002FB2A0(f);
+    if (player == 0) {
+        plan = func_002FA160(f);
+        if (plan == 0 || plan == 3)
+            return -1;
+    }
+    n = func_002FD730(f, l);
+    func_0030B540(func_002FB2D0(f));
+    for (x = 0; x < n; x++) {
+        if (player == 0 && func_002FB2A0(l[x]) == 0)
+            continue;
+        m = func_002FB320(l[x], reg);
+        for (y = 0; y < m; y++) {
+            if (func_0030B2F0(reg[y]) == 0)
+                continue;
+            c = func_002F7D90(0, (int (*)(u32, int, int))func_002F8070, reg[y], 0, 1);
+            o = func_002F7B10();
+            for (z = 0; z < c; z++, o++) {
+                int v = func_002F3770(*o);
+
+                if (v != 0 && (best > 0x19E || top < v || (v == top && func_0030CB50(0x32) != 0))) {
+                    best = *o;
+                    top = v;
+                }
+            }
+        }
+    }
+    func_0030B330();
+    if (best < 0x19F) {
+        int pct = func_00308BF0(best, f) * 0x82 / 100;
+
+        if (pct >= 100)
+            pct = 100;
+        if (func_0030CB50(pct) == 0)
+            return -1;
+        return best;
+    }
+    return -1;
+}
+
+/* 0x00302900, 0x204 bytes. The weakly held region (under half its troops) of an attackable
+ * neighbour that force `f` can reach: the one with the highest func_0030C660, then the force
+ * with the lowest func_002FB470 value; -1 for none. */
+int func_00302900(int f)
+{
+    int l[28], reg[28], player = func_002FB2A0(f), best = 0x19, top = 0, sz = 0, n, m, x, y;
+
+    n = func_002FD730(f, l);
+    for (x = 0; x < n; x++) {
+        int s;
+
+        if (player == 0 && func_002FB2A0(l[x]) == 0)
+            continue;
+        m = func_002FB320(l[x], reg);
+        s = func_002FB470(l[x]);
+        for (y = 0; y < m; y++) {
+            int v;
+
+            if (func_0030C440(reg[y], f) == 0)
+                continue;
+            if (func_0030B090(reg[y]) * 10 / func_0030ACE0(reg[y]) >= 5)
+                continue;
+            v = 0x19F - func_0030C660(reg[y]);
+            if (!IS_FORCE(best) || v < top || (v == top && (s < sz || (s == sz && func_0030CB50(0x32) != 0)))) {
+                best = reg[y];
+                sz = s;
+                top = v;
+            }
+        }
+    }
+    return IS_FORCE(best) ? best : -1;
+}
+
+/* 0x00302B10, 0x134 bytes. Whether region `r` (not its force's home) holds an officer with no
+ * tie to its force's leader. */
+int func_00302B10(int r)
+{
+    int g = func_0030AFF0(r), n, k;
+    u32 *o = func_002F7B10(), lead;
+
+    if (!IS_FORCE(g) || r == func_002FB2D0(g))
+        return 0;
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, r, 0, 1);
+    if (n == 0)
+        return 0;
+    lead = func_002F8F20(g);
+    for (k = 0; k < n; k++, o++) {
+        u32 i = *o;
+
+        if (func_002F77A0(lead, i) == 0 && func_002F77F0(lead, i) == 0 && func_002F78C0(lead, i) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00302C50, 0x1D4 bytes. The region of an attackable neighbour (not its home, with an
+ * officer not tied to its leader) force `f` would stir up, those it can reach first; by chance
+ * (60% for the player). -1 for none. */
+int func_00302C50(int f)
+{
+    int l[28], reg[28], player = func_002FB2A0(f), best = 0x19, n, m, x, y, pct;
+    u32 top = 0;
+
+    n = func_002FD730(f, l);
+    for (x = 0; x < n; x++) {
+        int home;
+
+        if (player == 0 && func_002FB2A0(l[x]) == 0)
+            continue;
+        home = func_002FB2D0(l[x]);
+        m = func_002FB320(l[x], reg);
+        for (y = 0; y < m; y++) {
+            u32 v;
+
+            if (home == reg[y] || func_00302B10(reg[y]) == 0)
+                continue;
+            v = func_0030C440(reg[y], f) != 0 ? 10 : 0;
+            if (!IS_FORCE(best) || top < v || (v == top && func_0030CB50(0x32) != 0)) {
+                best = reg[y];
+                top = v;
+            }
+        }
+    }
+    pct = player != 0 ? 0x3C : 100;
+    if (!IS_FORCE(best))
+        return -1;
+    return func_0030CB50(pct) != 0 ? best : -1;
+}
+
+/* 0x00302E30, 0x238 bytes. The attackable neighbour force `f` would attack (no ally, three
+ * officers per region, its officers at 80% of their soldiers): the one with the fewest
+ * officers, then the smallest; -1 for none. */
+int func_00302E30(int f)
+{
+    int l[28], nr, c, s = 0, mx = 0, k, n, best, a, b;
+    u32 *o = func_002F7B10();
+
+    if (IS_FORCE(func_002FA6B0(f)))
+        return -1;
+    nr = func_002FB3B0(f);
+    c = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1);
+    if (c / nr < 3)
+        return -1;
+    for (k = 0; k < c; k++, o++) {
+        s += func_002F3770(*o);
+        mx += func_002F38F0(*o);
+    }
+    if (s * 10 / mx < 8)
+        return -1;
+    n = func_002FD730(f, l);
+    best = 0x19;
+    a = 0;
+    b = 0;
+    for (k = 0; k < n; k++) {
+        int oa = func_002FB430(l[k]), ob = func_002FB3B0(l[k]);
+
+        if (!IS_FORCE(best) || oa < a || (oa == a && (ob < b || (ob == b && func_0030CB50(0x32) != 0)))) {
+            best = l[k];
+            b = ob;
+            a = oa;
+        }
+    }
+    return IS_FORCE(best) ? best : -1;
+}
+
+/* 0x00303070, 0x48 bytes. 0 when officer `f` has no func_002FA790 link and func_00309780 allows, else
+ * -1. */
+int func_00303070(int f)
+{
+    if (func_002FA790(f) != 0)
+        return -1;
+    return func_00309780(f) != 0 ? 0 : -1;
+}
+
+/* 0x003030C0, 0x34C bytes. The enemy officer force `f` would recruit away (as func_00302630,
+ * only in regions with an officer not tied to its leader; the player's force needs room; the
+ * computer takes the first of each region's sorted list and has double chance). */
+int func_003030C0(int f)
+{
+    int l[28], reg[28], player, plan, n, m, c, x, y, z, top = 0;
+    u32 best = 0x19F, *o;
+
+    func_002F7B10();
+    if (func_002FB2A0(f) != 0 && func_002FB430(f) >= func_00327E50())
+        return -1;
+    player = func_002FB2A0(f);
+    if (player == 0) {
+        plan = func_002FA160(f);
+        if (plan == 0 || plan == 3)
+            return -1;
+    }
+    n = func_002FD730(f, l);
+    func_0030B540(func_002FB2D0(f));
+    for (x = 0; x < n; x++) {
+        if (player == 0 && func_002FB2A0(l[x]) == 0)
+            continue;
+        m = func_002FB320(l[x], reg);
+        for (y = 0; y < m; y++) {
+            if (func_0030B2F0(reg[y]) == 0 || func_00302B10(reg[y]) == 0)
+                continue;
+            c = func_002F7D90(0, (int (*)(u32, int, int))func_002F8070, reg[y], 0, 1);
+            o = func_002F7B10();
+            if (player == 0) {
+                func_002F87D0(o, c, (int (*)(u32, u32, int, int))func_002F8B60, -1, -1);
+                if (best == 0x19F || func_0030CB50(0x32) != 0) {
+                    best = *o;
+                    top = 0;
+                }
+                continue;
+            }
+            for (z = 0; z < c; z++, o++) {
+                int v = func_002F3770(*o);
+
+                if (v != 0 && (best > 0x19E || top < v || (v == top && func_0030CB50(0x32) != 0))) {
+                    best = *o;
+                    top = v;
+                }
+            }
+        }
+    }
+    func_0030B330();
+    if (best < 0x19F) {
+        int pct = func_00308BF0(best, f);
+
+        if (player == 0)
+            pct <<= 1;
+        pct = pct * 0x82 / 100;
+        if (pct >= 100)
+            pct = 100;
+        if (func_0030CB50(pct) == 0)
+            return -1;
+        return best;
+    }
+    return -1;
+}
+
+/* 0x00303420, 0x284 bytes. The force (free of kind 2 relations, not tied to `f`, not its plan's
+ * target, not in the second list) that is at odds with three other forces or at war with two,
+ * the best by a random rule: the one force `f` would ask to join a war. -1 for none. */
+int func_00303420(int f)
+{
+    int tgt = 0x19, best = 0x19, top = 0, rule, g, h;
+
+    if (func_002FB2A0(f) == 0 && func_002FA210(func_002FA160(f)) != 0)
+        tgt = func_002FA390(f);
+    rule = func_0030CB00(3);
+    for (g = 0; g < 0x19; g++) {
+        int a = 0, w = 0;
+
+        if (func_002F8CB0(g) == 0 || g == f || func_002FB120(g) != 0 || func_002FAFA0(f, g) != 0
+            || tgt == g)
+            continue;
+        for (h = 0; h < 0x19; h++) {
+            if (func_002F8CB0(h) != 0 && g != h && f != h && func_002FAFA0(f, h) == 0) {
+                if (func_002F9D50(g, h) > 3)
+                    a++;
+                if (func_002F9C90(g, h) == 3)
+                    w++;
+            }
+        }
+        if ((a > 2 || w > 1) && func_002FD120(g) == 0) {
+            int v = force_value(g, rule);
+
+            if (!IS_FORCE(best) || top < v || (v == top && func_0030CB50(0x1E) != 0)) {
+                best = g;
+                top = v;
+            }
+        }
+    }
+    return IS_FORCE(best) ? best : -1;
+}
+
+/* 0x003036B0, 0x280 bytes. The same as func_00302360 for the war commands 0x34-0x3A. */
+void func_003036B0(int *out, u32 i, int k, int a, int b)
+{
+    int f = func_002F4080(i), cmd[100], val[100], n = 0, c, j;
+
+    if (!may_plan(func_002FB2A0(f)))
+        return;
+    for (c = 0x34; c < 0x3B; c++) {
+        if (func_002FD000(c) != 0 || func_002FD3C0(c) != 0 || func_002FD310(f, c) == 0
+            || func_002FD050(c) != 0 || func_002FD1D0(f, c, 0) == 0 || func_002FD430(c) != 0
+            || func_002FD460(c) != 0 || func_00314C40(c, i, a, b) == 0)
+            continue;
+        cmd[n] = c;
+        val[n] = func_002FF230(c, i);
+        if (c == 0x2F) {
+            if (func_003014E0(f) != 0)
+                val[n] += 10;
+            else if (func_003015B0(f) != 0)
+                val[n] += 5;
+        }
+        n++;
+    }
+    if (n == 0)
+        return;
+    func_002FF330(cmd, val, n);
+    for (j = 0; j < n; j++) {
+        int t;
+
+        if ((u32)(cmd[j] - 0x34) < 7 && (t = g_00414890[cmd[j] - 0x34](f)) != -1) {
+            out[k + 1] = cmd[j];
+            out[k + 3] = t;
+            return;
+        }
+    }
+}
