@@ -396,3 +396,75 @@ void func_0020FF60(u8 *q)
 void func_0020FFB0(void)
 {
 }
+
+extern int g_0073DA20, g_0073DA28, g_0073DA2C, g_0073DCB0, g_0073DCB8, g_0073DCBC;
+extern u8 *g_0045D2F0;                   /* (small data) the stage map */
+extern u8 g_00669D60[];
+
+int func_003623B0(void);
+void func_0020FA70(void);
+void func_00213B40(int k, int a);
+void func_00214E50(int k);
+
+/* 0x00210E50, 0x80 bytes. The minimap's scale by stage. */
+float func_00210E50(void)
+{
+    int v = func_003623B0();
+
+    if (v == 0x19 || v == 0x16 || v == 5)
+        return 0.7f;
+    if (v == 0)
+        return 0.74f;
+    return 0.8f;
+}
+
+/* 0x00213F40, 0x4C bytes. Builds both screens' minimaps once. */
+void func_00213F40(int a)
+{
+    if (g_0073DA20 == 0) {
+        func_0020FA70();
+        func_00213B40(0, a);
+        func_00213B40(1, a);
+    }
+}
+
+/* 0x00214F40, 0x4C bytes. */
+void func_00214F40(void)
+{
+    u32 f = *(u32 *)(g_00669D60 + 0x200);
+
+    if ((f & 0x200) == 0) {
+        func_00214E50(0);
+        if ((f & 2) != 0)
+            func_00214E50(1);
+    }
+}
+
+/* 0x00214F90, 0x30 bytes. */
+void func_00214F90(void)
+{
+    g_0073DA20 = 0;
+    g_0073DA28 = 0;
+    g_0073DA2C = 0;
+    g_0073DCB0 = 0;
+    g_0073DCB8 = 0;
+    g_0073DCBC = 0;
+}
+
+/* 0x00215450, 0xC bytes, matching. */
+u8 func_00215450(void)
+{
+    return g_0045D2F0[0x55];
+}
+
+/* 0x00215460, 0x18 bytes, matching. */
+u8 *func_00215460(u32 k)
+{
+    return g_0045D2F0 + (k & 0xFF) * 4 + 0x10;
+}
+
+/* 0x00215520, 0x2C bytes, matching. */
+void func_00215520(u8 *c, u16 *out)
+{
+    *out = *(u16 *)(*(u8 **)(*(u8 **)(g_0045D2F0 + 0x50) + c[0] * 0x88) + 4);
+}

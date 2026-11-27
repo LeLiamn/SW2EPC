@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 165216,
-    "non_matching": 1096376
+    "matching": 165472,
+    "non_matching": 1097560
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2111
+    "matching": 2115
   },
   "layout": "treemap",
   "areas": [
@@ -511,28 +511,28 @@
         },
         {
           "name": "StgAmbient.c",
-          "description": "Estimated range 0x2132D8-0x219898; 0 function(s) decompiled",
+          "description": "Estimated range 0x2132D8-0x219898; 6 function(s) decompiled",
           "code": {
             "total": 26048,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 96,
+            "non_matching": 208
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 6,
+            "matching": 3
           }
         },
         {
           "name": "StgTexture.c",
-          "description": "Estimated range 0x1EF238-0x201B40; 29 function(s) decompiled",
+          "description": "Estimated range 0x1EF238-0x201B40; 36 function(s) decompiled",
           "code": {
             "total": 76040,
-            "matching": 624,
-            "non_matching": 1348
+            "matching": 784,
+            "non_matching": 2196
           },
           "decompiled_functions": {
-            "count": 29,
-            "matching": 15
+            "count": 36,
+            "matching": 16
           }
         },
         {
@@ -615,14 +615,14 @@
         },
         {
           "name": "MiniMap.c",
-          "description": "Estimated range 0x20F408-0x2132D8; 5 function(s) decompiled",
+          "description": "Estimated range 0x20F408-0x2132D8; 6 function(s) decompiled",
           "code": {
             "total": 16080,
             "matching": 16,
-            "non_matching": 320
+            "non_matching": 448
           },
           "decompiled_functions": {
-            "count": 5,
+            "count": 6,
             "matching": 1
           }
         },

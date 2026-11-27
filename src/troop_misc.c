@@ -254,3 +254,135 @@ void func_001F5090(int a, int b, int v)
 {
     *(int *)(SPAD_PTR(0x700001DC) + b * 100 + a * 4) = v;
 }
+
+extern int g_00731604, g_00731608;
+extern u8 g_0073164D;
+
+/* 0x001F0FC0, 0x90 bytes. A troop's level: its record's for plain troops, else by the
+ * difficulty. */
+u8 func_001F0FC0(u8 *o)
+{
+    char d;
+
+    if ((*(u32 *)(o + 0x80) & 0x30) == 0)
+        return (*(u8 **)(o + 8))[0x1F];
+    d = g_00669D60[0x21];
+    if (d == 4)
+        return 3;
+    if (d == 3)
+        return 4;
+    if (d == 2)
+        return 5;
+    if (d == 1)
+        return 7;
+    if (d == 0)
+        return 7;
+    return 5;
+}
+
+/* 0x001F10D0, 0x70 bytes. */
+int func_001F10D0(char k)
+{
+    if (k == 4)
+        return 200;
+    if (k == 3)
+        return 400;
+    if (k == 2)
+        return 300;
+    if (k == 1)
+        return 200;
+    if (k == 0)
+        return 0;
+    return 200;
+}
+
+/* 0x001F1140, 0x94 bytes. */
+int func_001F1140(char k, int b)
+{
+    int r;
+
+    if (k == 4)
+        return b == 0 ? 2 : 4;
+    if (k == 3)
+        return 6;
+    if (k == 2)
+        return 5;
+    r = 1;
+    if (k == 1)
+        r = b == 0 ? 1 : 4;
+    return r;
+}
+
+/* 0x001F11E0, 0x9C bytes, matching. */
+void func_001F11E0(u8 k, float *out)
+{
+    switch (k) {
+    case 0:
+        *out = 1.0f;
+        break;
+    case 1:
+        *out = 3.0f;
+        break;
+    case 2:
+        *out = 2.0f;
+        break;
+    case 3:
+        *out = 1.5f;
+        break;
+    case 4:
+        *out = 1.3f;
+        break;
+    case 5:
+        *out = 0.8f;
+        break;
+    case 6:
+        *out = 0.6f;
+        break;
+    default:
+        *out = 1.0f;
+        break;
+    }
+}
+
+/* 0x001F1280, 0x74 bytes. By the difficulty. */
+int func_001F1280(void)
+{
+    char d = g_00669D60[0x21];
+
+    if (d == 4)
+        return 7;
+    if (d == 3)
+        return 9;
+    if (d == 2)
+        return 0xC;
+    if (d == 1)
+        return 0x14;
+    if (d == 0)
+        return 0x1E;
+    return 0xC;
+}
+
+/* 0x001F2450, 0x6C bytes. */
+int func_001F2450(void)
+{
+    u32 f = *(u32 *)(g_00669D60 + 0x200);
+    int on = 0;
+
+    if ((f & 0x800000) != 0 && g_0073164D != 0)
+        on = 1;
+    if (!on && ((f & 0x2000000) == 0 || g_0073164D == 0))
+        return 0;
+    return 1;
+}
+
+/* 0x001F2A00, 0xC0 bytes. Whether the duel's side in play has state 5 or 6. */
+int func_001F2A00(void)
+{
+    if (g_007315E0[0] == 4)
+        return g_00731608 == 5 || g_00731608 == 6;
+    if (g_007315E0[0] == 3)
+        return g_00731604 == 5 || g_00731604 == 6;
+    if (g_007315E0[0] == 2)
+        return g_00731608 == 5 || g_00731608 == 6;
+    return 0;
+}
