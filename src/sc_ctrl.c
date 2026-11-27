@@ -726,3 +726,189 @@ void func_00187410(u16 *cmd)
         }
     }
 }
+
+/* The scenario's message window (0x005BC3A0) and its text (0x005BBF20). */
+extern u8 g_005BC3A0[];
+extern char g_005BBF20[];
+extern char *g_005BC260[];               /* texts by index */
+extern u32 g_005BC020, g_005BC028;       /* window kinds */
+extern u32 g_005BC02C, g_005BC030, g_005BC034, g_005BC038, g_005BC03C, g_005BC048, g_005BC04C;
+extern u32 g_005BC064;
+extern u8 *g_005BD724;
+extern u32 g_005BD728, g_005BD72C;
+extern u8 *g_005BA6A0;                   /* officer table (0x2C bytes each, +6 a portrait?) */
+extern u8 g_00669DB0[0x10];              /* in the settings: +0 bit 5 a display flag */
+extern u32 g_00669DE8[][0x12];           /* per player settings (+0: the player's officer list) */
+
+void func_002D6FA0(u8 *who, u8 *pos, int a);
+void func_0022F4B0(char *to, u16 text);
+void func_0019B170(char *to, u16 a, u16 b);
+void func_001204B0(char *to, const char *format, ...);   /* sprintf */
+void func_00120928(char *to, const char *from);         /* strcpy */
+void func_0018AEB0(u8 a, int b, int c, char *text);
+void func_0018ADA0(u8 a, int b);
+void func_0022EF90(u8 *box, u32 kind, int mode);
+void func_0018AE70(u8 a, char *text);
+u8 *func_0034B0D0(u32 id);
+void func_0022F450(char *to, u16 text);
+void func_002C4AE0(u8 *a, char *text);
+
+/* An officer's record for scenario id `id`, the player's own officer for the player ids. */
+static inline u8 *sc_officer(u32 id, int player)
+{
+    id = func_00185ED0(id);
+    if (func_00185EC0(id) != 0)
+        id = func_0035DC70(func_00186480(player)) & 0xFFFF;
+    return REC88(id);
+}
+
+/* 0x001874E0, 0x10C bytes. Command: a speech bubble (text cmd[0] + 1) over officer cmd[1]
+ * (unless the display flag 0x20 of the settings is set, for cmd[2] other than 1). */
+void func_001874E0(u16 *cmd, int player)
+{
+    u32 id;
+    u8 *o;
+
+    if ((g_00669DB0[0] & 0x20) && cmd[2] != 1)
+        return;
+    id = func_00185ED0(cmd[1]);
+    if (func_00185EC0(id) == 0) {
+        o = REC88(id);
+        if ((U32(o, 0x80) & 1) == 0)
+            return;
+    } else {
+        o = REC88(func_0035DC70(func_00186480(player)) & 0xFFFF);
+    }
+    func_002D6FA0(PTR(o, 8), (U32(o, 0x80) & 0x20000) ? o + 0x30 : o + 0x28, cmd[0] + 1);
+    g_005BC3A0[0] |= 0x10;
+}
+
+/* The text of message `t` with the name `name` and the extra text `extra` by form `f`. */
+static inline void sc_format(char *t, char *name, char *extra, short f)
+{
+    if (f == 4)
+        func_001204B0(g_005BBF20, t, extra, name);
+    else if (f == 3)
+        func_001204B0(g_005BBF20, t, name, extra);
+    else if (f == 2)
+        func_001204B0(g_005BBF20, t, extra);
+    else if (f == 1)
+        func_001204B0(g_005BBF20, t, name);
+    else
+        func_00120928(g_005BBF20, t);
+}
+
+/* Opens the message window for `cmd`: with a speaker (+2: 0 a fixed one, 1 or 2 by name). */
+static inline void sc_open(u8 *cmd)
+{
+    u32 kind;
+
+    if (*(short *)(cmd + 2) == 0) {
+        func_0018AEB0(cmd[0], 0, 2, g_005BBF20);
+        kind = 5;
+    } else {
+        func_0018ADA0(cmd[0], *(short *)(cmd + 2) == 1);
+        kind = *(short *)(cmd + 2) == 1 ? 6 : 2;
+    }
+    func_0022EF90(g_005BC3A0, kind, 2);
+}
+
+/* 0x001875F0, 0x1F0 bytes. Command: a message (text +4) naming officer +6, with extra text
+ * +8, by form +0xA. */
+void func_001875F0(u8 *cmd)
+{
+    char t[0x100], name[0x100];
+    char *extra;
+    u16 *r;
+
+    func_0022F4B0(t, *(u16 *)(cmd + 4));
+    g_005BC064 = 2;
+    extra = g_005BC260[*(u16 *)(cmd + 8)];
+    r = (u16 *)PTR(sc_officer(*(u16 *)(cmd + 6), 0), 8);
+    func_0019B170(name, r[0], r[1]);
+    sc_format(t, name, extra, *(short *)(cmd + 0xA));
+    sc_open(cmd);
+}
+
+/* 0x001877E0, 0x138 bytes. Command: a plain message (text +6, the next one for the players'
+ * officer 0xD with form 1); speaker kind 3 shows it in the window of +0. */
+void func_001877E0(u8 *cmd)
+{
+    char t[0x100];
+
+    if (*(short *)(cmd + 0xA) == 1 && U8(g_005BD724, 5) != 0
+        && (g_00669DE8[0][0] == 0xD || g_00669DE8[1][0] == 0xD))
+        *(short *)(cmd + 6) += 1;
+    if (*(short *)(cmd + 2) == 3) {
+        func_0022F4B0(t, *(u16 *)(cmd + 6));
+        func_0018AE70(cmd[0], t);
+        return;
+    }
+    func_0022F4B0(g_005BBF20, *(u16 *)(cmd + 6));
+    g_005BC064 = 2;
+    if (*(short *)(cmd + 2) == 0) {
+        func_0018AEB0(cmd[0], cmd[4], cmd[8], g_005BBF20);
+        func_0022EF90(g_005BC3A0, 5, 2);
+    } else {
+        func_0018ADA0(cmd[0], *(short *)(cmd + 2) == 1);
+        func_0022EF90(g_005BC3A0, *(short *)(cmd + 2) == 1 ? 6 : 2, 2);
+    }
+}
+
+/* 0x00187920, 0x148 bytes. Command: an officer's introduction (officer cmd[0]: 0x25 becomes
+ * 0xF for the players' officer 0xD; text cmd[1]) for a special officer, or one on the field. */
+void func_00187920(u16 *cmd)
+{
+    u32 id = cmd[0];
+    u8 *o;
+
+    if (id == 0x25 && cmd[2] == 0
+        && (g_00669DE8[0][0] == 0xD || ((g_00669F60[0] & 2) && g_00669DE8[1][0] == 0xD)))
+        id = 0xF;
+    o = func_0034B0D0(id);
+    if (id > 0x1A3 || cmd[5] != 0 || o != 0) {
+        func_0022F450(g_005BBF20, cmd[1]);
+        g_005BC064 = 1;
+        g_005BC034 = U8(g_005BA6A0 + id * 0x2C, 6);
+        g_005BC038 = cmd[3];
+        g_005BC03C = cmd[4] == 1;
+        g_005BC030 = cmd[2] != 0;
+        if (o != 0)
+            g_005BC048 = U8(o, 0x79);
+        g_005BC02C = id;
+        func_0022EF90(g_005BC3A0, g_005BC028, 1);
+    }
+}
+
+/* 0x00187A70, 0x21C bytes. Command: a message in the large window (text cmd[0], the next for
+ * the players' officer 0xD with cmd[4] = 1) naming officer cmd[1], extra text cmd[2], form
+ * cmd[3]. */
+void func_00187A70(short *cmd, int player)
+{
+    char t[0x100], name[0x100];
+    u16 *r;
+    short k = cmd[0];
+
+    if (cmd[4] == 1 && U8(g_005BD724, 5) != 0
+        && (g_00669DE8[0][0] == 0xD || g_00669DE8[1][0] == 0xD))
+        k = k + 1;
+    func_0022F4B0(t, k);
+    r = (u16 *)PTR(sc_officer(cmd[1], player), 8);
+    if (r == 0)
+        return;
+    func_0019B170(name, r[0], r[1]);
+    if (cmd[3] == 4)
+        func_001204B0(g_005BBF20, t, g_005BC260[(u16)cmd[2]], name);
+    else if (cmd[3] == 3 || cmd[3] == 1)
+        func_001204B0(g_005BBF20, t, name);   /* form 3 passes no extra text, as in the original */
+    else if (cmd[3] == 2)
+        func_001204B0(g_005BBF20, t, g_005BC260[(u16)cmd[2]]);
+    else
+        func_00120928(g_005BBF20, t);
+    g_005BC064 = 0;
+    g_005BC04C = 0;
+    func_002C4AE0((u8 *)&g_005BD728, g_005BBF20);
+    g_005BD72C = 0;
+    g_005BD728 = 0;
+    func_0022EF90(g_005BC3A0, g_005BC020, 0);
+}
