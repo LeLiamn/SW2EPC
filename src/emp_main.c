@@ -2975,7 +2975,7 @@ extern int g_0045D694, g_0045D698;       /* (small data) the player was targeted
 
 void func_00315510(int *cmd, int f);
 void func_0031BD90(int *cmd, int a);
-void func_0030DFA0(void);
+int func_0030DFA0(void);
 int func_0030C250(int f);
 void func_002FD180(int c, int a);
 void func_002FCFC0(int i);
@@ -3030,7 +3030,7 @@ void func_00304DE0(int *out, u32 i, int two)
 
 /* 0x00305040, 0x164 bytes. Computer officer `i` gives its command: the record is built, the
  * player-targeting flags set, and the command run. */
-void func_00305040(u32 i)
+int func_00305040(u32 i)
 {
     int f = func_002F4080(i), player = func_002FB2A0(f), cmd[0x1A4], rec[8];
 
@@ -3050,7 +3050,7 @@ void func_00305040(u32 i)
     cmd[2] = rec[3];
     cmd[3] = rec[5];
     func_0031BD90(cmd, 0);
-    func_0030DFA0();
+    return func_0030DFA0();
 }
 
 /* 0x003051B0, 0x2C4 bytes. Marks force `f`'s regions `r` (`n`) in `mark`: 0 at the front (a
@@ -3414,4 +3414,407 @@ int func_00306140(int f, int large, int *r, int n, int *mark, int total, int hav
         }
     }
     return best;
+}
+
+#define g_7000015C (*(u32 *)0x7000015C)   /* (scratchpad) the random seed */
+
+extern int g_007A3B10[];                 /* the computer turn's state block */
+
+void func_002F3CF0(u32 i, int r);
+int func_002F8110(u32 i, int f);
+int func_002FBAC0(int *out);
+void func_002FD490(void);
+int func_003276A0(void);
+int func_002FB9D0(int r);
+void func_002FCFB0(void);
+int func_002FD580(int f);
+int func_00329160(int k, int *a, int *b);
+int func_002FA1D0(int plan);
+int func_002FA1F0(int plan);
+
+/* The computer turn's state block: 0 step, 1 command, 2 force index, 3 commands, 4 forces,
+ * 5 force list. */
+#define CPU_TURN() ((int *)func_002FC2C0()[0x1AC])
+
+/* 0x00306520, 0x74 bytes. The average soldiers of officers `l` (`n`). */
+int func_00306520(u32 *l, int n)
+{
+    int s = 0, k;
+
+    if (n == 0)
+        return 0;
+    for (k = 0; k < n; k++, l++)
+        s += func_002F3770(*l);
+    return s / n;
+}
+
+/* 0x003065A0, 0x3CC bytes. Balances the roles in force `f`'s regions: when one role group's
+ * officers have more than twice the other's soldiers, a generic officer changes role (then
+ * again for regions with a lopsided count of officers). */
+void func_003065A0(int f)
+{
+    int reg[28], nr, a, b, k, x, y, j;
+    u32 *o = func_002F7B10(), *o2 = o + 6;
+
+    nr = func_002FB320(f, reg);
+    for (k = 0; k < nr; k++) {
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, reg[k], 0, 1);
+        b = func_002F7D90(6, (int (*)(u32, int, int))func_002F8110, reg[k], 0, 0);
+        if (b < 2)
+            continue;
+        for (j = 0; j < a; j++) {
+            if (func_002F3F20(o[j]) == 0)
+                break;
+        }
+        if (j == a)
+            continue;
+        x = func_00306520(o, a);
+        y = func_00306520(o2, b);
+        if (y * 2 < x) {
+            func_002FCD70(o, a);
+            func_002FCD70(o2, b);
+            for (j = 0; j < a; j++) {
+                if (func_002F3F20(o[j]) == 0)
+                    break;
+            }
+            if (j < a) {
+                func_002F3CF0(o[j], 1);
+                func_002F3CF0(o2[b - 1], 2);
+            }
+        } else if (x * 2 < y) {
+            func_002FCD70(o, a);
+            func_002FCD70(o2, b);
+            if (a < 3) {
+                func_002F3CF0(o2[0], 2);
+            } else {
+                int last = a;
+
+                for (j = 0; j < a; j++) {
+                    if (func_002F3F20(o[j]) == 0)
+                        last = j;
+                }
+                if (last < a) {
+                    func_002F3CF0(o[last], 1);
+                    func_002F3CF0(o2[0], 2);
+                }
+            }
+        }
+    }
+    for (k = 0; k < nr; k++) {
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, reg[k], 0, 1);
+        b = func_002F7D90(6, (int (*)(u32, int, int))func_002F8110, reg[k], 0, 0);
+        if (a <= 1 && b <= 1)
+            continue;
+        if (b * 2 < a) {
+            int idx = a;
+
+            func_002FCD70(o, a);
+            for (j = 0; j < a; j++) {
+                if (func_002F3F20(o[a - 1 - j]) == 0)
+                    idx = a - j - 1;
+            }
+            if (idx < a)
+                func_002F3CF0(o[idx], 1);
+        } else if (a * 2 < b) {
+            func_002FCD70(o2, b);
+            func_002F3CF0(o2[b - 1], 2);
+        }
+    }
+}
+
+/* 0x00306970, 0x2FC bytes. A computer force's officer moves at the start of its turn: regions
+ * marked, its leader moved back, then each region lacking officers gets them from the region
+ * best able to spare them; then the roles are balanced. */
+void func_00306970(int f)
+{
+    int plan = func_002FA160(f), reg[28], mark[28], nr, large, total, have, idx, k;
+    u32 l[8];
+
+    func_002F7B10();
+    l[0] = 0x19F;
+    l[1] = 0x19F;
+    l[2] = 0x19F;
+    l[3] = 0x19F;
+    l[4] = 0x19F;
+    l[5] = 0x19F;
+    nr = func_002FB320(f, reg);
+    if (nr < 2)
+        return;
+    large = plan != 0 && plan != 3;
+    func_003051B0(f, reg, nr, mark);
+    total = 0;
+    for (k = 0; k < nr; k++)
+        total += func_00305870(mark[reg[k]], large);
+    if (total == 0)
+        return;
+    have = func_002FB430(f);
+    func_00305630(f, large, mark);
+    while ((idx = func_00305ED0(f, large, reg, nr, mark, total, have)) < nr) {
+        int to = reg[idx], c, from;
+        u32 *o;
+
+        reg[idx] = 0x19;
+        c = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, to, 0, 1);
+        o = func_002F7B10();
+        for (k = 0; k < c; k++)
+            l[k] = o[k];
+        from = func_00306140(f, large, reg, nr, mark, total, have, l, c);
+        if (IS_FORCE(from))
+            func_00305B60(f, large, mark, total, have, l, c, to, from);
+    }
+    func_003065A0(f);
+}
+
+/* 0x00306C70, 0x6C bytes. Whether all forces `l` (`n`) are of kind 2 or less. */
+int func_00306C70(int *l, int n)
+{
+    int k;
+
+    for (k = 0; k < n; k++, l++) {
+        if (func_002F9EA0(*l) > 2)
+            return 0;
+    }
+    return 1;
+}
+
+/* 0x00306CE0, 0xF0 bytes. With few forces left, late in the game or only small kinds left, the
+ * largest forces become kind 3 with no trait wanted. */
+void func_00306CE0(int *l, int n)
+{
+    int top = 0, k;
+
+    if (n >= 5 && (u32)func_00327C70() <= 0x95 && func_00306C70(l, n) == 0)
+        return;
+    for (k = 0; k < n; k++) {
+        int s = func_002FB3B0(l[k]);
+
+        if (top < s)
+            top = s;
+    }
+    for (k = 0; k < n; k++, l++) {
+        if (top == func_002FB3B0(*l)) {
+            func_002F9E10(*l, 3);
+            func_002F9F40(*l, 0xFF);
+        }
+    }
+}
+
+/* 0x00306DD0, 0x58 bytes, matching. Computer turn step 0: the forces listed. */
+void func_00306DD0(void)
+{
+    int *p = CPU_TURN();
+
+    p[4] = func_002FBAC0((int *)p[5]);
+    p[2] = 0;
+    p[3] = 0;
+    p[1] = 0;
+    func_00306CE0((int *)p[5], p[4]);
+    func_002FD490();
+    p[0] = 1;
+}
+
+/* 0x00306E30, 0x14C bytes. Step 1: the next force's traits and plan, and how many commands it
+ * gives (doubled or halved again by the difficulty), with its own random seed. */
+void func_00306E30(void)
+{
+    u32 seed = g_7000015C;
+    int *p = CPU_TURN(), g = ((int *)p[5])[p[2]], d;
+
+    if (!IS_FORCE(g)) {
+        p[0] = 5;
+        return;
+    }
+    if (func_002F8CB0(g) == 0) {
+        p[0] = 5;
+        return;
+    }
+    g_7000015C = (g + func_003276A0()) | 1;
+    func_002FDF80(g);
+    func_002FF0E0(g);
+    p[3] = func_002FB9D0(g);
+    d = func_00327C40();
+    if (d == 4)
+        p[3] <<= 1;
+    else if (d == 3)
+        p[3] = p[3] * 3 / 2;
+    func_002FCFB0();
+    g_7000015C = seed | 1;
+    p[0] = 2;
+}
+
+/* 0x00306F80, 0xBC bytes. Step 2: the force's leader gives a command (step 3 once it is
+ * done). */
+int func_00306F80(void)
+{
+    int *p = CPU_TURN(), g = ((int *)p[5])[p[2]];
+
+    if (!IS_FORCE(g) || func_002F8CB0(g) == 0)
+        p[0] = 5;
+    else if (func_00305040(func_002F8F20(g)) == 0)
+        p[0] = 3;
+    return 5;
+}
+
+/* 0x00307040, 0x50 bytes. Step 3: the next command, or step 4. */
+void func_00307040(void)
+{
+    int *p = CPU_TURN();
+
+    if (++p[1] < p[3])
+        p[0] = 2;
+    else
+        p[0] = 4;
+}
+
+/* 0x00307090, 0x88 bytes. Step 4: the force's officers move, then the next force (or the
+ * end). */
+int func_00307090(void)
+{
+    int *p = CPU_TURN(), r;
+
+    func_00306970(((int *)p[5])[p[2]]);
+    r = func_0030DFA0();
+    if (r == 0) {
+        if (++p[2] < p[4])
+            p[0] = 1;
+        else
+            p[0] = 5;
+        r = 5;
+    }
+    return r;
+}
+
+/* 0x00307120, 0xAC bytes. Runs the computer turn; 0 once over. */
+int func_00307120(void)
+{
+    int r = 5;
+
+    switch (CPU_TURN()[0]) {
+    case 0:
+        func_00306DD0();
+        return 5;
+    case 1:
+        func_00306E30();
+        break;
+    case 2:
+        r = func_00306F80();
+        break;
+    case 3:
+        func_00307040();
+        break;
+    case 4:
+        r = func_00307090();
+        break;
+    case 5:
+        r = 0;
+        break;
+    }
+    return r;
+}
+
+/* 0x003071D0, 0x8 bytes, matching. */
+void func_003071D0(void)
+{
+}
+
+/* 0x003071E0, 0x44 bytes, matching. Resets the computer turn's state block `s`. */
+void func_003071E0(u32 s)
+{
+    int *p = (int *)s;
+
+    p[0] = 0;
+    p[1] = 0;
+    p[2] = 0;
+    p[3] = -1;
+    p[4] = 0;
+    p[5] = 0;
+    p[6] = (int)func_002FC2B0();
+}
+
+/* 0x00307230, 0xC bytes, matching. The computer turn's state block. */
+u32 func_00307230(void)
+{
+    return (u32)g_007A3B10;
+}
+
+/* 0x00307240, 0xF0 bytes. An ally of force `f` without a relation with it (the player's force
+ * first, else one at random); 0x19 for none. */
+int func_00307240(int f)
+{
+    int l[28], n = 0, g;
+
+    for (g = 0; g < func_0030AB90(); g++) {
+        if (func_002F8CB0(g) != 0 && g != f && func_002FA6B0(g) == f && func_002FAFA0(g, f) == 0) {
+            if (func_002FB2A0(g) != 0)
+                return g;
+            l[n++] = g;
+        }
+    }
+    if (n == 0)
+        return 0x19;
+    return l[func_0030CB00(n)];
+}
+
+/* 0x00307330, 0xF4 bytes. The chance force `f` accepts a proposal: 100 with such an ally or an
+ * envoy, else by its plan (30-60, 0 for others) unless func_002FD580. */
+int func_00307330(int f)
+{
+    int g = func_00307240(f);
+
+    if (IS_FORCE(g))
+        return 100;
+    if ((u32)func_002F9260(f) < 0x19F)
+        return 100;
+    if (func_002FD580(f) != 0)
+        return 100;
+    switch (func_002FA160(f)) {
+    case 1: return 0x1E;
+    case 2: case 5: return 0x28;
+    case 4: case 6: return 0x32;
+    case 7: return 0x3C;
+    }
+    return 0;
+}
+
+/* 0x00307430, 0x9C bytes. Whether one of the twelve event slots involves a region of the
+ * player's force. */
+int func_00307430(void)
+{
+    int a, r, k, g;
+
+    for (k = 0; k < 12; k++) {
+        if (func_00329160(k, &a, &r) != 0) {
+            g = func_0030AFF0(r);
+            if (IS_FORCE(g) && func_002FB2A0(g) != 0)
+                return 1;
+        }
+    }
+    return 0;
+}
+
+/* 0x003074D0, 0x78 bytes, matching. Whether one of the twelve event slots involves region `r`. */
+int func_003074D0(int r)
+{
+    int a, b, k;
+
+    for (k = 0; k < 12; k++) {
+        if (func_00329160(k, &a, &b) != 0 && (a == r || b == r))
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00307550, 0xBC bytes, matching. Whether region `r` is force `f`'s plan target (the region, its kind
+ * or its force, by the plan kind). */
+int func_00307550(int f, int r)
+{
+    int t = func_002FA390(f), plan = func_002FA160(f);
+
+    if (func_002FA1D0(plan) != 0 && r == t)
+        return 1;
+    if (func_002FA1F0(plan) != 0 && t == func_0030AC50(r))
+        return 1;
+    if (func_002FA210(plan) != 0 && t == func_0030AFF0(r))
+        return 1;
+    return 0;
 }
