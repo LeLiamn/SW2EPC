@@ -1137,6 +1137,7 @@ void func_0034D2E0(u8 *st)
 }
 
 /* 0x0034D470, 0x0034D490, 0x1C bytes each. */
+/* 0x0034D470, 0x1C bytes, matching. */
 void func_0034D470(u8 *st)
 {
     func_0034D2E0(st);
@@ -1161,6 +1162,7 @@ void func_0034D4D0(u8 *st)
 }
 
 /* 0x0034D660, 0x0034D680, 0x1C bytes each. */
+/* 0x0034D660, 0x1C bytes, matching. */
 void func_0034D660(u8 *st)
 {
     func_0034D4D0(st);
@@ -1465,6 +1467,7 @@ void func_0034F300(u8 *b, u8 m);
 void func_0034F310(u8 *b, u8 m);
 
 /* 0x0034E430, 0x0034E450, 0x0034E470, 0x20 bytes each. The elapsed-time chance. */
+/* 0x0034E430, 0x20 bytes, matching. */
 int func_0034E430(void)
 {
     return func_0034DFB0() != 0;

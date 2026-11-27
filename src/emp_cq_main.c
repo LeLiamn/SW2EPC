@@ -418,10 +418,15 @@ void func_0030D6B0(u8 *p)
 }
 
 /* 0x0030D7D0-0x0030D810, 8 bytes each. The loaded picture files. */
+/* 0x0030D7D0, 0x8 bytes, matching. */
 void *func_0030D7D0(void) { return g_0045D6B0; }
+/* 0x0030D7E0, 0x8 bytes, matching. */
 void *func_0030D7E0(void) { return g_0045D6B4; }
+/* 0x0030D7F0, 0x8 bytes, matching. */
 void *func_0030D7F0(void) { return g_0045D6B8; }
+/* 0x0030D800, 0x8 bytes, matching. */
 void *func_0030D800(void) { return g_0045D6BC; }
+/* 0x0030D810, 0x8 bytes, matching. */
 void *func_0030D810(void) { return g_0045D6C0; }
 
 /* 0x0030D820, 0x40 bytes, matching. Loads LINKDATA entry 0x81. */
@@ -771,14 +776,17 @@ void func_0030E4E0(int v)
 }
 
 /* 0x0030E4F0, 0x0030E500, 0x0030E510, 8 bytes each. Empty notice steps. */
+/* 0x0030E4F0, 0x8 bytes, matching. */
 void func_0030E4F0(void)
 {
 }
 
+/* 0x0030E500, 0x8 bytes, matching. */
 void func_0030E500(void)
 {
 }
 
+/* 0x0030E510, 0x8 bytes, matching. */
 void func_0030E510(void)
 {
 }
@@ -2788,6 +2796,7 @@ void func_00313AC0(int f, int k)
 
 /* 0x00313B30-0x00313D50. Command `c`'s record fields (0x65 and others past 100 have fixed
  * values). */
+/* 0x00313B30, 0x54 bytes. */
 int func_00313B30(u32 c)
 {
     if (c == 0x65)
@@ -2797,6 +2806,7 @@ int func_00313B30(u32 c)
     return 0x12;
 }
 
+/* 0x00313B90, 0x54 bytes. */
 int func_00313B90(u32 c)
 {
     if (c == 0x65)
@@ -2806,6 +2816,7 @@ int func_00313B90(u32 c)
     return 0x18;
 }
 
+/* 0x00313BF0, 0x40 bytes. */
 int func_00313BF0(u32 c)
 {
     if (c < 100)
@@ -2813,6 +2824,7 @@ int func_00313BF0(u32 c)
     return 5;
 }
 
+/* 0x00313C30, 0x40 bytes. */
 int func_00313C30(u32 c)
 {
     if (c < 100)
@@ -2820,6 +2832,7 @@ int func_00313C30(u32 c)
     return 0;
 }
 
+/* 0x00313C70, 0x40 bytes. */
 int func_00313C70(u32 c)
 {
     if (c < 100)
@@ -2827,6 +2840,7 @@ int func_00313C70(u32 c)
     return 0xF;
 }
 
+/* 0x00313CB0, 0x54 bytes. */
 int func_00313CB0(u32 c)
 {
     if (c == 0x65)
@@ -2836,6 +2850,7 @@ int func_00313CB0(u32 c)
     return 0xD;
 }
 
+/* 0x00313D10, 0x40 bytes. */
 short func_00313D10(u32 c)
 {
     if (c < 100)
@@ -2843,6 +2858,7 @@ short func_00313D10(u32 c)
     return 0;
 }
 
+/* 0x00313D50, 0x54 bytes. */
 int func_00313D50(u32 c)
 {
     if (c == 0x65)
@@ -4326,6 +4342,7 @@ void func_00318BA0(CmdRecord *p)
 }
 
 /* 0x00318CF0, 0x00318D40, 0x00318D90, 0x44 bytes each. The duel, at the home region. */
+/* 0x00318CF0, 0x44 bytes. */
 int func_00318CF0(CmdRecord *p)
 {
     int home;
@@ -4336,6 +4353,7 @@ int func_00318CF0(CmdRecord *p)
     return 0;
 }
 
+/* 0x00318D40, 0x44 bytes. */
 int func_00318D40(CmdRecord *p)
 {
     int home;
@@ -4346,6 +4364,7 @@ int func_00318D40(CmdRecord *p)
     return 0;
 }
 
+/* 0x00318D90, 0x44 bytes. */
 int func_00318D90(CmdRecord *p)
 {
     int home;
@@ -4392,6 +4411,7 @@ void func_00318E60(CmdRecord *p)
 }
 
 /* 0x00318F70, 0x00318FC0, 0x00319010, 0x44 bytes each. The same, over all regions. */
+/* 0x00318F70, 0x44 bytes, matching. */
 int func_00318F70(CmdRecord *p)
 {
     int reg[28];
@@ -4401,6 +4421,7 @@ int func_00318F70(CmdRecord *p)
     return 0;
 }
 
+/* 0x00318FC0, 0x44 bytes, matching. */
 int func_00318FC0(CmdRecord *p)
 {
     int reg[28];
@@ -4410,6 +4431,7 @@ int func_00318FC0(CmdRecord *p)
     return 0;
 }
 
+/* 0x00319010, 0x44 bytes, matching. */
 int func_00319010(CmdRecord *p)
 {
     int reg[28];

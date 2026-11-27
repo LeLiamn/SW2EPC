@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 108784,
-    "non_matching": 788580
+    "matching": 109248,
+    "non_matching": 789460
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 1112
+    "matching": 1126
   },
   "layout": "treemap",
   "areas": [
@@ -246,28 +246,28 @@
       "children": [
         {
           "name": "emp_FldBase.c",
-          "description": "Estimated range 0x33F608-0x357160; 182 function(s) decompiled",
+          "description": "Estimated range 0x33F608-0x357160; 185 function(s) decompiled",
           "code": {
             "total": 97112,
-            "matching": 3856,
+            "matching": 3952,
             "non_matching": 16736
           },
           "decompiled_functions": {
-            "count": 182,
-            "matching": 83
+            "count": 185,
+            "matching": 86
           }
         },
         {
           "name": "emp_cq_main.c",
-          "description": "Estimated range 0x2FF3F0-0x31C840; 397 function(s) decompiled",
+          "description": "Estimated range 0x2FF3F0-0x31C840; 419 function(s) decompiled",
           "code": {
-            "total": 121724,
-            "matching": 9680,
-            "non_matching": 112044
+            "total": 122972,
+            "matching": 10048,
+            "non_matching": 112924
           },
           "decompiled_functions": {
-            "count": 397,
-            "matching": 107
+            "count": 419,
+            "matching": 118
           }
         },
         {
