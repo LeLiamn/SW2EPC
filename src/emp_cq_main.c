@@ -5677,3 +5677,261 @@ int func_0031C5C0(CmdRecord *p, int k)
     }
     return ret;
 }
+
+/* The command menu's page state (FC2C0 block +0x694). */
+typedef struct {
+    int grid[12][10];        /* +0x000 commands by group (100 = none) */
+    int count[12];           /* +0x1E0 */
+    int group;               /* +0x210 */
+    int index;               /* +0x214 */
+    int unknown_218;         /* +0x218 */
+    int unknown_21C;         /* +0x21C */
+    int unknown_220;         /* +0x220 */
+    int unknown_224;         /* +0x224 */
+    int unknown_228;         /* +0x228 */
+    int unknown_22C;
+    CmdRecord *rec;          /* +0x230 */
+} CmdMenu;
+
+extern CmdRecord g_007B5270;
+extern u8 g_007B5A50[];
+
+int *func_002FC2C0(void);
+int func_003287B0(int c);
+int func_00328800(int rank);
+void func_003280F0(int c, int v);
+void func_00388710(void);
+void func_00388200(int a, int b);
+void func_003882C0(int *on);
+int func_0039BDC0(void);
+int func_0039BEE0(void);
+int func_0039BF50(void);
+void func_003A90D0(int a);
+void func_0039F9F0(int a);
+void func_003890B0(int a);
+int func_00389050(void);
+int func_00389090(void);
+void func_00327690(int seed);
+int func_003280E0(void);
+
+#define CMD_MENU() ((CmdMenu *)func_002FC2C0()[0x1A5])
+
+/* 0x0031D680, 0xC bytes, matching. The command record being built. */
+CmdRecord *func_0031D680(void)
+{
+    return &g_007B5270;
+}
+
+/* 0x0031D690, 0x28 bytes, matching. The command under the menu's cursor. */
+int func_0031D690(CmdMenu *m)
+{
+    return m->grid[m->group][m->index];
+}
+
+/* 0x0031D6C0, 0xC bytes, matching. */
+u8 *func_0031D6C0(void)
+{
+    return g_007B5A50;
+}
+
+/* Whether command `c` is a free one (0x5A-0x62, 0x65) or none (100). */
+#define FREE_OR_NONE(c) (((c) > 0x59 && (c) < 99) || (c) == 0x65 || (c) == 100)
+
+/* 0x0031D6D0, 0x160 bytes. Sorts the free commands of `l` (`n`) by their rank. */
+void func_0031D6D0(int *l, int n)
+{
+    int k, j;
+
+    for (k = 0; k < n; k++) {
+        if (!FREE_OR_NONE(l[k]))
+            continue;
+        {
+            int a = func_003287B0(l[k]);
+
+            for (j = k + 1; j < n; j++) {
+                int b;
+
+                if (!FREE_OR_NONE(l[j]))
+                    continue;
+                b = func_003287B0(l[j]);
+                if (b < a) {
+                    l[k] = func_00328800(b);
+                    l[j] = func_00328800(a);
+                    k--;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+/* 0x0031D830, 0x25C bytes, matching. Fills the command menu with the commands available, by group (the
+ * free ones sorted), and gets the command record ready. */
+void func_0031D830(CmdMenu *m)
+{
+    int l[100], n, k, j;
+
+    m->group = 0;
+    m->index = 0;
+    m->unknown_218 = -1;
+    m->unknown_21C = -1;
+    m->unknown_220 = 0;
+    m->unknown_228 = -1;
+    m->unknown_224 = 0;
+    func_0011ED38(m->count, 0, 0x30);
+    n = func_00314960(l);
+    for (k = 0; k < n; k++) {
+        int g = func_00313CB0(l[k]);
+
+        m->grid[g][m->count[g]] = l[k];
+        m->count[g]++;
+        func_003280F0(l[k], 1);
+    }
+    if (m->count[11] != 0)
+        func_0031D6D0(m->grid[11], m->count[11]);
+    for (k = 0; k < 12; k++) {
+        for (j = m->count[k]; j < 10; j++)
+            m->grid[k][j] = 100;
+    }
+    m->rec = func_0031D680();
+    func_00315510(m->rec, func_00327D50());
+}
+
+/* 0x0031DA90, 0x1C bytes, matching. */
+void func_0031DA90(void)
+{
+    func_00388710();
+}
+
+/* 0x0031DAB0, 0x98 bytes, matching. Opens menu page 1: the seven first groups (those with commands). */
+void func_0031DAB0(void)
+{
+    CmdMenu *m = CMD_MENU();
+    int g = m->group, on[8], k;
+
+    func_0031D830(m);
+    func_00388200(1, g);
+    for (k = 0; k < 7; k++)
+        on[k] = 1;
+    for (k = 0; k < 7; k++) {
+        if (m->count[k] == 0)
+            on[k] = 0;
+    }
+    func_003882C0(on);
+}
+
+/* 0x0031DB50, 0x90 bytes, matching. Opens menu page 2: groups 7-10. */
+void func_0031DB50(void)
+{
+    CmdMenu *m = CMD_MENU();
+    int g = m->group, on[4], k;
+
+    func_0031D830(m);
+    func_00388200(2, g);
+    for (k = 0; k < 4; k++)
+        on[k] = 1;
+    for (k = 0; k < 4; k++) {
+        if (m->count[7 + k] == 0)
+            on[k] = 0;
+    }
+    func_003882C0(on);
+}
+
+/* 0x0031DBE0, 0x118 bytes. Opens menu page 4 (nine entries, some only when their data exist,
+ * entry 8 while a force has func_002FB100, entry 4 with a free stable slot). */
+void func_0031DBE0(void)
+{
+    int on[9], k;
+
+    func_00388200(4, 0);
+    for (k = 0; k < 9; k++)
+        on[k] = 1;
+    if (func_0039BDC0() == 0)
+        on[5] = 0;
+    if (func_0039BEE0() == 0)
+        on[6] = 0;
+    if (func_0039BF50() == 0)
+        on[7] = 0;
+    on[8] = 0;
+    for (k = 0; k < 0x19; k++) {
+        if (IS_FORCE(k) && func_002F8CB0(k) != 0 && func_002FB100(k) != 0)
+            on[8] = 1;
+    }
+    if (func_001A0700() == 0)
+        on[4] = 0;
+    func_003882C0(on);
+}
+
+/* 0x0031DD00, 0x6C bytes. The help message of main menu entry `k`. */
+int func_0031DD00(int k)
+{
+    switch (k) {
+    case 0: return 6;
+    case 1: return 7;
+    case 2: return 8;
+    case 3: return 0x12;
+    case 4: return 0x2B;
+    case 5: return 9;
+    case 6: return 10;
+    case 7: return 0xB;
+    }
+    return -1;
+}
+
+/* 0x0031DD70, 0x3C bytes. */
+int func_0031DD70(int k)
+{
+    switch (k) {
+    case 0: return 0x15A;
+    case 1: return 0x15A;
+    }
+    return -1;
+}
+
+/* 0x0031DDB0, 0x190 bytes. The turn's main menu: the chosen entry opens its page (with its own
+ * random seed); 5. */
+int func_0031DDB0(void)
+{
+    int *st = func_002FC2C0();
+    CmdMenu *m = (CmdMenu *)st[0x1A5];
+    int sel;
+
+    func_003A90D0(0);
+    func_003A9010(0);
+    func_0039F9F0(1);
+    func_003890B0(1);
+    sel = func_00389050();
+    func_003890B0(0);
+    if (sel == 1) {
+        func_00327690(func_00327C70() * 0x37 + 0x1E240 + func_003280E0() * 0x42);
+        sel = func_00389090();
+        st[1] = sel;
+        st[0] = sel + 1;
+        func_0031DD70(st[1]);
+        func_00376100(4, -1, -1);
+        if (st[1] == 2)
+            func_0031DAB0();
+        else if (st[1] == 3)
+            func_0031DB50();
+        else if (st[1] == 4)
+            func_0031D830(m);
+        else if (st[1] == 6)
+            func_0031DBE0();
+        if ((u32)(st[1] - 5) < 4)
+            func_003A90D0(0);
+        else
+            func_003A90D0(1);
+    }
+    func_0039F9F0(0);
+    return 5;
+}
+
+/* 0x0031DF40, 0x50 bytes, matching. Sets the menu's +0x220 value (7 reads the player's regions first). */
+void func_0031DF40(int k)
+{
+    int reg[28];
+
+    if (k == 7)
+        func_002FB320(func_00327D50(), reg);
+    CMD_MENU()->unknown_220 = k;
+}
