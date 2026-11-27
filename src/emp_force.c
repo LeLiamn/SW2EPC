@@ -1,0 +1,549 @@
+/*
+ * emp_force.c - the Empire mode's forces (0x002F8C80-..., after the officer records; the
+ * original file's name is unknown). Written so far: from 0x002F8B20.
+ *
+ * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
+ * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
+ * with a question mark are hypotheses.
+ *
+ * Force records: 0x78 bytes each (func_0030CCC0 gives the first; numbers outside the forces
+ * in play, func_0030AB90, use record 0x19). +0 its leader, +2 its gold (x 10), +4 its heir?,
+ * +6 three values, +0x10 its policy (100: none), +0x12 a number, +0x14 / +0x2D its relations
+ * with each force (value and kind), +0x6F a target.
+ */
+
+typedef unsigned char u8;
+typedef unsigned short u16;
+typedef unsigned int u32;
+
+extern short g_00414630[100][2];         /* the policies: kind and cost */
+extern short g_004145F0[15][2];          /* per policy kind: two values */
+extern char g_00446470[];                /* a separator for names */
+
+u8 *func_0030CCC0(void);
+int func_0030AB90(void);
+int func_002F41E0(u32 i);
+int func_002F4A70(u32 i);
+int func_002F3380(u32 i);
+int func_002F4450(u32 i);
+int func_002F45A0(u32 i);
+int func_002F3770(u32 i);
+char *func_002F2A30(u32 i);
+u16 func_002F2C50(u32 i);
+char *func_002F2880(void);
+char *func_00120928(char *to, const char *from);
+char *func_001206B0(char *to, const char *from);
+const char *func_00372450(void);
+
+/* Whether `f` is a force in play. */
+static inline int is_force(int f)
+{
+    return f >= 0 && f < func_0030AB90();
+}
+
+/* Force `f`'s record (record 0x19 for others). */
+static inline u8 *frc(int f)
+{
+    if (!is_force(f))
+        f = 0x19;
+    return func_0030CCC0() + f * 0x78;
+}
+
+/* 0x002F8B20, 0x34 bytes. Whether officer `i`'s level is above officer `j`'s. */
+int func_002F8B20(u32 i, u32 j)
+{
+    return func_002F41E0(j) < func_002F41E0(i);
+}
+
+/* 0x002F8B60, 0x120 bytes. Officer order: lower +0x97, then earlier +0x48, then larger
+ * +0x56 x +0x57, then more soldiers. */
+int func_002F8B60(u32 i, u32 j)
+{
+    int a = func_002F4A70(i), b = func_002F4A70(j);
+
+    if (a < b)
+        return 1;
+    if (b < a)
+        return 0;
+    a = func_002F3380(i);
+    b = func_002F3380(j);
+    if (a < b)
+        return 1;
+    if (b < a)
+        return 0;
+    a = func_002F4450(i) * func_002F45A0(i);
+    b = func_002F4450(j) * func_002F45A0(j);
+    if (b < a)
+        return 1;
+    if (a < b)
+        return 0;
+    return func_002F3770(j) < func_002F3770(i);
+}
+
+/* 0x002F8C80, 0x24 bytes. Record 0x19 has no leader. */
+void func_002F8C80(void)
+{
+    *(u16 *)(func_0030CCC0() + 3000) = 0x19F;
+}
+
+u16 func_002F8F20(int f);
+
+/* 0x002F8CB0, 0x6C bytes. Whether force `f` is in play and has a leader. */
+int func_002F8CB0(int f)
+{
+    if (!is_force(f))
+        return 0;
+    return func_002F8F20(f) < 0x19F;
+}
+
+/* 0x002F8D20, 0x8C bytes. Force `f` loses its leader. */
+void func_002F8D20(int f)
+{
+    if (is_force(f))
+        *(u16 *)frc(f) = 0x19F;
+}
+
+/* 0x002F8DB0, 0x24 bytes. Writes force `f`'s leader's title. */
+char *func_002F8DB0(int f)
+{
+    return func_002F2A30(func_002F8F20(f));
+}
+
+/* 0x002F8DE0, 0x64 bytes, matching. Force `f`'s name: its leader's title, a separator and a word. */
+char *func_002F8DE0(int f)
+{
+    char *s = func_002F2880();
+
+    func_00120928(s, func_002F8DB0(f));
+    func_001206B0(s, g_00446470);
+    func_001206B0(s, func_00372450());
+    return s;
+}
+
+/* 0x002F8E50, 0x24 bytes. Force `f`'s leader's shown name. */
+u16 func_002F8E50(int f)
+{
+    return func_002F2C50(func_002F8F20(f));
+}
+
+/* 0x002F8E80, 0x98 bytes. Sets force `f`'s leader. */
+void func_002F8E80(int f, u32 i)
+{
+    if (i < 0x1A0)
+        *(short *)frc(f) = (short)i;
+}
+
+/* 0x002F8F20, 0x64 bytes, matching. Force `f`'s leader. */
+u16 func_002F8F20(int f)
+{
+    return *(u16 *)frc(f);
+}
+
+/* 0x002F8F90, 0xD0 bytes. Sets force `f`'s gold (0-60000; out of range reads it). */
+u32 func_002F8F90(int f, u32 g)
+{
+    if ((int)g < 0 || (int)g > 60000)
+        return *(u16 *)(frc(f) + 2);
+    *(short *)(frc(f) + 2) = (short)g;
+    return g;
+}
+
+int func_002F9060(u32 f);
+
+/* 0x002F9130, 0x5C bytes. Takes `n` gold from force `f`. */
+void func_002F9130(int f, int n)
+{
+    func_002F8F90(f, n < (int)func_002F9060(f) ? func_002F9060(f) - n : 0);
+}
+
+/* 0x002F9190, 0x28 bytes, matching. Force `f`'s gold in coins. */
+int func_002F9190(int f)
+{
+    return func_002F9060(f) * 10;
+}
+
+/* 0x002F91C0, 0x98 bytes. Sets force `f`'s +4 (an officer). */
+void func_002F91C0(int f, u32 i)
+{
+    if (i < 0x1A0)
+        *(short *)(frc(f) + 4) = (short)i;
+}
+
+/* 0x002F92D0, 0xB4 bytes. Sets force `f`'s value `k` of three (0-400). */
+int func_002F92D0(int f, int k, int v)
+{
+    if (k < 0 || k > 2 || v < 0 || v > 400)
+        return 0;
+    *(short *)(frc(f) + 6 + k * 2) = (short)v;
+    return v;
+}
+
+/* 0x002F9390, 0x74 bytes. */
+u16 func_002F9390(int f, int k)
+{
+    return *(u16 *)(frc(f) + 6 + k * 2);
+}
+
+/* 0x002F9410, 0x70 bytes. Adds `n` to it (up to 400). */
+void func_002F9410(int f, int k, int n)
+{
+    func_002F92D0(f, k, n + func_002F9390(f, k) < 400 ? n + func_002F9390(f, k) : 400);
+}
+
+/* 0x002F9480, 0x3C bytes. Its grade (per 100, from 1). */
+int func_002F9480(int f, int k)
+{
+    return func_002F9390(f, k) / 100 + 1;
+}
+
+/* 0x002F94C0, 0x90 bytes. Sets force `f`'s policy (0-100). */
+void func_002F94C0(int f, u16 p)
+{
+    if (p < 0x65)
+        *(u16 *)(frc(f) + 0x10) = p;
+}
+
+int func_002F9550(u32 f);
+
+/* 0x002F95C0, 0x5C bytes. Force `f`'s policy kind (0xFFFF without). */
+u16 func_002F95C0(int f)
+{
+    if ((short)func_002F9550(f) == 100)
+        return 0xFFFF;
+    return g_00414630[func_002F9550(f) & 0xFFFF][0];
+}
+
+/* 0x002F9620, 0x6C bytes. Whether some force in play follows policy `p`. */
+int func_002F9620(u32 p)
+{
+    int f;
+
+    for (f = 0; f <= 0x18; f++) {
+        if (func_002F8CB0(f) != 0 && p == (func_002F9550(f) & 0xFFFF))
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x002F9690, 0x9C bytes. The first free policy of kind `kind` (its number in `out`, 100 and
+ * 9999 for none); returns its cost. */
+u16 func_002F9690(short kind, int *out)
+{
+    int k;
+
+    for (k = 0; k < 100; k++) {
+        if (kind == g_00414630[k][0] && func_002F9620(k) == 0) {
+            *out = k;
+            return g_00414630[k][1];
+        }
+    }
+    *out = 100;
+    return 9999;
+}
+
+/* 0x002F9730, 0xEC bytes. The best policy from `k` on of the same kind, free and costing at
+ * most `gold`, better than force `f`'s (100 for none). */
+int func_002F9730(int f, int k, short gold)
+{
+    int best = 100, j;
+
+    for (j = 0; j < 100; j++) {
+        if (k <= j && g_00414630[j][0] == g_00414630[k][0] && func_002F9620(j) == 0
+            && g_00414630[j][1] <= gold) {
+            u32 cur = func_002F9550(f) & 0xFFFF;
+
+            if (cur == 100 || (int)cur < j)
+                best = j;
+        }
+    }
+    return best;
+}
+
+/* 0x002F9820, 0x68 bytes. Force `f`'s policy kind's second value (0 without). */
+u16 func_002F9820(int f)
+{
+    u32 p = func_002F9550(f) & 0xFFFF;
+
+    if (p < 100 && g_00414630[p][0] < 0xF)
+        return g_004145F0[g_00414630[p][0]][1];
+    return 0;
+}
+
+/* 0x002F9890, 0x68 bytes. Its first value. */
+u16 func_002F9890(int f)
+{
+    u32 p = func_002F9550(f) & 0xFFFF;
+
+    if (p < 100 && g_00414630[p][0] < 0xF)
+        return g_004145F0[g_00414630[p][0]][0];
+    return 0;
+}
+
+int func_002FA6B0(u32 f);
+void func_002FA610(int f, int g);
+
+/* 0x002F9B00, 0x184 bytes. Sets force `f`'s relation with force `g`: value `v` (at most 12)
+ * and kind `kind` (at most 3; kind 0 has value 0); a force losing its relation with its
+ * target drops it. Returns the value (0 when refused). */
+int func_002F9B00(int f, int g, int v, int kind)
+{
+    if (!is_force(f) || !is_force(g) || v > 0xC || kind > 3)
+        return 0;
+    if (kind == 0)
+        v = 0;
+    frc(f)[g + 0x14] = (u8)v;
+    frc(f)[g + 0x2D] = (u8)kind;
+    if (g == func_002FA6B0(f))
+        func_002FA610(f, 0x19);
+    return v;
+}
+
+/* 0x002F9C90, 0xC0 bytes, matching. Force `f`'s relation kind with force `g`. */
+u8 func_002F9C90(int f, int g)
+{
+    if (!is_force(f) || !is_force(g))
+        return 0;
+    return frc(f)[g + 0x2D];
+}
+
+/* 0x002F9D50, 0xC0 bytes, matching. Force `f`'s relation value with force `g`. */
+u8 func_002F9D50(int f, int g)
+{
+    if (!is_force(f) || !is_force(g))
+        return 0;
+    return frc(f)[g + 0x14];
+}
+
+/* 0x002F9F10, 0xC bytes, matching. */
+int func_002F9F10(int k)
+{
+    return k == 0;
+}
+
+/* 0x002F9F20, 0x20 bytes, matching. */
+int func_002F9F20(int k)
+{
+    return k == 1 || k == 2;
+}
+
+int func_002F9EA0(u32 f);
+
+/* 0x002F9F40, 0x114 bytes. Sets force `f`'s +0x6F by its kind: none for kind 0, a small value
+ * (at most 7) for kinds 1-2, else a byte, a force or 0x19. */
+void func_002F9F40(int f, int v)
+{
+    int k = func_002F9EA0(f), ok;
+
+    if (func_002F9F10(k) != 0)
+        return;
+    if ((u32)(k - 1) < 2) {
+        if (v > 7)
+            return;
+    } else if (v > 0xFF) {
+        return;
+    }
+    ok = is_force(v) || v == 0x19;
+    if (!ok)
+        return;
+    frc(f)[0x6F] = (u8)v;
+}
+
+/* 0x002FA1D0, 0x20 bytes. */
+int func_002FA1D0(u32 k)
+{
+    return k < 2;
+}
+
+/* 0x002FA1F0, 0x20 bytes, matching. */
+int func_002FA1F0(int k)
+{
+    return k == 2 || k == 3;
+}
+
+/* 0x002FA210, 0xC bytes, matching. */
+int func_002FA210(int k)
+{
+    return (u32)(k - 4) < 3;
+}
+
+/* GENERATED */
+/* PROTOS */
+int func_002F9260(u32 i);
+void func_002F9900(u32 i, int v);
+int func_002F9990(u32 i);
+void func_002F9A00(u32 i, int v);
+int func_002F9A90(u32 i);
+void func_002F9E10(u32 i, int v);
+int func_002FA060(u32 i);
+void func_002FA0D0(u32 i, int v);
+int func_002FA160(u32 i);
+int func_002FA390(u32 i);
+void func_002FA400(u32 i, int v);
+int func_002FA490(u32 i);
+int func_002FA5A0(u32 i);
+void func_002FA720(u32 i, int v);
+int func_002FA790(u32 i);
+void func_002FA800(u32 i, int v);
+int func_002FA870(u32 i);
+void func_002FA8E0(u32 i, int v);
+int func_002FA970(u32 i);
+int func_002FAAD0(u32 i);
+int func_002FAD20(u32 i);
+/* END PROTOS */
+
+/* 0x002F9060, 0x64 bytes, matching. */
+int func_002F9060(u32 i)
+{
+    return *(u16 *)(frc(i) + 0x2);
+}
+
+/* 0x002F9260, 0x64 bytes, matching. */
+int func_002F9260(u32 i)
+{
+    return *(u16 *)(frc(i) + 0x4);
+}
+
+/* 0x002F9550, 0x64 bytes, matching. */
+int func_002F9550(u32 i)
+{
+    return *(u16 *)(frc(i) + 0x10);
+}
+
+/* 0x002F9900, 0x8C bytes. */
+void func_002F9900(u32 i, int v)
+{
+    if (v >= 0 && v < 0x1B)
+        *(u8 *)(frc(i) + 0x12) = (u8)v;
+}
+
+/* 0x002F9990, 0x64 bytes, matching. */
+int func_002F9990(u32 i)
+{
+    return *(u8 *)(frc(i) + 0x12);
+}
+
+/* 0x002F9A00, 0x8C bytes. */
+void func_002F9A00(u32 i, int v)
+{
+    if (v >= 0 && v < 0xB)
+        *(u8 *)(frc(i) + 0x13) = (u8)v;
+}
+
+/* 0x002F9A90, 0x64 bytes, matching. */
+int func_002F9A90(u32 i)
+{
+    return *(u8 *)(frc(i) + 0x13);
+}
+
+/* 0x002F9E10, 0x8C bytes. */
+void func_002F9E10(u32 i, int v)
+{
+    if (v >= 0 && v < 0x5)
+        *(u8 *)(frc(i) + 0x6E) = (u8)v;
+}
+
+/* 0x002F9EA0, 0x64 bytes, matching. */
+int func_002F9EA0(u32 i)
+{
+    return *(u8 *)(frc(i) + 0x6E);
+}
+
+/* 0x002FA060, 0x64 bytes, matching. */
+int func_002FA060(u32 i)
+{
+    return *(u8 *)(frc(i) + 0x6F);
+}
+
+/* 0x002FA0D0, 0x8C bytes. */
+void func_002FA0D0(u32 i, int v)
+{
+    if (v >= 0 && v < 0x8)
+        *(u8 *)(frc(i) + 0x70) = (u8)v;
+}
+
+/* 0x002FA160, 0x64 bytes, matching. */
+int func_002FA160(u32 i)
+{
+    return *(u8 *)(frc(i) + 0x70);
+}
+
+/* 0x002FA390, 0x64 bytes, matching. */
+int func_002FA390(u32 i)
+{
+    return *(u8 *)(frc(i) + 0x71);
+}
+
+/* 0x002FA400, 0x8C bytes. */
+void func_002FA400(u32 i, int v)
+{
+    if (v >= 0 && v < 0x3)
+        *(u8 *)(frc(i) + 0x72) = (u8)v;
+}
+
+/* 0x002FA490, 0x64 bytes, matching. */
+int func_002FA490(u32 i)
+{
+    return *(u8 *)(frc(i) + 0x72);
+}
+
+/* 0x002FA5A0, 0x64 bytes, matching. */
+int func_002FA5A0(u32 i)
+{
+    return *(u8 *)(frc(i) + 0x73);
+}
+
+/* 0x002FA6B0, 0x64 bytes, matching. */
+int func_002FA6B0(u32 i)
+{
+    return *(u8 *)(frc(i) + 0x74);
+}
+
+/* 0x002FA720, 0x6C bytes, matching. */
+void func_002FA720(u32 i, int v)
+{
+    *(u8 *)(frc(i) + 0x75) = (u8)v;
+}
+
+/* 0x002FA790, 0x64 bytes, matching. */
+int func_002FA790(u32 i)
+{
+    return *(u8 *)(frc(i) + 0x75);
+}
+
+/* 0x002FA800, 0x6C bytes, matching. */
+void func_002FA800(u32 i, int v)
+{
+    *(u8 *)(frc(i) + 0x76) = (u8)v;
+}
+
+/* 0x002FA870, 0x64 bytes, matching. */
+int func_002FA870(u32 i)
+{
+    return *(u8 *)(frc(i) + 0x76);
+}
+
+/* 0x002FA8E0, 0x8C bytes. */
+void func_002FA8E0(u32 i, int v)
+{
+    if (v >= 0 && v < 0x6)
+        *(u8 *)(frc(i) + 0x77) = (u8)v;
+}
+
+/* 0x002FA970, 0x64 bytes, matching. */
+int func_002FA970(u32 i)
+{
+    return *(u8 *)(frc(i) + 0x77);
+}
+
+/* 0x002FAAD0, 0x64 bytes, matching. */
+int func_002FAAD0(u32 i)
+{
+    return *(u16 *)(frc(i) + 0xC);
+}
+
+/* 0x002FAD20, 0x64 bytes, matching. */
+int func_002FAD20(u32 i)
+{
+    return *(u16 *)(frc(i) + 0xE);
+}
+
