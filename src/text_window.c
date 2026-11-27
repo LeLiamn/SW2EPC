@@ -1425,3 +1425,139 @@ void func_001B5400(TextWindow *w, int k)
         func_001AA2C0(f, w->b[1]);
     }
 }
+
+void func_001A4780(u8 *p, int x, int y, int z, int w, int h, int alpha, int flip);
+void func_001A4C40(u8 *p, int x, int y, int z, int w, int h, int alpha, int flip, int alt);
+void func_001A9CE0(u8 *f, int x, int y, int z, int w, int h, int alpha, int flip, int half);
+void func_001AA2B0(u8 *f);
+
+/* 0x001B7270, 0xA80 bytes. Draws glyph `g` of the four-portrait window (`g->pad` points at the
+ * window; +0x30 of the job is the glyph's number): typed out while the window opens (glyphs up
+ * to its lines less its timer), squeezed down while it closes (timer / 5), whole when shown. */
+void func_001B7270(Glyph *g)
+{
+    TextWindow *w = (TextWindow *)(u32)g->pad;
+    u8 *p = glyph_strip(g);
+    int x = g->x, y = g->y, gw = g->w, gh = g->h;
+
+    if (w->state == 2) {
+        if ((u32)(w->b[3] - w->b[2]) < (u32)((int *)g)[0xC])
+            return;
+    } else if (w->state == 7) {
+        float f = (float)w->b[2] / 5.0f;
+
+        y = g->y + (int)((float)(u32)gh * (1.0f - f));
+        gh = (int)((float)(u32)gh * f);
+    } else if ((u32)(w->state - 4) > 2) {
+        return;
+    }
+    *(u64 *)(p + 0x30) = half_xyz(x, y);
+    *(u64 *)(p + 0x48) = half_xyz(x + gw, y);
+    *(u64 *)(p + 0x60) = half_xyz(x, y + gh);
+    *(u64 *)(p + 0x78) = half_xyz(x + gw, y + gh);
+    func_00105BE0(p, g->layer);
+}
+
+/* 0x001B7CF0, 0x30 bytes. A side's text colour (1: 0xD, 0: 0xC, others 5). */
+int func_001B7CF0(int side)
+{
+    if (side == 1)
+        return 0xD;
+    if (side == 0)
+        return 0xC;
+    return 5;
+}
+
+/* Clears the 16 glyph packets of a name line from `p` (xyz at +0x30 / +0x40). */
+static inline void clear_name(u8 *p, int n)
+{
+    for (; n < 0x10; n++) {
+        *(u64 *)(p + n * 0x50 + 0x170) = 0;
+        *(u64 *)(p + n * 0x50 + 0x180) = 0;
+    }
+}
+
+/* 0x001B7D20, 0xAD4 bytes. Draws the four-portrait window: the left and right officers' names
+ * (+0x5C0 / +0x5C4, bit 15 of their portraits +0x5C8 / +0x5CA meaning none) on tabs coloured by
+ * their sides (+0x5CD / +0x5CE), the header bar (from the side +0x5CC, growing while it opens,
+ * shrinking when closed), the two portraits and the text (typed out). */
+void func_001B7D20(TextWindow *w, int k)
+{
+    u8 *st = window_state(k), *p = window_packets(k), *f;
+    float pos[4], tw;
+    int n, bw, sy = g_00693968 == 1 ? 0xAA : 0xEC;
+    u32 layer, c0;
+
+    pos[2] = 0.0f;
+    pos[3] = 0.0f;
+    if ((*(u16 *)(st + 0x5C8) & 0x8000) == 0) {
+        pos[0] = 74.0f;
+        pos[1] = g_00693968 == 1 ? 173.0f : 239.0f;
+        n = func_001AB1D0(16.0f, 16.0f, p + 0x140, *(u16 *)(st + 0x5C2), *(u16 *)(st + 0x5C0), pos,
+                          func_001B7CF0(st[0x5CD]), 0x80, 1, &tw);
+        clear_name(p, n);
+        tw = tw + 6.0f;
+        func_001A4C40(p, 0x32, sy, 0, (int)(u32)tw + 0x26, 0x18, 0x80, 0, 0);
+    } else {
+        *(u64 *)(p + 0x30) = 0;
+        *(u64 *)(p + 0x40) = 0;
+        *(u64 *)(p + 0x80) = 0;
+        *(u64 *)(p + 0x90) = 0;
+        clear_name(p, 0);
+    }
+    if ((*(u16 *)(st + 0x5CA) & 0x8000) == 0) {
+        pos[0] = 438.0f - (float)func_0019AF10(16.0f, *(u16 *)(st + 0x5C6), *(u16 *)(st + 0x5C4));
+        pos[1] = g_00693968 == 1 ? 173.0f : 239.0f;
+        n = func_001AB1D0(16.0f, 16.0f, p + 0x640, *(u16 *)(st + 0x5C6), *(u16 *)(st + 0x5C4), pos,
+                          func_001B7CF0(st[0x5CE]), 0x80, 1, &tw);
+        clear_name(p + 0x500, n);
+        tw = tw + 6.0f;
+        bw = (int)(u32)tw + 0x26;
+        func_001A4C40(p + 0xA0, 0x1CE - bw, sy, 0, bw, 0x18, 0x80, 0, 0);
+    } else {
+        clear_name(p + 0x500, 0);
+    }
+    if (w->state == 1)
+        bw = w->w * (10 - w->b[2]) / 10;
+    else if (w->state == 8)
+        bw = w->w * w->b[2] / 5;
+    else
+        bw = w->w;
+    if (st[0x5CC] == 0)
+        func_001A4780(p + 0xB40, w->x, w->y, w->z, bw, w->h, 0x80, 1);
+    else
+        func_001A4780(p + 0xB40, w->x + (w->w - bw), w->y, w->z, bw, w->h, 0x80, 0);
+    func_00104F60(p, 0xC30, w->b[1]);
+    f = st + g_70000150 * 0x170;
+    if ((*(u16 *)(st + 0x5C8) & 0x8000) == 0) {
+        func_001A9B30(f, *(u16 *)(st + 0x5C8) & 0x7FFF, 1);
+        func_001A9CE0(f, 0xC, g_00693968 == 1 ? 0xA4 : 0xE6, 0, 0x32, 0x39, 0x80, 0, 1);
+        func_001AA2C0(f, w->b[1]);
+    } else {
+        func_001AA2B0(f);
+    }
+    f = st + g_70000150 * 0x170 + 0x2E0;
+    if ((*(u16 *)(st + 0x5CA) & 0x8000) == 0) {
+        func_001A9B30(f, *(u16 *)(st + 0x5CA) & 0x7FFF, 1);
+        func_001A9CE0(f, 0x1C2, g_00693968 == 1 ? 0xA4 : 0xE6, 0, 0x32, 0x39, 0x80, 1, 1);
+        func_001AA2C0(f, w->b[1]);
+    } else {
+        func_001AA2B0(f);
+    }
+    layer = g_0056CCB8;
+    c0 = g_0056CCA4;
+    if (w->state == 2 || w->state == 7 || w->state == 4) {
+        g_0056CCA0 = func_001B7270;
+        g_0056CCA8 = w->b[4];
+        g_0056CCA4 = w->b[4];
+        g_0056CCB8 = 5;
+        g_0056CCAC = g_0056CCA8;
+        g_0056CCB0 = g_0056CCA4;
+        func_00146270(w->text, w->x + w->pad[2], w->y + w->pad[0], w->b[1], (int)w);
+        g_0056CCA8 = c0;
+        g_0056CCAC = c0;
+        g_0056CCB0 = c0;
+    }
+    g_0056CCA4 = c0;
+    g_0056CCB8 = layer;
+}
