@@ -2220,3 +2220,172 @@ int func_003C8D80(void)
 {
     return pair_event(0xDF, 0xB, 0x18);
 }
+
+/* `a` and `b` of different forces and facing each other (without the commander check). */
+static int face2(int a, int b)
+{
+    if (func_002F4080(a) == func_002F4080(b))
+        return 0;
+    return func_003C2AE0(a, b) != 0;
+}
+
+/* 0x003C8E00, 0x80 bytes. */
+int func_003C8E00(void)
+{
+    return func_00329540(0xE0) == 0 && face(0xB, 0x12);
+}
+
+/* 0x003C8E80, 0xA0 bytes. */
+int func_003C8E80(void)
+{
+    if (func_00329540(0xE1) != 0 || func_0032EB40(0x10, 0xB, 0) == 0)
+        return 0;
+    return face(0xB, 0x1A);
+}
+
+/* 0x003C8F20, 0x98 bytes. */
+int func_003C8F20(void)
+{
+    if (func_00329540(0xE2) != 0 || func_0032EB40(2, 0xC, 0) == 0)
+        return 0;
+    return pair_event(0xE2, 0xC, 2);
+}
+
+/* 0x003C8FC0, 0x94 bytes. */
+int func_003C8FC0(void)
+{
+    if (func_00329540(0xE3) != 0 || func_00327820() != 2)
+        return 0;
+    if (func_0032EC50(func_00327820(), 0xC, 3, 0) == 0)
+        return 0;
+    return func_003C27A0(0, 0xC, 3, 0x19F, 0x19F) == 2;
+}
+
+/* Event `ev` (once): officer 2 knows 0xC, and 0xC faces `o`. */
+static int c_event(int ev, int o)
+{
+    if (func_00329540(ev) != 0 || func_0032EB40(2, 0xC, 0) == 0)
+        return 0;
+    return face(0xC, o);
+}
+
+/* 0x003C9060, 0xA0 bytes. */
+int func_003C9060(void)
+{
+    return c_event(0xE4, 3);
+}
+
+/* 0x003C9100, 0xA0 bytes. */
+int func_003C9100(void)
+{
+    return c_event(0xE5, 0xB);
+}
+
+/* 0x003C91A0, 0xA0 bytes. */
+int func_003C91A0(void)
+{
+    return c_event(0xE6, 0x18);
+}
+
+/* 0x003C9240, 0x100 bytes. */
+int func_003C9240(void)
+{
+    if (func_00329540(0xE7) != 0 || func_0032EB40(2, 0xC, 0) == 0)
+        return 0;
+    if (func_002F4080(5) == func_002F4080(0x12) || func_002F4080(5) == func_002F4080(0x1B))
+        return 0;
+    if (func_00328270() != 2 && func_00328270() != 4)
+        return 0;
+    return face2(0xC, 5);
+}
+
+/* 0x003C9340, 0xE0 bytes. */
+int func_003C9340(void)
+{
+    if (func_00329540(0xE8) != 0 || func_0032EB40(2, 0xC, 0) == 0 || func_002F2840(5) == 0)
+        return 0;
+    if (func_002F4080(5) != func_002F4080(0x12) || func_00328270() != 1)
+        return 0;
+    return face2(0xC, 0x12);
+}
+
+/* 0x003C9420, 0x78 bytes. */
+int func_003C9420(void)
+{
+    return pair_event(0xE9, 0xC, 9);
+}
+
+/* 0x003C94A0, 0x58 bytes. */
+int func_003C94A0(void)
+{
+    if (func_00329540(0xEA) != 0 || func_00327820() != 0x10)
+        return 0;
+    return func_0032E950() == 0xC;
+}
+
+/* 0x003C9500, 0xD0 bytes. */
+int func_003C9500(void)
+{
+    if (func_00329540(0xEB) != 0 || func_00327C70() < 0xB)
+        return 0;
+    if (!KNOWS(0xC, 0) || !KNOWS(0x11, 1) || !KNOWS(0x13, 0))
+        return 0;
+    return func_0032EE10(0xC) == 0;
+}
+
+/* 0x003C95D0, 0xCC bytes. */
+int func_003C95D0(void)
+{
+    if (func_00329540(0xEC) != 0 || func_00329540(0xEB) == 0)
+        return 0;
+    if (!KNOWS(0xC, 0) || !KNOWS(0x11, 1) || !KNOWS(0x13, 0))
+        return 0;
+    return func_0032EE10(0xC) == 0;
+}
+
+/* 0x003C96A0, 0xDC bytes. */
+int func_003C96A0(void)
+{
+    if (func_00329540(0xED) != 0 || func_00327C70() < 0x10 || func_003C2180() < 1)
+        return 0;
+    if (!KNOWS(0xC, 0) || !KNOWS(0x16, 0) || func_002F33F0(0xC) < 10)
+        return 0;
+    return func_002F33F0(0x16) > 9;
+}
+
+/* 0x003C9780, 0x7C bytes. */
+int func_003C9780(void)
+{
+    if (func_00329540(0xEE) != 0 || !KNOWS(0xD, 1) || func_002F33F0(0xD) < 1)
+        return 0;
+    return func_0032E950() == 7;
+}
+
+/* The common tail of events 0xC0, 0xEF and 0xF0. */
+static int trio_tail(void)
+{
+    int v;
+
+    if (!KNOWS(7, 0) || !KNOWS(5, 0) || !KNOWS(0xD, 0) || KNOWS(0x12, 1) || KNOWS(0x1B, 1))
+        return 0;
+    v = func_00328270();
+    return v == 0 || func_00328270() == 2 || func_00328270() == 4;
+}
+
+/* 0x003C9800, 0x184 bytes. Event 0xEF (once, before 0xC0 and 0xF0, from turn 6). */
+int func_003C9800(void)
+{
+    if (func_00329540(0xEF) != 0 || func_00329540(0xC0) != 0 || func_00329540(0xF0) != 0)
+        return 0;
+    if (func_00327C70() < 6)
+        return 0;
+    return trio_tail();
+}
+
+/* 0x003C9990, 0x168 bytes. Event 0xF0 (once, after 0xEF and 0xC0). */
+int func_003C9990(void)
+{
+    if (func_00329540(0xF0) != 0 || func_00329540(0xEF) == 0 || func_00329540(0xC0) == 0)
+        return 0;
+    return trio_tail();
+}

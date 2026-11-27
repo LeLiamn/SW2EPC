@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 125216,
-    "non_matching": 899244
+    "non_matching": 902572
   },
   "data": {
     "total": 2155890688,
@@ -324,14 +324,14 @@
         },
         {
           "name": "emp_ev_station.c",
-          "description": "Estimated range 0x3C84B8-0x3D70F0; 15 function(s) decompiled",
+          "description": "Estimated range 0x3C84B8-0x3D70F0; 32 function(s) decompiled",
           "code": {
             "total": 60472,
             "matching": 0,
-            "non_matching": 2288
+            "non_matching": 5616
           },
           "decompiled_functions": {
-            "count": 15,
+            "count": 32,
             "matching": 0
           }
         },
