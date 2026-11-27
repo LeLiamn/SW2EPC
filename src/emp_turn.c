@@ -689,3 +689,261 @@ int func_003235A0(void)
     }
     return r;
 }
+
+/* Alliances and small turn helpers (parts of 0x00323680-0x003256A4). The 12 alliance slots:
+ * func_00329160(k, &a, &b) gives the two forces of slot `k`. */
+
+void func_003DA8D0(void);
+void func_00328CB0(void);
+void func_00328E70(void);
+void func_00329030(void);
+int func_00328DE0(int i);
+int func_00328FA0(int i);
+int func_00329160(int k, int *a, int *b);
+void func_00329090(int k, int a, int b);
+void func_0032EA30(void);
+void func_0032E9E0(int o);
+int func_002FAFA0(int f, int p);
+int func_002F3770(int o);
+int func_00362160(int a, int b);
+int func_00337A10(int v);
+int func_0036B260(void);
+void func_003AE9F0(int a, int *b, int c);
+int func_0030D370(void);
+int func_0030CB00(int n);
+int func_00328970(void);
+void func_00328670(int v);
+
+/* 0x00323680, 0x1C bytes, matching. */
+void func_00323680(void)
+{
+    func_003DA8D0();
+}
+
+/* 0x003236A0, 0x44 bytes, matching. */
+int func_003236A0(void)
+{
+    if (func_00320F10() != 0)
+        func_0030E390(0xF, -1, -1, -1, 0, 0);
+    return 0;
+}
+
+/* 0x003236F0, 0x3C bytes, matching. */
+void func_003236F0(int all)
+{
+    func_00328CB0();
+    func_00328E70();
+    if (all != 0)
+        func_00329030();
+}
+
+/* 0x00323730, 0x90 bytes. Whether a force passes func_00328DE0 (`k` 0) or func_00328FA0 (1). */
+int func_00323730(int k)
+{
+    int i;
+
+    for (i = 0; i < 0x19; i++) {
+        if (func_002F8CB0(i) != 0
+            && ((k == 0 && func_00328DE0(i) != 0) || (k == 1 && func_00328FA0(i) != 0)))
+            break;
+    }
+    return i < 0x19;
+}
+
+/* 0x003237C0, 0x74 bytes, matching. Whether an alliance's second force owns the player's force's
+ * province. */
+int func_003237C0(void)
+{
+    int f = func_00327D50(), k, a, b;
+
+    for (k = 0; k < 0xC; k++) {
+        if (func_00329160(k, &a, &b) != 0 && f == func_0030AFF0(b))
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00323840, 0x84 bytes. Ends force `p`'s alliance. */
+void func_00323840(int p)
+{
+    int k, a, b;
+
+    for (k = 0; k < 0xC; k++) {
+        if (func_00329160(k, &a, &b) != 0 && (a == p || b == p))
+            break;
+    }
+    if (k > 0xB)
+        return;
+    func_00329090(k, 0x19, 0x19);
+}
+
+/* 0x00323BD0, 0x88 bytes. Force `p`'s ally (0x19: none). */
+int func_00323BD0(int p)
+{
+    int r = 0x19, k, a, b;
+
+    for (k = 0; k < 0xC; k++) {
+        if (func_00329160(k, &a, &b) != 0) {
+            if (a == p)
+                r = b;
+            else if (b == p)
+                r = a;
+        }
+    }
+    return r;
+}
+
+/* 0x00323C60, 0x6C bytes, matching. The ally force `p` leads (0x19: none). */
+int func_00323C60(int p)
+{
+    int k, a, b;
+
+    for (k = 0; k < 0xC; k++) {
+        if (func_00329160(k, &a, &b) != 0 && a == p)
+            return b;
+    }
+    return 0x19;
+}
+
+/* 0x00323F00, 0xC bytes, matching. */
+u8 *func_00323F00(void)
+{
+    extern u8 g_007B5D40[];
+
+    return g_007B5D40;
+}
+
+/* 0x00324060, 0x70 bytes. */
+int func_00324060(int a, int *list, int n)
+{
+    int k;
+
+    func_0032EA30();
+    for (k = 0; k < n; k++)
+        func_0032E9E0(*list++);
+    return 0;
+}
+
+/* 0x003240D0, 0xF0 bytes. Moves the first officer of `list` that passes func_002F3E70 to its
+ * end. */
+void func_003240D0(u32 *list, int n)
+{
+    u32 keep = 0x19F;
+    int k;
+
+    for (k = 0; k < n - 1; k++) {
+        if (keep > 0x19E && func_002F3E70(list[k]) != 0)
+            keep = list[k];
+        if (keep < 0x19F)
+            list[k] = list[k + 1];
+    }
+    if (keep < 0x19F)
+        list[n - 1] = keep;
+}
+
+/* 0x003247E0, 0xBC bytes. Whether force `f` has func_002FAFA0 with the owner of one of the
+ * provinces `list`. */
+int func_003247E0(int f, int *list, int n)
+{
+    int k;
+
+    for (k = 0; k < n; k++) {
+        int p = func_0030AFF0(*list++);
+
+        if (p >= 0 && p < func_0030AB90() && f != p && func_002FAFA0(f, p) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x003248A0, 0x68 bytes. The sum of func_002F3770 over officers `list`. */
+int func_003248A0(int *list, int n)
+{
+    int k, s = 0;
+
+    for (k = 0; k < n; k++)
+        s += func_002F3770(*list++);
+    return s;
+}
+
+/* 0x00325110, 0x9C bytes. The forces of the battle's two sides (`a` the player's). */
+void func_00325110(int *a, int *b)
+{
+    int x = func_002F4080(func_00337A10(func_00362160(1, 0)));
+    int y = func_002F4080(func_00337A10(func_00362160(0, 0)));
+
+    if (func_0036B260() == 0) {
+        *a = x;
+        *b = y;
+    } else {
+        *a = y;
+        *b = x;
+    }
+}
+
+/* 0x00325360, 0x44 bytes, matching. Sets the after-battle step (7 starts the province change). */
+void func_00325360(int v)
+{
+    int *p = (int *)func_002FC2C0()[0x1AA];
+
+    p[0] = v;
+    if (v == 7)
+        func_003AE9F0(p[5], p + 0xD, p[0x13]);
+}
+
+/* 0x003253B0, 0x3C bytes, matching. */
+void func_003253B0(void)
+{
+    if (func_0030D370() == 0)
+        func_00325360(0xC);
+    else
+        func_00325360(1);
+}
+
+/* 0x00325500, 0xC0 bytes, matching. A reward item kind at random (0x5A-0x62). */
+int func_00325500(void)
+{
+    int v = func_0030CB00(100);
+
+    if (v < 0x11)
+        return 0x5A;
+    if (v < 0x21)
+        return 0x5C;
+    if (v < 0x31)
+        return 0x5F;
+    if (v < 0x3C)
+        return 0x60;
+    if (v < 0x47)
+        return 0x5D;
+    if (v < 0x52)
+        return 0x5E;
+    if (v < 0x58)
+        return 0x5B;
+    if (v < 0x5E)
+        return 0x61;
+    return 0x62;
+}
+
+/* 0x003255C0, 0xE4 bytes. Gives the battle's reward items (1, or 2 in the second mode, while
+ * fewer than 5 are held) and reports them. */
+void func_003255C0(void)
+{
+    int n = 5 - func_00328970(), ids[2], k;
+
+    if (n < 0)
+        n = 0;
+    if (func_0036B260() == 0) {
+        if (n > 0)
+            n = 1;
+    } else if (n > 1) {
+        n = 2;
+    }
+    if (n == 0)
+        return;
+    for (k = 0; k < n; k++) {
+        ids[k] = func_00325500();
+        func_00328670(ids[k]);
+    }
+    func_0030E390(0x17, 0, -1, -1, (int)ids, n);
+    func_00325360(3);
+}

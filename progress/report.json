@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 138368,
-    "non_matching": 1031204
+    "matching": 139136,
+    "non_matching": 1032684
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1548
+    "matching": 1557
   },
   "layout": "treemap",
   "areas": [
@@ -337,15 +337,15 @@
         },
         {
           "name": "emp_ev_still.c",
-          "description": "Estimated range 0x31C840-0x32D7E0; 57 function(s) decompiled",
+          "description": "Estimated range 0x31C840-0x32D7E0; 75 function(s) decompiled",
           "code": {
             "total": 69536,
-            "matching": 2032,
-            "non_matching": 9392
+            "matching": 2800,
+            "non_matching": 10872
           },
           "decompiled_functions": {
-            "count": 57,
-            "matching": 20
+            "count": 75,
+            "matching": 29
           }
         },
         {
