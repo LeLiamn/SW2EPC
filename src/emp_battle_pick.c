@@ -331,3 +331,312 @@ int func_003EAC10(int k)
     func_003EA010();
     return r;
 }
+
+/* ---- The special battles' turn step and set-ups (state 0x007BFB48, kind 0x007BFB4C), parts of
+ * 0x003EAD10-0x003EBD6C. ---- */
+
+extern int g_007BFB48, g_007BFB4C;
+extern int g_0045D108, g_0045D10C, g_0045D110[2], g_0045D118, g_0045D11C;
+extern int g_0041D7F0[4];
+
+void func_00376100(int a, int b, int c);
+int func_003296F0(void);
+int func_003E9B80(void);
+int func_003E9F80(void);
+int func_003EB5D0(void);
+int func_003EBAA0(void);
+int func_003EC0B0(void);
+int func_003EC8F0(void);
+int func_003ED910(void);
+int func_003ECFC0(void);
+int func_003EDED0(void);
+int func_003EE3A0(void);
+int func_003F8AB0(void);
+int func_002FB9D0(int f);
+int func_002FA970(int f);
+void func_002FA8E0(int f, int v);
+void func_003280C0(int v);
+int func_0036B260(void);
+void func_003BC6B0(int k, int v);
+void func_003A7D90(void);
+void func_003EB1A0(void);
+void func_003EB650(void);
+void func_003EBB20(void);
+void func_003EC220(void);
+void func_003ED040(void);
+void func_003EC970(void);
+void func_003ED990(void);
+void func_003EDF50(void);
+void func_003F8740(int k);
+void func_003622F0(int a, int b);
+void func_003638D0(void);
+int func_003EA0C0(void);
+int func_003EA0E0(void);
+int func_003EA100(void);
+int func_003EA120(void);
+int func_003EA140(void);
+void func_0030E140(int a, int b, int c, int d);
+int func_00375BF0(void);
+int func_00375B90(void);
+void func_003EA310(int f);
+void func_003EA1C0(int f);
+void func_003EA330(int f);
+int func_002F8CB0(int f);
+void func_002FAF30(int f, int g);
+
+/* 0x003EAD10, 0x1E0 bytes. The special battle's step of the turn. */
+int func_003EAD10(void)
+{
+    int r = 5, f = func_00327D50();
+
+    if (g_007BFB48 == 0) {
+        func_00376100(4, 5, -1);
+        g_007BFB4C = func_003296F0();
+    }
+    switch (g_007BFB4C) {
+    case 6:
+        r = func_003E9B80();
+        break;
+    case 7:
+        r = func_003E9F80();
+        break;
+    case 8:
+        r = func_003EB5D0();
+        break;
+    case 9:
+        r = func_003EBAA0();
+        break;
+    case 10:
+        r = func_003EC0B0();
+        break;
+    case 0xB:
+        r = func_003EC8F0();
+        break;
+    case 0xC:
+        r = func_003ED910();
+        break;
+    case 0xD:
+        r = func_003ECFC0();
+        break;
+    case 0xE:
+        r = func_003EDED0();
+        break;
+    case 0xF:
+        r = func_003EE3A0();
+        break;
+    case 0x10:
+    case 0x11:
+    case 0x12:
+        r = func_003F8AB0();
+        break;
+    }
+    if (g_007BFB48 == 3) {
+        int a = func_002FB9D0(f);
+
+        if (func_002FA970(f) < a)
+            func_002FA8E0(f, a);
+        func_003280C0(func_002FA970(f));
+        func_00376100(4, -1, -1);
+        r = 0;
+        func_003BC6B0(g_007BFB4C, func_0036B260());
+        func_003EA010();
+        func_003A7D90();
+    }
+    return r;
+}
+
+/* 0x003EAFA0, 0x118 bytes. Sets the special battle up. */
+void func_003EAFA0(void)
+{
+    switch (g_007BFB4C) {
+    case 6:
+        func_003E9800();
+        break;
+    case 7:
+        func_003E9C00();
+        break;
+    case 8:
+        func_003EB1A0();
+        break;
+    case 9:
+        func_003EB650();
+        break;
+    case 10:
+        func_003EBB20();
+        break;
+    case 0xB:
+        func_003EC220();
+        break;
+    case 0xC:
+        func_003ED040();
+        break;
+    case 0xD:
+        func_003EC970();
+        break;
+    case 0xE:
+        func_003ED990();
+        break;
+    case 0xF:
+        func_003EDF50();
+        break;
+    case 0x10:
+    case 0x11:
+    case 0x12:
+        func_003F8740(g_007BFB4C - 0x10);
+        break;
+    }
+    func_003622F0(0, 0);
+    func_003638D0();
+    g_007BFB48 = 0;
+}
+
+/* 0x003EB1A0, 0x1DC bytes, matching. */
+void func_003EB1A0(void)
+{
+    u8 *p = func_003EA000();
+    int a, b, c, d;
+
+    func_00327D50();
+    a = func_003EA0C0();
+    b = func_003EA0E0();
+    c = func_003EA100();
+    d = func_003EA120();
+    func_0030CF90(0, 0, *(int *)(p + 8));
+    func_003EAA20(0, 1, a, 1000, &g_0045D108, 1);
+    func_003EA820(0, 2, a, 1000);
+    func_003EA820(0, 3, a, 500);
+    func_003EA820(0, 4, a, 500);
+    func_003EA820(0, 5, b, 500);
+    func_003EAA20(0, 6, b, 1000, &g_0045D10C, 1);
+    func_003EA820(0, 7, b, 500);
+    func_0030CF90(1, 0, 0x12);
+    func_0030CF90(1, 1, 5);
+    func_003EA820(1, 2, c, 1000);
+    func_003EA820(1, 3, c, 500);
+    func_003EA820(1, 4, c, 500);
+    func_003EA820(1, 5, c, 500);
+    func_0030CF90(1, 6, 0xE8);
+    func_003EA820(1, 7, d, 500);
+    func_00362990(0, func_002F8E50(a));
+    func_00362990(1, func_002F8E50(c));
+    func_003EAA50(8);
+}
+
+/* 0x003EB650, 0x1E8 bytes, matching. */
+void func_003EB650(void)
+{
+    u8 *p = func_003EA000();
+    int a, b, c, d;
+
+    func_00327D50();
+    a = func_003EA0C0();
+    b = func_003EA0E0();
+    c = func_003EA100();
+    d = func_003EA120();
+    func_0030CF90(0, 0, *(int *)(p + 8));
+    func_003EAA20(0, 1, c, 1000, g_0045D110, 2);
+    func_003EAA20(0, 2, c, 1000, g_0045D110, 2);
+    func_003EA820(0, 3, c, 500);
+    func_003EA820(0, 4, c, 500);
+    func_003EA820(0, 5, d, 500);
+    func_003EAA20(0, 6, d, 1000, &g_0045D118, 1);
+    func_003EA820(0, 7, d, 500);
+    func_0030CF90(1, 0, 2);
+    func_003EA820(1, 1, a, 1000);
+    func_003EA820(1, 2, a, 1000);
+    func_003EA820(1, 3, a, 500);
+    func_003EA820(1, 4, a, 500);
+    func_003EA820(1, 5, a, 500);
+    func_0030CF90(1, 6, 0x10);
+    func_003EA820(1, 7, b, 500);
+    func_00362990(0, func_002F8E50(c));
+    func_00362990(1, func_002F8E50(a));
+    func_003EAA50(9);
+}
+
+/* 0x003EB880, 0xB4 bytes. The battle's opening event (by side and result). */
+void func_003EB880(void)
+{
+    u32 *p = (u32 *)func_003EA000();
+    int x, y, z;
+
+    if (func_0036B260() == 0) {
+        if (func_00327D50() == func_003EA100()) {
+            x = 0x82;
+            y = 0x12;
+            z = 5;
+        } else {
+            x = 0x84;
+            y = 0xE8;
+            z = -1;
+        }
+    } else if (func_00327D50() == func_003EA100()) {
+        x = 0x81;
+        y = 0x12;
+        z = 5;
+    } else {
+        x = 0x83;
+        y = 0xE8;
+        z = -1;
+    }
+    func_0030E140(x, y, z, -1);
+    p[0] = 1;
+}
+
+/* 0x003EB9D0, 0xC4 bytes. The battle's result on the two forces. */
+void func_003EB9D0(void)
+{
+    u32 *p = (u32 *)func_003EA000();
+
+    if (func_00375BF0() == 0 || func_00375B90() != 1)
+        return;
+    if (func_0036B260() == 0) {
+        func_003EA310(func_003EA0C0());
+        func_003EA1C0(func_003EA0C0());
+        func_003EA310(func_003EA0E0());
+        func_003EA1C0(func_003EA0E0());
+    } else {
+        func_003EA330(func_003EA0C0());
+        func_003EA330(func_003EA0E0());
+    }
+    p[0] = 3;
+}
+
+/* 0x003EBB20, 0x1EC bytes, matching. */
+void func_003EBB20(void)
+{
+    u8 *p = func_003EA000();
+    int a, e;
+
+    func_00327D50();
+    a = func_003EA0C0();
+    e = func_003EA140();
+    func_0030CF90(0, 0, *(int *)(p + 8));
+    func_003EAA20(0, 1, e, 1000, &g_0045D11C, 1);
+    func_003EA820(0, 2, e, 1000);
+    func_003EA820(0, 3, e, 500);
+    func_003EA820(0, 4, e, 500);
+    func_003EA820(0, 5, e, 500);
+    func_003EA820(0, 6, e, 1000);
+    func_003EA820(0, 7, e, 500);
+    func_0030CF90(1, 0, 2);
+    func_003EAA20(1, 1, a, 1000, g_0041D7F0, 4);
+    func_003EAA20(1, 2, a, 1000, g_0041D7F0, 4);
+    func_003EAA20(1, 3, a, 500, g_0041D7F0, 4);
+    func_003EAA20(1, 4, a, 500, g_0041D7F0, 4);
+    func_003EA820(1, 5, a, 500);
+    func_003EA820(1, 6, a, 1000);
+    func_003EA820(1, 7, a, 500);
+    func_00362990(0, func_002F8E50(e));
+    func_00362990(1, func_002F8E50(a));
+    func_003EAA50(10);
+}
+
+/* 0x003EBD10, 0x60 bytes, matching. */
+int func_003EBD10(void)
+{
+    func_003EA1C0(func_003EA0C0());
+    if (func_002F8CB0(func_003EA140()) != 0)
+        func_002FAF30(func_003EA0C0(), func_003EA140());
+    return 0;
+}
