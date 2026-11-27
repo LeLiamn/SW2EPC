@@ -55,12 +55,17 @@ u16 func_0035DCB0(int p);
 void func_0035CCE0(u16 g, u16 dir);
 void func_0011EB80(void *to, const void *from, int n);
 u8 *func_002EFB00(int k);
-u8 func_00362660(u32 s);
-int func_00363800(u32 s, u32 k);
-int func_00362260(u32 s, u32 k);
-int func_00362160(u32 s, u32 k);
-int func_00362F40(u32 s, u32 k);
-u32 func_00362570(void);
+u8 func_00362660(int s);
+int func_00363800(int s, u32 k);
+u16 func_00362260(int s, int k);
+int func_00362160(int s, int k);
+int func_00362F40(int s, u32 k);
+int func_00362810(void);
+int func_00363770(int s, int k);
+int func_002F27D0(int v);
+void func_00362F60(void);
+int func_003637D0(int s, int k);
+u8 func_00362570(void);
 void func_00360E80(void);
 int func_00363720(int p);
 int func_002F5730(int x);
@@ -586,7 +591,7 @@ void func_0035F8D0(void)
         func_0035F310(s, func_00362660(s));
 }
 
-/* 0x0035F920, 0x8C bytes, matching. Each side's count: the sum of its present officers'. */
+/* 0x0035F920, 0x8C bytes. Each side's count: the sum of its present officers'. */
 void func_0035F920(void)
 {
     u32 s, k;
@@ -871,7 +876,7 @@ void func_0035C9D0(u16 kind, int won);
 void func_0035D2A0(void);
 void func_0035CEE0(u16 k, u16 g, u16 h);
 u32 func_00361430(u32 s, u16 *out, u32 max);
-u32 func_00361F50(void);
+int func_00361F50(void);
 int func_0033F7D0(u32 s, int a);
 int func_003531F0(int s);
 int func_0033F860(int a, int b, int c);
@@ -1448,4 +1453,955 @@ int func_00361E90(void)
     if (func_0036D310() == 0)
         return 0;
     return a[func_00362570() - 0x10] + b[g_00669D60[0x21]];
+}
+
+/* The battle set-up (0x84 bytes at 0x007B6FE0, saved as is). */
+typedef struct {
+    u16 officer[2][8];       /* +0x00 per side and slot (0x19F = none) */
+    u16 life[2][8];          /* +0x20 (at most 10000) */
+    u16 troops[2][8];        /* +0x40 (at most 10000) */
+    u8 player_slot[2];       /* +0x60 the players' slots (8 = none) */
+    u8 map;                  /* +0x62 */
+    u8 kind;                 /* +0x63 the battle kind */
+    u8 difficulty;           /* +0x64 */
+    u8 b65[2][2];            /* +0x65 */
+    u8 b69[2];               /* +0x69 */
+    u8 hidden;               /* +0x6B bits 0-3: slots 6-7 of each side; 0x80 on */
+    u8 present[2];           /* +0x6C one bit per slot */
+    u16 name[2];             /* +0x6E (0x2F9 = custom) */
+    u8 bits;                 /* +0x72 */
+    u8 b73;                  /* +0x73 */
+    u8 b74[2][6];            /* +0x74 */
+    u8 b80[2];               /* +0x80 */
+    u8 b82[2];               /* +0x82 */
+} BattleSetup;
+
+extern BattleSetup g_007B6FE0;
+extern u8 g_0045D770[2];                 /* (small data) the slots taken out, a bit each */
+extern int g_00415D48[3], g_00415D60[30];
+extern u8 g_00415DE0[6];
+extern const char g_004482D0[];
+
+void func_0035D240(void);
+void func_0035D270(void);
+int func_00337A10(int x);
+char *func_002F2880(void);
+void func_0011ED38(void *p, int v, int n);
+void func_0019B0E0(char *out, u32 v);
+const char *func_00372470(void);
+const char *func_00372460(void);
+void func_001206B0(char *to, const char *s);
+void func_00120928(char *to, const char *from);
+u32 func_003F71B0(u32 k);
+void func_00118850(void *p, int n);
+u32 func_00327C00(void);
+u32 func_0035D780(int m);
+u32 func_0035D7F0(int m);
+u32 func_0035D6E0(int m);
+u32 func_0035D730(int m);
+int func_0035D5B0(int k);
+int func_0035EAE0(int k, int a, int b);
+int func_0035EBA0(int k, int a, int b);
+u8 func_0036F600(int v);
+int func_001E6670(u32 d, u32 a, int m);
+int func_003154F0(int a, int *out);
+int func_0036F6A0(u32 v, u32 j, int *t, u32 kind);
+int func_002F3DC0(int x);
+int func_0036D3B0(int x);
+int func_0036D400(int x);
+
+/* 0x00361F50, 0x60 bytes. With func_0036D310: the count to reach (by battle kind 0x10-0x12). */
+int func_00361F50(void)
+{
+    int t[3];
+
+    t[0] = g_00415D48[0];
+    t[1] = g_00415D48[1];
+    t[2] = g_00415D48[2];
+    if (func_0036D310() == 0)
+        return 0;
+    return t[func_00362570() - 0x10];
+}
+
+/* 0x00361FB0, 0x64 bytes. The "close to the goal" message when the count passes goal - 100. */
+void func_00361FB0(u32 now, u32 before)
+{
+    u32 g;
+
+    if (func_0036D310() == 0)
+        return;
+    g = func_00361F50() - 100;
+    if (before < g && g <= now)
+        func_0035D240();
+}
+
+/* 0x00362020, 0x78 bytes. The message each time the count passes a multiple of 50. */
+void func_00362020(u32 now, int before)
+{
+    if (func_0036D310() != 0 && (before + 0x32U) / 0x32 * 0x32 <= now)
+        func_0035D270();
+}
+
+/* 0x003620A0, 0xC bytes, matching. */
+BattleSetup *func_003620A0(void)
+{
+    return &g_007B6FE0;
+}
+
+/* 0x003620B0, 0x30 bytes. */
+void func_003620B0(int s, int k, u16 v)
+{
+    func_003620A0()->officer[s][k] = v;
+}
+
+/* 0x003620E0, 0x30 bytes. */
+u16 func_003620E0(int s, int k)
+{
+    return func_003620A0()->officer[s][k];
+}
+
+/* 0x00362110, 0x44 bytes. */
+void func_00362110(int s, int k, int x)
+{
+    func_003620B0(s, k, func_00337A10(x));
+}
+
+/* 0x00362160, 0x44 bytes. Slot `k` of side `s`'s officer kind (0x252 = none). */
+int func_00362160(int s, int k)
+{
+    int v = (short)func_003620E0(s, k);
+
+    if (v < 0 || v > 0x19E)
+        return 0x252;
+    return func_002F27D0(v);
+}
+
+/* 0x003621B0, 0x3C bytes. */
+void func_003621B0(int s, int k, u32 v)
+{
+    if (v > 10000)
+        v = 10000;
+    func_003620A0()->life[s][k] = v;
+}
+
+/* 0x003621F0, 0x30 bytes. */
+u16 func_003621F0(int s, int k)
+{
+    return func_003620A0()->life[s][k];
+}
+
+/* 0x00362220, 0x3C bytes. */
+void func_00362220(int s, int k, u32 v)
+{
+    if (v > 10000)
+        v = 10000;
+    func_003620A0()->troops[s][k] = v;
+}
+
+/* 0x00362260, 0x30 bytes. */
+u16 func_00362260(int s, int k)
+{
+    return func_003620A0()->troops[s][k];
+}
+
+/* 0x00362290, 0x5C bytes. Side `s`'s troops. */
+int func_00362290(int s)
+{
+    int n = 0;
+    u32 k;
+
+    for (k = 0; k < 8; k++)
+        n += func_00362260(s, k);
+    return n;
+}
+
+/* 0x003622F0, 0x28 bytes. */
+void func_003622F0(int p, u8 v)
+{
+    func_003620A0()->player_slot[p] = v;
+}
+
+/* 0x00362320, 0x28 bytes. Player `p`'s slot. */
+u8 func_00362320(int p)
+{
+    return func_003620A0()->player_slot[p];
+}
+
+/* 0x00362350, 0x20 bytes. */
+void func_00362350(u8 v)
+{
+    func_003620A0()->map = v;
+}
+
+/* 0x00362370, 0x20 bytes, matching. */
+u8 func_00362370(void)
+{
+    return func_003620A0()->map;
+}
+
+/* 0x00362390, 0x1C bytes, matching. */
+void func_00362390(u8 v)
+{
+    func_00362350(v);
+}
+
+/* 0x003623B0, 0x24 bytes. The battlefield. */
+u32 func_003623B0(void)
+{
+    return func_0035D780(func_00362370());
+}
+
+/* 0x003623E0, 0xA8 bytes. With func_0036D2E0: sets map `m` in the set of the current difficulty
+ * (6 and up: as is). */
+void func_003623E0(int m)
+{
+    if (func_0036D2E0() == 0)
+        return;
+    switch (func_00327C00()) {
+    case 0: m += 0x1E; break;
+    case 1: m += 0x24; break;
+    case 2: m += 0x2A; break;
+    case 3: m += 0x32; break;
+    case 4: m += 0x38; break;
+    case 5: m += 0x40; break;
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+        break;
+    default:
+        return;
+    }
+    func_00362350(m);
+}
+
+/* 0x00362490, 0xBC bytes. The map number within the difficulty's set (0x19 without
+ * func_0036D2E0). */
+u32 func_00362490(void)
+{
+    u32 m, r = 0;
+
+    if (func_0036D2E0() == 0)
+        return 0x19;
+    m = func_00362370();
+    switch (func_00327C00()) {
+    case 0: r = m - 0x1E; break;
+    case 1: r = m - 0x24; break;
+    case 2: r = m - 0x2A; break;
+    case 3: r = m - 0x32; break;
+    case 4: r = m - 0x38; break;
+    case 5: r = m - 0x40; break;
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+        r = m < 0x19 ? m : 0x19;
+        break;
+    }
+    return r;
+}
+
+/* 0x00362550, 0x20 bytes. */
+void func_00362550(u8 v)
+{
+    func_003620A0()->kind = v;
+}
+
+/* 0x00362570, 0x20 bytes, matching. The battle kind. */
+u8 func_00362570(void)
+{
+    return func_003620A0()->kind;
+}
+
+/* 0x00362590, 0x20 bytes. */
+void func_00362590(u8 v)
+{
+    func_003620A0()->difficulty = v;
+}
+
+/* 0x003625B0, 0x20 bytes, matching. */
+u8 func_003625B0(void)
+{
+    return func_003620A0()->difficulty;
+}
+
+/* 0x003625D0, 0x30 bytes. */
+void func_003625D0(int s, int k, u8 v)
+{
+    func_003620A0()->b65[s][k] = v;
+}
+
+/* 0x00362600, 0x30 bytes. */
+u8 func_00362600(int s, int k)
+{
+    return func_003620A0()->b65[s][k];
+}
+
+/* 0x00362630, 0x28 bytes. */
+void func_00362630(int s, u8 v)
+{
+    func_003620A0()->b69[s] = v;
+}
+
+/* 0x00362660, 0x28 bytes. */
+u8 func_00362660(int s)
+{
+    return func_003620A0()->b69[s];
+}
+
+/* 0x00362690, 0x94 bytes. Which of the two sides' slots 6-7 are hidden. */
+void func_00362690(int a, int b, int c, int d)
+{
+    func_003620A0()->hidden &= 0x80;
+    if (a != 0)
+        func_003620A0()->hidden |= 1;
+    if (b != 0)
+        func_003620A0()->hidden |= 2;
+    if (c != 0)
+        func_003620A0()->hidden |= 4;
+    if (d != 0)
+        func_003620A0()->hidden |= 8;
+}
+
+/* 0x00362730, 0x88 bytes. Whether side `s`'s slot `k` (6-7) is hidden. */
+int func_00362730(u32 s, u32 k)
+{
+    if (s >= 2 || k >= 8 || func_00362810() == 0)
+        return 0;
+    return ((1 << (k + s * 2 - 6)) & 0xFF & func_003620A0()->hidden) != 0;
+}
+
+/* 0x003627C0, 0x44 bytes. */
+void func_003627C0(int on)
+{
+    if (on == 0)
+        func_003620A0()->hidden &= 0x7F;
+    else
+        func_003620A0()->hidden |= 0x80;
+}
+
+/* 0x00362810, 0x28 bytes, matching. */
+int func_00362810(void)
+{
+    return (func_003620A0()->hidden & 0x80) != 0;
+}
+
+/* 0x00362840, 0x88 bytes. */
+void func_00362840(u32 s, u32 k, int on)
+{
+    if (s >= 2 || k >= 8)
+        return;
+    if (on == 0)
+        func_003620A0()->present[s] &= ~(1 << k);
+    else
+        func_003620A0()->present[s] |= 1 << k;
+}
+
+/* 0x003628D0, 0x54 bytes. */
+int func_003628D0(u32 s, u32 k)
+{
+    if (s >= 2 || k >= 8)
+        return 0;
+    return ((1 << k) & func_003620A0()->present[s]) != 0;
+}
+
+/* 0x00362930, 0x58 bytes. Side `s`'s first present slot (8 for none). */
+u32 func_00362930(u32 s)
+{
+    u32 k;
+
+    for (k = 0; k < 8; k++) {
+        if (func_003628D0(s, k) != 0)
+            return k;
+    }
+    return k;
+}
+
+/* 0x00362990, 0x44 bytes. */
+void func_00362990(u32 s, u32 v)
+{
+    if (s < 2 && v < 0x2FA)
+        func_003620A0()->name[s] = v;
+}
+
+/* 0x003629E0, 0x38 bytes. */
+u16 func_003629E0(u32 s)
+{
+    if (s >= 2)
+        return 0;
+    return func_003620A0()->name[s];
+}
+
+/* 0x00362A20, 0xA8 bytes. Side `s`'s name (a custom one is two parts). */
+char *func_00362A20(u32 s)
+{
+    char *buf = func_002F2880();
+    u16 v = func_003629E0(s);
+
+    func_0011ED38(buf, 0, 0x18);
+    if (v < 0x2F9) {
+        func_0019B0E0(buf, v);
+    } else {
+        func_00120928(buf, func_00372470());
+        func_001206B0(buf, g_004482D0);
+        func_001206B0(buf, func_00372460());
+    }
+    return buf;
+}
+
+/* 0x00362AD0, 0x30 bytes. */
+void func_00362AD0(u32 k)
+{
+    func_003620A0()->bits |= 1 << k;
+}
+
+/* 0x00362B00, 0x34 bytes. */
+void func_00362B00(u32 k)
+{
+    func_003620A0()->bits &= ~(1 << k);
+}
+
+/* 0x00362B40, 0x20 bytes, matching. */
+void func_00362B40(void)
+{
+    func_003620A0()->bits = 0;
+}
+
+/* 0x00362B60, 0x30 bytes. */
+int func_00362B60(u32 k)
+{
+    return ((1 << k) & func_003620A0()->bits) != 0;
+}
+
+/* 0x00362B90, 0x20 bytes. */
+void func_00362B90(u8 v)
+{
+    func_003620A0()->b73 = v;
+}
+
+/* 0x00362BB0, 0x20 bytes, matching. */
+u8 func_00362BB0(void)
+{
+    return func_003620A0()->b73;
+}
+
+/* 0x00362BD0, 0x38 bytes. */
+void func_00362BD0(int s, int k, u8 v)
+{
+    func_003620A0()->b74[s][k] = v;
+}
+
+/* 0x00362C10, 0x38 bytes. */
+u8 func_00362C10(int s, int k)
+{
+    return func_003620A0()->b74[s][k];
+}
+
+/* 0x00362C50, 0x28 bytes. */
+void func_00362C50(int s, u8 v)
+{
+    func_003620A0()->b80[s] = v;
+}
+
+/* 0x00362C80, 0x28 bytes. */
+u8 func_00362C80(int s)
+{
+    return func_003620A0()->b80[s];
+}
+
+/* 0x00362CB0, 0x28 bytes. */
+void func_00362CB0(int s, u8 v)
+{
+    func_003620A0()->b82[s] = v;
+}
+
+/* 0x00362CE0, 0x28 bytes. */
+u8 func_00362CE0(int s)
+{
+    return func_003620A0()->b82[s];
+}
+
+/* 0x00362D10, 0x60 bytes. */
+int func_00362D10(int s, int k)
+{
+    u32 v = func_00362C10(s, k);
+
+    if (v >= 10)
+        return 0;
+    return func_003F71B0(v) <= func_00362CE0(s);
+}
+
+/* 0x00362D70, 0x74 bytes. */
+int func_00362D70(int s)
+{
+    int n = 0;
+    u32 k;
+
+    for (k = 0; k < 6; k++) {
+        func_00362C10(s, k);
+        if (func_00362C10(s, k) < 10)
+            n++;
+    }
+    return n;
+}
+
+/* 0x00362DF0, 0x28 bytes. Saves the set-up. */
+void func_00362DF0(u8 *p)
+{
+    func_0011EB80(p, func_003620A0(), 0x84);
+}
+
+/* 0x00362E20, 0x44 bytes. Loads it. */
+void func_00362E20(void)
+{
+    u8 *p = func_002EFB00(9);
+
+    func_0011EB80(func_003620A0(), p, 0x84);
+    func_00118850(g_0045D770, 2);
+    func_00362F60();
+}
+
+/* 0x00362E70, 0x58 bytes. */
+void func_00362E70(int s, u32 k, int on)
+{
+    if (on == 0)
+        g_0045D770[s] &= ~(u8)(1 << k);
+    else
+        g_0045D770[s] |= (u8)(1 << k);
+}
+
+/* 0x00362ED0, 0x6C bytes. Battlefield `m`'s most generic officers (3 fewer with
+ * func_0036D300). */
+int func_00362ED0(int m)
+{
+    int t[30], v, k;
+
+    for (k = 0; k < 30; k++)
+        t[k] = g_00415D60[k];
+    v = t[m];
+    if (func_0036D300() != 0)
+        v -= 3;
+    return v;
+}
+
+/* 0x00362F40, 0x20 bytes, matching. Whether side `s`'s slot `k` is taken out. */
+int func_00362F40(int s, u32 k)
+{
+    return (g_0045D770[s] & 1 << k) != 0;
+}
+
+/* 0x00362F60, 0x15C bytes. Takes out generic officers (in a fixed slot order) until the
+ * battlefield's limit holds. */
+void func_00362F60(void)
+{
+    u32 t[6], m = func_003623B0(), n = 0, s, k, max;
+
+    for (k = 0; k < 6; k++)
+        t[k] = g_00415DE0[k];
+    for (s = 0; s < 2; s++) {
+        for (k = 0; k < 8; k++) {
+            if (func_003620E0(s, k) < 0x1C)
+                n++;
+        }
+    }
+    max = func_00362ED0(m);
+    for (k = 0; k < 6; k++) {
+        u32 a, b;
+
+        if (n <= max)
+            return;
+        a = t[k] >> 3;
+        b = t[k] & 7;
+        if (func_00363770(a, b) != 0 && func_003637D0(a, b) == 0) {
+            func_00362E70(a, b, 1);
+            n--;
+        }
+    }
+}
+
+/* 0x003630C0, 0x18C bytes, matching. Resets the set-up. */
+void func_003630C0(void)
+{
+    u32 s, k;
+
+    for (s = 0; s < 2; s++) {
+        for (k = 0; k < 8; k++) {
+            func_003620B0(s, k, 0x19F);
+            func_003621B0(s, k, 0);
+            func_00362220(s, k, 0);
+            func_00362840(s, k, 0);
+        }
+        for (k = 0; k < 2; k++)
+            func_003625D0(s, k, 0x1F);
+        for (k = 0; k < 6; k++)
+            func_00362BD0(s, k, 10);
+        func_00362BD0(s, 0, 0);
+        func_00362C50(s, 0);
+        func_00362CB0(s, 0);
+        func_00362630(s, 0);
+        func_00362990(s, 0x2F9);
+    }
+    for (s = 0; s < 2; s++)
+        func_003622F0(s, 8);
+    func_00362350(0x46);
+    func_00362550(0x13);
+    func_00362590(5);
+    func_00362690(0, 0, 0, 0);
+    func_003627C0(0);
+    func_00362B40();
+    func_00362B90(0x69);
+    func_00118850(g_0045D770, 2);
+}
+
+/* 0x00363250, 0xC0 bytes. The music for the player's officer kinds 6 and 0xE (by a settings
+ * bit), else 0x69. */
+int func_00363250(void)
+{
+    int o;
+
+    if (func_00362570() >= 6 && func_00362570() <= 0xF)
+        return 0x69;
+    o = func_00363720(0);
+    if (o == 0xE)
+        return (g_00669D60[0x51] & 0x10) != 0 ? 99 : 0x16;
+    if (o == 6)
+        return (g_00669D60[0x51] & 0x10) != 0 ? 0x4E : 0x12;
+    return 0x69;
+}
+
+/* 0x00363310, 0x144 bytes. The music for the map (within its difficulty set). */
+int func_00363310(void)
+{
+    u32 d = 10;
+    int m;
+
+    if (func_0036D2E0() != 0)
+        d = func_00327C00();
+    m = func_00362370();
+    if ((m < 0 || m > 0x18) && (m < 0x19 || m > 0x1D)) {
+        if (m >= 0x1E && m <= 0x23)
+            m -= 0x1E;
+        else if (m >= 0x24 && m <= 0x29)
+            m -= 0x24;
+        else if (m >= 0x2A && m <= 0x31)
+            m -= 0x2A;
+        else if (m >= 0x32 && m <= 0x37)
+            m -= 0x32;
+        else if (m >= 0x38 && m <= 0x3F)
+            m -= 0x38;
+        else if (m > 0x3F && m < 0x46)
+            m -= 0x40;
+    }
+    return func_001E6670(d, (g_00669D60[0x51] & 0x1F) >> 4, m);
+}
+
+/* 0x00363460, 0x4C bytes. */
+void func_00363460(void)
+{
+    int v = func_00363250();
+
+    if (v == 0x69)
+        v = func_00363310();
+    if (v < 0x69)
+        func_00362B90(v);
+}
+
+/* 0x003634B0, 0xA4 bytes. */
+void func_003634B0(void)
+{
+    u32 s, k;
+
+    for (s = 0; s < 2; s++) {
+        for (k = 0; k < 2; k++) {
+            int v = func_0035EBA0(func_00362570(), s, k);
+
+            if (v > 0x3A && v < 0x5A)
+                func_003625D0(s, k, func_0036F600(v));
+        }
+    }
+}
+
+/* 0x00363560, 0x24 bytes, matching. */
+void func_00363560(void)
+{
+    func_00363460();
+    func_003634B0();
+}
+
+/* 0x00363590, 8 bytes, matching. */
+void func_00363590(void)
+{
+}
+
+/* 0x003635A0, 0x50 bytes. */
+void func_003635A0(void)
+{
+    if (func_0032E7B0() != 0)
+        return;
+    if (g_00669F6C == 1)
+        func_00363590();
+    else
+        func_00363560();
+}
+
+/* 0x003635F0, 0x24 bytes. */
+int func_003635F0(void)
+{
+    return func_0035D5B0(func_00362570());
+}
+
+/* 0x00363620, 0x64 bytes. */
+u32 func_00363620(int s)
+{
+    u32 v = func_003635F0();
+
+    if (s == 0)
+        return v;
+    if (s == 1)
+        return v == 0;
+    return 2;
+}
+
+/* 0x00363690, 0x60 bytes. The player at side `s`'s slot `k` (2 for none). */
+u32 func_00363690(int s, int k)
+{
+    u32 p;
+
+    if (s != 0)
+        return 2;
+    for (p = 0; p < 2; p++) {
+        if (k == func_00362320(p))
+            return p;
+    }
+    return 2;
+}
+
+/* 0x003636F0, 0x24 bytes. Whether player `p` plays. */
+int func_003636F0(int p)
+{
+    return func_00362320(p) != 8;
+}
+
+/* 0x00363720, 0x4C bytes. Player `p`'s officer (0x19F for none). */
+int func_00363720(int p)
+{
+    if (func_003636F0(p) == 0)
+        return 0x19F;
+    return func_003620E0(0, func_00362320(p));
+}
+
+/* 0x00363770, 0x5C bytes. Whether side `s`'s slot `k` has an officer. */
+int func_00363770(int s, int k)
+{
+    func_003620E0(s, k);
+    return func_003620E0(s, k) < 0x19F;
+}
+
+/* 0x003637D0, 0x24 bytes, matching. Whether a player holds it. */
+int func_003637D0(int s, int k)
+{
+    return func_00363690(s, k) != 2;
+}
+
+/* 0x00363800, 0x94 bytes. Whether side `s`'s slot `k` takes part at the start. */
+int func_00363800(int s, u32 k)
+{
+    if (func_00362F40(s, k) != 0)
+        return 0;
+    if (k >= 6 && k <= 7 && func_00362810() != 0)
+        return func_00362730(s, k);
+    return func_0035EAE0(func_00362570(), s, k);
+}
+
+/* 0x003638A0, 0x24 bytes, matching. */
+u32 func_003638A0(void)
+{
+    return func_0035D6E0(func_003623B0());
+}
+
+/* 0x003638D0, 0x104 bytes. Copies the set-up into the settings (players' officers, mode flags,
+ * battlefield data, difficulty). */
+void func_003638D0(void)
+{
+    u32 m, a;
+    int p;
+
+    for (p = 0; p < 2; p++) {
+        u32 k;
+
+        *(int *)(g_00669D60 + p * 0x48 + 0x88) = 0x19F;
+        k = func_00362320(p);
+        if (k < 8)
+            *(int *)(g_00669D60 + p * 0x48 + 0x88) = func_003620E0(0, k);
+    }
+    if (*(int *)(g_00669D60 + 0xD0) < 0 || *(int *)(g_00669D60 + 0xD0) > 0x19E)
+        *(u32 *)(g_00669D60 + 0x200) = (*(u32 *)(g_00669D60 + 0x200) & ~2) | 1;
+    else
+        *(u32 *)(g_00669D60 + 0x200) = (*(u32 *)(g_00669D60 + 0x200) & ~1) | 2;
+    m = func_003623B0();
+    a = func_0035D6E0(m);
+    *(u32 *)(g_00669D60 + 0x60) = func_0035D730(m);
+    *(u32 *)(g_00669D60 + 0x74) = a;
+    g_00669D60[0x21] = func_003625B0();
+    func_00362F60();
+}
+
+/* 0x003639E0, 0x68 bytes. Whether side `s` has `v` among its two +0x65 values. */
+int func_003639E0(int s, int v)
+{
+    u32 k;
+
+    for (k = 0; k < 2; k++) {
+        if (v == func_00362600(s, k))
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00363A50, 0x64 bytes. Whether either side has. */
+int func_00363A50(int v)
+{
+    u32 s;
+
+    for (s = 0; s < 2; s++) {
+        if (func_003639E0(s, v) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00363AC0, 0x70 bytes. */
+int func_00363AC0(int s, int v)
+{
+    int n = 0;
+    u32 k;
+
+    for (k = 0; k < 2; k++) {
+        if (v == func_00362600(s, k))
+            n++;
+    }
+    return n;
+}
+
+/* 0x00363B30, 0x5C bytes. */
+int func_00363B30(int v)
+{
+    int n = 0;
+    u32 s;
+
+    for (s = 0; s < 2; s++)
+        n += func_00363AC0(s, v);
+    return n;
+}
+
+/* 0x00363B90, 0x24 bytes. */
+u32 func_00363B90(void)
+{
+    return func_0035D7F0(func_00362370());
+}
+
+/* 0x00363BC0, 0x78 bytes. Whether officer `v` is in the battle. */
+int func_00363BC0(int v)
+{
+    u32 s, k;
+
+    for (s = 0; s < 2; s++) {
+        for (k = 0; k < 8; k++) {
+            if (v == func_003620E0(s, k))
+                return 1;
+        }
+    }
+    return 0;
+}
+
+/* 0x00363C40, 0xA0 bytes. Side `s`'s number of officers (slots 6-7 only when `all`). */
+int func_00363C40(int s, int all)
+{
+    int n = 0;
+    u32 k;
+
+    for (k = 0; k < 8; k++) {
+        if (all != 0 || k < 6 || k > 7) {
+            func_003620E0(s, k);
+            if (func_003620E0(s, k) < 0x19F)
+                n++;
+        }
+    }
+    return n;
+}
+
+/* 0x00363CE0, 0x40 bytes, matching. */
+void func_00363CE0(void)
+{
+    u32 k;
+
+    for (k = 0; k < 2; k++)
+        func_003625D0(0, k, 0x1F);
+}
+
+/* 0x00363D20, 0xFC bytes. Side 1's two +0x65 values from its candidates. */
+void func_00363D20(void)
+{
+    int list[102], t[2];
+    u32 n, j = 0, k;
+
+    t[0] = 0x1F;
+    t[1] = 0x1F;
+    n = func_003154F0(func_0036D500(1), list);
+    for (k = 0; k < n; k++) {
+        u32 v = func_0036F600(list[k]);
+
+        if (func_0036F6A0(v, j, t, func_00362570()) != 0) {
+            t[j++] = v;
+            if (j > 1)
+                break;
+        }
+    }
+    for (k = 0; k < 2; k++)
+        func_003625D0(1, k, t[k]);
+}
+
+/* 0x00363E20, 0x24 bytes, matching. */
+void func_00363E20(void)
+{
+    func_00363CE0();
+    func_00363D20();
+}
+
+/* 0x00363E50, 0x50 bytes. Whether the battle kind is below 6 or above 0x12. */
+int func_00363E50(void)
+{
+    u32 k = func_00362570();
+
+    return !((k > 5 && k < 0x10) || (k > 0xF && k < 0x13));
+}
+
+/* 0x00363EA0, 0x178 bytes. Side `s`'s rating (20 per officer, +20 for kind 3 ones, +20 for
+ * those of func_0036D3B0, 20 per func_0036D400 one; at most 180). */
+u32 func_00363EA0(int s)
+{
+    int n = 0, k3 = 0, a = 0, b = 0;
+    u32 k, v;
+
+    for (k = 0; k < 8; k++) {
+        int o = (short)func_003620E0(s, k);
+
+        if (o < 0 || o >= 0x19F || (k >= 6 && k <= 7))
+            continue;
+        n++;
+        if (func_0036D2E0() != 0) {
+            if (func_002F3DC0(o) == 3)
+                k3++;
+            if (func_0036D3B0(o) != 0)
+                a++;
+            if (func_0036D400(o) != 0)
+                b++;
+        }
+    }
+    v = n * 0x14 + (k3 != 0 ? 0x14 : 0) + (a != 0 ? 0x14 : 0) + b * 0x14;
+    if (v > 0xB4)
+        v = 0xB4;
+    return v;
 }
