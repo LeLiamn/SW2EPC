@@ -56,7 +56,7 @@ void func_00178AC0(Unit *u);
 void func_00166A00(Unit *u);
 void func_001688D0(Unit *u);
 void func_0014D560(u8 *actor, char mode, int n);
-void func_00162C30(int *cam, float *eye, float *target, float *out, int a);
+int func_00162C30(int *cam, float *eye, float *target, float *closeness, int free);
 void func_0017C0D0(int *p);
 void func_00164440(float a, float b, int *cam);
 
@@ -340,4 +340,315 @@ void func_00162130(int *cam)
     if (PI < y)
         y -= TWO_PI;
     F32(cam, 8) = y;
+}
+
+/* A ray (or swept sphere) test against the scenery (func_001F3930). */
+typedef struct {
+    float *from;
+    float *to;
+    void *who;
+    float radius;
+    float range;
+    u32 pad;
+    u32 result;              /* +0x18: low byte hit, bit 0x8000 a soft hit */
+    u32 pad2;
+    float hit[4];            /* +0x20 */
+    float normal[4];         /* +0x30 */
+} Ray;
+
+extern float g_0045CE88;                 /* (small data) the height offset's rate */
+
+void func_001F3930(Ray *r);
+void func_0029DE30(float *v, float mx, float my, float mz);
+void func_0029DD40(float a, float b, float *out, float *cur, float *prev, float *now);
+float func_0029DD90(float a, float b, float c, float d, float e);
+void vu0_rot_y(float m[4][4], float yaw);        /* VU0 micro subroutine 0x70 */
+
+/* A test from `from` to `to` (radius 30, range 100). */
+static inline void ray_test(Ray *r, float *from, float *to)
+{
+    r->from = from;
+    r->to = to;
+    r->who = 0;
+    r->radius = 30.0f;
+    r->range = 100.0f;
+    func_001F3930(r);
+}
+
+/* `v` turned by `yaw` about Y (the scratchpad's unit matrix rotated). */
+static inline void turn_y(float *out, float yaw, const float *v)
+{
+    float m[4][4];
+    int i, k;
+
+    for (i = 0; i < 4; i++)
+        for (k = 0; k < 4; k++)
+            m[i][k] = ((float *)0x70000000)[i * 4 + k];
+    vu0_rot_y(m, yaw);
+    for (k = 0; k < 4; k++)
+        out[k] = m[0][k] * v[0] + m[1][k] * v[1] + m[2][k] * v[2] + m[3][k] * v[3];
+}
+
+/* 0x00162250, 0x488 bytes. The camera's target this frame (*out): the unit's point, lowered by
+ * the height; the height offset (+0x14) moved by how much the unit runs across the view; the
+ * target kept at +0x90 follows it outside a dead zone of (`mx`, `my`, `mz`) in view space
+ * (150, 70, 50 during hits with flag 0x800; 100 high with flag 4). */
+void func_00162250(float mx, float my, float mz, int *cam, float *out)
+{
+    u8 *obj = (u8 *)cam[0];
+    Unit *u = (Unit *)cam[1];
+    float h, dt[4], view[4], d[4], v[4];
+    u8 *hit;
+    u32 f;
+    int k;
+
+    if (func_00161490(out, u) == 0) {
+        for (k = 0; k < 4; k++)
+            out[k] = F32(obj, 0x1D0 + k * 4);
+    }
+    h = (U32(ACT((Unit *)cam[1]), 0x18) & 0x8000000) == 0 ? g_0045D568 : g_0045CE64;
+    if (g_00669F60 & 2)
+        h = h + 50.0f;
+    out[1] = out[1] - h;
+    hit = PTR(ACT((Unit *)cam[1]), 0x14);
+    if (hit != 0 && (U16(hit, 0x1C) & 0x800)) {
+        mx = 150.0f;
+        my = 70.0f;
+        mz = 50.0f;
+    }
+    if (U8(cam, 0x3C) & 4)
+        my = 100.0f;
+    for (k = 0; k < 4; k++) {
+        dt[k] = out[k] - F32(obj, 0x1D0 + k * 4);
+        view[k] = F32(obj, 0x1D0 + k * 4) - F32(obj, 0x1C0 + k * 4);
+    }
+    f = U32(ACT((Unit *)cam[1]), 0x18);
+    if (PTR(ACT((Unit *)cam[1]), 0x14) == 0 && (f & 0x40) == 0 && (f & 0x400) == 0) {
+        if (1.0f < dt[0] * dt[0] + dt[2] * dt[2] && (f & 0x80)) {
+            float a[4] = { dt[0], 0.0f, dt[2], dt[3] }, b[4] = { view[0], 0.0f, view[2], view[3] };
+            float la = sqrtf(a[0] * a[0] + a[2] * a[2] + a[3] * a[3]);
+            float lb = sqrtf(b[0] * b[0] + b[2] * b[2] + b[3] * b[3]);
+            float s = F32(cam, 0x14) - g_0045CE88 * ((a[0] * b[0] + a[2] * b[2] + a[3] * b[3])
+                                                     / (la * lb));
+            float lim;
+
+            F32(cam, 0x14) = s < 0.0f ? s : 0.0f;
+            lim = (g_00669F60 & 2) ? g_0045CE84 * 0.3f : g_0045CE84;
+            if (F32(cam, 0x14) < -lim)
+                F32(cam, 0x14) = -lim;
+        }
+    } else {
+        float s = F32(cam, 0x14), r = g_0045CE88 * 2.0f;
+
+        if (r < s)
+            F32(cam, 0x14) = s - r;
+        else if (s < -r)
+            F32(cam, 0x14) = s + r;
+        else
+            F32(cam, 0x14) = 0.0f;
+    }
+    {
+        float yaw = vu0_angle(view[0], view[2]);
+
+        for (k = 0; k < 4; k++)
+            d[k] = out[k] - F32(cam, 0x90 + k * 4);
+        turn_y(v, yaw * -1.0f, d);
+        func_0029DE30(v, mx, my, mz);
+        turn_y(d, yaw, v);
+    }
+    for (k = 0; k < 4; k++) {
+        F32(cam, 0x90 + k * 4) = F32(cam, 0x90 + k * 4) + d[k];
+        out[k] = F32(cam, 0x90 + k * 4);
+    }
+}
+
+/* 0x001626E0, 0x158 bytes. Moves the camera object's target and eye towards `t` / `e` by the
+ * smoothing helper (rates `a` / `b` over `d`); far from each other (more than 100), the eye's
+ * height follows by its own rate `c`. The positions are kept for the next frame. */
+void func_001626E0(int *cam, float *t, float *e, float a, float b, float c, float d)
+{
+    u8 *obj = (u8 *)cam[0];
+    float nt[4], ne[4], x, z;
+    int k;
+
+    func_0029DD40(a, d, nt, t, &F32(cam, 0xB0), &F32(obj, 0x1D0));
+    func_0029DD40(b, d, ne, e, &F32(cam, 0xC0), &F32(obj, 0x1C0));
+    x = ne[0] - nt[0];
+    z = ne[2] - nt[2];
+    if (!(x * x + z * z <= 10000.0f))
+        ne[1] = func_0029DD90(e[1], F32(cam, 0x10), F32(obj, 0x1C4), c, d);
+    for (k = 0; k < 4; k++) {
+        F32(cam, 0xB0 + k * 4) = t[k];
+        F32(cam, 0xC0 + k * 4) = e[k];
+    }
+    F32(cam, 0x10) = e[1];
+    for (k = 0; k < 4; k++) {
+        F32(obj, 0x1C0 + k * 4) = ne[k];
+        F32(obj, 0x1D0 + k * 4) = nt[k];
+    }
+}
+
+/* The length of a vector (x, y, z). */
+static inline float len3(const float *v)
+{
+    return sqrtf(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+}
+
+/* 0x00162840, 0x2B8 bytes. Looks for a free place for the eye when the scenery is in the way:
+ * straight behind the unit at the same distance, or (if that is blocked) beside the obstacle
+ * along its surface; the offset found goes to +0xD0 and is used for 15 frames (+0x36). */
+int func_00162840(int *cam, float *eye, float *target)
+{
+    Unit *u = (Unit *)cam[1];
+    float d[4], back[4], p[4], q[4], dist;
+    Ray r1, r2;
+    int k;
+
+    for (k = 0; k < 4; k++)
+        d[k] = target[k] - eye[k];
+    dist = len3(d);
+    for (k = 0; k < 4; k++)
+        back[k] = F32(u, 0x70 + k * 4) * (dist * -1.0f);
+    for (k = 0; k < 4; k++)
+        p[k] = back[k] + target[k];
+    ray_test(&r1, target, p);
+    if ((u8)r1.result == 0) {
+        for (k = 0; k < 4; k++) {
+            F32(cam, 0xD0 + k * 4) = back[k];
+            q[k] = F32(cam, 0xD0 + k * 4) + target[k];
+        }
+        ray_test(&r2, q, eye);
+        if ((u8)r2.result == 0) {
+            U16(cam, 0x36) = 0xF;
+            return 1;
+        }
+    } else {
+        float c1[4], c2[4], l;
+        float *n = r1.normal;
+
+        c1[0] = d[1] * n[2] - d[2] * n[1];
+        c1[1] = d[2] * n[0] - d[0] * n[2];
+        c1[2] = d[0] * n[1] - d[1] * n[0];
+        c1[3] = 0.0f;
+        c2[0] = c1[1] * n[2] - c1[2] * n[1];
+        c2[1] = c1[2] * n[0] - c1[0] * n[2];
+        c2[2] = c1[0] * n[1] - c1[1] * n[0];
+        c2[3] = 0.0f;
+        l = len3(c2);
+        for (k = 0; k < 4; k++) {
+            back[k] = c2[k] / l * dist;
+            p[k] = back[k] + target[k];
+        }
+        ray_test(&r1, target, p);
+        if ((u8)r1.result == 0) {
+            for (k = 0; k < 4; k++) {
+                F32(cam, 0xD0 + k * 4) = back[k];
+                q[k] = F32(cam, 0xD0 + k * 4) + target[k];
+            }
+            ray_test(&r2, q, eye);
+            if ((u8)r2.result == 0) {
+                U16(cam, 0x36) = 0xF;
+                return 1;
+            }
+        }
+    }
+    U16(cam, 0x36) = 0;
+    return 0;
+}
+
+/* 0x00162B00, 0x124 bytes. Pulls the eye in to where the ray hit the scenery; *closeness =
+ * 1 - distance / the camera's distance (0 to 1); the height offset eases back by 5. */
+void func_00162B00(int *cam, float *eye, float *target, Ray *r, float *closeness)
+{
+    float d = func_00161D90(F32(cam, 0xC), (Unit *)cam[1], 0), v[4], c;
+    int k;
+
+    for (k = 0; k < 4; k++) {
+        eye[k] = r->hit[k];
+        v[k] = eye[k] - target[k];
+    }
+    c = 1.0f - len3(v) / d;
+    if (1.0f <= c)
+        c = 1.0f;
+    *closeness = c < 0.0f ? 0.0f : c;
+    c = F32(cam, 0x14);
+    if (5.0f < c)
+        F32(cam, 0x14) = c - 5.0f;
+    else if (c < -5.0f)
+        F32(cam, 0x14) = c + 5.0f;
+    else
+        F32(cam, 0x14) = 0.0f;
+}
+
+/* 0x00162C30, 0x418 bytes. Keeps the scenery out of the view: the target pulled back to the
+ * unit if a wall stands between; the free place found earlier followed for its 15 frames (the
+ * eye moved there by at most 60 a frame, until the view turns less than 2 degrees); else the eye
+ * pulled in in front of the obstacle (`free`: first look for a free place). Whether something
+ * was in the way; *closeness for the pull. */
+int func_00162C30(int *cam, float *eye, float *target, float *closeness, int free)
+{
+    float p[4];
+    Ray r;
+    int k;
+
+    *closeness = 0.0f;
+    if (U8(cam, 0x3C) & 2) {
+        U16(cam, 0x36) = 0;
+        return 0;
+    }
+    if (func_00161490(p, (Unit *)cam[1]) == 0) {
+        for (k = 0; k < 4; k++)
+            p[k] = F32((u8 *)cam[0], 0x1D0 + k * 4);
+    }
+    ray_test(&r, p, target);
+    if ((u8)r.result != 0 && (r.result & 0x8000) == 0) {
+        for (k = 0; k < 4; k++)
+            target[k] = p[k];
+    }
+    if (free == 0)
+        U16(cam, 0x36) = 0;
+    if (U16(cam, 0x36) != 0) {
+        float a[4], d[4], len, a1, a2, x;
+
+        for (k = 0; k < 4; k++) {
+            a[k] = F32(cam, 0xD0 + k * 4) + target[k];
+            d[k] = target[k] - eye[k];
+        }
+        len = len3(d);
+        if (60.0f < len) {
+            for (k = 0; k < 4; k++)
+                eye[k] = d[k] / len * 60.0f + eye[k];
+        } else {
+            for (k = 0; k < 4; k++)
+                eye[k] = a[k];
+        }
+        ray_test(&r, target, eye);
+        if ((u8)r.result == 0)
+            U16(cam, 0x36) -= 1;
+        a1 = vu0_angle(target[0] - a[0], target[2] - a[2]);
+        a2 = vu0_angle(target[0] - eye[0], target[2] - eye[2]);
+        x = a1 - a2;
+        if (PI < x)
+            x -= TWO_PI;
+        else if (x < -PI)
+            x += TWO_PI;
+        if (fabsf(x) < 0.034906585f) {
+            U16(cam, 0x36) = 0;
+            return 1;
+        }
+    }
+    {
+        float d[4];
+
+        for (k = 0; k < 4; k++)
+            d[k] = target[k] - eye[k];
+        if (d[0] * d[0] + d[1] * d[1] + d[2] * d[2] < 0.0001f)
+            return 0;
+    }
+    ray_test(&r, target, eye);
+    if ((u8)r.result == 0 || (r.result & 0x8000))
+        return 0;
+    if (free == 0 || func_00162840(cam, eye, target) == 0)
+        func_00162B00(cam, eye, target, &r, closeness);
+    return 1;
 }
