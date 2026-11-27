@@ -898,3 +898,792 @@ void func_0033AFB0(void)
     if (k < 0x10 && (GFLAGS(GROUP(k)) & 1) != 0)
         func_0033AF20(GROUP(k));
 }
+
+/* Group predicates and accessors (0x0033B030-0x0033D04C). Orders and stances that name a place
+ * (a cell: func_0034EC80) or another group (by index). */
+
+int func_00362570(void);
+int func_0033B1E0(u8 **g);
+int func_0033B690(u8 **g);
+extern u8 g_00669D60[];
+int func_0034A5B0(u8 *u);
+int func_0036F520(u8 a, int k);
+int func_002F3DC0(u16 o);
+int func_0036D3B0(u16 o);
+int func_0036D400(u16 o);
+int func_0035F840(void);
+int func_002F5AA0(u16 o);
+u8 **func_0033F110(u8 side);
+int func_002F4660(u16 o);
+int func_002F41E0(u16 o);
+int func_002F77A0(u16 a, u16 b);
+int func_002F77F0(u16 a, u16 b);
+int func_0036D850(u16 a, u16 b);
+int func_0036D970(u16 a, u16 b, int c, int d);
+int func_002F4080(u16 o);
+int func_0034ED40(u8 **g);
+int func_0035D560(u8 a, u8 b);
+u8 func_0034EDB0(int c);
+int func_0034ECA0(u8 *pos);
+u8 **func_0035DD10(int p);
+int func_00353920(u8 *pos, u8 a);
+u8 **func_0033F070(u8 s, u32 j);
+
+extern int g_00415210[12][2];            /* officer pairs (?) */
+extern u8 g_006AA5F4[2][0x10];           /* per side */
+
+#define REC_OFFICER(g) (*(u16 *)INFO(g))
+
+/* 0x0033B030, 0x1C bytes, matching. */
+int func_0033B030(int v)
+{
+    return v == 0 ? 3 : 4;
+}
+
+/* 0x0033B050, 0x40 bytes. Whether `g` is one of the 16 officer groups. */
+int func_0033B050(u8 **g)
+{
+    return GI(g) < 0x10;
+}
+
+/* 0x0033B090, 0x14 bytes, matching. */
+int func_0033B090(u8 **g)
+{
+    return UNIT_FLAGS(LEADER(g)) & 0x8000000;
+}
+
+/* 0x0033B0B0, 0x90 bytes. Whether `g` is an officer group in play with soldiers left. */
+int func_0033B0B0(u8 **g)
+{
+    if (func_0033B050(g) == 0)
+        return 0;
+    return func_0033B1E0(g) != 0 && *(short *)(INFO(g) + 0x1A) != 0;
+}
+
+/* 0x0033B140, 0x10 bytes, matching. */
+int func_0033B140(u8 **g)
+{
+    return UNIT_FLAGS(LEADER(g)) & 0x200;
+}
+
+/* 0x0033B150, 0x88 bytes. */
+int func_0033B150(u8 **g)
+{
+    int v = func_00362570();
+
+    if (v == 0x12 || v == 0x11 || v == 0x10 || v == 1 || v == 0 || LEADER(g)[0x79] != 1
+        || func_0033B140(g) == 0)
+        return 0;
+    return 1;
+}
+
+/* 0x0033B1E0, 0x5C bytes. Whether group `g` is in play (its leader not out). */
+int func_0033B1E0(u8 **g)
+{
+    u8 *l;
+
+    if (g == 0 || (GFLAGS(g) & 1) == 0)
+        return 0;
+    l = LEADER(g);
+    if (l == 0 || (UNIT_FLAGS(l) & 1) == 0)
+        return 0;
+    return (UNIT_FLAGS(l) & 0x40000) == 0;
+}
+
+/* 0x0033B240, 0xE0 bytes. Whether group `g` should fall back (weaker than its leader's need, far
+ * behind its front or under tactic 0x15); never for the slots 6 and 7. */
+int func_0033B240(u8 **g)
+{
+    u8 *l = LEADER(g);
+
+    if (l == 0 || (UNIT_FLAGS(l) & 1) == 0)
+        return 0;
+    if (func_0033B690(g) != 0)
+        return 0;
+    if (func_0034A5B0(l) >= *(u16 *)(INFO(g) + 0x1A))
+        return 1;
+    if (func_00353A10(l) < -0x32)
+        return 1;
+    return func_0036F520(func_0035D5A0(l[0x79]), 0x15) != 0;
+}
+
+/* 0x0033B320, 0x88 bytes. Whether `g` is an enemy officer group (slots 0-7 of side 1, 8-15 of
+ * side 0). */
+int func_0033B320(u8 **g)
+{
+    u32 k = GI(g);
+
+    if (k < 8) {
+        if (LEADER(g)[0x79] == 1)
+            return 1;
+    } else {
+        if (k > 0xF)
+            return 0;
+        if (LEADER(g)[0x79] == 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x0033B3B0, 0x88 bytes. */
+int func_0033B3B0(u8 **g)
+{
+    if (func_0036D2E0() == 0 || func_0033B050(g) == 0)
+        return 0;
+    return func_002F3DC0(REC_OFFICER(g)) == 3;
+}
+
+/* 0x0033B440, 0x98 bytes. */
+int func_0033B440(u8 **g)
+{
+    if (func_0036D2E0() == 0 || func_0033B050(g) == 0)
+        return 0;
+    if (LEADER(g)[0x79] != 0)
+        return 0;
+    return func_0036D3B0(REC_OFFICER(g));
+}
+
+/* 0x0033B4E0, 0x98 bytes. */
+int func_0033B4E0(u8 **g)
+{
+    if (func_0036D2E0() == 0 || func_0033B050(g) == 0)
+        return 0;
+    if (LEADER(g)[0x79] != 0)
+        return 0;
+    return func_0036D400(REC_OFFICER(g));
+}
+
+/* 0x0033B580, 0x58 bytes. */
+int func_0033B580(u8 **g)
+{
+    return func_0035F840() == GI(g);
+}
+
+/* 0x0033B5E0, 0x48 bytes, matching. */
+int func_0033B5E0(u8 **g)
+{
+    u32 k = GI(g) & 7;
+
+    return k < 3 || k == 6;
+}
+
+/* 0x0033B630, 0x58 bytes, matching. */
+int func_0033B630(u8 **g)
+{
+    u32 k = GI(g) & 7;
+
+    return (k > 2 && k < 6) || k == 7;
+}
+
+/* 0x0033B690, 0x4C bytes, matching. */
+int func_0033B690(u8 **g)
+{
+    u32 k = GI(g) & 7;
+
+    return k == 6 || k == 7;
+}
+
+/* 0x0033B6E0, 0x14 bytes, matching. Whether its leader is an officer. */
+int func_0033B6E0(u8 **g)
+{
+    return UNIT_FLAGS(LEADER(g)) & 0x20000;
+}
+
+/* 0x0033B700, 0x2C bytes. */
+u8 *func_0033B700(u8 **g)
+{
+    u8 *l = LEADER(g);
+
+    return (UNIT_FLAGS(l) & 0x20000) == 0 ? l + 0x28 : l + 0x30;
+}
+
+/* 0x0033B730, 0xC bytes, matching. Its leader's cell. */
+u8 *func_0033B730(u8 **g)
+{
+    return LEADER(g) + 0x40;
+}
+
+/* 0x0033B740, 0x70 bytes. Its leader's life. */
+short func_0033B740(u8 **g)
+{
+    u8 *l;
+
+    if (g == 0)
+        return 0;
+    l = LEADER(g);
+    if (l == 0)
+        return 0;
+    if ((UNIT_FLAGS(l) & 0x20000) == 0)
+        return *(short *)(l + 0x4E);
+    return *(short *)(OFFICER(*(int *)(l + 0x14)) + 0x82);
+}
+
+/* 0x0033B7B0, 0xB0 bytes. Its leader's life in percent. */
+int func_0033B7B0(u8 **g)
+{
+    u8 *l;
+    int cur, max;
+
+    if (g == 0)
+        return 0;
+    l = LEADER(g);
+    if (l == 0)
+        return 0;
+    if ((UNIT_FLAGS(l) & 0x20000) == 0) {
+        cur = *(short *)(l + 0x4E);
+        max = *(short *)(l + 0x4C);
+    } else {
+        u8 *o = OFFICER(*(int *)(l + 0x14));
+
+        max = *(short *)(o + 0x80);
+        cur = *(short *)(o + 0x82);
+    }
+    if (max < 2)
+        max = 1;
+    return cur * 100 / max;
+}
+
+/* 0x0033B860, 0x28 bytes. Its side's record. */
+u8 *func_0033B860(u8 **g)
+{
+    return g_006AA5F4[LEADER(g)[0x79]];
+}
+
+/* 0x0033B890, 0x3C bytes, matching. */
+int func_0033B890(u8 **g)
+{
+    if ((UNIT_FLAGS(LEADER(g)) & 0x10) != 0)
+        return 0;
+    if ((UNIT_FLAGS(LEADER(g)) & 0x20) != 0)
+        return 1;
+    return 2;
+}
+
+/* 0x0033B8D0, 0x48 bytes, matching. */
+int func_0033B8D0(u8 **g)
+{
+    return func_002F5AA0(REC_OFFICER(g));
+}
+
+/* 0x0033B920, 0x50 bytes, matching. */
+int func_0033B920(u8 **g, int v)
+{
+    if (func_0033B440(g) != 0)
+        return 1;
+    return v == func_0033B8D0(g);
+}
+
+/* 0x0033B970, 0x74 bytes. Its formation slot (its side's main group's for others). */
+u8 func_0033B970(u8 **g)
+{
+    if (func_0033B050(g) == 0)
+        g = func_0033F110(LEADER(g)[0x79]);
+    return INFO(g)[0x26];
+}
+
+/* 0x0033B9F0, 0x68 bytes. */
+int func_0033B9F0(u8 **g)
+{
+    u16 o = REC_OFFICER(g);
+
+    return o < 0x19F ? func_002F4660(o) : 0;
+}
+
+/* 0x0033BA60, 0x24 bytes. */
+int func_0033BA60(u8 **g)
+{
+    return func_0033B9F0(g) > 0x4F;
+}
+
+/* 0x0033BA90, 0x68 bytes. */
+int func_0033BA90(u8 **g)
+{
+    u16 o = REC_OFFICER(g);
+
+    return o < 0x19F ? func_002F41E0(o) : 0;
+}
+
+/* 0x0033BB00, 0xC8 bytes. Test `fn` on the officers of groups `g` and `h` (0 when one has
+ * none). */
+int func_0033BB00(u8 **g, u8 **h, int (*fn)(u16, u16))
+{
+    u16 a = REC_OFFICER(g), b = REC_OFFICER(h);
+
+    if (a < 0x19F && b < 0x19F)
+        return fn(a, b);
+    return 0;
+}
+
+/* 0x0033BBD0, 0x20 bytes, matching. */
+int func_0033BBD0(u8 **g, u8 **h)
+{
+    return func_0033BB00(g, h, func_002F77A0);
+}
+
+/* 0x0033BBF0, 0x20 bytes, matching. */
+int func_0033BBF0(u8 **g, u8 **h)
+{
+    return func_0033BB00(g, h, func_002F77F0);
+}
+
+/* 0x0033BC10, 0x20 bytes, matching. */
+int func_0033BC10(u8 **g, u8 **h)
+{
+    return func_0033BB00(g, h, func_0036D850);
+}
+
+/* 0x0033BC30, 0xB4 bytes. Whether officers `a` and `b` make one of the 12 pairs of 0x00415210. */
+int func_0033BC30(u16 a, u16 b)
+{
+    int t[12][2];
+    int k;
+
+    for (k = 0; k < 12; k++) {
+        t[k][0] = g_00415210[k][0];
+        t[k][1] = g_00415210[k][1];
+    }
+    for (k = 0; k < 12; k++) {
+        if (func_0036D970(a, b, t[k][0], t[k][1]) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x0033BCF0, 0x20 bytes, matching. */
+int func_0033BCF0(u8 **g, u8 **h)
+{
+    return func_0033BB00(g, h, func_0033BC30);
+}
+
+/* 0x0033BD10, 0x48 bytes, matching. */
+int func_0033BD10(u8 **g)
+{
+    return func_002F4080(REC_OFFICER(g));
+}
+
+/* 0x0033BD60, 0x54 bytes, matching. */
+int func_0033BD60(u8 **g)
+{
+    if ((UNIT_FLAGS(LEADER(g)) & 0x30) != 0)
+        return 0;
+    if (LEADER(g)[0x79] == 0)
+        return 1;
+    return func_0036F390(0, 10) != 0;
+}
+
+/* 0x0033BDC0, 0xB4 bytes. Sets group `g`'s army strength to its base plus `d` (1-1000). */
+void func_0033BDC0(u8 **g, int d)
+{
+    int base;
+
+    if ((g_00669F60 & 0xC) == 0)
+        base = GSTRENGTH(g);
+    else
+        base = LEADER(g)[0x79] == 0 ? 350 : 650;
+    GSTRENGTH(g) = clamp1000(base + d);
+}
+
+/* 0x0033BE80, 0x150 bytes. Changes the army strength of all side `side`'s groups in play (by
+ * `pct` percent of their base, else by `d`). */
+void func_0033BE80(u32 side, int pct, int d)
+{
+    u32 k;
+
+    for (k = 0; k < 0x47; k++) {
+        u8 **g = GROUP(k);
+        u8 *l;
+
+        if ((GFLAGS(g) & 1) == 0)
+            continue;
+        l = LEADER(g);
+        if (!ALIVE(UNIT_FLAGS(l)) || side != l[0x79])
+            continue;
+        if (pct != 0) {
+            int base;
+
+            if ((g_00669F60 & 0xC) == 0)
+                base = GSTRENGTH(g);
+            else
+                base = l[0x79] == 0 ? 350 : 650;
+            d = pct * base / 100;
+        }
+        func_0033BDC0(g, d);
+    }
+}
+
+/* 0x0033BFD0, 0x10 bytes, matching. */
+u8 func_0033BFD0(u8 **g)
+{
+    return (*(u8 **)(LEADER(g) + 8))[5];
+}
+
+/* 0x0033BFE0, 0xC bytes, matching. */
+u32 func_0033BFE0(u8 **g)
+{
+    return *(u32 *)(LEADER(g) + 0x70);
+}
+
+/* 0x0033BFF0, 0x68 bytes. Second orders that name a place. */
+int func_0033BFF0(int v)
+{
+    if (v == 0xB || v == 9 || v == 7 || v == 6 || v == 5 || v == 3 || v == 1)
+        return 1;
+    return 0;
+}
+
+/* 0x0033C060, 0x38 bytes. Second orders that name a group. */
+int func_0033C060(int v)
+{
+    if (v == 8 || v == 4 || v == 2)
+        return 1;
+    return 0;
+}
+
+/* 0x0033C0A0, 0x2C bytes. Orders that name a place. */
+int func_0033C0A0(int v)
+{
+    if (v == 3 || v == 1)
+        return 1;
+    return 0;
+}
+
+/* 0x0033C0D0, 0x2C bytes. Orders that name a group. */
+int func_0033C0D0(int v)
+{
+    if (v == 4 || v == 2)
+        return 1;
+    return 0;
+}
+
+/* 0x0033C100, 0x28 bytes. Stances that name a place. */
+int func_0033C100(int v)
+{
+    if (v == 2 || v == 0)
+        return 1;
+    return 0;
+}
+
+/* 0x0033C130, 0x2C bytes. Stances that name a group. */
+int func_0033C130(int v)
+{
+    if (v == 3 || v == 1)
+        return 1;
+    return 0;
+}
+
+/* 0x0033C160, 0x80 bytes, matching. The place of group `g`'s second order (0 for none). */
+int func_0033C160(u8 **g)
+{
+    u32 k;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_0033BFF0(func_00338410(k)[5]) == 0)
+        return 0;
+    return func_0034EC80(func_00338410(k)[6]);
+}
+
+/* 0x0033C1E0, 0xA4 bytes. The group of its second order. */
+u8 **func_0033C1E0(u8 **g)
+{
+    u32 k;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_0033C060(func_00338410(k)[5]) == 0)
+        return 0;
+    return GROUP(func_00338410(k)[6]);
+}
+
+/* 0x0033C290, 0x90 bytes. The cell its second order aims at, into `out`; whether there is one. */
+int func_0033C290(u8 **g, u8 *out)
+{
+    int c;
+
+    if (g == 0 || out == 0)
+        return 0;
+    c = func_0033C160(g);
+    if (c == 0) {
+        u8 **h = func_0033C1E0(g);
+
+        if (h == 0)
+            return 0;
+        *(u16 *)out = *(u16 *)func_0033B730(h);
+        return 1;
+    }
+    func_0034ED90(c, out);
+    return 1;
+}
+
+/* 0x0033C320, 0x80 bytes, matching. The place of its order. */
+int func_0033C320(u8 **g)
+{
+    u32 k;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_0033C0A0(func_00338410(k)[2]) == 0)
+        return 0;
+    return func_0034EC80(func_00338410(k)[3]);
+}
+
+/* 0x0033C3A0, 0xA4 bytes. The group of its order. */
+u8 **func_0033C3A0(u8 **g)
+{
+    u32 k;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_0033C0D0(func_00338410(k)[2]) == 0)
+        return 0;
+    return GROUP(func_00338410(k)[3]);
+}
+
+/* 0x0033C450, 0x90 bytes. The cell its order aims at. */
+int func_0033C450(u8 **g, u8 *out)
+{
+    int c;
+
+    if (g == 0 || out == 0)
+        return 0;
+    c = func_0033C320(g);
+    if (c == 0) {
+        u8 **h = func_0033C3A0(g);
+
+        if (h == 0)
+            return 0;
+        *(u16 *)out = *(u16 *)func_0033B730(h);
+        return 1;
+    }
+    func_0034ED90(c, out);
+    return 1;
+}
+
+/* 0x0033C4E0, 0x80 bytes, matching. The place of its stance. */
+int func_0033C4E0(u8 **g)
+{
+    u32 k;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_0033C100(func_00338410(k)[8]) == 0)
+        return 0;
+    return func_0034EC80(func_00338410(k)[9]);
+}
+
+/* 0x0033C560, 0xA4 bytes. The group of its stance. */
+u8 **func_0033C560(u8 **g)
+{
+    u32 k;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_0033C130(func_00338410(k)[8]) == 0)
+        return 0;
+    return GROUP(func_00338410(k)[9]);
+}
+
+/* 0x0033C610, 0x90 bytes. The cell its stance aims at. */
+int func_0033C610(u8 **g, u8 *out)
+{
+    int c;
+
+    if (g == 0 || out == 0)
+        return 0;
+    c = func_0033C4E0(g);
+    if (c == 0) {
+        u8 **h = func_0033C560(g);
+
+        if (h == 0)
+            return 0;
+        *(u16 *)out = *(u16 *)func_0033B730(h);
+        return 1;
+    }
+    func_0034ED90(c, out);
+    return 1;
+}
+
+/* 0x0033C6A0, 0x1D4 bytes. Whether group `g`'s order follows from its stance (stance 4 -> order
+ * 6, 3 -> 4, 2 -> 3, 1 -> 2, 0 -> 1, with the same target). */
+int func_0033C6A0(u8 **g)
+{
+    u32 k = GI(g);
+    char s = func_00338410(k)[8];
+    char want;
+
+    if (s == 4)
+        return func_00338410(k)[2] == 6;
+    if (s == 3)
+        want = 4;
+    else if (s == 2)
+        want = 3;
+    else if (s == 1)
+        want = 2;
+    else if (s == 0)
+        want = 1;
+    else
+        return 1;
+    if (func_00338410(k)[2] != want)
+        return 0;
+    return func_00338410(k)[3] == func_00338410(k)[9];
+}
+
+/* 0x0033C880, 0x1A0 bytes. Counts side `side`'s officer groups in play with order `order` (any
+ * past 6) on target `target` (0xFF: any). */
+int func_0033C880(u32 order, u32 target, u32 side)
+{
+    int n = 0;
+    u32 k;
+
+    if (side >= 2)
+        return 0;
+    for (k = 0; k < 0x10; k++) {
+        u8 **g = func_0033EF80(k);
+
+        if (g != 0 && (GFLAGS(g) & 1) != 0 && ALIVE(UNIT_FLAGS(LEADER(g)))
+            && side == LEADER(g)[0x79]
+            && (order > 6 || order == INFO(g)[2])
+            && (target == 0xFF || target == INFO(g)[3]))
+            n++;
+    }
+    return n;
+}
+
+/* 0x0033CA20, 0x34 bytes, matching. */
+int func_0033CA20(u8 **g, u32 side)
+{
+    return func_0033C880(1, func_0034ED40(g), side);
+}
+
+/* 0x0033CA60, 0x34 bytes, matching. */
+int func_0033CA60(u8 **g, u32 side)
+{
+    return func_0033C880(3, func_0034ED40(g), side);
+}
+
+/* 0x0033CAA0, 0x48 bytes, matching. How many of side `side`'s groups go after group `g`. */
+int func_0033CAA0(u8 **g, u32 side)
+{
+    return func_0033C880(4, GI(g), side);
+}
+
+/* 0x0033CAF0, 0x28 bytes, matching. */
+int func_0033CAF0(u8 **g, u8 **h)
+{
+    return func_0035D560(LEADER(g)[0x79], LEADER(h)[0x79]);
+}
+
+/* 0x0033CB20, 0x38 bytes, matching. */
+int func_0033CB20(u8 **g, int c)
+{
+    u8 s = LEADER(g)[0x79];
+
+    return func_0035D560(s, func_0034EDB0(c));
+}
+
+/* 0x0033CB60, 0x5C bytes. Whether group `g` stands on place `c`. */
+int func_0033CB60(u8 **g, int c)
+{
+    short pos[2];
+
+    if (g == 0 || c == 0)
+        return 0;
+    func_0034ED90(c, (u8 *)pos);
+    return pos[0] == *(short *)func_0033B730(g);
+}
+
+/* 0x0033CBC0, 0x5C bytes. Whether the place group `g` stands on belongs to `v`. */
+int func_0033CBC0(u8 **g, int v)
+{
+    int c;
+
+    if (g == 0)
+        return 0;
+    c = func_0034ECA0(func_0033B730(g));
+    if (c == 0)
+        return 0;
+    return v == func_0034EDB0(c);
+}
+
+/* 0x0033CC20, 0x54 bytes. Whether groups `g` and `h` stand on the same cell. */
+int func_0033CC20(u8 **g, u8 **h)
+{
+    short a;
+
+    if (g == 0 || h == 0)
+        return 0;
+    a = *(short *)func_0033B730(g);
+    return a == *(short *)func_0033B730(h);
+}
+
+/* 0x0033CC80, 0x98 bytes. Whether group `g` stands with player `p`'s group. */
+int func_0033CC80(u8 **g, u32 p)
+{
+    if (g == 0 || (GFLAGS(g) & 1) == 0 || (int)p < 0 || (int)p > 1)
+        return 0;
+    if (*(int *)(g_00669D60 + 0xA0 + p * 0x48) == 0)
+        return 0;
+    return func_0033CC20(g, func_0035DD10(p));
+}
+
+/* 0x0033CD20, 0x6C bytes. Whether group `g` stands on unit `u`'s cell. */
+int func_0033CD20(u8 **g, u8 *u)
+{
+    if (g == 0 || (GFLAGS(g) & 1) == 0 || u == 0 || (UNIT_FLAGS(u) & 1) == 0)
+        return 0;
+    return *(short *)func_0033B730(g) == *(short *)(u + 0x40);
+}
+
+/* 0x0033CD90, 0x104 bytes. Whether a friendly officer group in play shares group `g`'s cell. */
+int func_0033CD90(u8 **g)
+{
+    u32 k;
+
+    if (g == 0 || (GFLAGS(g) & 1) == 0)
+        return 0;
+    for (k = 0; k < 0x10; k++) {
+        u8 **h = func_0033EF80(k);
+
+        if ((GFLAGS(h) & 1) != 0 && ALIVE(UNIT_FLAGS(LEADER(h)))
+            && LEADER(h)[0x79] == LEADER(g)[0x79] && func_0033CC20(h, g) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x0033CEA0, 0x30 bytes, matching. */
+int func_0033CEA0(u8 **g, u8 a)
+{
+    return func_00353920(func_0033B730(g), a);
+}
+
+/* 0x0033CED0, 0x17C bytes. Whether a unit of the enemy's two main groups stands on group `g`'s
+ * cell. */
+int func_0033CED0(u8 **g)
+{
+    u8 s;
+    u32 j, k;
+
+    if (g == 0 || (GFLAGS(g) & 1) == 0)
+        return 0;
+    s = func_0035D5A0(LEADER(g)[0x79]);
+    for (j = 0; j < 2; j++) {
+        u8 **h = func_0033F070(s, j);
+
+        if ((GFLAGS(h) & 1) == 0 || !ALIVE(UNIT_FLAGS(LEADER(h))))
+            continue;
+        for (k = 0; k < 0xD; k++) {
+            u8 *u = h[k];
+
+            if (u != 0 && ACTIVE(UNIT_FLAGS(u)) && func_0033CD20(g, u) != 0)
+                return 1;
+        }
+    }
+    return 0;
+}
