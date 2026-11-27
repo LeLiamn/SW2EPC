@@ -855,8 +855,8 @@ The code at 0x00147780-0x001508E4 handles 3D models: 75 functions, 26 of which m
 
 The code from 0x001508F0 on handles the characters on the battlefield. A character is a large
 object (0x630 bytes, in an array at `0x00574DE0`; the players' bodyguards are units 0x89 +
-player * 3 + slot) whose fields are mostly unknown and are reached by offset. Done so far
-(0x001508F0-0x00158CC4):
+player * 3 + slot) whose fields are mostly unknown and are reached by offset. The file covers
+0x001508F0-0x0015FE58, up to `scene_initialize.c`:
 
 - **Hits:** the main hit handler (`func_00153E50`) picks the reaction by the unit's state: on a
   mount, in the air, knocked down, stunned by a charged attack, or a special officer. The other
@@ -870,6 +870,17 @@ player * 3 + slot) whose fields are mostly unknown and are reached by offset. Do
   by more than 12 wins).
 - **Other:** the locked target, stored projectiles, spread shots, and calling a player's
   bodyguards.
+- **Each frame** (`func_0015EE10`):
+  - the unit's time scale: the special state, slow motion, being slowed, the players' boosts and
+    stuns, at most 1.44;
+  - the action control: hints shown to the players, special moves at a hit's first frame;
+  - the next action from the controls, with an action queued until the hit's cancel frame;
+  - messages and voices at an action's frames;
+  - the animation's frame and its chains (random idles when mounted);
+  - the attack effects from the body nodes and weapons a hit names;
+  - the movement state machine: aiming at the direction held at a rate per frame, turning,
+    running at the weapon's or item's speed multiplier, mounts, jumps;
+  - the bodyguards, and the players' camera and path records.
 
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 

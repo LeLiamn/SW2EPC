@@ -1124,7 +1124,7 @@ void func_00164B40(Unit *u, int a);
 void func_0016A0D0(Unit *u, float *out, int a);
 void func_001C7F30(int a, float *pos, float *dir, int b);
 void func_002A6D20(u8 player, int message);
-void func_0015EA30(Unit *u, Unit *v, u8 *hit, short damage, int a, int b, int quiet);
+void func_0015EA30(Unit *u, Unit *v, u8 *hit, short damage, int charged, int special, int quiet);
 
 /* The current action's motion record (the weapon kind's tables, or the shared ones). */
 static inline u8 *unit_motion(Unit *u)
@@ -3878,4 +3878,378 @@ int func_0015E8F0(u32 k)
         return 11;
     }
     return -1;
+}
+
+extern u8 g_00669FB1, g_00669FB2;        /* the players' "hit" voice switches? */
+extern int g_0045D2A4;                   /* (small data) slow motion on */
+extern int g_0045D2A8;                   /* (small data) timers frozen */
+
+void func_002A6A00(u8 player, int voice);
+int func_003E1F80(Unit *u);
+float func_00271360(u8 level);
+int func_00273A20(Unit *u);
+float func_0029FB30(Unit *u);
+void func_00244430(Unit *u);
+void func_002444B0(Unit *u);
+int func_0016C070(Unit *u);
+void func_002450D0(Unit *u);
+void func_003E9380(Unit *u);
+int func_0016C020(Unit *u);
+void func_00162130(u8 *box);
+void func_0016C7A0(u8 player);
+void func_0016C810(float t, u8 player, u8 *pos, u8 *angles, u8 *held, short action, int air);
+
+/* 0x0015EA30, 0x2F4 bytes. The messages and voices of a hit taken: the charged attacks' (by
+ * level), a guard break, the hit's own message (+0x1E), and the player's pain voice by damage. */
+void func_0015EA30(Unit *u, Unit *v, u8 *hit, short damage, int charged, int special, int quiet)
+{
+    int said = 0;
+
+    if (g_00669DB8 == 4)
+        return;
+    if (v != 0) {
+        if ((PLAYER(u) < 2 && g_00669FB1 != 0) || (PLAYER(v) < 2 && g_00669FB2 != 0))
+            func_002A6D20(PLAYER(u), 0xD);
+        if (quiet == 0 || U8(DESC(u), 0x1C) != ':') {
+            u32 k = U8(v, 0x17E);
+
+            if (U8(v, 0x17F) != 0 && k != 0 && k < 6) {
+                if (k == 1) {
+                    if (S16(u, 0x15C) == 0) {
+                        func_002A6D20(PLAYER(u), 0x233);
+                        said = 1;
+                    }
+                } else if (k == 2) {
+                    if (S16(u, 0x172) != 0) {
+                        func_002A6D20(PLAYER(u), 0x234);
+                        said = 1;
+                    }
+                } else {
+                    func_002A6D20(PLAYER(u), k + 0x232);
+                    said = 1;
+                }
+            }
+        } else {
+            func_002A6D20(PLAYER(u), 0x229);
+            said = 1;
+        }
+    }
+    if (!said && (s8)hit[0x1E] != -1) {
+        int m;
+
+        func_0015E890(&m, hit[0x1E]);
+        func_002A6D20(PLAYER(u), m);
+    }
+    if (S32(u, 0x118) < 0x3C && quiet == 0 && special == 0) {
+        if (charged == 0) {
+            if (damage < 6)
+                func_002A6A00(PLAYER(u), 7);
+            else if (damage < 0x10)
+                func_002A6A00(PLAYER(u), RANDOM() % 100 < 0x28 ? 7 : 8);
+            else if (damage < 0x1F)
+                func_002A6A00(PLAYER(u), RANDOM() % 100 < 0x3C ? 8 : 9);
+            else
+                func_002A6A00(PLAYER(u), 9);
+        } else {
+            func_002A6A00(PLAYER(u), 10);
+        }
+    }
+}
+
+/* 0x0015ED30, 0xE0 bytes. Whether message `m` may be shown (0x23C / 0x23F only for the
+ * players, or while the players are not in the state that hides them). */
+int func_0015ED30(Unit *u, int m)
+{
+    if (m != 0x23F && m != 0x23C)
+        return 1;
+    if (PLAYER(u) < 2)
+        return 1;
+    if (U8(u, 0x154) != 0)
+        return 1;
+    if ((U8(g_00574DE0[0], 0x19D) & 0x20) && func_003E1F80(u) != 0)
+        return 0;
+    if ((g_00669F60 & 2) == 0 || (U8(g_00574DE0[1], 0x19D) & 0x20) == 0
+        || func_003E1F80(u) == 0)
+        return 1;
+    return 0;
+}
+
+/* Whether the unit is in its special state with a plain hit. */
+#define SPECIAL_PLAIN(u) ((U8(u, 0x19C) & 2) && (U32(ACT(u), 0x18) & 0x8000000) == 0 \
+                          && (PTR(ACT(u), 0x14) == 0 || (U32(PTR(ACT(u), 0x14), 0x28) & 0x1C) == 0))
+
+/* 0x0015EE10, 0xD40 bytes. A unit each frame (`dt`, scaled by `dt2`): its time scale (special
+ * state, slow motion, being slowed, the players' boosts, stuns; at most 1.44), the controls
+ * cleared when it cannot act, the action control, the timers (+0x15E, +0x168, +0x187...), the
+ * velocity +0x1E0, the next action, messages and voices at the action's frames, the animation,
+ * effects, movement, bodyguards, and the players' camera and path records. */
+void func_0015EE10(float dt, float dt2, Unit *u)
+{
+    float speed = dt, r, s;
+    u8 *hit;
+    u32 f;
+    int i;
+
+    if ((g_00669F60 & 0x800000) == 0) {
+        U8(u, 0x19C) &= ~0x20;
+        if (SPECIAL_PLAIN(u)) {
+            dt = dt * func_00271360(U8(u, 0x182));
+        } else {
+            int slow;
+
+            if ((g_00669F60 & 8) == 0 && g_0045D2A4 != 0) {
+                Unit *w = (S32(u, 0x118) == 0x3C && PTR(u, 0x28C) != 0) ? PTR(u, 0x28C) : u;
+
+                slow = (U32(OFFICER(w), 0xB8) & 0x100000) == 0;
+            } else {
+                slow = 0;
+            }
+            if (slow) {
+                dt = dt * g_0045CC7C;
+                U8(u, 0x19C) = (U8(u, 0x19C) & ~0x20) | ((dt < 0.9999f) << 5);
+            } else if (U8(u, 0x187) != 0) {
+                char c = U8(u, 0x18A);
+
+                dt = dt * (c == 1 ? 0.3f : c == 2 ? 0.2f : c == 3 ? 0.1f : 1.0f);
+            }
+        }
+        if (PLAYER(u) < 2 && 0.0001f < F32(u, 0x168) && PTR(ACT(u), 0x14) != 0) {
+            dt = dt * 1.1f;
+            if (func_00273A20(u) != 0)
+                dt = dt * 1.1f;
+        }
+        if (S16(u, 0x172) != 0)
+            dt = dt * func_0029FB30(u);
+        speed = dt <= 1.44f ? dt : 1.44f;
+    }
+    r = speed;
+    F32(u, 0x24C) = r;
+    F32(u, 0x248) = r;
+    s = r * dt2;
+    if (g_00669F60 & 0x80000)
+        U32(u, 0x13C) &= 0x3C000000;
+    if ((g_00669F60 & 0xC) == 0 || (g_00669F60 & 0x4000000) == 0) {
+        u8 *rec = OFFICER(u);
+
+        if ((U8(u, 0x19C) & 2) && S16(rec, 0x88) == 0) {
+            U32(u, 0x13C) &= 0x3C000000;
+        } else if (S16(rec, 0x82) == 0) {
+            U32(u, 0x13C) = 0;
+            for (i = 0; i < 4; i++)
+                F32(u, 0x1D0 + i * 4) = VEC_ZERO[i];
+        }
+    } else {
+        U32(u, 0x13C) = 0;
+        for (i = 0; i < 4; i++)
+            F32(u, 0x1D0 + i * 4) = VEC_ZERO[i];
+    }
+    if (func_0015ABD0(s, u) == 0)
+        U8(u, 0x27C) &= ~0x40;
+    if ((s8)U8(u, 0x19C) < 0)
+        func_00158E00(u);
+    hit = PTR(ACT(u), 0x14);
+    if (0.0001f < F32(u, 0x168)) {
+        F32(u, 0x168) = F32(u, 0x168) - s;
+        if (U32(ACT(u), 0x18) & 0x40)
+            F32(u, 0x168) = 0.0f;
+        if (F32(u, 0x168) <= 0.0001f) {
+            F32(u, 0x168) = 0.0f;
+            U8(u, 0x18B) = 0;
+        }
+    }
+    if (hit != 0 && (U32(hit, 0x2C) & 0x80000) && AT_FRAME(hit[5], F32(u, 0x21C), s)) {
+        F32(u, 0x168) = 600.0f;
+        if (func_00273A20(u) != 0)
+            F32(u, 0x168) = F32(u, 0x168) * 1.2f;
+        U8(u, 0x18B) = (U32(hit, 0x2C) & 0x20) ? 2 : (U32(hit, 0x2C) & 0x10) ? 1 : 0;
+    }
+    if (g_0045D2A8 == 0 && (g_00669F60 & 0x2800000) == 0) {
+        if (S16(u, 0x15E) != 0) {
+            if ((U8(u, 0x19D) & 0x40) || (s8)U8(u, 0x19D) < 0)
+                func_00244430(u);
+            S16(u, 0x15E) -= 1;
+            if (S16(u, 0x15E) == 0) {
+                u8 b;
+
+                U8(u, 0x19E) &= ~2;
+                b = U8(u, 0x19D);
+                U8(u, 0x19D) = b & 0xBF;
+                U8(u, 0x19D) = b & 0x3F;
+                b = U8(u, 0x19E);
+                U8(u, 0x19E) = b & 0xFE;
+                U8(u, 0x19E) = b & 0xF6;
+            }
+        }
+        if (U8(u, 0x187) != 0 && --U8(u, 0x187) == 0)
+            U8(u, 0x18A) = 0;
+        if (S16(u, 0x192) != 0)
+            S16(u, 0x192) -= 1;
+        if (S16(u, 0x194) != 0 && --S16(u, 0x194) == 0)
+            U8(u, 0x157) = 0;
+        if (S16(u, 0x1CC) != -1 || S16(u, 0x1CE) != -1) {
+            func_002444B0(u);
+            if ((U8(u, 0x19C) & 2) == 0) {
+                S16(u, 0x1CC) = -1;
+                S16(u, 0x1CE) = -1;
+            }
+        }
+    }
+    if ((U8(u, 0x19E) & 4) && func_0016C070(u) == 0 && (U32(ACT(u), 0x18) & 0x800))
+        func_002450D0(u);
+    f = U32(ACT(u), 0x18);
+    if ((f & 0x20) == 0 || (f & 0x800)) {
+        F32(u, 0x1E0) = 0.0f;
+        F32(u, 0x1E8) = 0.0f;
+    } else if (S16(ACT(u), 0) == 0x61) {
+        float a = F32(u, 0x54) + -2.3561945f, sn, cs;
+
+        if (PI < a)
+            a -= TWO_PI;
+        else if (a <= -PI)
+            a += TWO_PI;
+        vu0_sincos(a, &sn, &cs);
+        F32(u, 0x1E0) = sn;
+        F32(u, 0x1E8) = cs;
+        F32(u, 0x1E4) = 0.0f;
+        for (i = 0; i < 4; i++)
+            F32(u, 0x1E0 + i * 4) = F32(u, 0x1E0 + i * 4) * 8.0f;
+    } else {
+        float len;
+
+        for (i = 0; i < 4; i++)
+            F32(u, 0x1E0 + i * 4) += F32(u, 0x1D0 + i * 4) * (s * 0.2f);
+        len = sqrtf(F32(u, 0x1E0) * F32(u, 0x1E0) + F32(u, 0x1E4) * F32(u, 0x1E4)
+                    + F32(u, 0x1E8) * F32(u, 0x1E8));
+        if (5.0f < len) {
+            for (i = 0; i < 4; i++)
+                F32(u, 0x1E0 + i * 4) = F32(u, 0x1E0 + i * 4) / len * 5.0f;
+        }
+    }
+    if (g_00669DB8 == 4)
+        func_003E9380(u);
+    func_0015BEA0(s, u);
+    if ((s8)U8(u, 0x19C) >= 0
+        && (PTR(u, 0x11C) == 0 || F32(PTR(u, 0x11C), 0x214) <= 0.0f)) {
+        u8 *a = ACT(u), *h = PTR(a, 0x14);
+
+        if (g_00669DB8 != 4) {
+            int m;
+
+            if (a[0xD] != 0xFF && AT_FRAME(a[0xD], F32(u, 0x21C), s)) {
+                func_0015E890(&m, a[0xC]);
+                if (func_0015ED30(u, m) != 0)
+                    func_002A6D20(PLAYER(u), m);
+            }
+            if (a[0xF] != 0xFF && AT_FRAME(a[0xF], F32(u, 0x21C), s)) {
+                func_0015E890(&m, a[0xE]);
+                if (func_0015ED30(u, m) != 0)
+                    func_002A6D20(PLAYER(u), m);
+            }
+            if (S32(u, 0x118) < 0x3C && (s8)U8(u, 0x19C) >= 0 && h != 0 && h[0x1B] != 0xFF
+                && AT_FRAME(h[0x1B], F32(u, 0x21C), s)) {
+                if (h[0x1A] == 0xE) {
+                    if (PLAYER(u) > 1) {
+                        func_002A6A00(PLAYER(u), 0x16);
+                        goto animate;
+                    }
+                } else {
+                    int k = func_0015E8F0(h[0x1A]);
+
+                    if (k != -1)
+                        func_002A6A00(PLAYER(u), k);
+                }
+            }
+        }
+    }
+animate:
+    if ((U8(u, 0x27C) & 0x40) == 0)
+        func_0015DE30(s, u);
+    func_001596F0(s, u, 0, 0);
+    func_0015C2A0(s, u);
+    if ((s8)U8(u, 0x19C) < 0)
+        func_00158FB0(s, u);
+    if ((U8(u, 0xE8) & 2) && (U32(ACT(u), 0x18) & 0x20) == 0) {
+        F32(u, 0x40) += F32(u, 0xF0) * s;
+        F32(u, 0x48) += F32(u, 0xF8) * s;
+    }
+    if (PLAYER(u) < 2) {
+        if (((U32(u, 0x13C) & 0x10) || (U32(u, 0x13C) & 0x400)) && func_0016C020(u) != 0)
+            func_00162130(g_005B49E0[PLAYER(u)]);
+        if (func_00158D90(u) == 0)
+            func_0016C7A0(PLAYER(u));
+        else
+            func_0016C810(F32(u, 0x21C), PLAYER(u), u + 0x40, u + 0x50, u + 0x1D0,
+                          S16(ACT(u), 0), (U8(u, 0x27C) & 2) ? -1 : 0);
+    }
+    U8(u, 0x27C) &= ~0x40;
+}
+
+/* 0x0015FB50, 0x1C bytes, matching. */
+void func_0015FB50(Unit *u, u16 id)
+{
+    func_00156AF0(u, id);
+}
+
+/* 0x0015FB70, 0x54 bytes. Ends the struggle the unit is in (as the holder, or held: both
+ * knocked out). */
+void func_0015FB70(Unit *u)
+{
+    Unit *h = PTR(u, 0x280) != 0 ? u : PTR(u, 0x284);
+
+    if (h != 0)
+        func_00157B60(h, 3, 3);
+}
+
+/* 0x0015FBD0, 0x1A0 bytes. Locks on to `t` (when the action allows it): at once without a
+ * target, else when `t` is nearer the unit's facing than the current one. (The target's own
+ * +0x270 is set to itself, as in the original.) */
+void func_0015FBD0(Unit *u, Unit *t)
+{
+    if (U32(ACT(u), 0x1C) & 0x20)
+        return;
+    if (PTR(u, 0x270) == 0) {
+        PTR(u, 0x270) = t;
+        PTR(t, 0x270) = t;
+    } else {
+        Unit *c = PTR(u, 0x270);
+        float a1 = wrap_angle(vu0_angle(F32(c, 0x40) - F32(u, 0x40), F32(c, 0x48) - F32(u, 0x48))
+                              - F32(u, 0x54));
+        float a2 = wrap_angle(vu0_angle(F32(t, 0x40) - F32(u, 0x40), F32(t, 0x48) - F32(u, 0x48))
+                              - F32(u, 0x54));
+
+        if (fabsf(a2) < fabsf(a1)) {
+            PTR(u, 0x270) = t;
+            PTR(t, 0x270) = t;
+        }
+    }
+}
+
+/* 0x0015FD70, 0x20 bytes, matching. Clears a description (0x20 bytes). */
+void func_0015FD70(void *d)
+{
+    func_001185E0(d, 0x20, 0);
+}
+
+/* 0x0015FD90, 0xC8 bytes. Sets a unit description up from its file (header: +8 actions, +0xC
+ * hits): the actions (0x20 bytes, from +0x10) get their hit (+0x14) from the hit records (0x30
+ * bytes, +2 the action); weapon kind `kind`. 0 when the file was already set up. */
+int func_0015FD90(u32 *file, u8 *desc, u8 kind)
+{
+    u32 *p, *h, i;
+
+    PTR(desc, 0) = (u8 *)file;
+    PTR(desc, 4) = (u8 *)file;
+    if (file[0] != 0)
+        return 0;
+    p = file + 4;
+    PTR(desc, 8) = (u8 *)p;
+    h = p + U32(PTR(desc, 4), 8) * 8;
+    for (i = 0; i < U32(PTR(desc, 4), 8); i++, p += 8)
+        p[5] = 0;
+    PTR(desc, 0xC) = (u8 *)h;
+    for (i = 0; i < U32(PTR(desc, 4), 0xC); i++, h += 0xC)
+        PTR(PTR(desc, 8) + U16(h, 2) * 0x20, 0x14) = (u8 *)h;
+    U8(desc, 0x10) = (U8(desc, 0x10) & ~1) | 1;
+    U8(desc, 0x1C) = kind;
+    return 1;
 }
