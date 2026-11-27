@@ -1375,7 +1375,7 @@ void func_00168190(Unit *u)
 
 void func_0016F8E0(float f, u8 *part, int player);
 void func_002088C0(u8 *trail);
-void func_0016EAB0(u8 *a, u8 *part);
+void func_0016EAB0(float grow, float *part);
 void func_00209190(float *a, float *b, u8 player, int c);
 u8 *func_002087A0(void);
 void func_00208820(u8 *trail, float *a, float *b, u8 player);
@@ -1430,7 +1430,7 @@ int func_001684C0(float f, int player, u8 *w, int on, int second, int link, u16 
             func_00168400(f, player, p, on && second);
             done = 1;
             if (link && PTR(p, 0x68) != 0)
-                func_0016EAB0(PTR(w, 0x68), p);
+                func_0016EAB0(F32(w, 0x68), (float *)p);
         }
     } else {
         for (i = 0; i < 2; i++) {
@@ -1449,7 +1449,7 @@ int func_001684C0(float f, int player, u8 *w, int on, int second, int link, u16 
                 func_00168400(f, player, p, on && second);
                 done = 1;
                 if (link && PTR(p, 0x68) != 0)
-                    func_0016EAB0(PTR(w, 0x68), p);
+                    func_0016EAB0(F32(w, 0x68), (float *)p);
             }
         }
     }

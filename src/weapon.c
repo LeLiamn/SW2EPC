@@ -300,3 +300,238 @@ int func_0016D580(const float *rc, const float *a, const float *b)
         return (v0 <= v1 ? v0 : v1) <= y1;
     }
 }
+
+extern float g_0056DBE0[6];              /* the edge of kinds 0x14-0x1B and 0x30-0x37 */
+extern u8 g_006C3590[][0x30];            /* the weapon models */
+
+u8 *func_001BE5E0(void);
+u8 *func_001BE630(void);
+void func_0014FCA0(u8 *o, u8 *model);
+void func_00149620(u8 *a, u8 *m, u8 *m2);
+void func_0016E910(u8 *slot);
+void func_0016E860(u8 *slot);
+void func_002088C0(u8 *trail);
+
+/* 0x0016E2E0, 0x20 bytes, matching. Clears a weapon slot. */
+void func_0016E2E0(u8 *slot)
+{
+    func_001185E0(slot, 0x70, 0);
+}
+
+/* A free weapon object (flag 1 of +0x60 clear), taken and reset; 0 when all are in use. */
+static inline u8 *take_weapon(void)
+{
+    u8 *w = g_0056DC00[0];
+    int k;
+
+    for (k = 0; k < 0xA0; k++, w += 0xB0) {
+        if ((U8(w, 0x60) & 1) == 0)
+            return w;
+    }
+    return 0;
+}
+
+/* Marks a weapon object used and not drawn. */
+static inline void weapon_use(u8 *w)
+{
+    U8(w, 0x60) = (U8(w, 0x60) & ~1) | 1;
+    U8(w, 0x60) &= ~2;
+    U8(w, 0x60) &= ~4;
+}
+
+/* 0x0016E300, 0x554 bytes. Gives a slot weapon `kind` on node `node`: its parts (one or, with
+ * `pair`, two edges from the weapon record; extra edges for kinds 0x3C-0x3F, 0x64-0x6F; the
+ * shared edge for kinds 0x14-0x1B and 0x30-0x37), unless `no_parts`; its object (a plain one
+ * with the kind's model, or with `actor` a model actor); flags +0x4C (1 on, 4 actor, 8 pair,
+ * 0x10 no parts). Whether it worked. */
+int func_0016E300(u8 *slot, int kind, u8 node, int actor, int pair, int no_parts)
+{
+    int n = pair == 0 ? 1 : 2, i, k;
+    u8 *o, b;
+
+    for (i = 0; i < 4; i++)
+        for (k = 0; k < 4; k++)
+            F32(slot, i * 0x10 + k * 4) = i == k ? 1.0f : 0.0f;
+    U8(slot, 0x48) = (u8)kind;
+    U8(slot, 0x49) = node;
+    if (no_parts == 0) {
+        const float *rec = (const float *)func_0016CF40(U8(slot, 0x48));
+        u32 c;
+
+        for (i = 0; i < n; i++, rec += 6) {
+            u8 *w = take_weapon();
+
+            PTR(slot, 0x50 + i * 4) = w;
+            weapon_use(w);
+            func_0016D180(PTR(slot, 0x50 + i * 4), rec);
+        }
+        c = U8(slot, 0x48);
+        if ((u32)(c - 0x3C) < 4 || (u32)(c - 0x6C) < 4 || c - 100 < 4 || c - 0x68 < 4) {
+            if (c - 0x3C < 4 || c - 0x6C < 4 || c - 100 < 4)
+                n = 2;
+            else if (c - 0x68 < 4)
+                n = 1;
+            else
+                n = 0;
+            for (i = 0; i < n; i++, rec += 6) {
+                u8 *w = take_weapon();
+
+                PTR(slot, 0x58 + i * 4) = w;
+                weapon_use(w);
+                func_0016D180(PTR(slot, 0x58 + i * 4), rec);
+            }
+        }
+        if ((u32)(U8(slot, 0x48) - 0x30) < 8 || (u32)(U8(slot, 0x48) - 0x14) < 8) {
+            u8 *w = take_weapon();
+
+            PTR(slot, 0x58) = w;
+            weapon_use(w);
+            func_0016D180(PTR(slot, 0x58), g_0056DBE0);
+        }
+    }
+    if (actor == 0) {
+        o = func_001BE5E0();
+        PTR(slot, 0x44) = o;
+        if (o == 0) {
+            func_0016E910(slot);
+            return 0;
+        }
+        U8(o, 0x168) = (U8(o, 0x168) & ~1) | 1;
+        func_0014FCA0(o, g_006C3590[kind]);
+        U8(o, 0x165) = U8(slot, 0x49);
+    } else {
+        o = func_001BE630();
+        PTR(slot, 0x44) = o;
+        if (o == 0) {
+            func_0016E910(slot);
+            return 0;
+        }
+        U8(o, 0x20C) = (U8(o, 0x20C) & ~1) | 1;
+        func_00149620(PTR(slot, 0x44), g_006C3590[kind], 0);
+    }
+    b = U8(slot, 0x4C);
+    U8(slot, 0x4C) = (b & 0x60) | 1 | (actor & 1) << 2 | (pair & 1) << 3 | (no_parts & 1) << 4;
+    U8(slot, 0x4D) &= ~1;
+    return 1;
+}
+
+/* 0x0016E860, 0xB0 bytes. Stops the trails of a weapon's parts. */
+void func_0016E860(u8 *slot)
+{
+    u32 i;
+
+    for (i = 0; i < 2; i++) {
+        u8 *p = PTR(slot, 0x50 + i * 4);
+
+        if (p != 0 && PTR(p, 0x68) != 0) {
+            func_002088C0(PTR(p, 0x68));
+            PTR(PTR(slot, 0x50 + i * 4), 0x68) = 0;
+        }
+    }
+    for (i = 0; i < 2; i++) {
+        u8 *p = PTR(slot, 0x58 + i * 4);
+
+        if (p != 0 && PTR(p, 0x68) != 0) {
+            func_002088C0(PTR(p, 0x68));
+            PTR(PTR(slot, 0x58 + i * 4), 0x68) = 0;
+        }
+    }
+}
+
+void func_00208980(u8 *trail, void *m, int colour);
+
+/* Frees a weapon object (flags 1, 2, 4 of +0x60). */
+static inline void weapon_free(u8 *w)
+{
+    U8(w, 0x60) &= ~1;
+    U8(w, 0x60) &= ~2;
+    U8(w, 0x60) &= ~4;
+}
+
+/* 0x0016E910, 0x198 bytes. Empties a weapon slot: its object released, its trails stopped
+ * (flag 1 of +0x4D), its parts freed, the slot cleared. */
+void func_0016E910(u8 *slot)
+{
+    u8 *o = PTR(slot, 0x44);
+    u32 i;
+
+    if (o != 0) {
+        if (U8(slot, 0x4C) & 4) {
+            PTR(o, 0x1E8) = 0;
+            U8(PTR(slot, 0x44), 0x20C) &= ~1;
+        } else {
+            PTR(o, 0x160) = 0;
+            U8(PTR(slot, 0x44), 0x168) &= ~1;
+        }
+    }
+    PTR(slot, 0x44) = 0;
+    if (U8(slot, 0x4D) & 1)
+        func_0016E860(slot);
+    for (i = 0; i < 2; i++) {
+        if (PTR(slot, 0x50 + i * 4) != 0)
+            weapon_free(PTR(slot, 0x50 + i * 4));
+    }
+    for (i = 0; i < 2; i++) {
+        if (PTR(slot, 0x58 + i * 4) != 0)
+            weapon_free(PTR(slot, 0x58 + i * 4));
+    }
+    func_0016E2E0(slot);
+}
+
+/* 0x0016EAB0, 0x68 bytes. Starts a part's trail (+0x68) on its edge: from the base to the base
+ * plus the length (lengthened by `grow`) times the scale +0x64. */
+void func_0016EAB0(float grow, float *e)
+{
+    u8 *t = *(u8 **)&e[0x1A];
+    float *s = (float *)0x70000030, len;
+    int k;
+
+    for (k = 0; k < 4; k++) {
+        F32(t, 0x20 + k * 4) = s[k];
+        F32(t, 0x30 + k * 4) = s[k];
+    }
+    len = e[4] < 0.0f ? e[4] - grow : e[4] + grow;
+    F32(t, 0x20) = e[0] + len * e[0x19];
+    F32(t, 0x30) = e[0];
+}
+
+/* 0x0016EB20, 0x6C bytes. The same without the scale, when the part has a trail. */
+void func_0016EB20(float grow, float *e)
+{
+    u8 *t = *(u8 **)&e[0x1A];
+    float *s = (float *)0x70000030, len;
+    int k;
+
+    if (t == 0)
+        return;
+    for (k = 0; k < 4; k++) {
+        F32(t, 0x20 + k * 4) = s[k];
+        F32(t, 0x30 + k * 4) = s[k];
+    }
+    len = e[4] < 0.0f ? e[4] - grow : e[4] + grow;
+    F32(t, 0x20) = e[0] + len;
+    F32(t, 0x30) = e[0];
+}
+
+/* 0x0016EB90, 0x20 bytes, matching. Sets a trail's matrix and colour, if there is one. */
+void func_0016EB90(u8 *trail, void *m, int colour)
+{
+    if (trail != 0)
+        func_00208980(trail, m, colour);
+}
+
+/* 0x0016EBB0, 0xDC bytes. Sets the matrix and colour of a slot's trails (+0x58 not for the
+ * kinds held between two hands). */
+void func_0016EBB0(u8 *slot, void *m, int colour)
+{
+    u32 i;
+
+    for (i = 0; i < 2; i++) {
+        if (PTR(slot, 0x50 + i * 4) != 0)
+            func_0016EB90(PTR(PTR(slot, 0x50 + i * 4), 0x68), m, colour);
+    }
+    if (PTR(slot, 0x58) != 0 && (u32)(U8(slot, 0x48) - 0x30) > 7 && (u32)(U8(slot, 0x48) - 0x14) > 7)
+        func_0016EB90(PTR(PTR(slot, 0x58), 0x68), m, colour);
+    if (PTR(slot, 0x5C) != 0)
+        func_0016EB90(PTR(PTR(slot, 0x5C), 0x68), m, colour);
+}
