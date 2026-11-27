@@ -3456,3 +3456,319 @@ void func_00352060(u8 *b)
         }
     }
 }
+
+/* A nearest-base search (small data 0x0045D748 and 0x0045D750). */
+typedef struct {
+    int v;                   /* +0 */
+    short code;              /* +4 the position searched from */
+    short found;             /* +6 the base's position */
+} BaseSearch;
+
+extern BaseSearch g_0045D748, g_0045D750;
+
+void func_003538F0(void);
+u32 func_0018F650(u8 *map, BaseSearch *s);
+u16 func_0018F6F0(u8 *a, u8 *b, int c);
+
+/* 0x00352100, 0xAC bytes. Updates every base's cut-off flag and front value, then the map. */
+void func_00352100(void)
+{
+    u32 k;
+
+    for (k = 0; k < 0x14; k++) {
+        u8 *b = BASE(k);
+
+        if (b != 0 && func_0034EE50(b) != 0)
+            func_00351F00(b);
+    }
+    for (k = 0; k < 0x14; k++) {
+        u8 *b = BASE(k);
+
+        if (b != 0 && func_0034EE50(b) != 0)
+            func_00351BF0(b);
+    }
+    func_003538F0();
+}
+
+/* 0x003521B0, 0x90 bytes. Whether base `b` links to a base of side `side`. */
+int func_003521B0(u8 *b, int side)
+{
+    u32 n = func_0034EEF0(b), k;
+
+    for (k = 0; k < n; k++) {
+        if (side == func_0034EDB0(BASE(func_0034EF50(b, k))))
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00352240, 0xAC bytes. Whether it links to a base of side `side` without flag 2. */
+int func_00352240(u8 *b, int side)
+{
+    u32 n = func_0034EEF0(b), k;
+
+    for (k = 0; k < n; k++) {
+        u8 *x = BASE(func_0034EF50(b, k));
+
+        if (side == func_0034EDB0(x) && func_0034EE80(x) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x003522F0, 0x90 bytes. Whether it links to a base not of side `side`. */
+int func_003522F0(u8 *b, int side)
+{
+    u32 n = func_0034EEF0(b), k;
+
+    for (k = 0; k < n; k++) {
+        if (side != func_0034EDB0(BASE(func_0034EF50(b, k))))
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00352380, 0xF0 bytes. The base of `map` nearest to `s`'s position (its position into `s`). */
+int func_00352380(u8 *map, BaseSearch *s)
+{
+    u8 *best = 0, *b;
+    u32 bd = 0xFFF, k;
+    short c[2];
+
+    for (k = 0, b = map + 0x110; k < 0x14; k++, b += 0x3C) {
+        if (func_0034EE50(b) != 0) {
+            u32 d;
+
+            func_0034ED90(b, (u8 *)c);
+            s->found = c[0];
+            d = func_0018F650(map, s);
+            if (d < bd) {
+                best = b;
+                bd = d;
+            }
+        }
+    }
+    if (best != 0) {
+        func_0034ED90(best, (u8 *)c);
+        s->found = c[0];
+    }
+    return best != 0;
+}
+
+/* 0x00352470, 0x10C bytes. The same among side `side`'s bases. */
+int func_00352470(u8 *map, BaseSearch *s, int side)
+{
+    u8 *best = 0, *b;
+    u32 bd = 0xFFF, k;
+    short c[2];
+
+    for (k = 0, b = map + 0x110; k < 0x14; k++, b += 0x3C) {
+        if (func_0034EE50(b) != 0 && side == func_0034EDB0(b)) {
+            u32 d;
+
+            func_0034ED90(b, (u8 *)c);
+            s->found = c[0];
+            d = func_0018F650(map, s);
+            if (d < bd) {
+                best = b;
+                bd = d;
+            }
+        }
+    }
+    if (best != 0) {
+        func_0034ED90(best, (u8 *)c);
+        s->found = c[0];
+    }
+    return best != 0;
+}
+
+/* 0x00352580, 0x40 bytes. The position of the base nearest to `code` (0 for none). */
+short *func_00352580(short *code, int v)
+{
+    g_0045D748.code = *code;
+    g_0045D748.v = v;
+    if (func_00352380(g_0045D2F0, &g_0045D748) == 0)
+        return 0;
+    return &g_0045D748.found;
+}
+
+/* 0x003525C0, 0x48 bytes. The same among side `side`'s bases. */
+short *func_003525C0(short *code, int side, int v)
+{
+    g_0045D750.code = *code;
+    g_0045D750.v = v;
+    if (func_00352470(g_0045D2F0, &g_0045D750, side) == 0)
+        return 0;
+    return &g_0045D750.found;
+}
+
+/* 0x00352610, 0x34 bytes. The base nearest to `code`. */
+u8 *func_00352610(short *code, int v)
+{
+    short *p = func_00352580(code, v);
+
+    return p != 0 ? func_0034ECA0((u8 *)p) : 0;
+}
+
+/* 0x00352650, 0x34 bytes. Side `side`'s base nearest to `code`. */
+u8 *func_00352650(short *code, int side, int v)
+{
+    short *p = func_003525C0(code, side, v);
+
+    return p != 0 ? func_0034ECA0((u8 *)p) : 0;
+}
+
+/* 0x00352690, 0xEC bytes. Side `side`'s units in base `b`'s map cell (side 0 with the players
+ * standing on it). */
+u32 func_00352690(u8 *b, int side)
+{
+    u8 c[2], *cell = 0;
+    u32 n;
+    int p;
+
+    func_0034ED90(b, c);
+    if (c[0] <= 0x1F && c[1] <= 0x1F)
+        cell = ((u8 **)*(int *)(g_0045D2F0 + 4))[c[0] + c[1] * 0x20];
+    n = cell[(side & 0xFF) + 8];
+    if (side == 0) {
+        for (p = 0; p < 2; p++) {
+            if (*(int *)(g_00669D60 + p * 0x48 + 0xA0) != 0 && *(short *)c == *(short *)(func_0035DCD0(p) + 0x40))
+                n++;
+        }
+    }
+    return n;
+}
+
+/* 0x00352780, 0x20 bytes, matching. Whether side `side` has units in base `b`'s cell. */
+int func_00352780(u8 *b, int side)
+{
+    return func_00352690(b, side) != 0;
+}
+
+/* 0x003527A0, 0xB0 bytes. Side `side`'s active guards at base `b`. */
+u32 func_003527A0(u8 *b, int side)
+{
+    int k = func_0034ED40(b);
+    u32 n = 0, j;
+
+    for (j = 0; j < 5; j++) {
+        u8 *u = func_0034AA90(side, k, j);
+
+        if (u != 0 && (UNIT_FLAGS(u) & 1) != 0 && (UNIT_FLAGS(u) & 0x8C40002) == 0)
+            n++;
+    }
+    return n;
+}
+
+/* 0x00352850, 0xDC bytes. A unit of side `side`'s group at base `b` standing on it (0 for none). */
+int func_00352850(u8 *b, int side)
+{
+    u8 **l = (u8 **)func_0033EFD0(side, func_0034ED40(b));
+    u32 j;
+
+    for (j = 0; j < 0xD; j++, l++) {
+        u8 *u = *l;
+
+        if (u != 0 && (UNIT_FLAGS(u) & 1) != 0 && (UNIT_FLAGS(u) & 0x8C40002) == 0
+            && func_0034A660(u, b) != 0 && (u32)side == u[0x79])
+            return (int)u;
+    }
+    return 0;
+}
+
+/* 0x00352930, 0x5C bytes, matching. The map distance between bases `a` and `b`. */
+u32 func_00352930(u8 *a, u8 *b)
+{
+    u8 ca[4], cb[4];
+
+    if (a == 0 || b == 0)
+        return 0;
+    func_0034ED90(a, ca);
+    func_0034ED90(b, cb);
+    return func_0018F6F0(ca, cb, 0);
+}
+
+/* 0x00352990, 0x16C bytes. The fewest links from base `from` to base `to` (through bases of side
+ * `own` and not of side `not`, each when below 2); -1 when unreachable. */
+u32 func_00352990(u32 from, u32 to, u32 depth, u32 mask, u32 own, u32 not)
+{
+    u8 *b;
+    u32 best = 0xFFFFFFFF, n, k;
+
+    if (from == to)
+        return depth;
+    mask |= 1 << from;
+    b = BASE(from);
+    n = func_0034EEF0(b);
+    for (k = 0; k < n; k++) {
+        u32 x = func_0034EF50(b, k);
+
+        if ((mask & 1 << x) != 0)
+            continue;
+        if (x != to) {
+            u8 *l = BASE(x);
+
+            if (own < 2 && own != (u32)func_0034EDB0(l))
+                continue;
+            if (not < 2 && not == (u32)func_0034EDB0(l))
+                continue;
+        }
+        {
+            u32 d = func_00352990(x, to, depth + 1, mask, own, not);
+
+            if (d < best)
+                best = d;
+        }
+    }
+    return best;
+}
+
+/* 0x00352B00, 0x4C bytes, matching. The fewest links between bases `a` and `b`. */
+u32 func_00352B00(u8 *a, int b)
+{
+    return func_00352990(func_0034ED40(a), func_0034ED40((u8 *)b), 0, 0, 3, 3);
+}
+
+/* 0x00352B50, 0x60 bytes. Whether player `p` (in play) is at base `b`. */
+int func_00352B50(u8 *b, int p)
+{
+    if (*(int *)(g_00669D60 + p * 0x48 + 0xA0) == 0)
+        return 0;
+    return func_0033CB60(func_0035DD10(p), b);
+}
+
+/* 0x00352BB0, 0x64 bytes. Whether a player is at base `b`. */
+int func_00352BB0(u8 *b)
+{
+    int p;
+
+    for (p = 0; p < 2; p++) {
+        if (func_00352B50(b, p) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00352C20, 0x20 bytes, matching. Whether there is a base at position `code`. */
+int func_00352C20(u8 *code)
+{
+    return func_0034ECA0(code) != 0;
+}
+
+/* 0x00352C40, 0x5C bytes, matching. Whether map cell `cell` (in sub-cells) has a base. */
+int func_00352C40(u8 *cell)
+{
+    u8 c[2];
+
+    c[0] = cell[0] / 5;
+    c[1] = cell[1] / 5;
+    return func_00352C20(c);
+}
+
+/* 0x00352CA0, 0x6C bytes. Whether sub-cell `cell` is a base's centre. */
+int func_00352CA0(u8 *cell)
+{
+    if (func_00352C40(cell) == 0 || cell[0] % 5 != 2)
+        return 0;
+    return cell[1] % 5 == 2;
+}
