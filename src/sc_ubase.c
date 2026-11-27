@@ -710,3 +710,492 @@ void func_0019D410(int p)
         }
     }
 }
+
+/* A skill being offered: its id, its level, who gets it (2: none). */
+typedef struct {
+    int skill;
+    u8 level;
+    u8 who;
+    u8 pad[2];
+} SkillOffer;
+
+extern u8 g_00669E78[8][0x15];           /* (settings +0x118) the weapons found (+0x14 who, 2 none) */
+extern SkillOffer g_00669F20[8];         /* (settings +0x1C0) the skills learnt in battle */
+extern u8 g_004281BC[0x28][8];           /* the skills (+0 group, +1 kind: 3 special) */
+extern const int g_004069A0[4];          /* chance by skill level (from 1) */
+extern const float g_004069B0[4];        /* by levels missing (from 1) */
+extern const float g_004069C0[3];        /* by study time and by study points */
+extern const float g_004069D0[4];        /* by the level of skill 0x23 */
+extern const float g_004069E0[4];        /* by stat 7 in 50s */
+extern u8 g_00669D81[0x10];              /* (settings) +0: a scenario value */
+
+void func_00247FA0(u8 a, int b, int c);
+
+/* 0x0019D480, 0x890 bytes. After beating battle officer `b` while it is studied, player `p`
+ * may learn one of its skills (+0x22 ids, +0x25 levels, picked at random): special skills need
+ * the right conditions, others at most two levels above the player's; the chance grows with the
+ * study time and points, skill 0x23 and stat 7 (at most 100%). Whether one was learnt (it goes
+ * into a free slot of the battle's learnt skills). */
+int func_0019D480(int b, int p)
+{
+    u8 *tab = g_005BA6A0, *r;
+    SkillOffer offers[3], *o;
+    int found = 0, i, k, n, pick;
+    u32 id;
+
+    if (g_00669F60[0] & 0x1C)
+        return 0;
+    for (i = 0; i < 2; i++) {
+        if ((int)PSET(i, 0xBC) == -1) {
+            PSET(i, 0xBC) = -1;
+            U16(g_00669D60, i * 0x48 + 0xC0) = 0;
+            U16(g_00669D60, i * 0x48 + 0xC2) = 0;
+        } else if ((int)PSET(i, 0xBC) == (*(u8 **)(g_006A3A30[b] + 0x68) - tab) / 0x2C) {
+            found = 1;
+        }
+    }
+    if (!found)
+        return 0;
+    if (p != 0 && p != 1) {
+        for (i = 0; i < 2; i++) {
+            PSET(i, 0xBC) = -1;
+            U16(g_00669D60, i * 0x48 + 0xC0) = 0;
+            U16(g_00669D60, i * 0x48 + 0xC2) = 0;
+        }
+        return 0;
+    }
+    id = PSET(p, 0x88);
+    for (i = 0; i < 8; i++) {
+        if (g_00669F20[i].who == 2)
+            break;
+    }
+    if (i >= 8)
+        return 0;
+
+    r = *(u8 **)(g_006A3A30[b] + 0x68);
+    n = 0;
+    o = offers;
+    for (k = 0; k < 3; k++) {
+        u8 s = r[k + 0x22], lv = r[k + 0x25];
+
+        offers[k].skill = 0x28;
+        offers[k].level = 0;
+        offers[k].who = 2;
+        if (s < 0x28 && func_002F47A0(id, s) < lv) {
+            o->skill = s;
+            o->level = lv;
+            o->who = (u8)p;
+            o++;
+            n++;
+        }
+    }
+    if (n == 0)
+        return 0;
+    pick = (int)RANDOM() % n;
+    o = &offers[pick];
+    if (o->skill >= 0x28)
+        return 0;
+
+    if (g_004281BC[o->skill][1] == 3 && o->level == 3 && g_00669D81[0] < 3)
+        return 0;
+    if (o->skill == 0x21) {
+        int c = 0;
+
+        for (k = 0; k < 0x28; k++) {
+            if (g_004281BC[k][1] == 3 && o->level <= func_002F47A0(id, k))
+                c++;
+        }
+        if (c < 2)
+            return 0;
+    } else if (g_004281BC[o->skill][1] == 3) {
+        for (k = 0; k < 0x28; k++) {
+            if (g_004281BC[o->skill][0] == g_004281BC[k][0] && g_004281BC[k][1] != 3
+                && func_002F47A0(id, k) < o->level)
+                return 0;
+        }
+    } else if ((int)(o->level - func_002F47A0(id, o->skill)) > 2) {
+        return 0;
+    }
+
+    {
+        int named = PSET(p, 0xBC) < 0x1D;
+        float base = (float)g_004069A0[o->level - 1], f;
+        int d = ((o->level - func_002F47A0(id, o->skill)) & 0xFF) - 1;
+        u32 t, pt, sk, st, chance;
+
+        f = base * g_004069B0[d < 3 ? d : 3];
+        t = named ? U16(g_00669D60, p * 0x48 + 0xC0) / 1000 : U16(g_00669D60, p * 0x48 + 0xC0) / 750;
+        if (named || (U32(*(u8 **)(g_006A3A30[b] + 0x10), 0x80) & 0x200))
+            pt = U16(g_00669D60, p * 0x48 + 0xC2) / 50;
+        else
+            pt = U16(g_00669D60, p * 0x48 + 0xC2) / 25;
+        pt &= 0xFF;
+        base = f * g_004069C0[pt < 2 ? pt : 2] + f * g_004069C0[t < 2 ? t : 2] + f + 0.0f + 0.0f;
+        if (func_0036DC80(id, 0x23) != 0) {
+            sk = func_0036DBA0(id, 0x23) & 0xFF;
+            base = f * g_004069D0[sk < 3 ? sk : 3] + base + 0.0f;
+        }
+        st = (u32)func_002F55A0(id) / 50 & 0xFF;
+        f = f * g_004069E0[st < 3 ? st : 3] + base + 0.0f;
+        f = f > 100.0f ? 100.0f : f;
+        chance = (u32)f;
+        if (RANDOM() % 100 >= chance)
+            return 0;
+    }
+    for (i = 0; i < 8; i++) {
+        if (g_00669F20[i].who == 2)
+            break;
+    }
+    g_00669F20[i] = *o;
+    func_00247FA0(g_00574DE0[p][0x14E], 0x1C, 6);
+    return 1;
+}
+
+/* 0x0019DD20, 0x48 bytes. Clears the weapons found. */
+void func_0019DD20(void)
+{
+    int k;
+
+    for (k = 0; k < 8; k++)
+        g_00669E78[k][0x14] = 2;
+}
+
+/* 0x0019DD70, 0x48 bytes. Clears the battle's learnt skills. */
+void func_0019DD70(void)
+{
+    int k;
+
+    for (k = 0; k < 8; k++)
+        g_00669F20[k].who = 2;
+}
+
+/* 0x0019DDC0, 0x414 bytes. Sorts a record's eight (rank +2, value +10) pairs: lowest rank first,
+ * then the largest value. */
+void func_0019DDC0(u8 *r)
+{
+    int key[8], i, j;
+
+    for (i = 0; i < 8; i++)
+        key[i] = r[10 + i] + (10 - r[2 + i]) * 100;
+    for (i = 1; i < 8; i++) {
+        int v = key[i];
+
+        for (j = i - 1; j >= 0 && key[j] < v; j--)
+            key[j + 1] = key[j];
+        key[j + 1] = v;
+    }
+    for (i = 0; i < 8; i++) {
+        r[2 + i] = 10 - key[i] / 100;
+        r[10 + i] = key[i] % 100;
+    }
+}
+
+extern u32 g_00669F84, g_00669F88;       /* (settings) the difficulty and a weapon level */
+extern u8 g_004069F0[8][2];              /* rank chances by difficulty */
+extern u8 g_0045CCA0[5], g_0045CCA8[8], g_0045CCB0[4];   /* kind, rank and attribute chances */
+extern u8 g_004282DF, g_004282B7;
+extern u32 g_00669DC0[4];                /* (settings) +0: the scenario's stage */
+extern u8 g_00428B78[][0x13];            /* the stages' fixed weapons */
+extern u8 g_00669D84[4];                 /* (settings) flags: +0 bits 1, 2, 5, 6, 7; +1 bits 0, 1 */
+extern u32 g_0045D2A8;
+extern signed char g_0069395E;
+extern u8 g_00732584[2][0x1C];           /* per player boost icons (+0-+3) */
+extern u32 g_00669D6C;                   /* (settings) the time played */
+extern u32 g_00669F64[2];                /* (settings) battle flags to set (+0) and clear (+4) */
+
+u32 func_002F57F0(u8 kind);
+u8 func_002F5840(u32 w);
+void func_002695F0(int p);
+void func_00361640(void);
+void func_00361FB0(u32 now, u32 before);
+void func_003F7C60(u32 now, u32 before);
+void func_003276D0(void);
+
+/* Index of the first threshold of `t` (n of them) above `roll` (n when none is). */
+static inline int pick_by(const u8 *t, int n, u32 roll)
+{
+    int k;
+
+    for (k = 0; k < n; k++) {
+        if (roll % 100 < t[k])
+            break;
+    }
+    return k;
+}
+
+/* 0x0019E1E0, 0x640 bytes. Player `p` finds a weapon: its rank (by the difficulty, raised by
+ * skill 0x24 and the beaten officer's luck), kind, number of attributes and their ids and
+ * values; it goes into the first free slot of the weapons found. */
+void func_0019E1E0(int p)
+{
+    u8 rank[8][2], kind[5], att[8], na[4], w[0x15];
+    u8 *b = g_006A3A30[p != 0];
+    int slot, k, same;
+    u32 n;
+
+    for (k = 0; k < 8; k++) {
+        rank[k][0] = g_004069F0[k][0];
+        rank[k][1] = g_004069F0[k][1];
+    }
+    for (k = 0; k < 5; k++)
+        kind[k] = g_0045CCA0[k];
+    for (k = 0; k < 8; k++)
+        att[k] = g_0045CCA8[k];
+    for (k = 0; k < 4; k++)
+        na[k] = g_0045CCB0[k];
+    for (slot = 0; slot < 8; slot++) {
+        if (g_00669E78[slot][0x14] == 2)
+            break;
+    }
+    if (slot >= 8)
+        return;
+
+    w[0x14] = (u8)p;
+    k = pick_by(rank[g_00669F84], 2, RANDOM());
+    if ((k < 2 && g_00669F84 > 1) || (k < 1 && g_00669F84 < 2)) {
+        int s = func_0036DBA0(PSET(p, 0x88), 0x24);
+
+        if ((int)(RANDOM() % 100) < *(short *)(*(u8 **)(b + 0x68) + 0x1A) / 10 + s * g_004282DF)
+            k++;
+    }
+    w[0] = (u8)(k + PSET(p, 0x88) * 4);
+    w[1] = (u8)pick_by(kind, 5, RANDOM());
+    w[0x12] = (u8)pick_by(att, 8, RANDOM());
+    if (w[0x12] < 8) {
+        int s = func_0036DBA0(PSET(p, 0x88), 0x24);
+
+        if ((int)(RANDOM() % 100) < *(short *)(*(u8 **)(b + 0x68) + 0x1A) / 10 + s * g_004282DF)
+            w[0x12]++;
+    }
+    w[0x12] = func_002F5840(func_002F57F0(w[0]));
+    n = pick_by(na, 4, RANDOM());
+    if ((int)w[0x12] < (int)n)
+        n = w[0x12];
+    same = 1;
+    for (k = 0; k < 8; k++) {
+        if (k < (int)n) {
+            u32 v;
+
+            w[2 + k] = RANDOM() % 10;
+            if (w[2 + k] != w[2 + (k - 1 < 0 ? 0 : k - 1)])
+                same = 0;
+            if (k > 2 && same)
+                w[2 + k] = (u8)(w[2 + k] + RANDOM() % 9 + 1) % 10;
+            v = ((g_00669F88 + 0x12 == 0 ? 0 : (int)RANDOM() % (g_00669F88 + 0x12)) + g_00669F88
+                 + 4) >> 1;
+            w[10 + k] = v < 0x14 ? v : 0x14;
+        } else {
+            w[2 + k] = 10;
+            w[10 + k] = 0;
+        }
+    }
+    func_0019DDC0(w);
+    for (k = 0; k < 0x15; k++)
+        g_00669E78[slot][k] = w[k];
+}
+
+/* 0x0019E820, 0x37C bytes. In the story mode (scenario value 3 or more), gives the fixed weapon
+ * of the current stage (24 stages) into the first free slot. */
+void func_0019E820(void)
+{
+    static const u8 stages[] = {0xC, 0x3D, 0x36, 2, 0x20, 0x27, 0, 0x18, 0x3A, 0x4E, 0x48, 4,
+                                0, 0x26, 0x47, 0x14, 0x2A, 7, 0xF, 0x2C, 0x32, 0x1F, 0x1E, 0x23,
+                                0x13, 0x4B};
+    u8 w[0x15];
+    int i, k, slot;
+
+    if (g_00669DB8[0] != 0 || g_00669D81[0] < 3)
+        return;
+    for (i = 0x19; i >= 0; i--) {
+        if (i != 6 && i != 0xC && g_00669DC0[0] == stages[i])
+            break;
+    }
+    if (i < 0)
+        return;
+    *(u16 *)(w + 0x14) = 0;
+    w[0x12] = 8;
+    w[0] = g_00428B78[i][0];
+    w[1] = g_00428B78[i][1];
+    for (k = 0; k < 8; k++) {
+        u8 a = g_00428B78[i][k + 3];
+
+        if (a < 10) {
+            w[2 + k] = a;
+            w[10 + k] = g_00428B78[i][k + 0xB];
+        } else {
+            w[2 + k] = 10;
+            w[10 + k] = 0;
+        }
+    }
+    for (slot = 0; slot < 8; slot++) {
+        if (g_00669E78[slot][0x14] == 2)
+            break;
+    }
+    if (slot < 8) {
+        func_0019DDC0(w);
+        for (k = 0; k < 0x15; k++)
+            g_00669E78[slot][k] = w[k];
+    }
+}
+
+/* 0x0019EBA0, 0x1F8 bytes. Player `p` beats `n` more (+0x8C of its settings, up to 9999): every
+ * 100 skill 0x1F gives back life; then the counters and the 300-mark notice. */
+void func_0019EBA0(int p, u32 n)
+{
+    u32 v = n + PSET(p, 0x8C), before;
+
+    if (v > 9999)
+        v = 9999;
+    PSET(p, 0x8C) = v;
+    if ((int)v % 100 == 0) {
+        u32 id = PSET(p, 0x88);
+        u8 k = g_004282B7;
+
+        if (func_0036DC80(id, 0x1F) != 0) {
+            u8 *b = g_006A3A30[p != 0];
+            short m = *(short *)(b + 0x80), l = m;
+
+            if (*(short *)(b + 0x82) + func_0036DBA0(id, 0x1F) * k < m)
+                l = *(short *)(b + 0x82) + (short)func_0036DBA0(id, 0x1F) * k;
+            l = (l > m ? m : l) < 1 ? 0 : l > m ? m : l;
+            *(short *)(b + 0x82) = l;
+            if (*(short *)(b + 0x84) < l)
+                *(short *)(b + 0x84) = l;
+        }
+    }
+    func_002695F0(p);
+    before = v - n;
+    if (before < 300 && v >= 300)
+        func_00361640();
+    func_00361FB0(v, before);
+    func_003F7C60(v, before);
+}
+
+/* 0x0019EDA0, 0x1C bytes. */
+int func_0019EDA0(void)
+{
+    return (g_00669D84[0] & 2) == 0;
+}
+
+/* 0x0019EDC0, 0x1C bytes. */
+int func_0019EDC0(void)
+{
+    return (g_00669D84[0] & 4) == 0;
+}
+
+/* 0x0019EDE0, 0x1C bytes. */
+int func_0019EDE0(void)
+{
+    return (g_00669D84[0] & 0x20) == 0;
+}
+
+/* 0x0019EE00, 0x1C bytes. */
+int func_0019EE00(void)
+{
+    return (g_00669D84[0] & 0x40) == 0;
+}
+
+/* 0x0019EE20, 0x50 bytes. Whether (flag 0x80 not yet set) player 1 has skill 9 at level 3+. */
+int func_0019EE20(void)
+{
+    if (g_00669D84[0] & 0x80)
+        return 0;
+    return (u8)func_002F47A0(PSET(0, 0x88), 9) > 2;
+}
+
+/* 0x0019EE70, 0x4C bytes. The same for flag 0x100 and skill 0x13. */
+int func_0019EE70(void)
+{
+    if (g_00669D84[1] & 1)
+        return 0;
+    return (u8)func_002F47A0(PSET(0, 0x88), 0x13) > 2;
+}
+
+/* 0x0019EEC0, 0x50 bytes. The same for flag 0x200 and skill 0x25. */
+int func_0019EEC0(void)
+{
+    if (g_00669D84[1] & 2)
+        return 0;
+    return (u8)func_002F47A0(PSET(0, 0x88), 0x25) > 2;
+}
+
+/* 0x0019EF10, 0xBC bytes. Player `p`'s experience towards the next level (+0x98; 0 for created
+ * officers and at the last level). */
+void func_0019EF10(int p)
+{
+    int id = PSET(p, 0x88);
+
+    if (id < 0x1A && func_002F41E0(id) < 0x13) {
+        u8 lv = func_002F41E0(id);
+        u32 e = func_002F34E0(id) - g_00428348[lv];
+
+        if (e < 100000)
+            PSET(p, 0x98) = e;
+    } else {
+        PSET(p, 0x98) = 0;
+    }
+}
+
+/* 0x0019EFD0, 0x374 bytes. Each frame: (in battle, not paused) the players' study timers and
+ * their timed boosts (+0xA4 bits 0-4 with times at +0xA8: 1 attack x2, 2 defence x2, 3 musou
+ * kept, 4 a flag); the time played; the pending battle flags. */
+void func_0019EFD0(void)
+{
+    int p, k;
+
+    if (g_0045D2A8 == 0 && (g_00669F60[0] & 0x2BE0000) == 0
+        && (g_0069395E == 0 || g_0069395E == -1)) {
+        for (p = 0; p < 2; p++) {
+            u8 *b = g_006A3A30[p != 0];
+
+            func_0019D410(p);
+            *(float *)(b + 0x98) = 1.0f;
+            *(float *)(b + 0x9C) = 1.0f;
+            b[0xA9] = 0;
+            U32(b, 0xBC) &= 0xC7FFFFFF;
+            for (k = 0; k < 5; k++) {
+                u32 bit = 1 << k;
+
+                if ((bit & PSET(p, 0xA4)) == 0)
+                    continue;
+                if (PSET(p, 0xA8 + k * 4) != 0xFFFFFFFF)
+                    PSET(p, 0xA8 + k * 4) = PSET(p, 0xA8 + k * 4) < 2 ? 0 : PSET(p, 0xA8 + k * 4) - 1;
+                if (PSET(p, 0xA8 + k * 4) == 0) {
+                    PSET(p, 0xA4) &= ~bit;
+                } else {
+                    u8 s = PSET(p, 0xA8 + k * 4) < 0xFA ? 2 : 1;
+
+                    if (k == 1) {
+                        g_00732584[p][0] = s;
+                        *(float *)(b + 0x98) = 2.0f;
+                        U32(b, 0xBC) |= 0x8000000;
+                    } else if (k == 2) {
+                        g_00732584[p][1] = s;
+                        *(float *)(b + 0x9C) = 2.0f;
+                        U32(b, 0xBC) |= 0x10000000;
+                    } else if (k == 3) {
+                        g_00732584[p][3] = s;
+                        *(short *)(b + 0x88) = *(short *)(b + 0x86);
+                    } else if (k == 4) {
+                        g_00732584[p][2] = s;
+                        b[0xA9] = 1;
+                        U32(b, 0xBC) |= 0x20000000;
+                    }
+                }
+            }
+            if ((g_00669F60[0] & 8) && U8(g_00669D60, p * 0x48 + 0xCB) == 9) {
+                *(short *)(b + 0x88) = 0;   /* (the original clamps the musou to 0-0) */
+            }
+        }
+    }
+    g_00669D6C = g_00669D6C + 1 > 0xCDFE5C4 ? 0xCDFE5C4 : g_00669D6C + 1;
+    if (g_00669DB8[0] == 0)
+        func_003276D0();
+    {
+        u32 c = g_00669F64[1];
+
+        g_00669F64[1] = 0;
+        g_00669F60[0] = (g_00669F60[0] & ~c) | g_00669F64[0];
+        g_00669F64[0] = 0;
+    }
+}
