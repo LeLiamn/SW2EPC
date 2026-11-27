@@ -2146,8 +2146,8 @@ void func_001C8130(int kind, float *pos, int a, int b, u8 player);
 short func_001CD060(Unit *u, Unit *v, u8 *hit, float *dir, void *pos, int kind, int guard,
                     int stand);
 int func_00153E50(Unit *u, Unit *v, u8 *hit, void *pos, float *dir, short damage, int stand);
-u8 func_0016BE40(Unit *u);
-void func_001CF2A0(Unit *u, u8 a, int b);
+Unit *func_0016BE40(Unit *u);
+void func_001CF2A0(Unit *u, Unit *m, int b);
 void func_0016CB60(Unit *u, u8 port, int motor, int power, int frames);
 void func_00153110(Unit *u, float *dir);
 void func_00153190(Unit *u);
@@ -2510,4 +2510,157 @@ int func_0016B9B0(Unit *u, Unit *v, u8 *hit, u8 alpha)
         }
     }
     return 1;
+}
+
+void func_0015FB50(Unit *u, int action);
+void func_001CF000(Unit *u, Unit *m);
+int func_00273A20(void);
+
+/* 0x0016BD30, 0x48 bytes. Lets go of the unit held (+0x280): its kept positions set to where
+ * the holder is, the links cleared. */
+void func_0016BD30(Unit *u)
+{
+    u8 *g = PTR(u, 0x280);
+    int k;
+
+    for (k = 0; k < 4; k++)
+        F32(g, 0xB0 + k * 4) = F32(u, 0x90 + k * 4);
+    g = PTR(u, 0x280);
+    for (k = 0; k < 4; k++)
+        F32(g, 0xA0 + k * 4) = F32(u, 0x40 + k * 4);
+    g = PTR(u, 0x280);
+    PTR(u, 0x280) = 0;
+    PTR(g, 0x284) = 0;
+    U8(g, 0x275) = 0xFF;
+    U8(g, 0x276) = 0xFF;
+}
+
+/* 0x0016BD80, 0xB4 bytes. Puts a rider on mount `m` (seat node `node`): action 0x57, its
+ * place and rotation the mount's, its root offset; func_001CF000. */
+void func_0016BD80(Unit *u, Unit *m, u8 node)
+{
+    int k;
+
+    func_00150BB0(u);
+    PTR(u, 0x288) = m;
+    U8(u, 0x274) = node;
+    PTR(m, 0x28C) = u;
+    func_0015FB50(u, 0x57);
+    for (k = 0; k < 4; k++)
+        F32(u, 0x40 + k * 4) = F32(m, 0x40 + k * 4);
+    for (k = 0; k < 4; k++)
+        F32(u, 0x50 + k * 4) = F32(m, 0x50 + k * 4);
+    func_00167730(u);
+    func_001CF000(u, m);
+    for (k = 0; k < 4; k++)
+        F32(u, 0xB0 + k * 4) = F32(u, 0x90 + k * 4);
+    for (k = 0; k < 4; k++)
+        F32(u, 0xA0 + k * 4) = F32(u, 0x40 + k * 4);
+}
+
+/* 0x0016BE40, 0x10 bytes, matching. Gets off the mount; returns it. */
+Unit *func_0016BE40(Unit *u)
+{
+    u8 *m = PTR(u, 0x288);
+
+    PTR(u, 0x288) = 0;
+    PTR(m, 0x28C) = 0;
+    return m;
+}
+
+/* 0x0016BE50, 0xB8 bytes. The unit's speed-up (*rate): 2 during hits with flag 0x1000; on foot
+ * while held, 1.5 / 1.7 / 2 by +0x182; else 1. Whether it is sped up. */
+int func_0016BE50(Unit *u, float *rate)
+{
+    u8 *h = PTR(PTR(u, 0x210), 0x14);
+
+    if ((h == 0 ? 0 : U32(h, 0x28) & 0x1000) != 0) {
+        *rate = 2.0f;
+        return 1;
+    }
+    if ((U32(PTR(u, 0x210), 0x18) & 0x8000000) == 0 && (U8(u, 0x19C) & 2)) {
+        if (U8(u, 0x182) == 0)
+            *rate = 1.5f;
+        else if (U8(u, 0x182) == 1)
+            *rate = 1.7f;
+        else
+            *rate = 2.0f;
+        return 1;
+    }
+    *rate = 1.0f;
+    return 0;
+}
+
+/* 0x0016BF10, 0xB4 bytes. The unit's weapon reach: the officer's (+0xA0), +30 (+50 with
+ * +0x18B) while +0x168 lasts, +20 more with func_00273A20. */
+float func_0016BF10(Unit *u)
+{
+    float r = F32(g_006A3A30[S16(u, 0x178)], 0xA0);
+
+    if (0.0001f < F32(u, 0x168)) {
+        if (U8(u, 0x18B) == 0)
+            r = r + 30.0f;
+        else if (U8(u, 0x18B) != 0)
+            r = r + 50.0f;
+        if (func_00273A20() != 0)
+            r = r + 20.0f;
+    }
+    return r;
+}
+
+/* 0x0016BFD0, 0x50 bytes. Forgets the target `x` (its id +0x94) in the unit's target slots
+ * (+0x258, +0x260-0x26A). */
+void func_0016BFD0(Unit *u, u8 *x)
+{
+    int k;
+
+    if (U16(x, 0x94) == S16(u, 0x258))
+        S16(u, 0x258) = -1;
+    for (k = 0; k < 6; k++) {
+        if (U16(x, 0x94) == S16(u, 0x260 + k * 2))
+            S16(u, 0x260 + k * 2) = -1;
+    }
+}
+
+/* 0x0016C020, 0x20 bytes, matching. Whether the unit's action can be interrupted. */
+int func_0016C020(Unit *u)
+{
+    return ((U32(PTR(u, 0x210), 0x18) & 0x40000860) != 0) ^ 1;
+}
+
+/* 0x0016C040, 0x30 bytes. The officer's flag 0x200 (a major officer). */
+int func_0016C040(Unit *u)
+{
+    return U32(g_006A3A30[S16(u, 0x178)], 0xB8) & 0x200;
+}
+
+/* 0x0016C070, 0x34 bytes. Whether the officer is beaten (flag 2). */
+int func_0016C070(Unit *u)
+{
+    return (U32(g_006A3A30[S16(u, 0x178)], 0xB8) & 2) != 0;
+}
+
+/* 0x0016C0B0, 0xCC bytes. Knocks the last unit hit (+0x140) away from this one: its push
+ * direction (+0x1F0, flat), and speed (120 on foot, 5 and 5 in the air). */
+void func_0016C0B0(Unit *u)
+{
+    u8 *v = PTR(u, 0x140);
+    float l;
+    int k;
+
+    if (v == 0 || (U8(v, 0x19D) & 2))
+        return;
+    U8(v, 0x19D) = (U8(v, 0x19D) & ~2) | 2;
+    for (k = 0; k < 4; k++)
+        F32(v, 0x1F0 + k * 4) = F32(v, 0x90 + k * 4) - F32(u, 0x90 + k * 4);
+    F32(v, 0x1F4) = 0.0f;
+    l = sqrtf(F32(v, 0x1F0) * F32(v, 0x1F0) + F32(v, 0x1F4) * F32(v, 0x1F4) + F32(v, 0x1F8) * F32(v, 0x1F8));
+    for (k = 0; k < 4; k++)
+        F32(v, 0x1F0 + k * 4) = F32(v, 0x1F0 + k * 4) / l;
+    if ((U32(PTR(v, 0x210), 0x18) & 0x20) == 0) {
+        F32(v, 0x22C) = 120.0f;
+    } else {
+        F32(v, 0x224) = 5.0f;
+        F32(v, 0x22C) = 5.0f;
+    }
 }
