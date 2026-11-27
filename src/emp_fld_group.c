@@ -3292,3 +3292,586 @@ void func_00341E60(u8 **g)
     if ((u32)(0xB4 - (t / 500 + b * 0x32)) <= func_0036FD70(LEADER(g)[0x79]))
         func_00341DA0(g);
 }
+
+/* The AI's order choices for the officer groups (parts of 0x00341FA0-0x00344050). Orders: 0
+ * none, 1 attack place, 2 chase group, 3 defend place, 4 go after group, 5 roam, 6 idle. */
+
+extern void (*g_0045D050)(u8 **g);       /* (small data) */
+extern int (*g_004152E0[5])(u8 **g);     /* stance keepers by stance */
+extern int (*g_00415300[7])(u8 **g);     /* order choosers */
+extern int (*g_00415320[5])(u8 **g);     /* idle-group choosers */
+extern int (*g_00415340[7])(u8 **g);     /* order changers */
+
+int func_0034B720(u8 *r);
+u32 func_0035DCB0(int p);
+u8 **func_0034B680(u8 *r);
+u32 func_00352930(int c, int d);
+u32 func_0035F0C0(void);
+
+/* 0x00341FA0, 0x70 bytes. */
+void func_00341FA0(u8 **g)
+{
+    if (g != 0 && g_0045D050 != 0)
+        g_0045D050(g);
+}
+
+/* 0x00342010, 0x6C bytes, matching. Whether the place of group `g`'s stance is an enemy one. */
+int func_00342010(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_0033F9E0(g, INFO(g)[9]) != 0;
+}
+
+/* 0x00342080, 0x6C bytes, matching. Whether the group of its stance is an enemy. */
+int func_00342080(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_0033FA70(g, INFO(g)[9]) != 0;
+}
+
+/* 0x003420F0, 0x6C bytes, matching. Whether the place of its stance is a friendly one. */
+int func_003420F0(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_0033FBA0(g, INFO(g)[9]) != 0;
+}
+
+/* 0x00342160, 0x6C bytes, matching. Whether the group of its stance is a friend. */
+int func_00342160(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_0033FC30(g, INFO(g)[9]) != 0;
+}
+
+/* 0x003421E0, 0xD0 bytes. Drops group `g`'s stance (to 4) when it no longer holds. */
+void func_003421E0(u8 **g)
+{
+    int (*fn[5])(u8 **);
+    u8 s;
+
+    fn[0] = g_004152E0[0];
+    fn[1] = g_004152E0[1];
+    fn[2] = g_004152E0[2];
+    fn[3] = g_004152E0[3];
+    fn[4] = g_004152E0[4];
+    if (g == 0)
+        return;
+    s = INFO(g)[8];
+    if (s < 5 && fn[s] != 0 && fn[s](g) == 0)
+        func_003385E0(g, 4, 0xFF);
+}
+
+/* 0x003422B0, 0x38 bytes, matching. */
+void func_003422B0(u8 **g)
+{
+    if (g != 0) {
+        func_00341FA0(g);
+        func_003421E0(g);
+    }
+}
+
+/* 0x003422F0, 0x58 bytes, matching. Officer leaders without flag 0x40 get no order. */
+int func_003422F0(u8 **g)
+{
+    u32 f;
+
+    if (g == 0)
+        return 0;
+    f = UNIT_FLAGS(LEADER(g));
+    if ((f & 0x30) == 0 || (f & 0x40) != 0)
+        return 0;
+    func_003386D0(g, 0, 0xFF);
+    return 1;
+}
+
+/* 0x00342350, 0xF0 bytes. The second side's lead group chases the player its side's record
+ * names. */
+int func_00342350(u8 **g)
+{
+    u8 side;
+    int p;
+
+    if (g == 0 || GI(g) != func_0035F840())
+        return 0;
+    side = LEADER(g)[0x79];
+    if (side == 0)
+        return 0;
+    p = func_0034B720(g_006AA5F4[side]);
+    if (p < 0 || p > 1)
+        return 0;
+    func_003386D0(g, 2, func_0035DCB0(p));
+    return 1;
+}
+
+/* 0x00342440, 0x11C bytes. The order that follows from group `g`'s stance. */
+int func_00342440(u8 **g)
+{
+    u32 k;
+    char s;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    s = func_00338410(k)[8];
+    if (s == 3) {
+        func_003386D0(g, 4, func_00338410(k)[9]);
+        return 1;
+    }
+    if (s == 2) {
+        func_003386D0(g, 3, func_00338410(k)[9]);
+        return 1;
+    }
+    if (s == 1) {
+        func_003386D0(g, 2, func_00338410(k)[9]);
+        return 1;
+    }
+    if (s == 0) {
+        func_003386D0(g, 1, func_00338410(k)[9]);
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00342560, 0x118 bytes. The order its side's plan asks for (2: after a group, 1: defend,
+ * 0: attack). */
+int func_00342560(u8 **g)
+{
+    u8 *r;
+    char c;
+
+    if (g == 0)
+        return 0;
+    r = func_0033B860(g);
+    c = r[0];
+    if (c == 2) {
+        u8 **h = func_0034B680(r);
+
+        if (h != 0) {
+            func_003386D0(g, 4, GI(h));
+            return 1;
+        }
+    } else if (c == 1) {
+        int p = func_00340BF0(g);
+
+        if (p != 0) {
+            func_003386D0(g, 3, func_0034ED40(p));
+            return 1;
+        }
+    } else {
+        int p;
+
+        if (c != 0)
+            return 0;
+        p = func_00340860(g);
+        if (p != 0) {
+            func_003386D0(g, 1, func_0034ED40(p));
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* 0x00342680, 0x274 bytes. Officer leaders with flag 0x40 attack a first-side place under
+ * threat (else chase a second-side group), picked at random. */
+int func_00342680(u8 **g)
+{
+    u32 f, i;
+    int best = 0;
+
+    if (g == 0)
+        return 0;
+    f = UNIT_FLAGS(LEADER(g));
+    if ((f & 0x30) == 0 || (f & 0x40) == 0)
+        return 0;
+    for (i = 0; i < 0x14; i++) {
+        int c = func_0034EC80(i);
+
+        if (func_0034EE50(c) != 0 && func_0034EDB0(c) != 0 && func_003521B0(c, 0) != 0
+            && (best == 0 || (int)RANDOM() % 100 < 0x32))
+            best = c;
+    }
+    if (best == 0) {
+        u8 **r = 0;
+
+        for (i = 0; i < 0x10; i++) {
+            u8 **h = func_0033EF80(i);
+
+            if ((GFLAGS(h) & 1) != 0 && ALIVE(UNIT_FLAGS(LEADER(h))) && LEADER(h)[0x79] != 0
+                && (r == 0 || (int)RANDOM() % 100 < 0x32))
+                r = h;
+        }
+        if (r == 0)
+            return 0;
+        func_003386D0(g, 2, GI(r));
+        return 1;
+    }
+    func_003386D0(g, 1, func_0034ED40(best));
+    return 1;
+}
+
+/* 0x00342900, 0x9C bytes. The second side's commander defends its main base while its side
+ * holds it. */
+int func_00342900(u8 **g)
+{
+    u8 side;
+    u32 b;
+
+    if (g == 0 || func_0033B150(g) == 0)
+        return 0;
+    side = LEADER(g)[0x79];
+    b = func_0035F200(side);
+    if (side != func_0034EDB0(func_0034EC80(b)))
+        return 0;
+    func_003386D0(g, 3, b);
+    return 1;
+}
+
+/* 0x003429A0, 0x104 bytes. Defends its side's main base when the enemy threatens it (less often
+ * the more groups already do). */
+int func_003429A0(u8 **g)
+{
+    u8 side;
+    u32 b;
+    int c, n;
+
+    if (g == 0)
+        return 0;
+    side = LEADER(g)[0x79];
+    b = func_0035F200(side);
+    c = func_0034EC80(b);
+    if (func_00352240(c, func_0035D5A0(side)) == 0)
+        return 0;
+    if (func_003400B0(g, b) == 0)
+        return 0;
+    n = func_0033CA60(c, side);
+    if ((RANDOM() & 3) < n * n - 1u)
+        return 0;
+    func_003386D0(g, 3, b);
+    return 1;
+}
+
+/* 0x00342AB0, 0x1B0 bytes. Defends a threatened friendly place near its own (2 away at most,
+ * fewer than 2 groups there). */
+int func_00342AB0(u8 **g)
+{
+    u32 list[20], n = 0, i;
+    int c;
+    u8 side, e;
+
+    if (g == 0)
+        return 0;
+    c = func_0033D230(g);
+    if (c == 0)
+        return 0;
+    func_0034ED40(c);
+    side = LEADER(g)[0x79];
+    e = func_0035D5A0(side);
+    for (i = 0; i < 0x14; i++) {
+        int cc = func_0034EC80(i);
+
+        if (cc != 0 && func_0034EE50(cc) != 0 && func_003400B0(g, i) != 0
+            && func_00352780(cc, e) != 0 && func_00352930(cc, c) < 3
+            && (u32)func_0033CA60(cc, side) < 2)
+            list[n++] = i;
+    }
+    if (n == 0)
+        return 0;
+    func_003386D0(g, 3, list[(int)RANDOM() % (int)n]);
+    return 1;
+}
+
+/* 0x00342C60, 0x11C bytes. Defends the friendly place it stands on when the two sides' groups
+ * there are about even. */
+int func_00342C60(u8 **g)
+{
+    int c, a, b, d;
+    u32 i;
+
+    if (g == 0)
+        return 0;
+    c = func_0033D230(g);
+    if (c == 0)
+        return 0;
+    i = func_0034ED40(c);
+    if (func_003400B0(g, i) == 0)
+        return 0;
+    a = func_0033CA60(c, LEADER(g)[0x79]);
+    b = func_0033CA20(c, func_0035D5A0(LEADER(g)[0x79]));
+    if (b == 0 || a >= 2)
+        return 0;
+    d = a - b;
+    if (d >= 2 || d < -1)
+        return 0;
+    func_003386D0(g, 3, i);
+    return 1;
+}
+
+/* 0x00342D80, 0x10C bytes. Attacks the enemy place it stands on when the groups there are
+ * about even. */
+int func_00342D80(u8 **g)
+{
+    int c, a, b, d;
+    u32 i;
+
+    if (g == 0)
+        return 0;
+    c = func_0033D230(g);
+    if (c == 0)
+        return 0;
+    i = func_0034ED40(c);
+    if (func_00340010(g, i) == 0)
+        return 0;
+    a = func_0033CA20(c, LEADER(g)[0x79]);
+    b = func_0033CA60(c, func_0035D5A0(LEADER(g)[0x79]));
+    if (a >= 3)
+        return 0;
+    d = a - b;
+    if (d >= 2 || d < -1)
+        return 0;
+    func_003386D0(g, 1, i);
+    return 1;
+}
+
+/* 0x00342E90, 0xF4 bytes. Attacks (`att` in 100), defends (`def` in 100) or roams. */
+int func_00342E90(u8 **g, u32 att, int def, int other)
+{
+    u32 r;
+
+    if (g == 0)
+        return 0;
+    r = RANDOM() % 100;
+    if (r < att) {
+        int p = func_00340860(g);
+
+        if (p != 0) {
+            func_003386D0(g, 1, func_0034ED40(p));
+            return 1;
+        }
+    } else if (r < att + def) {
+        int p = func_00340BF0(g);
+
+        if (p != 0) {
+            func_003386D0(g, 3, func_0034ED40(p));
+            return 1;
+        }
+    } else {
+        func_003386D0(g, 5, 0xFF);
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00342F90, 0x78 bytes, matching. The same with the odds of its side (func_0035F0C0's side attacks
+ * more). */
+int func_00342F90(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    if (LEADER(g)[0x79] == func_0035F0C0())
+        return func_00342E90(g, 0x3C, 0x1E, 10);
+    return func_00342E90(g, 0x28, 0x28, 0x14);
+}
+
+/* 0x00343010, 0xD0 bytes. Gives group `g` an order (the first chooser that gives one). */
+int func_00343010(u8 **g)
+{
+    int (*fn[7])(u8 **);
+    u32 k;
+
+    for (k = 0; k < 7; k++)
+        fn[k] = g_00415300[k];
+    if (g == 0)
+        return 0;
+    for (k = 0; k < 7; k++) {
+        if (fn[k](g) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x003430E0, 0xE0 bytes. An idle group's choosers. */
+void func_003430E0(u8 **g)
+{
+    int (*fn[5])(u8 **);
+    int k;
+
+    for (k = 0; k < 5; k++)
+        fn[k] = g_00415320[k];
+    if (g == 0 || INFO(g)[2] != 6)
+        return;
+    for (k = 0; k < 5; k++) {
+        if (fn[k] != 0 && fn[k](g) != 0)
+            return;
+    }
+}
+
+/* 0x003431C0, 0x194 bytes. A group without a stance defends its side's threatened main base. */
+int func_003431C0(u8 **g)
+{
+    u8 side, e;
+    u32 b, k;
+    int c, n;
+
+    if (g == 0)
+        return 0;
+    side = LEADER(g)[0x79];
+    e = func_0035D5A0(side);
+    b = func_0035F200(side);
+    c = func_0034EC80(b);
+    k = GI(g);
+    if (func_00338410(k)[8] != 4)
+        return 0;
+    if (func_00338410(k)[2] == 3 && b == func_00338410(k)[3])
+        return 0;
+    if (func_00352240(c, e) == 0)
+        return 0;
+    if (func_003400B0(g, b) == 0)
+        return 0;
+    n = func_0033CA60(c, side);
+    if ((RANDOM() & 3) < n * n - 1u)
+        return 0;
+    func_003386D0(g, 3, b);
+    return 1;
+}
+
+/* 0x00343910, 0x150 bytes. A second-side group sometimes (1 in 10) attacks the enemy place it
+ * stands on. */
+int func_00343910(u8 **g)
+{
+    int c;
+    u32 i, k;
+
+    if (g == 0 || LEADER(g)[0x79] == 0)
+        return 0;
+    c = func_0034ECA0(func_0033B730(g));
+    if (c == 0)
+        return 0;
+    i = func_0034ED40(c);
+    k = GI(g);
+    if (func_00338410(k)[2] == 1 && i == func_00338410(k)[3])
+        return 0;
+    if (func_00340010(g, i) == 0)
+        return 0;
+    if ((int)RANDOM() % 100 < 10) {
+        func_003386D0(g, 1, i);
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00343A60, 0x150 bytes. A second-side group sometimes (3 in 100) defends the friendly place
+ * it stands on. */
+int func_00343A60(u8 **g)
+{
+    int c;
+    u32 i, k;
+
+    if (g == 0 || LEADER(g)[0x79] == 0)
+        return 0;
+    c = func_0034ECA0(func_0033B730(g));
+    if (c == 0)
+        return 0;
+    i = func_0034ED40(c);
+    k = GI(g);
+    if (func_00338410(k)[2] == 3 && i == func_00338410(k)[3])
+        return 0;
+    if (func_003400B0(g, i) == 0)
+        return 0;
+    if ((int)RANDOM() % 100 < 3) {
+        func_003386D0(g, 3, i);
+        return 1;
+    }
+    return 0;
+}
+
+/* The odds of giving up an order by its age. */
+static u32 give_up_odds(u8 age)
+{
+    return age < 0x3C ? 0 : age < 0x78 ? 10 : 0x1E;
+}
+
+/* 0x00343BB0, 0x130 bytes. A group chasing another (without the matching stance) gives up now
+ * and then. */
+int func_00343BB0(u8 **g)
+{
+    u32 k;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_00338410(k)[2] != 2 || func_00338410(k)[8] == 1)
+        return 0;
+    if (RANDOM() % 100 < give_up_odds(func_00338410(k)[4])) {
+        func_003386D0(g, 6, 0xFF);
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00343CE0, 0x1B4 bytes. A group going after another gives up now and then (surely when the
+ * other is a strong officer's), unless its side's plan names that group. */
+int func_00343CE0(u8 **g)
+{
+    u32 k, p;
+    u8 *r;
+    u8 **h;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_00338410(k)[2] != 4)
+        return 0;
+    r = func_0033B860(g);
+    if (r != 0 && r[0] == 2 && r[1] == func_00338410(k)[3])
+        return 0;
+    if (func_00338410(k)[8] == 3)
+        return 0;
+    p = give_up_odds(func_00338410(k)[4]);
+    h = func_0033C3A0(g);
+    if (h != 0 && (UNIT_FLAGS(LEADER(h)) & 0x30) != 0 && (u32)func_0033B7B0(h) > 0x32)
+        p = 100;
+    if (RANDOM() % 100 < p) {
+        func_003386D0(g, 6, 0xFF);
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00343EA0, 0xF0 bytes. Runs the order changers on group `g` (not the player's). */
+void func_00343EA0(u8 **g)
+{
+    int (*fn[7])(u8 **);
+    u32 f;
+    int k;
+
+    for (k = 0; k < 7; k++)
+        fn[k] = g_00415340[k];
+    if (g == 0)
+        return;
+    f = UNIT_FLAGS(LEADER(g));
+    if (((f & 0x30) != 0 && (f & 0x40) == 0) || func_0033B580(g) != 0)
+        return;
+    for (k = 0; k < 7; k++) {
+        if (fn[k] != 0 && fn[k](g) != 0)
+            return;
+    }
+}
+
+/* 0x00343FA0, 0xB4 bytes, matching. Whether group `g`'s attack order still holds. */
+int func_00343FA0(u8 **g)
+{
+    u8 t;
+
+    if (g == 0)
+        return 0;
+    t = INFO(g)[3];
+    if (func_0033F9E0(g, t) == 0)
+        return 0;
+    if (func_0033C6A0(g) == 0 && func_00340270(g, t) == 0)
+        return 0;
+    return 1;
+}
