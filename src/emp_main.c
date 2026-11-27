@@ -1195,3 +1195,246 @@ void func_002FEDA0(int f)
         func_002FE6C0(f);
     }
 }
+
+extern void (*g_004147C0[7])(int f);     /* the plan steppers by plan kind */
+extern int g_004147E0[];                 /* command base values */
+extern int g_00414800[][2], g_00414830[][2];   /* by officer kind group: two values each */
+
+int func_002FA160(u32 f);
+int func_00313BF0(int c);
+int func_00313F40(int c);
+int func_00313F80(int c);
+int func_0030AD80(int f);
+int func_0030AE80(int f);
+int func_002FAD90(int f);
+int func_00313DB0(int a, int f);
+int func_002F9190(int f);
+int func_002F4080(u32 i);
+int func_00314C40(int c, u32 i, int a, int b);
+int func_00328190(int k);
+int func_002F9060(u32 f);
+int func_002F9480(int f, int k);
+u32 func_002F5890(u32 i);
+int func_0030AAD0(u32 g);
+int func_002F2EA0(u32 i);
+int func_002FD000(int i);
+int func_002FD3C0(int c);
+int func_002FD050(int i);
+int func_002FD1D0(int f, int c, int a);
+
+/* Keeps force `f`'s plan target `pick` of its home region kind's candidates (replans when
+ * none). */
+static inline void keep_target(int f, int (*pick)(int *, int), int (*pick2)(int, int *, int))
+{
+    int l[28], t = func_002FA390(f), n;
+
+    if (IS_FORCE(t) && func_002F8CB0(t) != 0)
+        return;
+    n = func_002FD7C0(f, func_0030AC50(func_002FB2D0(f)), l);
+    t = pick != 0 ? pick(l, n) : pick2(f, l, n);
+    if (IS_FORCE(t))
+        func_002FA220(f, t);
+    else
+        func_002FE6C0(f);
+}
+
+/* 0x002FEE40, 0xD4 bytes. Plan 4: a new target when the old one is gone (the largest). */
+void func_002FEE40(int f)
+{
+    keep_target(f, func_002FD8B0, 0);
+}
+
+/* 0x002FEF20, 0xD8 bytes. Plan 5: the same, the most similar. */
+void func_002FEF20(int f)
+{
+    keep_target(f, 0, func_002FD9F0);
+}
+
+/* 0x002FF000, 0xD4 bytes. Plan 6: the same, the fewest officers. */
+void func_002FF000(int f)
+{
+    keep_target(f, func_002FDBA0, 0);
+}
+
+/* 0x002FF0E0, 0x4C bytes, matching. Steps force `f`'s plan. */
+void func_002FF0E0(int f)
+{
+    int k = func_002FA160(f);
+
+    if (k < 7)
+        g_004147C0[k](f);
+}
+
+/* 0x002FF130, 0x7C bytes. Officer `i`'s kind's row (0-5). */
+int func_002FF130(u32 i)
+{
+    switch (func_002F2EA0(i)) {
+    case 0: case 1: case 2: return 0;
+    case 3: case 4: case 5: return 1;
+    case 6: case 7: case 8: return 2;
+    case 9: case 10: case 11: return 3;
+    case 12: return 4;
+    case 13: return 5;
+    }
+    return 6;
+}
+
+/* 0x002FF1B0, 0x74 bytes. Officer `i`'s kind's column (0-4). */
+int func_002FF1B0(u32 i)
+{
+    switch (func_002F2EA0(i)) {
+    case 0: case 3: case 6: case 9: return 1;
+    case 1: case 4: case 7: case 10: return 0;
+    case 2: case 5: case 8: case 11: return 2;
+    case 12: return 3;
+    case 13: return 4;
+    }
+    return 5;
+}
+
+/* 0x002FF230, 0xF8 bytes. How much officer `i` wants command `c`: its base plus its kind's
+ * values (the second pair for commands of one sort). */
+int func_002FF230(int c, u32 i)
+{
+    int r = func_002FF130(i), col = func_002FF1B0(i), v = g_004147E0[func_00313BF0(c)];
+
+    if (func_00313F40(c) == 0) {
+        if (func_00313F80(c) != 0)
+            v = v + g_00414800[r][1] + g_00414830[col][1];
+        else
+            v = v + g_00414800[r][0] + g_00414830[col][0];
+    }
+    return v;
+}
+
+/* 0x002FF330, 0x110 bytes. Sorts commands `c` by their values `v` (`n`), highest first, ties at
+ * random. */
+void func_002FF330(int *c, int *v, int n)
+{
+    int x, y;
+
+    for (x = 0; x < n; x++) {
+        int a = v[x];
+
+        for (y = x + 1; y < n; y++) {
+            if (a < v[y] || (a == v[y] && func_0030CB50(0x32) != 0)) {
+                int t = c[x];
+
+                c[x] = c[y];
+                c[y] = t;
+                a = v[y];
+            }
+        }
+    }
+}
+
+/* 0x002FF440, 0x150 bytes. Force `f`'s region that lacks the most (more than its power / 200 +
+ * 5 for kind 4); -1 for none. */
+int func_002FF440(int f, int kind)
+{
+    int reg[28], n = func_002FB320(f, reg), best = 0x19, most = 0, k;
+
+    for (k = 0; k < n; k++) {
+        int have = func_0030AD80(reg[k]);
+
+        if (have != func_0030AE80(reg[k])) {
+            int lack = func_0030AE80(reg[k]) - have;
+
+            if (kind != 4 || func_002FAD90(f) / 200 + 5 < lack) {
+                if (!IS_FORCE(best) || most < lack) {
+                    best = reg[k];
+                    most = lack;
+                }
+            }
+        }
+    }
+    if (!IS_FORCE(best))
+        best = -1;
+    return best;
+}
+
+/* 0x002FF590, 0xA8 bytes. 0 when force `f` (two regions or more) has three regions lacking,
+ * else -1. */
+int func_002FF590(int f)
+{
+    int reg[28], n = func_002FB320(f, reg), m = 0, k;
+
+    if (n < 2)
+        return -1;
+    for (k = 0; k < n; k++) {
+        if (func_0030AD80(reg[k]) < func_0030AE80(reg[k]))
+            m++;
+    }
+    return m < 3 ? -1 : 0;
+}
+
+/* 0x002FF640, 0x80 bytes, matching. 0 when the player's force can pay a fifth of `a`'s cost, else -1
+ * (the computer: -1). */
+int func_002FF640(int f, int a)
+{
+    if (func_002FB2A0(f) == 0)
+        return -1;
+    return func_00313DB0(a, f) / 5 < func_002F9190(f) ? 0 : -1;
+}
+
+/* 0x002FF6C0, 0x44 bytes, matching. -1 for command 9 of a computer force, else 0. */
+int func_002FF6C0(int f, int c)
+{
+    if (func_002FB2A0(f) == 0 && c == 9)
+        return -1;
+    return 0;
+}
+
+/* 0x002FF710, 0x274 bytes. Officer `i`'s first ten commands it may give this turn, sorted by
+ * how much it wants them; the first one with a target goes into slot `k` of `out`. */
+void func_002FF710(int *out, u32 i, int k, int a, int b)
+{
+    int f = func_002F4080(i), cmd[100], val[100], n = 0, c, j;
+
+    for (c = 0; c < 10; c++) {
+        if (func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
+            && func_002FD050(c) == 0 && func_002FD1D0(f, c, 0) != 0
+            && func_00314C40(c, i, a, b) != 0
+            && (c != 5 || func_00327C00() == 1 || func_00328190(5) != 0)) {
+            cmd[n] = c;
+            val[n] = func_002FF230(c, i);
+            n++;
+        }
+    }
+    if (n == 0)
+        return;
+    func_002FF330(cmd, val, n);
+    for (j = 0; j < n; j++) {
+        int t = -1;
+
+        if (cmd[j] != 6 && func_002F9060(f) >= 60000)
+            continue;
+        switch (cmd[j]) {
+        case 0: case 1: case 2: t = 0; break;
+        case 3: case 4: t = func_002FF440(f, cmd[j]); break;
+        case 5: t = func_002FF590(f); break;
+        case 6: case 8: t = func_002FF640(f, cmd[j]); break;
+        case 7: case 9: t = func_002FF6C0(f, cmd[j]); break;
+        }
+        if (t != -1) {
+            out[k + 1] = cmd[j];
+            out[k + 3] = t;
+            return;
+        }
+    }
+}
+
+/* 0x002FF990, 0xE0 bytes. 0 when force `f` may raise its value for command 10-12 (below grade
+ * 5 and one of officers `l` (`n`) has the weapon group of that value), else -1. */
+int func_002FF990(int f, int c, u32 *l, int n)
+{
+    int v = c == 10 ? 0 : c == 11 ? 1 : c == 12 ? 2 : 3, k;
+
+    if (v != 3 && func_002F9480(f, v) < 5) {
+        for (k = 0; k < n; k++) {
+            if (v == func_0030AAD0(func_002F5890(l[k])))
+                return 0;
+        }
+    }
+    return -1;
+}
