@@ -6,12 +6,15 @@
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
  * with a question mark are hypotheses. Units are reached by offset as in unit.c.
  *
- * The camera follows a unit from behind: its eye sits at a distance behind the unit's facing,
- * pitched up by an angle that follows the slope of the ground between the eye and the unit, and
- * is kept above the ground. The camera's state (an array of words) holds: +0 the 3D camera
- * object (eye at +0x1C0, target at +0x1D0), +4 the unit, +8 the yaw, +0xC the distance, +0x14
- * the height offset, +0x18 a timer, +0x38 the slope angle, +0x3C flags, +0x90 / +0xB0 / +0xC0
- * the targets and eye kept.
+ * Range 0x00161490-0x0016467C. The camera follows a unit from behind: its eye sits at a
+ * distance behind the unit's facing, pitched up by an angle that follows the slope of the ground,
+ * kept above the ground and out of the scenery (ray tests). Other views: turning to a set yaw,
+ * looking down at a beaten unit, between two units, a motion-driven camera, the slow-motion duel
+ * view; func_00164440 picks the view each frame and adds the shake. The camera's state (an
+ * array of words) holds: +0 the 3D camera object (eye at +0x1C0, target at +0x1D0, view angle
+ * +0x224), +4 the unit, +8 the yaw, +0xC the distance, +0x14 the height offset, +0x18 a timer,
+ * +0x20 / +0x24 / +0x2C other units, +0x28 a camera motion (frame +0x30), +0x38 the slope angle,
+ * +0x3C flags, +0x40 the shake, +0x90 / +0xB0 / +0xC0 the targets and eye kept, +0xE0 a set eye.
  */
 
 typedef unsigned char u8;
