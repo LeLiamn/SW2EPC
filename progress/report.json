@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 172976,
-    "non_matching": 1171516
+    "matching": 173120,
+    "non_matching": 1175020
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2207
+    "matching": 2208
   },
   "layout": "treemap",
   "areas": [
@@ -285,28 +285,28 @@
         },
         {
           "name": "emp_ending.c",
-          "description": "Estimated range 0x3B4C30-0x3B9068; 31 function(s) decompiled",
+          "description": "Estimated range 0x3B4C30-0x3B9068; 35 function(s) decompiled",
           "code": {
             "total": 17464,
             "matching": 80,
-            "non_matching": 3232
+            "non_matching": 4592
           },
           "decompiled_functions": {
-            "count": 31,
+            "count": 35,
             "matching": 2
           }
         },
         {
           "name": "emp_ending_nenpyou.c",
-          "description": "Estimated range 0x3B9068-0x3BCB78; 18 function(s) decompiled",
+          "description": "Estimated range 0x3B9068-0x3BCB78; 26 function(s) decompiled",
           "code": {
             "total": 15120,
-            "matching": 464,
-            "non_matching": 1156
+            "matching": 608,
+            "non_matching": 3300
           },
           "decompiled_functions": {
-            "count": 18,
-            "matching": 8
+            "count": 26,
+            "matching": 9
           }
         },
         {

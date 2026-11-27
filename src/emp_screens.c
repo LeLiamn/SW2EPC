@@ -930,3 +930,351 @@ u8 *func_003BD870(void)
 {
     return func_00390940() + 0x2C34;
 }
+
+/* More of the turn report: message pickers by the force's state, the score, the report pages'
+ * player (entries of 8 bytes from +0x2C: officer, picture, portrait; state +0x73C, line +0x762,
+ * fade +0x764, timer +0x748), parts of 0x003B8440-0x003BA8B4. */
+
+extern u8 g_00500764, g_00500765;
+extern u16 g_0050074E;
+extern char g_0069395E;
+extern int g_0056CCA4[4];
+extern float g_0056CCC0, g_0056CCC4;
+extern u8 g_0056CCC8[4];
+
+#define PAD1_REPEAT() ((g_00500764 & 1) == 0 || (g_00500765 & 1) != 1 ? 0 : g_0050074E)
+
+int func_002FABC0(int f);
+u32 func_003B7EB0(void);
+int func_00337A10(int k);
+int func_0032EB40(int a, int b, int c);
+int func_0030AB90(void);
+int func_0030AD80(int p);
+int func_0030AE80(int p);
+int func_0030B090(int p);
+int func_0030ACE0(int p);
+int func_002FB100(int f);
+void func_003A5FA0(int a, int b, int c, int d);
+void func_003B8E00(void);
+int func_0032D180(void);
+u8 *func_003D3960(void);
+char *func_003B9770(void);
+void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
+void func_00146270(char *text, int x, int y, int a, int b);
+void func_0017DEA0(int v);
+int func_00329540(int k);
+
+/* 0x003B8440, 0xF0 bytes. */
+int func_003B8440(void)
+{
+    int g = func_002FABC0(func_00327D50());
+
+    switch (func_003B7EB0()) {
+    case 0x16:
+        return g == 1000 ? 0x69 : 0x6A;
+    case 0x17:
+        return 0x66;
+    case 0x18:
+        return 0x67;
+    case 0x19:
+    case 0x1A:
+    case 0x1B:
+        return 0x68;
+    default: {
+        u32 r = RAND16() % 3;
+
+        if (r == 1)
+            return 0x6C;
+        if (r == 0)
+            return 0x6B;
+        return 0x6D;
+    }
+    }
+}
+
+/* 0x003B85C0, 0xF0 bytes. */
+int func_003B85C0(void)
+{
+    int g = func_002FABC0(func_00327D50());
+
+    switch (func_003B7EB0()) {
+    case 0x16:
+        return g == 1000 ? 0x80 : 0x7E;
+    case 0x17:
+        return 0x7C;
+    case 0x18:
+        return 0x7D;
+    case 0x19:
+    case 0x1A:
+    case 0x1B:
+        return 0x7E;
+    default: {
+        u32 r = RAND16() % 3;
+
+        if (r == 1)
+            return 0x81;
+        if (r == 0)
+            return 0x7F;
+        return 0x82;
+    }
+    }
+}
+
+/* 0x003B86B0, 0x104 bytes. */
+int func_003B86B0(void)
+{
+    int g = func_002FABC0(func_00327D50());
+
+    switch (func_003B7EB0()) {
+    case 0x16:
+        return g == 1000 ? 0x8B : 0x8C;
+    case 0x17:
+        return 0x88;
+    case 0x18:
+        return 0x89;
+    case 0x19:
+    case 0x1A:
+    case 0x1B:
+        return 0x8A;
+    default:
+        if (func_0032EB40(func_00327820(), func_00337A10(7), 1) != 0)
+            return 0x8D;
+        return (RAND16() & 1) == 0 ? 0x8F : 0x8E;
+    }
+}
+
+/* 0x003B8A70, 0x25C bytes. The turn's score. */
+int func_003B8A70(void)
+{
+    int a = 0, b = 0, c = 0, d = 0, k, n, m, div, base;
+    u8 *p = func_003B5E90();
+    int single = *(int *)(p + 0x744) != 2;
+
+    for (k = 0; k < 0x19; k++) {
+        if (k >= 0 && k < func_0030AB90()) {
+            a += func_0030AD80(k);
+            b += func_0030AE80(k);
+            c += func_0030B090(k);
+            d += func_0030ACE0(k);
+        }
+    }
+    n = func_003B8900(func_00327D50(), 7);
+    m = func_002FB100(func_00327D50());
+    div = single ? 1 : 2;
+    switch (g_00669D60[0x21]) {
+    case 4:
+    case 3:
+        base = single ? 100 : 0x50;
+        break;
+    case 2:
+        base = single ? 0x5A : 0x48;
+        break;
+    case 1:
+    case 0:
+        base = single ? 0x50 : 0x40;
+        break;
+    default:
+        base = 0x40;
+        break;
+    }
+    return p[0x765] + base + (m * 10 + n / 2 + a * 100 / b + c * 100 / d) / div;
+}
+
+/* 0x003B9630, 0x124 bytes. Starts the report pages. */
+void func_003B9630(void)
+{
+    u8 *p = func_003B5E90();
+    int k;
+
+    func_003A5FA0(0, 0, 0, 0);
+    p[0x762] = 0;
+    *(int *)(p + 0x748) = 0;
+    p[0x764] = 0;
+    *(int *)(p + 0x73C) = 1;
+    for (k = 0; k < 0x9D; k++) {
+        *(int *)(p + 0x2C + k * 8) = -1;
+        p[0x30 + k * 8] = 0xFF;
+        p[0x31 + k * 8] = 0xFF;
+    }
+    func_003B8E00();
+    func_001B8F60(1, 6, 1);
+}
+
+/* 0x003B9E00, 0xD0 bytes. Draws the line's picture. */
+void func_003B9E00(void)
+{
+    u8 *p = func_003B5E90();
+    u8 l = p[0x762], *e = p + l * 8;
+    u32 v = e[0x31];
+    u8 a = p[0x764];
+    int s;
+
+    if (v == 0xFF)
+        return;
+    s = *(int *)(p + 0x73C);
+    if (s == 2 || s == 3) {
+        if (l < 0x9C && v == p[l * 8 + 0x39])
+            a = 0x80;
+    } else if (s == 1 && l != 0 && v == e[0x29]) {
+        a = 0x80;
+    }
+    func_001ABE40(*(u8 **)(p + 8), v + 5, 0x118, 0xE0, 0, 0xD8, 0x90, a);
+}
+
+/* 0x003B9ED0, 0xFC bytes. Draws the line's officer portrait. */
+void func_003B9ED0(void)
+{
+    u8 *p = func_003B5E90();
+    u8 l = p[0x762], *e = p + l * 8;
+    int s = *(int *)(p + 0x73C), o = *(int *)(e + 0x2C), k;
+    u8 a = p[0x764];
+
+    if (s == 2 || s == 3) {
+        if (l < 0x9C && o == *(int *)(p + l * 8 + 0x34))
+            a = 0x80;
+    } else if (s == 1 && l != 0 && o == *(int *)(e + 0x24)) {
+        a = 0x80;
+    }
+    if (o != -1) {
+        k = func_0032D180();
+        if (k < 0x32)
+            func_001ABE40(func_003D3960(), k << 2, 0x20, 8, 0, 0xA0, 0xA0, a);
+    }
+}
+
+/* 0x003B9FD0, 0x188 bytes. Draws the line's text box. */
+void func_003B9FD0(void)
+{
+    u8 *p = func_003B5E90();
+    u8 l = p[0x762], *e = p + l * 8;
+    u8 a = p[0x764];
+    int s;
+    char *t;
+
+    if ((signed char)e[0x30] == -1)
+        return;
+    s = *(int *)(p + 0x73C);
+    if (s == 2 || s == 3) {
+        if (l < 0x9C && *(int *)(e + 0x2C) == *(int *)(p + l * 8 + 0x34))
+            a = 0x80;
+    } else if (s == 1 && l != 0 && *(int *)(e + 0x2C) == *(int *)(e + 0x24)) {
+        a = 0x80;
+    }
+    t = func_003B9770();
+    func_002C7310(0x18, 0x9A, 0, 0x1D0, 0x46, a, 0);
+    g_0056CCA4[0] = g_0056CCA4[1] = g_0056CCA4[2] = g_0056CCA4[3] = 6;
+    g_0056CCC0 = g_0056CCC4 = 16.0f;
+    func_00146270(t, 0x28, 0xA2, 1, 0);
+    g_0056CCC0 = g_0056CCC4 = 16.0f;
+    g_0056CCA4[0] = g_0056CCA4[1] = g_0056CCA4[2] = g_0056CCA4[3] = 5;
+    g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = a;
+}
+
+/* 0x003BA1A0, 0x164 bytes. Steps the report pages (1 fade in, 0 shown, 2 fade out, 3 next,
+ * 4 over). */
+void func_003BA1A0(void)
+{
+    u8 *p = func_003B5E90();
+    int s = *(int *)(p + 0x73C);
+
+    if (s == 3) {
+        p[0x762]++;
+        *(int *)(p + 0x748) = 0;
+        *(int *)(p + 0x73C) = 1;
+        if ((signed char)p[p[0x762] * 8 + 0x30] == -1 || p[0x762] > 0x9C) {
+            *(int *)(p + 0x73C) = 4;
+            func_001B8F60(0, 6, 1);
+            func_0017DEA0(0x78);
+        }
+    } else if (s == 2) {
+        p[0x764] -= 2;
+        if (p[0x764] > 0x7F)
+            p[0x764] = 0;
+        if (p[0x764] == 0)
+            *(int *)(p + 0x73C) = 3;
+    } else if (s == 4) {
+        if (g_0069395E == 0 || g_0069395E == -1)
+            *(int *)(p + 4) = 10;
+    } else if (s == 1) {
+        p[0x764] += 2;
+        if (p[0x764] > 0x7F)
+            *(int *)(p + 0x73C) = 0;
+    } else if (s == 0) {
+        p[0x764] = 0x80;
+    }
+}
+
+/* 0x003BA310, 0x184 bytes. The report pages' frame (a line lasts 420 frames). */
+int func_003BA310(void)
+{
+    u8 *p = func_003B5E90();
+
+    if (*(int *)(p + 0x714) == 0) {
+        func_003B9630();
+        *(int *)(p + 0x714) = 1;
+    }
+    func_003BA1A0();
+    if (*(int *)(p + 0x73C) != 3) {
+        if ((PAD1_REPEAT() & 0x40) != 0 || *(int *)(p + 0x748) > 0x1A3) {
+            if (*(int *)(p + 0x748) < 0x1A4)
+                *(int *)(p + 0x748) = 0x1A4;
+            *(int *)(p + 0x73C) = 2;
+        }
+        if ((PAD1_REPEAT() & 0x800) != 0) {
+            *(int *)(p + 0x748) = 0x1A4;
+            *(int *)(p + 0x73C) = 4;
+            p[p[0x762] * 8 + 0x38] = 0xFF;
+            func_001B8F60(0, 6, 1);
+            func_0017DEA0(0x78);
+        }
+    }
+    *(int *)(p + 0x748) += 1;
+    return 0;
+}
+
+/* 0x003BA700, 0x90 bytes, matching. Copies force record `a` to `b`. */
+void func_003BA700(int a, int b)
+{
+    u8 *q = func_00329850();
+    u32 *s = (u32 *)(q + a * 0x20), *d = (u32 *)(q + b * 0x20);
+
+    d[0] = s[0];
+    ((u8 *)d)[4] = ((u8 *)s)[4];
+    ((u8 *)d)[5] = ((u8 *)s)[5];
+    ((u8 *)d)[6] = ((u8 *)s)[6];
+    ((u8 *)d)[7] = ((u8 *)s)[7];
+    d[2] = s[2];
+    d[4] = s[4];
+    d[5] = s[5];
+    d[6] = s[6];
+    d[7] = s[7];
+}
+
+/* 0x003BA7F0, 0xC4 bytes. */
+int func_003BA7F0(int k)
+{
+    switch (k) {
+    case 0x22:
+    case 0x23:
+    case 0x24:
+    case 0x25:
+    case 0x26:
+    case 0x27:
+    case 0x28:
+    case 0x29:
+    case 0x2A:
+    case 0x2B:
+        return 4;
+    default:
+        if (func_003C1850() == 0) {
+            if (func_00329540(0x14) == 0)
+                return 0;
+            if (func_00329540(0x15) == 0)
+                return 1;
+            if (func_00329540(0x16) == 0)
+                return 2;
+            return 3;
+        }
+        return func_00329540(0x16D) == 0 ? 0 : 1;
+    }
+}
