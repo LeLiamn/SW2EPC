@@ -237,3 +237,143 @@ int func_0032ED30(u32 a, u32 b, u32 c, int d)
         return func_0032EB40(a, b, d) == 0 && func_0032EB40(a, c, d) != 0;
     return 1;
 }
+
+extern u8 g_00669D60[];
+extern int *g_0045D718;                  /* (small data) the six command values */
+extern u8 *g_0045D71C;                   /* (small data) records of 0x3C bytes */
+extern int (*g_00414EF0[6])(void);
+extern int g_00414EA0[0x12];
+
+int func_00327820(void);
+int func_0030D370(void);
+int func_0036B280(int s);
+int func_00334720(void);
+int func_003C1850(void);
+
+/* 0x0032EE10, 0x9C bytes. Whether officer `o` is the lord of a force still in the game. */
+int func_0032EE10(int o)
+{
+    int f = func_002F4080(o);
+
+    if (f < 0 || f >= func_0030AB90())
+        return 0;
+    if (func_002F8CB0(f) == 0 || func_0032EAE0(f) == 0)
+        return 0;
+    return o == (int)func_002F8F20(f);
+}
+
+/* 0x0032EEB0, 0x1C bytes, matching. */
+int func_0032EEB0(void)
+{
+    return func_00327820();
+}
+
+/* 0x0032EED0, 0x44 bytes, matching. The player's officer when in the battle (0x19F: none). */
+u32 func_0032EED0(void)
+{
+    if (func_0030D370() == 0 || func_0036B280(0) == 0)
+        return 0x19F;
+    return *(u32 *)(g_00669D60 + 0x88);
+}
+
+/* 0x0032EF20, 0x1C bytes, matching. */
+int func_0032EF20(void)
+{
+    return func_0032E8E0(0);
+}
+
+/* 0x0032EF40, 0x1C bytes, matching. */
+int func_0032EF40(void)
+{
+    return func_0032E8E0(1);
+}
+
+/* 0x0032EF60, 0x1C bytes, matching. */
+int func_0032EF60(void)
+{
+    return func_0032E8E0(2);
+}
+
+/* 0x0032EF80, 0x1C bytes, matching. */
+int func_0032EF80(void)
+{
+    return func_0032E8E0(3);
+}
+
+/* 0x0032EFA0, 0x1C bytes, matching. */
+int func_0032EFA0(void)
+{
+    return func_0032E8E0(4);
+}
+
+/* 0x0032EFC0, 0x78 bytes. Fills the six command values. */
+void func_0032EFC0(void)
+{
+    int k;
+
+    for (k = 0; k < 6; k++)
+        g_0045D718[k] = g_00414EF0[k]();
+}
+
+/* 0x0032F040, 0x18 bytes, matching. */
+u8 *func_0032F040(int k)
+{
+    return g_0045D71C + k * 0x3C;
+}
+
+/* 0x0032F090, 0xAC bytes. The special stage of scenario kind `k` (0: none). */
+int func_0032F090(int k)
+{
+    switch (k) {
+    case 0xC:
+    case 0xD:
+    case 0xE:
+        return func_00334720() - 0x1E;
+    case 0x10:
+    case 0x11:
+    case 0x12:
+        return 10;
+    case 0x14:
+        return func_003C1850() == 0 ? 0xB : 0xD;
+    case 0x15:
+        return 0xC;
+    case 0x16:
+        return 0xD;
+    case 0x17:
+        return 0xE;
+    case 0x18:
+        return 0xF;
+    case 0x19:
+        return 0x10;
+    case 0x1A:
+        return 0x11;
+    default:
+        return 0;
+    }
+}
+
+/* 0x0032F140, 0x30 bytes. */
+int func_0032F140(int k)
+{
+    if (k < 0x12)
+        return g_00414EA0[k];
+    return 0x11;
+}
+
+/* 0x0032F060, 0x24 bytes, matching. */
+int func_0032F060(int k)
+{
+    return func_0032F140(func_0032F090(k));
+}
+
+/* 0x0032F170, 0x30 bytes, matching. */
+int func_0032F170(int a, int i)
+{
+    return *(int *)(func_0032F040(a) + i * 4);
+}
+
+/* 0x0032F1A0, 0x30 bytes. */
+int func_0032F1A0(int a, int i)
+{
+    return *(int *)(func_0032F040(a) + 0x20 + i * 4);
+}
