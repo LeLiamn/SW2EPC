@@ -2910,3 +2910,560 @@ int func_00314000(int *p)
 {
     return func_00313FC0(p[1], p[2], p[0]);
 }
+
+int func_002F9190(int f);
+int func_002FB120(int f);
+int func_002FB220(int f);
+int func_002FB1A0(int f);
+int func_002FB430(int f);
+int func_002FBA40(int f);
+int func_002FC0C0(int f, int g);
+int func_0030C020(int r);
+int func_0030BDB0(int r);
+int func_0030BEE0(int r);
+void func_0030B330(void);
+void func_0030B540(int r);
+int func_002FA790(u32 f);
+int func_002FBE00(int f);
+int func_002FBDE0(int f);
+int func_002FBDC0(int f);
+int func_002FBE40(int f);
+int func_002FBEC0(int f);
+int func_002FBF00(int f);
+int func_002FB100(int f);
+int func_002F8630(u32 i, int f);
+int func_002F8430(u32 i, int f);
+int func_002F85E0(u32 i, int f);
+int func_002F8480(u32 i, int f);
+int func_001A0700(void);
+int func_001A06D0(void);
+int func_002F9390(int f, int k);
+int func_002FC000(int f);
+int func_003285D0(int c);
+int func_00327E90(void);
+int func_00328190(int k);
+int func_002F3110(u32 i, int k);
+
+/* 0x00314030, 0x8E0 bytes. Whether force `f` may give command `c`: it can pay, then each
+ * command's own condition (another force for diplomacy, force value and officers for training,
+ * traits, regions to act on, free stable slots, values below 400, ...). */
+int func_00314030(int c, int f)
+{
+    int player = func_002FB2A0(f), cost = func_00313DB0(c, f), ok, g, a, b;
+
+    if (cost != -1 && cost > func_002F9190(f))
+        return 0;
+    ok = 1;
+    if (c == 0x35) {
+        for (g = 0; g < 0x19; g++) {
+            if (func_002F8CB0(g) != 0 && f != g)
+                break;
+        }
+        if (!IS_FORCE(g))
+            ok = 0;
+    } else if (c == 0x2E) {
+        ok = func_002FB120(f) == 0;
+        for (g = 0; g < 0x19; g++) {
+            if (func_002F8CB0(g) != 0 && f != g && func_002FB220(g) == 0) {
+                int t = func_002FB1A0(g);
+
+                if (t == f || t > 0x18)
+                    break;
+            }
+        }
+        if (!IS_FORCE(g))
+            ok = 0;
+    } else if (c == 0x2C || c == 0x2B) {
+        ok = func_002FB120(f) == 0;
+        for (g = 0; g < 0x19; g++) {
+            if (func_002F8CB0(g) != 0 && f != g && func_002FB120(g) == 0)
+                break;
+        }
+        if (!IS_FORCE(g))
+            ok = 0;
+    } else if (c == 0x2A || c == 0x29 || c == 0x28) {
+        ok = func_002FABC0(f) > 299;
+        if (func_002FB430(f) < 8)
+            ok = 0;
+    } else if (c == 0x27 || c == 0x26 || c == 0x25 || c == 0x24) {
+        ok = func_002FABC0(f) > 99;
+        if (func_002FB430(f) < 2)
+            ok = 0;
+    } else if (c == 0x10 || c == 0xF || c == 0xE) {
+        if (func_002FBA40(f) == 0)
+            ok = 0;
+    } else if (c == 0x3A) {
+        for (g = 0; g < 0x19; g++) {
+            if (func_002F8CB0(g) != 0 && f != g && func_002FC0C0(f, g) != 0x19)
+                break;
+        }
+        if (!IS_FORCE(g))
+            ok = 0;
+    } else if (c == 0x39) {
+        ok = func_0030C020(func_002FB2D0(f)) != 0;
+        func_0030B330();
+    } else if (c == 0x38) {
+        if (func_002FA790(f) != 0)
+            ok = 0;
+    } else if (c == 0x37) {
+        ok = func_0030BDB0(func_002FB2D0(f)) != 0;
+        func_0030B330();
+    } else if (c == 0x36) {
+        ok = func_0030BEE0(func_002FB2D0(f)) != 0;
+        func_0030B330();
+    } else if (c == 0x34) {
+        ok = func_0030C020(func_002FB2D0(f));
+        func_0030B330();
+        return ok != 0;
+    } else if (c == 0x33) {
+        if (func_002FBC90(f, 8) == 0)
+            ok = 0;
+    } else if (c == 0x32) {
+        if (func_002FBC90(f, 7) == 0)
+            ok = 0;
+    } else if (c == 0x31) {
+        if (func_002FBE00(f) == 0)
+            ok = 0;
+    } else if (c == 0x30) {
+        if (func_002FBDE0(f) == 0)
+            ok = 0;
+    } else if (c == 0x2F || c == 0x2D) {
+        if (func_002FB100(f) == 0)
+            ok = 0;
+    } else if (c == 0x22) {
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0);
+        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8430, f, 0, 1);
+        if (a == 0 && b == 0)
+            ok = 0;
+    } else if (c == 0x20) {
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F85E0, 0, 0, 0);
+        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8430, f, 0, 1);
+        if (a == 0 && b == 0)
+            ok = 0;
+    } else if (c == 0x1F) {
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0);
+        func_0030B540(func_002FB2D0(f));
+        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8480, 0, 0, 1);
+        func_0030B330();
+        if (a == 0 && b == 0)
+            ok = 0;
+    } else if (c == 0x12) {
+        if (func_001A0700() == 0)
+            ok = 0;
+    } else if (c == 0x11) {
+        ok = func_002FBE40(f) != 0;
+        if (func_001A06D0() == 0)
+            ok = 0;
+    } else if (c == 8) {
+        if (player == 0)
+            ok = 0;
+    } else if (c == 0xD) {
+        if (func_002F9390(f, 0) > 399 && func_002F9390(f, 1) > 399 && func_002F9390(f, 2) > 399)
+            ok = 0;
+    } else if (c == 0xC) {
+        if (func_002F9390(f, 2) > 399)
+            ok = 0;
+    } else if (c == 0xB) {
+        if (func_002F9390(f, 1) > 399)
+            ok = 0;
+    } else if (c == 10) {
+        if (func_002F9390(f, 0) > 399)
+            ok = 0;
+    } else if (c == 5 || c == 4 || c == 3) {
+        if (func_002FC000(f) == 0)
+            ok = 0;
+    } else if (c == 2) {
+        if (func_002FBDC0(f) == 0)
+            ok = 0;
+    } else if (c > 0x3A && c < 0x5A && (player == 0 || func_003285D0(c) != 0)) {
+        ok = 0;
+    }
+    return ok;
+}
+
+/* 0x00314910, 0x4C bytes. Whether the player's fame is at least `v` (`up`) or at most `v`. */
+int func_00314910(int v, int up)
+{
+    int m = func_00327E90();
+
+    if (up == 0)
+        return !(v < m);
+    return !(m < v);
+}
+
+/* 0x00314960, 0x224 bytes. The commands available now (by their unlock rule: always, unlocked,
+ * a trait of the player's force, fame grades), into `out`; their count. */
+int func_00314960(int *out)
+{
+    int n = 0, c;
+
+    for (c = 0; c < 100; c++) {
+        int on = 0;
+
+        switch (func_00313C70(c)) {
+        case 0: on = 1; break;
+        case 2: on = func_00328190(c) != 0; break;
+        case 3: on = func_002FBDC0(func_00327D50()) != 0; break;
+        case 4: on = func_002FBDE0(func_00327D50()) != 0; break;
+        case 5: on = func_002FBE00(func_00327D50()) != 0; break;
+        case 6: on = func_002FBE40(func_00327D50()) != 0; break;
+        case 7: on = func_00314910(0, 1) != 0; break;
+        case 8: on = func_00314910(5, 1) != 0; break;
+        case 9: on = func_00314910(-5, 0) != 0; break;
+        case 10: on = func_00314910(10, 1) != 0; break;
+        case 0xB: on = func_00314910(-10, 0) != 0; break;
+        case 0xC: on = func_00314910(-15, 0) != 0; break;
+        case 0xD: on = func_002FBEC0(func_00327D50()) != 0; break;
+        case 0xE: on = func_002FBF00(func_00327D50()) != 0; break;
+        }
+        if (on) {
+            *out++ = c;
+            n++;
+        }
+    }
+    return n;
+}
+
+/* 0x00314BA0, 0x9C bytes. Whether one of officers `l` (`n`) has `v` among its three values. */
+int func_00314BA0(int v, u32 *l, int n)
+{
+    int k, j;
+
+    for (k = 0; k < n; k++, l++) {
+        for (j = 0; j < 3; j++) {
+            if (v == func_002F3110(*l, j))
+                return 1;
+        }
+    }
+    return 0;
+}
+
+/* One of a command's four results (0x184 bytes). */
+typedef struct {
+    int kind;                /* +0x000 (0x16 = none) */
+    int v[0x1F];             /* +0x004 values (v[0x1E] = a sub-kind) */
+    char text[0x104];        /* +0x080 its message */
+} CmdResult;
+
+/* A command being run (0x690 bytes; see func_00315510). */
+typedef struct {
+    int f;                   /* +0x00 the force */
+    int cmd;                 /* +0x04 (100 = none) */
+    int target;              /* +0x08 */
+    int d;                   /* +0x0C */
+    int any;                 /* +0x10 regions marked */
+    int region[25];          /* +0x14 the regions shown */
+    CmdResult res[4];        /* +0x78 */
+} CmdRecord;
+
+int func_002FBD60(int f);
+int func_00327870(void);
+int func_002FAD20(int f);
+int func_0011B740(int fame);
+int func_002FBF20(int f, int a, int *out);
+void func_003F4D20(int k);
+int func_0030AE80(int r);
+int func_0030AD80(int r);
+
+/* 0x00314C40, 0x5A0 bytes. Whether officer `i` (lists `a` / `b` of the candidates) may give
+ * command `c`: commands needing an officer's skill need it (the computer: one of the listed
+ * officers; the player: the officer itself unless unlocked, some at 15%), the unlock rule must
+ * hold, some commands are the player's only, the free and event commands not already chosen;
+ * then func_00314030. */
+int func_00314C40(int c, u32 i, u32 *a, int b)
+{
+    int f = func_002F4080(i), player = func_002FB2A0(f), ok = 0, k;
+
+    if (c == 0x13)
+        return 0;
+    if (func_00313C30(c) != 0) {
+        if (player == 0) {
+            if (func_00314BA0(c, a, b) != 0)
+                ok = 1;
+        } else if (func_00328190(c) == 0) {
+            for (k = 0; k < 3; k++) {
+                if (c == func_002F3110(i, k)) {
+                    ok = 1;
+                    break;
+                }
+            }
+        } else if (((c < 0x3B || c > 0x59) && (c < 0x5A || c > 0x62) && c != 0x65)
+                   || func_0030CB50(0xF) != 0) {
+            ok = 1;
+        }
+        if (!ok)
+            return 0;
+    }
+    ok = 0;
+    switch (func_00313C70(c)) {
+    case 0: case 1: case 2: ok = 1; break;
+    case 3: ok = func_002FBDC0(f) != 0; break;
+    case 4: ok = func_002FBDE0(f) != 0; break;
+    case 5: ok = func_002FBE00(f) != 0; break;
+    case 6: ok = func_002FBE40(f) != 0; break;
+    case 7: ok = player == 0 || func_00314910(0, 1) != 0; break;
+    case 8: ok = player == 0 || func_00314910(5, 1) != 0; break;
+    case 9: ok = player == 0 || func_00314910(-5, 0) != 0; break;
+    case 10: ok = player == 0 || func_00314910(10, 1) != 0; break;
+    case 0xB: ok = player == 0 || func_00314910(-10, 0) != 0; break;
+    case 0xC: ok = player == 0 || func_00314910(-15, 0) != 0; break;
+    case 0xD: ok = func_002FBEC0(f) != 0; break;
+    case 0xE: ok = func_002FBF00(f) != 0; break;
+    }
+    if (!ok)
+        return 0;
+    if (c == 5 || c == 4 || c == 3) {
+        if (func_002FC000(f) == 0)
+            ok = 0;
+    } else {
+        if ((c == 0x10 || c == 0xF || c == 0xE) && func_002FBA40(f) == 0)
+            return 0;
+        if (c == 0x3A || c == 0x2E || c == 0x37 || c == 0x34 || c == 0x33 || c == 0x32 || c == 0x31
+            || c == 0x2A || c == 0x29 || c == 0x28 || c == 0x27 || c == 0x26 || c == 0x25 || c == 0x24
+            || c == 0x1C || c == 0x1B || c == 0x12 || c == 0x11 || c == 9 || c == 8 || c == 6 || c == 2) {
+            if (player == 0)
+                return 0;
+        }
+        if (c > 0x3A && c < 0x5A) {
+            if (player == 0) {
+                ok = 0;
+            } else {
+                for (k = 0; k < 5; k++) {
+                    if (c == (int)func_00328330(k)) {
+                        ok = 0;
+                        break;
+                    }
+                }
+            }
+        }
+        if ((c > 0x59 && c < 99) || c == 0x65) {
+            if (player == 0) {
+                ok = 0;
+            } else {
+                for (k = 0; k < 5; k++) {
+                    if (c == (int)func_00328640(k)) {
+                        ok = 0;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return ok ? func_00314030(c, f) : 0;
+}
+
+/* 0x003151E0, 0xC8 bytes. Whether command `c` is one of the free commands needing no officer
+ * (0x3B-0x40, 0x43-0x47, 0x4F, 0x50, 0x52, 0x59). */
+int func_003151E0(int c)
+{
+    if (c == 0x59 || c == 0x52 || c == 0x50 || c == 0x4F || c == 0x47 || c == 0x46 || c == 0x45
+        || c == 0x44 || c == 0x43 || c == 0x40 || c == 0x3F || c == 0x3E || c == 0x3D || c == 0x3C
+        || c == 0x3B)
+        return 1;
+    return 0;
+}
+
+/* 0x003152B0, 0x240 bytes. The commands `lo`-`hi` force `f`'s officers know (not the free ones),
+ * each kept by chance (30% / 50% / 100% by group), sorted by group then half shuffled; into
+ * `out`, their count. */
+int func_003152B0(int f, int *out, int lo, int hi)
+{
+    int n = 0, cnt, c, x, y;
+
+    func_002F7B10();
+    cnt = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1);
+    if (cnt == 0)
+        return 0;
+    func_002FB3B0(func_00327D50());
+    for (c = lo; c <= hi; c++) {
+        if (func_003151E0(c) == 0 && func_00314BA0(c, func_002F7B10(), cnt) != 0) {
+            int g = func_00313BF0(c), pct = 100;
+
+            if (g == 1)
+                pct = 0x32;
+            else if (g == 0)
+                pct = 0x1E;
+            if (func_0030CB50(pct) != 0)
+                out[n++] = c;
+        }
+    }
+    if (n > 1) {
+        for (x = 0; x < n; x++) {
+            int gx = func_00313BF0(out[x]);
+
+            for (y = x + 1; y < n; y++) {
+                int gy = func_00313BF0(out[y]);
+
+                if (gy < gx) {
+                    int t = out[x];
+
+                    out[x] = out[y];
+                    out[y] = t;
+                    gx = gy;
+                }
+            }
+        }
+        for (x = 0; x < n / 2; x++) {
+            int p = func_0030CB00(n), q = func_0030CB00(n);
+
+            if (p != q) {
+                int t = out[p];
+
+                out[p] = out[q];
+                out[q] = t;
+            }
+        }
+    }
+    return n;
+}
+
+/* 0x003154F0, 0x20 bytes, matching. The same for commands 0x3B-0x59. */
+int func_003154F0(int f, int *out)
+{
+    return func_003152B0(f, out, 0x3B, 0x59);
+}
+
+/* 0x00315510, 0x8C bytes, matching. Clears command record `p` for force `f`. */
+void func_00315510(CmdRecord *p, int f)
+{
+    int k;
+
+    p->f = f;
+    p->cmd = 100;
+    p->target = -1;
+    p->d = -1;
+    p->any = 0;
+    func_0011ED38(p->region, 0, 100);
+    for (k = 0; k < 4; k++) {
+        p->res[k].kind = 0x16;
+        func_0011ED38(p->res[k].v, 0, 0x7C);
+        func_0011ED38(p->res[k].text, 0, 0x102);
+    }
+}
+
+/* 0x003155A0, 0x20 bytes, matching. Result `k` of command record `p`. */
+CmdResult *func_003155A0(CmdRecord *p, int k)
+{
+    return &p->res[k];
+}
+
+/* 0x003155C0, 0x120 bytes, matching. Marks regions `l` (`n`) of command record `p` as shown. */
+void func_003155C0(CmdRecord *p, int *l, int n)
+{
+    int k;
+
+    p->any = 1;
+    for (k = 0; k < n; k++)
+        p->region[l[k]] = 1;
+}
+
+/* 0x003156E0, 0x98 bytes. Command result: 300 gold at the home region (message 0). */
+int func_003156E0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int home = func_002FB2D0(p->f);
+
+    r->kind = 0;
+    r->v[0] = 300;
+    func_001204B0(r->text, func_00390760(0), func_0030ABF0(home));
+    home = func_002FB2D0(p->f);
+    func_003155C0(p, &home, 1);
+    return 0;
+}
+
+/* 0x00315780, 0x210 bytes. Command result: gold from the regions (100-400 by size, plus fame:
+ * 20-300 for infamy, up to 150 for fame, plus 200; message 1). */
+int func_00315780(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28], v, m = 0;
+
+    v = func_002FB3B0(p->f) * 100 < 400 ? func_002FB3B0(p->f) * 100 : 400;
+    if (v < 100)
+        v = 100;
+    if (func_002FB2A0(p->f) != 0) {
+        int e = func_00327E90();
+
+        if (e < 0) {
+            m = e * -0x14;
+            if ((m < 300 ? m : 300) < 0x14)
+                m = 0x14;
+            else if (m > 299)
+                m = 300;
+        } else {
+            m = e * 10;
+            if (m > 0x95)
+                m = 0x96;
+        }
+    }
+    r->kind = 0;
+    r->v[0] = (m + v + 200) / 10 * 10;
+    func_001204B0(r->text, func_00390760(1), func_0030CB80(r->v[0]));
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* 0x00315990, 0x2D4 bytes. Command result: trade gold, a small sum (message 2, sub-kind 2) or by
+ * chance a large one (message 3, sub-kind 1), from the force's values and the player's fame. */
+int func_00315990(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28], a = func_002FBD60(p->f), b = func_002FAD20(p->f), k = 1, v, x;
+
+    if (func_002FB2A0(p->f) != 0 && (u32)func_00327870() < 0x19F)
+        k = 2;
+    if (func_0030CB50(b / 0x12 + a * 0x14 * (func_0030CB00(k) + 1) + 0xF) == 0) {
+        x = 100;
+        if (func_002FB2A0(p->f) != 0)
+            x = func_0011B740(func_00327E90()) * 10;
+        v = (func_0030CB00(4) * 0x32 + a * 0x32 + 300 + x) / 10 * 10;
+        func_001204B0(r->text, func_00390760(2), func_0030CB80(v));
+        r->v[0x1E] = 2;
+    } else {
+        int y, z;
+
+        x = 200;
+        if (func_002FB2A0(p->f) != 0)
+            x = func_0011B740(func_00327E90()) * 0x14;
+        y = func_0030CB00(5);
+        z = func_0030CB00(b + 1);
+        v = (z / 10 * 10 + y * 0x32 + (a + 1) * 500 + x) / 10 * 10;
+        func_001204B0(r->text, func_00390760(3), func_0030CB80(v));
+        r->v[0x1E] = 1;
+    }
+    r->kind = 0;
+    r->v[0] = v;
+    func_003155C0(p, reg, func_002FBF20(p->f, 1, reg));
+    func_003F4D20(0xF);
+    return 0;
+}
+
+/* Command result: raises the target region's +0x12 value by `add` (at most its room; message
+ * 0x56 with the new value, at most 100). */
+static int raise_region(CmdRecord *p, int base)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg = p->target, add = func_002FAD20(p->f) / 200 + base, tot;
+
+    if (func_0030AE80(reg) - func_0030AD80(reg) < add)
+        add = func_0030AE80(reg) - func_0030AD80(reg);
+    r->kind = 0xD;
+    r->v[0] = reg;
+    r->v[1] = add;
+    tot = add + func_0030AD80(reg) < 100 ? add + func_0030AD80(reg) : 100;
+    func_001204B0(r->text, func_00390760(0x56), func_0030ABF0(reg), func_0030CB80(add), func_0030CB80(tot));
+    func_003155C0(p, &reg, 1);
+    return 0;
+}
+
+/* 0x00315C70, 0x15C bytes. The same with a base of 5. */
+int func_00315C70(CmdRecord *p)
+{
+    return raise_region(p, 5);
+}
+
+/* 0x00315DD0, 0x15C bytes. The same with a base of 10. */
+int func_00315DD0(CmdRecord *p)
+{
+    return raise_region(p, 10);
+}
