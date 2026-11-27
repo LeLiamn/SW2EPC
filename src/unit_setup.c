@@ -23,6 +23,9 @@ typedef unsigned int u32;
 
 typedef u8 Unit;
 
+float fabsf(float x);
+float sqrtf(float x);
+
 extern u32 g_00424B30[10];               /* the ten records' kinds */
 
 void func_001185E0(void *p, int size, int value);  /* memset */
@@ -2395,4 +2398,116 @@ int func_0016B630(u8 *w, Unit *u, float *out)
             r |= func_0016B550(u, p, out);
     }
     return r;
+}
+
+extern u32 g_00669F60;                   /* battle flags */
+
+int func_001BEA70(u8 kind);
+int func_002732F0(Unit *u);
+
+/* `p` against the unit's body cylinder (radius +0x88, height +0x84 of the state description):
+ * within `up` of half its height and `r` + radius of its axis (flat); *out the point on the body
+ * towards `p`, at p's height. */
+static inline int body_touch(Unit *u, float *p, float r, float up, float *out)
+{
+    float R = F32(PTR(u, 0x114), 0x88), d[4], l2, l;
+    int k;
+
+    for (k = 0; k < 4; k++)
+        d[k] = p[k] - F32(u, 0x90 + k * 4);
+    if (!(fabsf(d[1]) < F32(PTR(u, 0x114), 0x84) * 0.5f + up))
+        return 0;
+    l2 = d[0] * d[0] + d[2] * d[2];
+    if (!(l2 < (r + R) * (r + R)))
+        return 0;
+    l = sqrtf(l2);
+    for (k = 0; k < 4; k++)
+        out[k] = d[k] / l * R + F32(u, 0x90 + k * 4);
+    out[1] = p[1];
+    out[3] = 1.0f;
+    return 1;
+}
+
+/* 0x0016B720, 0x130 bytes. Whether a sphere of radius `r` at `p` touches the unit's body. */
+int func_0016B720(float r, Unit *u, float *p, float *out)
+{
+    return body_touch(u, p, r, r, out);
+}
+
+/* 0x0016B850, 0x15C bytes. The same for an ellipsoid (`r` across, `up` high; a sphere when they
+ * differ by less than 10). */
+int func_0016B850(float r, float up, Unit *u, float *p, void *unused, float *out)
+{
+    if (fabsf(r - up) < 10.0f)
+        return func_0016B720(r, u, p, out);
+    return body_touch(u, p, r, up, out);
+}
+
+/* 0x0016B9B0, 0x374 bytes. Whether `u` cannot be hit by `v`'s hit `hit` (`alpha`: the hit's
+ * flash): held units, players in some battle states, units leaving, units with flag 8 of +0x19D
+ * (unless the hit has flag 2), players and their mounts during the duel, grabs on mounts,
+ * guarding units (+0x13C flag 0x40), a unit already hit by this attack (flash, or the weapon kind
+ * bit in +0x120 of `v`), carried units, actions with flag 0x2000; a mount follows its rider. */
+int func_0016B9B0(Unit *u, Unit *v, u8 *hit, u8 alpha)
+{
+    int k;
+
+    if (U8(u, 0x19C) & 2)
+        return 1;
+    if (U8(u, 0x14E) < 2 && (g_00669F60 & 0x4000000))
+        return 1;
+    if (U8(u, 0x19C) & 0x80)
+        return 1;
+    if ((U8(u, 0x19D) & 8) && (U32(hit, 0x2C) & 2) == 0)
+        return 1;
+    if (g_0045D2A8 != 0) {
+        if (U8(u, 0x14E) < 2)
+            return 1;
+        k = S32(u, 0x118) == 0x3C || (u32)(S32(u, 0x118) - 0x3D) < 3;
+        if (k && PTR(u, 0x28C) != 0 && U8(PTR(u, 0x28C), 0x14E) < 2)
+            return 1;
+    }
+    if ((u32)(S32(u, 0x118) - 0x3D) < 3 && (U32(hit, 0x2C) & 0x400))
+        return 1;
+    if (U32(u, 0x13C) & 0x40) {
+        u8 kind = PTR(u, 0x110) == 0 ? 0x6A : U8(PTR(u, 0x110), 0x1C);
+
+        if (func_001BEA70(kind) == 0
+            && (func_002732F0(u) != 0
+                || ((U32(PTR(u, 0x210), 0x1C) & 0x400) && (U32(PTR(u, 0x210), 0x18) & 0x20) == 0)))
+            return 1;
+    }
+    if ((U32(hit, 0x28) & 0x80000000) == 0) {
+        if ((U32(hit, 0x28) & 0x40000000) == 0 && v != 0) {
+            if ((U8(v, 0x19C) & 0x80) && (U32(hit, 0x2C) & 0x400))
+                return 1;
+            if (PTR(u, 0x11C) != 0
+                && (*(u64 *)(v + 0x120) & (u64)(long long)(1 << U8(PTR(u, 0x11C), 0x202))))
+                return 1;
+        }
+    } else if (U8(u, 0x14C) == alpha) {
+        return 1;
+    }
+    if (PTR(u, 0x280) != 0) {
+        u8 *g = PTR(u, 0x280);
+
+        if (PTR(g, 0x284) != 0 && (char)U8(g, 0x275) != -1)
+            return 1;
+    }
+    if (PTR(u, 0x284) != 0 && (char)U8(u, 0x275) != -1)
+        return 1;
+    {
+        u32 f = U32(PTR(u, 0x210), 0x18);
+
+        if ((f & 0x2000) == 0 || ((f & 0x40) && (U32(hit, 0x2C) & 2))) {
+            u8 *m = PTR(u, 0x28C);
+
+            if (m == 0)
+                return S32(u, 0x118) == 0x3C;
+            if (m == v)
+                return 1;
+            return func_0016B9B0(m, v, hit, alpha);
+        }
+    }
+    return 1;
 }
