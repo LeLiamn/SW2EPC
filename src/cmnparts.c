@@ -258,3 +258,208 @@ int func_001AA320(float size, u8 *font, u32 c)
     }
     return func_00146D00(size, func_0019B0C0(c), (int)(size * 72.0f / 20.0f));
 }
+
+/* A font (0x004053C0 the text font, 0x004053F0 the names' font). */
+typedef struct {
+    u64 tex0[2];          /* the two texture pages (the second for glyphs past 400) */
+    u16 *uv;              /* +0x10 the extra glyphs' texels */
+    u32 count;            /* +0x14 glyphs with a width */
+    u8 *widths;           /* +0x18 */
+    u16 tex_w, tex_h;     /* +0x1C */
+    u16 cell_w, cell_h;   /* +0x20 */
+    u16 scale;            /* +0x24 */
+    u16 pad;
+    u16 cols, rows;       /* +0x28 glyphs per row and rows per page */
+} Font;
+
+extern Font g_004053C0, g_004053F0;
+extern const u8 g_004248F0[][4];         /* text colours (RGB) */
+
+u32 func_00145FB0(Font *f, u32 c);
+int func_00146CA0(float size, const u8 *s);
+const u8 *func_003724C0(void);
+u32 func_003629E0(u8 *rec);
+u32 func_0019AE90(u32 t);
+
+/* A float point as a GS one (VU0 ftoi4: x 16, z kept whole). */
+static inline u64 xyz_ftoi4(float x, float y, float z)
+{
+    int ix = (int)(x * 16.0f), iy = (int)(y * 16.0f), iz = (int)(z * 16.0f);
+
+    return (u64)(long long)(iz >> 4) << 32 | (u64)(long long)ix | (u64)(long long)iy << 16;
+}
+
+/* An RGBAQ of text colour `k` with alpha `a`. */
+#define TEXT_RGBA(k, a) \
+    ((u64)(long long)(int)((u32)(a) << 24 | g_004248F0[k][0] | g_004248F0[k][1] << 8 \
+                           | g_004248F0[k][2] << 16) | 0x3F80000000000000ULL)
+
+/* Two floats as one 64-bit ST register. */
+static inline u64 st_pair(float s, float t)
+{
+    union { float f[2]; u64 v; } u;
+
+    u.f[0] = s;
+    u.f[1] = t;
+    return u.v;
+}
+
+/* 0x001AA400, 0x5A4 bytes. Glyph `c` of the names' font at size `size` (height `h`) at point
+ * `pos` into packet `p` (colour `col`, alpha `a`; `flat` for screen coordinates, else GS ones
+ * with narrower glyphs at half height). Returns its width. */
+float func_001AA400(float size, float h, u8 *p, u32 c, float *pos, int col, int a, int flat)
+{
+    Font *f = &g_004053F0;
+    float w = 0.0f, x1, y1;
+    u32 u, v;
+
+    if (c <= 0x2D0)
+        w = size * (float)f->widths[c] / 20.0f;
+    if (flat == 0) {
+        w = w * 0.8f;
+        y1 = h * 0.5f + pos[1] + 0.0f;
+    } else {
+        y1 = pos[1] + h;
+    }
+    x1 = pos[0] + w;
+    *(u64 *)(p + 0x18) = (c & 0x7FFFFFFF) <= 400 ? f->tex0[0] : f->tex0[1];
+    *(u64 *)(p + 0x20) = TEXT_RGBA(col, a);
+    v = f->uv[c * 2 + 1];
+    u = f->uv[c * 2];
+    *(u64 *)(p + 0x28) = st_pair((float)u / (float)f->tex_w + 0.001f, (float)(v + 1) / (float)f->tex_h);
+    *(u64 *)(p + 0x38) = st_pair((float)(u + f->widths[c]) / (float)f->tex_w,
+                                 (float)(v + f->cell_h) / (float)f->tex_h - 0.001f);
+    if (flat == 0) {
+        *(u64 *)(p + 0x30) = xyz_ftoi4(pos[0], pos[1], pos[2]);
+        *(u64 *)(p + 0x40) = xyz_ftoi4(x1, y1, pos[2]);
+    } else {
+        int sy0 = scale_y((int)pos[1]), sy1 = scale_y((int)y1);
+
+        *(u64 *)(p + 0x30) = (u64)(long long)(int)(65534.0f - pos[2]) << 32
+                             | (u64)(long long)((int)pos[0] * 0x10 + 0x7000)
+                             | (u64)(long long)((sy0 * 0x10 - 0xE00) / g_70000154 + 0x8000) << 16;
+        *(u64 *)(p + 0x40) = (u64)(long long)(int)(65534.0f - pos[2]) << 32
+                             | (u64)(long long)((int)x1 * 0x10 + 0x7000)
+                             | (u64)(long long)((sy1 * 0x10 - 0xE00) / g_70000154 + 0x8000) << 16;
+    }
+    return w;
+}
+
+/* 0x001AA9B0, 0x7C8 bytes. Officer `id`'s name (0x2F9: func_003724C0's text) in the text font,
+ * one packet per glyph from `p` (shrunk to fit size x 72 / 20); two-byte characters are drawn
+ * as '@'. The width goes to `out` (when given). Returns the number of glyphs. */
+int func_001AA9B0(float size, float h, u8 *p, u32 id, float *pos, int col, int a, int flat,
+                  float *out)
+{
+    Font *f = &g_004053C0;
+    float x = pos[0], y0 = pos[1], z = pos[2], y1, cw, m;
+    const u8 *s = id == 0x2F9 ? func_003724C0() : (const u8 *)func_0019B0C0(id);
+    int n = 0, tw;
+    u32 code = 0;   /* (left unset in the original before the first character) */
+
+    y1 = flat == 0 ? h * 0.5f + pos[1] + 0.0f : pos[1] + h;
+    tw = func_00146CA0(size, s);
+    m = size * 72.0f / 20.0f;
+    if (m < (float)tw)
+        size = size * m / (float)tw;
+    cw = size * (float)f->scale / (float)f->cell_w;
+    for (; *s != 0; s++, n++, p += 0x50) {
+        u32 ch = *s, g, gu, gv;
+        int adv;
+
+        if (ch >= 0x20 && ch <= 0x7E) {
+            code = ch;
+        } else if ((ch >= 0x80 && ch < 0xA0) || (ch >= 0xE0 && ch < 0xF0)
+                   || (ch >= 0xFA && ch < 0xFD)) {
+            s++;
+            code = 0x40;
+        }
+        g = func_00145FB0(f, code);
+        if (g == 0xFF)
+            break;
+        if ((g & 0x80000000) == 0) {
+            *(u64 *)(p + 0x18) = f->tex0[1] != (u64)-1 && g >= (u32)f->cols * f->rows
+                                     ? f->tex0[1] : f->tex0[0];
+        } else {
+            *(u64 *)(p + 0x18) = (g & 0x7FFFFFFF) > 400 ? f->tex0[1] : f->tex0[0];
+        }
+        *(u64 *)(p + 0x20) = TEXT_RGBA(col, a);
+        if ((g & 0x80000000) == 0) {
+            int k = f->tex0[1] == (u64)-1 ? (int)g : (int)g % (f->cols * f->rows);
+
+            gu = f->cell_w * (k % f->cols);
+            gv = f->cell_h * (k / f->cols);
+        } else {
+            gu = f->uv[g * 2];
+            gv = f->uv[g * 2 + 1];
+        }
+        *(u64 *)(p + 0x28) = st_pair((float)(int)gu / (float)f->tex_w, (float)(int)gv / (float)f->tex_h);
+        *(u64 *)(p + 0x38) = st_pair((float)(int)(gu + f->cell_w) / (float)f->tex_w,
+                                     (float)(int)(gv + f->cell_h - 1) / (float)f->tex_h);
+        adv = g < f->count ? (int)((float)(f->scale * f->widths[g] / f->cell_w) * size / 20.0f)
+                           : 0;
+        if (flat == 0) {
+            *(u64 *)(p + 0x30) = xyz_ftoi4(x, y0, z);
+            *(u64 *)(p + 0x40) = xyz_ftoi4(cw * 0.8f + x + 0.0f, y1, z);
+            x = (float)adv * 0.8f + x + 0.0f;
+        } else {
+            *(u64 *)(p + 0x30) = xyz_ftoi4(x + 1792.0f, 1.1666666f * y0 * 0.5f + 1936.0f,
+                                           65534.0f - z);
+            *(u64 *)(p + 0x40) = xyz_ftoi4(x + cw + 1792.0f, 1.1666666f * y1 * 0.5f + 1936.0f,
+                                           65534.0f - z);
+            x = x + (float)adv;
+        }
+    }
+    if (out != 0)
+        *out = x - pos[0];
+    return n;
+}
+
+/* 0x001AB190, 0x3C bytes. Character `id` (below 0x2D1: one glyph of the names' font) or
+ * officer name `id`. Returns the number of packets used. */
+int func_001AB190(float size, float h, u8 *p, u32 id, float *pos, int col, int a, int flat,
+                  float *out)
+{
+    if (id <= 0x2D0) {
+        *out = func_001AA400(size, h, p, id, pos, col, a, flat);
+        return 1;
+    }
+    return func_001AA9B0(size, h, p, id, pos, col, a, flat, out);
+}
+
+/* 0x001AB1D0, 0x1C4 bytes. Name `n`, a gap and title `t` (when they differ) from point `pos`
+ * (moved past them). The width goes to `out` (when given). Returns the packets used. */
+int func_001AB1D0(float size, float h, u8 *p, u32 t, u32 n, float *pos, int col, int a,
+                  int flat, float *out)
+{
+    float x = pos[0], w;
+    int k = func_001AB190(size, h, p, n, pos, col, a, flat, &w);
+
+    if (flat == 0)
+        pos[0] = pos[0] + (float)(int)(size * 8.0f / 20.0f) * 0.8f + w + 0.0f;
+    else
+        pos[0] = pos[0] + w + (float)(int)(size * 8.0f / 20.0f);
+    if (t != n) {
+        k += func_001AB190(size, h, p + k * 0x50, func_0019AE90(t), pos, col, a, flat, &w);
+        pos[0] = pos[0] + w;
+    }
+    if (out != 0)
+        *out = pos[0] - x;
+    return k;
+}
+
+/* 0x001AB3A0, 0x88 bytes. The width of record `rec`'s title with a gap and character 0x1DD. */
+int func_001AB3A0(float size, u8 *font, u8 *rec)
+{
+    u32 t = func_0019AE90(func_003629E0(rec));
+
+    return func_001AA320(size, font, t) + (int)(size * 8.0f / 20.0f) + func_001AA320(size, font, 0x1DD);
+}
+
+/* 0x001AB430, 0xB0 bytes. Draws record `rec`'s title and character 0x1DD. */
+int func_001AB430(float size, float h, u8 *p, u8 *rec, float *pos, int col, int a, int flat,
+                  float *out)
+{
+    return func_001AB1D0(size, h, p, 0x1DD, func_0019AE90(func_003629E0(rec)), pos, col, a, flat,
+                         out);
+}
