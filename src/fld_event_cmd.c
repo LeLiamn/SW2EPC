@@ -1823,3 +1823,587 @@ void func_0035AEE0(void)
     }
     func_00357420(m, func_0035DCB0(0), how, 2, 0);
 }
+
+extern void (*g_004157A0[13])(u8 **g, u8 **h);   /* the group comments */
+extern u32 g_004157E0[8], g_00415800[20];
+extern u32 g_0045D078[2];                /* (small data) */
+extern u8 g_005BC2A0[0x40][4];           /* the timers (flags, ?, id, ?) */
+
+#define SETTINGS_FLAGS (*(u32 *)(g_00669D60 + 0x200))
+#define SETTINGS_B2 (g_00669D60[0x252])
+#define SETTINGS_FA0 (*(int *)(g_00669D60 + 0x240))
+
+int func_0033F4D0(u8 *b, int side, int *out, int max);
+int func_0034ED40(u8 *b);
+u32 func_0036F900(void);
+u32 func_003F55E0(void);
+u32 func_003F5600(void);
+int func_003F5650(void);
+u32 func_003F6C10(int side);
+int func_003F7090(u32 a, u32 b);
+u32 func_003F6CA0(int side, u16 k);
+void func_003F74E0(int side, u16 k);
+void func_003F75F0(u16 side);
+void func_00183410(int a, int id, int b, int delay, int c);
+
+/* 0x0035AF70, 0xF0 bytes. Side 0's first reserve announces itself (and, with event 0x14, a
+ * second line). */
+void func_0035AF70(void)
+{
+    u8 **g = func_0033F020(0, 0);
+
+    if ((((u32 *)g)[0x19] & 1) == 0)
+        return;
+    func_00357650(2, GROUP_INDEX(g), 2, 0);
+    if (func_0036F390(0, 0x14) != 0) {
+        u32 t[4];
+
+        t[0] = g_00415790[0];
+        t[1] = g_00415790[1];
+        t[2] = g_00415790[2];
+        func_00357570(3, t[RANDOM() % 3], 0, 0, 0);
+    }
+}
+
+/* 0x0035B060, 0x128 bytes. A side 0 group at side 0's main base speaks (0x31), then message 0x69
+ * there. */
+void func_0035B060(void)
+{
+    u8 *b = (u8 *)func_0034EC80(func_0035F200(0)), *g = 0;
+    int list[16], n;
+
+    n = func_0033F4D0(b, 0, list, 0x10);
+    if (n != 0) {
+        g = g_006A1D58[list[n == 0 ? 0 : (int)RANDOM() % n]];
+        if (g != 0)
+            func_00357420(0x31, GROUP_INDEX(g), 3, 0, 0);
+    }
+    func_00357070(func_0034ED40(b));
+    func_00357110(0x69);
+}
+
+/* 0x0035B190, 0x3C bytes. Message 0x6A at side 0's main base. */
+void func_0035B190(void)
+{
+    func_00357070(func_0034ED40((u8 *)func_0034EC80(func_0035F200(0))));
+    func_00357110(0x6A);
+}
+
+/* 0x0035B1D0, 0x3C bytes. Message 0x6B at side 1's main base. */
+void func_0035B1D0(void)
+{
+    func_00357070(func_0034ED40((u8 *)func_0034EC80(func_0035F200(1))));
+    func_00357110(0x6B);
+}
+
+/* 0x0035B210-0x0035B9D0: group comments (`g` the speaker, `h` the other group). */
+/* 0x0035B210, 0xFC bytes. */
+void func_0035B210(u8 **g, u8 **h)
+{
+    func_00357420(0x32, GROUP_INDEX(h), 0, 2, 0);
+    if (func_003579E0(g, h) == 0)
+        func_00357420(0x34, GROUP_INDEX(g), 0, 2, 0);
+    else
+        func_00357420(0x33, GROUP_INDEX(g), 0, 2, 0);
+}
+
+/* 0x0035B310, 0x108 bytes. */
+void func_0035B310(u8 **g, u8 **h)
+{
+    if (func_003579E0(g, h) == 0)
+        func_00357420(0x4B, GROUP_INDEX(g), 0, 2, 0);
+    else
+        func_00357420(0x4A, GROUP_INDEX(g), 0, 2, 0);
+    func_00357420(0x4E, GROUP_INDEX(h), 0, 2, 0);
+}
+
+/* 0x0035B420, 0x164 bytes. */
+void func_0035B420(u8 **g, u8 **h)
+{
+    if (func_003579E0(g, h) == 0)
+        func_00357420(0x4D, GROUP_INDEX(g), 0, 2, 0);
+    else
+        func_00357420(0x4C, GROUP_INDEX(g), 0, 2, 0);
+    if (func_003579E0(h, g) == 0)
+        func_00357420(0x34, GROUP_INDEX(h), 0, 2, 0);
+    else
+        func_00357420(0x33, GROUP_INDEX(h), 0, 2, 0);
+}
+
+/* 0x0035B590, 0x54 bytes, matching. */
+void func_0035B590(u8 **g, u8 **h)
+{
+    func_00357420(0x4E, GROUP_INDEX(g), 0, 2, 0);
+}
+
+/* 0x0035B5F0, 0x54 bytes, matching. */
+void func_0035B5F0(u8 **g, u8 **h)
+{
+    func_00357420(0x4F, GROUP_INDEX(g), 0, 2, 0);
+}
+
+/* 0x0035B650, 0x54 bytes, matching. */
+void func_0035B650(u8 **g, u8 **h)
+{
+    func_00357420(0x50, GROUP_INDEX(g), 0, 2, 0);
+}
+
+/* 0x0035B6B0, 0xA0 bytes, matching. */
+void func_0035B6B0(u8 **g, u8 **h)
+{
+    u32 i = GROUP_INDEX(g);
+
+    func_00357420(0x51, i, 0, 2, 0);
+    func_003571A0(0x70, i & 0xFFFF, GROUP_INDEX(h) & 0xFFFF);
+}
+
+/* 0x0035B750, 0x54 bytes, matching. */
+void func_0035B750(u8 **g, u8 **h)
+{
+    func_00357420(0x37, GROUP_INDEX(g), 0, 2, 0);
+}
+
+/* 0x0035B7B0, 0x54 bytes, matching. */
+void func_0035B7B0(u8 **g, u8 **h)
+{
+    func_00357420(0x35, GROUP_INDEX(g), 3, 2, 0);
+}
+
+/* 0x0035B810, 0x54 bytes, matching. */
+void func_0035B810(u8 **g, u8 **h)
+{
+    func_00357420(0x36, GROUP_INDEX(g), 1, 2, 0);
+}
+
+/* 0x0035B870, 0xAC bytes. */
+void func_0035B870(u8 **g, u8 **h)
+{
+    if (func_003579E0(g, h) == 0)
+        func_00357420(0x3E, GROUP_INDEX(g), 1, 2, 0);
+    else
+        func_00357420(0x3D, GROUP_INDEX(g), 1, 2, 0);
+}
+
+/* 0x0035B920, 0xAC bytes. */
+void func_0035B920(u8 **g, u8 **h)
+{
+    if (func_003579E0(g, h) == 0)
+        func_00357420(0x3C, GROUP_INDEX(g), 0, 2, 0);
+    else
+        func_00357420(0x3B, GROUP_INDEX(g), 0, 2, 0);
+}
+
+/* 0x0035B9D0, 0x54 bytes, matching. */
+void func_0035B9D0(u8 **g, u8 **h)
+{
+    func_00357420(0x40, GROUP_INDEX(g), 0, 2, 0);
+}
+
+/* 0x0035BA30, 0xC4 bytes. Command: group comment `a` by group `b` about group `c`. */
+void func_0035BA30(EvCmd *c)
+{
+    void (*t[13])(u8 **, u8 **);
+    u16 hi = c->c;
+    int k;
+
+    for (k = 0; k < 13; k++)
+        t[k] = g_004157A0[k];
+    if (c->a < 0xD)
+        t[c->a](GROUP(c->b), hi < 0x47 ? GROUP(hi) : 0);
+}
+
+/* 0x0035BB00, 0x34 bytes, matching. Message 0x89 with func_0036F900's value (below 0x1F). */
+void func_0035BB00(void)
+{
+    u32 v = func_0036F900();
+
+    if (v < 0x1F)
+        func_00357200(0x89, v & 0xFFFF);
+}
+
+/* 0x0035BB40, 0x28 bytes, matching. */
+void func_0035BB40(void)
+{
+    func_00357110(0x34);
+    SETTINGS_B2 = 1;
+}
+
+/* 0x0035BB70, 0x38 bytes, matching. Adds 250 to the score (message 0x91). */
+void func_0035BB70(void)
+{
+    SETTINGS_FA0 += 0xFA;
+    func_00357260(0x91, 0x32, 5);
+}
+
+/* 0x0035BBB0, 0x1C bytes, matching. */
+void func_0035BBB0(void)
+{
+    func_00357110(0x93);
+}
+
+/* 0x0035BBD0, 0x198 bytes. Command: group `a`'s mission event (messages 0x9E-0xA1, then the
+ * mission's own line). */
+void func_0035BBD0(EvCmd *c)
+{
+    u16 i = c->a;
+    u32 t[8], k, m;
+    int j;
+
+    for (j = 0; j < 8; j++)
+        t[j] = g_004157E0[j];
+    func_00357000(i);
+    if ((*GROUP(i))[0x79] == 1) {
+        func_00357170(0x9E, i);
+        func_00357170(0x9F, i);
+    } else {
+        func_00357170(0xA0, i);
+        func_00357170(0xA1, i);
+    }
+    k = func_003F55E0();
+    if (k < 8) {
+        m = t[k];
+        switch (k) {
+        case 0:
+        case 1:
+        case 3:
+        case 4:
+            func_00357370(m, 0, func_003F5600());
+            break;
+        case 2:
+        case 7:
+            func_00357310(m, 0);
+            break;
+        case 5:
+        case 6:
+            func_00357340(m, 0, i);
+            break;
+        }
+    }
+    func_003570A0(2, 1, 0);
+}
+
+/* 0x0035BD70, 0x190 bytes. Command: group `a` changes sides (`b` won, else its side's view). */
+void func_0035BD70(EvCmd *c)
+{
+    u16 i = c->a, won = c->b;
+    u8 *u, side;
+
+    if (i >= 0x47)
+        return;
+    u = *GROUP(i);
+    side = u[0x79];
+    if (!UNIT_ACTIVE(u))
+        won = side == 0;
+    if ((side == 1 && won != 0) || (side == 0 && won == 0)) {
+        EvCmd d;
+
+        d.kind = 0xD;
+        d.a = i;
+        func_003591F0(&d);
+    }
+    if (side == 1) {
+        if (won == 0)
+            func_00357340(0x8B, 2, i);
+        else
+            func_00357340(0x8A, 1, i);
+    } else if (won == 0) {
+        func_00357340(0x8D, 2, i);
+    } else {
+        func_00357340(0x8C, 1, i);
+    }
+    func_003F5610(won == 0 ? 4 : 3);
+}
+
+/* 0x0035BF00, 0x80 bytes. Command: a mission result `a` (1-3; messages 0x8E-0x90). */
+void func_0035BF00(EvCmd *c)
+{
+    short v = c->a;
+    u32 m;
+
+    if (func_003F5650() == 0)
+        return;
+    if (v == 3)
+        m = 0x8E;
+    else if (v == 2)
+        m = 0x8F;
+    else if (v == 1)
+        m = 0x90;
+    else
+        return;
+    func_00357110(m);
+}
+
+/* 0x0035BF80, 0x78 bytes. The score message (both sides' counts). */
+void func_0035BF80(void)
+{
+    u32 a = func_003F6C10(0), b = func_003F6C10(1), m;
+    int r = func_003F7090(a, b);
+
+    if (r >= 1)
+        m = 0xBE;
+    else if (r == 0)
+        m = 0xBF;
+    else
+        m = 0xC0;
+    func_00357230(m, a & 0xFFFF, b & 0xFFFF);
+}
+
+/* 0x0035C000, 0x88 bytes. Command: side `a` scores `b` (messages 0xAA-0xBD). */
+void func_0035C000(EvCmd *c)
+{
+    u16 k = c->b;
+    short s = c->a;
+    u32 n = func_003F6CA0(s, k);
+
+    if (n < 10) {
+        func_003F74E0(s, k);
+        func_00357110(s == 0 ? n * 2 + 0xAA : n * 2 + 0xAB);
+        func_0035BF80();
+    }
+}
+
+/* 0x0035C090, 0x1C bytes, matching. */
+void func_0035C090(void)
+{
+    func_0035BF80();
+}
+
+/* 0x0035C0B0, 0xA8 bytes. Command: side `a` loses a point. */
+void func_0035C0B0(EvCmd *c)
+{
+    u32 t[20];
+    u16 s = c->a;
+    u32 n;
+    int k;
+
+    for (k = 0; k < 20; k++)
+        t[k] = g_00415800[k];
+    n = func_003F6C10(s);
+    if (n < 10) {
+        func_003F75F0(s);
+        if (t[n * 2 + s] < 0xC3)
+            func_00357110(t[n * 2 + s]);
+        func_0035BF80();
+    }
+}
+
+/* 0x0035C160, 0x60 bytes. The same with a fixed message per side. */
+void func_0035C160(EvCmd *c)
+{
+    u32 t[2];
+    u16 s = c->a;
+
+    t[0] = g_0045D078[0];
+    t[1] = g_0045D078[1];
+    func_003F75F0(s);
+    if (t[s] < 0xC3)
+        func_00357110(t[s]);
+    func_0035BF80();
+}
+
+/* 0x0035C1C0, 0x34C bytes, matching. Runs a command of the second queue. */
+int func_0035C1C0(EvCmd *c)
+{
+    switch (c->kind) {
+    case 0: func_00357C20(); break;
+    case 1: func_00357E70(c); break;
+    case 2: func_003581E0(c); break;
+    case 3: func_00358460(c); break;
+    case 4: func_003586D0(c); break;
+    case 5: func_00358910(c); break;
+    case 6: func_00358B60(c); break;
+    case 7: func_00358C40(c); break;
+    case 8: func_00358DB0(c); break;
+    case 9: func_00358E10(c); break;
+    case 10: func_00358F10(c); break;
+    case 0xB: func_00358FD0(c); break;
+    case 0xC: func_00359170(c); break;
+    case 0xD: func_003591F0(c); break;
+    case 0xE: func_00359350(c); break;
+    case 0xF: func_003595C0(); break;
+    case 0x10: func_00359670(c); break;
+    case 0x11: func_003596E0(c); break;
+    case 0x12: func_00359930(c); break;
+    case 0x13: func_003599E0(c); break;
+    case 0x14: func_00359A90(c); break;
+    case 0x15: func_00359B30(c); break;
+    case 0x16: func_0035A0C0(c); break;
+    case 0x17: func_0035A3B0(c); break;
+    case 0x18: func_0035A4B0(c); break;
+    case 0x19: func_0035A620(c); break;
+    case 0x1A: func_0035BA30(c); break;
+    case 0x1B: func_0035A760(c); break;
+    case 0x1C: func_0035A850(c); break;
+    case 0x1D: func_0035A910(c); break;
+    case 0x1E: func_0035AB10(c); break;
+    case 0x1F: func_0035AC60(c); break;
+    case 0x20: func_0035AEA0(); break;
+    case 0x21: func_0035AEE0(); break;
+    case 0x22: func_0035AF70(); break;
+    case 0x23: func_0035B060(); break;
+    case 0x24: func_0035B190(); break;
+    case 0x25: func_0035B1D0(); break;
+    case 0x26: func_0035BB00(); break;
+    case 0x27: func_0035BB40(); break;
+    case 0x28: func_0035BB70(); break;
+    case 0x29: func_0035BBB0(); break;
+    case 0x2A: func_0035BBD0(c); break;
+    case 0x2B: func_0035BD70(c); break;
+    case 0x2C: func_0035BF00(c); break;
+    case 0x2D: func_0035C000(c); break;
+    case 0x2E: func_0035C090(); break;
+    case 0x2F: func_0035C0B0(c); break;
+    case 0x30: func_0035C160(c); break;
+    }
+    return 1;
+}
+
+/* 0x0035C510, 0x4C bytes. The second queue's first free slot (0x20 for none). */
+u32 func_0035C510(void)
+{
+    EvCmd *c = func_003577E0(0);
+    u32 k;
+
+    for (k = 0; k < 0x20; k++, c++) {
+        if (c->kind > 0x30)
+            return k;
+    }
+    return 0x20;
+}
+
+/* 0x0035C560, 0x78 bytes, matching. Queues command `c` to run after `delay` (timer 0x32 + slot). */
+void func_0035C560(EvCmd *c, int delay)
+{
+    u32 k = func_0035C510();
+
+    if (k < 0x20) {
+        func_00118AC0(func_003577E0(k), c, 8);
+        func_00183410(1, k + 0x32, 3, delay, 0);
+    }
+}
+
+/* Removes timer `k` (the later ones move down). */
+static void timer_remove(u32 k)
+{
+    u8 *p = g_005BC2A0[k];
+    u32 j;
+
+    *p &= 0xFC;
+    for (j = k; j < 0x3F; j++) {
+        func_00118AC0(p, p + 4, 4);
+        p += 4;
+    }
+    p[0] = 0;
+    p[3] = 0;
+}
+
+/* 0x0035C5E0, 0x138 bytes. Cancels the waiting commands that `test` (with `a`, `b`) picks. */
+void func_0035C5E0(int (*test)(EvCmd *, int, int), int a, int b)
+{
+    u32 k = 0;
+
+    if (test == 0)
+        return;
+    do {
+        u8 *p = g_005BC2A0[k];
+        EvCmd *c;
+
+        if ((p[0] & 1) == 0 || p[2] < 0x32 || (c = func_003577E0(p[2] - 0x32)) == 0
+            || test(c, a, b) == 0) {
+            k++;
+            continue;
+        }
+        c->kind = 0x31;
+        timer_remove(k);
+    } while (k < 0x40);
+}
+
+/* 0x0035C730, 0x30 bytes. Whether `c` is order command 0x11 for group `g`. */
+int func_0035C730(EvCmd *c, int g)
+{
+    if (c->kind != 0x11)
+        return 0;
+    return c->a == g;
+}
+
+/* 0x0035C760, 0x28 bytes, matching. */
+void func_0035C760(int g)
+{
+    func_0035C5E0((int (*)(EvCmd *, int, int))func_0035C730, g, 0);
+}
+
+/* 0x0035C790, 0x6C bytes. Whether `c` is situation command 0x18 / 0x19 for group `g` (or
+ * comment 0x1A by it). */
+int func_0035C790(EvCmd *c, int g)
+{
+    if (c->kind == 0x18)
+        return c->a == g;
+    if (c->kind == 0x19)
+        return c->a == g;
+    if (c->kind == 0x1A)
+        return c->b == g;
+    return 0;
+}
+
+/* 0x0035C800, 0x28 bytes, matching. */
+void func_0035C800(int g)
+{
+    func_0035C5E0((int (*)(EvCmd *, int, int))func_0035C790, g, 0);
+}
+
+/* 0x0035C830, 0x88 bytes. Whether `c` is a defeat command (3, 4) whose group no longer counts. */
+int func_0035C830(EvCmd *c)
+{
+    u32 g = 0x47;
+
+    if ((short)c->kind == 3)
+        g = c->b;
+    else if ((short)c->kind == 4)
+        g = c->b;
+    if (g < 0x47 && func_0033B150(GROUP(g)) != 0)
+        return 0;
+    return 1;
+}
+
+/* 0x0035C8C0, 0x28 bytes, matching. */
+void func_0035C8C0(int a)
+{
+    func_0035C5E0((int (*)(EvCmd *, int, int))func_0035C830, a, 0);
+}
+
+/* 0x0035C8F0, 0xDC bytes. Removes the running timers (but the command ones). */
+void func_0035C8F0(void)
+{
+    u32 k = 0;
+
+    do {
+        u8 *p = g_005BC2A0[k];
+        int del = (p[0] & 1) != 0;
+
+        if ((p[0] & 2) != 0 && p[2] > 0x31)
+            del = 0;
+        if (del)
+            timer_remove(k);
+        else
+            k++;
+    } while (k < 0x40);
+}
+
+/* 0x0035C9D0, 0x90 bytes. Ends the battle (`kind`, `won`) after the pending messages; with
+ * settings flag 0x10, at once (ending 5). */
+void func_0035C9D0(u16 kind, int won)
+{
+    EvCmd c;
+
+    if ((SETTINGS_FLAGS & 0x10) != 0) {
+        SETTINGS_FLAGS |= 0xC000000;
+        BATTLE_END = 5;
+        return;
+    }
+    c.kind = 1;
+    c.b = won;
+    c.a = kind;
+    func_0035C8C0(kind);
+    func_0035C8F0();
+    func_0035C560(&c, won == 0 ? 8 : 7);
+}
