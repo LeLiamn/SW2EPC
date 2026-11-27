@@ -2969,3 +2969,220 @@ int func_003CC7B0(void)
         return 0;
     return KNOWS(0x14, 0);
 }
+
+extern int g_0041C460[3];
+
+/* 0x003CC820, 0xE0 bytes. */
+int func_003CC820(void)
+{
+    if (func_00329540(0x133) != 0 || func_003C23A0() == 0)
+        return 0;
+    if (func_0032EC50(func_00327820(), 0x13, 3, 1) == 0 || func_003C27A0(0, 0x13, 3, 0x19F, 0x19F) != 2)
+        return 0;
+    if (func_0036B260() == 0 || func_003C2E90(0x13, 0) == 0)
+        return 0;
+    return func_003C2E90(3, 0) != 0;
+}
+
+/* Officer 0x14 alone on side 0, as its commander, without officer 0x158. */
+static int x14_alone(void)
+{
+    if (!KNOWS(0x14, 1) || func_003C27A0(0, 0x14, 0x19F, 0x19F, 0x19F) != 1)
+        return 0;
+    if (func_003620E0(0, 0) != 0x14)
+        return 0;
+    return func_003C27A0(0, func_00337A10(0x158), 0x19F, 0x19F, 0x19F) != 1;
+}
+
+/* 0x003CC900, 0xC8 bytes. */
+int func_003CC900(void)
+{
+    return func_00329540(0x134) == 0 && x14_alone();
+}
+
+/* 0x003CC9D0, 0xFC bytes. */
+int func_003CC9D0(void)
+{
+    if (func_00329540(0x135) != 0 || func_00329540(0x134) == 0 || x14_alone() == 0)
+        return 0;
+    return func_0036B260() == 0;
+}
+
+/* 0x003CCAD0, 0x78 bytes. */
+int func_003CCAD0(void)
+{
+    return pair_event(0x136, 0x14, 2);
+}
+
+/* 0x003CCB50, 0x70 bytes. */
+int func_003CCB50(void)
+{
+    return knows2(0x137, 0, 5, 0x14, 1);
+}
+
+/* 0x003CCBC0, 0xA8 bytes. */
+int func_003CCBC0(void)
+{
+    if (func_00329540(0x138) != 0 || !KNOWS(0x14, 1) || !KNOWS(0xC, 0))
+        return 0;
+    if (func_002F33F0(0x14) < 10)
+        return 0;
+    return func_002F33F0(0xC) > 9;
+}
+
+/* 0x003CCC70, 0x74 bytes. */
+int func_003CCC70(void)
+{
+    if (func_00329540(0x139) != 0 || !KNOWS(0x14, 1))
+        return 0;
+    return func_003C27A0(0, 0x14, 0x19F, 0x19F, 0x19F) == 1;
+}
+
+/* 0x003CCCF0, 0x80 bytes. */
+int func_003CCCF0(void)
+{
+    return func_00329540(0x13A) == 0 && face(0x14, 0xE);
+}
+
+/* 0x003CCD70, 0xA4 bytes. */
+int func_003CCD70(void)
+{
+    if (func_00329540(0x13B) != 0 || func_00329540(0x13C) != 0)
+        return 0;
+    return knows2(0x13B, 0xB, 0x14, 0xF, 0);
+}
+
+/* 0x003CCE20, 0xCC bytes. */
+int func_003CCE20(void)
+{
+    if (func_00329540(0x13C) != 0 || func_00329540(0x13B) != 0)
+        return 0;
+    if (knows2(0x13C, 0xB, 0x14, 0xF, 0) == 0)
+        return 0;
+    return KNOWS(0x15, 0);
+}
+
+/* 0x003CCEF0, 0x80 bytes. */
+int func_003CCEF0(void)
+{
+    return func_00329540(0x13D) == 0 && face(0x14, 0xF);
+}
+
+/* 0x003CCF70, 0x80 bytes. */
+int func_003CCF70(void)
+{
+    return func_00329540(0x13E) == 0 && face(0x14, 0x15);
+}
+
+/* 0x003CCFF0, 0x120 bytes. Event 0x13F (once): officers 0x11, 0xD and 0x10 on side 0 against 0x14
+ * alone, with none of those four ruling the forces concerned. */
+int func_003CCFF0(void)
+{
+    int t[4], k;
+
+    t[0] = g_0041C460[0];
+    t[1] = g_0041C460[1];
+    t[2] = g_0041C460[2];
+    if (func_00329540(0x13F) != 0 || func_003C27A0(0, 0x11, 0xD, 0x10, 0x19F) != 3)
+        return 0;
+    if (func_003C27A0(1, 0x14, 0x19F, 0x19F, 0x19F) != 1)
+        return 0;
+    if (func_002F9260(func_00327D50()) == 0x14)
+        return 0;
+    for (k = 0; k < 3; k++) {
+        if (t[k] == func_002F9260(func_0032EB00()))
+            return 0;
+    }
+    return 1;
+}
+
+/* 0x003CD110, 0x138 bytes. Event 0x140 (once): 0x14 faces 0x12 as a commander, and either the
+ * player knows 0x12 or func_0036B260 (not both). */
+int func_003CD110(void)
+{
+    if (func_00329540(0x140) != 0 || func_003C2570() == 0)
+        return 0;
+    if (func_002F4080(0x14) == func_002F4080(0x12) || func_003C2AE0(0x14, 0x12) == 0)
+        return 0;
+    if (func_003620E0(0, 0) != 0x12 && func_003620E0(1, 0) != 0x12)
+        return 0;
+    if (KNOWS(0x12, 1) && func_0036B260() != 0)
+        return 0;
+    if (!KNOWS(0x12, 1) && func_0036B260() == 0)
+        return 0;
+    return 1;
+}
+
+/* 0x003CD250, 0x74 bytes. */
+int func_003CD250(void)
+{
+    if (func_00329540(0x141) != 0 || !KNOWS(0x14, 1))
+        return 0;
+    return func_00337A10(0x157) == func_0032E950();
+}
+
+/* 0x003CD2D0, 0x190 bytes. Event 0x142 (once): the player knows officers 0x14, 0x153, 0x156 and
+ * 0x158, all in 0x14's region. */
+int func_003CD2D0(void)
+{
+    int r = func_002F5CC0(0x14);
+
+    if (r < 0 || r >= func_0030AB90() || func_00329540(0x142) != 0)
+        return 0;
+    if (!KNOWS(func_00337A10(0x153), 1) || !KNOWS(func_00337A10(0x156), 1) || !KNOWS(0x14, 1)
+        || !KNOWS(func_00337A10(0x158), 1))
+        return 0;
+    if (r != func_002F5CC0(func_00337A10(0x153)) || r != func_002F5CC0(func_00337A10(0x156)))
+        return 0;
+    return r == func_002F5CC0(func_00337A10(0x158));
+}
+
+/* 0x003CD460, 0xC4 bytes. */
+int func_003CD460(void)
+{
+    if (func_00329540(0x143) != 0 || !KNOWS(0x15, 1) || !KNOWS(0x11, 0))
+        return 0;
+    if ((u32)func_003C2FD0() < 6 || func_002F33F0(0x15) < 10)
+        return 0;
+    return func_002F33F0(0x11) > 9;
+}
+
+/* 0x003CD530, 0x78 bytes. */
+int func_003CD530(void)
+{
+    return pair_event(0x144, 0x15, 0x14);
+}
+
+/* 0x003CD5B0, 0x8C bytes. */
+int func_003CD5B0(void)
+{
+    return knows2(0x145, 0xB, 0, 0x16, 0);
+}
+
+/* 0x003CD640, 0x64 bytes. */
+int func_003CD640(void)
+{
+    if (func_00329540(0x146) != 0 || func_00327820() != 4)
+        return 0;
+    return KNOWS(0x16, 0);
+}
+
+/* 0x003CD6B0, 0x80 bytes. */
+int func_003CD6B0(void)
+{
+    return func_00329540(0x147) == 0 && face(0x16, 9);
+}
+
+/* 0x003CD730, 0x8C bytes. */
+int func_003CD730(void)
+{
+    return knows2(0x148, 0x1F, 9, 0x16, 0);
+}
+
+/* 0x003CD7C0, 0xE0 bytes. */
+int func_003CD7C0(void)
+{
+    if (func_00329540(0x149) != 0 || func_00327C70() < 0xB || func_00327820() != 8)
+        return 0;
+    return bond_event(0x149, 0xB, 9, 0x16, 0, 5);
+}
