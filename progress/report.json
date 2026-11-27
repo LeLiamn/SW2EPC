@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 79552,
-    "non_matching": 502000
+    "non_matching": 505664
   },
   "data": {
     "total": 2155890688,
@@ -553,11 +553,11 @@
         },
         {
           "name": "sc_ubase.c",
-          "description": "Estimated range 0x197470-0x1A1BF0; 148 function(s) decompiled",
+          "description": "Estimated range 0x197470-0x1A1BF0; 150 function(s) decompiled",
           "code": {
             "total": 42880,
             "matching": 3616,
-            "non_matching": 35512
+            "non_matching": 39176
           }
         },
         {

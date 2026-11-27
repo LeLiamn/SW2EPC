@@ -1066,8 +1066,8 @@ player 1, bit 1 player 2, 3 both, 0 not met).
 ## Scenario units and bases (`src/sc_ubase.c`)
 
 Original source file `sc_ubase.c` (its name is passed to the file loader at `0x0019A7B0`, which
-loads LINKDATA entry 0x33, the officer table). Done: `0x0019A7B0`-`0x001A2968` except the
-horses' growth (`0x001A09F0`, `0x001A11F0`): 115 functions, 44 match.
+loads LINKDATA entry 0x33, the officer table). Done: `0x0019A7B0`-`0x001A2968`, 117 functions,
+44 match.
 
 - **Officer table** (0x2C bytes each from the file's +4): +0 / +2 name and title ids, +9 the
   weapon, +0xC-+0x1A the stats, +0x22 / +0x25 three skills and their levels, +0x28 flags.
@@ -1086,7 +1086,9 @@ horses' growth (`0x001A09F0`, `0x001A11F0`): 115 functions, 44 match.
   luck), up to eight attributes (id 0-9, value up to 20), sorted (`0x0019DDC0`); the story stages
   give fixed ones (`0x0019E820`).
 - **Horses** (four stable slots of 0x24 bytes at settings +0x5A0, +4 the state, 4 for none):
-  16 special horses (names at `0x0042DF00`), random ones (`0x001A03A0`), tricks (`0x001A0760`).
+  16 special horses (names at `0x0042DF00`), random ones (`0x001A03A0`), tricks (`0x001A0760`). Horse levels start at the experience
+  values at `0x00406BD0`; each level gained (`0x001A11F0`) grows three values by steps drawn from
+  per kind and temper ranges (`0x001A09F0`, raised by skills 0x12 and 8).
 - **Settings** (`0x00669D60`, 0x25310 bytes): +8 the options (0x50 bytes; +0x2C two 0x12-byte pad
   maps, +0x50-+0x56 display, volumes, screen offset), +0x58 the mode, +0x88 the two players (0x48
   bytes each: officer, counts, experience, boosts at +0xA4/+0xA8, study at +0xBC), +0x118 the

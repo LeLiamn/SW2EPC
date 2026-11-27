@@ -1,7 +1,7 @@
 /*
  * sc_ubase.c - scenario units and bases (original source file sc_ubase.c: its name is passed to
  * the file loader at 0x0019A7B0, where it opens LINKDATA entry 0x33, the officer table).
- * Written so far: 0x0019A7B0-0x001A2968 except the horses' growth (0x001A09F0, 0x001A11F0). The file
+ * Written so far: 0x0019A7B0-0x001A2968. The file
  * holds the officer table, the players' stats, levels, skills learnt in battle, weapons found,
  * the horses, the settings (0x00669D60, 0x25310 bytes) and the save image (0x005D30D0).
  *
@@ -1755,6 +1755,131 @@ void func_001A0760(u32 id, int k)
              || ((func_0019FBC0(k)[0xD] & 4) && t == 3));
     if ((bit & func_0019FBC0(k)[0xD]) == 0)
         func_0019FBC0(k)[0xD] |= (u8)bit;
+}
+
+extern const int g_00425780[4][5][5];    /* per kind and temper: growth ranges of +10 */
+extern const int g_00425910[4][5][4];    /* the same for +11 */
+extern const int g_00425A50[4][5][5];    /* the same for +12 */
+extern const int g_00425BE0[10][5];      /* per horse level: its five values (+0xE) */
+extern const int g_00425CB0[5];          /* the five values with trick 2 */
+extern const int g_00406BD0[10];         /* the experience at which each horse level starts */
+
+/* The growth step from ranges `t` (`n` of them, [t[i], t[i + 1]) gives i + 1) for a roll
+ * (unchanged when the roll is outside them), moved up by skill 0x12 (while a range is left) and
+ * by skill 8, kept within 0-`max`. */
+static inline int growth_step(u32 id, const int *t, int n, int max, int step)
+{
+    u32 roll = RANDOM() % 100;
+    int i, lv;
+
+    for (i = 0; i < n; i++) {
+        if (t[i] <= (int)roll && (int)roll < t[i + 1]) {
+            step = i + 1;
+            break;
+        }
+    }
+    lv = func_0036DBA0(id, 0x12);
+    if (lv > 0 && func_0036DC80(id, 0x12) != 0) {
+        const int *p = t + step;
+
+        for (i = 0; i < lv; i++, p++, step++) {
+            if (step > n - 1 || p[1] == -1)
+                break;
+        }
+    }
+    lv = func_0036DBA0(id, 8);
+    if (lv > 0 && func_0036DC80(id, 8) != 0) {
+        step += lv;
+        step = (step < 1 ? 0 : step) < max + 1 ? (step < 1 ? 0 : step) : max;
+    }
+    return step;
+}
+
+/* A horse value plus `step`, kept within 0-`max`. */
+#define GROW(v, step, max) \
+    ((((int)(v) + (step)) < 1 ? 0 : (int)(v) + (step)) <= (max) \
+         ? (((int)(v) + (step)) < 1 ? 0 : (u8)((v) + (step))) : (max))
+
+/* 0x001A09F0, 0x800 bytes. One level of growth for officer `id`'s horse `k` (kind `kind`,
+ * temper `temper`): its three values +10 (up to 100), +11 (up to 50) and +12 (up to 240) grow
+ * by steps drawn from the kind's ranges; it may learn a trick; its five values come from its
+ * level (or fixed ones with trick 2). */
+void func_001A09F0(u32 id, int k, u32 kind, int temper)
+{
+    int step = 0;   /* (left unset in the original; the ranges cover 0-99) */
+    int n, i;
+    u32 j;
+
+    kind &= 0xFF;
+    step = growth_step(id, g_00425780[kind][temper], 4, 8, step);
+    func_0019FBC0(k)[10] = GROW(func_0019FBC0(k)[10], step, 100);
+    step = growth_step(id, g_00425910[kind][temper], 3, 7, step);
+    func_0019FBC0(k)[11] = GROW(func_0019FBC0(k)[11], step, 50);
+    step = growth_step(id, g_00425A50[kind][temper], 4, 8, step);
+    func_0019FBC0(k)[12] = GROW(func_0019FBC0(k)[12], step, 240);
+
+    if (func_0019FBC0(k)[7] < 3 || func_0019FBC0(k)[7] > 4) {
+        if (func_0019FBC0(k)[7] < 3) {
+            n = 0;
+            for (j = 0; j < 4; j++) {
+                if ((1 << j) & func_0019FBC0(k)[0xD])
+                    n++;
+            }
+            if (n == 0)
+                func_001A0760(id, k);
+        }
+    } else {
+        n = 0;
+        for (j = 0; j < 4; j++) {
+            if ((1 << j) & func_0019FBC0(k)[0xD])
+                n++;
+        }
+        if (n < 2)
+            func_001A0760(id, k);
+    }
+    if ((func_0019FBC0(k)[0xD] & 4) == 0) {
+        for (i = 0; i < 5; i++)
+            func_0019FBC0(k)[i + 0xE] = (u8)g_00425BE0[func_0019FBC0(k)[8]][i];
+    } else {
+        for (i = 0; i < 5; i++)
+            func_0019FBC0(k)[i + 0xE] = (u8)g_00425CB0[i];
+    }
+}
+
+/* The horse level of experience `e` (9 past the table). */
+static inline int horse_level(int e)
+{
+    int t[10], i;
+
+    for (i = 0; i < 10; i++)
+        t[i] = g_00406BD0[i];
+    for (i = 0; i < 9; i++) {
+        if (t[i] <= e && e < t[i + 1])
+            return i;
+    }
+    return 9;
+}
+
+/* 0x001A11F0, 0x648 bytes. Officer `id`'s horse `k` goes from `before` to `now` experience
+ * (kept within 0-99999; the horse as it was copied to `old`): for each level gained it grows
+ * (func_001A09F0). Whether it gained one. */
+int func_001A11F0(u32 id, int k, int now, int before, u8 *old)
+{
+    u8 kind, temper;
+    int n;
+
+    func_0011EB80(old, func_0019FBC0(k), 0x24);
+    *(int *)func_0019FBC0(k) = (now < 1 ? 0 : now) < 100000 ? (now < 1 ? 0 : now) : 99999;
+    if (horse_level(now) <= horse_level(before))
+        return 0;
+    kind = func_0019FBC0(k)[6];
+    temper = func_0019FBC0(k)[7];
+    func_0019FBC0(k)[8] = (u8)horse_level(now);
+    for (n = 0;; n++) {
+        if (horse_level(now) - horse_level(before) <= n)
+            return 1;
+        func_001A09F0(id, k, kind, temper);
+    }
 }
 
 /* The save image (0x96C90 bytes): +0 the settings' first 8 bytes and +8 their next 0x50, +0x58
