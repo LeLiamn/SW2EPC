@@ -3772,3 +3772,360 @@ int func_00352CA0(u8 *cell)
         return 0;
     return cell[1] % 5 == 2;
 }
+
+extern int g_0045D068[2];                /* (small data) the front value of each side's cells */
+
+int func_003DCF00(int x, u8 *b);
+int func_00364E70(int l, int d);
+void func_00364F00(int l, int p, int k);
+void func_00191200(float *out, float *v);
+void func_0020FF60(u8 *cell);
+
+/* A map cell's record (0x00 bytes of data, then +0x80: bases count, four bases, front value). */
+#define CELL_AT(map, x, y) (((u8 **)*(int *)((map) + 4))[(x) + (y) * 0x20])
+
+/* 0x00352D10, 0x7C bytes. Base `b`'s centre on the map. */
+void func_00352D10(u8 *b, float *out)
+{
+    u8 c[2];
+
+    func_0034ED90(b, c);
+    out[0] = (float)c[0] * 5000.0f + 2500.0f;
+    out[1] = (float)c[1] * 5000.0f + 2500.0f;
+}
+
+/* 0x00352D90, 0x80 bytes, matching. Whether base `b` links to base `l`. */
+int func_00352D90(u8 *b, u8 *l)
+{
+    u32 n = func_0034EEF0(b), k;
+
+    for (k = 0; k < n; k++) {
+        if (func_0034EF60(b, k) == l)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00352E10, 0xE0 bytes. The bases passing `test` (with `a`, `b`) into `out`, at most `max`. */
+u32 func_00352E10(u32 *out, u32 max, int (*test)(u8 *, int, int), int a, int b)
+{
+    u32 n = 0, k;
+
+    for (k = 0; k < 0x14; k++) {
+        u8 *x;
+
+        if (n >= max)
+            return n;
+        x = BASE(k);
+        if (func_0034EE50(x) != 0 && (test == 0 || test(x, a, b) != 0)) {
+            *out++ = k;
+            n++;
+        }
+    }
+    return n;
+}
+
+/* 0x00352EF0, 0x30 bytes, matching. */
+int func_00352EF0(u8 *b, u8 *g)
+{
+    return func_00347800(g, func_0034ED40(b));
+}
+
+/* 0x00352F20, 0x30 bytes, matching. The bases group `g` can go to. */
+u32 func_00352F20(u8 *g, u32 *out, u32 max)
+{
+    return func_00352E10(out, max, (int (*)(u8 *, int, int))func_00352EF0, (int)g, 0);
+}
+
+/* 0x00352F50, 0x30 bytes, matching. */
+int func_00352F50(u8 *b, u8 *g)
+{
+    return func_00347840(g, func_0034ED40(b));
+}
+
+/* 0x00352F80, 0x30 bytes, matching. The bases group `g` can hold. */
+u32 func_00352F80(u8 *g, u32 *out, u32 max)
+{
+    return func_00352E10(out, max, (int (*)(u8 *, int, int))func_00352F50, (int)g, 0);
+}
+
+/* 0x00352FB0, 0x2C bytes, matching. */
+int func_00352FB0(u8 *b, int side)
+{
+    return side == func_0034EDB0(b);
+}
+
+/* 0x00352FE0, 0x30 bytes, matching. Side `side`'s bases. */
+u32 func_00352FE0(int side, u32 *out, u32 max)
+{
+    return func_00352E10(out, max, (int (*)(u8 *, int, int))func_00352FB0, side, 0);
+}
+
+/* 0x00353010, 0x50 bytes, matching. Whether base `b` is a front base of side `side`. */
+int func_00353010(u8 *b, int side)
+{
+    if (side != func_0034EDB0(b))
+        return 0;
+    return func_003522F0(b, side) != 0;
+}
+
+/* 0x00353060, 0x30 bytes, matching. Side `side`'s front bases. */
+u32 func_00353060(int side, u32 *out, u32 max)
+{
+    return func_00352E10(out, max, (int (*)(u8 *, int, int))func_00353010, side, 0);
+}
+
+/* 0x00353090, 0xA0 bytes, matching. The bases at func_003DCF00 distance `d` from `x`, into list `l`. */
+void func_00353090(int x, int d, int l)
+{
+    u32 k;
+
+    func_00365230(l);
+    for (k = 0; k < 0x14; k++) {
+        u8 *b = BASE(k);
+
+        if (func_0034EE50(b) != 0 && d == func_003DCF00(x, b))
+            func_00364E40(l, k);
+    }
+}
+
+/* 0x00353130, 0xB4 bytes. All bases into list `l` sorted by func_003DCF00 distance from `x`. */
+void func_00353130(int x, int l)
+{
+    u8 buf[80], tmp[16];
+    u32 k;
+
+    func_003653F0((int)tmp, buf, 0x14);
+    func_00365230((int)tmp);
+    func_00365230(l);
+    for (k = 0; k < 0x14; k++) {
+        u8 *b = BASE(k);
+
+        if (func_0034EE50(b) != 0)
+            func_00364F00(l, func_00364E70((int)tmp, func_003DCF00(x, b)), k);
+    }
+}
+
+/* 0x003531F0, 0x88 bytes, matching. Side `side`'s number of bases. */
+int func_003531F0(int side)
+{
+    int n = 0;
+    u32 k;
+
+    for (k = 0; k < 0x14; k++) {
+        u8 *b = BASE(k);
+
+        if (func_0034EE50(b) != 0 && side == func_0034EDB0(b))
+            n++;
+    }
+    return n;
+}
+
+/* 0x00353280, 0xAC bytes, matching. The base unit `u` stands at. */
+u8 *func_00353280(u8 *u)
+{
+    float v[4], xy[2];
+    u8 c[2];
+
+    if (u == 0)
+        return 0;
+    v[0] = *(float *)(u + 0x30);
+    v[1] = *(float *)(u + 0x34);
+    v[2] = *(float *)(u + 0x38);
+    v[3] = *(float *)(u + 0x3C);
+    func_00191200(xy, v);
+    c[0] = (int)xy[0] / 5000;
+    c[1] = (int)xy[1] / 5000;
+    return func_0034ECA0(c);
+}
+
+/* 0x00353330, 0x60 bytes. Map cell `cell`'s base data (+0x80). */
+u8 *func_00353330(u8 *cell)
+{
+    u8 *p = 0;
+
+    if (cell != 0 && cell[0] <= 0x1F && cell[1] <= 0x1F)
+        p = CELL_AT(g_0045D2F0, cell[0], cell[1]);
+    return p + 0x80;
+}
+
+/* 0x00353390, 0x20 bytes, matching. How many bases cell `cell` belongs to. */
+u32 func_00353390(u8 *cell)
+{
+    return *func_00353330(cell);
+}
+
+/* 0x003533B0, 0x44 bytes. Its base `k` (0-3). */
+u8 func_003533B0(u8 *cell, u32 k)
+{
+    if (cell == 0 || k > 3)
+        return 0;
+    return func_00353330(cell)[k + 1];
+}
+
+/* 0x00353400, 0x24 bytes. */
+u8 *func_00353400(u8 *cell, u32 k)
+{
+    return BASE(func_003533B0(cell, k));
+}
+
+/* 0x00353430, 0x24 bytes. Sets cell `cell`'s front value. */
+void func_00353430(u8 *cell, short v)
+{
+    *(short *)(func_00353330(cell) + 6) = v;
+}
+
+/* 0x00353460, 0x20 bytes, matching. Cell `cell`'s front value. */
+short func_00353460(u8 *cell)
+{
+    return *(short *)(func_00353330(cell) + 6);
+}
+
+/* 0x00353480, 0x128 bytes. Clears the base data of `map`'s 25x25 cells. */
+void func_00353480(u8 *map)
+{
+    u32 x, y;
+
+    for (y = 0; y < 0x19; y++) {
+        for (x = 0; x < 0x19; x++) {
+            u8 *p = CELL_AT(map, x, y);
+
+            if (p != 0) {
+                u8 *q = p + 0x80;
+
+                q[0] = 0;
+                q[1] = 0x14;
+                q[2] = 0x14;
+                q[3] = 0x14;
+                q[4] = 0x14;
+                *(short *)(q + 6) = 0;
+            }
+        }
+    }
+}
+
+/* 0x003535B0, 0x1C bytes, matching. */
+void func_003535B0(u8 *map)
+{
+    func_00353480(map);
+}
+
+/* 0x003535D0, 0x184 bytes. Gives each map cell its nearest bases (up to four at the same
+ * distance). */
+void func_003535D0(void)
+{
+    int x, y;
+
+    for (y = 0; y < 0x20; y++) {
+        for (x = 0; x < 0x20; x++) {
+            u8 c[2], *q;
+            int best = 0;
+            u32 k;
+
+            c[0] = x;
+            c[1] = y;
+            if (func_00190480(c) == 0 || (q = func_00353330(c)) == 0)
+                continue;
+            for (k = 0; k < 0x14; k++) {
+                u8 *b = BASE(k), bc[4];
+                u32 d;
+                int w;
+
+                if (b == 0 || func_0034EE50(b) == 0)
+                    continue;
+                func_0034ED90(b, bc);
+                d = func_0018F6F0(c, bc, 0) & 0xFFFF;
+                w = 0x10000 / (d < 2 ? 1 : (int)(d * d));
+                if (best < w) {
+                    q[1] = 0x14;
+                    q[2] = 0x14;
+                    q[3] = 0x14;
+                    q[4] = 0x14;
+                    q[1] = k;
+                    q[0] = 1;
+                    best = w;
+                } else if (w == best && q[0] < 4) {
+                    q[q[0] + 1] = k;
+                    q[0]++;
+                }
+            }
+        }
+    }
+}
+
+/* 0x00353760, 0xE8 bytes. Cell `cell`'s front value: the average of its bases' (-100 to 100). */
+void func_00353760(u8 *cell)
+{
+    int s = 0, v;
+    u32 n, k;
+
+    if (cell == 0 || func_00190480(cell) == 0)
+        return;
+    n = func_00353390(cell);
+    for (k = 0; k < n; k++) {
+        u8 *b = func_00353400(cell, k);
+
+        if (b != 0)
+            s += (short)func_0034F3B0(b);
+    }
+    if (n == 0) {
+        v = 0;
+    } else {
+        v = s / (int)n;
+        if (v < -99)
+            v = -100;
+        else if (v > 100)
+            v = 100;
+    }
+    func_00353430(cell, v);
+    func_0020FF60(cell);
+}
+
+/* 0x00353850, 0xA0 bytes. Updates the front values of the cells in a rectangle. */
+void func_00353850(int x0, int y0, int x1, int y1)
+{
+    int x;
+
+    for (; y0 <= y1; y0++) {
+        for (x = x0; x <= x1; x++) {
+            u8 c[2];
+
+            c[0] = x;
+            c[1] = y0;
+            if (func_00190480(c) != 0)
+                func_00353760(c);
+        }
+    }
+}
+
+/* 0x003538F0, 0x28 bytes, matching. The same for the whole map. */
+void func_003538F0(void)
+{
+    func_00353850(0, 0, 0x19, 0x19);
+}
+
+/* 0x00353920, 0x64 bytes. Whether cell `cell` is fully side `side`'s. */
+int func_00353920(u8 *cell, u32 side)
+{
+    int t[2];
+
+    t[0] = g_0045D068[0];
+    t[1] = g_0045D068[1];
+    if (cell == 0 || side > 1)
+        return 0;
+    return t[side] == func_00353460(cell);
+}
+
+/* 0x00353990, 0x40 bytes. Whether cell `cell` is contested. */
+int func_00353990(u8 *cell)
+{
+    short v = func_00353460(cell);
+
+    return v >= -99 && v <= 99;
+}
+
+/* 0x003539D0, 0x38 bytes. Cell `cell`'s front value from side `side`'s view. */
+int func_003539D0(u8 *cell, int side)
+{
+    return (side == 0 ? 1 : -1) * func_00353460(cell);
+}
