@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 123536,
-    "non_matching": 864304
+    "matching": 124368,
+    "non_matching": 867452
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1332
+    "matching": 1344
   },
   "layout": "treemap",
   "areas": [
@@ -46,15 +46,15 @@
         },
         {
           "name": "StateStartUp.c",
-          "description": "Estimated range 0x362128-0x36DE68; 137 function(s) decompiled",
+          "description": "Estimated range 0x362128-0x36DE68; 167 function(s) decompiled",
           "code": {
             "total": 48448,
-            "matching": 8016,
-            "non_matching": 16508
+            "matching": 8848,
+            "non_matching": 19656
           },
           "decompiled_functions": {
-            "count": 137,
-            "matching": 61
+            "count": 167,
+            "matching": 73
           }
         },
         {

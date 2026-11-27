@@ -2405,3 +2405,248 @@ u32 func_00363EA0(int s)
         v = 0xB4;
     return v;
 }
+
+/* The sides' battle tactics (+0x74: six per side, 10 = none; +0x80 the one picked, +0x82 the
+ * side's tactic points). */
+
+extern u32 g_00415E00[10], g_00415E60[5];
+
+u32 func_00363EA0(int s);
+u32 func_00328640(u32 k);
+u32 func_003F7310(u32 v);
+int func_002F7B10(void);
+int func_002F7D90(int a, int (*f)(void), int x, int b, int c, int d);
+int func_002F8160(void);
+int func_003F7270(u32 k);
+int func_003F73E0(u32 k);
+int func_00314BA0(int a, int b, int n);
+int func_0036D6D0(void);
+u32 func_003F71D0(u32 k);
+u32 func_003F7110(u32 k);
+int func_00363E50(void);
+void func_00364980(void);
+
+/* 0x00364020, 0x30 bytes. Side `s`'s tactic points from its rating. */
+void func_00364020(int s)
+{
+    func_00362CB0(s, func_00363EA0(s));
+}
+
+/* 0x00364050, 0x28 bytes. Side 0 picks its last tactic. */
+void func_00364050(void)
+{
+    func_00362C50(0, func_00362D70(0) - 1);
+}
+
+/* 0x00364080, 0xF4 bytes. Side 1 picks one of the tactics it can afford at random (else its
+ * last). */
+void func_00364080(void)
+{
+    u32 best = 6, k;
+
+    for (k = 0; k < 6; k++) {
+        u32 v = func_00362C10(1, k);
+
+        if (v < 10 && func_003F71B0(v) <= func_00362CE0(1) && (best > 5 || RANDOM() % 100 < 0x32))
+            best = k;
+    }
+    if (best > 5)
+        best = func_00362D70(1) - 1;
+    func_00362C50(1, best);
+}
+
+/* 0x00364180, 0x9C bytes. Side 0's tactics from the player's five set ones. */
+void func_00364180(void)
+{
+    u32 k, n = 0;
+
+    for (k = 0; k < 5; k++) {
+        u32 v = func_003F7310(func_00328640(k));
+
+        if (v < 10)
+            func_00362BD0(0, n++, v);
+    }
+    if (n > 5)
+        n = 5;
+    func_00362BD0(0, n, 0);
+    func_00364020(0);
+    func_00364050();
+}
+
+/* 0x00364220, 0x10C bytes. The tactics (1-9) open to officer `x` into `out`. */
+int func_00364220(int x, u32 *out)
+{
+    int t = func_002F7B10(), c = 0;
+    int n = func_002F7D90(0, func_002F8160, x, 0, 1, 0);
+    u32 k;
+
+    if (n < 1)
+        return 0;
+    for (k = 0; k < 10; k++) {
+        int ok;
+
+        if (k == 0)
+            continue;
+        ok = 1;
+        if (func_003F7270(k) != 1)
+            ok = func_00314BA0(func_003F73E0(k), t, n) != 0;
+        if (ok) {
+            *out++ = k;
+            c++;
+        }
+    }
+    return c;
+}
+
+/* 0x00364330, 0xD8 bytes. Side `s`'s special officers (kind 3, func_0036D3B0, func_0036D400). */
+int func_00364330(int s)
+{
+    int n = 0;
+    u32 k;
+
+    if (func_0036D2E0() == 0)
+        return 0;
+    for (k = 0; k < 8; k++) {
+        int o = (short)func_003620E0(s, k);
+
+        if (o >= 0 && o < 0x19F) {
+            if (func_002F3DC0(o) == 3)
+                n++;
+            if (func_0036D3B0(o) != 0)
+                n++;
+            if (func_0036D400(o) != 0)
+                n++;
+        }
+    }
+    return n;
+}
+
+/* 0x00364410, 0xFC bytes. How many tactics side 1 gets (side 0's count, one less on the easy
+ * levels, one more on the hard ones with special officers). */
+int func_00364410(void)
+{
+    int n, d;
+
+    if (func_00363C40(1, 1) < 3)
+        return 0;
+    if ((u32)func_00362D70(0) < 2)
+        return 0;
+    if (func_0036D6D0() < 3)
+        return 0;
+    n = func_00362D70(0);
+    d = func_003625B0();
+    if (d == 4 || d == 3)
+        n += func_00364330(1) != 0;
+    else if (d != 2 && (d == 1 || d == 0))
+        n -= 1;
+    if (n < 1)
+        n = 0;
+    return n;
+}
+
+/* 0x00364510, 0xA0 bytes. Tactic `k`'s rank (9 past the table). */
+u32 func_00364510(u32 k)
+{
+    u32 t[10];
+    int i;
+
+    for (i = 0; i < 10; i++)
+        t[i] = g_00415E00[i];
+    return k < 10 ? t[k] : 9;
+}
+
+/* 0x003645B0, 0xF0 bytes. Side `s`'s best ranked tactic (ties at random). */
+u32 func_003645B0(u32 s)
+{
+    u32 r = 0, best, k;
+
+    if (s >= 2)
+        return 0;
+    best = func_00364510(0);
+    for (k = 0; k < 6; k++) {
+        u32 v = func_00362C10(s, k), w;
+
+        if (v >= 10)
+            continue;
+        w = func_00364510(v);
+        if (w > best)
+            continue;
+        if (w == best && RANDOM() % 100 >= 0x32)
+            continue;
+        r = v;
+        best = w;
+    }
+    return r;
+}
+
+/* 0x003648C0, 0xBC bytes. The last tactic of `list` of kind `kind`, available and within
+ * `budget` (10 for none). */
+u32 func_003648C0(u32 *list, u32 n, u32 kind, u32 budget)
+{
+    u32 r = 10, k;
+
+    for (k = 0; k < n; k++) {
+        u32 v = *list++;
+
+        if (kind == func_003F71D0(v) && func_003F7270(v) != 0 && func_003F7110(v) <= budget)
+            r = v;
+    }
+    return r;
+}
+
+/* 0x00364BF0, 0x34 bytes, matching. Both sides' tactics. */
+void func_00364BF0(void)
+{
+    if (func_00363E50() != 0) {
+        func_00364180();
+        func_00364980();
+    }
+}
+
+/* 0x00364C30, 0x60 bytes, matching. Side 0 with no tactics. */
+void func_00364C30(void)
+{
+    u32 k;
+
+    func_00362BD0(0, 0, 0);
+    for (k = 1; k < 6; k++)
+        func_00362BD0(0, k, 10);
+    func_00364020(0);
+    func_00364050();
+}
+
+/* 0x00364C90, 0x164 bytes. Side 1's random tactics (3-5 by the difficulty's chances). */
+void func_00364C90(void)
+{
+    u32 t[5], n = 3, k;
+    int d;
+
+    t[0] = g_00415E60[0];
+    t[1] = g_00415E60[1];
+    t[2] = g_00415E60[2];
+    t[3] = g_00415E60[3];
+    t[4] = g_00415E60[4];
+    d = func_003625B0();
+    for (k = 3; k < 5; k++) {
+        if (RANDOM() % 100 < t[d])
+            n++;
+    }
+    if (n > 5)
+        n = 5;
+    for (k = 0; k < n; k++)
+        func_00362BD0(1, k, RANDOM() % 9 + 1);
+    if (k > 5)
+        k = 5;
+    func_00362BD0(1, k, 0);
+    func_00364020(1);
+    func_00364080();
+}
+
+/* 0x00364E00, 0x34 bytes, matching. */
+void func_00364E00(void)
+{
+    if (func_00363E50() != 0) {
+        func_00364C30();
+        func_00364C90();
+    }
+}
