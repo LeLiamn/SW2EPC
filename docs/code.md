@@ -1028,7 +1028,7 @@ so far (13 functions, 5 match):
 ## The strategic map (`src/field.c`)
 
 Original source file `Field.c` (its name is passed to the file loader at `0x0018C490`). Done
-so far: simple functions from `0x0018C490` to `0x0018DA54` (17 functions, 7 match). Like
+so far: `0x0018C490`-`0x001914EC` except a few larger functions (75 functions, 22 match). Like
 `Weapon.c` and `sc_ctrl.c`, it was built with the loop unroller on.
 
 - **Map objects** (0x5C8 bytes, `0x005BD750`; five in game mode 2): the map file split into
@@ -1038,6 +1038,14 @@ so far: simple functions from `0x0018C490` to `0x0018DA54` (17 functions, 7 matc
 - **Route cache:** 64 entries in a list and 0x57 hash buckets; a key's hash is two words summed
   with the complement of two others, xored with `0x1895F7C2` by a flag.
 - The provinces' 16-byte state is saved with the game.
+- **Routes:** two n x n tables (one per side) of a 12-bit cost and a 4-bit first step;
+  opening a link relaxes them, closing one marks them to be rebuilt, which is done a province
+  at a time within a time budget. A route query gives the next cell or the cost.
+- **Gates and doors** (12-byte records per map): their open state follows their two provinces
+  and the route across; opening a gate can show a short camera scene. Provinces can be cut off
+  (0x2000000) or blocked (0x1000000).
+- **Points:** map points (x, z) become 3D points on the ground in their map part's own space,
+  and back; a few 250-wide bit grids (by layer) mark areas.
 
 ## Scenario control (`src/sc_ctrl.c`)
 

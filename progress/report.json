@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 72704,
-    "non_matching": 443404
+    "matching": 73792,
+    "non_matching": 454824
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 648
+    "matching": 663
   },
   "layout": "treemap",
   "areas": [
@@ -345,20 +345,20 @@
       "children": [
         {
           "name": "Field.c",
-          "description": "Estimated range 0x1890D0-0x190010; 78 function(s) decompiled",
+          "description": "Estimated range 0x1890D0-0x190010; 102 function(s) decompiled",
           "code": {
             "total": 28480,
-            "matching": 2416,
-            "non_matching": 10564
+            "matching": 2672,
+            "non_matching": 17580
           }
         },
         {
           "name": "Stage.c",
-          "description": "Estimated range 0x190010-0x197470; 0 function(s) decompiled",
+          "description": "Estimated range 0x190010-0x197470; 34 function(s) decompiled",
           "code": {
             "total": 29792,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 832,
+            "non_matching": 4404
           }
         },
         {
