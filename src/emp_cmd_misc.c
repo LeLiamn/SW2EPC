@@ -686,3 +686,225 @@ int func_003C1ED0(int a, int b)
         return 0;
     return 1;
 }
+
+int func_00327D50(void);
+int func_002FB3B0(int f);
+int func_00329870(void);
+int func_003635F0(void);
+int func_0036B260(void);
+u16 func_003620E0(int s, int k);
+int func_0030D370(void);
+int func_002F9260(int f);
+int func_0032EB00(void);
+int func_002F27D0(int v);
+int func_0032F7D0(int v);
+u8 func_00362570(void);
+
+/* 0x003C2090, 0xE8 bytes. Whether force `f` may attack region `b` from one of its regions. */
+int func_003C2090(int f, int b)
+{
+    int n = func_0030AB90(), r;
+
+    if (f < 0 || f >= func_0030AB90())
+        return 0;
+    for (r = 0; r < n; r++) {
+        if (r >= 0 && r < func_0030AB90() && f == func_0030AFF0(r) && func_003C1ED0(r, b) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x003C2180, 0x190 bytes. How many regions the player's force may attack. */
+int func_003C2180(void)
+{
+    int n = func_0030AB90(), f = func_00327D50(), own = func_002FB3B0(f), t[28], c = 0, k, j;
+    int *p = t;
+
+    for (k = 0; k < 0x19; k++)
+        t[k] = n;
+    for (k = 0; k < n; k++) {
+        if (k >= 0 && k < func_0030AB90() && f == func_0030AFF0(k))
+            *p++ = k;
+    }
+    for (k = 0; k < n; k++) {
+        if (k < 0 || k >= func_0030AB90() || f == func_0030AFF0(k))
+            continue;
+        for (j = 0; j < own; j++) {
+            if (func_003C1ED0(t[j], k) != 0) {
+                c++;
+                break;
+            }
+        }
+    }
+    return c;
+}
+
+/* 0x003C2320, 0x3C bytes, matching. */
+int func_003C2320(void)
+{
+    if (func_00329870() == 0)
+        return 0;
+    return func_003635F0() == 0;
+}
+
+/* 0x003C2360, 0x38 bytes, matching. */
+int func_003C2360(void)
+{
+    if (func_003C2320() == 0)
+        return 0;
+    return func_0036B260() != 0;
+}
+
+/* 0x003C23A0, 0xF0 bytes. Whether the player's officer knows one of the two commanders. */
+int func_003C23A0(void)
+{
+    u32 a = func_003620E0(0, 0), b = func_003620E0(1, 0);
+    int me = func_00327820();
+
+    if (a >= 0x19F || b >= 0x19F || func_00329870() == 0)
+        return 0;
+    if (func_0032EB40(me, a, 1) == 0 && func_0032EB40(me, b, 1) == 0)
+        return 0;
+    return 1;
+}
+
+/* 0x003C2490, 0xE0 bytes. Whether force `f`'s ruler knows one of the two commanders. */
+int func_003C2490(int f)
+{
+    u32 a = func_003620E0(0, 0), b = func_003620E0(1, 0);
+    int r = func_002F8F20(f);
+
+    if (a >= 0x19F || b >= 0x19F)
+        return 0;
+    if (func_0032EB40(r, a, 1) == 0 && func_0032EB40(r, b, 1) == 0)
+        return 0;
+    return 1;
+}
+
+/* 0x003C2570, 0x6C bytes. */
+int func_003C2570(void)
+{
+    u8 k = func_00362570();
+
+    if (func_00329870() == 0)
+        return 0;
+    switch (k) {
+    case 0:
+    case 2:
+    case 4:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+/* 0x003C25E0, 0xDC bytes. Whether officer `o`'s force fights on the player's side. */
+int func_003C25E0(u32 o)
+{
+    int f = func_002F4080(o);
+
+    if (o >= 0x19F || func_0030D370() == 0 || func_003C2490(f) == 0)
+        return 0;
+    if (func_003635F0() == 0 && f == func_00327D50())
+        return 1;
+    if (func_003635F0() == 1 && f != func_00327D50())
+        return 1;
+    return 0;
+}
+
+/* 0x003C26C0, 0xDC bytes. Whether it fights on the other side. */
+int func_003C26C0(u32 o)
+{
+    int f = func_002F4080(o);
+
+    if (o >= 0x19F || func_0030D370() == 0 || func_003C2490(f) == 0)
+        return 0;
+    if (func_003635F0() == 1 && f == func_00327D50())
+        return 1;
+    if (func_003635F0() == 0 && f != func_00327D50())
+        return 1;
+    return 0;
+}
+
+/* 0x003C27A0, 0x144 bytes. How many of side `s`'s first six slots hold one of four officers. */
+int func_003C27A0(int s, u32 a, u32 b, u32 c, u32 d)
+{
+    int n = 0;
+    u32 k;
+
+    for (k = 0; k < 6; k++) {
+        if ((a == func_003620E0(s, k) && a < 0x19F) || (b == func_003620E0(s, k) && b < 0x19F)
+            || (c == func_003620E0(s, k) && c < 0x19F) || (d == func_003620E0(s, k) && d < 0x19F))
+            n++;
+    }
+    return n;
+}
+
+/* 0x003C28F0, 0xC4 bytes. Side `s`'s officers (slots 6-7 too when `all`). */
+int func_003C28F0(int s, int all)
+{
+    int n = 0;
+    u32 k;
+
+    if (all == 0) {
+        for (k = 0; k < 6; k++) {
+            if (func_003620E0(s, k) < 0x19F)
+                n++;
+        }
+    } else {
+        for (k = 0; k < 8; k++) {
+            if (func_003620E0(s, k) < 0x19F)
+                n++;
+        }
+    }
+    return n;
+}
+
+/* 0x003C29C0, 0x9C bytes. How many of side 0's officers the player knows. */
+int func_003C29C0(void)
+{
+    int n = 0;
+    u32 k;
+
+    for (k = 0; k < 8; k++) {
+        u32 o = func_003620E0(0, k);
+
+        if (o < 0x19F && func_0032EB40(func_00327820(), o, 1) != 0)
+            n++;
+    }
+    return n;
+}
+
+/* 0x003C2A60, 0x80 bytes, matching. The first officer the player knows of kind `kind` (-1 for none). */
+int func_003C2A60(int kind)
+{
+    int k;
+
+    for (k = 0; k < 0x19F; k++) {
+        if (func_0032EB40(func_00327820(), k, 0) != 0 && kind == func_0032F7D0(func_002F27D0(k)))
+            return k;
+    }
+    return -1;
+}
+
+/* 0x003C2AE0, 0x17C bytes. Whether officers `a` and `b` (neither ruler of the player's force or
+ * of the other one) face each other as their sides' only one. */
+int func_003C2AE0(int a, int b)
+{
+    int t[2], k;
+
+    t[0] = a;
+    t[1] = b;
+    for (k = 0; k < 2; k++) {
+        if (func_003C0790(t[k]) == 0)
+            return 0;
+        if (func_002F9260(func_00327D50()) == t[k])
+            return 0;
+        if (func_002F9260(func_0032EB00()) == t[k])
+            return 0;
+    }
+    if ((func_003C27A0(0, a, 0x19F, 0x19F, 0x19F) == 1 && func_003C27A0(1, b, 0x19F, 0x19F, 0x19F) == 1)
+        || (func_003C27A0(1, a, 0x19F, 0x19F, 0x19F) == 1 && func_003C27A0(0, b, 0x19F, 0x19F, 0x19F) == 1))
+        return 1;
+    return 0;
+}
