@@ -611,3 +611,162 @@ void func_001AC0A0(u8 *f, int i, u32 *w, u32 *h)
 {
     func_001ABAB0(PACK_IMAGE(f, i), w, h);
 }
+
+/* A window layout: its place when hidden and shown (x, y, w, h each) and three bytes. */
+typedef struct {
+    short from[4];
+    short to[4];
+    u8 b[4];
+} Layout;
+
+extern Layout g_0068F070[4];             /* the top, bottom and two side windows' layouts */
+extern void *g_0068F0F0, *g_0068F0F8, *g_0068F100;   /* texture sets */
+extern u32 g_0068F108;
+extern u8 g_00574DE0[][0x630];           /* the units */
+
+#define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10 & 0xFFFF)
+
+void *func_00107440(u8 *img, int tbp, int cbp);
+void *func_00107420(u8 *img, int a, int b, int c, int d, int tbp, int cbp);
+void vu0_sincos(float a, float *s, float *c);    /* VU0 micro subroutine 0x20 */
+float vu0_atan2(float y, float x);                /* VU0 micro subroutine 0x30 */
+float sqrtf(float x);
+
+static inline void set_layout(Layout *l, int x0, int y0, int x1, int y1, int w, int h)
+{
+    l->from[0] = (short)x0;
+    l->from[1] = (short)y0;
+    l->from[2] = (short)w;
+    l->from[3] = (short)h;
+    l->to[0] = (short)x1;
+    l->to[1] = (short)y1;
+    l->to[2] = (short)w;
+    l->to[3] = (short)h;
+    l->b[0] = 0x80;
+    l->b[1] = 0x80;
+    l->b[2] = 0xC;
+    l->b[3] = 0;
+}
+
+/* 0x001AC0E0, 0x1B8 bytes. The four windows' layouts (sliding in from above, below and the
+ * sides). */
+void func_001AC0E0(void)
+{
+    set_layout(&g_0068F070[0], 0, -0x10, 0, 0, 0x168, 0x28);
+    set_layout(&g_0068F070[1], 0x98, 0x168, 0x98, 0x158, 0x168, 0x28);
+    set_layout(&g_0068F070[2], 0, -0x28, 0, 0, 0x130, 0x38);
+    set_layout(&g_0068F070[3], 0xD0, 0x170, 0xD0, 0x148, 0x130, 0x38);
+}
+
+/* 0x001AC2A0, 0xFC bytes. Uploads officer `id`'s large portrait (LINKDATA entry 9 + portrait,
+ * 0x2B for 0x22-0x32, entry - 7 for 0x33-0x38). */
+void func_001AC2A0(u32 id)
+{
+    u8 k = g_005BA6A0[func_002F27D0(id) * 0x2C + 6];
+    int e;
+    u8 *f;
+
+    if (k <= 0x21)
+        e = k + 9;
+    else if (k <= 0x32)
+        e = 0x2B;
+    else if (k <= 0x38)
+        e = k - 7;
+    else
+        e = 9;
+    f = func_001026D0(1, e, 0, 1, 0, 0, g_00425D40, 0xC76);
+    func_00107440(f, 0x3860, 0x3F93);
+    func_00102EC0(f);
+}
+
+/* 0x001AC3A0, 0x118 bytes. Loads the interface textures (LINKDATA entry 7: the two main sets and
+ * two plates, the second replacing the first) and the portraits. */
+void func_001AC3A0(void)
+{
+    u8 *f = func_001026D0(1, 7, 0, 1, 0, 0, g_00425D40, 0xC89);
+
+    g_0068F0F0 = func_00107440(f + *(int *)(f + 8) * *(int *)(f + 0x10), 0x3560, 0x3EE3);
+    g_0068F0F8 = func_00107440(f + *(int *)(f + 8) * *(int *)(f + 0x18), 0x3660, 0x3F53);
+    g_0068F100 = func_00107420(f + *(int *)(f + 8) * *(int *)(f + 0x20), 0, 0x4C, 0x80, 0x80,
+                               0x3860, 0x3F97);
+    g_0068F100 = func_00107420(f + *(int *)(f + 8) * *(int *)(f + 0x28), 0, 0x4C, 0x80, 0x80,
+                               0x3860, 0x3F9B);
+    func_00102EC0(f);
+    g_0068F108 = 0;
+    func_001A8F00();
+}
+
+/* 0x001AC4C0, 0x1C bytes. Frees the portraits. */
+void func_001AC4C0(void)
+{
+    func_001A9350();
+}
+
+/* Wraps an angle into (-pi, pi]. */
+static inline float wrap_angle(float a)
+{
+    if (a > 3.1415927f)
+        return a - 6.2831855f;
+    if (a <= -3.1415927f)
+        return a + 6.2831855f;
+    return a;
+}
+
+/* 0x001AC4E0, 0x110 bytes. A random direction (sin, 0, cos, 0) at `base` plus an angle between
+ * `lo` and `hi`. */
+void func_001AC4E0(float lo, float hi, float base, float *out)
+{
+    float s, c;
+
+    base = base + (hi - lo) / 65535.0f * (float)(RANDOM() % 0xFFFF) + lo + 0.0f;
+    vu0_sincos(wrap_angle(base), &s, &c);
+    out[0] = s;
+    out[2] = c;
+    out[1] = 0.0f;
+    out[3] = 0.0f;
+}
+
+/* The heading of direction `d` (normalised first). */
+static inline float heading(const float *d)
+{
+    float n = sqrtf(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
+    float q = 1.0f / (n + 0.0f);
+
+    return wrap_angle(vu0_atan2(d[0] * q, d[2] * q));
+}
+
+/* 0x001AC5F0, 0x380 bytes. The enemy unit (of another side than `self`, flag 2 of +0x198, with a
+ * model) whose heading from `pos` is closest to that of `dir` (within `best`) and farther than
+ * `dist` (as Ghidra reads the test?). 0 for none or no `self`. */
+u8 *func_001AC5F0(float best, float dist, float *dir, float *pos, u8 *self)
+{
+    u8 *found = 0, *u;
+    float h;
+    int k;
+
+    if (self == 0)
+        return 0;
+    h = heading(dir);
+    for (k = 0, u = g_00574DE0[0]; k < 0x8F; k++, u += 0x630) {
+        float d[4], a;
+
+        if ((u[0x198] & 2) == 0 || *(u32 *)(u + 0x11C) == 0 || u == self
+            || (signed char)u[0x154] == (signed char)self[0x154])
+            continue;
+        d[0] = ((float *)(u + 0x90))[0] - pos[0];
+        d[1] = ((float *)(u + 0x90))[1] - pos[1];
+        d[2] = ((float *)(u + 0x90))[2] - pos[2];
+        d[3] = 0.0f;
+        if (!(dist < sqrtf(d[0] * d[0] + d[1] * d[1] + d[2] * d[2])))
+            continue;
+        a = wrap_angle(heading(d) - h);
+        if (a < 0.0f)
+            a = -a;
+        if (a < best) {
+            best = a;
+            found = u;
+        }
+    }
+    return found;
+}
