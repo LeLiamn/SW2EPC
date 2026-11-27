@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 151968,
-    "non_matching": 1063424
+    "matching": 154368,
+    "non_matching": 1064976
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1840
+    "matching": 1894
   },
   "layout": "treemap",
   "areas": [
@@ -389,15 +389,15 @@
         },
         {
           "name": "emp_war_tl.c",
-          "description": "Estimated range 0x3DEC78-0x3E48A8; 0 function(s) decompiled",
+          "description": "Estimated range 0x3DEC78-0x3E48A8; 71 function(s) decompiled",
           "code": {
             "total": 23600,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 2320,
+            "non_matching": 1552
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 71,
+            "matching": 51
           }
         },
         {
@@ -807,15 +807,15 @@
         },
         {
           "name": "SeasonAnime.c",
-          "description": "Estimated range 0x3D70F0-0x3DEC78; 79 function(s) decompiled",
+          "description": "Estimated range 0x3D70F0-0x3DEC78; 82 function(s) decompiled",
           "code": {
             "total": 31624,
-            "matching": 2816,
+            "matching": 2896,
             "non_matching": 944
           },
           "decompiled_functions": {
-            "count": 79,
-            "matching": 64
+            "count": 82,
+            "matching": 67
           }
         },
         {

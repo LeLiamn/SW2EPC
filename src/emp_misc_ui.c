@@ -608,19 +608,21 @@ void func_003DEAB0(void)
 /* 0x003DE850, 0x44 bytes. */
 void func_003DE850(void)
 {
-    if (func_0035DAE0() == 0)
+    if (func_0035DAE0() == 0) {
         func_003DE7F0();
-    else
+    } else {
         func_003DE810();
-    func_003DE830();
+        func_003DE830();
+    }
 }
 
 /* 0x003DEAD0, 0x44 bytes. */
 void func_003DEAD0(void)
 {
-    if (func_0035DAE0() == 0)
+    if (func_0035DAE0() == 0) {
         func_003DEA70();
-    else
+    } else {
         func_003DEA90();
-    func_003DEAB0();
+        func_003DEAB0();
+    }
 }
