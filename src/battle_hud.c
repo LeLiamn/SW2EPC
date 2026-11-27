@@ -1073,3 +1073,198 @@ void func_003DF2F0(int p)
     if (g_006AA5F4 < 4)
         func_003E3220(t.v[p * 2], t.v[p * 2 + 1], 0, 0x80, 2, g_006AA5F4);
 }
+
+/* Combination attacks: the units near each player (0x007BF720) and the linked groups of up to
+ * four (0x007BF6C0, 0x18 bytes per player: units, count - 2, bonus), parts of 0x003E1DD0-
+ * 0x003E2DEC. */
+
+extern int g_00425F30[0x1A];
+extern u8 g_00425FA0[0x1A], g_00425FC0[0x1A], g_00425FE0[0x1A];
+extern float g_0041D018[3];
+
+u32 func_003E1930(float r, u8 *u, u32 *out);
+int func_00271300(u8 *u);
+u8 **func_003B0340(u8 *o);
+int func_0033BA60(u8 **g);
+int func_0033B4E0(u8 **g);
+int func_0033BBD0(u8 **a, u8 **b);
+int func_0033BBF0(u8 **a, u8 **b);
+int func_0033BC10(u8 **a, u8 **b);
+int func_0033BCF0(u8 **a, u8 **b);
+void func_003E27A0(int a, int k);
+
+#define UNIT_OFF(u) g_006A3A30[*(short *)((u) + 0x178)]
+#define LINKABLE(u) ((*(u32 *)(*(u8 **)((u) + 0x210) + 0x18) & 0x8000000) == 0)
+#define COMBO_FLAG(u) ((*(u32 *)(*(u8 **)((u) + 0x210) + 0x18) & 0x400000) != 0)
+
+/* 0x003E1DD0, 0x18C bytes. Finds the units near each player (up to three, within 300). */
+void func_003E1DD0(void)
+{
+    int p;
+
+    for (p = 0; p < 2; p++) {
+        if (*(int *)(g_00669D60 + 0xA0 + p * 0x48) != 0) {
+            u32 t[3], n, j = 0;
+
+            func_00118850(t, 0xC);
+            n = func_003E1930(300.0f, (u8 *)0x574DE0 + p * 0x630, t);
+            for (; j < n; j++)
+                g_007BF720[p][j] = t[j];
+            for (; j < 3; j++)
+                g_007BF720[p][j] = 0;
+            g_007BF720[p][3] = n;
+        }
+    }
+}
+
+/* 0x003E2020, 0x110 bytes. Whether units `u` and `w` can link. */
+int func_003E2020(u8 *u, u8 *w)
+{
+    return w != 0 && *(int *)(u + 0x11C) != 0 && *(int *)(w + 0x11C) != 0 && func_00271300(u) != 0
+        && (u[0x19C] & 2) == 0 && (w[0x19C] & 2) == 0 && LINKABLE(u) && LINKABLE(w)
+        && COMBO_FLAG(u) && COMBO_FLAG(w);
+}
+
+/* 0x003E2130, 0xC8 bytes. */
+int func_003E2130(u8 *u, u8 *w)
+{
+    u8 **g;
+
+    if (func_003E2020(u, w) == 0)
+        return 0;
+    func_003B0340(UNIT_OFF(u));
+    g = func_003B0340(UNIT_OFF(w));
+    if ((*(u32 *)(*g + 0x80) & 0x30) == 0 && func_0033BA60(g) == 0)
+        return 0;
+    return 1;
+}
+
+/* 0x003E2200, 0x12C bytes. Unit kind `k`'s portrait. */
+int func_003E2200(int k)
+{
+    if (k >= 0 && k <= 0x19)
+        return g_00425F30[k];
+    if (k == 0x38)
+        return 0x18A;
+    if (k == 0x37)
+        return 0x189;
+    if (k == 0x36)
+        return 0x188;
+    if (k == 0x30 || k == 0x21 || k == 0x1E || k == 0x35)
+        return 0x187;
+    if (k == 0x20 || k == 0x1D || k == 0x34)
+        return 0x186;
+    if (k == 0x1F || k == 0x1C || k == 0x33)
+        return 0x185;
+    if (k == 0x1B)
+        return 0x184;
+    if (k == 0x1A)
+        return 0x183;
+    return 0x169;
+}
+
+/* 0x003E23E0, 0x12C bytes. */
+u8 func_003E23E0(u8 *u)
+{
+    int k = *(int *)(u + 0x118);
+
+    if (k >= 0 && k <= 0x19)
+        return g_00425FA0[k];
+    if (k == 0x38 || k == 0x37 || k == 0x36 || k == 0x30 || k == 0x21 || k == 0x1E || k == 0x35
+        || k == 0x20 || k == 0x1D || k == 0x34 || k == 0x1F || k == 0x1C || k == 0x33 || k == 0x1B)
+        return 1;
+    return 0;
+}
+
+/* 0x003E2510, 0x12C bytes. */
+u8 func_003E2510(u8 *u)
+{
+    int k = *(int *)(u + 0x118);
+
+    if (k >= 0 && k <= 0x19)
+        return g_00425FC0[k];
+    if (k == 0x38 || k == 0x37 || k == 0x36 || k == 0x1A)
+        return 1;
+    return 0;
+}
+
+/* 0x003E2640, 0x12C bytes. */
+u8 func_003E2640(u8 *u)
+{
+    int k = *(int *)(u + 0x118);
+
+    if (k >= 0 && k <= 0x19)
+        return g_00425FE0[k];
+    return 0;
+}
+
+/* 0x003E2870, 0x2BC bytes. Player `p`'s combination bonus (0.1 more for each kind of link). */
+void func_003E2870(int p)
+{
+    u32 n = func_003E2E80(p), i, j;
+    u8 **list = (u8 **)g_007BF6C0[p];
+    int b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0;
+    float f;
+
+    if (n < 2)
+        return;
+    f = g_0041D018[n - 2];
+    for (i = 0; i < 4; i++) {
+        if (list[i] != 0) {
+            u8 **g = func_003B0340(UNIT_OFF(list[i]));
+
+            if (func_0033B4E0(g) != 0)
+                b5 = 1;
+            for (j = i + 1; j < 4; j++) {
+                if (list[j] != 0) {
+                    u8 **h = func_003B0340(UNIT_OFF(list[j]));
+
+                    if (func_0033BBD0(g, h) != 0)
+                        b1 = 1;
+                    if (func_0033BBF0(g, h) != 0)
+                        b2 = 1;
+                    if (func_0033BC10(g, h) != 0)
+                        b4 = 1;
+                    if (func_0033BCF0(g, h) != 0)
+                        b3 = 1;
+                }
+            }
+        }
+    }
+    if (b1 || b2 || b3) {
+        f += 0.1f;
+        func_003E27A0(p, 0);
+    }
+    if (b4) {
+        f += 0.1f;
+        func_003E27A0(p, 1);
+    }
+    if (b5) {
+        f += 0.1f;
+        func_003E27A0(p, 2);
+    }
+    *(float *)(g_007BF6C0[p] + 0x14) = f;
+}
+
+/* 0x003E2B30, 0x12C bytes. Collects player `p`'s linked units. */
+void func_003E2B30(int p)
+{
+    u8 **list = (u8 **)g_007BF6C0[p];
+    u32 n = 0, j;
+
+    for (j = 0; j < 4; j++) {
+        u8 *e = (u8 *)0x574DE0 + p * 0x630;
+
+        if (j != 0)
+            e = (u8 *)func_003E1F60(p, j - 1);
+        if (e != 0 && (e[0x19C] & 2) != 0)
+            list[n++] = e;
+    }
+    if (n < 2) {
+        func_00118850(list, 0x10);
+    } else {
+        func_003E2870(p);
+        g_007BF6C0[p][0x10] = n - 2;
+    }
+    func_003E1DD0();
+}

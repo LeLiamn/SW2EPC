@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 172144,
-    "non_matching": 1155436
+    "non_matching": 1158540
   },
   "data": {
     "total": 2155890688,
@@ -389,14 +389,14 @@
         },
         {
           "name": "emp_war_tl.c",
-          "description": "Estimated range 0x3DEC78-0x3E48A8; 106 function(s) decompiled",
+          "description": "Estimated range 0x3DEC78-0x3E48A8; 115 function(s) decompiled",
           "code": {
             "total": 23600,
             "matching": 2544,
-            "non_matching": 8160
+            "non_matching": 11264
           },
           "decompiled_functions": {
-            "count": 106,
+            "count": 115,
             "matching": 55
           }
         },
