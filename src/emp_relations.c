@@ -12,6 +12,8 @@
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
+
+#include "sw2e_draw.h"
 typedef unsigned long long u64;
 
 typedef struct {
@@ -48,8 +50,6 @@ u8 *func_0021A630(void);
 int func_003294A0(int k);
 u8 *func_0019FBC0(int k);
 void func_003DFD80(int k, int a, int b, int x, int y, int c, u8 *d, u8 *e);
-void func_001ABE40(u8 *t, int k, int x, int y, int a, int w, int h, int b);
-void func_001ABEA0(u8 *t, int k, int x, int y, int a, int w, int h, int b);
 int func_001204B0(char *buf, const char *fmt, ...);
 void func_002C4F40(float size, char *text, int x, int y, int a, int b, int c);
 void func_003B5480(int x, int y, int a, int w, int b, int c);
@@ -65,7 +65,7 @@ void func_002D67E0(int k, int x, int y, int a, int b, int c);
 void func_00287A10(int a, int b, int c, int x, int y, int d);
 int func_001AE550(float speed, WindowAnim *window, short *pos, u8 *alpha, int a);
 void func_00286420(int a, int b, int c, int d, int e, int f, u8 *g, int sel);
-void func_002CFF20(int a, int b, int x, int y, int w, int h, int c, u8 *d);
+void func_002CFF20(int a, int b, int x, int y, int w, int h, int c, u8 *d, int p8, int p9);
 int func_002F8CB0(int f);
 int func_002F9C90(int f, int g);
 void func_003A7C10(void);
@@ -77,7 +77,6 @@ void func_003E0A50(void);
 void func_003A80A0(int a);
 void func_003A9010(int a);
 u8 *func_0030D7D0(void);
-void func_001A3460(int x, int y, int a, int b, int h, int c, int n, int m);
 void func_002C7A30(int x, int y, int a, int w, int h, int b, int c);
 char *func_002F8DB0(int f);
 int func_002F9D50(int f, int g);
@@ -127,7 +126,7 @@ void func_003E0450(void)
     u8 *p = func_0021A630();
     char buf[32];
 
-    func_001ABE40(*(u8 **)(p + 0x24), 0xF, 0x144, 0x20, 0, -1, -1, 0x80);
+    func_001ABE40(*(u8 **)(p + 0x24), 0xF, 0x144, 0x20, 0, -1, -1, 0x80, 0, 0);
     func_001204B0(buf, g_0045C588, *(int *)(p + 0x1AEC));
     func_002C4F40(16.0f, buf, 0x1A4, 0x20, 0, 0, 6);
     func_003B5480(0xFC, 0x2E, 0, 0x200, 0x80, 0);
@@ -187,7 +186,7 @@ void func_003E0730(void)
         for (i = 0; i < *(int *)(p + 0x15DC); i++) {
             if (*(int *)(e + i * 0x24 + 0xD0) != 0) {
                 func_001AE550(1.0f, (WindowAnim *)(e + i * 0x14), pos, &alpha, 0);
-                func_001ABE40(*(u8 **)(p + 0x24), 0, pos[0], pos[1], 0, pos[2], pos[3], 0x80);
+                func_001ABE40(*(u8 **)(p + 0x24), 0, pos[0], pos[1], 0, pos[2], pos[3], 0x80, 2, 0);
             }
         }
     }
@@ -212,7 +211,7 @@ void func_003E0910(void)
         s = p + 0x1198;
     else if (*(int *)(p + 0x1380) == 1)
         s = p + 0x115C + *(int *)(p + 0x1C) * 0x14 + 0x1CC;
-    func_002CFF20(*(int *)(p + 0x28), *(int *)(p + 0x2C), 0x114, 0x4E, 0xDC, 0xD6, 0, s);
+    func_002CFF20(*(int *)(p + 0x28), *(int *)(p + 0x2C), 0x114, 0x4E, 0xDC, 0xD6, 0, s, 0, 0);
 }
 
 /* 0x003E0AE0, 0x1A4 bytes. Lists the forces the force has relations with and marks the map. */
@@ -276,13 +275,13 @@ void func_003E0D40(void)
 
     func_002C7310(-0x10, 0x108, 0, 0x84, 0x40, 0x80, 1);
     for (i = 0; i < 3; i++) {
-        func_001ABEA0(func_0030D7D0(), 300, 0x18, 0x10A + i * 0x14, 0, 0x38, 0x14, 0);
-        func_001ABEA0(func_0030D7D0(), 0x128, 0x54, 0x10C + i * 0x14, 0, 0x10, 0x10, 0);
+        func_001ABEA0(func_0030D7D0(), 300, 0x18, 0x10A + i * 0x14, 0, 0x38, 0x14, 0, ARG_UNKNOWN, 0x38, 0x14, 0x80, 1, 0);
+        func_001ABEA0(func_0030D7D0(), 0x128, 0x54, 0x10C + i * 0x14, 0, 0x10, 0x10, 0, 0, 0x10, 0x10, 0x80, 1, 0);
     }
 }
 
 /* 0x003E0E70, 0xC0 bytes. A relation's mark (1, 2, 3). */
-void func_003E0E70(int k, int x, int y, int a, int b)
+void func_003E0E70(int k, int x, int y, int a, int b, int p5)
 {
     int s = 0;
 
@@ -292,7 +291,7 @@ void func_003E0E70(int k, int x, int y, int a, int b)
         s = 0x129;
     else if (k == 3)
         s = 299;
-    func_001ABE40(func_0030D7D0(), s, x, y, a, -1, -1, b);
+    func_001ABE40(func_0030D7D0(), s, x, y, a, -1, -1, b, p5, 0);
 }
 
 /* 0x003E0F30, 0x328 bytes. Draws the relations list. */
@@ -304,7 +303,7 @@ void func_003E0F30(void)
 
     if (g_007BF680.shown < g_007BF680.count) {
         func_001A3460(g_007BF680.x + 0xC0, g_007BF680.y - 0x10, g_007BF680.z, g_007BF680.w, 0x9E,
-                      0x80, n, 7);
+                      0x80, n, 7, g_007BF680.top - g_007BF680.cursor, g_007BF680.flag);
         n = g_007BF680.shown;
     }
     FONT_SIZE(16.0f);
@@ -312,7 +311,7 @@ void func_003E0F30(void)
         u8 f = g_007BF680.list[i + (g_007BF680.top - g_007BF680.cursor)];
         int r = func_002F9C90(g_007BF680.force, f);
 
-        func_003E0E70(r, x, y, g_007BF680.z, 0x80);
+        func_003E0E70(r, x, y, g_007BF680.z, 0x80, g_007BF680.flag);
         if (g_007BF680.cursor == i)
             func_002C7A30(x, y, g_007BF680.z, 0xC0, 0x10, 0, g_007BF680.flag);
         FONT_COLOUR(6);
@@ -321,7 +320,7 @@ void func_003E0F30(void)
         FONT_SIZE(16.0f);
         FONT_COLOUR(5);
         if (r == 1) {
-            func_001ABEA0(func_0030D7D0(), 300, x + 0x60, y - 2, 0, 0x38, 0x14, 0);
+            func_001ABEA0(func_0030D7D0(), 300, x + 0x60, y - 2, 0, 0x38, 0x14, 0, 0, 0x38, 0x14, 0x80, 1, 0);
             func_001204B0(buf, g_0045C598, func_002F9D50(g_007BF680.force, f));
             func_002C4F40(16.0f, buf, x + 0x9C, y, g_007BF680.flag, 0, 6);
         }

@@ -14,6 +14,8 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 #define IS_FORCE(f) ((f) >= 0 && (f) < func_0030AB90())
 #define g_7000015C (*(u32 *)0x7000015C)   /* (scratchpad) the random seed */
 
@@ -58,7 +60,7 @@ void func_002F3660(u32 i, int v);
 void func_002F4980(u32 i, int k, int v);
 void func_002F8C80(void);
 void func_002F26F0(void);
-int func_002F7D90(int n, int (*keep)(u32, int, int), int a, int b, int c);
+int func_002F7D90(int n, int (*keep)(u32, int, int), int a, int b, int c, int p5);
 int func_002F8160(u32 i, int f);
 int func_00327D50(void);
 int func_00327C00(void);
@@ -142,7 +144,7 @@ void func_00380E80(void *pic, int a, int x, int y);
 void func_003D38A0(int a, int x, int y, int b, int c, int d, int e, int f);
 void func_001A7DC0(const char *text, int a, int b);
 int func_00372580(int i);
-void func_0037E480(void *pic, int i, int x, int y, int a, int b, int c, int d);
+void func_0037E480(void *pic, int i, int x, int y, int a, int b, int c, int d, int p8);
 void func_003DC180(int k, int a, int *out);
 void func_002C7310(int a, int x, int y, int w, int h, int b, int c);
 void func_00381FF0(void *pic, int a, int y, int i, int on);
@@ -181,7 +183,7 @@ void func_0030CCE0(void)
     func_0011ED38(g_007A3BA0, 0, 0xFCE4);
 }
 
-/* 0x0030CD60, 0x1C bytes, matching. */
+/* 0x0030CD60, 0x1C bytes. */
 void func_0030CD60(void)
 {
     func_0030CCE0();
@@ -209,7 +211,7 @@ void func_0030CD80(u8 *data)
     }
 }
 
-/* 0x0030CE90, 0x60 bytes, matching. Loads scenario `k`'s state (LINKDATA entry 0xA0 + `k`). */
+/* 0x0030CE90, 0x60 bytes. Loads scenario `k`'s state (LINKDATA entry 0xA0 + `k`). */
 void func_0030CE90(int k)
 {
     u8 *d = func_001026D0(1, k + 0xA0, 0, 1, 0, 0, g_004467F8, 0x131);
@@ -219,7 +221,7 @@ void func_0030CE90(int k)
     func_00102EC0(d);
 }
 
-/* 0x0030CEF0, 0x60 bytes, matching. Loads LINKDATA entry 0xAA for func_00390940's block. */
+/* 0x0030CEF0, 0x60 bytes. Loads LINKDATA entry 0xAA for func_00390940's block. */
 void func_0030CEF0(void)
 {
     void *d = func_001026D0(1, 0xAA, 0, 1, 0, 0, g_004467F8, 0x143);
@@ -228,7 +230,7 @@ void func_0030CEF0(void)
     func_00102960(1);
 }
 
-/* 0x0030CF50, 0x1C bytes, matching. */
+/* 0x0030CF50, 0x1C bytes. */
 void func_0030CF50(u8 *data)
 {
     func_0030CD80(data);
@@ -261,38 +263,38 @@ void func_0030D010(int side, u32 *l, int n)
     }
 }
 
-/* 0x0030D0A0, 0x20 bytes, matching. Slot 6 (the leader?). */
+/* 0x0030D0A0, 0x20 bytes. Slot 6 (the leader?). */
 void func_0030D0A0(int side, u32 i)
 {
     func_0030CF90(side, 6, i);
 }
 
-/* 0x0030D0C0, 0x1C bytes, matching. */
+/* 0x0030D0C0, 0x1C bytes. */
 u32 func_0030D0C0(int side)
 {
     return func_003620E0(side, 6);
 }
 
-/* 0x0030D0E0, 0x20 bytes, matching. Slot 7. */
+/* 0x0030D0E0, 0x20 bytes. Slot 7. */
 void func_0030D0E0(int side, u32 i)
 {
     func_0030CF90(side, 7, i);
 }
 
-/* 0x0030D100, 0x1C bytes, matching. */
+/* 0x0030D100, 0x1C bytes. */
 u32 func_0030D100(int side)
 {
     return func_003620E0(side, 7);
 }
 
-/* 0x0030D120, 0x2C bytes, matching. */
+/* 0x0030D120, 0x2C bytes. */
 void func_0030D120(int a, int b)
 {
     func_003623E0(a);
     func_00362550(b);
 }
 
-/* 0x0030D150, 0x1C bytes, matching. The battle's region. */
+/* 0x0030D150, 0x1C bytes. The battle's region. */
 int func_0030D150(void)
 {
     return func_00362490();
@@ -376,7 +378,7 @@ int func_0030D530(int side)
     return func_00327B70(func_002F4080(func_003620E0(side, 0))) != 0;
 }
 
-/* 0x0030D560, 0x1C bytes, matching. */
+/* 0x0030D560, 0x1C bytes. */
 int func_0030D560(int side)
 {
     return func_0030D470(side);
@@ -412,37 +414,37 @@ void func_0030D6B0(u8 *p)
         func_0011EB80(p, g + 0x48, 0x54);
     func_0011EB80(p, func_0030CCC0(), 3000);
     f = func_00327D50();
-    func_00327750(func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1));
+    func_00327750(func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1, 0));
     func_00327DC0(func_002FB3B0(f));
     func_00327710(func_002F9060(f));
 }
 
 /* 0x0030D7D0-0x0030D810, 8 bytes each. The loaded picture files. */
-/* 0x0030D7D0, 0x8 bytes, matching. */
+/* 0x0030D7D0, 0x8 bytes. */
 void *func_0030D7D0(void) { return g_0045D6B0; }
-/* 0x0030D7E0, 0x8 bytes, matching. */
+/* 0x0030D7E0, 0x8 bytes. */
 void *func_0030D7E0(void) { return g_0045D6B4; }
-/* 0x0030D7F0, 0x8 bytes, matching. */
+/* 0x0030D7F0, 0x8 bytes. */
 void *func_0030D7F0(void) { return g_0045D6B8; }
-/* 0x0030D800, 0x8 bytes, matching. */
+/* 0x0030D800, 0x8 bytes. */
 void *func_0030D800(void) { return g_0045D6BC; }
-/* 0x0030D810, 0x8 bytes, matching. */
+/* 0x0030D810, 0x8 bytes. */
 void *func_0030D810(void) { return g_0045D6C0; }
 
-/* 0x0030D820, 0x40 bytes, matching. Loads LINKDATA entry 0x81. */
+/* 0x0030D820, 0x40 bytes. Loads LINKDATA entry 0x81. */
 void func_0030D820(void)
 {
     g_0045D6B0 = func_001026D0(1, 0x81, 0, 1, 0, 0, g_004467F8, 0x392);
 }
 
-/* 0x0030D860, 0x6C bytes, matching. Loads entries 0x81 and 0x39. */
+/* 0x0030D860, 0x6C bytes. Loads entries 0x81 and 0x39. */
 void func_0030D860(void)
 {
     g_0045D6B0 = func_001026D0(1, 0x81, 0, 1, 0, 0, g_004467F8, 0x39A);
     g_0045D6B8 = func_001026D0(1, 0x39, 0, 1, 0, 0, g_004467F8, 0x39C);
 }
 
-/* 0x0030D8D0, 0x10C bytes, matching. Loads entries 0x81, 0x82, 0x39, 0x36 and 0x37. */
+/* 0x0030D8D0, 0x10C bytes. Loads entries 0x81, 0x82, 0x39, 0x36 and 0x37. */
 void func_0030D8D0(void)
 {
     g_0045D6B0 = func_001026D0(1, 0x81, 0, 1, 0, 0, g_004467F8, 0x3A5);
@@ -456,7 +458,7 @@ void func_0030D8D0(void)
     func_002D6890();
 }
 
-/* 0x0030D9E0, 0x144 bytes, matching. Enters the conquest screens: everything when neither `a` nor `b`,
+/* 0x0030D9E0, 0x144 bytes. Enters the conquest screens: everything when neither `a` nor `b`,
  * else the lighter set-ups. */
 void func_0030D9E0(int a, int b)
 {
@@ -496,13 +498,13 @@ void func_0030D9E0(int a, int b)
     }
 }
 
-/* 0x0030DB30, 0x1C bytes, matching. */
+/* 0x0030DB30, 0x1C bytes. */
 void func_0030DB30(int a)
 {
     func_0030D9E0(a, 0);
 }
 
-/* 0x0030DB50, 0x20 bytes, matching. */
+/* 0x0030DB50, 0x20 bytes. */
 void func_0030DB50(void)
 {
     func_0030D9E0(0, 1);
@@ -516,7 +518,7 @@ void func_0030DB50(void)
         }                               \
     } while (0)
 
-/* 0x0030DB70, 0x94 bytes, matching. Frees the picture files. */
+/* 0x0030DB70, 0x94 bytes. Frees the picture files. */
 void func_0030DB70(void)
 {
     func_002D68F0();
@@ -527,7 +529,7 @@ void func_0030DB70(void)
     FREE_FILE(g_0045D6B0);
 }
 
-/* 0x0030DC10, 0xFC bytes, matching. Leaves the conquest screens (`light` for the lighter set-up). */
+/* 0x0030DC10, 0xFC bytes. Leaves the conquest screens (`light` for the lighter set-up). */
 void func_0030DC10(int light)
 {
     func_003DB1B0();
@@ -647,13 +649,13 @@ void func_0030E090(int s)
         func_002FC660();
 }
 
-/* 0x0030E0F0, 0xC bytes, matching. */
+/* 0x0030E0F0, 0xC bytes. */
 int *func_0030E0F0(void)
 {
     return g_007A4270;
 }
 
-/* 0x0030E100, 0x38 bytes, matching. Clears the pending event command. */
+/* 0x0030E100, 0x38 bytes. Clears the pending event command. */
 void func_0030E100(void)
 {
     g_007A4270[0] = -1;
@@ -680,26 +682,26 @@ void func_0030E140(int c, u32 i, int a, int b)
     func_003D32C0(c);
 }
 
-/* 0x0030E1F0, 0xC bytes, matching. The pending command's state (0 none, 1 running, 2 answered). */
+/* 0x0030E1F0, 0xC bytes. The pending command's state (0 none, 1 running, 2 answered). */
 int func_0030E1F0(void)
 {
     return g_007A4270[5];
 }
 
-/* 0x0030E200, 0xC bytes, matching. */
+/* 0x0030E200, 0xC bytes. */
 void func_0030E200(int v)
 {
     g_007A4270[5] = v;
 }
 
-/* 0x0030E210, 0x30 bytes, matching. */
+/* 0x0030E210, 0x30 bytes. */
 void func_0030E210(void)
 {
     if (func_0032FF00() == 3)
         func_0032BB70();
 }
 
-/* 0x0030E240, 0x80 bytes, matching. Runs the pending command until it answers. */
+/* 0x0030E240, 0x80 bytes. Runs the pending command until it answers. */
 void func_0030E240(void)
 {
     int r = 5;
@@ -717,13 +719,13 @@ void func_0030E240(void)
     }
 }
 
-/* 0x0030E2C0, 0xC bytes, matching. The notice. */
+/* 0x0030E2C0, 0xC bytes. The notice. */
 Notice *func_0030E2C0(void)
 {
     return &g_007A3BC0;
 }
 
-/* 0x0030E2D0, 0xC0 bytes, matching. Clears the notice. */
+/* 0x0030E2D0, 0xC0 bytes. Clears the notice. */
 void func_0030E2D0(void)
 {
     int k;
@@ -763,35 +765,35 @@ void func_0030E390(int kind, int a, int b, int c, int *l, int n)
     }
 }
 
-/* 0x0030E4D0, 0xC bytes, matching. */
+/* 0x0030E4D0, 0xC bytes. */
 int func_0030E4D0(void)
 {
     return g_007A3BC0.ready;
 }
 
-/* 0x0030E4E0, 0xC bytes, matching. */
+/* 0x0030E4E0, 0xC bytes. */
 void func_0030E4E0(int v)
 {
     g_007A3BC0.ready = v;
 }
 
 /* 0x0030E4F0, 0x0030E500, 0x0030E510, 8 bytes each. Empty notice steps. */
-/* 0x0030E4F0, 0x8 bytes, matching. */
+/* 0x0030E4F0, 0x8 bytes. */
 void func_0030E4F0(void)
 {
 }
 
-/* 0x0030E500, 0x8 bytes, matching. */
+/* 0x0030E500, 0x8 bytes. */
 void func_0030E500(void)
 {
 }
 
-/* 0x0030E510, 0x8 bytes, matching. */
+/* 0x0030E510, 0x8 bytes. */
 void func_0030E510(void)
 {
 }
 
-/* 0x0030E520, 0x34 bytes, matching. Draws the notice picture `a` / `b` at (0xA0, 0x60). */
+/* 0x0030E520, 0x34 bytes. Draws the notice picture `a` / `b` at (0xA0, 0x60). */
 void func_0030E520(void)
 {
     Notice *n = func_0030E2C0();
@@ -799,31 +801,31 @@ void func_0030E520(void)
     func_0037FB60(g_0045D6B0, 0xA0, 0x60, n->a, n->b);
 }
 
-/* 0x0030E560, 8 bytes, matching. */
+/* 0x0030E560, 8 bytes. */
 void func_0030E560(void)
 {
 }
 
-/* 0x0030E570, 0x1C bytes, matching. */
+/* 0x0030E570, 0x1C bytes. */
 void func_0030E570(void)
 {
     func_0039B700();
 }
 
-/* 0x0030E590, 0x1C bytes, matching. */
+/* 0x0030E590, 0x1C bytes. */
 void func_0030E590(void)
 {
     func_0039B700();
 }
 
-/* 0x0030E5B0, 0x3C bytes, matching. Draws the picture file in phase 4. */
+/* 0x0030E5B0, 0x3C bytes. Draws the picture file in phase 4. */
 void func_0030E5B0(void)
 {
     if (func_0030E2C0()->phase == 4)
         func_0032D3C0(func_0030D7D0());
 }
 
-/* 0x0030E5F0, 0x3C bytes, matching. The same. */
+/* 0x0030E5F0, 0x3C bytes. The same. */
 void func_0030E5F0(void)
 {
     if (func_0030E2C0()->phase == 4)
@@ -844,7 +846,7 @@ void func_0030E630(void)
         func_0037FB60(func_0030D7D0(), pos[0], pos[1], a, style);
 }
 
-/* 0x0030E700, 8 bytes, matching. */
+/* 0x0030E700, 8 bytes. */
 void func_0030E700(void)
 {
 }
@@ -878,10 +880,10 @@ void func_0030E820(void)
     int *pos = func_003DB900(0xF);
 
     if (n->step == 1 || n->step == 0)
-        func_0037E480(func_0030D7D0(), n->a, 0xB4, 0x4A, pos[4], func_00372580(n->a), 1, 1);
+        func_0037E480(func_0030D7D0(), n->a, 0xB4, 0x4A, pos[4], func_00372580(n->a), 1, 1, 1);
 }
 
-/* 0x0030E8C0, 0x34 bytes, matching. */
+/* 0x0030E8C0, 0x34 bytes. */
 void func_0030E8C0(void)
 {
     if (func_0030E2C0()->step == 7)
@@ -896,12 +898,12 @@ void func_0030E900(void)
     int *pos = func_003DB900(8), s = n->step, i = n->list[n->a];
 
     if (s == 1) {
-        func_0037E480(func_0030D7D0(), i, 0xB4, 0x4A, pos[4], func_00372580(i), 0, 0);
+        func_0037E480(func_0030D7D0(), i, 0xB4, 0x4A, pos[4], func_00372580(i), 0, 0, 1);
         func_001A7DC0(g_0043C5EC, 0x80, 1);
     } else if (s == 2) {
-        func_0037E480(func_0030D7D0(), i, 0xB4, 0x4A, pos[4], func_00372580(i), 0, 0);
+        func_0037E480(func_0030D7D0(), i, 0xB4, 0x4A, pos[4], func_00372580(i), 0, 0, 1);
     } else if (s == 0) {
-        func_0037E480(func_0030D7D0(), i, 0xB4, 0x4A, pos[4], func_00372580(i), 0, 0);
+        func_0037E480(func_0030D7D0(), i, 0xB4, 0x4A, pos[4], func_00372580(i), 0, 0, 1);
     }
 }
 
@@ -1052,7 +1054,7 @@ void func_0030EDC0(void)
     }
 }
 
-/* 0x0030EFF0, 0x158 bytes, matching. Notice 0 (the turn's income?): a sound every other frame after 0x30
+/* 0x0030EFF0, 0x158 bytes. Notice 0 (the turn's income?): a sound every other frame after 0x30
  * frames; OK skips to the end, then closes (kind 0 updates the gold shown). */
 void func_0030EFF0(void)
 {
@@ -1077,13 +1079,13 @@ void func_0030EFF0(void)
     }
 }
 
-/* 0x0030F150, 0x1C bytes, matching. */
+/* 0x0030F150, 0x1C bytes. */
 void func_0030F150(void)
 {
     func_0030EFF0();
 }
 
-/* 0x0030F170, 0x38 bytes, matching. Closes once func_0039B980 is not 2. */
+/* 0x0030F170, 0x38 bytes. Closes once func_0039B980 is not 2. */
 void func_0030F170(void)
 {
     func_0030E2C0();
@@ -1091,7 +1093,7 @@ void func_0030F170(void)
         func_0030E4E0(0);
 }
 
-/* 0x0030F1B0, 0x84 bytes, matching. Message 0x70 about force `f` (with the date). */
+/* 0x0030F1B0, 0x84 bytes. Message 0x70 about force `f` (with the date). */
 void func_0030F1B0(int f)
 {
     char text[96];
@@ -1135,7 +1137,7 @@ int func_0030F2E0(u32 i, u32 old)
         func_002F4510(i, 0);
         func_00308600(i);
         r = func_002F5CC0(i);
-        if (func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, r, 0, 1) > 3) {
+        if (func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, r, 0, 1, 0) > 3) {
             func_002F5BE0(i, 0x19);
             func_00309130(i, f, r, 0);
         }
@@ -1168,7 +1170,7 @@ u32 func_0030F500(int f, u32 dead)
     int n, k;
 
     if (func_002FB2A0(f) == 0) {
-        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1);
+        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1, 0);
         if (n == 0)
             return -100;
         for (k = 0; k < n; k++, o++) {
@@ -1186,9 +1188,9 @@ u32 func_0030F500(int f, u32 dead)
         }
         return best;
     }
-    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F82F0, f, 0, 1);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F82F0, f, 0, 1, 0);
     if (n == 0)
-        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8340, f, 0, 0);
+        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8340, f, 0, 0, 0);
     if (n == 0)
         return -100;
     func_0032D300(0xC, o, n);
@@ -1312,7 +1314,7 @@ void func_0030FBA0(void)
     }
 }
 
-/* 0x0030FC10, 0x50 bytes, matching. Notice: officer `a` dies (with the short message). */
+/* 0x0030FC10, 0x50 bytes. Notice: officer `a` dies (with the short message). */
 void func_0030FC10(void)
 {
     Notice *n = func_0030E2C0();
@@ -1801,7 +1803,7 @@ void func_00311010(void)
     func_003A80A0(1);
 }
 
-/* 0x00311100, 0x68 bytes, matching. Season notice step 1: once closed, the map. */
+/* 0x00311100, 0x68 bytes. Season notice step 1: once closed, the map. */
 void func_00311100(void)
 {
     Notice *n = func_0030E2C0();
@@ -1970,7 +1972,7 @@ void func_00311670(int c, int ok)
     func_0030E140(c, -1, -1, -1);
 }
 
-/* 0x00311710, 0xB0 bytes, matching. Raises officer `i`'s stat `s` (0-7) by `v`. */
+/* 0x00311710, 0xB0 bytes. Raises officer `i`'s stat `s` (0-7) by `v`. */
 void func_00311710(u32 i, int s, int v)
 {
     switch (s) {
@@ -2042,7 +2044,7 @@ int func_003117C0(u32 i, int c, int bonus)
     return 1;
 }
 
-/* 0x00311C30, 0x8C bytes, matching. Whether training command `c` cannot teach skill `k`. */
+/* 0x00311C30, 0x8C bytes. Whether training command `c` cannot teach skill `k`. */
 int func_00311C30(int c, int k)
 {
     int row = 0, j;
@@ -2428,7 +2430,7 @@ void func_00312980(void)
         }
         break;
     case 5:
-        m = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, r, 0, 0);
+        m = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, r, 0, 0, 0);
         o = func_002F7B10();
         cnt = 0;
         for (k = 0; k < m; k++, o++) {
@@ -2641,7 +2643,7 @@ int func_00313230(void)
     return -1;
 }
 
-/* 0x00313430, 0x1C bytes, matching. */
+/* 0x00313430, 0x1C bytes. */
 int func_00313430(void)
 {
     return func_00313230();
@@ -2685,7 +2687,7 @@ void func_00313450(void)
     }
 }
 
-/* 0x003135B0, 0x210 bytes, matching. Runs the notice by its kind. */
+/* 0x003135B0, 0x210 bytes. Runs the notice by its kind. */
 void func_003135B0(void)
 {
     switch (func_0030E2C0()->kind) {
@@ -2773,13 +2775,13 @@ int func_003138D0(void)
     return 0;
 }
 
-/* 0x00313A90, 0x30 bytes, matching. Tutorial 0x15. */
+/* 0x00313A90, 0x30 bytes. Tutorial 0x15. */
 int func_00313A90(void)
 {
     return func_003F4D60(0x15) != 0 ? 5 : 0;
 }
 
-/* 0x00313AC0, 0x64 bytes, matching. The sound for result `k` (1: 0xD, 2: 0xE) of the player's force. */
+/* 0x00313AC0, 0x64 bytes. The sound for result `k` (1: 0xD, 2: 0xE) of the player's force. */
 void func_00313AC0(int f, int k)
 {
     int s = 0xD;
@@ -2892,7 +2894,7 @@ int func_00313DB0(u32 c, int f)
     return v;
 }
 
-/* 0x00313F20, 0x18 bytes, matching. */
+/* 0x00313F20, 0x18 bytes. */
 int func_00313F20(int k)
 {
     return g_00447608[k];
@@ -2922,7 +2924,7 @@ int func_00313FC0(u32 c, int a, int f)
     return v == -1 ? 0 : v;
 }
 
-/* 0x00314000, 0x28 bytes, matching. The cost of command record `p` (+0 force, +4 command, +8 value). */
+/* 0x00314000, 0x28 bytes. The cost of command record `p` (+0 force, +4 command, +8 value). */
 int func_00314000(int *p)
 {
     return func_00313FC0(p[1], p[2], p[0]);
@@ -3048,19 +3050,19 @@ int func_00314030(int c, int f)
         if (func_002FB100(f) == 0)
             ok = 0;
     } else if (c == 0x22) {
-        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0);
-        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8430, f, 0, 1);
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0, 0);
+        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8430, f, 0, 1, 0);
         if (a == 0 && b == 0)
             ok = 0;
     } else if (c == 0x20) {
-        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F85E0, 0, 0, 0);
-        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8430, f, 0, 1);
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F85E0, 0, 0, 0, 0);
+        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8430, f, 0, 1, 0);
         if (a == 0 && b == 0)
             ok = 0;
     } else if (c == 0x1F) {
-        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0);
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0, 0);
         func_0030B540(func_002FB2D0(f));
-        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8480, 0, 0, 1);
+        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8480, 0, 0, 1, 0);
         func_0030B330();
         if (a == 0 && b == 0)
             ok = 0;
@@ -3288,7 +3290,7 @@ int func_003152B0(int f, int *out, int lo, int hi)
     int n = 0, cnt, c, x, y;
 
     func_002F7B10();
-    cnt = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1);
+    cnt = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1, 0);
     if (cnt == 0)
         return 0;
     func_002FB3B0(func_00327D50());
@@ -3334,13 +3336,13 @@ int func_003152B0(int f, int *out, int lo, int hi)
     return n;
 }
 
-/* 0x003154F0, 0x20 bytes, matching. The same for commands 0x3B-0x59. */
+/* 0x003154F0, 0x20 bytes. The same for commands 0x3B-0x59. */
 int func_003154F0(int f, int *out)
 {
     return func_003152B0(f, out, 0x3B, 0x59);
 }
 
-/* 0x00315510, 0x8C bytes, matching. Clears command record `p` for force `f`. */
+/* 0x00315510, 0x8C bytes. Clears command record `p` for force `f`. */
 void func_00315510(CmdRecord *p, int f)
 {
     int k;
@@ -3358,13 +3360,13 @@ void func_00315510(CmdRecord *p, int f)
     }
 }
 
-/* 0x003155A0, 0x20 bytes, matching. Result `k` of command record `p`. */
+/* 0x003155A0, 0x20 bytes. Result `k` of command record `p`. */
 CmdResult *func_003155A0(CmdRecord *p, int k)
 {
     return &p->res[k];
 }
 
-/* 0x003155C0, 0x120 bytes, matching. Marks regions `l` (`n`) of command record `p` as shown. */
+/* 0x003155C0, 0x120 bytes. Marks regions `l` (`n`) of command record `p` as shown. */
 void func_003155C0(CmdRecord *p, int *l, int n)
 {
     int k;
@@ -3785,7 +3787,7 @@ int func_00317100(CmdRecord *p)
     char name[32];
     u8 buf[0x24];
 
-    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, p->f, 0, 1);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, p->f, 0, 1, 0);
     t = func_002FBE20(p->f);
     for (k = 0; k < n; k++, o++) {
         int s = func_002F50F0(*o);
@@ -3843,7 +3845,7 @@ static int riding(u32 i)
     return s;
 }
 
-/* 0x00317380, 0x1B8 bytes, matching. Order: the better rider first, then the higher func_002F34E0, then
+/* 0x00317380, 0x1B8 bytes. Order: the better rider first, then the higher func_002F34E0, then
  * the lower number. */
 int func_00317380(int i, int j)
 {
@@ -3893,7 +3895,7 @@ int func_00317540(CmdRecord *p)
     func_002F7B10();
     func_002CAD90(st);
     h = st[p->target];
-    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, p->f, 0, 0);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, p->f, 0, 0, 0);
     o = func_002F7B10();
     func_002F87D0(o, n, (int (*)(u32, u32, int, int))func_00317380, -1, -1);
     best = o[0];
@@ -4083,9 +4085,9 @@ int func_00317E80(CmdRecord *p)
     int reg[27], n, found = 0, fv, a = 0, b = 0, k, at;
 
     if (p->cmd == 0x1D)
-        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8740, p->f, 0, 0);
+        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8740, p->f, 0, 0, 0);
     else
-        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8710, 0, 0, 0);
+        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8710, 0, 0, 0, 0);
     if (n != 0) {
         func_002F7C40(o, n);
         fv = func_002FABC0(p->f);
@@ -4397,7 +4399,7 @@ void func_00318E60(CmdRecord *p)
     u32 *o;
 
     r->kind = 0x10;
-    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, p->f, 0, 0);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, p->f, 0, 0, 0);
     o = func_002F7B10();
     func_002F7C40(o, n);
     for (k = 0; k < 8; k++)
@@ -4411,7 +4413,7 @@ void func_00318E60(CmdRecord *p)
 }
 
 /* 0x00318F70, 0x00318FC0, 0x00319010, 0x44 bytes each. The same, over all regions. */
-/* 0x00318F70, 0x44 bytes, matching. */
+/* 0x00318F70, 0x44 bytes. */
 int func_00318F70(CmdRecord *p)
 {
     int reg[28];
@@ -4421,7 +4423,7 @@ int func_00318F70(CmdRecord *p)
     return 0;
 }
 
-/* 0x00318FC0, 0x44 bytes, matching. */
+/* 0x00318FC0, 0x44 bytes. */
 int func_00318FC0(CmdRecord *p)
 {
     int reg[28];
@@ -4431,7 +4433,7 @@ int func_00318FC0(CmdRecord *p)
     return 0;
 }
 
-/* 0x00319010, 0x44 bytes, matching. */
+/* 0x00319010, 0x44 bytes. */
 int func_00319010(CmdRecord *p)
 {
     int reg[28];
@@ -4470,7 +4472,7 @@ int func_00319130(CmdRecord *p)
     return tie_result(p, 0xC, 0x3D);
 }
 
-/* 0x00319200, 0x98 bytes, matching. Command result: kind 0xC about force `target` (message 0x3E). */
+/* 0x00319200, 0x98 bytes. Command result: kind 0xC about force `target` (message 0x3E). */
 int func_00319200(CmdRecord *p)
 {
     CmdResult *r = func_003155A0(p, 0);
@@ -4917,7 +4919,7 @@ int func_0031AB10(CmdRecord *p)
     int reg = p->target, cap = func_0030ACE0(reg), t = func_0030B090(reg), n, s = 0, k, bonus = 0, div, v;
     u32 *o;
 
-    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, reg, 0, 1);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, reg, 0, 1, 0);
     o = func_002F7B10();
     for (k = 0; k < n; k++, o++)
         s += func_002F3770(*o);
@@ -4975,10 +4977,10 @@ int func_0031AEA0(CmdRecord *p)
     char rn[32], nm[32];
 
     r->v[2] = 0x19F;
-    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, reg, 0, 0);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, reg, 0, 0, 0);
     o = func_002F7B10();
     if (n == 0) {
-        int m = func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, reg, 0, 0);
+        int m = func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, reg, 0, 0, 0);
 
         func_002F87D0(o, m, (int (*)(u32, u32, int, int))func_002F8B60, -1, -1);
     } else {
@@ -5021,7 +5023,7 @@ int func_0031AEA0(CmdRecord *p)
         int m, t;
 
         r->v[0x1E] = 1;
-        m = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, reg, 0, 1);
+        m = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, reg, 0, 1, ARG_UNKNOWN);
         o = func_002F7B10();
         joined[0] = i;
         for (k = 0; k < m; k++, o++) {
@@ -5088,7 +5090,7 @@ int func_0031AEA0(CmdRecord *p)
     return 0;
 }
 
-/* 0x0031B7A0, 0x98 bytes, matching. Command result: kind 0xC about force `target` (message 0x4F). */
+/* 0x0031B7A0, 0x98 bytes. Command result: kind 0xC about force `target` (message 0x4F). */
 int func_0031B7A0(CmdRecord *p)
 {
     CmdResult *r = func_003155A0(p, 0);
@@ -5304,12 +5306,12 @@ void func_0031C0A0(int f, u32 *l, int n)
         role = func_002F3DC0(i);
         for (j = 0; j < nr; j++) {
             if (role == 1) {
-                if (func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, reg[j], 0, 0) < 3) {
+                if (func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, reg[j], 0, 0, 0) < 3) {
                     func_002F5BE0(i, reg[j]);
                     done = 1;
                     break;
                 }
-            } else if (func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, reg[j], 0, 1) < 3) {
+            } else if (func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, reg[j], 0, 1, 0) < 3) {
                 func_002F5BE0(i, reg[j]);
                 done = 1;
                 break;
@@ -5323,13 +5325,13 @@ void func_0031C0A0(int f, u32 *l, int n)
             if (role == 1 || func_002F3F20(i) == 0)
                 nrole = role == 1 ? 2 : 1;
             if (nrole == 1) {
-                if (func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, reg[j], 0, 0) < 3) {
+                if (func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, reg[j], 0, 0, 0) < 3) {
                     func_002F3CF0(i, 1);
                     func_002F5BE0(i, reg[j]);
                     done = 1;
                     break;
                 }
-            } else if (func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, reg[j], 0, 1) < 3) {
+            } else if (func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, reg[j], 0, 1, 0) < 3) {
                 func_002F3CF0(i, nrole);
                 func_002F5BE0(i, reg[j]);
                 done = 1;
@@ -5352,7 +5354,7 @@ void func_0031C410(int r, int heavy)
     if (t == 0)
         return;
     func_0030B030(r, t - 2 < 0 ? 0 : t - 2);
-    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, r, 0, 1);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, r, 0, 1, 0);
     o = func_002F7B10();
     cut = heavy != 0 ? 0x1E : 10;
     for (k = 0; k < n; k++, o++) {
@@ -5411,7 +5413,7 @@ void func_003BACA0(void);
 
 /* For each officer of force `f` (`all`: func_002F7D90's last flag). */
 #define EACH_OFFICER(f, all, o, n, k)                                                    \
-    for (n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, all),         \
+    for (n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, all, 0),         \
          o = func_002F7B10(), k = 0; k < n; k++, o++)
 
 /* 0x0031C5C0, 0x10B8 bytes. Applies result `k` of command record `p` for the computer (by the
@@ -5738,19 +5740,19 @@ int func_003280E0(void);
 
 #define CMD_MENU() ((CmdMenu *)func_002FC2C0()[0x1A5])
 
-/* 0x0031D680, 0xC bytes, matching. The command record being built. */
+/* 0x0031D680, 0xC bytes. The command record being built. */
 CmdRecord *func_0031D680(void)
 {
     return &g_007B5270;
 }
 
-/* 0x0031D690, 0x28 bytes, matching. The command under the menu's cursor. */
+/* 0x0031D690, 0x28 bytes. The command under the menu's cursor. */
 int func_0031D690(CmdMenu *m)
 {
     return m->grid[m->group][m->index];
 }
 
-/* 0x0031D6C0, 0xC bytes, matching. */
+/* 0x0031D6C0, 0xC bytes. */
 u8 *func_0031D6C0(void)
 {
     return g_007B5A50;
@@ -5787,7 +5789,7 @@ void func_0031D6D0(int *l, int n)
     }
 }
 
-/* 0x0031D830, 0x25C bytes, matching. Fills the command menu with the commands available, by group (the
+/* 0x0031D830, 0x25C bytes. Fills the command menu with the commands available, by group (the
  * free ones sorted), and gets the command record ready. */
 void func_0031D830(CmdMenu *m)
 {
@@ -5819,13 +5821,13 @@ void func_0031D830(CmdMenu *m)
     func_00315510(m->rec, func_00327D50());
 }
 
-/* 0x0031DA90, 0x1C bytes, matching. */
+/* 0x0031DA90, 0x1C bytes. */
 void func_0031DA90(void)
 {
     func_00388710();
 }
 
-/* 0x0031DAB0, 0x98 bytes, matching. Opens menu page 1: the seven first groups (those with commands). */
+/* 0x0031DAB0, 0x98 bytes. Opens menu page 1: the seven first groups (those with commands). */
 void func_0031DAB0(void)
 {
     CmdMenu *m = CMD_MENU();
@@ -5842,7 +5844,7 @@ void func_0031DAB0(void)
     func_003882C0(on);
 }
 
-/* 0x0031DB50, 0x90 bytes, matching. Opens menu page 2: groups 7-10. */
+/* 0x0031DB50, 0x90 bytes. Opens menu page 2: groups 7-10. */
 void func_0031DB50(void)
 {
     CmdMenu *m = CMD_MENU();
@@ -5948,7 +5950,7 @@ int func_0031DDB0(void)
     return 5;
 }
 
-/* 0x0031DF40, 0x50 bytes, matching. Sets the menu's +0x220 value (7 reads the player's regions first). */
+/* 0x0031DF40, 0x50 bytes. Sets the menu's +0x220 value (7 reads the player's regions first). */
 void func_0031DF40(int k)
 {
     int reg[28];
@@ -5979,7 +5981,7 @@ void func_003F0A00(ListWindow *w);
 void *func_0030D800(void);
 void *func_0030D810(void);
 
-/* 0x0031DF90, 0x50 bytes, matching. Draws the main menu (window 5 closed). */
+/* 0x0031DF90, 0x50 bytes. Draws the main menu (window 5 closed). */
 void func_0031DF90(void)
 {
     func_00388710();
@@ -6090,19 +6092,19 @@ int func_0031DFE0(int c, int f)
     if (c == 0x2F || c == 0x2D)
         return func_002FB100(f) == 0 ? 0x51 : -1;
     if (c == 0x22) {
-        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0);
-        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8430, f, 0, 1);
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0, 0);
+        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8430, f, 0, 1, 0);
         return a == 0 && b == 0 ? 0x4B : -1;
     }
     if (c == 0x20) {
-        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F85E0, 0, 0, 0);
-        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8430, f, 0, 1);
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F85E0, 0, 0, 0, 0);
+        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8430, f, 0, 1, 0);
         return a == 0 && b == 0 ? 0x4B : -1;
     }
     if (c == 0x1F) {
-        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0);
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0, 0);
         func_0030B540(func_002FB2D0(f));
-        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8480, 0, 0, 1);
+        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8480, 0, 0, 1, 0);
         func_0030B330();
         return a == 0 && b == 0 ? 0x4B : -1;
     }

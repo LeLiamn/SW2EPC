@@ -13,6 +13,8 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 extern int g_007BA8B8, g_007BA8BC, g_007BA8C4, g_007BA8CC, g_007BA8D0;
 extern int g_007BA8D4[];
 extern short g_007BAA54[6];
@@ -28,14 +30,13 @@ extern u16 g_0050074C;
 int *func_002FC2C0(void);
 void func_00376100(int a, int b, int c);
 void func_00373B60(void);
-int func_0030D7D0(void);
+u8 *func_0030D7D0(void);
 int func_00397B00(int v);
-void func_001ABE40(int t, int k, int x, int y, int a, int w, int h, int b);
 void func_0039A880(int a);
 void func_00397B10(int k);
 int *func_003DB900(int k);
 int func_0039A630(void);
-void func_00380E80(int a, int o, int x, int y);
+void func_00380E80(u8 *a, int o, int x, int y);
 void func_00398ED0(void);
 void func_002FC560(void);
 void func_003A9480(int v);
@@ -61,9 +62,9 @@ int func_00328C00(int k);
 void func_0039CE50(void);
 void func_00388710(void);
 void func_001A7DC0(u8 *text, int a, int b);
-void func_0032D3C0(int a);
+void func_0032D3C0(u8 *a);
 int func_002F9390(int f, int j);
-void func_0037ED80(int a, int x, int y, int f, int *v, int b, int c);
+void func_0037ED80(u8 *a, int x, int y, int f, int *v, int b, int c);
 
 #define MENU2() ((int *)func_002FC2C0()[0x1AB])
 
@@ -81,7 +82,7 @@ void func_00398650(int v)
         func_00376100(4, 9, 0x15C);
 }
 
-/* 0x003986A0, 0x3C bytes, matching. Whether `v` is in `list`. */
+/* 0x003986A0, 0x3C bytes. Whether `v` is in `list`. */
 int func_003986A0(int v, int *list, int n)
 {
     int k;
@@ -93,7 +94,7 @@ int func_003986A0(int v, int *list, int n)
     return 0;
 }
 
-/* 0x00398A80, 0x1C bytes, matching. */
+/* 0x00398A80, 0x1C bytes. */
 void func_00398A80(void)
 {
     func_00373B60();
@@ -105,7 +106,7 @@ void func_00398BD0(int x, int y, int k)
     int a = g_007BA8D4[k] == 0 ? 0x40 : 0x80;
 
     func_001ABE40(func_0030D7D0(), 0x5D, x + g_00459B60[k][0], func_00397B00(y + g_00459B60[k][1]),
-                  0, 0x98, 0x14, a);
+                  0, 0x98, 0x14, a, 1, 0);
 }
 
 /* 0x0039A080, 0x34 bytes. */
@@ -178,7 +179,7 @@ void func_0039AF70(void)
     func_00397B10(5);
 }
 
-/* 0x0039B6B0, 0x50 bytes, matching. */
+/* 0x0039B6B0, 0x50 bytes. */
 void func_0039B6B0(void)
 {
     int *p = func_003DB900(0xD);
@@ -237,13 +238,13 @@ u8 *func_0039BA50(void)
     return g_0045D7E8;
 }
 
-/* 0x0039BA60, 8 bytes, matching. */
+/* 0x0039BA60, 8 bytes. */
 void func_0039BA60(int *p)
 {
     *p = 0;
 }
 
-/* 0x0039BB00, 0x40 bytes, matching. Leaves the command menu. */
+/* 0x0039BB00, 0x40 bytes. Leaves the command menu. */
 void func_0039BB00(void)
 {
     int *st = func_002FC2C0();
@@ -261,25 +262,25 @@ void func_0039BB40(void)
         func_0039B700();
 }
 
-/* 0x0039BC10, 0xC bytes, matching. */
+/* 0x0039BC10, 0xC bytes. */
 u8 *func_0039BC10(void)
 {
     return g_007BAA70;
 }
 
-/* 0x0039BC80, 0x2C bytes, matching. */
+/* 0x0039BC80, 0x2C bytes. */
 void func_0039BC80(void)
 {
     func_00373970(8, (int)0x80000000, func_00327C00());
 }
 
-/* 0x0039BCB0, 0x2C bytes, matching. */
+/* 0x0039BCB0, 0x2C bytes. */
 void func_0039BCB0(void)
 {
     func_00373970(7, (int)0x80000000, func_00327C00());
 }
 
-/* 0x0039BCE0, 0x58 bytes, matching. Opens the list of the player force's officers. */
+/* 0x0039BCE0, 0x58 bytes. Opens the list of the player force's officers. */
 void func_0039BCE0(void)
 {
     int n = func_002F7D90(0, func_002F8160, func_00327D50(), 0, 1, 0);
@@ -313,13 +314,13 @@ int func_0039BF50(void)
     return 0;
 }
 
-/* 0x0039C3E0, 0x2C bytes, matching. */
+/* 0x0039C3E0, 0x2C bytes. */
 void func_0039C3E0(void)
 {
     func_00373970(9, (int)0x80000000, func_00327C00());
 }
 
-/* 0x0039C630, 0x60 bytes, matching. The item menu's step 0. */
+/* 0x0039C630, 0x60 bytes. The item menu's step 0. */
 void func_0039C630(void)
 {
     int *st = func_002FC2C0();
@@ -346,7 +347,7 @@ int func_0039C690(void)
     return 0;
 }
 
-/* 0x0039C740, 0x34 bytes, matching. */
+/* 0x0039C740, 0x34 bytes. */
 void func_0039C740(void)
 {
     *MENU2() = 0;
@@ -415,7 +416,7 @@ int func_0039C9E0(void)
     return 4;
 }
 
-/* 0x0039D060, 0x1C bytes, matching. */
+/* 0x0039D060, 0x1C bytes. */
 void func_0039D060(void)
 {
     func_0039CE50();
@@ -428,20 +429,20 @@ void func_0039D590(void)
     func_001A7DC0(g_0043C5A8, 0x80, 1);
 }
 
-/* 0x0039D5C0, 0x1C bytes, matching. */
+/* 0x0039D5C0, 0x1C bytes. */
 void func_0039D5C0(void)
 {
     func_00373B60();
 }
 
-/* 0x0039D5E0, 0x24 bytes, matching. */
+/* 0x0039D5E0, 0x24 bytes. */
 void func_0039D5E0(void)
 {
     func_0032D3C0(func_0030D7D0());
 }
 
-/* 0x0039D610, 0x94 bytes, matching. Draws force `f`'s three values. */
-void func_0039D610(int a, int f, int c)
+/* 0x0039D610, 0x94 bytes. Draws force `f`'s three values. */
+void func_0039D610(u8 *a, int f, int c)
 {
     int v[8], j;
 
@@ -452,7 +453,7 @@ void func_0039D610(int a, int f, int c)
     func_0037ED80(a, 0x40, 0x50, f, v, 0, c);
 }
 
-/* 0x0039D6B0, 0x84 bytes, matching. */
+/* 0x0039D6B0, 0x84 bytes. */
 void func_0039D6B0(int f)
 {
     int v[8], j;
@@ -464,7 +465,7 @@ void func_0039D6B0(int f)
     func_0037ED80(func_0030D7D0(), 0x40, 0x50, f, v, 0, 0);
 }
 
-/* 0x0039D740, 0x28 bytes, matching. */
+/* 0x0039D740, 0x28 bytes. */
 void func_0039D740(void)
 {
     func_0039D6B0(MENU2()[2]);
@@ -522,7 +523,7 @@ void func_003E74B0(void)
     }
 }
 
-/* 0x003E75D0, 0x2C bytes, matching. */
+/* 0x003E75D0, 0x2C bytes. */
 void func_003E75D0(int v)
 {
     *(int *)(MENU5() + 0x220) = v;
@@ -613,7 +614,7 @@ void func_003E7770(void)
     }
 }
 
-/* 0x003E79B0, 8 bytes, matching. */
+/* 0x003E79B0, 8 bytes. */
 void func_003E79B0(void)
 {
 }
@@ -641,7 +642,7 @@ void func_003E79C0(void)
     g_007BFB3D &= 0xFE;
 }
 
-/* 0x003E7C00, 8 bytes, matching. */
+/* 0x003E7C00, 8 bytes. */
 void func_003E7C00(void)
 {
 }

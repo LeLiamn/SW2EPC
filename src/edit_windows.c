@@ -13,6 +13,8 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 typedef struct {
     short x0, y0, w0, h0;
     short x1, y1, w1, h1;
@@ -94,7 +96,7 @@ void func_003D80A0(void)
     func_001A7DC0(g_0043C120[t], 0x80, 1);
 }
 
-/* 0x003D8280, 0x74 bytes, matching. */
+/* 0x003D8280, 0x74 bytes. */
 void func_003D8280(void)
 {
     u8 *e = EDIT();
@@ -158,7 +160,7 @@ void func_003D8460(void)
     WIN_TO(WIN(e, 0xA10), 0x10, 0x80, 0, 0, 0x80, 0xD);
 }
 
-/* 0x003D85E0, 0xBC bytes, matching. */
+/* 0x003D85E0, 0xBC bytes. */
 void func_003D85E0(void)
 {
     u8 *e = EDIT();
@@ -170,7 +172,7 @@ void func_003D85E0(void)
     SIDE_IN(e);
 }
 
-/* 0x003D86A0, 0x60 bytes, matching. */
+/* 0x003D86A0, 0x60 bytes. */
 void func_003D86A0(void)
 {
     u8 *e = EDIT();
@@ -180,7 +182,7 @@ void func_003D86A0(void)
     SIDE_IN(e);
 }
 
-/* 0x003D8700, 0xB0 bytes, matching. */
+/* 0x003D8700, 0xB0 bytes. */
 void func_003D8700(void)
 {
     u8 *e = EDIT();
@@ -191,7 +193,7 @@ void func_003D8700(void)
     SIDE_IN(e);
 }
 
-/* 0x003D87B0, 0x60 bytes, matching. */
+/* 0x003D87B0, 0x60 bytes. */
 void func_003D87B0(void)
 {
     u8 *e = EDIT();
@@ -201,7 +203,7 @@ void func_003D87B0(void)
     SIDE_IN(e);
 }
 
-/* 0x003D8810, 0x60 bytes, matching. */
+/* 0x003D8810, 0x60 bytes. */
 void func_003D8810(void)
 {
     u8 *e = EDIT();
@@ -211,7 +213,7 @@ void func_003D8810(void)
     SIDE_IN(e);
 }
 
-/* 0x003D8870, 0x60 bytes, matching. */
+/* 0x003D8870, 0x60 bytes. */
 void func_003D8870(void)
 {
     u8 *e = EDIT();
@@ -221,7 +223,7 @@ void func_003D8870(void)
     SIDE_IN(e);
 }
 
-/* 0x003D88D0, 0x60 bytes, matching. */
+/* 0x003D88D0, 0x60 bytes. */
 void func_003D88D0(void)
 {
     u8 *e = EDIT();
@@ -293,7 +295,7 @@ void func_003D8CA0(void)
     SIDE_IN(e);
 }
 
-/* 0x003D8D90, 0x60 bytes, matching. */
+/* 0x003D8D90, 0x60 bytes. */
 void func_003D8D90(void)
 {
     u8 *e = EDIT();
@@ -303,7 +305,7 @@ void func_003D8D90(void)
     SIDE_IN(e);
 }
 
-/* 0x003D8E40, 0x9C bytes, matching. Closes func_003D8460's windows. */
+/* 0x003D8E40, 0x9C bytes. Closes func_003D8460's windows. */
 void func_003D8E40(void)
 {
     u8 *e = EDIT();
@@ -315,7 +317,7 @@ void func_003D8E40(void)
     WIN_TO(WIN(e, 0xA10), -0xC4, 0x80, 0, 0, 0, 5);
 }
 
-/* 0x003D8EE0, 0x5C bytes, matching. */
+/* 0x003D8EE0, 0x5C bytes. */
 void func_003D8EE0(void)
 {
     u8 *e = EDIT();
@@ -325,7 +327,7 @@ void func_003D8EE0(void)
     WIN_TO(WIN(e, 0xA24), 0x200, 0x146, 0xF0, 0x18, 0, 5);
 }
 
-/* 0x003D8F70, 0x44 bytes, matching. */
+/* 0x003D8F70, 0x44 bytes. */
 void func_003D8F70(void)
 {
     u8 *e = EDIT();
@@ -380,7 +382,7 @@ void func_003D9250(void)
         WIN_TO(WIN(e, 0x9AC), 0x2EC, 0x67, 0xEC, 0xD1, 0, 5);
 }
 
-/* 0x003D9360, 0x90 bytes, matching. */
+/* 0x003D9360, 0x90 bytes. */
 void func_003D9360(void)
 {
     u8 *e = EDIT();
@@ -408,7 +410,6 @@ extern u16 g_0050074C;
 
 u64 *func_001050F0(void);
 void func_00105230(u64 *packet, int a);
-void func_001ABE40(u8 *t, int k, int x, int y, int a, int w, int h, int b);
 void func_003DA890(void);
 
 /* 0x003DA8D0, 0x188 bytes. Draws it (fading in over 12 frames, out after 32). */
@@ -434,7 +435,7 @@ void func_003DA8D0(void)
         p[3] = 0x43;
         func_00105230(p, 4);
     }
-    func_001ABE40(g_007BEC40, t / 4 % 0xF + base, 0, 0, 0, 0x200, 0x180, a);
+    func_001ABE40(g_007BEC40, t / 4 % 0xF + base, 0, 0, 0, 0x200, 0x180, a, 4, 0);
     p = func_001050F0();
     p[2] = 0x8000000044ULL;
     p[3] = 0x43;
@@ -496,7 +497,7 @@ extern Box5 g_0045C4C0;
 void *func_00102DB0(int align, int size);
 void func_00102EC0(void *p);
 
-/* 0x003DB0C0, 0x54 bytes, matching. */
+/* 0x003DB0C0, 0x54 bytes. */
 void func_003DB0C0(SlideBox *b)
 {
     b->to.x = 0; b->to.y = 0; b->to.w = 0; b->to.h = 0; b->to.a = 0;
@@ -523,7 +524,7 @@ void func_003DB120(int n)
         func_003DB0C0(&g_0045D830[k]);
 }
 
-/* 0x003DB1E0, 0x3C bytes, matching. */
+/* 0x003DB1E0, 0x3C bytes. */
 void func_003DB1E0(SlideBox *b, int id, Box5 *to)
 {
     b->to = *to;
@@ -717,7 +718,7 @@ typedef struct {
 
 extern LineBox g_007BEC50[0x1A];
 
-/* 0x003DB950, 0x60 bytes, matching. */
+/* 0x003DB950, 0x60 bytes. */
 void func_003DB950(LineBox *b)
 {
     b->to.x = 0; b->to.y = 0; b->to.w = 0; b->to.h = 0; b->to.a = 0;
@@ -732,7 +733,7 @@ void func_003DB950(LineBox *b)
     b->state = 0;
 }
 
-/* 0x003DB9B0, 0x3C bytes, matching. */
+/* 0x003DB9B0, 0x3C bytes. */
 void func_003DB9B0(LineBox *b, int id, Box5 *to)
 {
     b->to = *to;
@@ -906,7 +907,7 @@ void func_003DC180(int k, int line, Box5 *out)
 
 void func_003DC0E0(int k, int open, int kind);
 
-/* 0x003DA750, 0x9C bytes, matching. */
+/* 0x003DA750, 0x9C bytes. */
 void func_003DA750(void)
 {
     Box5 b;

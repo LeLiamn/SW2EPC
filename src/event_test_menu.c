@@ -16,6 +16,8 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 /* A sliding window: position, size, speed, alpha, flags (bit 0 sliding), its animation. */
 typedef struct {
     short x, y, w, h;
@@ -41,6 +43,7 @@ extern u8 *g_0043C77C;
 
 #define ST_INT(s, o) (*(int *)((s) + (o)))
 #define ST_SHORT(s, o) (*(short *)((s) + (o)))
+#define ST_PTR(s, o) (*(u8 **)((s) + (o)))
 
 int func_0034A740(void);
 void func_0034ED90(int o, short *out);
@@ -57,7 +60,6 @@ int func_002ED160(void);
 void func_002C80A0(int x, int y, int a, int w, int h, int c, int d);
 void func_002C8500(int x, int y, int a, int w, int h, int c, int d);
 void func_002C7310(int x, int y, int a, int w, int h, int c, int d);
-void func_001A3460(int x, int y, int a, int b, int c, int d, int e, int f);
 void func_002C4C50(float s, char *t, int x, int y, int w, int a, int b, int col);
 void func_00118850(void *p, int n);
 void func_0023AD10(int a, int b, int c, int d, int e);
@@ -187,7 +189,7 @@ void func_003B0E40(void)
             func_002C8500(x, ST_SHORT(s, 0x5F4) * 0x18 + 0x58, 0, 0xB8, 0x18, 0x80, 1);
     }
     if (g_007BAEF0.flags & 1)
-        func_001A3460(200, 0x50, 0, 0x10, 0xEA, 0x80, n, shown);
+        func_001A3460(200, 0x50, 0, 0x10, 0xEA, 0x80, n, shown, ARG_UNKNOWN, 1);
 }
 
 /* 0x003B10C0, 0x25C bytes. Draws the event list. */
@@ -218,7 +220,7 @@ void func_003B10C0(void)
         }
     }
     if ((g_007BAED0.flags & 1) && n > 9)
-        func_001A3460(0x128, 0x6C, 0, 8, 0xE8, 0x80, n, shown);
+        func_001A3460(0x128, 0x6C, 0, 8, 0xE8, 0x80, n, shown, ARG_UNKNOWN, 0);
 }
 
 /* 0x003B1320, 0x14C bytes. Draws the event page: the officer's name and the event list. */
@@ -234,7 +236,7 @@ void func_003B1320(void)
     func_003B10C0();
 }
 
-/* 0x003B1490, 0x48 bytes, matching. */
+/* 0x003B1490, 0x48 bytes. */
 void func_003B1490(u8 *s, int a)
 {
     func_00118850(s, 0x600);
@@ -412,7 +414,7 @@ void func_003B21A0(void)
 /* ---- The event scene's choice windows (state 0x003B2340: +0x98 mode, +4 the four choices, boxes
  * at +0x9C and +0xEC, 0x14 bytes each: from (x, y, w, h), to (x, y, w, h), alphas, steps, step). */
 
-extern u32 g_0045D7FC;                   /* (small data) the sprite bank */
+extern u8 *g_0045D7FC;                   /* (small data) the sprite bank */
 extern short g_0045B6A0[5][2];
 extern u8 *g_0043C5A8;
 
@@ -421,8 +423,6 @@ void func_003B2360(short *xy, int k);
 void func_003B2390(short *xy, int k);
 int func_003B23C0(int k);
 u8 *func_00390940(void);
-void func_001ABE40(u32 h, int k, int a, int b, int c, int d, int e, int f);
-void func_001ABEA0(u32 h, int k, int a, int b, int c, int d, int e, int f);
 void func_00383D80(u8 *p);
 void func_00384870(u8 *p, int a);
 void func_003B5480(int x, int y, int a, int w, int b, int c);
@@ -483,14 +483,14 @@ void func_003B24F0(void)
         func_001AE550(1.0f, s + 0xEC + i * 0x14, (Slide *)b, &al, 0);
         if (ST_INT(s, 0x98) == 4 && i != 1)
             al = 0;
-        func_001ABE40(ST_INT(g, 0x8EBC), func_003B23C0(k), b[0], b[1], 0, b[2], b[3], al);
+        func_001ABE40(ST_PTR(g, 0x8EBC), func_003B23C0(k), b[0], b[1], 0, b[2], b[3], al, 1, 0);
         if (i == 1)
             lit = func_001AE550(1.0f, s + 0x9C + i * 0x14, (Slide *)b, &al, 0);
         else
             func_001AE550(1.0f, s + 0x9C + i * 0x14, (Slide *)b, &al, 0);
         if (ST_INT(s, 0x98) == 4 && i != 1)
             al = 0;
-        func_001ABE40(ST_INT(g, 0x8EBC), k + 0xE, b[0], b[1], 0, b[2], b[3], al);
+        func_001ABE40(ST_PTR(g, 0x8EBC), k + 0xE, b[0], b[1], 0, b[2], b[3], al, 1, 0);
     }
     al = ST_INT(s, 0x98) == 4 ? 0 : 0x80;
     if (lit == 0) {
@@ -577,17 +577,17 @@ void func_003B39A0(int x, int y, int a, int w, int h, int k)
             k = 0;
         else
             k++;
-        func_001ABEA0(g_0045D7FC, 0, x, y, 0, w, h, (k % 0x15) * 0x18);
+        func_001ABEA0(g_0045D7FC, 0, x, y, 0, w, h, (k % 0x15) * 0x18, ARG_UNKNOWN, 0x18, 0x18, 0x80, a, 0);
     }
 }
 
 /* 0x003B3D50, 0x78 bytes. Draws tab `k` (lit or not). */
 void func_003B3D50(int k, int x, int y, int a, int b, int lit)
 {
-    func_001ABEA0(g_0045D7FC, lit == 0 ? 8 : 9, x, y, a, 0x48, 0x20, 0);
+    func_001ABEA0(g_0045D7FC, lit == 0 ? 8 : 9, x, y, a, 0x48, 0x20, 0, ARG_UNKNOWN, 0x48, 0x20, 0x80, b, 0);
 }
 
-/* 0x003B3DD0, 0x98 bytes, matching. Draws the five tabs, `cur` lit. */
+/* 0x003B3DD0, 0x98 bytes. Draws the five tabs, `cur` lit. */
 void func_003B3DD0(int alpha, int cur)
 {
     int k;
@@ -600,12 +600,13 @@ void func_003B3DD0(int alpha, int cur)
 /* ---- Sprites of the bank gp 0x0045D7FC: digits, marks, icons. ---- */
 
 int func_00313B30(int k);
-void func_001AB4E0(u8 *a, u8 *b, int x, int y, int z, int w, int h, int u);
+void func_001AB4E0(u8 *img, u8 *pal, int x, int y, int z, int w, int h, int u, int v, int uw,
+                   int vh, const u32 *rgba, int layer, int centred);
 
-#define BANK_SPR(k) ((u8 *)g_0045D7FC + *(int *)((u8 *)g_0045D7FC + 8) * *(int *)((u8 *)g_0045D7FC + 0x10 + (k) * 8))
+#define BANK_SPR(k) (g_0045D7FC + *(int *)(g_0045D7FC + 8) * *(int *)(g_0045D7FC + 0x10 + (k) * 8))
 
 /* 0x003B4FE0, 0x90 bytes. */
-void func_003B4FE0(int k, int x, int y, int z)
+void func_003B4FE0(int k, int x, int y, int z, int p4)
 {
     int s;
 
@@ -617,24 +618,24 @@ void func_003B4FE0(int k, int x, int y, int z)
         s = 0x1C;
     else
         s = x;
-    func_001ABEA0(g_0045D7FC, s, x, y, z, 0x14, 0x14, 0);
+    func_001ABEA0(g_0045D7FC, s, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
 }
 
 /* 0x003B5070, 0x16C bytes. A level mark by value (< 20, < 50, < 80, more). */
-void func_003B5070(int v, int x, int y, int z)
+void func_003B5070(int v, int x, int y, int z, int p4)
 {
     if (v < 0x14)
-        func_001ABEA0(g_0045D7FC, 0x17, x, y, z, 0x14, 0x14, 0);
+        func_001ABEA0(g_0045D7FC, 0x17, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
     else if (v < 0x32)
-        func_001ABEA0(g_0045D7FC, 0x18, x, y, z, 0x14, 0x14, 0);
+        func_001ABEA0(g_0045D7FC, 0x18, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, ARG_UNKNOWN, 0);
     else if (v < 0x50)
-        func_001ABEA0(g_0045D7FC, 0x19, x, y, z, 0x14, 0x14, 0);
+        func_001ABEA0(g_0045D7FC, 0x19, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, ARG_UNKNOWN, 0);
     else
-        func_001ABEA0(g_0045D7FC, 0x1A, x, y, z, 0x14, 0x14, 0);
+        func_001ABEA0(g_0045D7FC, 0x1A, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, ARG_UNKNOWN, 0);
 }
 
 /* 0x003B5300, 0xB4 bytes. */
-void func_003B5300(int k, int x, int y, int z)
+void func_003B5300(int k, int x, int y, int z, int p4)
 {
     int s;
 
@@ -648,49 +649,53 @@ void func_003B5300(int k, int x, int y, int z)
         s = 0x11;
     else
         return;
-    func_001ABEA0(g_0045D7FC, s, x, y, z, 0x14, 0x14, 0);
+    func_001ABEA0(g_0045D7FC, s, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
 }
 
 /* 0x003B53C0, 0x44 bytes. */
 void func_003B53C0(int x, int y, int z, int a, int b, int k)
 {
-    func_001ABE40(g_0045D7FC, k + 0x1F, x, y, z, 0x40, 0x20, a);
+    func_001ABE40(g_0045D7FC, k + 0x1F, x, y, z, 0x40, 0x20, a, b, 0);
 }
 
 /* 0x003B5480, 0x114 bytes. A bar of width `w` (two caps and a middle). */
 void func_003B5480(int x, int y, int z, int w, int b, int c)
 {
-    func_001ABEA0(g_0045D7FC, 3, x, y, z, 0x18, 8, 0);
-    func_001ABEA0(g_0045D7FC, 3, x + 0x18, y, z, w - 0x30, 8, 0x18);
-    func_001ABEA0(g_0045D7FC, 3, x + 0x18 + w - 0x30, y, z, 0x18, 8, 0x20);
+    func_001ABEA0(g_0045D7FC, 3, x, y, z, 0x18, 8, 0, 0, 0x18, 8, b, c, 0);
+    func_001ABEA0(g_0045D7FC, 3, x + 0x18, y, z, w - 0x30, 8, 0x18, 0, 8, 8, b, c, 0);
+    func_001ABEA0(g_0045D7FC, 3, x + 0x18 + w - 0x30, y, z, 0x18, 8, 0x20, 0, 0x18, 8, b, c, 0);
 }
 
 /* 0x003B5820, 0x80 bytes. The icon of kind `k`. */
-void func_003B5820(int k, int x, int y, int z, int a, int b)
+void func_003B5820(int k, int x, int y, int z, int a, int b, int p6)
 {
-    func_001ABE40(g_0045D7FC, func_00313B30(k) + 0x2F, x, y, z, 0x20, 0x18, a);
+    func_001ABE40(g_0045D7FC, func_00313B30(k) + 0x2F, x, y, z, 0x20, 0x18, a, ARG_UNKNOWN, 0);
 }
 
 /* 0x003B5970, 0x124 bytes. A frame of width `w` (at least 0x20). */
-void func_003B5970(int x, int y, int z, int w)
+void func_003B5970(int x, int y, int z, int w, int p4, int p5, int p6)
 {
     if (w < 0x20)
         w = 0x20;
-    func_001ABEA0(g_0045D7FC, 0x49, x, y, z, 0x10, 0x18, 0);
-    func_001ABEA0(g_0045D7FC, 0x49, x + 0x10, y, z, w - 0x20, 0x18, 0x10);
-    func_001ABEA0(g_0045D7FC, 0x49, x + 0x10 + w - 0x20, y, z, 0x10, 0x18, 0x18);
+    func_001ABEA0(g_0045D7FC, 0x49, x, y, z, 0x10, 0x18, 0, 0, 0x10, 0x18, p5, p6, 0);
+    func_001ABEA0(g_0045D7FC, 0x49, x + 0x10, y, z, w - 0x20, 0x18, 0x10, 0, 8, 0x18, p5, p6, 0);
+    func_001ABEA0(g_0045D7FC, 0x49, x + 0x10 + w - 0x20, y, z, 0x10, 0x18, 0x18, 0, 0x10, 0x18, p5, p6, 0);
 }
 
-/* 0x003B5AA0, 0x8C bytes. Digit sprite `d` (0..9 = 1..9, 0). */
-void func_003B5AA0(int d, int x, int y, int z)
+/* 0x003B5AA0, 0x8C bytes. Digit sprite `d` (0..9 = 1..9, 0), dimmed when `dim`. */
+void func_003B5AA0(int d, int x, int y, int z, int alpha, int layer, int dim)
 {
     u8 *p = BANK_SPR(0x4A);
+    u8 c[4];
+    int g = dim != 0 ? 0x40 : 0x80;
 
-    func_001AB4E0(p, p, x, y, z, 0x10, 0x10, d << 4);
+    c[3] = alpha;
+    c[0] = c[1] = c[2] = g;
+    func_001AB4E0(p, p, x, y, z, 0x10, 0x10, d << 4, 0, 0x10, 0x10, (const u32 *)c, layer, 0);
 }
 
 /* 0x003B5B30, 0x168 bytes. A number up to 999. */
-void func_003B5B30(int v, int x, int y, int z)
+void func_003B5B30(int v, int x, int y, int z, int alpha, int layer, int dim)
 {
     int r = v, d;
 
@@ -698,35 +703,39 @@ void func_003B5B30(int v, int x, int y, int z)
         d = v / 100 - 1;
         if (v / 100 == 0)
             d = 9;
-        func_003B5AA0(d, x, y, z);
+        func_003B5AA0(d, x, y, z, alpha, layer, dim);
         r = v % 100;
     }
     if (v > 9) {
         d = r / 10 - 1;
         if (r / 10 == 0)
             d = 9;
-        func_003B5AA0(d, x + 0xC, y, z);
+        func_003B5AA0(d, x + 0xC, y, z, alpha, layer, dim);
         r = r % 10;
     }
     d = r - 1;
     if (r == 0)
         d = 9;
-    func_003B5AA0(d, x + 0x18, y, z);
+    func_003B5AA0(d, x + 0x18, y, z, alpha, layer, dim);
 }
 
-/* 0x003B5D50, 0x98 bytes. */
-void func_003B5D50(int k, int x, int y, int z)
+/* 0x003B5D50, 0x98 bytes. Mark `k`, dimmed when `dim`. */
+void func_003B5D50(int k, int x, int y, int z, int alpha, int layer, int dim)
 {
     u8 *p = BANK_SPR(0x4B + k);
+    u8 c[4];
+    int g = dim != 0 ? 0x60 : 0x80;
 
-    func_001AB4E0(p, p, x, y, z, 0x20, 0x14, 0);
+    c[3] = alpha;
+    c[0] = c[1] = c[2] = g;
+    func_001AB4E0(p, p, x, y, z, 0x20, 0x14, 0, 0, 0x20, 0x14, (const u32 *)c, layer, 0);
 }
 
 /* 0x003B5E10, 0x78 bytes. */
-void func_003B5E10(int k, int x, int y, int z)
+void func_003B5E10(int k, int x, int y, int z, int p4, int p5)
 {
     if (k >= 0 && k < 3)
-        func_001ABEA0(g_0045D7FC, 0x54, x, y, z, 0x38, 0x10, 0);
+        func_001ABEA0(g_0045D7FC, 0x54, x, y, z, 0x38, 0x10, 0, ARG_UNKNOWN, 0x38, 0x10, p4, p5, 0);
 }
 
 /* ---- The Empire ending (state 0x003B5E90: +4 step, +0x20.. loaded files, +0x514 the cleared
@@ -740,8 +749,7 @@ extern u8 g_0056CCC8[4];
 u8 *func_003B5E90(void);
 void func_003A5FA0(int a, int b, int c, int d);
 void func_001B8F60(int a, int b, int c);
-void func_001ABA70(u32 h, int a, int x, int y, int w, int hh, int al, int b);
-u32 func_001026D0(int a, int k, int b, int c, int d, int e, const char *file, int line);
+u8 *func_001026D0(int a, int k, int b, int c, int d, int e, const char *file, int line);
 void func_0017E010(int m);
 void func_0019FC30(void);
 u8 *func_0019FBC0(int k);
@@ -771,7 +779,7 @@ int func_0023A9B0(int a, int b);
 void func_0023A960(int a);
 void func_003BC5E0(void);
 void func_003B9760(void);
-void func_00102EC0(u32 h);
+void func_00102EC0(u8 *h);
 int func_0030DFA0(void);
 char *func_00390760(int k);
 char *func_002F2890(int o);
@@ -796,7 +804,7 @@ void func_003B5EA0(void)
         func_003A5FA0(0, 0, 0, 0);
         func_001B8F60(0, 6, 1);
     }
-    func_001ABA70(ST_INT(s, 0x20), 0, 0, 0, 0x200, 0x180, al, 2);
+    func_001ABA70(ST_PTR(s, 0x20), 0, 0, 0, 0x200, 0x180, al, 2, 0);
 }
 
 /* 0x003B5F70, 0x104 bytes. Its step: loads it, counts down (start skips to the end). */
@@ -806,7 +814,7 @@ int func_003B5F70(void)
     short t;
 
     if (ST_INT(s, 0x718) == 0) {
-        ST_INT(s, 0x20) = func_001026D0(1, 0xD84, 0, 1, 0, 0, g_0045B6E8, 0x44);
+        ST_PTR(s, 0x20) = func_001026D0(1, 0xD84, 0, 1, 0, 0, g_0045B6E8, 0x44);
         ST_INT(s, 0x718) = 1;
         func_0017E010(0x22);
     }
@@ -962,7 +970,7 @@ void func_003B6620(void)
         func_001AFFB0(1);
 }
 
-/* 0x003B6760, 0x84 bytes, matching. Saving (1 done, 2 failed: asks again). */
+/* 0x003B6760, 0x84 bytes. Saving (1 done, 2 failed: asks again). */
 void func_003B6760(void)
 {
     u8 *s = func_003B5E90();
@@ -988,8 +996,8 @@ void func_003B67F0(void)
     u8 *s = func_003B5E90();
     int k;
 
-    ST_INT(s, 0x24) = func_001026D0(1, 0x36, 0, 1, 0, 0, g_0045B6E8, 0x132);
-    ST_INT(s, 0x28) = func_001026D0(1, 0x37, 0, 1, 0, 0, g_0045B6E8, 0x133);
+    ST_PTR(s, 0x24) = func_001026D0(1, 0x36, 0, 1, 0, 0, g_0045B6E8, 0x132);
+    ST_PTR(s, 0x28) = func_001026D0(1, 0x37, 0, 1, 0, 0, g_0045B6E8, 0x133);
     for (k = 0; k < 4; k++)
         func_00118AC0(s + 0x65C + k * 0x24, func_0019FBC0(k), 0x24);
     ST_INT(s, 0x750) = func_003F0A00(s + 0x514);
@@ -1069,17 +1077,17 @@ void func_003B6E80(void)
 
     func_003BC5E0();
     func_003B9760();
-    if (ST_INT(s, 0x20) != 0) {
-        func_00102EC0(ST_INT(s, 0x20));
-        ST_INT(s, 0x20) = 0;
+    if (ST_PTR(s, 0x20) != 0) {
+        func_00102EC0(ST_PTR(s, 0x20));
+        ST_PTR(s, 0x20) = 0;
     }
-    if (ST_INT(s, 0x24) != 0) {
-        func_00102EC0(ST_INT(s, 0x24));
-        ST_INT(s, 0x24) = 0;
+    if (ST_PTR(s, 0x24) != 0) {
+        func_00102EC0(ST_PTR(s, 0x24));
+        ST_PTR(s, 0x24) = 0;
     }
-    if (ST_INT(s, 0x28) != 0) {
-        func_00102EC0(ST_INT(s, 0x28));
-        ST_INT(s, 0x28) = 0;
+    if (ST_PTR(s, 0x28) != 0) {
+        func_00102EC0(ST_PTR(s, 0x28));
+        ST_PTR(s, 0x28) = 0;
     }
     g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = 0x80;
 }
@@ -1115,7 +1123,7 @@ extern u8 g_00669FC7[][0x38];            /* custom officers' records (+0x267 in 
 typedef struct { u8 v[0x9D]; } Bytes157;
 extern Bytes157 g_0041C180;
 
-void func_003F0EC0(u32 a, u32 b, u8 *p);
+void func_003F0EC0(u8 *a, u8 *b, u8 *p);
 void func_002C6040(int x, int y, int w, int h, int a, int b);
 void func_003B4720(int x, int y, int a, int b);
 char *func_003725A0(int k);
@@ -1158,7 +1166,7 @@ void func_003B7090(void)
     int n = ST_INT(s, 0x654), cur = ST_INT(s, 0x658);
 
     g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = 0x80;
-    func_003F0EC0(ST_INT(s, 0x24), ST_INT(s, 0x28), s + 0x514);
+    func_003F0EC0(ST_PTR(s, 0x24), ST_PTR(s, 0x28), s + 0x514);
     func_003B4720(0x10, 0x11C, 0, 1);
     if (n == cur)
         func_002C6040(-0x3C, 0x118, 0x100, 0x20, 0, 0x80);

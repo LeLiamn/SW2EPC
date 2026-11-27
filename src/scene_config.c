@@ -10,6 +10,8 @@
 typedef unsigned char u8;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 /* Flag bytes of the live settings (bitfields, first field = lowest bit). */
 typedef struct {             /* 0x00669DB0 */
     u8 unknown_0 : 1;
@@ -272,7 +274,7 @@ void func_001E5750(void);
 void func_001E5EF0(void);
 void func_00278CF0(void);
 void func_002B3CF0(int value);
-void func_002B4BE0(u32 handle, int page, int a, int b, int c, int d, int e, int f);
+void func_002B4BE0(u32 handle, int page, int a, int b, int c, int d, int e, int f, int p8);
 int func_002B6450(u32 handle, u8 cursor);
 int func_002B7DA0(u32 handle, u8 cursor);
 int func_002B7E30(u32 handle, u8 cursor);
@@ -339,7 +341,7 @@ int func_002EFBB0(void);
 void func_002EFB40(void);
 void func_003A32C0(void);
 
-/* 0x001E3D00, 0x4C bytes, matching. Apply the four settings stored at 0x0073117C. */
+/* 0x001E3D00, 0x4C bytes. Apply the four settings stored at 0x0073117C. */
 void func_001E3D00(void)
 {
     u8 *sound = g_0073117C;
@@ -351,19 +353,19 @@ void func_001E3D00(void)
     func_0023AB70(sound[3]);
 }
 
-/* 0x001E3D50, 0x1C bytes, matching. */
+/* 0x001E3D50, 0x1C bytes. */
 void func_001E3D50(void)
 {
     func_0023A4F0(0x44);
 }
 
-/* 0x001E3D70, 0x1C bytes, matching. */
+/* 0x001E3D70, 0x1C bytes. */
 void func_001E3D70(void)
 {
     func_0023A480(0x44);
 }
 
-/* 0x001E3D90, 0x1C bytes, matching. */
+/* 0x001E3D90, 0x1C bytes. */
 void func_001E3D90(void)
 {
     func_0023AA40();
@@ -449,7 +451,7 @@ void func_001E3DB0(int page)
     func_002B9CC0(page);
 }
 
-/* 0x001E4030, 0x44 bytes, matching. Closing finished: switch to the page chosen by func_001E3DB0. */
+/* 0x001E4030, 0x44 bytes. Closing finished: switch to the page chosen by func_001E3DB0. */
 void func_001E4030(void)
 {
     func_002C59F0();
@@ -565,7 +567,7 @@ void func_002DBAB0(void);
 #define pad2_pressed() ((unsigned short)(pad2_ready() ? g_005007D4 : 0))
 #define pad2_held() ((unsigned short)(pad2_ready() ? g_005007D6 : 0))
 
-/* 0x001E44C0, 0x220 bytes, matching. Page 1: a three-entry sub-menu opening pages 5, 6 and 7. */
+/* 0x001E44C0, 0x220 bytes. Page 1: a three-entry sub-menu opening pages 5, 6 and 7. */
 void func_001E44C0(void)
 {
     int pressed = pad1_pressed();
@@ -596,7 +598,7 @@ void func_001E44C0(void)
     }
 }
 
-/* 0x001E4BF0, 0x280 bytes, matching. Page 3: save or load the settings (two choices, then an operation
+/* 0x001E4BF0, 0x280 bytes. Page 3: save or load the settings (two choices, then an operation
  * running in mode 2 or 3 until it reports 1 = done or 2 = cancelled). */
 void func_001E4BF0(void)
 {
@@ -647,7 +649,7 @@ void func_001E4BF0(void)
     }
 }
 
-/* 0x001E4E70, 0x1F0 bytes, matching. Page 8: adjust the screen position (offsets clamped to -24..24). */
+/* 0x001E4E70, 0x1F0 bytes. Page 8: adjust the screen position (offsets clamped to -24..24). */
 void func_001E4E70(void)
 {
     int pressed = pad1_pressed();
@@ -675,7 +677,7 @@ void func_001E4E70(void)
     }
 }
 
-/* 0x001E5060, 0x154 bytes, matching. Page 6: press OK on controller 1 or 2; remembers which one, then
+/* 0x001E5060, 0x154 bytes. Page 6: press OK on controller 1 or 2; remembers which one, then
  * opens page 9. */
 void func_001E5060(void)
 {
@@ -1172,7 +1174,7 @@ void func_0017E0C0(u8 volume, int b);
 
 #define PAD_MAP(pad, i) (((u8 *)&g_00669D8C[pad])[g_0040CC20[i]])
 
-/* 0x001E3300, 0xCC bytes, matching. Copies the live display settings into `out`. */
+/* 0x001E3300, 0xCC bytes. Copies the live display settings into `out`. */
 static void func_001E3300(void *out)
 {
     DisplaySettings *d = out;
@@ -1197,7 +1199,7 @@ static void func_001E3300(void *out)
     d->y = (signed char)g_00669DB6;
 }
 
-/* 0x001E33D0, 0x12C bytes, matching. Copies the live settings of pad `pad` (0 or 1) into `out`. */
+/* 0x001E33D0, 0x12C bytes. Copies the live settings of pad `pad` (0 or 1) into `out`. */
 void func_001E33D0(int pad, void *out)
 {
     PadSettings *p = out;
@@ -1224,7 +1226,7 @@ void func_001E33D0(int pad, void *out)
     p->slots[7] = PAD_MAP(pad, 7);
 }
 
-/* 0x001E3500, 0x58 bytes, matching. Copies the live sound settings into `out` (6 bytes, see page 7). */
+/* 0x001E3500, 0x58 bytes. Copies the live sound settings into `out` (6 bytes, see page 7). */
 void func_001E3500(void *out)
 {
     u8 *s = out;
@@ -1237,7 +1239,7 @@ void func_001E3500(void *out)
     s[5] = g_00669DB1.option;
 }
 
-/* 0x001E3560, 0x16C bytes, matching. Writes display settings back and applies the screen offset. */
+/* 0x001E3560, 0x16C bytes. Writes display settings back and applies the screen offset. */
 void func_001E3560(void *in)
 {
     DisplaySettings *d = in;
@@ -1265,7 +1267,7 @@ void func_001E3560(void *in)
     func_00100ED0(&d->x, &d->y);
 }
 
-/* 0x001E36D0, 0x10C bytes, matching. Non-zero when `in` differs from the live display settings (the screen
+/* 0x001E36D0, 0x10C bytes. Non-zero when `in` differs from the live display settings (the screen
  * offset is not compared). */
 int func_001E36D0(void *in)
 {
@@ -1361,7 +1363,7 @@ int func_001E39F0(int pad, void *in)
     return 0;
 }
 
-/* 0x001E3AD0, 0xB8 bytes, matching. Writes the sound settings back and applies them. */
+/* 0x001E3AD0, 0xB8 bytes. Writes the sound settings back and applies them. */
 void func_001E3AD0(void *in)
 {
     u8 *s = in;
@@ -1377,7 +1379,7 @@ void func_001E3AD0(void *in)
     func_0023AB70(s[3]);
 }
 
-/* 0x001E3B90, 0x94 bytes, matching. Non-zero when `in` differs from the live sound settings. */
+/* 0x001E3B90, 0x94 bytes. Non-zero when `in` differs from the live sound settings. */
 int func_001E3B90(void *in)
 {
     u8 *s = in;
@@ -1393,7 +1395,7 @@ int func_001E3B90(void *in)
     return s[5] != g_00669DB1.option;
 }
 
-/* 0x001E3C30, 0x64 bytes, matching. Applies all live settings again (display, both pads, sound), by reading
+/* 0x001E3C30, 0x64 bytes. Applies all live settings again (display, both pads, sound), by reading
  * them and writing them back. */
 void func_001E3C30(void)
 {
@@ -1411,7 +1413,7 @@ void func_001E3C30(void)
     func_001E3AD0(sound);
 }
 
-/* 0x001E3CA0, 0x30 bytes, matching. Reloads the menu's display copy and applies its saved screen offset.
+/* 0x001E3CA0, 0x30 bytes. Reloads the menu's display copy and applies its saved screen offset.
  * (The original keeps the copy's address in $v0 across the call: the compiler knows the static
  * helper leaves that register alone.) */
 void func_001E3CA0(void)
@@ -1422,7 +1424,7 @@ void func_001E3CA0(void)
     func_00100ED0(&d->saved_x, &d->saved_y);
 }
 
-/* 0x001E3CD0, 0x2C bytes, matching. Centres the screen (offset 0, 0) in the menu's copy and applies it. */
+/* 0x001E3CD0, 0x2C bytes. Centres the screen (offset 0, 0) in the menu's copy and applies it. */
 void func_001E3CD0(void)
 {
     DisplaySettings *d = (DisplaySettings *)g_00731140;
@@ -1432,7 +1434,7 @@ void func_001E3CD0(void)
     func_00100ED0(&d->x, &d->y);
 }
 
-/* 0x001E6670, 0x1E8 bytes, matching. Look up a byte in one of the tables at 0x00429030 (selected by `table`,
+/* 0x001E6670, 0x1E8 bytes. Look up a byte in one of the tables at 0x00429030 (selected by `table`,
  * row chosen by whether `flag` is 0); out-of-range indexes return the table's first byte. */
 extern u8 g_00429070[2][6], g_00429080[2][6], g_00429090[2][9], g_004290A8[2][6];
 extern u8 g_004290C0[2][8], g_004290D0[2][6];
@@ -1465,7 +1467,7 @@ u8 func_001E6670(int table, int flag, int index)
     return value;
 }
 
-/* 0x001E6860, 0xF4 bytes, matching. Enter: create the menu and reset its state. */
+/* 0x001E6860, 0xF4 bytes. Enter: create the menu and reset its state. */
 void func_001E6860(void)
 {
     func_003F8B30(4);
@@ -1489,7 +1491,7 @@ void func_001E6860(void)
     g_0073123C = func_001037F0(0);
 }
 
-/* 0x001E6960, 0x44 bytes, matching. Leave: destroy the menu and restore the saved value. */
+/* 0x001E6960, 0x44 bytes. Leave: destroy the menu and restore the saved value. */
 void func_001E6960(void)
 {
     func_00375D60();
@@ -1499,7 +1501,7 @@ void func_001E6960(void)
     func_003F8B80();
 }
 
-/* 0x001E69B0, 0x200 bytes, matching. Update: run the current phase; always returns 1 (so step() runs). */
+/* 0x001E69B0, 0x200 bytes. Update: run the current phase; always returns 1 (so step() runs). */
 /* Message box 1 open (inlined in the original). */
 static inline int box1_open(void)
 {
@@ -1555,7 +1557,7 @@ int func_001E69B0(float dt)
     return 1;
 }
 
-/* 0x001E6BB0, 0x08 bytes, matching. Step: nothing to do. */
+/* 0x001E6BB0, 0x08 bytes. Step: nothing to do. */
 void func_001E6BB0(void)
 {
 }
@@ -1572,7 +1574,7 @@ void func_001E6BC0(void)
     func_00105F70(v);
     if (g_007311F0 != 8)
         func_003F8BB0();
-    func_002B4BE0(g_00731214, g_007311F0, 0x10, 0x0C, 0, 0xD8, 0x28, 0x80);
+    func_002B4BE0(g_00731214, g_007311F0, 0x10, 0x0C, 0, 0xD8, 0x28, 0x80, ARG_UNKNOWN);
 
     switch (g_007311F0) {
     case 0: g_00731228 = func_002B6450(g_00731214, g_00731219); break;

@@ -13,6 +13,8 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 extern char g_00459540[];
 extern int g_00459650[0xB][4];
 extern u8 g_00459724[][0x18];            /* the selection list layouts (+0 count, +4 x, +6 y) */
@@ -34,18 +36,15 @@ int func_0030AD80(int o);
 int func_0030AE80(int o);
 void func_0030ADC0(int o, int v);
 int func_002F3770(int a, int o);
-void func_001A85D0(float v, int a, float b, int x, int y, int c, int d, int e, int f, int g);
 void func_002C80A0(int x, int y, int a, int w, int h, int b, int c);
 void func_002C8500(int x, int y, int a, int w, int h, int b, int c);
-void func_003B5820(int k, int x, int y, int a, int b, int c);
-void func_00381CA0(int a, int x, int y, int k, int b);
+void func_003B5820(int k, int x, int y, int a, int b, int c, int p6);
+void func_00381CA0(int a, int x, int y, int k, int b, int p5);
 void func_003B5480(int x, int y, int a, int w, int b, int c);
 void func_001204B0(char *buf, char *fmt, int v);
 void func_002C4F40(float s, char *text, int x, int y, int a, int b, int c);
 void func_003B53C0(int x, int y, int a, int b, int c, int k);
-void func_002CD780(int v, int a, int x, int y, int b, int w, int h, int c);
-void func_001ABEA0(u8 *t, int k, int x, int y, int a, int w, int h, int b);
-void func_001ABE40(u8 *t, int k, int x, int y, int a, int w, int h, int b);
+void func_002CD780(int v, int a, int x, int y, int b, int w, int h, int c, int p8);
 u8 *func_00365480(void);
 u8 *func_0030D7E0(void);
 int func_00382620(int k);
@@ -110,11 +109,11 @@ void func_00381FF0(int a, int x, int y, int item, int sel)
         func_002C80A0(x, y, 0, 0x96, 0x18, 0x80, 1);
     else
         func_002C8500(x, y, 0, 0x96, 0x18, 0x80, 1);
-    func_003B5820(item, x + 10, y, 0, 0x80, 1);
-    func_00381CA0(a, x + 0x2C, y, item, 0);
+    func_003B5820(item, x + 10, y, 0, 0x80, 1, ARG_UNKNOWN);
+    func_00381CA0(a, x + 0x2C, y, item, 0, ARG_UNKNOWN);
 }
 
-/* 0x00382310, 0x9C bytes, matching. */
+/* 0x00382310, 0x9C bytes. */
 void func_00382310(int a, int v, int w)
 {
     char buf[16];
@@ -128,8 +127,8 @@ void func_00382310(int a, int v, int w)
 /* 0x00382590, 0x90 bytes. */
 void func_00382590(u8 *t, int v)
 {
-    func_002CD780(v, 0, 0x1E2, 0x23, 0, 0xC, 0xC, 0x80);
-    func_001ABEA0(t, 7, 0x1E2, 0x1D, 0, 0x80, 0x18, 0);
+    func_002CD780(v, 0, 0x1E2, 0x23, 0, 0xC, 0xC, 0x80, 1);
+    func_001ABEA0(t, 7, 0x1E2, 0x1D, 0, 0x80, 0x18, 0, 0xd8, 0x80, 0x18, 0x80, 1, 0);
 }
 
 /* 0x00382690, 0xD8 bytes. */
@@ -138,7 +137,7 @@ void func_00382690(int x, int y, int a, int w, int h, int b, int k)
     u8 *t = g_0045D898 == 0x13 ? func_00365480() : func_0030D7E0();
 
     if (t != 0)
-        func_001ABE40(t, func_00382620(k), x, y, a, w, h, 0x80);
+        func_001ABE40(t, func_00382620(k), x, y, a, w, h, 0x80, b, 0);
 }
 
 /* 0x00383B30, 0x7C bytes. */
@@ -174,7 +173,7 @@ void func_00387A10(int k, int unused, u8 b)
 {
     if (k < 0xB)
         func_001ABE40(func_00365470(), k + 0x11, g_00459650[k][0], g_00459650[k][1], 0,
-                      g_00459650[k][2], g_00459650[k][3], b);
+                      g_00459650[k][2], g_00459650[k][3], b, unused, 0);
 }
 
 /* 0x00388140, 0xBC bytes. Opens the selection list window `k`. */
@@ -455,7 +454,7 @@ void func_0038BAA0(u8 *m)
         func_0037E9F0(func_0030D7D0(), k, 0xB4, 0x4A, *(int *)(p + 0x10), 1);
 }
 
-/* 0x0038BE00, 0x90 bytes, matching. */
+/* 0x0038BE00, 0x90 bytes. */
 void func_0038BE00(int a, int b, int c)
 {
     int v = *(int *)func_0019FBC0(a);
@@ -527,7 +526,7 @@ int func_0038D180(int a, int b)
     return 10;
 }
 
-/* 0x0038F4B0, 0xA8 bytes, matching. Loads the officer list screen. */
+/* 0x0038F4B0, 0xA8 bytes. Loads the officer list screen. */
 void func_0038F4B0(void)
 {
     g_0045D7D4 = 0;
@@ -556,7 +555,7 @@ void func_0038F9D0(void)
     }
 }
 
-/* 0x003906F0, 0x6C bytes, matching. */
+/* 0x003906F0, 0x6C bytes. */
 void func_003906F0(void)
 {
     u8 *m = func_00390940();
@@ -700,8 +699,8 @@ void func_00381DF0(int a, int x, int y, int item, int sel, int w)
         func_002C80A0(x, y, 0, 0x118, 0x18, 0x80, 1);
     else
         func_002C8500(x, y, 0, 0x118, 0x18, 0x80, 1);
-    func_003B5820(item, x + 10, y, 0, 0x80, 1);
-    func_00381CA0(a, x + 0x2C, y, item, w);
+    func_003B5820(item, x + 10, y, 0, 0x80, 1, ARG_UNKNOWN);
+    func_00381CA0(a, x + 0x2C, y, item, w, ARG_UNKNOWN);
     buf[0] = 0;
     if (item == 0x2D)
         func_00120B78(buf, func_002F8DE0(*(int *)(m + 0x10)), 0x40);
@@ -722,14 +721,14 @@ void func_00382410(u8 *t, int n)
 
     func_003DC180(1, 0, r);
     func_003B5480(r[0] - 0x14, r[1] + 0x16, 0, 0xB8, 0x80, 1);
-    func_001ABEA0(t, 7, r[0], r[1], 0, 0x80, 0x18, 0);
+    func_001ABEA0(t, 7, r[0], r[1], 0, 0x80, 0x18, 0, 0x18, 0x80, 0x18, 0x80, 1, 0);
     p = func_001050F0();
     *(unsigned long long *)(p + 0x10) = 0x13C00000009ULL;
     *(unsigned long long *)(p + 0x18) = 9;
     func_00105230(p, 1);
     r[0] += 0x4A;
     for (j = 0; j < 5; j++) {
-        func_001ABEA0(t, n <= j ? 0xD2 : 0xD3, r[0], r[1] + 4, 0, 0x10, 0x10, 0);
+        func_001ABEA0(t, n <= j ? 0xD2 : 0xD3, r[0], r[1] + 4, 0, 0x10, 0x10, 0, 0, 0x10, 0x10, 0x80, 1, 0);
         r[0] += 0xC;
     }
     p = func_001050F0();
@@ -744,7 +743,7 @@ void func_00383050(u8 *t, int x, int y, int a, int b, int v)
     char buf[16];
 
     func_003B5970(x, y, a, 0xD0, 0x14, 0x80, b);
-    func_001ABEA0(t, 7, x + 0x18, y - 2, a, 0x80, 0x18, 0);
+    func_001ABEA0(t, 7, x + 0x18, y - 2, a, 0x80, 0x18, 0, 0x30, 0x80, 0x18, 0x80, 1, 0);
     if (v == -1) {
         func_001204B0(buf, g_00459590, 0);
         text_style(5, 12.0f);
@@ -752,8 +751,8 @@ void func_00383050(u8 *t, int x, int y, int a, int b, int v)
         text_style(5, 16.0f);
     } else {
         func_001204B0(buf, g_00459500, v);
-        func_002CD780(v, 0, x + 0xA1, y + 4, 0, 0xC, 0xC, 0x80);
-        func_001ABEA0(t, 7, x + 0xA0, y - 2, a, 0x80, 0x18, 0);
+        func_002CD780(v, 0, x + 0xA1, y + 4, 0, 0xC, 0xC, 0x80, 1);
+        func_001ABEA0(t, 7, x + 0xA0, y - 2, a, 0x80, 0x18, 0, 0xd8, 0x80, 0x18, 0x80, 1, 0);
     }
 }
 
@@ -923,7 +922,7 @@ extern int g_004169D0[];
 extern u8 *g_005BA6A0;
 int func_002F27D0(int o);
 char *func_00372580(int k);
-void func_0037E480(int a, int k, int x, int y, int z, char *t, int b, int c);
+void func_0037E480(int a, int k, int x, int y, int z, char *t, int b, int c, int p8);
 
 /* 0x0037DA70, 0x40 bytes. Officer `o`'s look kind. */
 u8 func_0037DA70(int o)
@@ -931,7 +930,7 @@ u8 func_0037DA70(int o)
     return g_005BA6A0[func_002F27D0(o) * 0x2C + 6];
 }
 
-/* 0x0037DAB0, 0x18 bytes, matching. */
+/* 0x0037DAB0, 0x18 bytes. */
 int func_0037DAB0(int k)
 {
     return g_004169D0[k];
@@ -940,11 +939,11 @@ int func_0037DAB0(int k)
 /* 0x0037E950, 0x94 bytes. Draws command `k`'s label (0x65 uses text 0x7F). */
 void func_0037E950(int a, int k, int x, int y, int z)
 {
-    func_0037E480(a, k, x, y, z, func_00372580(k == 0x65 ? 0x7F : k), 0, 0);
+    func_0037E480(a, k, x, y, z, func_00372580(k == 0x65 ? 0x7F : k), 0, 0, 1);
 }
 
 /* 0x0037EAA0, 0x94 bytes. */
 void func_0037EAA0(int a, int k, int x, int y, int z)
 {
-    func_0037E480(a, k, x, y, z, func_00372580(k == 0x65 ? 0x7F : k), 0, 0);
+    func_0037E480(a, k, x, y, z, func_00372580(k == 0x65 ? 0x7F : k), 0, 0, 1);
 }

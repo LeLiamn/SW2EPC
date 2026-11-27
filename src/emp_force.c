@@ -16,6 +16,8 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 extern short g_00414630[100][2];         /* the policies: kind and cost */
 extern short g_004145F0[15][2];          /* per policy kind: two values */
 extern char g_00446470[];                /* a separator for names */
@@ -109,7 +111,7 @@ char *func_002F8DB0(int f)
     return func_002F2A30(func_002F8F20(f));
 }
 
-/* 0x002F8DE0, 0x64 bytes, matching. Force `f`'s name: its leader's title, a separator and a word. */
+/* 0x002F8DE0, 0x64 bytes. Force `f`'s name: its leader's title, a separator and a word. */
 char *func_002F8DE0(int f)
 {
     char *s = func_002F2880();
@@ -133,7 +135,7 @@ void func_002F8E80(int f, u32 i)
         *(short *)frc(f) = (short)i;
 }
 
-/* 0x002F8F20, 0x64 bytes, matching. Force `f`'s leader. */
+/* 0x002F8F20, 0x64 bytes. Force `f`'s leader. */
 u16 func_002F8F20(int f)
 {
     return *(u16 *)frc(f);
@@ -156,7 +158,7 @@ void func_002F9130(int f, int n)
     func_002F8F90(f, n < (int)func_002F9060(f) ? func_002F9060(f) - n : 0);
 }
 
-/* 0x002F9190, 0x28 bytes, matching. Force `f`'s gold in coins. */
+/* 0x002F9190, 0x28 bytes. Force `f`'s gold in coins. */
 int func_002F9190(int f)
 {
     return func_002F9060(f) * 10;
@@ -298,7 +300,7 @@ int func_002F9B00(int f, int g, int v, int kind)
     return v;
 }
 
-/* 0x002F9C90, 0xC0 bytes, matching. Force `f`'s relation kind with force `g`. */
+/* 0x002F9C90, 0xC0 bytes. Force `f`'s relation kind with force `g`. */
 u8 func_002F9C90(int f, int g)
 {
     if (!is_force(f) || !is_force(g))
@@ -306,7 +308,7 @@ u8 func_002F9C90(int f, int g)
     return frc(f)[g + 0x2D];
 }
 
-/* 0x002F9D50, 0xC0 bytes, matching. Force `f`'s relation value with force `g`. */
+/* 0x002F9D50, 0xC0 bytes. Force `f`'s relation value with force `g`. */
 u8 func_002F9D50(int f, int g)
 {
     if (!is_force(f) || !is_force(g))
@@ -314,13 +316,13 @@ u8 func_002F9D50(int f, int g)
     return frc(f)[g + 0x14];
 }
 
-/* 0x002F9F10, 0xC bytes, matching. */
+/* 0x002F9F10, 0xC bytes. */
 int func_002F9F10(int k)
 {
     return k == 0;
 }
 
-/* 0x002F9F20, 0x20 bytes, matching. */
+/* 0x002F9F20, 0x20 bytes. */
 int func_002F9F20(int k)
 {
     return k == 1 || k == 2;
@@ -354,13 +356,13 @@ int func_002FA1D0(u32 k)
     return k < 2;
 }
 
-/* 0x002FA1F0, 0x20 bytes, matching. */
+/* 0x002FA1F0, 0x20 bytes. */
 int func_002FA1F0(int k)
 {
     return k == 2 || k == 3;
 }
 
-/* 0x002FA210, 0xC bytes, matching. */
+/* 0x002FA210, 0xC bytes. */
 int func_002FA210(int k)
 {
     return (u32)(k - 4) < 3;
@@ -426,7 +428,7 @@ int func_002FBD80(int f);
 int func_002FBDA0(int f);
 int func_002F5CC0(u32 i);
 int func_0030AFF0(int f);
-int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort);
+int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort, int p5);
 int func_002F8160(u32 i, int f);
 u32 *func_002F7B10(void);
 int func_002F34E0(u32 i);
@@ -453,19 +455,19 @@ int func_002FBEE0();
 int func_002FBF00();
 /* END PROTOS */
 
-/* 0x002F9060, 0x64 bytes, matching. */
+/* 0x002F9060, 0x64 bytes. */
 int func_002F9060(u32 i)
 {
     return *(u16 *)(frc(i) + 0x2);
 }
 
-/* 0x002F9260, 0x64 bytes, matching. */
+/* 0x002F9260, 0x64 bytes. */
 int func_002F9260(u32 i)
 {
     return *(u16 *)(frc(i) + 0x4);
 }
 
-/* 0x002F9550, 0x64 bytes, matching. */
+/* 0x002F9550, 0x64 bytes. */
 int func_002F9550(u32 i)
 {
     return *(u16 *)(frc(i) + 0x10);
@@ -478,7 +480,7 @@ void func_002F9900(u32 i, int v)
         *(u8 *)(frc(i) + 0x12) = (u8)v;
 }
 
-/* 0x002F9990, 0x64 bytes, matching. */
+/* 0x002F9990, 0x64 bytes. */
 int func_002F9990(u32 i)
 {
     return *(u8 *)(frc(i) + 0x12);
@@ -491,7 +493,7 @@ void func_002F9A00(u32 i, int v)
         *(u8 *)(frc(i) + 0x13) = (u8)v;
 }
 
-/* 0x002F9A90, 0x64 bytes, matching. */
+/* 0x002F9A90, 0x64 bytes. */
 int func_002F9A90(u32 i)
 {
     return *(u8 *)(frc(i) + 0x13);
@@ -504,13 +506,13 @@ void func_002F9E10(u32 i, int v)
         *(u8 *)(frc(i) + 0x6E) = (u8)v;
 }
 
-/* 0x002F9EA0, 0x64 bytes, matching. */
+/* 0x002F9EA0, 0x64 bytes. */
 int func_002F9EA0(u32 i)
 {
     return *(u8 *)(frc(i) + 0x6E);
 }
 
-/* 0x002FA060, 0x64 bytes, matching. */
+/* 0x002FA060, 0x64 bytes. */
 int func_002FA060(u32 i)
 {
     return *(u8 *)(frc(i) + 0x6F);
@@ -523,13 +525,13 @@ void func_002FA0D0(u32 i, int v)
         *(u8 *)(frc(i) + 0x70) = (u8)v;
 }
 
-/* 0x002FA160, 0x64 bytes, matching. */
+/* 0x002FA160, 0x64 bytes. */
 int func_002FA160(u32 i)
 {
     return *(u8 *)(frc(i) + 0x70);
 }
 
-/* 0x002FA390, 0x64 bytes, matching. */
+/* 0x002FA390, 0x64 bytes. */
 int func_002FA390(u32 i)
 {
     return *(u8 *)(frc(i) + 0x71);
@@ -542,43 +544,43 @@ void func_002FA400(u32 i, int v)
         *(u8 *)(frc(i) + 0x72) = (u8)v;
 }
 
-/* 0x002FA490, 0x64 bytes, matching. */
+/* 0x002FA490, 0x64 bytes. */
 int func_002FA490(u32 i)
 {
     return *(u8 *)(frc(i) + 0x72);
 }
 
-/* 0x002FA5A0, 0x64 bytes, matching. */
+/* 0x002FA5A0, 0x64 bytes. */
 int func_002FA5A0(u32 i)
 {
     return *(u8 *)(frc(i) + 0x73);
 }
 
-/* 0x002FA6B0, 0x64 bytes, matching. */
+/* 0x002FA6B0, 0x64 bytes. */
 int func_002FA6B0(u32 i)
 {
     return *(u8 *)(frc(i) + 0x74);
 }
 
-/* 0x002FA720, 0x6C bytes, matching. */
+/* 0x002FA720, 0x6C bytes. */
 void func_002FA720(u32 i, int v)
 {
     *(u8 *)(frc(i) + 0x75) = (u8)v;
 }
 
-/* 0x002FA790, 0x64 bytes, matching. */
+/* 0x002FA790, 0x64 bytes. */
 int func_002FA790(u32 i)
 {
     return *(u8 *)(frc(i) + 0x75);
 }
 
-/* 0x002FA800, 0x6C bytes, matching. */
+/* 0x002FA800, 0x6C bytes. */
 void func_002FA800(u32 i, int v)
 {
     *(u8 *)(frc(i) + 0x76) = (u8)v;
 }
 
-/* 0x002FA870, 0x64 bytes, matching. */
+/* 0x002FA870, 0x64 bytes. */
 int func_002FA870(u32 i)
 {
     return *(u8 *)(frc(i) + 0x76);
@@ -591,19 +593,19 @@ void func_002FA8E0(u32 i, int v)
         *(u8 *)(frc(i) + 0x77) = (u8)v;
 }
 
-/* 0x002FA970, 0x64 bytes, matching. */
+/* 0x002FA970, 0x64 bytes. */
 int func_002FA970(u32 i)
 {
     return *(u8 *)(frc(i) + 0x77);
 }
 
-/* 0x002FAAD0, 0x64 bytes, matching. */
+/* 0x002FAAD0, 0x64 bytes. */
 int func_002FAAD0(u32 i)
 {
     return *(u16 *)(frc(i) + 0xC);
 }
 
-/* 0x002FAD20, 0x64 bytes, matching. */
+/* 0x002FAD20, 0x64 bytes. */
 int func_002FAD20(u32 i)
 {
     return *(u16 *)(frc(i) + 0xE);
@@ -662,13 +664,13 @@ void func_002FA610(int f, int g)
         frc(f)[0x74] = (u8)g;
 }
 
-/* 0x002FA9E0, 0x70 bytes, matching. Force `f`'s byte `k` of +0x46. */
+/* 0x002FA9E0, 0x70 bytes. Force `f`'s byte `k` of +0x46. */
 int func_002FA9E0(int f, int k)
 {
     return frc(f)[0x46 + k];
 }
 
-/* 0x002FAA50, 0x7C bytes, matching. */
+/* 0x002FAA50, 0x7C bytes. */
 void func_002FAA50(int f, int k, u8 v)
 {
     frc(f)[0x46 + k] = v;
@@ -727,7 +729,7 @@ void func_002FAEA0(int f, int g, int v, int kind)
     func_002F9B00(g, f, v, back);
 }
 
-/* 0x002FAF30, 0x70 bytes, matching. Ends any relation between forces `f` and `g` (and their alliance). */
+/* 0x002FAF30, 0x70 bytes. Ends any relation between forces `f` and `g` (and their alliance). */
 void func_002FAF30(int f, int g)
 {
     func_002FAEA0(f, g, 0, 0);
@@ -770,7 +772,7 @@ int func_002FB040(int f, int *out)
     return n;
 }
 
-/* 0x002FB100, 0x1C bytes, matching. */
+/* 0x002FB100, 0x1C bytes. */
 int func_002FB100(int f)
 {
     return func_002FB040(f, 0);
@@ -812,7 +814,7 @@ int func_002FB220(int f)
     return 0;
 }
 
-/* 0x002FB2A0, 0x2C bytes, matching. Whether `f` is the player's force. */
+/* 0x002FB2A0, 0x2C bytes. Whether `f` is the player's force. */
 int func_002FB2A0(int f)
 {
     return f == func_00327D50();
@@ -854,7 +856,7 @@ int func_002FB3B0(int r)
     return n;
 }
 
-int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort);
+int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort, int p5);
 int func_002F8160(u32 i, int f);
 u32 *func_002F7B10(void);
 int func_002F34E0(u32 i);
@@ -875,13 +877,13 @@ int func_002F9EA0(u32 f);
 /* 0x002FB430, 0x34 bytes. Lists force `f`'s active officers (sorted); returns how many. */
 int func_002FB430(int f)
 {
-    return func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1);
+    return func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1, 0);
 }
 
 /* 0x002FB470, 0x90 bytes. Force `f`'s soldiers. */
 int func_002FB470(int f)
 {
-    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1), s = 0, k;
+    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1, ARG_UNKNOWN), s = 0, k;
     u32 *l = func_002F7B10();
 
     for (k = 0; k < n; k++)
@@ -930,7 +932,7 @@ int func_002FB5A0(int f, int *out)
     return n;
 }
 
-/* 0x002FB6D0, 0x1C bytes, matching. */
+/* 0x002FB6D0, 0x1C bytes. */
 int func_002FB6D0(int f)
 {
     return func_002FB5A0(f, 0);
@@ -940,7 +942,7 @@ int func_002FB6D0(int f)
 int func_002FB6F0(int f)
 {
     u32 *l = func_002F7B10(), best = 0x19F;
-    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1), e = 0, k;
+    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1, 0), e = 0, k;
 
     for (k = 0; k < n; k++) {
         int x = func_002F34E0(l[k]);
@@ -1068,46 +1070,46 @@ int func_002FBC90(int r, int kind)
     return n;
 }
 
-/* 0x002FBD60, 0x1C bytes, matching. */
+/* 0x002FBD60, 0x1C bytes. */
 int func_002FBD60(int r) { return func_002FBC90(r, 1); }
 
-/* 0x002FBD80, 0x1C bytes, matching. */
+/* 0x002FBD80, 0x1C bytes. */
 int func_002FBD80(int r) { return func_002FBC90(r, 4); }
 
-/* 0x002FBDA0, 0x1C bytes, matching. */
+/* 0x002FBDA0, 0x1C bytes. */
 int func_002FBDA0(int r) { return func_002FBC90(r, 5); }
 
-/* 0x002FBDC0, 0x20 bytes, matching. */
+/* 0x002FBDC0, 0x20 bytes. */
 int func_002FBDC0(int r) { return func_002FBD60(r) != 0; }
 
-/* 0x002FBDE0, 0x20 bytes, matching. */
+/* 0x002FBDE0, 0x20 bytes. */
 int func_002FBDE0(int r) { return func_002FBC90(r, 9) != 0; }
 
-/* 0x002FBE00, 0x20 bytes, matching. */
+/* 0x002FBE00, 0x20 bytes. */
 int func_002FBE00(int r) { return func_002FBC90(r, 6) != 0; }
 
-/* 0x002FBE20, 0x1C bytes, matching. */
+/* 0x002FBE20, 0x1C bytes. */
 int func_002FBE20(int r) { return func_002FBC90(r, 2); }
 
-/* 0x002FBE40, 0x20 bytes, matching. */
+/* 0x002FBE40, 0x20 bytes. */
 int func_002FBE40(int r) { return func_002FBE20(r) != 0; }
 
-/* 0x002FBE60, 0x1C bytes, matching. */
+/* 0x002FBE60, 0x1C bytes. */
 int func_002FBE60(int r) { return func_002FBC90(r, 3); }
 
-/* 0x002FBE80, 0x20 bytes, matching. */
+/* 0x002FBE80, 0x20 bytes. */
 int func_002FBE80(int r) { return func_002FBE60(r) != 0; }
 
-/* 0x002FBEA0, 0x1C bytes, matching. */
+/* 0x002FBEA0, 0x1C bytes. */
 int func_002FBEA0(int r) { return func_002FBC90(r, 7); }
 
-/* 0x002FBEC0, 0x20 bytes, matching. */
+/* 0x002FBEC0, 0x20 bytes. */
 int func_002FBEC0(int r) { return func_002FBEA0(r) != 0; }
 
-/* 0x002FBEE0, 0x1C bytes, matching. */
+/* 0x002FBEE0, 0x1C bytes. */
 int func_002FBEE0(int r) { return func_002FBC90(r, 8); }
 
-/* 0x002FBF00, 0x20 bytes, matching. */
+/* 0x002FBF00, 0x20 bytes. */
 int func_002FBF00(int r) { return func_002FBEE0(r) != 0; }
 
 /* 0x002FBF20, 0xD8 bytes. The forces of region `r` with first trait `kind` (into `out`);

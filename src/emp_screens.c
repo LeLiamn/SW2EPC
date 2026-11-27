@@ -12,6 +12,8 @@
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
+
+#include "sw2e_draw.h"
 typedef unsigned long long u64;
 
 extern u8 g_0045D7EC[2];                 /* (small data) the players' tactic bits */
@@ -59,9 +61,7 @@ u8 *func_001026D0(int a, int b, int c, int d, int e, int f, char *name, int line
 void func_00102EC0(u8 *p);
 void func_003B39A0(void);
 void func_003B4740(void);
-void func_003B4A40(u8 *t, int k, int x, int y, int a, int w, int h, int b);
-void func_001ABE40(u8 *t, int k, int x, int y, int a, int w, int h, int b);
-void func_001ABEA0(u8 *t, int k, int x, int y, int a, int w, int h, int b);
+void func_003B4A40(u8 *t, int k, int x, int y, int a, int w, int h, int b, int p8, int p9, int p10, int p11, int p12, int p13, int p14);
 void func_003B5B30(void);
 void func_003B5D50(void);
 void func_003B9D80(void);
@@ -72,7 +72,7 @@ int func_002F27D0(int o);
 u8 *func_00329850(void);
 int func_003BB8E0(u8 k, int a);
 
-/* 0x003AF920, 0x38 bytes, matching. */
+/* 0x003AF920, 0x38 bytes. */
 void func_003AF920(void)
 {
     if (func_0039B980() == 1) {
@@ -81,7 +81,7 @@ void func_003AF920(void)
     }
 }
 
-/* 0x003AFAE0, 0x20 bytes, matching. */
+/* 0x003AFAE0, 0x20 bytes. */
 void func_003AFAE0(void)
 {
     func_00118850(g_0045D7EC, 2);
@@ -112,7 +112,7 @@ int func_003AFD40(u32 s)
     return func_0036F5C0(func_0035D5A0(s)) != 0;
 }
 
-/* 0x003AFD70, 0x20 bytes, matching. */
+/* 0x003AFD70, 0x20 bytes. */
 int func_003AFD70(int s)
 {
     return func_0036F5E0(s) != 0;
@@ -134,7 +134,7 @@ int func_003B0470(u32 k)
     return 0;
 }
 
-/* 0x003B0B90, 0x38 bytes, matching. */
+/* 0x003B0B90, 0x38 bytes. */
 int func_003B0B90(void)
 {
     if (func_0032BC30() != 5) {
@@ -144,7 +144,7 @@ int func_003B0B90(void)
     return 1;
 }
 
-/* 0x003B0BD0, 0x34 bytes, matching. */
+/* 0x003B0BD0, 0x34 bytes. */
 void func_003B0BD0(int k)
 {
     if (k < 0x1C)
@@ -169,19 +169,19 @@ void func_003B0DF0(void)
     g_007BAEDD &= 0xFE;
 }
 
-/* 0x003B1470, 0x1C bytes, matching. */
+/* 0x003B1470, 0x1C bytes. */
 void func_003B1470(void)
 {
     func_0032BB70();
 }
 
-/* 0x003B2000, 0xC bytes, matching. */
+/* 0x003B2000, 0xC bytes. */
 u8 *func_003B2000(void)
 {
     return g_007BAF10;
 }
 
-/* 0x003B20F0, 0x44 bytes, matching. */
+/* 0x003B20F0, 0x44 bytes. */
 void func_003B20F0(void)
 {
     if (*(int *)(func_003B2000() + 0xC) == 0) {
@@ -198,7 +198,7 @@ void func_003B2140(void)
     func_003B0A40();
 }
 
-/* 0x003B2170, 0x24 bytes, matching. */
+/* 0x003B2170, 0x24 bytes. */
 void func_003B2170(void)
 {
     func_0032F530();
@@ -239,7 +239,7 @@ int func_003B22C0(void)
     return 1;
 }
 
-/* 0x003B2340, 0x1C bytes, matching. */
+/* 0x003B2340, 0x1C bytes. */
 u8 *func_003B2340(void)
 {
     return func_00390940();
@@ -273,14 +273,14 @@ void func_003B3470(void)
     *(int *)(func_003B2340() + 0x158) = 0x70;
 }
 
-/* 0x003B38F0, 0x48 bytes, matching. Loads the screen textures. */
+/* 0x003B38F0, 0x48 bytes. Loads the screen textures. */
 void func_003B38F0(void)
 {
     TEX = func_001026D0(1, 0x89, 0, 1, 0, 0, g_0045B6D8, 0x159);
     func_00102960(1);
 }
 
-/* 0x003B3940, 0x2C bytes, matching. */
+/* 0x003B3940, 0x2C bytes. */
 void func_003B3940(void)
 {
     if (TEX != 0) {
@@ -302,87 +302,87 @@ void func_003B4720(void)
 }
 
 /* 0x003B4DE0, 0x68 bytes. */
-void func_003B4DE0(int x, int y, int a)
+void func_003B4DE0(int x, int y, int a, int p3, int p4, int p5, int p6)
 {
-    func_003B4A40(TEX, 10, x, y, a, 0x78, 0x18, 0);
+    func_003B4A40(TEX, 10, x, y, a, 0x78, 0x18, 0, 0, 0x78, 0x18, p3, ARG_UNKNOWN, p5, p6);
 }
 
 /* 0x003B4E50, 0x68 bytes. */
-void func_003B4E50(int x, int y, int a)
+void func_003B4E50(int x, int y, int a, int p3, int p4, int p5, int p6)
 {
-    func_003B4A40(TEX, 0xC, x, y, a, 0x80, 0x20, 0);
+    func_003B4A40(TEX, 0xC, x, y, a, 0x80, 0x20, 0, ARG_UNKNOWN, 0x80, 0x20, 0x80, p3, p5, p6);
 }
 
 /* 0x003B51E0, 0x58 bytes. */
-void func_003B51E0(int x, int y, int a)
+void func_003B51E0(int x, int y, int a, int p3)
 {
-    func_001ABEA0(TEX, 0x15, x, y, a, 0x14, 0x14, 0);
+    func_001ABEA0(TEX, 0x15, x, y, a, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p3, 0);
 }
 
 /* 0x003B5240, 0x58 bytes. */
-void func_003B5240(int x, int y, int a)
+void func_003B5240(int x, int y, int a, int p3)
 {
-    func_001ABEA0(TEX, 0x16, x, y, a, 0x18, 0x14, 0);
+    func_001ABEA0(TEX, 0x16, x, y, a, 0x18, 0x14, 0, 0, 0x18, 0x14, 0x80, p3, 0);
 }
 
 /* 0x003B52A0, 0x58 bytes. */
-void func_003B52A0(int x, int y, int a)
+void func_003B52A0(int x, int y, int a, int p3)
 {
-    func_001ABEA0(TEX, 0x1B, x, y, a, 0x18, 0x14, 0);
+    func_001ABEA0(TEX, 0x1B, x, y, a, 0x18, 0x14, 0, 0, 0x18, 0x14, 0x80, p3, 0);
 }
 
 /* 0x003B5410, 0x64 bytes. */
-void func_003B5410(int x, int y, int a)
+void func_003B5410(int x, int y, int a, int p3, int p4)
 {
-    func_001ABEA0(TEX, 0x23, x, y, a, 0x60, 0x18, 0);
+    func_001ABEA0(TEX, 0x23, x, y, a, 0x60, 0x18, 0, ARG_UNKNOWN, 0x60, 0x18, p3, p4, 0);
 }
 
 /* 0x003B55A0, 0x40 bytes. */
-void func_003B55A0(int x, int y, int a)
+void func_003B55A0(int x, int y, int a, int p3)
 {
-    func_001ABE40(TEX, 0x25, x, y, a, 0x30, 0x10, 0x80);
+    func_001ABE40(TEX, 0x25, x, y, a, 0x30, 0x10, 0x80, p3, 0);
 }
 
 /* 0x003B55E0, 0x40 bytes. */
-void func_003B55E0(int x, int y, int a)
+void func_003B55E0(int x, int y, int a, int p3)
 {
-    func_001ABE40(TEX, 0x26, x, y, a, 0x40, 0xF, 0x80);
+    func_001ABE40(TEX, 0x26, x, y, a, 0x40, 0xF, 0x80, p3, 0);
 }
 
 /* 0x003B5620, 0x40 bytes. */
-void func_003B5620(int x, int y, int a)
+void func_003B5620(int x, int y, int a, int p3)
 {
-    func_001ABE40(TEX, 0x27, x, y, a, 0x30, 0x10, 0x80);
+    func_001ABE40(TEX, 0x27, x, y, a, 0x30, 0x10, 0x80, p3, 0);
 }
 
 /* 0x003B5750, 0x60 bytes. */
-void func_003B5750(int k, int x, int y, int a)
+void func_003B5750(int k, int x, int y, int a, int p4)
 {
-    func_001ABEA0(TEX, 0x2D, x, y, a, 0x40, 0x10, 0);
+    func_001ABEA0(TEX, 0x2D, x, y, a, 0x40, 0x10, 0, ARG_UNKNOWN, 0x40, 0x10, 0x80, p4, 0);
 }
 
 /* 0x003B57B0, 0x6C bytes. */
-void func_003B57B0(int k, int x, int y, int a)
+void func_003B57B0(int k, int x, int y, int a, int p4)
 {
-    func_001ABEA0(TEX, 0x2E, x, y, a, 0x48, 0x14, 0);
+    func_001ABEA0(TEX, 0x2E, x, y, a, 0x48, 0x14, 0, ARG_UNKNOWN, 0x48, 0x14, ARG_UNKNOWN, p4, 0);
 }
 
 /* 0x003B58A0, 0x40 bytes. */
-void func_003B58A0(int x, int y, int a, int b)
+void func_003B58A0(int x, int y, int a, int b, int p4)
 {
-    func_001ABE40(TEX, 0x46, x, y, a, 0x78, 0x10, b);
+    func_001ABE40(TEX, 0x46, x, y, a, 0x78, 0x10, b, p4, 0);
 }
 
 /* 0x003B58E0, 0x44 bytes. */
-void func_003B58E0(int x, int y, int a, int w, int h)
+void func_003B58E0(int x, int y, int a, int w, int h, int p5)
 {
-    func_001ABE40(TEX, 0x48, x, y, a, w, h, 0x80);
+    func_001ABE40(TEX, 0x48, x, y, a, w, h, 0x80, p5, 0);
 }
 
 /* 0x003B5930, 0x40 bytes. */
-void func_003B5930(int x, int y, int a)
+void func_003B5930(int x, int y, int a, int p3)
 {
-    func_001ABE40(TEX, 0x47, x, y, a, -1, -1, 0x80);
+    func_001ABE40(TEX, 0x47, x, y, a, -1, -1, 0x80, p3, 0);
 }
 
 /* 0x003B5CA0, 0x1C bytes. */
@@ -397,13 +397,13 @@ void func_003B5DF0(void)
     func_003B5D50();
 }
 
-/* 0x003B5E90, 0xC bytes, matching. */
+/* 0x003B5E90, 0xC bytes. */
 u8 *func_003B5E90(void)
 {
     return g_007BB510;
 }
 
-/* 0x003B6CD0, 0x3C bytes, matching. */
+/* 0x003B6CD0, 0x3C bytes. */
 void func_003B6CD0(void)
 {
     int *p = (int *)func_003B5E90();
@@ -417,12 +417,12 @@ void func_003B6CD0(void)
     p[0] = 1;
 }
 
-/* 0x003B9760, 8 bytes, matching. */
+/* 0x003B9760, 8 bytes. */
 void func_003B9760(void)
 {
 }
 
-/* 0x003BA160, 0x34 bytes, matching. */
+/* 0x003BA160, 0x34 bytes. */
 void func_003BA160(void)
 {
     func_003B9D80();
@@ -441,19 +441,19 @@ int func_003BA790(int o)
     return 0;
 }
 
-/* 0x003BA8C0, 0x28 bytes, matching. */
+/* 0x003BA8C0, 0x28 bytes. */
 void func_003BA8C0(int v)
 {
     *(int *)(func_003B5E90() + 0x75C) = v;
 }
 
-/* 0x003BAB40, 0x30 bytes, matching. */
+/* 0x003BAB40, 0x30 bytes. */
 int func_003BAB40(int k)
 {
     return *(int *)(func_00329850() + k * 0x20);
 }
 
-/* 0x003BBFA0, 0x30 bytes, matching. */
+/* 0x003BBFA0, 0x30 bytes. */
 void func_003BBFA0(void)
 {
     u8 *p = func_003B5E90();
@@ -462,7 +462,7 @@ void func_003BBFA0(void)
         func_003BB8E0(p[0x763], 2);
 }
 
-/* 0x003BCA80, 0x1C bytes, matching. */
+/* 0x003BCA80, 0x1C bytes. */
 u8 *func_003BCA80(void)
 {
     return func_00390940();
@@ -476,7 +476,7 @@ int func_003BCAA0(int k)
     return g_0045BBD0[k];
 }
 
-/* 0x003BD210, 0x1C bytes, matching. */
+/* 0x003BD210, 0x1C bytes. */
 u8 *func_003BD210(void)
 {
     return func_00390940();
@@ -511,7 +511,7 @@ int func_003AFCD0(int s)
     return func_003F7780(s, 9) != 0;
 }
 
-/* 0x003B0430, 0x40 bytes, matching. Battle officer `o`'s side (3: none). */
+/* 0x003B0430, 0x40 bytes. Battle officer `o`'s side (3: none). */
 u8 func_003B0430(u8 *o)
 {
     u8 *u;
@@ -723,7 +723,7 @@ void func_003B9D80(void)
     int k;
 
     for (k = 0; k < 2; k++)
-        func_001ABE40(*(u8 **)(p + 8), 0x41, 0, k * 0x170, 0, 0x200, 0x10, 0x80);
+        func_001ABE40(*(u8 **)(p + 8), 0x41, 0, k * 0x170, 0, 0x200, 0x10, 0x80, 2, 0);
 }
 
 /* 0x003BA4A0, 0x7C bytes. */
@@ -741,7 +741,7 @@ void func_003BA4A0(int k, int on)
         *(u32 *)(q + 0x30) |= m;
 }
 
-/* 0x003BACA0, 0x80 bytes, matching. */
+/* 0x003BACA0, 0x80 bytes. */
 void func_003BACA0(void)
 {
     int r = func_00327820();
@@ -777,7 +777,7 @@ void func_003BAE90(void)
     } else {
         v = func_003C1850() == 0 ? 1 : 3;
     }
-    func_001ABE40(*(u8 **)(p + 8), v, 0, 0, 0, 0x200, 0x48, 0x80);
+    func_001ABE40(*(u8 **)(p + 8), v, 0, 0, 0, 0x200, 0x48, 0x80, 2, 0);
 }
 
 /* 0x003BB5F0, 0x64 bytes. The next report page (closing after the fifth). */
@@ -830,7 +830,7 @@ u32 func_003BBF30(u32 v)
     return 0xFF;
 }
 
-/* 0x003BC660, 0x48 bytes, matching. */
+/* 0x003BC660, 0x48 bytes. */
 void func_003BC660(void)
 {
     u8 *p = func_003B5E90();
@@ -843,13 +843,13 @@ void func_003BC660(void)
     }
 }
 
-/* 0x003BD290, 0xC bytes, matching. */
+/* 0x003BD290, 0xC bytes. */
 u8 *func_003BD290(void)
 {
     return g_007BC1A0;
 }
 
-/* 0x003BD3F0, 0x3C bytes, matching. */
+/* 0x003BD3F0, 0x3C bytes. */
 void func_003BD3F0(u8 *p)
 {
     func_0023AA40();
@@ -859,7 +859,7 @@ void func_003BD3F0(u8 *p)
     }
 }
 
-/* 0x003BD430, 0x70 bytes, matching. Sets up the Empire screens. */
+/* 0x003BD430, 0x70 bytes. Sets up the Empire screens. */
 void func_003BD430(void)
 {
     func_003BD2A0(g_007BC1A0);
@@ -875,7 +875,7 @@ void func_003BD430(void)
     func_003E96B0();
 }
 
-/* 0x003BD540, 0x40 bytes, matching. */
+/* 0x003BD540, 0x40 bytes. */
 void func_003BD540(void)
 {
     if (*(int *)(func_003BD290() + 0x28) == 0) {
@@ -884,7 +884,7 @@ void func_003BD540(void)
     }
 }
 
-/* 0x003BD580, 0x3C bytes, matching. */
+/* 0x003BD580, 0x3C bytes. */
 void func_003BD580(void)
 {
     if (*(int *)(func_003BD290() + 0x28) != 0) {
@@ -893,7 +893,7 @@ void func_003BD580(void)
     }
 }
 
-/* 0x003BD5C0, 0x40 bytes, matching. */
+/* 0x003BD5C0, 0x40 bytes. */
 void func_003BD5C0(void)
 {
     if (*(int *)(func_003BD290() + 0x2C) == 0) {
@@ -902,7 +902,7 @@ void func_003BD5C0(void)
     }
 }
 
-/* 0x003BD600, 0x3C bytes, matching. */
+/* 0x003BD600, 0x3C bytes. */
 void func_003BD600(void)
 {
     if (*(int *)(func_003BD290() + 0x2C) != 0) {
@@ -916,17 +916,17 @@ void func_003BD640(int x1, int x2, int y, int k)
 {
     u8 *t = *(u8 **)(func_003BD290() + 0x30);
 
-    func_001ABE40(t, k, x1, y, 0, 0x10, 0x10, 0x80);
-    func_001ABE40(t, k + 2, x2, y, 0, 0x10, 0x10, 0x80);
+    func_001ABE40(t, k, x1, y, 0, 0x10, 0x10, 0x80, 2, 0);
+    func_001ABE40(t, k + 2, x2, y, 0, 0x10, 0x10, 0x80, 2, 0);
 }
 
-/* 0x003BD6F0, 0x20 bytes, matching. */
+/* 0x003BD6F0, 0x20 bytes. */
 u8 *func_003BD6F0(void)
 {
     return func_00390940() + 0x2C04;
 }
 
-/* 0x003BD870, 0x20 bytes, matching. */
+/* 0x003BD870, 0x20 bytes. */
 u8 *func_003BD870(void)
 {
     return func_00390940() + 0x2C34;
@@ -1119,7 +1119,7 @@ void func_003B9E00(void)
     } else if (s == 1 && l != 0 && v == e[0x29]) {
         a = 0x80;
     }
-    func_001ABE40(*(u8 **)(p + 8), v + 5, 0x118, 0xE0, 0, 0xD8, 0x90, a);
+    func_001ABE40(*(u8 **)(p + 8), v + 5, 0x118, 0xE0, 0, 0xD8, 0x90, a, 0, 0);
 }
 
 /* 0x003B9ED0, 0xFC bytes. Draws the line's officer portrait. */
@@ -1139,7 +1139,7 @@ void func_003B9ED0(void)
     if (o != -1) {
         k = func_0032D180();
         if (k < 0x32)
-            func_001ABE40(func_003D3960(), k << 2, 0x20, 8, 0, 0xA0, 0xA0, a);
+            func_001ABE40(func_003D3960(), k << 2, 0x20, 8, 0, 0xA0, 0xA0, a, 0, 0);
     }
 }
 
@@ -1233,7 +1233,7 @@ int func_003BA310(void)
     return 0;
 }
 
-/* 0x003BA700, 0x90 bytes, matching. Copies force record `a` to `b`. */
+/* 0x003BA700, 0x90 bytes. Copies force record `a` to `b`. */
 void func_003BA700(int a, int b)
 {
     u8 *q = func_00329850();
@@ -1315,8 +1315,6 @@ void func_0011EB80(void *to, const void *from, int n);
 void func_00120928(char *to, const char *from);
 u32 func_00120A40(const char *s);
 void func_00147160(const char *s, u8 *out, int w, u8 *a, int *h);
-void func_001ABEA0(u8 *t, int k, int x, int y, int a, int w, int h, int b);
-void func_001ABA70(u8 *t, int x, int y, int a, int w, int h, int b, int c);
 void func_003A9010(int a);
 void func_003A9170(void);
 void func_003A93A0(int a);
@@ -1386,7 +1384,7 @@ void func_003BAB70(int k)
     }
 }
 
-/* 0x003BAD20, 0x104 bytes, matching. Records the turn's battle (won 0x1E or lost 0x1F). */
+/* 0x003BAD20, 0x104 bytes. Records the turn's battle (won 0x1E or lost 0x1F). */
 void func_003BAD20(void)
 {
     u32 v = func_00362370();
@@ -1449,9 +1447,9 @@ void func_003BB7B0(int x, int y, int h)
 {
     u8 *p = func_003B5E90();
 
-    func_001ABEA0(*(u8 **)(p + 8), 4, x, y, 0, 0x1C0, 8, 0);
-    func_001ABEA0(*(u8 **)(p + 8), 4, x, y + 8, 0, 0x1C0, h - 0x10, 0);
-    func_001ABEA0(*(u8 **)(p + 8), 4, x, y + 8 + h - 0x10, 0, 0x1C0, 8, 0);
+    func_001ABEA0(*(u8 **)(p + 8), 4, x, y, 0, 0x1C0, 8, 0, 0, 0x1c0, 8, ARG_UNKNOWN, 2, 0);
+    func_001ABEA0(*(u8 **)(p + 8), 4, x, y + 8, 0, 0x1C0, h - 0x10, 0, 8, 0x1c0, 0x10, ARG_UNKNOWN, 2, 0);
+    func_001ABEA0(*(u8 **)(p + 8), 4, x, y + 8 + h - 0x10, 0, 0x1C0, 8, 0, 0x18, 0x1c0, 8, ARG_UNKNOWN, 2, 0);
 }
 
 /* 0x003BBFD0, 0x17C bytes. Draws the page's officer portrait. */
@@ -1483,7 +1481,7 @@ void func_003BBFD0(void)
         if ((v & 0xFF) != 0xFF && *r == *(int *)(q + (v & 0xFF) * 0x18 + 0x5A8))
             a = 0x80;
     }
-    func_001ABA70(t, 0x28, 0x30, 0, 0xC0, 0xC0, a, 0);
+    func_001ABA70(t, 0x28, 0x30, 0, 0xC0, 0xC0, a, 0, 0);
 }
 
 /* 0x003BC450, 0x188 bytes. Opens the report. */
@@ -1699,7 +1697,7 @@ void func_003BD4A0(void)
     }
 }
 
-/* 0x003BD710, 0x84 bytes, matching. The banner window comes in. */
+/* 0x003BD710, 0x84 bytes. The banner window comes in. */
 void func_003BD710(void)
 {
     u8 *p = func_003BD6F0();
@@ -1738,13 +1736,13 @@ void func_003BD890(int k)
     }
 }
 
-/* 0x003BD900, 0x34 bytes, matching. Whether boxes 0x13 or 0x14 are moving. */
+/* 0x003BD900, 0x34 bytes. Whether boxes 0x13 or 0x14 are moving. */
 int func_003BD900(void)
 {
     return func_003DC2D0(0x13) != 0 || func_003DC2D0(0x14) != 0;
 }
 
-/* 0x003BE6B0, 0x9C bytes, matching. */
+/* 0x003BE6B0, 0x9C bytes. */
 void func_003BE6B0(void)
 {
     Box5 b;
@@ -1813,20 +1811,20 @@ u8 *func_003BF8B0(void)
     return g_007BC2B0[v];
 }
 
-/* 0x003BF990, 0x24 bytes, matching. */
+/* 0x003BF990, 0x24 bytes. */
 void func_003BF990(void)
 {
     g_0045D0C8 = func_003BF8F0();
     g_0045D808 = 0;
 }
 
-/* 0x003BF9C0, 0xC bytes, matching. */
+/* 0x003BF9C0, 0xC bytes. */
 void func_003BF9C0(void)
 {
     g_0045D0C8 = 0xC;
 }
 
-/* 0x003BF9D0, 0x10 bytes, matching. */
+/* 0x003BF9D0, 0x10 bytes. */
 int func_003BF9D0(void)
 {
     return g_0045D0C8 != 0xC;

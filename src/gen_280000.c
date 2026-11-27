@@ -12,6 +12,8 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 extern u8 g_00772688[0x18];
 extern u8 g_00772940[0x18];
 extern u8 g_007A05A0[0x18];
@@ -120,7 +122,6 @@ int func_0019FC20();
 int func_001A1840();
 int func_001A1BE0();
 int func_001A2970();
-int func_001ABE40();
 int func_001AE9F0();
 int func_001AEDB0();
 int func_001AEE10();
@@ -413,7 +414,7 @@ void func_002EFC40(int param_1);
 void func_002F0090(void);
 void func_002F03B0(void);
 
-/* 0x00285CD0, 0x74 bytes, matching. */
+/* 0x00285CD0, 0x74 bytes. */
 int func_00285CD0(int param_1, int param_2)
 {
     int iVar1;
@@ -488,7 +489,7 @@ void func_00285D50(int param_1, int param_2, int param_3, int param_4)
 /* 0x002868B0, 0x3C bytes. */
 void func_002868B0(int param_1, int param_2, u16 *param_3, int param_4, int param_5, int param_6)
 {
-  func_001ABE40(param_1,param_2,*param_3,param_3[1],param_6,param_3[2],param_3[3],param_4);
+  func_001ABE40((u8 *)param_1,param_2,*param_3,param_3[1],param_6,param_3[2],param_3[3],param_4, param_6, param_5);
   return;
 }
 
@@ -509,7 +510,7 @@ void func_002872E0(int param_1, int param_2)
   return;
 }
 
-/* 0x002885A0, 0x38 bytes, matching. */
+/* 0x002885A0, 0x38 bytes. */
 void func_002885A0(void)
 {
   (*(u32 *)(g_007729B0 + 0x0)) = 0;
@@ -535,7 +536,7 @@ void func_002885E0(int param_1)
   return;
 }
 
-/* 0x0028A3D0, 0x44 bytes, matching. */
+/* 0x0028A3D0, 0x44 bytes. */
 void func_0028A3D0(void)
 {
   (*(u32 *)(g_007729BC + 0x8)) = 2;
@@ -860,7 +861,7 @@ void func_0028FB40(int param_1)
   return;
 }
 
-/* 0x00290560, 0x34 bytes, matching. */
+/* 0x00290560, 0x34 bytes. */
 void func_00290560(int param_1)
 {
     int uVar1;
@@ -871,7 +872,7 @@ void func_00290560(int param_1)
   return;
 }
 
-/* 0x002905A0, 0x48 bytes, matching. */
+/* 0x002905A0, 0x48 bytes. */
 void func_002905A0(int param_1)
 {
     int uVar1;
@@ -885,7 +886,7 @@ void func_002905A0(int param_1)
   return;
 }
 
-/* 0x002905F0, 0x40 bytes, matching. */
+/* 0x002905F0, 0x40 bytes. */
 int func_002905F0(void)
 {
     int bVar1;
@@ -905,7 +906,7 @@ int func_002905F0(void)
   return bVar1;
 }
 
-/* 0x00290630, 0x34 bytes, matching. */
+/* 0x00290630, 0x34 bytes. */
 void func_00290630(int param_1)
 {
     int uVar1;
@@ -916,7 +917,7 @@ void func_00290630(int param_1)
   return;
 }
 
-/* 0x00290670, 0x40 bytes, matching. */
+/* 0x00290670, 0x40 bytes. */
 void func_00290670(int param_1)
 {
     int uVar1;
@@ -929,7 +930,7 @@ void func_00290670(int param_1)
   return;
 }
 
-/* 0x002906B0, 0x54 bytes, matching. */
+/* 0x002906B0, 0x54 bytes. */
 int func_002906B0(void)
 {
     int lVar1;
@@ -953,7 +954,7 @@ int func_002906B0(void)
   return uVar2;
 }
 
-/* 0x00290710, 0x34 bytes, matching. */
+/* 0x00290710, 0x34 bytes. */
 void func_00290710(int param_1)
 {
     int uVar1;
@@ -1087,14 +1088,14 @@ void func_0029BDC0(int param_1, int param_2, int param_3, int param_4, int param
   return;
 }
 
-/* 0x0029C9B0, 0x2C bytes, matching. */
+/* 0x0029C9B0, 0x2C bytes. */
 void func_0029C9B0(int param_1, int param_2, int param_3)
 {
   func_00299F60(0,0x3c,0,0,*(u8 *)(param_3 + 8));
   return;
 }
 
-/* 0x0029C9E0, 0x34 bytes, matching. */
+/* 0x0029C9E0, 0x34 bytes. */
 void func_0029C9E0(int param_1, int param_2, int param_3, int param_4)
 {
   func_00298950(param_1,param_2,0,0,0,*(u32 *)(param_2 + 0x80) & 0x30,param_3,param_4);
@@ -1400,7 +1401,7 @@ void func_002A77F0(void)
   return;
 }
 
-/* 0x002A7870, 0x34 bytes, matching. */
+/* 0x002A7870, 0x34 bytes. */
 void func_002A7870(void)
 {
   func_002A5BE0();
@@ -1681,7 +1682,7 @@ void func_002AFB80(int param_1)
   return;
 }
 
-/* 0x002B5990, 0x34 bytes, matching. */
+/* 0x002B5990, 0x34 bytes. */
 void func_002B5990(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7, int param_8)
 {
   func_002C7310(param_2,param_3,param_4,param_5,param_6,param_7,param_8);
@@ -2239,7 +2240,7 @@ void func_002C65C0(int param_1, int param_2, int param_3, int param_4, int param
   return;
 }
 
-/* 0x002CA590, 0xA8 bytes, matching. */
+/* 0x002CA590, 0xA8 bytes. */
 void func_002CA590(int param_1, int *param_2)
 {
     int iVar2;
@@ -2359,7 +2360,7 @@ void func_002CAC30(u8 *param_1, int param_2)
   return;
 }
 
-/* 0x002CAD60, 0x2C bytes, matching. */
+/* 0x002CAD60, 0x2C bytes. */
 void func_002CAD60(u8 *param_1)
 {
   *param_1 = 0x36;
@@ -2415,7 +2416,7 @@ void func_002CAD90(u8 *param_1)
   } while( true );
 }
 
-/* 0x002CB4B0, 0x50 bytes, matching. */
+/* 0x002CB4B0, 0x50 bytes. */
 void func_002CB4B0(int param_1)
 {
     int uVar1;
@@ -2428,7 +2429,7 @@ void func_002CB4B0(int param_1)
   return;
 }
 
-/* 0x002CB500, 0x4C bytes, matching. */
+/* 0x002CB500, 0x4C bytes. */
 void func_002CB500(int param_1)
 {
     int uVar1;
@@ -2441,7 +2442,7 @@ void func_002CB500(int param_1)
   return;
 }
 
-/* 0x002D07A0, 0x34 bytes, matching. */
+/* 0x002D07A0, 0x34 bytes. */
 int func_002D07A0(int param_1)
 {
   if ((param_1 < 0) || (0xe < param_1)) {
@@ -2642,7 +2643,7 @@ int func_002D78E0(int param_1)
   return uVar1;
 }
 
-/* 0x002D7EE0, 0x98 bytes, matching. */
+/* 0x002D7EE0, 0x98 bytes. */
 void func_002D7EE0(int param_1)
 {
     int iVar1;
@@ -2715,7 +2716,7 @@ void func_002D82C0(int param_1, int param_2)
   return;
 }
 
-/* 0x002D8910, 0x40 bytes, matching. */
+/* 0x002D8910, 0x40 bytes. */
 void func_002D8910(int param_1)
 {
     u32 uVar1;
@@ -2755,7 +2756,7 @@ int func_002D8C30(int param_1, int param_2)
   return param_2;
 }
 
-/* 0x002D8EE0, 0x80 bytes, matching. */
+/* 0x002D8EE0, 0x80 bytes. */
 void func_002D8EE0(int param_1)
 {
     int iVar2;
@@ -2896,7 +2897,7 @@ void func_002DB600(void)
   return;
 }
 
-/* 0x002DB640, 0x38 bytes, matching. */
+/* 0x002DB640, 0x38 bytes. */
 void func_002DB640(void)
 {
     int iVar1;

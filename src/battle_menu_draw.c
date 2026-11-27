@@ -18,6 +18,8 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 /* Flag bytes the original tests as one-bit fields (LSB first). */
 typedef struct {
     signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
@@ -733,7 +735,7 @@ void func_002815D0(const MenuLine *lines, u8 n, const u8 *cursors, int arg)
 
 typedef struct { int k[22]; } HelpKinds;
 
-/* 0x00281C40, 0x90 bytes, matching. The help kind of page `page` (3 becomes 6 in an Empire battle or with
+/* 0x00281C40, 0x90 bytes. The help kind of page `page` (3 becomes 6 in an Empire battle or with
  * func_0036D310). */
 int func_00281C40(int page)
 {
@@ -745,7 +747,7 @@ int func_00281C40(int page)
     return kind;
 }
 
-/* 0x00281CD0, 0x48 bytes, matching. */
+/* 0x00281CD0, 0x48 bytes. */
 int func_00281CD0(int page)
 {
     HelpKinds kinds = *(HelpKinds *)g_00410FA0;
@@ -836,7 +838,6 @@ int func_002F5730(u32 officer);
 u8 *func_0035DEC0(u32 officer, int i);
 void func_002C5160(float size, const char *text, int x, int y, int w, int a, int b);
 int func_002CA730(u32 officer, int stat);
-void func_001A85D0(int value, int a, float b, int x, int y, int c, int d, int e, int f, int g);
 
 /* 0x002821F0, 0x890 bytes. Page 1, the officer: window frame, then (unless `hidden`) name,
  * portrait, ten stat icons, level and experience, the weapon kind and five values. */
@@ -1127,7 +1128,6 @@ void func_001FCAA0(int a, float matrix[4][4]);
 void func_002C99F0(int x, int y, int a, int w, int h, int alpha);
 void func_002CDB70(float time, int x, int y, int a);
 void func_00147160(const u8 *text, char *out, int size, int a, int b);
-void func_001A3460(int x, int y, int a, int b, int c, int alpha, u32 n, int d);
 
 /* Page 5's record `i` (0x110 bytes: +0 its time, +8 its position, +0x10 its text). */
 #define RECORD(records, i) ((records) + (i) * 0x110)
@@ -1209,7 +1209,7 @@ void func_00283FD0(int x, int y, int z, int w, int h, int blend, int a, u8 **rec
     if (n > 2) {
         if (n == 0)
             n = 1;
-        func_001A3460(x + 0x1A8, y + 8, 0, 0x10, 0x97, 0x80, n, 1);
+        func_001A3460(x + 0x1A8, y + 8, 0, 0x10, 0x97, 0x80, n, 1, n - 1 - cursor, blend);
     }
 }
 
@@ -1241,7 +1241,7 @@ void func_00284A10(u8 cursor)
 
 u32 func_0036DD30(int a, u32 i);
 int func_0036F290(int a, int b);
-void func_0029A1C0(int x, int y, int a, int b, u32 *values, int n, u8 cursor, int *offered);
+void func_0029A1C0(int x, int y, int a, int b, u32 *values, int n, u8 cursor, int *offered, int p8, int p9, int p10);
 void func_0029A8F0(int x, int y, int a, int b, u32 value, int refused);
 
 /* 0x00284A80, 0xDC bytes. Page 9's list: two values and whether each can be used. */
@@ -1255,7 +1255,7 @@ void func_00284A80(int x, int y, int a, int b, u8 cursor)
         values[i] = func_0036DD30(0, i);
         offered[i] = func_0036F290(0, i);
     }
-    func_0029A1C0(x, y, a, b, values, 2, cursor, offered);
+    func_0029A1C0(x, y, a, b, values, 2, cursor, offered, 0, 0, 1);
 }
 
 /* 0x00284B60, 0xD4 bytes. Page 9's drawer: the list and the chosen value. */
@@ -1277,7 +1277,7 @@ u8 func_00234B50(int i);
 u32 func_003F6CA0(int a, u32 entry);
 int func_003F77F0(int a, int b);
 u8 func_003F7AE0(int a);
-void func_0029ABA0(int x, int y, int a, int b, u32 *values, u8 n, u8 cursor, int *offered);
+void func_0029ABA0(int x, int y, int a, int b, u32 *values, u8 n, u8 cursor, int *offered, int p8);
 void func_0029B5A0(int x, int y, int a, int b, int c);
 u32 func_003F6C10(int a);
 int func_003F7090(u32 a, u32 b);
@@ -1299,7 +1299,7 @@ void func_00284C40(int x, int y, int a, int b, u8 cursor)
         values[i] = func_003F6CA0(0, entry);
         offered[i] = func_003F77F0(0, entry);
     }
-    func_0029ABA0(x, y, a, b, values, func_003F7AE0(0), cursor, offered);
+    func_0029ABA0(x, y, a, b, values, func_003F7AE0(0), cursor, offered, 0);
 }
 
 /* 0x00284D40, 0x1AC bytes. Page 10's drawer: the list, then the chosen entry against the
@@ -1326,7 +1326,7 @@ void func_00284D40(int player, u8 *grid, u8 *page)
     func_0029B1C0(pos[0] + 0xAC, pos[1] + 0x30, 0, 0, current, entry != now && diff < 0, 1, diff < 0);
 }
 
-/* 0x00284EF0, 0x8 bytes, matching. Page 11's drawer: empty. */
+/* 0x00284EF0, 0x8 bytes. Page 11's drawer: empty. */
 void func_00284EF0(void)
 {
 }
@@ -1353,12 +1353,12 @@ void func_00284F00(int player, u8 cursor)
     func_002966C0(0, 0, pos[0], pos[1], 0, player, func_003DD680(player) + 0x10);
 }
 
-/* 0x00285000, 0x8 bytes, matching. Page 13's drawer: empty. */
+/* 0x00285000, 0x8 bytes. Page 13's drawer: empty. */
 void func_00285000(void)
 {
 }
 
-/* 0x00285010, 0x8 bytes, matching. Page 14's drawer: empty. */
+/* 0x00285010, 0x8 bytes. Page 14's drawer: empty. */
 void func_00285010(void)
 {
 }
@@ -1474,13 +1474,13 @@ void func_00285610(u8 cursor)
 
 void func_002DB9A0(void);
 
-/* 0x00285680, 0x1C bytes, matching. Page 17's drawer. */
+/* 0x00285680, 0x1C bytes. Page 17's drawer. */
 void func_00285680(void)
 {
     func_002DB9A0();
 }
 
-/* 0x002856A0, 0x2C bytes, matching. Page 18's drawer: page 16's lines with line 1 chosen. */
+/* 0x002856A0, 0x2C bytes. Page 18's drawer: page 16's lines with line 1 chosen. */
 void func_002856A0(void)
 {
     func_00281090(g_00410EF0, 2, 1, 0);

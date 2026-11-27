@@ -17,6 +17,8 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 /* Flag bytes the original tests as one-bit fields (LSB first). */
 typedef struct {
     signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
@@ -94,7 +96,6 @@ extern int g_0041DD60[9];
 void *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
 int func_00102960(int a);
 void func_00102EC0(void *data);
-void func_001ABA70(u8 *picture, int x, int y, int z, int w, int h, int alpha, int a);
 u8 *func_00106F10(void);
 u64 func_00104ED0(u8 *picture, int a, int b);
 u64 *func_00105860(u64 tex, int a);
@@ -111,7 +112,7 @@ void func_003821E0(int a, int cursor, int x, int y, u8 *entries, int n);
 int func_0031D690(Picker *picker);
 void func_0037EAA0(int a, int b, int x, int y, int alpha);
 
-/* 0x003F8B30, 0x50 bytes, matching. Loads background `n` (0-4). */
+/* 0x003F8B30, 0x50 bytes. Loads background `n` (0-4). */
 void func_003F8B30(int n)
 {
     if (n < 5) {
@@ -120,7 +121,7 @@ void func_003F8B30(int n)
     }
 }
 
-/* 0x003F8B80, 0x2C bytes, matching. */
+/* 0x003F8B80, 0x2C bytes. */
 void func_003F8B80(void)
 {
     if (g_0045D870 != 0) {
@@ -133,7 +134,7 @@ void func_003F8B80(void)
 void func_003F8BB0(void)
 {
     if (g_0045D870 != 0)
-        func_001ABA70(g_0045D870, 0, 0, 0, 0x200, 0x180, 0x80, 0);
+        func_001ABA70(g_0045D870, 0, 0, 0, 0x200, 0x180, 0x80, 0, 0);
 }
 
 /* 0x003F8C00, 0x200 bytes. Draws it at its own size, in its colour. */
@@ -163,7 +164,7 @@ void func_003F8C00(void)
     }
 }
 
-/* 0x003F8E00, 0x2C bytes, matching. */
+/* 0x003F8E00, 0x2C bytes. */
 void func_003F8E00(int visible)
 {
     PICKER()->visible = visible;

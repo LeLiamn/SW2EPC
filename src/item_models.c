@@ -13,6 +13,8 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 extern u8 g_0078DF70[];                  /* the item models' shared skeleton? */
 extern u8 g_0078DC40[0x11][0x30];        /* the item model files */
 extern u8 g_007804A0[0x96][0x170];       /* the model actors */
@@ -34,7 +36,6 @@ int func_002F41E0(int o);
 void func_002C8500(int x, int y, int a, int w, int h, int b, int c);
 void func_002C80A0(int x, int y, int a, int w, int h, int b, int c);
 void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
-void func_001ABE40(u8 *t, int k, int x, int y, int a, int w, int h, int b);
 u8 *func_001026D0(int a, int k, int b, int c, int d, int e, u8 *name, int line);
 void func_00147D20(u8 *s);
 void func_00147D30(u8 *f, u8 *s, int a, int b);
@@ -50,7 +51,7 @@ u8 *func_0019FBC0(int k);
 void func_00148070(u8 *m, int v);
 void func_0014F970(u8 *a);
 
-/* 0x002AB820, 0xD4 bytes, matching. Officer `o`'s stat `k`. */
+/* 0x002AB820, 0xD4 bytes. Officer `o`'s stat `k`. */
 int func_002AB820(int o, int k)
 {
     int v = 0;
@@ -144,20 +145,20 @@ int func_002ABA70(int o, int k)
 }
 
 /* 0x002AAC50, 0xE4 bytes. A button (lit when `sel`) with its mark in the middle. */
-void func_002AAC50(u8 *t, int x, int y, int w, int h, int sel)
+void func_002AAC50(u8 *t, int x, int y, int w, int h, int sel, int p6)
 {
     if (sel == 1)
         func_002C8500(x, y, 0, w, h, 0x80, 0);
     else
         func_002C80A0(x, y, 0, w, h, 0x80, 0);
-    func_001ABE40(t, 0x14, x + w / 2, y + h / 2, 0, -1, -1, 0x80);
+    func_001ABE40(t, 0x14, x + w / 2, y + h / 2, 0, -1, -1, 0x80, p6, 1);
 }
 
 /* 0x002AAD40, 0xC4 bytes. */
 void func_002AAD40(u8 *t, int x, int y, int w, int h, int c)
 {
     func_002C7310(x, y, 0, w, h, 0x80, c);
-    func_001ABE40(t, 0x14, x + w / 2, y + h / 2, 0, -1, -1, 0x80);
+    func_001ABE40(t, 0x14, x + w / 2, y + h / 2, 0, -1, -1, 0x80, c, 1);
 }
 
 /* 0x002AD4C0, 0x14C bytes. Loads the item models and clears the actors. */
@@ -182,7 +183,7 @@ void func_002AD4C0(void)
     }
 }
 
-/* 0x002AD610, 0x80 bytes, matching. */
+/* 0x002AD610, 0x80 bytes. */
 void func_002AD610(void)
 {
     int k;
@@ -261,7 +262,7 @@ void func_002AD8B0(u8 **l)
     }
 }
 
-/* 0x002AD920, 0x34 bytes, matching. */
+/* 0x002AD920, 0x34 bytes. */
 void func_002AD920(u8 *m, int v)
 {
     func_00148070(m, v);

@@ -627,7 +627,7 @@ u32 *func_002F7B10(void);
 void func_002F7B20(int a, u32 *l, int n);
 void func_002F7C40(u32 *l, int n);
 int func_002F7CE0(u32 i, u32 j);
-int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort);
+int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort, int p5);
 int func_002F7EC0(u32 i, int f);
 int func_002F7F80(u32 i, int f);
 int func_002F8020(u32 i, int f);
@@ -1558,8 +1558,8 @@ void func_002F7610(u32 i)
 int func_002F76B0(u32 i, u32 j)
 {
     int named = func_002F3F20(i) == 0 ? 1 : 2, ok = 0;
-    int a = func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, j, 0, 0);
-    int b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, j, 0, 0);
+    int a = func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, j, 0, 0, 0);
+    int b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, j, 0, 0, 0);
 
     if (named == 2) {
         b = a;
@@ -1733,7 +1733,7 @@ void func_002F87D0(u32 *l, int n, int (*less)(u32, u32, int, int), int a, int b)
 
 /* 0x002F7D90, 0x12C bytes. Lists into list `k` the living officers (rank not 3) that `keep`
  * accepts (all without it), sorted when `sort`. Returns how many. */
-int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort)
+int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort, int unused)
 {
     u32 *l = g_007A2650 + k;
     u8 *p = func_0030CCB0();

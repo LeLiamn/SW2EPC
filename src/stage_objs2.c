@@ -13,11 +13,12 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 extern u8 g_005B4DF0[];                  /* the players' cameras' flags (0x240 apart) */
 extern u8 g_00799920[0x100];
 extern u8 *g_0045D5E8;                   /* (small data) the free list */
 
-void func_001ABE40(u8 *t, int k, int x, int y, int a, int w, int h, int b);
 void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
 u32 *func_00177ED0(void);
 void func_001ACA70(u32 *o, int a, int b, int c, int d);
@@ -36,14 +37,14 @@ int func_00190C40(short *c, u8 k);
 /* 0x002B8790, 0x248 bytes. Draws a map screen's frame and corners. */
 int func_002B8790(u8 *t)
 {
-    func_001ABE40(t, 0x35, 0x58, 0x48, 0, 0x150, 0x90, 0x80);
+    func_001ABE40(t, 0x35, 0x58, 0x48, 0, 0x150, 0x90, 0x80, 2, 0);
     func_002C7310(0x58, 0xF2, 0, 0x150, 0x5C, 0x80, 2);
-    func_001ABE40(t, 0x2A, 0x60, 0xF4, 0, 0x140, 0x54, 0x80);
-    func_001ABE40(t, 0x37, 0xB, 0xB, 0, 0x40, 0x40, 0x80);
-    func_001ABE40(t, 0x38, 0x1B5, 0xB, 0, 0x40, 0x40, 0x80);
-    func_001ABE40(t, 0x39, 0xB, 0x135, 0, 0x40, 0x40, 0x80);
-    func_001ABE40(t, 0x3A, 0x1B5, 0x135, 0, 0x40, 0x40, 0x80);
-    func_001ABE40(t, 0x3B, 0xE0, 0xA0, 0, 0x40, 0x40, 0x80);
+    func_001ABE40(t, 0x2A, 0x60, 0xF4, 0, 0x140, 0x54, 0x80, 2, 0);
+    func_001ABE40(t, 0x37, 0xB, 0xB, 0, 0x40, 0x40, 0x80, 2, 0);
+    func_001ABE40(t, 0x38, 0x1B5, 0xB, 0, 0x40, 0x40, 0x80, 2, 0);
+    func_001ABE40(t, 0x39, 0xB, 0x135, 0, 0x40, 0x40, 0x80, 2, 0);
+    func_001ABE40(t, 0x3A, 0x1B5, 0x135, 0, 0x40, 0x40, 0x80, 2, 0);
+    func_001ABE40(t, 0x3B, 0xE0, 0xA0, 0, 0x40, 0x40, 0x80, 2, 0);
     return 0;
 }
 
@@ -59,7 +60,7 @@ float func_002BA6E0(u8 *o)
     return *(float *)(o + 0x128);
 }
 
-/* 0x002BA740, 0x4C bytes, matching. Its matrix (cached). */
+/* 0x002BA740, 0x4C bytes. Its matrix (cached). */
 u8 *func_002BA740(u8 *o)
 {
     if ((*(u32 *)(o + 0x12C) & 2) == 0) {
@@ -134,7 +135,7 @@ int func_002BC2B0(u8 *a, int *b)
     return d <= (v < 0 ? -v : v);
 }
 
-/* 0x002BC660, 0x1C bytes, matching. */
+/* 0x002BC660, 0x1C bytes. */
 void func_002BC660(void *a, const void *b)
 {
     func_00118AC0(a, b, 0x30);
@@ -322,7 +323,7 @@ void func_002BE2C0(u8 *a, u32 *pos)
     }
 }
 
-/* 0x002BE350, 0x50 bytes, matching. Stops it. */
+/* 0x002BE350, 0x50 bytes. Stops it. */
 void func_002BE350(u8 *a)
 {
     u8 *q = func_002BBF40(a[0xB]);

@@ -42,6 +42,25 @@ decompilati.onl (equivalent C, not verified by compiling).
 Correction (2026-11-26): an earlier version guessed that `func_001014D0` ran an update or draw phase.
 It only stores a flag; the per-frame work is in `func_001005A0`.
 
+## Shared prototypes and stack arguments
+
+Ghidra drops the arguments passed on the stack (the ninth and later) and sometimes arguments that
+pass straight through a0-t3. Local prototypes copied from its output were therefore often too
+short.
+
+- **`src/sw2e_draw.h`** holds the full prototypes of the 2D drawing helpers used in many files
+  (`func_001ABA70`, `func_001ABE40`, `func_001ABEA0`, `func_001ABB00`, `func_001A3460`,
+  `func_001A85D0`). Their argument lists come from their definitions in `cmnparts.c` and
+  `ui_parts.c`, checked against the stack slots they read.
+- **The missing arguments** were filled in from the original call sites: the `sd`/`sw` to
+  `N(sp)` before each `jal`, traced back to a constant or to a parameter of the caller.
+  Callers that pass such values on were given the parameters they lacked.
+- **`ARG_UNKNOWN`** (defined as 0 in `sw2e_draw.h`) marks an argument whose value could not be
+  traced automatically. Each one has to be read from the call site in the disassembly:
+  `grep -n ARG_UNKNOWN src/*.c` lists them.
+- **`func_002F7D90`** takes six arguments. The sixth is always 0 and the function does not read
+  it.
+
 ## The scene manager (`0x0045D880`)
 
 The whole game runs inside `func_001005A0`, which drives a block of globals at `0x0045D880` (see the

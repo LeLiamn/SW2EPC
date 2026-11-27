@@ -14,6 +14,8 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_draw.h"
+
 extern int g_0045D820;                   /* (small data) the variant */
 
 int func_00327820(void);
@@ -508,7 +510,7 @@ int func_003D31F0(void)
     return k;
 }
 
-/* 0x003D3280, 0x34 bytes, matching. */
+/* 0x003D3280, 0x34 bytes. */
 void func_003D3280(void)
 {
     if (func_003CF030() != 0) {
@@ -625,44 +627,41 @@ void func_003D32C0(int k)
 
 /* ---- Event pictures: two loaded files (gp 0x0045D828: a picture bank, a model?). ---- */
 
-extern u32 g_0045D828[2];                /* (small data) */
+extern u8 *g_0045D828[2];                /* (small data) */
 extern char g_0045C3F0[];                /* this source file's name */
 
-u32 func_001026D0(int a, int k, int b, int c, int d, int e, const char *file, int line);
-void func_00102EC0(u32 h);
+u8 *func_001026D0(int a, int k, int b, int c, int d, int e, const char *file, int line);
+void func_00102EC0(u8 *h);
 void func_00102960(int a);
-void func_001ABB00(u32 h, int a, int b, int c, int d, int e, int f, int g);
-void func_001ABE40(u32 h, int k, int a, int b, int c, int d, int e, int f);
 void func_001B8F60(int a, int b, int c);
-u32 func_00376810(void);
-void func_001ABEA0(u32 h, int k, int a, int b, int c, int d, int e, int f);
+u8 *func_00376810(void);
 
-/* 0x003D36C0, 8 bytes, matching. */
-u32 *func_003D36C0(void)
+/* 0x003D36C0, 8 bytes. */
+u8 **func_003D36C0(void)
 {
     return g_0045D828;
 }
 
-/* 0x003D36D0, 0x50 bytes, matching. Loads file 0x8B (kept). */
+/* 0x003D36D0, 0x50 bytes. Loads file 0x8B (kept). */
 void func_003D36D0(void)
 {
-    u32 *p = func_003D36C0();
+    u8 **p = func_003D36C0();
 
     *p = func_001026D0(1, 0x8B, 0, 1, 0, 0, g_0045C3F0, 0x1F);
 }
 
-/* 0x003D3720, 0x50 bytes, matching. */
+/* 0x003D3720, 0x50 bytes. */
 void func_003D3720(void)
 {
-    u32 *p = func_003D36C0();
+    u8 **p = func_003D36C0();
 
     *p = func_001026D0(1, 0x8B, 0, 0, 0, 0, g_0045C3F0, 0x26);
 }
 
-/* 0x003D3770, 0x38 bytes, matching. */
+/* 0x003D3770, 0x38 bytes. */
 void func_003D3770(void)
 {
-    u32 *p = func_003D36C0();
+    u8 **p = func_003D36C0();
 
     if (*p != 0) {
         func_00102EC0(*p);
@@ -670,34 +669,42 @@ void func_003D3770(void)
     }
 }
 
-/* 0x003D37B0, 0xF0 bytes. Draws picture `k` of the bank. */
-void func_003D37B0(int k, int x, int y, int a, int b)
+/* 0x003D37B0, 0xF0 bytes. Draws picture `k` of the bank at size (w, h), darkened when `dark`. */
+void func_003D37B0(int k, int x, int y, int w, int h, int alpha, int layer, int dark)
 {
-    u32 *p = func_003D36C0();
+    u8 **p = func_003D36C0();
+    u8 col[4];
 
-    if (p != 0)
-        func_001ABB00(*p, k + 5, k + 5, x, y, 0, a, b);
+    if (p != 0) {
+        col[3] = alpha;
+        col[0] = col[1] = col[2] = 0x80;
+        if (dark != 0) {
+            col[3] = alpha;
+            col[0] = col[1] = col[2] = 0x30;
+        }
+        func_001ABB00(*p, k + 5, k + 5, x, y, 0, w, h, 0, 0, w, h, (const u32 *)col, layer, 0);
+    }
 }
 
 /* 0x003D38A0, 0xB8 bytes. */
-void func_003D38A0(int k, int a, int b, int c, int d, int e, int f)
+void func_003D38A0(int k, int a, int b, int c, int d, int e, int f, int p7)
 {
-    u32 *p = func_003D36C0();
+    u8 **p = func_003D36C0();
 
     if (p != 0 && k < 5)
-        func_001ABE40(*p, k, a, b, c, d, e, f);
+        func_001ABE40(*p, k, a, b, c, d, e, f, p7, 0);
 }
 
-/* 0x003D3960, 0x20 bytes, matching. */
-u32 func_003D3960(void)
+/* 0x003D3960, 0x20 bytes. */
+u8 *func_003D3960(void)
 {
     return func_003D36C0()[1];
 }
 
-/* 0x003D3980, 0x70 bytes, matching. Loads file 0x77 (kept). */
+/* 0x003D3980, 0x70 bytes. Loads file 0x77 (kept). */
 void func_003D3980(void)
 {
-    u32 h;
+    u8 *h;
 
     func_00102960(1);
     h = func_001026D0(1, 0x77, 0, 1, 0, 0, g_0045C3F0, 0x67);
@@ -706,18 +713,18 @@ void func_003D3980(void)
     func_001B8F60(1, 6, 8);
 }
 
-/* 0x003D39F0, 0x50 bytes, matching. */
+/* 0x003D39F0, 0x50 bytes. */
 void func_003D39F0(void)
 {
-    u32 h = func_001026D0(1, 0x77, 0, 0, 0, 0, g_0045C3F0, 0x78);
+    u8 *h = func_001026D0(1, 0x77, 0, 0, 0, 0, g_0045C3F0, 0x78);
 
     func_003D36C0()[1] = h;
 }
 
-/* 0x003D3A40, 0x38 bytes, matching. */
+/* 0x003D3A40, 0x38 bytes. */
 void func_003D3A40(void)
 {
-    u32 *p = func_003D36C0();
+    u8 **p = func_003D36C0();
 
     if (p[1] != 0) {
         func_00102EC0(p[1]);
@@ -729,5 +736,5 @@ void func_003D3A40(void)
 void func_003D3A80(int x, int y, int a, int b, int c, int d, int k)
 {
     if (k >= 0 && k < 0x43)
-        func_001ABEA0(func_00376810(), k + 0x37, x, y, 0, b, c, 0);
+        func_001ABEA0(func_00376810(), k + 0x37, x, y, 0, b, c, 0, 0, 0x20, 0x20, ARG_UNKNOWN, a, 0);
 }
