@@ -1231,3 +1231,231 @@ void func_001896E0(u8 *cmd)
     ((float *)&g_005BD728)[0] = p[0];
     ((float *)&g_005BD728)[1] = p[1];
 }
+
+extern u32 g_005BC1A0[][2];              /* scenario timers? (two words each) */
+
+u8 *func_0035DCD0(int p);
+void func_001F1640(u8 *cell, u8 *out);
+void func_001D4F00(u8 *base, float *pos, u8 *cell);
+u8 *func_001EE150(u8 *o);
+void func_001D4F60(u8 *base, u8 *target);
+void func_001D5240(u8 *base, char v);
+void func_0033BDC0(u8 *base, u16 v);
+void func_0033BE80(u16 a, u16 b, int c);
+void func_0018F890(u8 *cell, int n, u8 k);
+void func_0018FC00(u8 *cell, int n, int on);
+void func_0027F160(char a, char b);
+void func_00349AF0(u8 *o, u16 v);
+
+/* Whether a record is on the field: flag 1 and none of 0x8C40002. */
+static inline int on_field(u32 f)
+{
+    return (f & 1) && (f & 0x8C40002) == 0;
+}
+
+/* 0x00189760, 0x158 bytes. Command: the point of officer cmd[0] (beaten ones too with
+ * cmd[1] = 1) for func_00183670, kept at 0x005BD728; (-1, -1) for a hidden officer. */
+void func_00189760(u16 *cmd, int player)
+{
+    u32 id = func_00185ED0(cmd[0]);
+    u8 *o;
+    float p[2];
+
+    if (func_00185EC0(id) == 0) {
+        u32 f;
+
+        o = REC88(id);
+        f = U32(o, 0x80);
+        if (cmd[1] == 1) {
+            if ((f & 1) == 0)
+                return;
+            if ((f & 0x8C40002) && (f & 2) == 0)
+                return;
+        } else if ((f & 1) == 0 || (f & 0x8C40002)) {
+            return;
+        }
+    } else {
+        o = func_0035DCD0(func_00186480(player));
+    }
+    if ((U32(o, 0x84) & 0x8000) == 0) {
+        float *q = (U32(o, 0x80) & 0x20000) ? (float *)(o + 0x30) : (float *)(o + 0x28);
+
+        p[0] = q[0];
+        p[1] = q[1];
+        func_00183670(p);
+    } else {
+        p[0] = -1.0f;
+        p[1] = -1.0f;
+    }
+    ((float *)&g_005BD728)[0] = p[0];
+    ((float *)&g_005BD728)[1] = p[1];
+}
+
+/* 0x001898C0, 0x19C bytes. Command: officer cmd[1] (free) or its base gets a destination cell
+ * (cmd[2], cmd[3]: a map cell, or with `fine` a 1000-unit cell). */
+void func_001898C0(short *cmd, int fine)
+{
+    u32 id = func_00185E00(cmd[1], 1);
+    u8 *o, c[2], d[2];
+    float pos[2];
+
+    if (id >= 0x1AD)
+        return;
+    o = REC88(id);
+    if (fine == 0) {
+        c[0] = (u8)cmd[2];
+        c[1] = (u8)cmd[3];
+        func_001F1640(c, d);
+    } else {
+        d[0] = (u8)cmd[2];
+        d[1] = (u8)cmd[3];
+        c[0] = d[0] / 5;
+        c[1] = d[1] / 5;
+    }
+    pos[0] = (float)d[0] * 1000.0f + 500.0f;
+    pos[1] = (float)d[1] * 1000.0f + 500.0f;
+    if (cmd[0] == 0 && U32(o, 0x10) < 0x47) {
+        func_001D4F00(BASE68(U32(o, 0x10)), pos, c);
+    } else {
+        *(float *)(o + 0x38) = pos[0];
+        *(float *)(o + 0x3C) = pos[1];
+        U32(o, 0x84) |= 0x10;
+        U8(o, 0x44) = c[0];
+        U8(o, 0x45) = c[1];
+    }
+}
+
+/* 0x00189A60, 0x16C bytes. Command: officer cmd[1] (free) or its base targets officer cmd[2]
+ * (on the field; one that is away targets func_001EE150's). */
+void func_00189A60(short *cmd, int player)
+{
+    u32 id = func_00185E00(cmd[1], 1), t;
+    u8 *o, *target;
+
+    if (id >= 0x1AD)
+        return;
+    o = REC88(id);
+    t = func_00185ED0(cmd[2]);
+    if (func_00185EC0(t) == 0) {
+        u32 f;
+
+        target = REC88(t);
+        f = U32(target, 0x80);
+        if (!on_field(f))
+            return;
+        if (f & 0x30)
+            target = func_001EE150(target);
+    } else {
+        target = func_0035DCD0(func_00186480(player));
+    }
+    if (cmd[0] == 0 && U32(o, 0x10) < 0x47) {
+        func_001D4F60(BASE68(U32(o, 0x10)), target);
+    } else {
+        PTR(o, 0x1C) = target;
+        U32(o, 0x84) |= 0x10;
+    }
+}
+
+/* 0x00189BD0, 0xA0 bytes. Command: byte cmd[2] for officer cmd[1]'s base (func_001D5240) or the
+ * officer (func_001EE9C0). */
+void func_00189BD0(short *cmd)
+{
+    u32 id = func_00185E00(cmd[1], 1);
+    u8 *o;
+
+    if (id >= 0x1AD)
+        return;
+    o = REC88(id);
+    if (cmd[0] == 0 && U32(o, 0x10) < 0x47)
+        func_001D5240(BASE68(U32(o, 0x10)), (char)cmd[2]);
+    else
+        func_001EE9C0(o, (char)cmd[2]);
+}
+
+/* 0x00189C70, 0x88 bytes. Command: func_0033BDC0 with cmd[1] for officer cmd[0]'s base. */
+void func_00189C70(u16 *cmd)
+{
+    u32 id = func_00185E00(cmd[0], 1);
+
+    if (id < 0x1AD && U32(REC88(id), 0x10) < 0x47)
+        func_0033BDC0(BASE68(U32(REC88(id), 0x10)), cmd[1]);
+}
+
+/* 0x00189D00, 0x28 bytes. Command: func_0033BE80(cmd[0], cmd[1], 0). */
+void func_00189D00(u16 *cmd)
+{
+    func_0033BE80(cmd[0], cmd[1], 0);
+}
+
+/* 0x00189D30, 0xA4 bytes. Command (unless func_0032E7B0): an effect on cell (cmd[0], cmd[1])
+ * for 2 x cmd[2] frames: kinds 0-3 (func_0018F890), 4 / 5 (func_0018FC00 off / on). */
+void func_00189D30(u16 *cmd)
+{
+    u8 c[2];
+    u16 k;
+    int n;
+
+    if (func_0032E7B0() != 0)
+        return;
+    k = cmd[3];
+    n = cmd[2] << 1;
+    c[0] = (u8)cmd[0];
+    c[1] = (u8)cmd[1];
+    if (k < 4)
+        func_0018F890(c, n, (u8)k);
+    else if (k == 5)
+        func_0018FC00(c, n, 1);
+    else if (k == 4)
+        func_0018FC00(c, n, 0);
+}
+
+/* 0x00189DE0, 0x58 bytes. Command: func_0027F160 for the slot of entry cmd[0] (in the scenario
+ * header +0x2C) with cmd[1]; func_0032E7B0 when there is none. */
+void func_00189DE0(u16 *cmd)
+{
+    char c = *(char *)(g_005BD724 + 0x2C + cmd[0]);
+
+    if (c == -1)
+        func_0032E7B0();
+    else
+        func_0027F160(c, (char)cmd[1]);
+}
+
+/* 0x00189E40, 0x6C bytes. Command: variable cmd[0] += cmd[1] (cmd[2] = 1) or = cmd[1] (0). */
+void func_00189E40(u16 *cmd)
+{
+    if (cmd[2] == 1)
+        SC_VAR(cmd[0]) = SC_VAR(cmd[0]) + (short)cmd[1];
+    else if (cmd[2] == 0)
+        SC_VAR(cmd[0]) = (short)cmd[1];
+}
+
+/* 0x00189EB0, 0x5C bytes. Command: pair cmd[0] at 0x005BC1A0: its second word cleared (2), its
+ * first cleared (1) or set (0). */
+void func_00189EB0(u16 *cmd)
+{
+    u32 *p = g_005BC1A0[cmd[0]];
+
+    if (cmd[1] == 2)
+        p[1] = 0;
+    else if (cmd[1] == 1)
+        p[0] = 0;
+    else if (cmd[1] == 0)
+        p[0] = 1;
+}
+
+/* 0x00189F10, 0x114 bytes. Command: func_00349AF0 (cmd[5]) for every officer of side cmd[0] on
+ * the field standing in cells cmd[1]-cmd[3] x cmd[2]-cmd[4]. */
+void func_00189F10(u16 *cmd)
+{
+    u8 *o = REC88(0);
+    u32 k;
+
+    for (k = 0; k < 0x1AD; k++, o += 0x88) {
+        u32 f = U32(o, 0x80);
+
+        if (on_field(f) && cmd[0] == U8(o, 0x79) && cmd[1] <= U8(o, 0x40) && U8(o, 0x40) <= cmd[3]
+            && cmd[2] <= U8(o, 0x41) && U8(o, 0x41) <= cmd[4])
+            func_00349AF0(o, cmd[5]);
+    }
+}
