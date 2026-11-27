@@ -1403,3 +1403,345 @@ tail:
     }
     return ret;
 }
+
+extern u8 *g_0045D2FC;                   /* (small data) the effects' resources */
+
+void func_001D0970(Unit *u);
+void func_001D0B20(Unit *u);
+u32 func_00177ED0(void);
+void func_001ACA70(u32 a, u8 *effect, float *pos, u8 *dir, u32 b);
+float *func_0016A170(Unit *u, int node);
+void func_001CD060(Unit *h, Unit *u, u8 *hit, u8 *dir, u8 *pos, int a, int b, int c);
+
+#define VEC_ZERO ((float *)0x700000C0)   /* (0, 0, 0, 0) in the scratchpad */
+
+/* 0x00155140, 0x118 bytes. Grabs `v` with hit `hit`: the follow-up action, facing `target`
+ * (+0x1D0), and the hold (+0x280 / +0x284, the hit's two bytes for the held one). */
+void func_00155140(Unit *u, Unit *v, u8 *hit, const float *target)
+{
+    short a = S16(ACT(u), 0);
+    u8 *r = PTR(DESC(u), 0xC);
+    int n = S32(PTR(DESC(u), 4), 0xC), i;
+    float d[4], len;
+
+    for (i = 0; i < n; i++, r += 0x30) {
+        if (S16(r, 0x26) == a) {
+            a = S16(r, 2);
+            break;
+        }
+    }
+    d[0] = target[0] - F32(u, 0x90);
+    d[1] = 0.0f;
+    d[2] = target[2] - F32(u, 0x98);
+    d[3] = 0.0f;
+    len = sqrtf(d[0] * d[0] + d[2] * d[2]);
+    for (i = 0; i < 4; i++)
+        F32(u, 0x1D0 + i * 4) = d[i] / len;
+    func_00156AF0(u, a);
+    func_001649C0(u);
+    func_001649C0(v);
+    PTR(u, 0x280) = v;
+    PTR(v, 0x284) = u;
+    U8(v, 0x275) = hit[8];
+    U8(v, 0x276) = hit[9];
+}
+
+/* 0x00155260, 0xAC bytes. Thrown along `v` (the hit's speed +8, lift +9, reaction +0x10). */
+void func_00155260(Unit *u, u8 *hit, const u32 *v)
+{
+    int i;
+
+    U8(u, 0x27C) = (U8(u, 0x27C) & ~1) | 1;
+    for (i = 0; i < 4; i++)
+        U32(u, 0x1F0 + i * 4) = v[i];
+    F32(u, 0x22C) = (float)(s8)hit[8];
+    for (i = 0; i < 4; i++)
+        U32(u, 0x1D0 + i * 4) = U32(u, 0x1F0 + i * 4);
+    func_00156AF0(u, S16(hit, 0x10));
+    if (hit[9] != 0) {
+        F32(u, 0x224) = (float)(s8)hit[9];
+        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+    }
+}
+
+/* 0x00155310, 0x48 bytes. Moves forward (+0x70) at `speed` for `dt`. */
+int func_00155310(float dt, float speed, Unit *u)
+{
+    int i;
+
+    F32(u, 0x228) = speed * dt;
+    for (i = 0; i < 4; i++)
+        F32(u, 0x40 + i * 4) += F32(u, 0x70 + i * 4) * (speed * dt);
+    return 0;
+}
+
+/* The jump speed: 14 in mode 4, else the officer's (+0x94), a quarter of it (three quarters
+ * close by) in the special state (+0xE8). */
+static inline void unit_jump_speed(Unit *u)
+{
+    if (g_00669DB8 == 4) {
+        F32(u, 0x224) = 14.0f;
+    } else {
+        u8 *rec = OFFICER(u);
+        float s;
+
+        if ((U8(u, 0xE8) & 3) >> 1 == 1) {
+            float x = F32(u, 0xF0), z = F32(u, 0xF8);
+
+            s = x * x + z * z < 100.0f ? F32(rec, 0x94) * 0.75f : F32(rec, 0x94) * 0.25f;
+        } else {
+            s = F32(rec, 0x94);
+        }
+        F32(u, 0x224) = s;
+    }
+}
+
+/* 0x00155360, 0x614 bytes. Gravity for `dt` (`g`): starts a jump in the jumping actions, falls
+ * (at most 30), and lands on the ground (+0xE0): the landing reaction, its dust and the mount's
+ * effect. Whether it landed. */
+int func_00155360(float dt, float g, Unit *u)
+{
+    float ground = 0.0f, saved = 0.0f, v;
+    int fast, landing;
+
+    if (S32(u, 0x118) < 0x3C && S16(ACT(u), 0) == 0xB) {
+        if (U32(u, 0x13C) & 0x100000)
+            unit_jump_speed(u);
+    } else if (S32(u, 0x118) == 0x3C && S16(ACT(u), 0) == 0xF && (U32(u, 0x13C) & 0x10000)) {
+        unit_jump_speed(u);
+    }
+    if (g_00669DB8 == 4) {
+        saved = F32(u, 0x44);
+        F32(u, 0x44) = (float)S16(u, 0x25A);
+    }
+    F32(u, 0x44) = (F32(u, 0x44) + 0.0f) - F32(u, 0x224) * dt;
+    v = (F32(u, 0x224) + 0.0f) - g * dt;
+    F32(u, 0x224) = v;
+    if (v < -25.0f) {
+        F32(u, 0x224) = -30.0f < v ? v : -30.0f;
+        fast = 1;
+    } else {
+        fast = 0;
+    }
+    if (g_00669DB8 != 4)
+        ground = F32(u, 0xE0);
+    landing = F32(u, 0x224) < -0.0001f && !(F32(u, 0x44) <= ground + 0.0001f);
+    if (g_00669DB8 == 4) {
+        S16(u, 0x25A) = (short)(int)F32(u, 0x44);
+        F32(u, 0x44) = saved;
+    }
+    if (!landing)
+        return 0;
+    {
+        int hard = 0;
+        u32 f = U32(ACT(u), 0x18);
+
+        if (g_00669DB8 != 4)
+            F32(u, 0x44) = ground;
+        if ((U32(ACT(u), 0x18) & 0x40) == 0) {
+            hard = 1;
+            if (fast)
+                func_00150E10(u);
+            else
+                func_00150C50(u);
+            if (U8(u, 0x181) == 0)
+                func_001D0970(u);
+        } else {
+            F32(u, 0x224) = 0.0f;
+            F32(u, 0x228) = 0.0f;
+            U8(u, 0x27C) &= ~2;
+            if (U8(u, 0x181) == 0)
+                func_001D0B20(u);
+        }
+        if ((f & 0x800) && hard && U32(u, 0x16C) != 0) {
+            float *pos = S32(u, 0x11C) == 0 ? &F32(u, 0x40) : &F32(u, 0x90);
+
+            func_001ACA70(func_00177ED0(), g_0045D2FC + 0x5F8, pos, u + 0x70, U32(u, 0x16C));
+            U32(u, 0x16C) = 0;
+        }
+        if (S32(u, 0x118) == 0x3C && S32(u, 0x11C) != 0 && (s8)U8(u, 0x27C) >= 0
+            && U32(u, 0x28C) != 0) {
+            float *m = func_0016A170(u, 0x11);
+            float *t = (float *)0x70000030;
+            float p[4];
+            int k;
+
+            for (k = 0; k < 4; k++)
+                p[k] = m[k] * t[0] + m[4 + k] * t[1] + m[8 + k] * t[2] + m[12 + k] * t[3];
+            func_001ACA70(func_00177ED0(), g_0045D2FC + 0x5B0, p, u + 0x70, U32(u, 0x28C));
+        }
+        U8(u, 0x27C) &= 0x7F;
+        return 1;
+    }
+}
+
+/* 0x00155980, 0x100 bytes. Moves for `dt`: along +0x200 at the speed +0x228, plus the
+ * velocity +0x1E0. */
+int func_00155980(float dt, Unit *u)
+{
+    float v[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    int i;
+
+    if (0.0001f < F32(u, 0x228)) {
+        for (i = 0; i < 4; i++)
+            v[i] = F32(u, 0x200 + i * 4) * (F32(u, 0x228) * dt);
+    }
+    if (0.0001f < F32(u, 0x1E0) * F32(u, 0x1E0) + F32(u, 0x1E8) * F32(u, 0x1E8)) {
+        for (i = 0; i < 4; i++)
+            v[i] += F32(u, 0x1E0 + i * 4) * dt;
+    }
+    for (i = 0; i < 4; i++)
+        F32(u, 0x40 + i * 4) += v[i];
+    return 1;
+}
+
+/* 0x00155A80, 0x98 bytes. The push (+0x1F0 at +0x22C) for `dt`, halved each frame on the
+ * ground. */
+int func_00155A80(float dt, Unit *u)
+{
+    int i;
+
+    if (0.0001f <= F32(u, 0x22C)) {
+        for (i = 0; i < 4; i++)
+            F32(u, 0x40 + i * 4) += F32(u, 0x1F0 + i * 4) * (F32(u, 0x22C) * dt);
+        if ((U32(ACT(u), 0x18) & 0x20) == 0)
+            F32(u, 0x22C) = F32(u, 0x22C) * 0.5f;
+    }
+    return 1;
+}
+
+/* A direction normalised and scaled to 120 units. */
+static inline void at_120(float *d)
+{
+    float len = sqrtf(d[0] * d[0] + d[1] * d[1] + d[2] * d[2] + d[3] * d[3]);
+    int i;
+
+    for (i = 0; i < 4; i++)
+        d[i] = d[i] / len * 120.0f;
+}
+
+/* Faces the other way from `d`. */
+static inline void face_away(Unit *u, const float *d)
+{
+    float a = vu0_angle(d[0], d[2]);
+
+    F32(u, 0x238) = a;
+    a = a + PI;
+    if (PI < a)
+        a -= TWO_PI;
+    F32(u, 0x238) = a;
+    U8(u, 0x27C) = (U8(u, 0x27C) & ~1) | 1;
+}
+
+/* 0x00155B20, 0x284 bytes. Held 120 units from the one holding it (+0x280; or held by +0x284,
+ * from its hand +0xA0 when +0x188 is set), facing it. */
+int func_00155B20(Unit *u)
+{
+    float d[4];
+    int i;
+
+    if (PTR(u, 0x280) == 0) {
+        Unit *h = PTR(u, 0x284);
+
+        if (h != 0) {
+            int hand = S16(h, 0x188) != 0;
+
+            for (i = 0; i < 4; i++)
+                d[i] = F32(u, 0x40 + i * 4) - F32(h, (hand ? 0xA0 : 0x40) + i * 4);
+            at_120(d);
+            if (!hand) {
+                for (i = 0; i < 4; i++)
+                    d[i] = F32(u, 0x40 + i * 4) - F32(h, 0x40 + i * 4);
+            } else {
+                for (i = 0; i < 4; i++)
+                    F32(u, 0x40 + i * 4) = F32(h, 0xA0 + i * 4) + d[i];
+            }
+            face_away(u, d);
+        }
+    } else {
+        float *c = &F32(PTR(u, 0x280), 0x40);
+
+        for (i = 0; i < 4; i++)
+            d[i] = F32(u, 0x40 + i * 4) - c[i];
+        at_120(d);
+        for (i = 0; i < 4; i++)
+            F32(u, 0x40 + i * 4) = c[i] + d[i];
+        face_away(u, d);
+    }
+    return 1;
+}
+
+/* 0x00155DB0, 0x9C bytes. Throws the unit it holds with hit `hit`, then lets go. */
+void func_00155DB0(Unit *u, u8 *hit)
+{
+    Unit *h = PTR(u, 0x280);
+
+    if (h == 0 || PTR(h, 0x284) != u) {
+        func_0016BD30(u);
+    } else {
+        func_001CD060(h, u, hit, u + 0x70, u + 0x90, 0, 0, 0);
+        func_00155260(PTR(u, 0x280), hit, (u32 *)(u + 0x70));
+        func_0016BD30(u);
+    }
+}
+
+/* 0x00155E50, 0xA0 bytes. Gets off what it carries (+0x288): placed at its seat, falling, and
+ * the carried one's positions kept at +0xA0 / +0xB0. */
+void func_00155E50(Unit *u)
+{
+    Unit *v = func_0016BE40(u);
+    int i;
+
+    func_001CF2A0(u, v, U32(ACT(u), 0x18) & 0x800);
+    if (S32(v, 0x11C) != 0) {
+        for (i = 0; i < 4; i++)
+            U32(u, 0x40 + i * 4) = U32(u, 0x90 + i * 4);
+        F32(u, 0x44) = F32(u, 0x44) + F32(PTR(u, 0x114), 0x80);
+        F32(u, 0x224) = -5.0f;
+    }
+    for (i = 0; i < 4; i++)
+        U32(u, 0xB0 + i * 4) = U32(v, 0x90 + i * 4);
+    for (i = 0; i < 4; i++)
+        U32(u, 0xA0 + i * 4) = U32(v, 0x40 + i * 4);
+}
+
+/* 0x00155EF0, 0x80 bytes. Speeds up by `dt` (at most 12) while a direction is held. */
+void func_00155EF0(float dt, Unit *u)
+{
+    u32 f = U32(u, 0x13C);
+
+    if ((f & 0x4000000) || (f & 0x8000000) || (f & 0x10000000) || (f & 0x20000000)) {
+        float s = F32(u, 0x228) + dt;
+
+        F32(u, 0x228) = s;
+        F32(u, 0x228) = 12.0f < s ? 12.0f : s;
+    }
+}
+
+/* 0x00155F70, 0x54 bytes. The motion's root movement (+0x80 times +0x60) applied in x and z,
+ * then cleared; the movement in *out. */
+void func_00155F70(Unit *u, float *out)
+{
+    int i;
+
+    for (i = 0; i < 4; i++)
+        out[i] = F32(u, 0x80 + i * 4) * F32(u, 0x60);
+    F32(u, 0x40) = F32(u, 0x40) + out[0];
+    F32(u, 0x48) = F32(u, 0x48) + out[2];
+    for (i = 0; i < 4; i++)
+        F32(u, 0x80 + i * 4) = VEC_ZERO[i];
+}
+
+/* 0x00155FD0, 0x98 bytes. The frame count of a motion pair (+0x30, +0x34): +0x44 for the jump's
+ * (0xB / 0xC, mounted 0xF / 0x10), else the first motion's (+6). */
+float func_00155FD0(Unit *u, u8 *m)
+{
+    if (S32(u, 0x118) < 0x3C) {
+        if (S16(PTR(m, 0x34), 0) == 0xB && S16(PTR(m, 0x30), 0) == 0xC)
+            return F32(m, 0x44);
+    } else if (S32(u, 0x118) == 0x3C && S16(PTR(m, 0x34), 0) == 0xF
+               && S16(PTR(m, 0x30), 0) == 0x10) {
+        return F32(m, 0x44);
+    }
+    return (float)S16(PTR(m, 0x30), 6);
+}
