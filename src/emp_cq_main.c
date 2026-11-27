@@ -1427,3 +1427,399 @@ void func_0030FF70(void)
         n->step++;
     }
 }
+
+void func_00375030(int x, int y, int w, int h, int a, const char *text);
+void func_00321A20(u32 i, u32 j, int c);
+void func_002F3B30(u32 i, int v);
+void func_0032E910(u32 i);
+int func_00330650(int k);
+int func_00309C30(u32 i, int f, int r);
+int func_0036B260(void);
+int func_0036BA20(int side, int k);
+int func_00120A40(const char *text);       /* strlen */
+void func_003A9510(int *r, int n, int a);
+void func_003A9010(int a);
+void func_003A9610(void);
+void func_002F90D0(int f, int v);
+int func_00320F10(void);
+int func_00327E50(void);
+void func_003A7C10(void);
+int func_002F9990(int f);
+void func_003A78E0(int r, int c, int a);
+void func_003A80F0(int r, int a);
+void func_003A8000(int r);
+void func_003A80A0(int a);
+
+/* Shows the message text once built. */
+#define SHOW() func_00374EE0(g_007B4E60)
+/* Whether the message box was closed with OK. */
+#define CLOSED_OK() (func_00375BF0() != 0 && func_00375B90() == 1)
+
+/* 0x003100E0, 0x2F8 bytes. Notice: officer `b` asks to bring officer `a` over (message 0x71 as
+ * a yes / no question); on yes event 6's command runs and `a` joins the player (message 0x72),
+ * on no func_00321A20 records the refusal. */
+void func_003100E0(void)
+{
+    Notice *n = func_0030E2C0();
+    char a[32], b[32];
+    int pos[2], r;
+
+    switch (n->step) {
+    case 0:
+        pos[0] = 0x80;
+        pos[1] = 0x38;
+        func_003DB220(2, pos);
+        func_003DB460(2, 2);
+        func_00120928(b, func_002F2890(n->b));
+        func_00120928(a, func_002F2890(n->a));
+        func_001204B0(g_007B4E60, func_00390760(0x71), a, b);
+        func_00375030(0x38, 0x11C, 400, 0x54, 0, g_007B4E60);
+        n->step++;
+        break;
+    case 1:
+        if (func_00375BF0() != 0) {
+            r = func_00375B90();
+            if (r == 2) {
+                func_003DB480(2, 2);
+                n->unknown_690 = 1;
+                n->count = 0;
+                n->step++;
+            } else if (r == 3) {
+                func_003DB480(2, 2);
+                n->unknown_690 = 0;
+                n->count = 0;
+                n->step++;
+            }
+        }
+        break;
+    case 2:
+        if (++n->count > 5) {
+            if (n->unknown_690 == 1) {
+                n->step++;
+            } else {
+                func_00321A20(n->a, n->b, n->c);
+                func_002F3B30(n->a, 2);
+                func_0030E4E0(0);
+            }
+        }
+        break;
+    case 3:
+        func_0032E910(n->a);
+        r = func_00330650(6);
+        if (r != -1) {
+            func_0030E140(r, n->a, -1, -1);
+            n->step++;
+        }
+        break;
+    case 4:
+        if (func_0030E1F0() == 2) {
+            u32 lead;
+
+            func_0030E100();
+            lead = func_002F8F20(func_002F4080(n->b));
+            func_00120928(b, func_002F2890(n->a));
+            func_00120928(a, func_002F8DB0(func_002F4080(lead)));
+            func_001204B0(g_007B4E60, func_00390760(0x72), b, a);
+            SHOW();
+            n->step++;
+        }
+        break;
+    case 5:
+        if (CLOSED_OK()) {
+            u32 i = n->a, j = n->b;
+
+            func_0030E4E0(0);
+            func_00309C30(i, func_00327D50(), func_002F5CC0(j));
+        }
+        break;
+    }
+}
+
+/* 0x003103E0, 0xE8 bytes. The gold won by the player's officers of side 0 in the last battle. */
+int func_003103E0(void)
+{
+    int s = 0, k;
+
+    if (func_0036B260() == 0)
+        return 0;
+    for (k = 0; k < 8; k++) {
+        u32 o = func_003620E0(0, k);
+
+        if ((int)o >= 0 && (int)o < 0x19F) {
+            int g = func_002F4080(o);
+
+            if (IS_FORCE(g) && func_002FB2A0(g) != 0)
+                s += func_0036BA20(0, k);
+        }
+    }
+    return s;
+}
+
+/* 0x003104D0, 0x7A4 bytes. Notice: the battle's result for the player (kind `a`, won `b`,
+ * forces list[0] / list[1], region list[2]; messages 0xB1-0xBA, a capture (0xC0), the gold won
+ * (0xBB, list[4] bonus) and the officers' limit (0x78)). */
+void func_003104D0(void)
+{
+    Notice *n = func_0030E2C0();
+    int c8 = n->c, kind = n->a, won = n->b, f1 = n->list[0], f2 = n->list[1];
+    int region = n->list[2], taken = n->list[3], gold = n->list[4], p = func_00327D50();
+    char a[32], b[32], c[32];
+
+    g_007B4E60[0] = 0;
+    switch (n->step) {
+    case 0: {
+        int bonus = 0;
+
+        switch (kind) {
+        case 0: case 2:
+            if (won == 0) {
+                func_001204B0(g_007B4E60, func_00390760(0xB3), func_002F8DB0(p), func_0030ABF0(region));
+            } else {
+                func_00120928(a, func_002F8DB0(p));
+                func_00120928(b, func_002F8DB0(p));
+                func_001204B0(g_007B4E60, func_00390760(0xB1), a, func_0030ABF0(region), b);
+            }
+            break;
+        case 1: case 3:
+            if (won == 0) {
+                func_00120928(a, func_002F8DB0(f2));
+                func_00120928(b, func_002F8DB0(p));
+                func_001204B0(g_007B4E60, func_00390760(0xB6), a, b);
+            } else {
+                func_00120928(a, func_002F8DB0(f1));
+                func_00120928(b, func_002F8DB0(p));
+                func_001204B0(g_007B4E60, func_00390760(0xB5), a, b, a, func_0030ABF0(region));
+                bonus = 3000;
+            }
+            break;
+        case 4:
+            if (won == 0) {
+                func_00120928(a, func_002F8DB0(p));
+                func_00120928(b, func_002F8DB0(f1));
+                func_001204B0(g_007B4E60, func_00390760(0xB4), a, b, func_0030ABF0(region));
+            } else {
+                func_001204B0(g_007B4E60, func_00390760(0xB2), func_002F8DB0(p), func_0030ABF0(region));
+            }
+            break;
+        case 5:
+            if (won == 0) {
+                func_00120928(a, func_002F8DB0(f1));
+                func_00120928(b, func_002F8DB0(f2));
+                func_00120928(c, func_002F8DB0(p));
+                func_001204B0(g_007B4E60, func_00390760(0xB8), b, c, a, func_0030ABF0(region));
+            } else {
+                func_00120928(a, func_002F8DB0(f1));
+                func_00120928(b, func_002F8DB0(p));
+                func_001204B0(g_007B4E60, func_00390760(0xB7), a, b, func_0030ABF0(region));
+                bonus = 1000;
+            }
+            break;
+        default:
+            func_00120928(a, func_002F8DB0(f1));
+            func_00120928(b, func_002F8DB0(f2));
+            if (c8 == 0)
+                func_001204B0(g_007B4E60, func_00390760(0xBA), a, b, func_0030ABF0(region));
+            else
+                func_001204B0(g_007B4E60, func_00390760(0xB9), a, b, func_0030ABF0(region), a);
+            break;
+        }
+        n->list[4] = bonus;
+        if (func_00120A40(g_007B4E60) == 0) {
+            n->step += 2;
+        } else {
+            SHOW();
+            n->step++;
+        }
+        func_003A9510(&n->list[2], 1, 0);
+        func_003A9010(1);
+        break;
+    }
+    case 1:
+        if (CLOSED_OK()) {
+            n->step++;
+            func_003A9610();
+        }
+        break;
+    case 2:
+        if (taken == 0) {
+            n->step += 2;
+        } else {
+            func_00120928(a, func_002F8DB0(f1));
+            func_00120928(b, func_002F8DB0(f2));
+            func_001204B0(g_007B4E60, func_00390760(0xC0), b, a);
+            SHOW();
+            func_003A9510(&n->list[2], 1, 0);
+            func_003A9010(1);
+            n->step++;
+        }
+        break;
+    case 3:
+        if (CLOSED_OK()) {
+            func_003A9610();
+            n->step++;
+        }
+        break;
+    case 4:
+        if (gold == 0) {
+            n->step += 2;
+        } else {
+            int s = func_003103E0() / 100 * 100;
+
+            gold += s < 2000 ? s : 2000;
+            func_002F90D0(p, gold / 10);
+            func_001204B0(g_007B4E60, func_00390760(0xBB), func_002F8DB0(f1), func_0030CB80(gold));
+            SHOW();
+            n->step++;
+        }
+        break;
+    case 5:
+        if (CLOSED_OK()) {
+            func_0039F960();
+            n->step++;
+        }
+        break;
+    case 6:
+        if (func_00320F10() == 0) {
+            n->step += 2;
+        } else {
+            int lim = func_00327E50();
+
+            func_001204B0(g_007B4E60, func_00390760(0x78), func_002F8DB0(func_00327D50()), func_0030CB80(lim));
+            SHOW();
+            n->step++;
+        }
+        break;
+    case 7:
+        if (CLOSED_OK())
+            n->step++;
+        break;
+    case 8:
+        func_0030E4E0(0);
+        break;
+    }
+}
+
+/* 0x00310C80, 0x10C bytes. Notice: message 0x61 for each listed force in turn. */
+void func_00310C80(void)
+{
+    Notice *n = func_0030E2C0();
+
+    if (n->step == 2) {
+        func_0030E4E0(0);
+    } else if (n->step == 1) {
+        if (CLOSED_OK()) {
+            if (++n->a < n->count)
+                n->step = 0;
+            else
+                n->step++;
+        }
+    } else if (n->step == 0) {
+        func_001204B0(g_007B4E60, func_00390760(0x61), func_002F8DB0(n->list[n->a]));
+        SHOW();
+        n->step++;
+    }
+}
+
+/* 0x00310D90, 0xC4 bytes. Notice: message `a`. */
+void func_00310D90(void)
+{
+    Notice *n = func_0030E2C0();
+
+    if (n->step == 2) {
+        func_0030E4E0(0);
+    } else if (n->step == 1) {
+        if (CLOSED_OK())
+            n->step++;
+    } else if (n->step == 0) {
+        func_001204B0(g_007B4E60, func_00390760(n->a));
+        SHOW();
+        n->step++;
+    }
+}
+
+/* 0x00310E60, 0x1AC bytes. The season's notice (season `a`, 0-4): its sound, the map window
+ * and its message (0x62-0x68). */
+void func_00310E60(void)
+{
+    Notice *n = func_0030E2C0();
+    int s = n->a, pos[5], m = 0;
+
+    if (func_0023A760(s) != 0) {
+        func_00102960(1);
+        func_0023A7D0(s);
+    }
+    pos[1] = 0x60;
+    pos[0] = 0x80;
+    pos[2] = 0x100;
+    pos[4] = 0x80;
+    pos[3] = 0xC0;
+    func_003DB220(0xE, pos);
+    func_003DB460(0xE, 5);
+    switch (n->a) {
+    case 3: m = 0x68; break;
+    case 0: m = 0x67; break;
+    case 2: m = 0x66; break;
+    case 1: m = n->b == 0 ? 0x65 : 0x64; break;
+    case 4: m = 0x62; break;
+    }
+    func_001204B0(g_007B4E60, func_00390760(m));
+    SHOW();
+    n->step = 1;
+}
+
+/* 0x00311010, 0xE0 bytes. Colours the map: the listed regions in their force's colour, the
+ * others plain. */
+void func_00311010(void)
+{
+    Notice *n = func_0030E2C0();
+    int r, k;
+
+    func_003A7C10();
+    for (r = 0; r < func_0030AB90(); r++) {
+        int found = 0;
+
+        for (k = 0; k < n->count; k++) {
+            if (n->list[k] == r)
+                found = 1;
+        }
+        if (found) {
+            func_003A78E0(r, func_002F9990(func_0030AFF0(r)), 1);
+            func_003A80F0(r, 1);
+        } else {
+            func_003A8000(r);
+        }
+    }
+    func_003A80A0(1);
+}
+
+/* 0x00311100, 0x68 bytes, matching. Season notice step 1: once closed, the map. */
+void func_00311100(void)
+{
+    Notice *n = func_0030E2C0();
+
+    if (CLOSED_OK()) {
+        func_003DB480(0xE, 5);
+        func_0023AA40();
+        func_00311010();
+        n->step = 2;
+    }
+}
+
+/* 0x00311170, 0xF0 bytes. The season notice. */
+void func_00311170(void)
+{
+    int s = func_0030E2C0()->step;
+
+    if (s == 2) {
+        if (pad1_pressed() & 0x40) {
+            func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+            func_003A80A0(0);
+            func_003A7D90();
+            func_0030E4E0(0);
+        }
+    } else if (s == 1) {
+        func_00311100();
+    } else if (s == 0) {
+        func_00310E60();
+    }
+}
