@@ -1127,3 +1127,377 @@ void func_00166A00(Unit *u)
         }
     }
 }
+
+/* A track's value at frame `t` (`p` on its first key). */
+static inline float track_at(const float *p, u32 size, float t)
+{
+    const float *k = p;
+    float prev = 0.0f, s;
+
+    if (size == 0)
+        return 0.0f;
+    if (size == 1)
+        return *p;
+    while (!(t < *k)) {
+        prev = *k;
+        k += size;
+    }
+    s = (t - prev) / (*k - prev);
+    return k[4] + s * k[3] + k[1] * s * s * s + k[2] * s * s;
+}
+
+/* Turns the offset +0x80 with the unit (rotation +0x50 by the scratchpad matrix at 0x70000080). */
+static inline void turn_offset(Unit *u)
+{
+    float r[4][4], m[4][4], v[4], *s = (float *)0x70000080;
+    int i, k;
+
+    ROT_MATRIX(r, &F32(u, 0x50));
+    for (i = 0; i < 4; i++)
+        for (k = 0; k < 4; k++)
+            m[i][k] = r[0][k] * s[i * 4] + r[1][k] * s[i * 4 + 1] + r[2][k] * s[i * 4 + 2]
+                      + r[3][k] * s[i * 4 + 3];
+    for (k = 0; k < 4; k++)
+        v[k] = F32(u, 0x80 + k * 4);
+    for (k = 0; k < 4; k++)
+        F32(u, 0x80 + k * 4) = m[0][k] * v[0] + m[1][k] * v[1] + m[2][k] * v[2] + m[3][k] * v[3];
+    F32(u, 0x8C) = 0.0f;
+}
+
+/* The root's height (*y) scaled from the height the motion was made for to the state's. */
+static inline void scale_root(Unit *u, u8 *act, float *y)
+{
+    float h = F32(PTR(u, 0x114), 0x80);
+    int s = S32(u, 0x118);
+
+    if (U32(act, 0x1C) & 0x40000000) {
+        *y = *y * (h / 117.468f);
+    } else if (s == 0x30 || s == 0x38 || s == 0x37 || s == 0x36 || s == 0x35 || s == 0x34
+               || s == 0x33 || s == 0x21 || s == 0x20 || s == 0x1F || s == 0x1E || s == 0x1D
+               || s == 0x1C) {
+        u8 k = U8(PTR(u, 0x110), 0x1C);
+
+        if (k < 0x1A)
+            *y = *y * (h / F32(g_0045D300 + k * 0xA0, 0x80));
+        else if (k >= 0x3E && k <= 0x5C)
+            *y = *y * (h / 114.2966f);
+        else if (k > 0x5C && k < 0x68)
+            *y = *y * (h / 107.5364f);
+    } else if (s == 0x1A) {
+        u32 f = U32(act, 0x1C);
+        int d = (f & 0x80) ? 3 : (f & 0x100) ? 0x12 : (f & 0x200) ? 9 : (f & 0x800) ? 0x13
+              : (f & 0x4000) ? 0xC : (f & 0x10000) ? 2 : (f & 0x20000000) ? 1 : 4;
+
+        *y = *y * (h / F32(g_0045D300 + d * 0xA0, 0x80));
+    } else if (s == 0x1B) {
+        u32 f = U32(act, 0x1C);
+        int d = (f & 4) ? 0 : (f & 0x100000) ? 0x14 : 1;
+
+        *y = *y * (h / F32(g_0045D300 + d * 0xA0, 0x80));
+    }
+    if ((U32(act, 0x18) & 0x40020) == 0 && *y < h * -1.0f)
+        *y = h * -1.0f;
+}
+
+/* The unit's matrix (+0) from its rotation and position, scaled by +0x60 when flag 0x80 of
+ * +0x19C is set or +0x1BA > 3 on foot. */
+static inline void unit_matrix(Unit *u)
+{
+    UNIT_MATRIX(u, &F32(u, 0x50), &F32(u, 0x40));
+    if ((U8(u, 0x19C) & 0x80) || (U8(u, 0x1BA) > 3 && S32(u, 0x118) < 0x3C)) {
+        float m[4][4];
+        int i, k;
+
+        for (i = 0; i < 4; i++)
+            for (k = 0; k < 4; k++)
+                m[i][k] = F32(u, i * 0x10 + k * 4);
+        for (i = 0; i < 4; i++)
+            for (k = 0; k < 4; k++)
+                F32(u, i * 0x10 + k * 4) = m[i][k] * (i < 3 ? F32(u, 0x60 + i * 4) : 1.0f);
+    }
+}
+
+/* 0x00167730, 0x364 bytes. The root offset (+0x80) of a unit without its model: the root
+ * node's translation in the action's motion at the frame (turned with the unit), or, standing
+ * still, just the state's height; +0x90 the point above the position (150 lower for riders). */
+void func_00167730(Unit *u)
+{
+    u8 *act = PTR(u, 0x210);
+    int k;
+
+    if ((U32(act, 0x18) & 0x40020) == 0 && PTR(act, 0x14) == 0) {
+        F32(u, 0x80) = 0.0f;
+        F32(u, 0x84) = F32(PTR(u, 0x114), 0x80) * -1.0f;
+        F32(u, 0x88) = 0.0f;
+        F32(u, 0x8C) = 0.0f;
+    } else {
+        u32 *m = *(u32 **)act_motion(u, act);
+        float t = F32(u, 0x21C);
+        const float *p = (const float *)(m + 3);
+
+        if (t < (float)(int)m[2]) {
+            u32 i, got = 0;
+
+            for (i = 0; i < m[1]; i++) {
+                u32 w = *(const u32 *)p++;
+                u32 size = w >> 13 & 7;
+
+                if ((w & 0xFF) == 0) {
+                    u32 c = w >> 8 & 0x1F;
+                    float v = track_at(p, size, t);
+
+                    if (c == 5) {
+                        got++;
+                        F32(u, 0x88) = v;
+                    } else if (c == 4) {
+                        got++;
+                        F32(u, 0x84) = v;
+                    } else if (c == 3) {
+                        got++;
+                        F32(u, 0x80) = v;
+                    }
+                    if (got > 2)
+                        break;
+                }
+                p += size * (w >> 18);
+            }
+        }
+        turn_offset(u);
+    }
+    for (k = 0; k < 4; k++)
+        F32(u, 0x90 + k * 4) = F32(u, 0x40 + k * 4) + F32(u, 0x80 + k * 4);
+    if (U32(PTR(u, 0x210), 0x18) & 0x8000000)
+        F32(u, 0x94) = F32(u, 0x94) - 150.0f;
+}
+
+/* 0x00167AB0, 0x6D8 bytes. Poses only the first nodes (6 for state 0x3E, else 8) of a unit's
+ * model from the action's motion at its frame (a cheap pose for far units), the root's height
+ * scaled, those nodes' matrices; no root offset. */
+void func_00167AB0(Unit *u)
+{
+    u32 n = S32(u, 0x118) == 0x3E ? 6 : 8;
+    u32 *m = *(u32 **)act_motion(u, PTR(u, 0x210));
+    u8 *nodes = (u8 *)root_node(PTR(u, 0x11C));
+    float t = F32(u, 0x21C);
+    const float *p = (const float *)(m + 3);
+    u32 i;
+    int k;
+
+    for (i = 0; i < m[1]; i++) {
+        u32 w = *(const u32 *)p++;
+        u32 size = w >> 13 & 7;
+
+        if ((w & 0xFF) <= n) {
+            float v = track_at(p, size, t);
+            float *nd = (float *)(nodes + (w & 0xFF) * 0x70);
+
+            U8(nd, 0x68) = 1;
+            switch (w >> 8 & 0x1F) {
+            case 0:
+                nd[4] = v;
+                break;
+            case 1:
+                nd[5] = v;
+                break;
+            case 2:
+                nd[6] = v;
+                break;
+            case 3:
+                nd[0] = v;
+                break;
+            case 4:
+                nd[1] = v;
+                break;
+            case 5:
+                nd[2] = v;
+                break;
+            }
+        }
+        p += size * (w >> 18);
+    }
+    if (PTR(u, 0x11C) != 0)
+        scale_root(u, PTR(u, 0x210), &((float *)root_node(PTR(u, 0x11C)))[1]);
+    nodes = (u8 *)root_node(PTR(u, 0x11C));
+    PTR(PTR(u, 0x11C), 0x208) = nodes;
+    for (i = 0; i < n; i++) {
+        if (U8(nodes, 0x68) != 0) {
+            U8(nodes, 0x68) = 0;
+            UNIT_MATRIX(nodes + 0x20, nodes + 0x10, nodes);
+        }
+        nodes += 0x70;
+    }
+    for (k = 0; k < 4; k++) {
+        F32(u, 0x80 + k * 4) = 0.0f;
+        F32(u, 0x90 + k * 4) = F32(u, 0x40 + k * 4);
+    }
+}
+
+/* 0x00168190, 0x268 bytes. A unit carried by another: its position and rotation from its mount
+ * (+0x288, for riders) or its carrier (+0x284: the carrier's node +0x275, or the carrier itself
+ * without a model); then its matrix. */
+void func_00168190(Unit *u)
+{
+    int k;
+
+    if ((U32(PTR(u, 0x210), 0x18) & 0x8000000) == 0) {
+        u8 *c = PTR(u, 0x284);
+
+        if (c != 0 && (char)U8(u, 0x275) != -1) {
+            if (PTR(c, 0x11C) == 0) {
+                for (k = 0; k < 4; k++)
+                    F32(u, 0x40 + k * 4) = F32(c, 0x40 + k * 4);
+            } else {
+                float *m = func_0016A170(c, (char)U8(u, 0x275)), *s = (float *)0x70000030;
+                float w;
+
+                for (k = 0; k < 4; k++)
+                    F32(u, 0x40 + k * 4) = m[k] * s[0] + m[4 + k] * s[1] + m[8 + k] * s[2]
+                                           + m[12 + k] * s[3];
+                w = F32(u, 0x4C);
+                for (k = 0; k < 4; k++)
+                    F32(u, 0x40 + k * 4) = F32(u, 0x40 + k * 4) * (1.0f / w);
+            }
+            for (k = 0; k < 4; k++)
+                F32(u, 0x50 + k * 4) = F32(PTR(u, 0x284), 0x50 + k * 4);
+        }
+    } else {
+        for (k = 0; k < 4; k++)
+            F32(u, 0x40 + k * 4) = F32(PTR(u, 0x288), 0x40 + k * 4);
+        for (k = 0; k < 4; k++)
+            F32(u, 0x50 + k * 4) = F32(PTR(u, 0x288), 0x50 + k * 4);
+    }
+    unit_matrix(u);
+    U8(u, 0x19C) &= ~1;
+}
+
+void func_0016F8E0(float f, u8 *part, u8 *x);
+void func_002088C0(u8 *trail);
+void func_0016EAB0(u8 *a, u8 *part);
+void func_00209190(float *a, float *b, u8 player, u8 *c);
+u8 *func_002087A0(void);
+void func_00208820(u8 *trail, float *a, float *b, u8 player);
+void func_00208980(u8 *trail, void *m, u8 colour);
+
+/* 0x00168400, 0xB8 bytes. Turns a weapon part's trail (+0x68) on (func_0016F8E0, part flag 4
+ * cleared) or off: a trail still drawing (+0xA) is only told to stop (+0x10). */
+void func_00168400(float f, u8 *x, u8 *part, int on)
+{
+    u8 *t = PTR(part, 0x68);
+
+    if (on && t == 0) {
+        func_0016F8E0(f, part, x);
+        U8(part, 0x60) &= ~4;
+    } else if (!on) {
+        if (t != 0) {
+            if (U8(t, 10) != 0) {
+                U32(t, 0x10) = 0;
+            } else {
+                func_002088C0(t);
+                PTR(part, 0x68) = 0;
+            }
+        }
+    } else if (t != 0 && U32(t, 0x10) == 0) {
+        func_002088C0(t);
+        PTR(part, 0x68) = 0;
+    }
+}
+
+/* 0x001684C0, 0x270 bytes. The trails of a weapon `w`'s parts (kind +0x48): one part (+0x5C)
+ * for kinds 0x6C-0x6F and 0x3C-0x3F; else the part +0x50 (or the two +0x50 / +0x54, by `mask`)
+ * and, except kinds 0x14-0x1B and 0x30-0x37, the two +0x58 / +0x5C. `second` gates the single
+ * ones; `link` links new trails to +0x68. Whether a part was handled. */
+int func_001684C0(float f, u8 *x, u8 *w, int on, int second, int link, u16 mask)
+{
+    u8 k = U8(w, 0x48);
+    int done = 0;
+    u32 i;
+    u8 *p;
+
+    if ((u32)(k - 0x6C) < 4 || (u32)(k - 0x3C) < 4) {
+        p = PTR(w, 0x5C);
+        if (p != 0 && (U8(p, 0x60) & 1)) {
+            func_00168400(f, x, p, on);
+            done = 1;
+        }
+        return done;
+    }
+    if (PTR(w, 0x54) == 0 || (U8(PTR(w, 0x54), 0x60) & 1) == 0) {
+        p = PTR(w, 0x50);
+        if (p != 0 && (U8(p, 0x60) & 1)) {
+            func_00168400(f, x, p, on && second);
+            done = 1;
+            if (link && PTR(p, 0x68) != 0)
+                func_0016EAB0(PTR(w, 0x68), p);
+        }
+    } else {
+        for (i = 0; i < 2; i++) {
+            p = PTR(w, 0x50 + i * 4);
+            if (p != 0 && (U8(p, 0x60) & 1)) {
+                func_00168400(f, x, p, on && (mask & 1 << i));
+                done = 1;
+            }
+        }
+    }
+    k = U8(w, 0x48);
+    if ((u32)(k - 0x30) > 7 && (u32)(k - 0x14) > 7) {
+        for (i = 0; i < 2; i++) {
+            p = PTR(w, 0x58 + i * 4);
+            if (p != 0 && (U8(p, 0x60) & 1)) {
+                func_00168400(f, x, p, on && second);
+                done = 1;
+                if (link && PTR(p, 0x68) != 0)
+                    func_0016EAB0(PTR(w, 0x68), p);
+            }
+        }
+    }
+    return done;
+}
+
+/* 0x00168730, 0x90 bytes. Starts a trail for a unit's slot (+0x28) between the two points of
+ * `c` (func_00209190). Whether it started. */
+int func_00168730(Unit *u, u8 *slot, u8 *c)
+{
+    float a[4], b[4];
+    u8 *t;
+
+    if (PTR(u, 0x11C) == 0)
+        return 0;
+    if (slot == 0)
+        return 0;
+    func_00209190(a, b, U8(u, 0x14E), c);
+    t = func_002087A0();
+    PTR(slot, 0x28) = t;
+    if (t != 0) {
+        func_00208820(t, a, b, U8(u, 0x14E));
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x001687C0, 0x10C bytes. Keeps a slot's trail going (`on`) or stops it; while it lives, its
+ * points follow `c` and, with `colour`, it gets the unit's colour (+0x184). */
+void func_001687C0(Unit *u, u8 *slot, u8 *c, int on, int colour)
+{
+    u8 *t = PTR(slot, 0x28);
+
+    if (on && t == 0) {
+        func_00168730(u, slot, c);
+    } else if (!on) {
+        if (t != 0) {
+            if (U8(t, 10) == 0) {
+                func_002088C0(t);
+                PTR(slot, 0x28) = 0;
+            } else {
+                U32(t, 0x10) = 0;
+                func_00209190((float *)(t + 0x20), (float *)(t + 0x30), U8(u, 0x14E), c);
+                if (colour)
+                    func_00208980(t, (void *)0x70000000, U8(u, 0x184));
+            }
+        }
+    } else if (t != 0) {
+        U32(t, 0x10) = 1;
+        func_00209190((float *)(t + 0x20), (float *)(t + 0x30), U8(u, 0x14E), c);
+        if (colour)
+            func_00208980(t, (void *)0x70000000, U8(u, 0x184));
+    }
+}
