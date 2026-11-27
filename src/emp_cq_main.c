@@ -5083,6 +5083,8 @@ extern int (*g_00414BD0[100])(CmdRecord *p);   /* the command results by command
 
 int func_00328570(void);
 int func_00327C40(void);
+void func_0030C920(int *l, int n);
+void func_002F7410(u32 i);
 int func_0030AD20(int r, int k);
 int func_00328970(void);
 void func_002F9130(int f, int v);
@@ -5351,4 +5353,327 @@ void func_0031C520(int g, int k)
         if (g - 1 == func_002F57F0(w) && k == func_0030AB20(w))
             *func_00328B30(w) = w;
     }
+}
+
+void func_00327EA0(int d);
+void func_002F9410(int f, int k, int v);
+void func_002FAF30(int f, int g);
+void func_002FA500(int f, int g);
+void func_002FA610(int f, int g);
+void func_002FA720(int f, int v);
+void func_002FA800(int f, int v);
+void func_0030A470(int a, int b);
+void func_0030E390(int kind, int a, int b, int c, int *l, int n);
+int func_00309F90(u32 i);
+void func_002F91C0(int f, u32 i);
+void func_0030A870(int kind, u32 i, int r, int *l, int n, int show);
+void func_002F3550(u32 i, int v);
+void func_002F4760(u32 i, int v);
+void func_002F37E0(u32 i, int v);
+void func_0030B0D0(int r, int d);
+void func_0030ADC0(int r, int v);
+void func_0030AE40(int r, int d);
+int func_002F45A0(u32 i);
+void func_002F4AE0(u32 i, int v);
+int func_002F4660(u32 i);
+void func_002F46D0(u32 i, int v);
+int func_003297D0(void);
+void func_003297E0(int v);
+int func_00329810(void);
+void func_00329820(int v);
+int func_00329790(void);
+void func_003297A0(int v);
+void func_0029FD50(u32 i);
+void func_003281F0(int v);
+void func_003BACA0(void);
+
+/* For each officer of force `f` (`all`: func_002F7D90's last flag). */
+#define EACH_OFFICER(f, all, o, n, k)                                                    \
+    for (n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, all),         \
+         o = func_002F7B10(), k = 0; k < n; k++, o++)
+
+/* 0x0031C5C0, 0x10B8 bytes. Applies result `k` of command record `p` for the computer (by the
+ * result's kind: gold, values, officers joining, ties, submissions, captures and rebellions,
+ * experience, soldiers, troops, the command's own effects (kind 0xC), duels and training
+ * (kinds 0xF / 0x10, shown to the player), policies, events...). */
+int func_0031C5C0(CmdRecord *p, int k)
+{
+    int c = p->cmd, f = p->f, player = func_002FB2A0(f), ret = 0, reg[28], list[6], n, j;
+    CmdResult *r = &p->res[k];
+    int *v = r->v;
+    u32 *o;
+
+    switch (r->kind) {
+    case 0:
+        func_002F90D0(f, v[0] / 10);
+        if (player != 0 && c == 7) {
+            func_00327EA0(-1);
+            return 0;
+        }
+        break;
+    case 1:
+        for (j = 0; j < 3; j++) {
+            int old = func_002F9480(f, j), now;
+
+            func_002F9410(f, j, v[j]);
+            now = func_002F9480(f, j);
+            if (player != 0 && old < now)
+                func_0031C520(now, j);
+        }
+        break;
+    case 2:
+        if ((u32)v[0] < 0x19F) {
+            ret = func_00309C30(v[0], f, 0x19);
+            if (c == 0x21) {
+                for (j = 0; j < 4; j++) {
+                    if ((u32)v[1 + j] > 0x19E)
+                        return ret;
+                    func_0031BF70(v[1 + j], f);
+                }
+            }
+        }
+        break;
+    case 3: {
+        int g = v[0];
+
+        if (func_002FB2A0(f) == 0 && func_002FB2A0(g) != 0)
+            func_0030E390(6, f, v[1] != 4, -1, 0, 0);
+        else if (IS_FORCE(g) && v[2] != 0)
+            func_002FAEA0(f, g, v[1], 1);
+        break;
+    }
+    case 4: {
+        int g = v[0];
+
+        if (func_002FB2A0(f) == 0 && func_002FB2A0(g) != 0) {
+            func_0030E390(7, f, -1, -1, 0, 0);
+        } else if (IS_FORCE(g) && v[1] != 0) {
+            if (v[2] == 0) {
+                func_002FAFC0(g);
+                func_002FAEA0(f, g, 0, 3);
+            } else {
+                func_0030A470(f, g);
+            }
+        }
+        break;
+    }
+    case 5:
+        if (c == 0x39) {
+            int g = func_002F4080(v[0]);
+
+            if (func_002FB2A0(f) == 0 && func_002FB2A0(g) != 0)
+                func_0030E390(0x15, v[0], func_002F5CC0(v[0]), -1, 0, 0);
+            func_00309F90(v[0]);
+        } else if (c == 0x35) {
+            if (IS_FORCE(v[0])) {
+                func_0031C410(v[0], v[3]);
+                if (func_002FB2A0(f) == 0 && func_002FB2A0(func_0030AFF0(v[0])) != 0)
+                    func_0030E390(0x14, v[0], v[3], -1, 0, 0);
+            }
+        } else if (c == 0x34 && (u32)v[0] < 0x19F) {
+            func_002F91C0(f, v[0]);
+        }
+        break;
+    case 6: {
+        CmdResult *r1 = func_003155A0(p, 1);
+
+        if (func_002FB2A0(f) == 0 && func_002FB2A0(func_0030AFF0(v[0])) != 0 && r1->kind == 7
+            && r1->v[1] != 0) {
+            func_002F4080(r1->v[2]);
+            for (n = 0; n < 5 && (u32)r1->v[3 + n] <= 0x19E; n++)
+                list[n] = r1->v[3 + n];
+            func_0030E390(0x16, r1->v[2], r1->v[0], -1, list, n);
+        }
+        break;
+    }
+    case 7:
+        if (IS_FORCE(v[0]) && v[1] != 0) {
+            int g = func_002F4080(v[2]);
+
+            for (n = 0; n < 5 && (u32)v[3 + n] <= 0x19E; n++)
+                list[n] = v[3 + n];
+            func_0030A870(1, v[2], v[0], list, n, 1);
+            for (n = 0; n < 5 && (u32)v[8 + n] <= 0x19E; n++)
+                list[n] = v[8 + n];
+            if (n != 0)
+                func_0031C0A0(g, (u32 *)list, n);
+        }
+        break;
+    case 8:
+        func_002F3550(v[0], v[1]);
+        if (player != 0)
+            func_002F4760(v[0], 0xF);
+        break;
+    case 10:
+        func_002F37E0(v[0], v[1]);
+        if (player != 0)
+            func_002F4760(v[0], 10);
+        break;
+    case 0xB:
+        func_0030B0D0(v[0], v[1]);
+        break;
+    case 0xC:
+        if (c == 0x27) {
+        } else if (c == 99) {
+            if (player != 0) {
+                int e = func_00327E90();
+
+                func_00327EA0(e < 0 ? 1 : -(e > 0));
+            }
+            EACH_OFFICER(f, 0, o, n, j) {
+                if (func_002F45A0(*o) == 0 && func_002F4450(*o) == 0) {
+                    func_002F4760(*o, 0x14);
+                    func_002F4B70(*o, 1);
+                }
+            }
+        } else if (c == 0x3A) {
+            func_002FAF30(v[0], v[1]);
+        } else if (c == 9) {
+            func_00327EA0(-1);
+            EACH_OFFICER(f, 1, o, n, j)
+                func_002F4AE0(*o, func_002F4A70(*o) - 1);
+            n = func_002FB320(f, reg);
+            for (j = 0; j < n; j++) {
+                int w = func_0030AD80(reg[j]) * 8 / 10;
+
+                func_0030ADC0(reg[j], w < 10 ? 10 : w);
+                func_0030B0D0(reg[j], 1);
+            }
+        } else if (c == 0x1C) {
+            if (player != 0)
+                func_00327EA0(-1);
+            EACH_OFFICER(f, 1, o, n, j) {
+                func_002F3660(*o, func_002F38F0(*o));
+                if (player != 0)
+                    func_002F4B70(*o, -1);
+            }
+        } else if (c == 0x1B) {
+            if (player != 0)
+                func_00327EA0(v[0xE]);
+            func_002FA800(f, 1);
+            EACH_OFFICER(f, 1, o, n, j) {
+                func_002F3660(*o, func_002F3770(*o) * 8 / 10);
+                if (player != 0)
+                    func_002F4760(*o, 10);
+            }
+        } else if (c == 0x38) {
+            func_002FA720(f, 1);
+        } else if (c == 0x37) {
+            int g = v[0];
+
+            func_002FA610(f, g);
+            if (func_002FB2A0(g) == 0)
+                func_002FA720(g, 1);
+        } else if (c == 5) {
+            n = func_002FB320(f, reg);
+            for (j = 0; j < n; j++)
+                func_0030AE40(reg[j], v[1]);
+        } else if (c == 0x10) {
+            n = func_002FB320(f, reg);
+            for (j = 0; j < n; j++)
+                func_0030B0D0(reg[j], 1);
+        } else if (c == 0x1A || c == 0x19 || c == 0x18 || c == 0x17) {
+            EACH_OFFICER(f, 1, o, n, j)
+                func_002F37E0(*o, v[1]);
+        } else if (c == 0x2F) {
+            int g = v[0];
+
+            if (func_002FB2A0(f) == 0 && func_002FB2A0(g) != 0) {
+                func_0030E390(0x12, g, f, -1, 0, 0);
+                func_002FAF30(f, v[0]);
+            } else {
+                func_002FAF30(f, v[0]);
+                if (player != 0)
+                    func_00327EA0(-1);
+            }
+        } else if (c == 0x2D) {
+            func_002FA500(f, v[0]);
+        } else if (c == 6) {
+            if (player != 0)
+                func_00327EA0(v[0xE]);
+            func_002FA800(f, 1);
+        }
+        break;
+    case 0xD:
+        func_0030AE40(v[0], v[1]);
+        break;
+    case 0xF:
+        if (player == 0)
+            return 0;
+        func_002F4760(v[0], 10);
+        func_002F4760(v[1], 10);
+        if (c == 0x27) {
+            func_003297E0(func_003297D0() + 2);
+            func_00329820(func_00329810() + 2);
+            func_003297A0(func_00329790() + 2);
+        } else if (c == 0x26) {
+            func_003297A0(func_00329790() + 2);
+        } else if (c == 0x25) {
+            func_00329820(func_00329810() + 2);
+        } else if (c == 0x24) {
+            func_003297E0(func_003297D0() + 2);
+        }
+        list[0] = v[2];
+        list[5] = v[3];
+        list[4] = list[0];
+        func_0030E390(0x11, c, v[0x1D], -1, list, 6);
+        break;
+    case 0x10:
+        if (player == 0)
+            return 0;
+        for (j = 6; j < 0xE; j++)
+            func_002F4760(v[j], 10);
+        func_002F4760(v[0x15], 10);
+        if (c == 0x2A)
+            func_003297A0(func_00329790() + 10);
+        else if (c == 0x29)
+            func_00329820(func_00329810() + 10);
+        else if (c == 0x28)
+            func_003297E0(func_003297D0() + 10);
+        list[0] = v[0xF];
+        list[1] = v[0x10];
+        list[2] = v[0x11];
+        list[3] = v[0x12];
+        list[4] = v[0x15];
+        list[5] = v[0x1C];
+        func_0030E390(0x11, c, v[0x1D], -1, list, 6);
+        break;
+    case 0x11:
+        if (v[1] != -1)
+            func_002F94C0(v[0], v[1] & 0xFFFF);
+        break;
+    case 0x12:
+        func_002FA800(f, 1);
+        func_00327EA0(v[0xE]);
+        EACH_OFFICER(f, 1, o, n, j) {
+            func_002F4AE0(*o, func_002F4A70(*o) + 1);
+            func_002F46D0(*o, func_002F4660(*o) + 0xF);
+        }
+        break;
+    case 0x14:
+        func_002F4760(v[0], 10);
+        func_0029FD50(v[0]);
+        break;
+    case 0x15:
+        if (c == 0x36) {
+            if ((u32)v[2] < 0x19F) {
+                int g = func_002F4080(v[2]);
+
+                if (func_002FB2A0(f) != 0 || func_002FB2A0(g) == 0)
+                    func_002F7410(v[2]);
+            }
+        } else if (c == 0x30) {
+            func_003281F0(1);
+            func_003BACA0();
+        } else if (c == 0x39) {
+            func_002F4B70(v[1], v[2]);
+        } else if (c == 0x35) {
+            if ((u32)v[1] < 0x19F)
+                func_002F4B70(v[1], v[2]);
+        } else if (c == 0x34) {
+            func_002F4B70(v[1], v[2]);
+        }
+        break;
+    }
+    return ret;
 }
