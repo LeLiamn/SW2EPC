@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 171344,
-    "non_matching": 1139560
+    "matching": 171408,
+    "non_matching": 1141528
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2190
+    "matching": 2192
   },
   "layout": "treemap",
   "areas": [
@@ -72,15 +72,15 @@
         },
         {
           "name": "StateBattleInitialize.c",
-          "description": "Estimated range 0x1CDFC8-0x1D6F88; 67 function(s) decompiled",
+          "description": "Estimated range 0x1CDFC8-0x1D6F88; 76 function(s) decompiled",
           "code": {
             "total": 36800,
-            "matching": 2640,
-            "non_matching": 16988
+            "matching": 2704,
+            "non_matching": 18956
           },
           "decompiled_functions": {
-            "count": 67,
-            "matching": 30
+            "count": 76,
+            "matching": 32
           }
         },
         {
