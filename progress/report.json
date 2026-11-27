@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 157744,
-    "non_matching": 1078064
+    "matching": 157904,
+    "non_matching": 1082224
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1965
+    "matching": 1966
   },
   "layout": "treemap",
   "areas": [
@@ -163,15 +163,15 @@
         },
         {
           "name": "StateEdit.c",
-          "description": "Estimated range 0x36DE68-0x382E28; 129 function(s) decompiled",
+          "description": "Estimated range 0x36DE68-0x382E28; 136 function(s) decompiled",
           "code": {
             "total": 85952,
-            "matching": 2112,
-            "non_matching": 28020
+            "matching": 2272,
+            "non_matching": 29156
           },
           "decompiled_functions": {
-            "count": 129,
-            "matching": 46
+            "count": 136,
+            "matching": 47
           }
         },
         {
@@ -350,14 +350,14 @@
         },
         {
           "name": "emp_free_setup.c",
-          "description": "Estimated range 0x382E28-0x38FE30; 0 function(s) decompiled",
+          "description": "Estimated range 0x382E28-0x38FE30; 18 function(s) decompiled",
           "code": {
             "total": 53256,
             "matching": 0,
-            "non_matching": 0
+            "non_matching": 3024
           },
           "decompiled_functions": {
-            "count": 0,
+            "count": 18,
             "matching": 0
           }
         },
