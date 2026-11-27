@@ -927,7 +927,7 @@ u8 func_0034EDB0(int c);
 int func_0034ECA0(u8 *pos);
 u8 **func_0035DD10(int p);
 int func_00353920(u8 *pos, u8 a);
-u8 **func_0033F070(u8 s, u32 j);
+u8 **func_0033F070(u32 s, u32 j);
 
 extern int g_00415210[12][2];            /* officer pairs (?) */
 extern u8 g_006AA5F4[2][0x10];           /* per side */
@@ -1686,4 +1686,660 @@ int func_0033CED0(u8 **g)
         }
     }
     return 0;
+}
+
+/* Group moves, losses and lookups (parts of 0x0033D050-0x0033F428). */
+
+extern u8 g_00415270[5][4];
+extern int (*g_00415290[6])(u8 **g);     /* the musou-level choosers */
+extern int g_004152B0[5];
+
+int func_0018F6F0(u8 *a, u8 *b, int c);
+void func_0018C3F0(u8 *a, u8 *b);
+void func_00352610(u8 *pos, u32 v);
+void func_00352650(u8 *pos, int a, u32 v);
+void func_0035CA90(u32 h, u32 k);
+void func_0035CAC0(u32 h, u32 k);
+void func_0034BB20(u8 **g);
+void func_003F7D20(u32 k);
+void func_0034BAE0(u8 **g);
+void func_003F7D00(u32 k);
+void func_0033EDC0(u8 **g);
+void func_0033DAB0(u8 **g);
+void func_001F1910(u8 *u);
+void func_001F1A30(u8 *u);
+void func_001F1640(u8 *pos, u8 *cell);
+void func_001D4C20(u8 **g, int a);
+void func_001D5120(u8 **g, u8 side);
+void func_0033E1E0(u8 *u);
+void func_0033E470(void);
+int func_003489E0(u8 side, int a);
+void func_00349DF0(u8 **g, int a, int b, int c);
+int func_0036D5A0(int s);
+void func_0034A020(u8 *u, int v);
+
+/* 0x0033D050, 0x5C bytes. The route length between groups `g` and `h`. */
+short func_0033D050(u8 **g, u8 **h)
+{
+    if (g == 0 || h == 0)
+        return 0;
+    return func_0018F6F0(func_0033B730(g), func_0033B730(h), 0);
+}
+
+/* 0x0033D0B0, 0x9C bytes. */
+void func_0033D0B0(u8 **g)
+{
+    int p;
+
+    for (p = 0; p < 2; p++) {
+        if (*(int *)(g_00669D60 + 0xA0 + p * 0x48) != 0) {
+            u8 **h = func_0035DD10(p);
+
+            func_0018C3F0(func_0033B700(g), func_0033B700(h));
+        }
+    }
+}
+
+/* 0x0033D150, 0xE0 bytes. The player whose group shares group `g`'s cell (one of them at random
+ * when both do; 2 for none). */
+int func_0033D150(u8 **g)
+{
+    int p, best = 2;
+
+    for (p = 0; p < 2; p++) {
+        if (*(int *)(g_00669D60 + 0xA0 + p * 0x48) != 0
+            && func_0033CC20(g, func_0035DD10(p)) != 0
+            && (best < 0 || best > 1 || (int)RANDOM() % 100 < 0x32))
+            best = p;
+    }
+    return best;
+}
+
+/* 0x0033D230, 0x3C bytes, matching. */
+void func_0033D230(u8 **g)
+{
+    func_00352610(func_0033B730(g), func_0033BFE0(g));
+}
+
+/* 0x0033D270, 0x4C bytes, matching. */
+void func_0033D270(u8 **g, int a)
+{
+    func_00352650(func_0033B730(g), a, func_0033BFE0(g));
+}
+
+/* 0x0033D2C0, 0x11C bytes. Whether group `g` (its side holding its own base) should stay back:
+ * it stands on the enemy's front, or is weak (under 31% life). */
+int func_0033D2C0(u8 **g)
+{
+    u8 side = LEADER(g)[0x79], e;
+    u8 pos[4];
+
+    if (func_0034EDB0(func_0034EC80(func_0035F200(side))) != side)
+        return 0;
+    e = func_0035D5A0(LEADER(g)[0x79]);
+    if (func_0033CEA0(g, e) != 0) {
+        if (LEADER(g)[0x79] != 0)
+            return 1;
+        if (func_0033C610(g, pos) == 0)
+            return 1;
+        if (func_00353920(pos, e) == 0)
+            return 1;
+    }
+    if (*(short *)(INFO(g) + 0x1A) == 0)
+        return 0;
+    return (u32)func_0033B7B0(g) < 0x1F;
+}
+
+/* 0x0033D440, 0x90 bytes. Starts group `g`'s reinforcement delay (when its side has some and it
+ * has soldiers). */
+void func_0033D440(u8 **g)
+{
+    u32 k;
+
+    if (func_0035F340(LEADER(g)[0x79]) == 0)
+        return;
+    k = GI(g);
+    if (*(short *)(func_00338410(k) + 0x1A) != 0)
+        func_00338410(k)[0x22] = func_00339D30(g);
+}
+
+/* 0x0033D4D0, 0x124 bytes. The group of the unit that beat group `g`'s leader (its side's main
+ * group when not an officer group; 0x47 for none). */
+int func_0033D4D0(u8 **g)
+{
+    u8 *l = LEADER(g);
+    u8 **h = 0;
+
+    if (l == 0 || (UNIT_FLAGS(l) & 1) == 0)
+        return 0x47;
+    if (*(u16 *)(l + 0x4A) != 0x1AD) {
+        u8 *r = g_00693970 + *(u16 *)(l + 0x4A) * 0x88;
+
+        if (r == 0 || (*(u32 *)(r + 0x80) & 1) == 0)
+            return 0x47;
+        h = func_0034A740(r);
+        if (h == 0 || (GFLAGS(h) & 1) == 0)
+            return 0x47;
+    }
+    /* (h is read even when 0: the original does so too) */
+    if (h == 0 || func_0033B050(h) == 0)
+        h = func_0033F110(LEADER(h)[0x79]);
+    if (h == 0 || (GFLAGS(h) & 1) == 0)
+        return 0x47;
+    return GI(h);
+}
+
+/* 0x0033D600, 0x88 bytes, matching. Group `g` is routed: its soldiers lost, the winner noted. */
+void func_0033D600(u8 **g)
+{
+    u32 k = GI(g);
+
+    func_00338500(g, -*(u16 *)(func_00338410(k) + 0x1A));
+    GSTRENGTH(g) = 1;
+    func_00338410(k)[0x25] = func_0033D4D0(g);
+}
+
+/* 0x0033D690, 0xC0 bytes. Whether group `g` is routed when its leader falls (no soldiers, far
+ * behind its front or tactic 0x15; never the slots 6 and 7). */
+int func_0033D690(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    if (func_0033B690(g) != 0)
+        return 0;
+    if (*(short *)(INFO(g) + 0x1A) == 0)
+        return 1;
+    if (func_00353A10(LEADER(g)) < -0x32)
+        return 1;
+    return func_0036F520(func_0035D5A0(LEADER(g)[0x79]), 0x15) != 0;
+}
+
+/* 0x0033D750, 0x1D0 bytes. Group `g`'s leader has fallen: the group's orders reset; then it
+ * waits for reinforcements or is routed (the winner's group told). */
+void func_0033D750(u8 **g)
+{
+    u8 *l = LEADER(g);
+    u32 k;
+    char c;
+    u8 *r = 0;
+    u8 **h = 0;
+
+    GFLAGS(g) = 0;
+    GFLAGS(g) = 1;
+    if (func_0033B050(g) == 0)
+        return;
+    k = GI(g);
+    c = func_00338410(k)[0x24];
+    if (c != -1)
+        func_00338410(k)[0x24] = c + 1;
+    func_003386D0(g, 6, 0xFF);
+    func_003387C0(g, 0xC, 0xFF);
+    if (*(u16 *)(l + 0x4A) != 0x1AD)
+        r = g_00693970 + *(u16 *)(l + 0x4A) * 0x88;
+    if (r != 0)
+        h = func_0034A740(r);
+    if (func_0033D690(g) == 0) {
+        func_0033D440(g);
+        if (r != 0)
+            func_0035CA90(GI(h), k);
+    } else {
+        func_0033D600(g);
+        if (r != 0)
+            func_0035CAC0(GI(h), k);
+    }
+    if (h != 0)
+        func_00338C80(h, g);
+    func_0034BB20(g);
+    func_003F7D20(k);
+}
+
+/* 0x0033D920, 0xDC bytes. Takes unit `u` out of its group (`count`: its loss counts; `fall`:
+ * a fallen leader ends the group's leadership). */
+void func_0033D920(u8 *u, int count, int fall)
+{
+    u8 **g;
+    u32 k;
+
+    if (*(int *)(u + 0x10) == 0x47)
+        return;
+    g = GROUP(*(int *)(u + 0x10));
+    if (count != 0)
+        func_0033E1E0(u);
+    if (u == LEADER(g)) {
+        if (fall != 0)
+            func_0033D750(g);
+    } else {
+        for (k = 0; k < 0xD; k++) {
+            if (g[k] == u) {
+                g[k] = 0;
+                break;
+            }
+        }
+    }
+    *(int *)(u + 0x10) = 0x47;
+}
+
+/* 0x0033DA00, 0xAC bytes. Group `g` (re)enters: its side's army strength, its musou level. */
+void func_0033DA00(u8 **g)
+{
+    GSTRENGTH(g) = clamp1000(func_0035F190(LEADER(g)[0x79]));
+    func_0033EDC0(g);
+    func_0034BAE0(g);
+    func_003F7D00(GI(g));
+}
+
+/* 0x0033DCA0, 0x118 bytes. Places group `g`'s leader in the middle of cell `pos` (5000 units a
+ * cell). */
+void func_0033DCA0(u8 **g, u8 *pos)
+{
+    u8 *l = LEADER(g);
+    float x, z;
+
+    func_0033DAB0(g);
+    func_001F1910(l);
+    x = (float)pos[0] * 5000.0f + 2500.0f;
+    z = (float)pos[1] * 5000.0f + 2500.0f;
+    *(float *)(l + 0x28) = x;
+    *(float *)(l + 0x2C) = z;
+    *(float *)(l + 0x30) = x;
+    *(float *)(l + 0x34) = z;
+    *(u16 *)(l + 0x40) = *(u16 *)pos;
+    l[0x46] = (int)x / 1000;
+    l[0x47] = (int)z / 1000;
+    *(int *)(l + 0x20) = 0;
+    func_001F1A30(l);
+    func_0033DA00(g);
+}
+
+/* 0x0033DDC0, 0x148 bytes. Places all group `g`'s units on cell `pos` (at a free spot each). */
+void func_0033DDC0(u8 **g, u8 *pos)
+{
+    u32 k;
+
+    for (k = 0; k < 0xD; k++) {
+        u8 *u = g[k];
+
+        if (u != 0) {
+            u8 c[2];
+            float x, z;
+
+            func_001F1640(pos, c);
+            x = (float)c[0] * 1000.0f + 500.0f;
+            z = (float)c[1] * 1000.0f + 500.0f;
+            *(float *)(u + 0x28) = x;
+            *(float *)(u + 0x2C) = z;
+            *(float *)(u + 0x30) = x;
+            *(float *)(u + 0x34) = z;
+            *(u16 *)(u + 0x40) = *(u16 *)pos;
+            u[0x46] = c[0];
+            u[0x47] = c[1];
+            *(int *)(u + 0x20) = 0;
+        }
+    }
+    func_001D4C20(g, 0);
+    if (func_0033B050(g) != 0)
+        func_0035F280(LEADER(g)[0x79], *(u16 *)(INFO(g) + 0x1A));
+    func_0033DA00(g);
+}
+
+/* 0x0033DF10, 0x164 bytes. Group `g` changes to side `side` (its soldiers move to that side's
+ * count; its counters cleared). */
+void func_0033DF10(u8 **g, u32 side)
+{
+    u8 old;
+    u32 k;
+
+    if (g == 0 || (GFLAGS(g) & 1) == 0 || side >= 2 || (UNIT_FLAGS(LEADER(g)) & 0x30) != 0
+        || func_0033B050(g) == 0)
+        return;
+    old = LEADER(g)[0x79];
+    func_001D5120(g, side);
+    if (side == old)
+        return;
+    {
+        u16 s = *(u16 *)(INFO(g) + 0x1A);
+
+        func_0035F280(old, -s);
+        func_0035F280(side, s);
+    }
+    for (k = 0; k < 0xD; k++) {
+        u8 *u = g[k];
+
+        if (u != 0 && (UNIT_FLAGS(u) & 1) != 0)
+            *(int *)(u + 0x60) = 0;
+    }
+    func_00338DB0(g);
+    func_00338E20(g);
+    INFO(g)[0x19] = 0;
+}
+
+/* 0x0033E080, 0x154 bytes. Shares a loss of `total` soldiers among side `side`'s officer groups
+ * in play; how much of it they could not take. */
+int func_0033E080(u32 side, int total)
+{
+    int list[16], left = total;
+    u32 n = 0, k;
+
+    for (k = 0; k < 0x10; k++) {
+        u8 **g = func_0033EF80(k);
+
+        if ((GFLAGS(g) & 1) != 0 && func_0033B0B0(g) != 0 && side == LEADER(g)[0x79])
+            list[n++] = GI(g);
+    }
+    if (n == 0)
+        return total - left;
+    for (k = 0; k < n; k++)
+        left += func_00338500(GROUP(list[k]), -(total / (int)n));
+    return total - left;
+}
+
+/* 0x0033E1E0, 0xAC bytes. Counts unit `u`'s fall once: its group (else its side's groups) loses
+ * the soldiers it led. */
+void func_0033E1E0(u8 *u)
+{
+    u8 side;
+    int n;
+    u8 **g;
+
+    if ((UNIT_FLAGS(u) & 0x20000000) != 0)
+        return;
+    side = u[0x79];
+    n = func_0034A5B0(u);
+    g = func_0034A740(u);
+    if (g != 0 && func_0033B0B0(g) != 0) {
+        n += func_00338500(g, -n);
+        if (n > 0)
+            func_0033E080(side, n);
+    }
+    UNIT_FLAGS(u) |= 0x20000000;
+}
+
+/* 0x0033E290, 0x168 bytes. Player `p`'s musou costs his group up to `d` soldiers (by the life he
+ * misses; halved by tactic 0xC; side 0 shares the rest). */
+void func_0033E290(int p, int d)
+{
+    u8 **g = func_0035DD10(p);
+    int v = *(short *)(OFFICER(p) + 0x80) - *(short *)(OFFICER(p) + 0x82);
+
+    if (d < v)
+        v = d;
+    v = v * ((int)RANDOM() % 10 + 100) / 100 * 2;
+    if (func_0036F390(LEADER(g)[0x79], 0xC) != 0)
+        v /= 2;
+    if (*(short *)(INFO(g) + 0x1A) != 0) {
+        v += func_00338500(g, -v);
+        if (v > 0)
+            func_0033E080(0, v);
+    }
+}
+
+/* 0x0033E400, 0x60 bytes, matching. */
+int func_0033E400(u8 **g, int a, int b)
+{
+    func_00349DF0(g, a, func_003489E0(LEADER(g)[0x79], 0), b);
+    return 1;
+}
+
+/* 0x0033E460, 8 bytes, matching. */
+int func_0033E460(void)
+{
+    return 0x32;
+}
+
+/* 0x0033E820, 0x2C bytes, matching. */
+void func_0033E820(void)
+{
+    if (func_0036D310() == 0)
+        func_0033E470();
+}
+
+/* 0x0033E850, 0x114 bytes. Groups `g` and `h` swap their stances. */
+void func_0033E850(u8 **g, u8 **h)
+{
+    u8 s, a, hs, ha;
+
+    if (g == 0 || (GFLAGS(g) & 1) == 0 || h == 0 || (GFLAGS(h) & 1) == 0)
+        return;
+    s = INFO(g)[8];
+    a = INFO(g)[9];
+    ha = INFO(h)[9];
+    hs = INFO(h)[8];
+    func_003385E0(g, hs, ha);
+    func_003385E0(h, s, a);
+}
+
+/* 0x0033E970, 0x110 bytes. A level 1-4 from the two func_0036D5A0 counts. */
+int func_0033E970(void)
+{
+    int a = func_0036D5A0(0), b = func_0036D5A0(1);
+    u32 n = 1 < b;
+
+    if (b > 2)
+        n++;
+    if (b > 3)
+        n++;
+    if (b > 4)
+        n += 2;
+    if (b > 5)
+        n += 2;
+    if (b > 6)
+        n += 2;
+    if (a > 4)
+        n++;
+    if (a > 9)
+        n++;
+    if (a > 0xE)
+        n++;
+    if (a > 0x13)
+        n++;
+    if (n < 2)
+        return 1;
+    if (n < 4)
+        return 2;
+    if (n < 9)
+        return 3;
+    return 4;
+}
+
+/* 0x0033EA80, 0x8C bytes. */
+int func_0033EA80(u8 **g)
+{
+    if (func_00362570() == 2 || func_00362570() == 3) {
+        if (LEADER(g)[0x79] == 1)
+            return func_0033B140(g) == 0 ? 0 : func_0033E970();
+        return 0;
+    }
+    return 0;
+}
+
+/* 0x0033EB10, 0x3C bytes. */
+int func_0033EB10(u8 **g)
+{
+    if (LEADER(g)[0x79] == 1)
+        return func_0033B140(g) != 0;
+    return 0;
+}
+
+/* 0x0033EB50, 0x8C bytes. */
+int func_0033EB50(u8 **g)
+{
+    if ((u32)func_00362570() < 6 || (u32)func_00362570() > 0xF)
+        return 0;
+    if (LEADER(g)[0x79] == 1)
+        return func_0033B140(g) == 0 ? 0 : func_0033E970();
+    return 0;
+}
+
+/* 0x0033EBF0, 0xD0 bytes. By the difficulty, for the second side's lead group. */
+int func_0033EBF0(u8 **g)
+{
+    int t[5];
+
+    t[0] = *(int *)g_00415270[0];
+    t[1] = *(int *)g_00415270[1];
+    t[2] = *(int *)g_00415270[2];
+    t[3] = *(int *)g_00415270[3];
+    t[4] = *(int *)g_00415270[4];
+    if (GI(g) == func_0035F840()) {
+        if (LEADER(g)[0x79] == 1)
+            return t[g_00669D60[0x21]];
+        return 0;
+    }
+    return 0;
+}
+
+/* 0x0033ECC0, 0x50 bytes. */
+int func_0033ECC0(u8 **g)
+{
+    if (func_0036D310() == 0)
+        return 0;
+    return func_0033B140(g) == 0 ? 0 : 3;
+}
+
+/* 0x0033ED10, 0xA8 bytes. Level `v` kept within the difficulty's bounds. */
+int func_0033ED10(int v)
+{
+    char d = g_00669D60[0x21];
+
+    if (d == 0) {
+        if (v > 2)
+            v = 2;
+    } else if (d == 1) {
+        if (v > 3)
+            v = 3;
+    } else if (d == 3) {
+        if (v < 3)
+            v = 2;
+    } else if (d == 4 && v < 4) {
+        v = 3;
+    }
+    return v;
+}
+
+/* 0x0033EDC0, 0x144 bytes. Sets group `g`'s leader's level: the best of the six choosers, kept
+ * within the difficulty's bounds. */
+void func_0033EDC0(u8 **g)
+{
+    int (*fn[6])(u8 **);
+    int val[5];
+    int best = 0;
+    u32 k;
+
+    for (k = 0; k < 6; k++)
+        fn[k] = g_00415290[k];
+    for (k = 0; k < 5; k++)
+        val[k] = g_004152B0[k];
+    if ((UNIT_FLAGS(LEADER(g)) & 0x30) != 0)
+        return;
+    for (k = 0; k < 6; k++) {
+        int v = fn[k](g);
+
+        if (v >= 0 && best < v)
+            best = v;
+    }
+    if (best < 1)
+        func_0034A020(LEADER(g), 0);
+    else
+        func_0034A020(LEADER(g), val[func_0033ED10(best)]);
+}
+
+/* 0x0033EF10, 8 bytes, matching. The officer groups by index: groups 0-15. */
+u32 func_0033EF10(u32 k)
+{
+    return k;
+}
+
+/* 0x0033EF20, 0x18 bytes. Side `s`'s group `k` of the first kind: groups 0x10 + s * 0x14. */
+int func_0033EF20(int s, int k)
+{
+    return k + s * 0x14 + 0x10;
+}
+
+/* 0x0033EF40, 0xC bytes, matching. */
+int func_0033EF40(int s, int k)
+{
+    return s + 0x3A + k;
+}
+
+/* 0x0033EF50, 0x10 bytes. Side `s`'s main groups (two each): groups 0x3C-0x3F. */
+int func_0033EF50(int s, int k)
+{
+    return k + s * 2 + 0x3C;
+}
+
+/* 0x0033EF60, 0x14 bytes. Side `s`'s groups 0x40 + s * 3. */
+int func_0033EF60(int s, int k)
+{
+    return k + s * 3 + 0x40;
+}
+
+/* 0x0033EF80, 0x44 bytes. */
+u8 **func_0033EF80(u32 k)
+{
+    return GROUP(func_0033EF10(k));
+}
+
+/* 0x0033EFD0, 0x44 bytes. */
+u8 **func_0033EFD0(int s, int k)
+{
+    return GROUP(func_0033EF20(s, k));
+}
+
+/* 0x0033F020, 0x44 bytes. */
+u8 **func_0033F020(int s, int k)
+{
+    return GROUP(func_0033EF40(s, k));
+}
+
+/* 0x0033F070, 0x44 bytes. */
+u8 **func_0033F070(u32 s, u32 k)
+{
+    return GROUP(func_0033EF50(s, k));
+}
+
+/* 0x0033F0C0, 0x44 bytes. */
+u8 **func_0033F0C0(int s, int k)
+{
+    return GROUP(func_0033EF60(s, k));
+}
+
+/* 0x0033F110, 0x88 bytes. Side `side`'s commander group (leader flag 0x200; 0 for none). */
+u8 **func_0033F110(u8 side)
+{
+    u32 k;
+
+    for (k = 0; k < 0x10; k++) {
+        u8 **g = func_0033EF80(k);
+
+        if (g != 0 && (GFLAGS(g) & 1) != 0 && (UNIT_FLAGS(LEADER(g)) & 0x200) != 0
+            && side == LEADER(g)[0x79])
+            return g;
+    }
+    return 0;
+}
+
+/* 0x0033F1A0, 0x74 bytes. The group of actor `a`'s battle officer (0 for none). */
+u8 **func_0033F1A0(u8 *a)
+{
+    u8 *o;
+
+    if (a == 0)
+        return 0;
+    o = OFFICER(*(short *)(a + 0x178));
+    if (o == 0 || *(u8 **)(o + 0x10) == 0)
+        return 0;
+    return func_0034A740(*(u8 **)(o + 0x10));
+}
+
+/* 0x0033F350, 0xD8 bytes. Whether group `g` is an officer group of side `side` (any past 1;
+ * `alive`: its leader must be up). */
+int func_0033F350(u8 **g, u32 side, int alive)
+{
+    if (alive != 0 && !ALIVE(UNIT_FLAGS(LEADER(g))))
+        return 0;
+    if (func_0033B050(g) == 0)
+        return 0;
+    if (side < 2 && side != LEADER(g)[0x79])
+        return 0;
+    return 1;
 }

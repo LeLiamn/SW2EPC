@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 132192,
-    "non_matching": 995524
+    "matching": 132672,
+    "non_matching": 1002372
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1470
+    "matching": 1478
   },
   "layout": "treemap",
   "areas": [
@@ -311,15 +311,15 @@
         },
         {
           "name": "emp_ev_predata.c",
-          "description": "Estimated range 0x32D7E0-0x33F608; 114 function(s) decompiled",
+          "description": "Estimated range 0x32D7E0-0x33F608; 158 function(s) decompiled",
           "code": {
             "total": 73256,
-            "matching": 2272,
-            "non_matching": 17208
+            "matching": 2752,
+            "non_matching": 24056
           },
           "decompiled_functions": {
-            "count": 114,
-            "matching": 39
+            "count": 158,
+            "matching": 47
           }
         },
         {
