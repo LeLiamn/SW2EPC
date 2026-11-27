@@ -1,5 +1,5 @@
 /*
- * troop_ai3.c - battle officer AI steps between 0x002B00D0 and 0x002B27EC (officers are the
+ * troop_ai3.c - battle officer AI steps between 0x002B00D0 and 0x002B3CEC (officers are the
  * 0xC0-byte records at 0x006A3A30: +0x04 the next one of the group, +0x08 the target, +0x10 the
  * troop, +0x14 the unit, +0x78 a timer, +0x7B the kind, +0x7C the behaviour, +0x7D the state,
  * +0x80/+0x82 life and its maximum?, +0xB8/+0xBC flags): attack choices by the chance table of
@@ -562,4 +562,89 @@ void func_002B27A0(u8 *o)
         FL_BC(o) |= 1;
         func_00206080(o);
     }
+}
+
+/* ---- Group members following a mounted leader (+0x0C the horse?). ---- */
+
+void func_002B3360(u8 *o, u8 *l);
+void func_002B3740(u8 *o, u8 *l);
+
+#define HORSE_READY(o) (*(u32 *)(*(u8 **)(*(u8 **)(*(u8 **)((o) + 0xC) + 0x14) + 0x210) + 0x18) & 1)
+
+/* 0x002B3740, 0xD8 bytes. */
+void func_002B3740(u8 *o, u8 *l)
+{
+    u8 *u;
+
+    if (!(FL_BC(o) & 0x200000)) {
+        if (func_00206C70(o) != 0 || (FL_BC(l) & 0x200000)) {
+            u = UNIT(o);
+            STOP_MOVE(u);
+            FL_BC(o) |= 0x200000;
+        }
+    } else if (HORSE_READY(o) && HORSE_READY(l)) {
+        FL_BC(o) &= 0xFFDEFFFF;
+    }
+}
+
+/* 0x002B3820, 0x118 bytes. A mounted group member's step. */
+void func_002B3820(u8 *o)
+{
+    u8 *l;
+    char b;
+
+    if (*(int *)(o + 0xC) == 0) {
+        FL_B8(o) &= 0xFFFF9FFF;
+        FL_BC(o) &= 0xFFDEFFFF;
+        return;
+    }
+    l = LEADER(o);
+    if (!(FL_BC(o) & 0x10000)) {
+        SET_STATE(o, 0);
+        b = l[0x7C];
+        if (b == 3 || b == 2)
+            func_002B3BF0(o);
+        else if (b == 1 || b == 0)
+            func_002B3360(o, l);
+    } else {
+        func_002B3740(o, l);
+    }
+}
+
+/* 0x002B3B00, 0xE8 bytes. Waits a random time (1-20), then moves on. */
+void func_002B3B00(u8 *o)
+{
+    int t;
+
+    if (!(FL_BC(o) & 0x200000)) {
+        FL_BC(o) |= 0x200000;
+        t = RANDOM() % 0x14 + 1;
+        TIMER_SET(o, t);
+    } else {
+        func_00204D00(o, 1);
+        func_00204CD0(o, 0x1008000);
+    }
+}
+
+/* 0x002B3BF0, 0x34 bytes. Stops. */
+void func_002B3BF0(u8 *o)
+{
+    u8 *u = UNIT(o);
+
+    STOP_MOVE(u);
+    FL_BC(o) &= 0xFFDEFFFF;
+}
+
+/* 0x002B3C30, 0xC0 bytes. A group member's step (waiting kind). */
+void func_002B3C30(u8 *o)
+{
+    u8 *l = LEADER(o);
+    char b;
+
+    SET_STATE(o, 0);
+    b = l[0x7C];
+    if (b == 3 || b == 2)
+        func_002B3BF0(o);
+    else if (b == 1 || b == 0)
+        func_002B3B00(o);
 }
