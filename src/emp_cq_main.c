@@ -944,3 +944,486 @@ void func_0030ED50(void)
             func_0030EBB0();
     }
 }
+
+/* The first controller (0x00500700, see scene_config.c). */
+typedef struct {
+    u8 unknown_00[0x4C];
+    unsigned short pressed;  /* +0x4C */
+    unsigned short held;     /* +0x4E */
+    u8 unknown_50[0x14];
+    u8 ready;                /* +0x64 bit 0 */
+    u8 connected;            /* +0x65 bit 0 */
+    u8 unknown_66[0x22];
+} PadState;
+
+extern PadState g_00500700[2];
+#define pad1_ready() ((g_00500700[0].ready & 1) ? (g_00500700[0].connected & 1) == 1 : 0)
+#define pad1_pressed() ((unsigned short)(pad1_ready() ? g_00500700[0].pressed : 0))
+
+extern char g_007B4E60[];                /* the message text */
+extern const char g_00446808[];          /* "%s" */
+
+void func_0037DAD0(void *pic);
+void func_0023AD10(int a, int b, int c, int d, int e);
+void func_0039F950(int v);
+void func_00376100(int a, int b, int c);
+int func_0039B980(void);
+const char *func_00390760(int id);
+int func_00327CC0(void);
+const char *func_00372660(int k);
+int func_00327C80(void);
+char *func_0030CB80(int v);
+const char *func_002F8DB0(int f);
+void func_001204B0(char *out, const char *format, ...);   /* sprintf */
+void func_00120928(char *to, const char *from);          /* strcpy */
+void func_00374EE0(const char *text);
+int func_00375B90(void);
+int func_00375BF0(void);
+int func_0030A030(int f, int to);
+void func_002F3CF0(u32 i, int r);
+void func_002F8E80(int f, u32 i);
+int func_002FB2A0(int f);
+void func_00327780(u32 i);
+void func_002F43C0(u32 i, int v);
+void func_002F4510(u32 i, int v);
+void func_00308600(u32 i);
+int func_002F5CC0(u32 i);
+int func_002F80C0(u32 i, int f);
+void func_002F5BE0(u32 i, int r);
+int func_00309130(u32 i, int f, int r, int msg);
+const char *func_002F2890(u32 i);
+u32 *func_002F7B10(void);
+int func_002F77A0(u32 i, u32 j);
+int func_002F77F0(u32 i, u32 j);
+int func_002F78C0(u32 i, u32 j);
+int func_002F3DC0(u32 i);
+int func_002F7550(u32 i);
+int func_002F34E0(u32 i);
+int func_002F82F0(u32 i, int f);
+int func_002F8340(u32 i, int f);
+void func_0032D300(int k, u32 *l, int n);
+const char *func_0030ABF0(int r);
+void func_0023AA40(void);
+u32 func_002F8F20(int f);
+void func_002F7610(u32 i);
+int func_0032D9C0(void);
+u32 func_0032E760(void);
+void func_003DB480(int a, int b);
+void func_002FAEA0(int f, int g, int k, int v);
+void func_003DB220(int k, int *pos);
+void func_003DB460(int a, int b);
+void func_0032EA80(int k);
+void func_002FAFC0(int f);
+
+/* 0x0030EDC0, 0x228 bytes. Draws the notice by its kind. */
+void func_0030EDC0(void)
+{
+    switch (func_0030E2C0()->kind) {
+    case 0x1D: func_0030E560(); break;
+    case 0x1C: func_0030E520(); break;
+    case 0x1B: func_0030E510(); break;
+    case 0x1A: func_0030E500(); break;
+    case 0x19: func_0030E4F0(); break;
+    case 0x18: func_0030ED50(); break;
+    case 0x17: func_0030E900(); break;
+    case 0x16: func_0030E8C0(); break;
+    case 0xE: func_0030E820(); break;
+    case 0xC: func_0030E790(); break;
+    case 8: func_0030E710(); break;
+    case 7: func_0030E700(); break;
+    case 6: func_0030E630(); break;
+    case 4: func_0030E5F0(); break;
+    case 3: func_0030E5B0(); break;
+    case 2: func_0030E590(); break;
+    case 1: func_0030E570(); break;
+    case 0:
+        func_0037DAD0(g_0045D6B0);
+        func_001A7DC0(g_0043C5EC, 0x80, 2);
+        break;
+    }
+}
+
+/* 0x0030EFF0, 0x158 bytes, matching. Notice 0 (the turn's income?): a sound every other frame after 0x30
+ * frames; OK skips to the end, then closes (kind 0 updates the gold shown). */
+void func_0030EFF0(void)
+{
+    Notice *n = func_0030E2C0();
+    u32 pressed = pad1_pressed();
+    int t = ++n->unknown_69C;
+
+    if (t < 0x4E) {
+        if (t > 0x30 && t % 2 == 0)
+            func_0023AD10(3, 0, 0x2CDC, 0x2CDC, 0x1000);
+        if (pressed & 0x40) {
+            func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+            n->unknown_69C = 0x4E;
+        }
+    } else if (pressed & 0x40) {
+        func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+        func_0030E4E0(0);
+        if (n->kind == 0) {
+            func_0039F950(func_002F9060(func_00327D50()));
+            func_00376100(4, -1, -1);
+        }
+    }
+}
+
+/* 0x0030F150, 0x1C bytes, matching. */
+void func_0030F150(void)
+{
+    func_0030EFF0();
+}
+
+/* 0x0030F170, 0x38 bytes, matching. Closes once func_0039B980 is not 2. */
+void func_0030F170(void)
+{
+    func_0030E2C0();
+    if (func_0039B980() != 2)
+        func_0030E4E0(0);
+}
+
+/* 0x0030F1B0, 0x84 bytes, matching. Message 0x70 about force `f` (with the date). */
+void func_0030F1B0(int f)
+{
+    char text[96];
+
+    func_001204B0(text, func_00390760(0x70), func_00372660(func_00327CC0()),
+                  func_0030CB80(func_00327C80()), func_002F8DB0(f));
+    func_00374EE0(text);
+}
+
+/* 0x0030F240, 0xA0 bytes. Notice: force `a` is destroyed (by `b`) once its message closes. */
+void func_0030F240(void)
+{
+    Notice *n = func_0030E2C0();
+
+    if (n->step == 1) {
+        if (func_00375B90() == 1) {
+            func_0030E4E0(0);
+            func_0030A030(n->a, n->b);
+            n->step++;
+        }
+    } else if (n->step == 0 && func_0039B980() != 2) {
+        func_0030F1B0(n->a);
+        n->step++;
+    }
+}
+
+/* 0x0030F2E0, 0x218 bytes. Officer `i` succeeds dead leader `old`: made leader (records and
+ * envoy roles cleared, placed again if its region is full), with event command 0x2A, then
+ * message 0x6E / 0x6F. 0 once shown, else 5. */
+int func_0030F2E0(u32 i, u32 old)
+{
+    char a[32], b[32];
+    int f = func_002F4080(i), r;
+
+    if (func_0030E1F0() == 0) {
+        func_002F3CF0(i, 3);
+        func_002F8E80(f, i);
+        if (func_002FB2A0(f) != 0)
+            func_00327780(i);
+        func_002F43C0(i, 0);
+        func_002F4510(i, 0);
+        func_00308600(i);
+        r = func_002F5CC0(i);
+        if (func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, r, 0, 1) > 3) {
+            func_002F5BE0(i, 0x19);
+            func_00309130(i, f, r, 0);
+        }
+        func_0030E140(0x2A, i, -1, -1);
+        return 5;
+    }
+    if (func_0030E1F0() == 2) {
+        func_0030E100();
+        if (func_002FB2A0(f) == 0) {
+            func_001204B0(a, g_00446808, func_002F2890(old));
+            func_001204B0(b, g_00446808, func_002F2890(i));
+            func_001204B0(g_007B4E60, func_00390760(0x6F), a, b);
+        } else {
+            func_001204B0(a, g_00446808, func_002F2890(i));
+            func_001204B0(b, g_00446808, func_002F2890(old));
+            func_001204B0(g_007B4E60, func_00390760(0x6E), a, b);
+        }
+        func_00374EE0(g_007B4E60);
+        return 0;
+    }
+    return 5;
+}
+
+/* 0x0030F500, 0x250 bytes. The heir of dead leader `dead` for force `f`: for the computer the
+ * officer most tied to him (then func_002F7550, then func_002F34E0, then the lowest number);
+ * for the player the choice list opens (0x19F). -100 when there is no one. */
+u32 func_0030F500(int f, u32 dead)
+{
+    u32 *o = func_002F7B10(), best = 0x19F, top = 0;
+    int n, k;
+
+    if (func_002FB2A0(f) == 0) {
+        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1);
+        if (n == 0)
+            return -100;
+        for (k = 0; k < n; k++, o++) {
+            u32 x = *o, v;
+
+            v = (func_002F77A0(x, dead) != 0 ? 0x80000000 : 0)
+                + (func_002F77F0(x, dead) != 0 ? 0x40000000 : 0)
+                + (func_002F78C0(x, dead) != 0 ? 0x20000000 : 0)
+                + (func_002F3DC0(x) == 2 ? 0x10000000 : 0)
+                + (func_002F7550(x) << 20) + func_002F34E0(x);
+            if (best > 0x19E || top < v || (top == v && (int)x < (int)best)) {
+                top = v;
+                best = x;
+            }
+        }
+        return best;
+    }
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F82F0, f, 0, 1);
+    if (n == 0)
+        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8340, f, 0, 0);
+    if (n == 0)
+        return -100;
+    func_0032D300(0xC, o, n);
+    return 0x19F;
+}
+
+/* 0x0030F750, 0x444 bytes. An officer's death, step `step` (returns the next; 8 = done):
+ * 0 event command 0x29 (when `ask`), 1 its message (0x69-0x6C, or 0xC1 / 0xC2 when `quiet`),
+ * 2 the officer is removed; a leader's force (3) gets an heir (4 the player's choice, 5 the
+ * succession, 6 its message) or 7 falls. */
+int func_0030F750(int step, u32 i, int quiet, int ask)
+{
+    Notice *n = func_0030E2C0();
+    char a[32], b[32];
+
+    switch (step) {
+    case 0:
+        if (func_0030E1F0() == 0) {
+            if (func_002F2840(i) == 0) {
+                step = 8;
+            } else if (ask == 0) {
+                step = 1;
+            } else {
+                func_0030E140(0x29, i, -1, -1);
+                step = 1;
+            }
+        }
+        break;
+    case 1:
+        if (func_0030E1F0() == 2 || ask == 0) {
+            func_0030E100();
+            if (quiet == 0) {
+                if (func_002F3DC0(i) == 0) {
+                    func_001204B0(g_007B4E60, func_00390760(0x69), func_002F2890(i),
+                                  func_0030ABF0(func_002F5CC0(i)));
+                } else if (func_002F4080(i) == func_00327D50()) {
+                    func_001204B0(g_007B4E60, func_00390760(0x6A), func_002F2890(i),
+                                  func_0030ABF0(func_002F5CC0(i)));
+                    if (func_0023A760(10) != 0) {
+                        func_00102960(1);
+                        func_0023A7D0(10);
+                    }
+                } else if (func_002F3E70(i) == 0) {
+                    func_00120928(b, func_002F8DB0(func_002F4080(i)));
+                    func_00120928(a, func_002F2890(i));
+                    func_001204B0(g_007B4E60, func_00390760(0x6C), a, b);
+                } else {
+                    func_001204B0(g_007B4E60, func_00390760(0x6B), func_002F2890(i));
+                }
+            } else {
+                int m = func_002FB2A0(func_002F4080(i)) == 0 ? 0xC1 : 0xC2;
+
+                func_001204B0(g_007B4E60, func_00390760(m), func_002F2890(i));
+                if (func_0023A760(0xB) != 0) {
+                    func_00102960(1);
+                    func_0023A7D0(0xB);
+                }
+            }
+            func_00374EE0(g_007B4E60);
+            step = 2;
+        }
+        break;
+    case 2:
+        if (func_00375B90() == 1) {
+            int g, lead = 0;
+
+            func_0023AA40();
+            g = func_002F4080(i);
+            n->b = g;
+            if (IS_FORCE(g) && i == func_002F8F20(g))
+                lead = func_002FB3B0(g) != 0;
+            func_002F7610(i);
+            step = lead ? 3 : 8;
+        }
+        break;
+    case 3: {
+        u32 h = func_0030F500(n->b, i);
+
+        if (h == (u32)-100) {
+            step = 7;
+        } else if (h < 0x19F) {
+            n->c = h;
+            step = 5;
+        } else {
+            step = 4;
+        }
+        break;
+    }
+    case 4:
+        if (func_0032D9C0() == 1) {
+            n->c = func_0032E760();
+            step = 5;
+        }
+        break;
+    case 5:
+        if (func_0030F2E0(n->c, i) == 0)
+            step = 6;
+        break;
+    case 6:
+        if (func_00375B90() == 1)
+            step = 8;
+        break;
+    case 7:
+        func_0030A030(n->b, 0x19);
+        step = 8;
+        break;
+    }
+    return step;
+}
+
+/* 0x0030FBA0, 0x70 bytes. Notice: the listed officers die, last first. */
+void func_0030FBA0(void)
+{
+    Notice *n = func_0030E2C0();
+
+    n->phase = func_0030F750(n->phase, n->list[n->count - 1], 0, 1);
+    if (n->phase == 8) {
+        n->phase = 0;
+        if (--n->count < 1)
+            func_0030E4E0(0);
+    }
+}
+
+/* 0x0030FC10, 0x50 bytes, matching. Notice: officer `a` dies (with the short message). */
+void func_0030FC10(void)
+{
+    Notice *n = func_0030E2C0();
+
+    n->phase = func_0030F750(n->phase, n->a, 1, 1);
+    if (n->phase == 8) {
+        n->phase = 0;
+        func_0030E4E0(0);
+    }
+}
+
+/* 0x0030FC60, 0x98 bytes. Notice: event command `b` for officer `a`, closed once answered. */
+void func_0030FC60(void)
+{
+    Notice *n = func_0030E2C0();
+
+    if (n->step == 1) {
+        if (func_0030E1F0() == 2) {
+            func_0030E100();
+            func_0030E4E0(0);
+        }
+    } else if (n->step == 0 && func_0030E1F0() == 0) {
+        func_0030E140(n->b, n->a, -1, -1);
+        n->step++;
+    }
+}
+
+/* 0x0030FD00, 0x270 bytes. Notice: force `a` proposes a tie (`b` 0 alliance, else a truce?):
+ * its leader asks (0x2E), the player answers (0x20 no / 0x1D yes); on yes the tie is made and
+ * message 0x3C / 0x3D shown with the map. */
+void func_0030FD00(void)
+{
+    Notice *n = func_0030E2C0();
+    int a = n->a, b = n->b, pos[2], k, m;
+    u32 lead = func_002F8F20(a);
+
+    switch (n->step) {
+    case 4:
+        if (++n->c > 5)
+            func_0030E4E0(0);
+        break;
+    case 3:
+        if (func_00375BF0() != 0 && func_00375B90() == 1) {
+            func_003DB480(3, 2);
+            n->c = 0;
+            n->step++;
+        }
+        break;
+    case 2:
+        if (func_0030E1F0() == 2) {
+            func_0030E100();
+            if (n->c == 0) {
+                func_0030E4E0(0);
+            } else {
+                if (b == 0) {
+                    k = 4;
+                    m = 0x3C;
+                } else {
+                    k = 0xC;
+                    m = 0x3D;
+                }
+                func_002FAEA0(a, func_00327D50(), k, 1);
+                pos[0] = 0xA0;
+                pos[1] = 0x60;
+                func_003DB220(3, pos);
+                func_003DB460(3, 2);
+                func_001204B0(g_007B4E60, func_00390760(m), func_002F8DB0(a));
+                func_00374EE0(g_007B4E60);
+                n->step++;
+            }
+        }
+        break;
+    case 1:
+        if (func_0030E1F0() == 2) {
+            int yes = func_0030E0F0()[4];
+
+            n->c = yes;
+            func_0030E100();
+            func_0030E140(yes == 0 ? 0x20 : 0x1D, lead, a, -1);
+            n->step++;
+        }
+        break;
+    case 0:
+        func_0032EA80(b);
+        func_0030E140(0x2E, lead, a, -1);
+        n->step++;
+        break;
+    }
+}
+
+/* 0x0030FF70, 0x164 bytes. Notice: force `a` asks to break its tie with the player; on yes the
+ * player's ties are cleared and the tie with `a` set to kind 3. */
+void func_0030FF70(void)
+{
+    Notice *n = func_0030E2C0();
+    int a = n->a;
+    u32 lead = func_002F8F20(a);
+
+    if (n->step == 2) {
+        if (func_0030E1F0() == 2) {
+            func_0030E100();
+            if (n->c != 0) {
+                func_002FAFC0(func_00327D50());
+                func_002FAEA0(a, func_00327D50(), 0, 3);
+            }
+            func_0030E4E0(0);
+        }
+    } else if (n->step == 1) {
+        if (func_0030E1F0() == 2) {
+            int yes;
+
+            func_0030E100();
+            yes = func_0030E0F0()[4];
+            n->c = yes;
+            func_0030E140(yes == 0 ? 0x20 : 0x1D, lead, a, -1);
+            n->step++;
+        }
+    } else if (n->step == 0) {
+        func_0032EA80(2);
+        func_0030E140(0x2E, lead, a, -1);
+        n->step++;
+    }
+}
