@@ -988,3 +988,88 @@ int func_003E6D90(void)
 {
     return g_0041D600[g_00669D60[0x21]];
 }
+
+/* HUD marks placed from position tables (parts of 0x003DE720-0x003DF37C). */
+
+typedef struct { int v[6]; } Pos3;
+typedef struct { int v[12]; } Pos6;
+
+extern Pos3 g_0041CF40, g_0041CFF0;
+extern Pos6 g_0041CF60, g_0041CF90, g_0041CFC0;
+extern int g_0045D0E8[2];                /* (small data) */
+extern u8 g_006AA5F4;
+
+u8 *func_0035DCD0(int side);
+u8 *func_0034ECA0(u8 *p);
+u32 func_0034EDB0(u8 *g);
+u32 func_0034F140(u8 *g, u32 k);
+int func_0035F2D0(u32 k);
+int func_0035F340(u32 k);
+void func_003E3520(int x, int y, int a, int b, int c, int d, u32 k, int v);
+void func_003B4F50(u32 k, int v, int x, int y, int a, int b);
+
+/* 0x003DE720, 0xD0 bytes. */
+void func_003DE720(int p)
+{
+    Pos3 t = g_0041CF40;
+    u8 *g = func_0034ECA0(func_0035DCD0(p == 2) + 0x40);
+    u32 v;
+
+    if (g != 0 && (v = func_0034EDB0(g)) < 2)
+        func_003E3180(t.v[p * 2], t.v[p * 2 + 1], 0, 0x80, 2, v);
+}
+
+/* 0x003DE8C0, 0x1A8 bytes. Up to five marks for each of the two counts. */
+void func_003DE8C0(int p)
+{
+    Pos6 t = g_0041CF60;
+    int step[2];
+    u8 *g;
+    u32 j, n, i;
+
+    step[0] = g_0045D0E8[0];
+    step[1] = g_0045D0E8[1];
+    g = func_0034ECA0(func_0035DCD0(p == 2) + 0x40);
+    if (g == 0)
+        return;
+    for (j = 0; j < 2; j++) {
+        int *q = &t.v[p * 4 + j * 2];
+
+        n = func_0034F140(g, j);
+        if (n != 0) {
+            if (n > 5)
+                n = 5;
+            for (i = 0; i < n; i++)
+                func_003E31D0(q[0] + i * step[j], q[1], 0, 0x80, 2, j);
+        }
+    }
+}
+
+/* 0x003DEB40, 0x100 bytes. */
+void func_003DEB40(int p)
+{
+    Pos6 t = g_0041CF90;
+    u32 j;
+
+    for (j = 0; j < 2; j++)
+        func_003E3520(t.v[p * 4 + j * 2], t.v[p * 4 + j * 2 + 1], 0, 0x3C, 4, 2, j, func_0035F2D0(j));
+}
+
+/* 0x003DED10, 0xF8 bytes. */
+void func_003DED10(int p)
+{
+    Pos6 t = g_0041CFC0;
+    u32 j;
+
+    for (j = 0; j < 2; j++)
+        func_003B4F50(j, func_0035F340(j), t.v[p * 4 + j * 2], t.v[p * 4 + j * 2 + 1], 0, 2);
+}
+
+/* 0x003DF2F0, 0x8C bytes. */
+void func_003DF2F0(int p)
+{
+    Pos3 t = g_0041CFF0;
+
+    if (g_006AA5F4 < 4)
+        func_003E3220(t.v[p * 2], t.v[p * 2 + 1], 0, 0x80, 2, g_006AA5F4);
+}
