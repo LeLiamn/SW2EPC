@@ -922,7 +922,7 @@ disassembly rather than from Ghidra's output.
 ## Unit set-up (`src/unit_setup.c`)
 
 After the camera, from 0x00164680 up to `Weapon.c` (0x0016CD30), the code sets units up. Done
-so far (0x00164680-0x0016555C, 9 functions, 4 match):
+so far (0x00164680-0x0016772C, 17 functions, 5 match):
 
 - **Reset:** a unit is cleared (0x630 bytes) and reset for its player: origin, scale 1, its
   matrix, state 0x40, its four motion slots (+0x290, 0x70 each) and ten records (+0x450, 0x30
@@ -934,6 +934,18 @@ so far (0x00164680-0x0016555C, 9 functions, 4 match):
   that decide which slots get which flags.
 - **Weapon and horse:** a weapon model (+0x156, 0x11 = none) and, mounted, the horse; a new unit
   waits 5 or 16 frames before acting.
+- **Initialisation** (`0x001656E0`): state, description (`0x005B50A0`, 0xD0 bytes; an unusable
+  one becomes 0x26 or 0x24), state description (0xA0 bytes), the officer's level (+0x1BA, at
+  most 3; 7 = none), a colour per player for some states. A state without a model falls back to
+  the first one that has one.
+- **Each frame** (`0x00166510`): officers under a quarter of their life heal slowly; appearing
+  and leaving fade the unit (+0x14D) over a timer; a unit that has left loses its model.
+- **Posing** (`0x00166A00`): the face (nodes 0x1A-0x2E from a shared face motion), the action's
+  motion and an extra one, expressions, the root held in place for some states, and the root's
+  height scaled from the height the motion was made for (114.3 or 107.5 for some weapon kinds,
+  117.5 for shared motions) to the state's. A rider takes its position from a node of its mount.
+- **Removal** (`0x00166160`): the unit drops its links and the effects it owns; it then becomes an
+  empty unit (state 0x40).
 
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
