@@ -1235,3 +1235,193 @@ void func_001B4D10(TextWindow *w, int k)
         *(u64 *)(p + 0x3B0) = 0;
     }
 }
+
+/* The two players' minimaps (0x290 bytes apart): +0 the zoom, +4 the scale, +0x10 / +0x14 the
+ * screen offset, +0x18 / +0x1C the centre; flags in +0x43 (bits 0, 2 off, bit 3 zoomed). */
+extern float g_0073DC60[];
+extern u8 g_0073DF33[];
+extern float g_0073DEF0[];
+
+int func_001AB3A0(float size, u8 *font, u8 *rec);
+int func_001AB430(float size, float h, u8 *p, u8 *rec, float *pos, int col, int a, int flat,
+                  float *out);
+int func_001AB1D0(float size, float h, u8 *p, u32 t, u32 n, float *pos, int col, int a,
+                  int flat, float *out);
+int func_0019AF10(float size, u32 t, u32 n);
+void func_001A9B30(u8 *f, u32 id, int half);
+void func_001AA2C0(u8 *f, int layer);
+
+/* A texture coordinate pair (texel centres). */
+#define GS_UV2(u, v) ((u64)(long long)((u) << 4 | 8) | (u64)(long long)((v) << 4 | 8) << 16)
+
+/* A line point in half lines. */
+static inline u64 line_xyz(int x, int sy, int z)
+{
+    return (u64)(long long)(0xFFFE - z) << 32 | (u64)(long long)(x * 0x10 + 0x7000)
+           | (u64)(long long)(sy * 8 + 0x7900) << 16;
+}
+
+/* The pointer line from the place (mx, mz) on minimap `m` (flags `f`) to the box at (x, y)
+ * into the four vertices at `p` (cleared when it is off the map or the map is hidden). */
+static inline void map_pointer(u8 *p, const float *m, u8 f, float mx, float mz, int x, int y,
+                               int z)
+{
+    int k;
+
+    if ((f & 1) || (f & 4) || mx < 0.0f || mz < 0.0f
+        || ((f & 8) && (mx < m[6] + 0.0f - m[0] * 40.0f * 500.0f
+                        || m[0] * 40.0f * 500.0f + m[6] + 0.0f < mx
+                        || mz < m[7] + 0.0f - m[0] * 20.0f * 500.0f
+                        || m[0] * 20.0f * 500.0f + m[7] + 0.0f < mz))) {
+        for (k = 0; k < 4; k++)
+            *(u64 *)(p + k * 0x10) = 0;
+        return;
+    }
+    mx = mx * m[1] + m[4] + 0.0f;
+    mz = m[5] + 0.0f - mz * m[1];
+    *(u64 *)(p + 0x00) = line_xyz((int)mx, scale_y((int)mz), z);
+    *(u64 *)(p + 0x10) = line_xyz((int)(mx + 1.0f), scale_y((int)mz), z);
+    *(u64 *)(p + 0x20) = line_xyz(x + 0x16, scale_y(y), z);
+    *(u64 *)(p + 0x30) = line_xyz(x + 0x1A, scale_y(y), z);
+}
+
+/* Clears glyph packets `n`-15 of the box's name line. */
+static inline void clear_glyphs(u8 *p, int n)
+{
+    for (; n < 0x10; n++) {
+        *(u64 *)(p + n * 0x50 + 0x190) = 0;
+        *(u64 *)(p + n * 0x50 + 0x1A0) = 0;
+    }
+}
+
+/* 0x001B5400, 0x1E70 bytes. Draws the news box (window `w`, the portrait window's packets):
+ * by its kind (+0x2ED; 0, 6, 7 a record's title, 1-4 an officer with a portrait, 5 a count x 50)
+ * its width and place on the right, sliding in from the right while it opens (timer / 10) and
+ * out when it closes (timer / 5); the pointer lines to the place on each player's minimap, its
+ * frame, the name line (16 glyphs), the kind's icon (coloured by +0x2EE) or the count's digits,
+ * and the officer's portrait. */
+void func_001B5400(TextWindow *w, int k)
+{
+    u8 *p = window_packets(k), *st = k == 4 ? g_00692DC0[0] : k == 2 ? g_00693390
+                                                : k == 3 ? g_00692AC0[0] : 0;
+    u8 kind = st[0x2ED];
+    int left = 0x28, port = 0, digits = 1, width, x, y, n, col, i;
+    float pos[4];
+
+    if (kind == 1 || kind == 2 || kind == 3 || kind == 4) {
+        left = 0x48;
+        port = 1;
+    } else if (kind == 5) {
+        int v = st[0x2EF] * 0x32;
+
+        for (i = 0; i < 4; i++) {
+            v = v / 10;
+            if (v == 0)
+                break;
+            digits++;
+        }
+        left = digits * 0x10 + 0x24;
+    }
+    if (kind == 0 || kind == 6 || kind == 7)
+        w->w = func_001AB3A0(16.0f, (u8 *)0x4053F0, *(u8 **)(st + 0x2F0));
+    else
+        w->w = func_0019AF10(16.0f, *(u16 *)(st + 0x2E8), *(u16 *)(st + 0x2EA));
+    w->x = 0x1F0 - w->w - left;
+    width = w->w + left + 0x10;
+    if (width < 0x68)
+        width = 0x68;
+    y = w->y;
+    if (w->state == 2)
+        x = w->x + (int)((float)w->b[2] / 10.0f * (float)width);
+    else if (w->state == 7)
+        x = w->x + (int)((1.0f - (float)w->b[2] / 5.0f) * (float)width);
+    else if (w->state == 4)
+        x = w->x;
+    else
+        return;
+
+    if ((g_0073DCA3[0] & 1) == 0 && (g_0073DCA3[0] & 4) == 0)
+        map_pointer(p + 0x20, g_0073DC60, g_0073DCA3[0], *(float *)(st + 0x2E0),
+                    *(float *)(st + 0x2E4), x, y, w->z);
+    else
+        map_pointer(p + 0x20, g_0073DC60, 1, 0, 0, 0, 0, 0);
+    if (g_00693968 == 1) {
+        if ((g_0073DF33[0] & 1) == 0 && (g_0073DF33[0] & 4) == 0)
+            map_pointer(p + 0x80, g_0073DEF0, g_0073DF33[0], *(float *)(st + 0x2E0),
+                        *(float *)(st + 0x2E4), x, y, w->z);
+        else
+            map_pointer(p + 0x80, g_0073DEF0, 1, 0, 0, 0, 0, 0);
+    }
+    *(u64 *)(p + 0xF0) = line_xyz(x, scale_y(y), w->z);
+    *(u64 *)(p + 0x100) = line_xyz(x + 0x68, scale_y(y) + 0x1C, w->z);
+    *(u64 *)(p + 0x140) = line_xyz(x + 0x68, scale_y(y), w->z);
+    *(u64 *)(p + 0x150) = line_xyz(x + width, scale_y(y) + 0x1C, w->z);
+
+    col = st[0x2EE] == 2 ? 4 : st[0x2EE] == 1 ? 1 : 3;
+    pos[0] = (float)(x + left);
+    pos[1] = (float)(y + 4);
+    pos[2] = 0.0f;
+    pos[3] = 0.0f;
+    if (kind == 0 || kind == 6 || kind == 7)
+        n = func_001AB430(16.0f, 16.0f, p + 0x160, *(u8 **)(st + 0x2F0), pos, col, 0x80, 1, 0);
+    else
+        n = func_001AB1D0(16.0f, 16.0f, p + 0x160, *(u16 *)(st + 0x2E8), *(u16 *)(st + 0x2EA), pos,
+                          col, 0x80, 1, 0);
+    clear_glyphs(p, n);
+    for (i = 0; i < 4; i++) {
+        *(u64 *)(p + 0x6E0 + i * 0x50) = 0;
+        *(u64 *)(p + 0x6F0 + i * 0x50) = 0;
+    }
+
+    if (kind == 5) {
+        int dx = x + 10 + digits * 0x10, sy = scale_y(y);
+        u32 v = st[0x2EF] * 0x32;
+
+        *(u64 *)(p + 0x678) = func_00106C90(g_0068F0F0, 0x3EF2);
+        *(u64 *)(p + 0x688) = 0x7480008;
+        *(u64 *)(p + 0x698) = 0xA480388;
+        *(u64 *)(p + 0x690) = line_xyz(dx, sy, w->z);
+        *(u64 *)(p + 0x6A0) = line_xyz(dx + 0x1C, sy + 0x1C, w->z);
+        for (i = 0; i < digits; i++) {
+            u8 *q = p + (3 - i) * 0x50;
+            int d = v % 10, cx = dx - 0x10 - i * 0x10;
+            u64 zz = (u64)(long long)(0xFFFE - w->z) << 32;
+
+            *(u64 *)(q + 0x6D0) = 0x3F80000080808080ULL;
+            *(u64 *)(q + 0x6D8) = GS_UV2((d % 5) * 0x28 + 200, d / 5 * 0x30);
+            *(u64 *)(q + 0x6E8) = GS_UV2((d % 5) * 0x28 + 0xF0, d / 5 * 0x30 + 0x30);
+            v = (int)v / 10;
+            *(u64 *)(q + 0x6E0) = zz | (u64)(long long)(cx * 0x10 + 0x7000)
+                                  | (u64)(long long)((sy * 0x10 - 0xE00) / g_70000154 + 0x8000) << 16;
+            *(u64 *)(q + 0x6F0) = zz | (u64)(long long)((cx + 0x14) * 0x10 + 0x7000)
+                                  | (u64)(long long)(((sy + 0x1C) * 0x10 - 0xE00) / g_70000154 + 0x8000)
+                                        << 16;
+        }
+    } else {
+        static const int base[8] = {0x3F17, 0x3F1A, 0x3F14, 0x3F1E, 0x3F1B, 0, 0x3F1E, 0x3F1B};
+        static const u32 uv0[8] = {0x7480808, 0x7480988, 0x7480B08, 0x7480C88, 0x7480E08, 0,
+                                   0x7480C88, 0x7480E08};
+        static const u32 uv1[8] = {0x9880988, 0x9880B08, 0x9880C88, 0x9880E08, 0x9880F88, 0,
+                                   0x9880E08, 0x9880F88};
+        int sy = scale_y(y - 0xF);
+
+        if (kind < 8) {
+            *(u64 *)(p + 0x678) = func_00106C90(g_0068F0F0, kind == 1 ? 0x3F1A
+                                                                    : base[kind] + st[0x2EE]);
+            *(u64 *)(p + 0x688) = uv0[kind];
+            *(u64 *)(p + 0x698) = uv1[kind];
+            *(u64 *)(p + 0x690) = line_xyz(x + 10, sy, w->z);
+            *(u64 *)(p + 0x6A0) = line_xyz(x + 0x22, sy + 0x2A, w->z);
+        }
+    }
+    func_00104F60(p, 0x7F0, w->b[1]);
+    if (port && (signed char)st[0x2EC] != -0x4F) {
+        u8 *f = st + g_70000150 * 0x170;
+        int sy = scale_y(w->y - 0xF);
+
+        func_001A9B30(f, (int)(signed char)st[0x2EC], 1);
+        *(u64 *)(f + 0x150) = line_xyz(x + 0x24, sy, w->z);
+        *(u64 *)(f + 0x160) = line_xyz(x + 0x44, sy + 0x2A, w->z);
+        func_001AA2C0(f, w->b[1]);
+    }
+}

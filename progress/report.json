@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 80480,
-    "non_matching": 574796
+    "non_matching": 582588
   },
   "data": {
     "total": 2155890688,
@@ -563,14 +563,14 @@
         },
         {
           "name": "Bullet.c",
-          "description": "Estimated range 0x1AD448-0x1B56D8; 33 function(s) decompiled",
+          "description": "Estimated range 0x1AD448-0x1B56D8; 34 function(s) decompiled",
           "code": {
-            "total": 33424,
+            "total": 36580,
             "matching": 128,
-            "non_matching": 28660
+            "non_matching": 36452
           },
           "decompiled_functions": {
-            "count": 33,
+            "count": 34,
             "matching": 3
           }
         },
