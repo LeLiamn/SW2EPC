@@ -35,7 +35,7 @@ jobs:
             -H "Content-Type: application/json" \
             --data @progress/report.json)
           echo "HTTP $CODE"; cat response.json; echo
-          test "$CODE" -lt 400
+          if [ "$CODE" -ge 400 ]; then echo "::error::decompilati.onl HTTP $CODE: $(head -c 500 response.json)"; exit 1; fi
 
       # GitHub shows README images through its own cache (camo), which may keep a badge for days.
       # Ask it to drop the cached badges so the README shows the new numbers.
