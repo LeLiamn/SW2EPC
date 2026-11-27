@@ -577,11 +577,13 @@ void func_0034B8B0(void)
 }
 
 /* 0x0034B980, 8 bytes, matching. */
+/* 0x0034B980, 0x8 bytes, matching. */
 void func_0034B980(void)
 {
 }
 
 /* 0x0034B990, 8 bytes, matching. */
+/* 0x0034B990, 0x8 bytes, matching. */
 void func_0034B990(void)
 {
 }
@@ -1053,12 +1055,14 @@ u32 func_0034D040(int l, u32 n, int bl, u32 per, int side)
 }
 
 /* 0x0034D160, 8 bytes, matching. */
+/* 0x0034D160, 0x8 bytes, matching. */
 u32 func_0034D160(void)
 {
     return 1;
 }
 
 /* 0x0034D170, 8 bytes, matching. */
+/* 0x0034D170, 0x8 bytes, matching. */
 void func_0034D170(void)
 {
 }
@@ -1138,6 +1142,7 @@ void func_0034D470(u8 *st)
     func_0034D2E0(st);
 }
 
+/* 0x0034D490, 0x1C bytes, matching. */
 void func_0034D490(u8 *st)
 {
     func_0034D2E0(st);
@@ -1161,6 +1166,7 @@ void func_0034D660(u8 *st)
     func_0034D4D0(st);
 }
 
+/* 0x0034D680, 0x1C bytes, matching. */
 void func_0034D680(u8 *st)
 {
     func_0034D4D0(st);
@@ -1454,9 +1460,9 @@ u32 func_003F6CA0(int s, int k);
 int func_003F77F0(int s, int k);
 void func_003F7920(int s, int k, int g);
 void func_0034E760(u8 *st);
-int func_0034F330(u8 *b, int k);
-int func_0034F300(u8 *b, int k);
-int func_0034F310(u8 *b, int k);
+u8 func_0034F330(u8 *b, u8 m);
+void func_0034F300(u8 *b, u8 m);
+void func_0034F310(u8 *b, u8 m);
 
 /* 0x0034E430, 0x0034E450, 0x0034E470, 0x20 bytes each. The elapsed-time chance. */
 int func_0034E430(void)
@@ -1464,11 +1470,13 @@ int func_0034E430(void)
     return func_0034DFB0() != 0;
 }
 
+/* 0x0034E450, 0x20 bytes, matching. */
 int func_0034E450(void)
 {
     return func_0034DFB0() != 0;
 }
 
+/* 0x0034E470, 0x20 bytes, matching. */
 int func_0034E470(void)
 {
     return func_0034DFB0() != 0;
@@ -1666,27 +1674,32 @@ int func_0034EE50(u8 *b)
 }
 
 /* 0x0034EE60-0x0034EEC0, 0x1C bytes each. */
+/* 0x0034EE60, 0x1C bytes. */
 int func_0034EE60(u8 *b)
 {
     return func_0034F330(b, 1);
 }
 
+/* 0x0034EE80, 0x1C bytes. */
 int func_0034EE80(u8 *b)
 {
     return func_0034F330(b, 2);
 }
 
-int func_0034EEA0(u8 *b)
+/* 0x0034EEA0, 0x1C bytes, matching. */
+void func_0034EEA0(u8 *b)
 {
-    return func_0034F300(b, 2);
+    func_0034F300(b, 2);
 }
 
-int func_0034EEC0(u8 *b)
+/* 0x0034EEC0, 0x1C bytes, matching. */
+void func_0034EEC0(u8 *b)
 {
-    return func_0034F310(b, 2);
+    func_0034F310(b, 2);
 }
 
 /* 0x0034EEE0, 8 bytes, matching. */
+/* 0x0034EEE0, 0x8 bytes, matching. */
 void func_0034EEE0(u8 *b, u8 v)
 {
     b[7] = v;
@@ -1716,4 +1729,286 @@ u8 *func_0034EF60(u8 *b, u32 k)
     u8 x = func_0034EF50(b, k);
 
     return x < 0x14 ? BASE(x) : 0;
+}
+
+extern const char g_004480A8[];          /* "emp_FldBase.c" */
+
+u8 *func_0035DCD0(int p);
+u8 *func_002EFB00(int k);
+void *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
+void func_00102EC0(void *data);
+u32 func_003623B0(void);
+void func_0011EB80(void *to, const void *from, int size);
+
+/* A base's unit slot `k` (0x1AD = none). */
+#define BASE_UNIT(b, k) (*(u16 *)((b) + 8 + (k) * 2))
+
+/* 0x0034EFA0, 0x88 bytes. Adds unit `i` (when func_0034A630) to base `b`'s first free slot. */
+void func_0034EFA0(u8 *b, int i)
+{
+    u32 k;
+
+    if (func_0034A630(UNIT(i)) == 0)
+        return;
+    for (k = 0; k < 0x14; k++) {
+        if (BASE_UNIT(b, k) > 0x1AC) {
+            BASE_UNIT(b, k) = i;
+            return;
+        }
+    }
+}
+
+/* 0x0034F030, 0x88 bytes. Removes unit `i` from base `b`. */
+void func_0034F030(u8 *b, u32 i)
+{
+    u32 k;
+
+    if (func_0034A630(UNIT(i)) == 0)
+        return;
+    for (k = 0; k < 0x14; k++) {
+        if (BASE_UNIT(b, k) == i) {
+            BASE_UNIT(b, k) = 0x1AD;
+            return;
+        }
+    }
+}
+
+/* 0x0034F0C0, 0x34 bytes. Empties base `b`'s unit slots. */
+void func_0034F0C0(u8 *b)
+{
+    u32 k;
+
+    for (k = 0; k < 0x14; k++)
+        BASE_UNIT(b, k) = 0x1AD;
+}
+
+/* 0x0034F100, 0x40 bytes, matching. Empties every base's unit slots. */
+void func_0034F100(void)
+{
+    u32 k;
+
+    for (k = 0; k < 0x14; k++)
+        func_0034F0C0(BASE(k));
+}
+
+/* 0x0034F140, 0x12C bytes. Side `side`'s active units at base `b` (side 0 also counts the players
+ * standing on it). */
+int func_0034F140(u8 *b, u32 side)
+{
+    int n = 0, p;
+    u32 k;
+
+    for (k = 0; k < 0x14; k++) {
+        u32 i = BASE_UNIT(b, k);
+
+        if (i < 0x1AD) {
+            u8 *u = UNIT(i);
+
+            if (UNIT_ACTIVE(UNIT_FLAGS(u)) && side == u[0x79])
+                n++;
+        }
+    }
+    if (side == 0) {
+        short c[2];
+
+        func_0034ED90(b, (u8 *)c);
+        for (p = 0; p < 2; p++) {
+            if (*(int *)(g_00669D60 + p * 0x48 + 0xA0) != 0 && c[0] == *(short *)(func_0035DCD0(p) + 0x40))
+                n++;
+        }
+    }
+    return n;
+}
+
+/* 0x0034F270, 0x10 bytes. */
+u16 func_0034F270(u8 *b, int k)
+{
+    return BASE_UNIT(b, k);
+}
+
+/* 0x0034F280, 0x4C bytes, matching. Base `b`'s unit `k` (0 for none). */
+u8 *func_0034F280(u8 *b, int k)
+{
+    u32 i = func_0034F270(b, k) & 0xFFFF;
+
+    return i < 0x1AD ? UNIT(i) : 0;
+}
+
+/* 0x0034F2D0-0x0034F3E0. Base fields: a counter (+0x30), flags (+0x31), two halfwords
+ * (+0x32, +0x34), a 4-byte value (+0x36) and per-side bytes (+0x3A). */
+/* 0x0034F2D0, 0x10 bytes, matching. */
+void func_0034F2D0(u8 *b)
+{
+    b[0x30]++;
+}
+
+/* 0x0034F2E0, 0x8 bytes, matching. */
+void func_0034F2E0(u8 *b)
+{
+    b[0x30] = 0;
+}
+
+/* 0x0034F2F0, 0x8 bytes, matching. */
+u8 func_0034F2F0(u8 *b)
+{
+    return b[0x30];
+}
+
+/* 0x0034F300, 0x10 bytes, matching. */
+void func_0034F300(u8 *b, u8 m)
+{
+    b[0x31] |= m;
+}
+
+/* 0x0034F310, 0x1C bytes, matching. */
+void func_0034F310(u8 *b, u8 m)
+{
+    b[0x31] &= ~m;
+}
+
+/* 0x0034F330, 0x10 bytes. */
+u8 func_0034F330(u8 *b, u8 m)
+{
+    return b[0x31] & m;
+}
+
+/* 0x0034F340, 0x14 bytes, matching. */
+void func_0034F340(u8 *b, u16 v)
+{
+    if (b != 0)
+        *(u16 *)(b + 0x32) = v;
+}
+
+/* 0x0034F360, 0x1C bytes. */
+u16 func_0034F360(u8 *b)
+{
+    if (b == 0)
+        return 0;
+    return *(u16 *)(b + 0x32);
+}
+
+/* 0x0034F380, 0x1C bytes, matching. */
+void func_0034F380(u8 *b)
+{
+    if (b != 0)
+        (*(short *)(b + 0x32))--;
+}
+
+/* 0x0034F3A0, 0x8 bytes, matching. */
+void func_0034F3A0(u8 *b, u16 v)
+{
+    *(u16 *)(b + 0x34) = v;
+}
+
+/* 0x0034F3B0, 0x8 bytes. */
+u16 func_0034F3B0(u8 *b)
+{
+    return *(u16 *)(b + 0x34);
+}
+
+/* 0x0034F3C0, 0x8 bytes, matching. */
+u8 *func_0034F3C0(u8 *b)
+{
+    return b + 0x36;
+}
+
+/* 0x0034F3D0, 0xC bytes, matching. */
+void func_0034F3D0(u8 *b, int k, u8 v)
+{
+    b[k + 0x3A] = v;
+}
+
+/* 0x0034F3E0, 0xC bytes, matching. */
+u8 func_0034F3E0(u8 *b, int k)
+{
+    return b[k + 0x3A];
+}
+
+/* 0x0034F3F0, 0x48 bytes. Counts base `b`'s side byte `k` down. */
+void func_0034F3F0(u8 *b, int k)
+{
+    u8 v = func_0034F3E0(b, k);
+
+    if (v != 0)
+        func_0034F3D0(b, k, v - 1);
+}
+
+/* 0x0034F440, 0x38 bytes, matching. Saves the bases into `p` (+0xBE). */
+void func_0034F440(u8 *p)
+{
+    func_0011EB80(p + 0xBE, BASE(0), 0x4B0);
+}
+
+/* 0x0034F480, 0x94 bytes. Loads the bases back from save block 9, empties their units and counts
+ * them. */
+void func_0034F480(void)
+{
+    u8 *d = func_002EFB00(9), *map, n = 0;
+    u32 k;
+
+    func_0011EB80(BASE(0), d + 0xBE, 0x4B0);
+    func_0034F100();
+    map = g_0045D2F0;
+    for (k = 0; k < 0x14; k++) {
+        if (func_0034EE50(BASE(k)) != 0)
+            n++;
+    }
+    map[0x5C0] = n;
+}
+
+/* 0x0034F520, 0x7C bytes. Clears battle map `map`'s twenty bases. */
+void func_0034F520(u8 *map)
+{
+    u32 k, j;
+
+    for (k = 0; k < 0x14; k++, map += 0x3C) {
+        map[0x116] = 0;
+        map[0x117] = 0;
+        for (j = 0; j < 0x14; j++)
+            *(u16 *)(map + 0x118 + j * 2) = 0x1AD;
+        map[0x140] = 0;
+        map[0x141] = 0;
+        *(u16 *)(map + 0x142) = 0;
+        *(u16 *)(map + 0x144) = 0;
+        map[0x146] = 0;
+        map[0x147] = 0;
+        map[0x148] = 0;
+        map[0x149] = 0;
+    }
+}
+
+/* 0x0034F5A0, 0xB4 bytes. Loads the bases' positions and links for the battlefield (LINKDATA
+ * entry 0x4AB, 0x78 bytes per field). */
+void func_0034F5A0(u8 *map)
+{
+    u8 *d = func_001026D0(1, 0x4AB, 0, 1, 0, 0, g_004480A8, 0x1FB), *src;
+    u32 f = func_003623B0(), k;
+
+    if (f < 0x30) {
+        src = d + f * 0x78;
+        for (k = 0; k < 0x14; k++, src += 6, map += 0x3C)
+            func_0011EB80(map + 0x110, src, 6);
+    }
+    func_00102EC0(d);
+}
+
+/* 0x0034F660, 0xCC bytes. Marks the bases in use (up to the first without links), clears the
+ * others and keeps their count. */
+void func_0034F660(u8 *map)
+{
+    u32 k, n = 0x14;
+
+    for (k = 0; k < 0x14; k++) {
+        u8 *b = map + k * 0x3C + 0x110;
+
+        b[6] = 5;
+        func_0034EF50(b, 0);
+        if (func_0034EF50(b, 0) > 0x13) {
+            n = k;
+            break;
+        }
+    }
+    for (; k < 0x14; k++)
+        map[k * 0x3C + 0x116] = 0;
+    map[0x5C0] = n;
 }
