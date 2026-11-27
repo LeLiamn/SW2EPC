@@ -29,10 +29,13 @@ jobs:
           BASE: https://decompilati.onl
         run: |
           MSG=$(git log -1 --pretty=%s | python3 -c "import sys, urllib.parse; print(urllib.parse.quote(sys.stdin.read().strip()))")
-          curl --fail -sS -X POST "$BASE/api/v1/progress?commit=$GITHUB_SHA&message=$MSG" \
+          # Without --fail, so the site's error message ({"error": "..."}) shows in the log.
+          CODE=$(curl -sS -o response.json -w "%{http_code}" -X POST "$BASE/api/v1/progress?commit=$GITHUB_SHA&message=$MSG" \
             -H "Authorization: Bearer $DECOMP_API_KEY" \
             -H "Content-Type: application/json" \
-            --data @progress/report.json
+            --data @progress/report.json)
+          echo "HTTP $CODE"; cat response.json; echo
+          test "$CODE" -lt 400
 
       # GitHub shows README images through its own cache (camo), which may keep a badge for days.
       # Ask it to drop the cached badges so the README shows the new numbers.

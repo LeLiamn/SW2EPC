@@ -126,7 +126,7 @@
           "name": "StateTreasures.c",
           "description": "Estimated range 0x1E6D78-0x1E9208; 24 function(s) decompiled",
           "code": {
-            "total": 9360,
+            "total": 9440,
             "matching": 9440,
             "non_matching": 0
           },

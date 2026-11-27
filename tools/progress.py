@@ -171,8 +171,9 @@ def code_areas(start, end):
 
     def leaf(name):
         spans = ranges[name]
-        total = sum(b - a for a, b in spans)
         mine = {f: s for f, s in done.items() if any(a <= f < b for a, b in spans)}
+        # The range is an estimate: never report less code than the functions found in it.
+        total = max(sum(b - a for a, b in spans), sum(s for s, m in mine.values()))
         where = ", ".join(f"0x{a:06X}-0x{b:06X}" for a, b in spans)
         return {"name": name, "description": f"Estimated range {where}; {len(mine)} function(s) decompiled",
                 "code": {"total": total, **split(mine.values())},
