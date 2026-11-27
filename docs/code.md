@@ -824,8 +824,7 @@ defaults: flat style, colour 5, opaque, scale 16, lines 20 pixels apart.
 
 ## Motion curves, tm3 textures and models (`src/model.c`)
 
-The code from 0x00147780 on handles 3D models. Its first part, 0x00147780-0x00148784, has 32
-functions, 18 of which match. The VU0 bone matrices and the drawing come after it.
+The code at 0x00147780-0x001508E4 handles 3D models: 75 functions, 26 of which match.
 
 - **Motion curves** (see `docs/formats/MOTION.md`):
   - each track is a word (node in bits 0-7, component in bits 8-12, key size in bits 13-15, key
@@ -839,6 +838,26 @@ functions, 18 of which match. The VU0 bone matrices and the drawing come after i
   - setting one up turns the file's offsets into pointers and adds the texture's base to each
     part's VIF packets;
   - each part is sent after a VU1 header chosen by its kind (`0x004062F0` or `0x00406310`).
+- **Skeletons:** an object drawn with a skeleton (0x220 bytes) has a node per bone (0x70 bytes:
+  translation, rotation, local matrix, parent). The local matrices come from the VU0 micro
+  subroutine 0x50. The world matrices are brought up to date by walking up each node's parent
+  chain (`func_00149730`, 15 KB of VU0 code in the original), for fixed lists of bones by mode
+  (body, arms, fingers when the model has more than 26 nodes) and ranges given by the model.
+- **Motions:** applied to node ranges at a time, blended from three poses for the face (nodes 47
+  and up), or blended back from a saved pose for transitions (angles by the shorter way round).
+- **Swing nodes** (a skirt?): they keep last frame's position, are pulled towards their parent at
+  their length, and are pushed out of the body by kind (side, front, back, between the legs).
+- **Drawing:** each object's packet and node matrices go to VU1, then its parts. Planar shadows
+  use a projection matrix. There are lights, cameras (a direction code in eight sectors) and the
+  loading of three VU1 microprograms.
+
+## Battlefield units (`src/unit.c`)
+
+The code from 0x001508F0 on handles the characters on the battlefield. A character is a large
+object whose fields are mostly unknown and are reached by offset. Done so far
+(0x001508F0-0x0015398C): effect slots, the reactions to hits (from the front or behind, knocked
+down, lifted, thrown), guards and guard breaks with their hit stop, weapon clashes (two units
+facing each other within 200 units), grabs, defeat, getting up, and being knocked off a mount.
 
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
