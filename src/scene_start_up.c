@@ -105,7 +105,13 @@ extern struct {
 #define g_006935DB (s_0068F3E0.g_006935DB)
 #define g_006935DC (s_0068F3E0.g_006935DC)
 #define g_0069395E (s_0068F3E0.g_0069395E)
-#define box1_open() (g_0069395E != 0 && g_0069395E != 0xFF)
+/* Whether message box 1 is open (an inlined function in the original: the result is a value). */
+static inline int box1_open(void)
+{
+    if (g_0069395E == 0 || g_0069395E == 0xFF)
+        return 0;
+    return 1;
+}
 
 /* Shows message `id` (func_00390760) in box `box`; inlined in the original. */
 #define SHOW_MESSAGE(box, id) do {                                      \
@@ -292,7 +298,7 @@ void func_0030AF20(int a, int b);
 void func_003A8000(int a);
 int func_002FB320(int a, int *out);
 void func_002F8D20(int a);
-void func_00367B10(int officer, int available);
+static void func_00367B10(int officer, int available);
 void func_0011EB80(void *to, const void *from, int size);
 int func_0039E5F0(void);
 int func_003A2A00(void);
@@ -363,7 +369,7 @@ void func_00365690(void);
 void func_003659A0(void);
 void func_00366160(int entry, int offered);
 int func_00366120(int entry);
-void func_003664D0(void);
+static void func_003664D0(void);
 void func_00367330(void);
 
 #define ENTRY_VALID(e) ((e) >= 0 && (e) < func_0030AB90())
@@ -662,7 +668,7 @@ void func_00365D50(void)
     func_0011EB80(g_007B9394, g_007B93B0, 0x1C);
 }
 
-/* 0x00366030, 0xE0 bytes. Which main menu entries are offered: 0-6 always, 10 with
+/* 0x00366030, 0xF0 bytes, matching. Which main menu entries are offered: 0-6 always, 10 with
  * func_0039E5F0 or func_003A2A00 > 0, the others with func_0039FD80. */
 void func_00366030(void)
 {
@@ -673,14 +679,14 @@ void func_00366030(void)
         if (i < 7)
             func_00366160(i, 1);
         else if (i == 10) {
-            if (func_0039E5F0() == 0 && func_003A2A00() < 1)
-                func_00366160(10, 0);
+            if (func_0039E5F0() != 0 || func_003A2A00() > 0)
+                func_00366160(i, 1);
             else
-                func_00366160(10, 1);
-        } else if (func_0039FD80(i) == 0)
-            func_00366160(i, 0);
-        else
+                func_00366160(i, 0);
+        } else if (func_0039FD80(i) != 0)
             func_00366160(i, 1);
+        else
+            func_00366160(i, 0);
     }
 }
 
@@ -783,7 +789,7 @@ void func_00366380(void)
 }
 
 /* 0x003664D0, 0x50 bytes, matching. The options' default values. */
-void func_003664D0(void)
+static void func_003664D0(void)
 {
     u8 *o = (u8 *)&s_007B70E0;
 
@@ -799,19 +805,21 @@ void func_003664D0(void)
         o[0x19] = 0;
 }
 
-/* 0x00366520, 0x8C bytes. Sets up the options screen: which rows are offered. */
+/* 0x00366520, 0x8C bytes, matching. Sets up the options screen: which rows are offered. */
 void func_00366520(void)
 {
-    g_007B70F6 = 6;
-    g_007B70F4 = 0;
-    g_007B70F5 = 0;
-    g_007B70FD = func_003A28B0(0) != 0;
-    g_007B70FE = func_003A1A80() != 0;
-    g_007B70FF = func_0039E5F0() != 0;
-    g_007B7100 = func_003A1AC0() != 0;
-    g_007B7101 = func_003A1B00() != 0;
-    g_007B7102 = func_003A1B40() != 0;
-    g_007B7103 = 1;
+    u8 *o = (u8 *)&s_007B70E0;
+
+    o[0x16] = 6;
+    o[0x14] = 0;
+    o[0x15] = 0;
+    o[0x1D] = func_003A28B0(0) != 0;
+    o[0x1E] = func_003A1A80() != 0;
+    o[0x1F] = func_0039E5F0() != 0;
+    o[0x20] = func_003A1AC0() != 0;
+    o[0x21] = func_003A1B00() != 0;
+    o[0x22] = func_003A1B40() != 0;
+    o[0x23] = 1;
     func_003664D0();
 }
 
@@ -1261,7 +1269,7 @@ void func_003673E0(void)
 }
 
 /* 0x00367B10, 0xB4 bytes. Makes an officer choosable or not, keeping the counts. */
-void func_00367B10(int officer, int available)
+static void func_00367B10(int officer, int available)
 {
     int delta;
 
@@ -1531,7 +1539,7 @@ void func_003A8DC0(void);
 int func_0032D9C0(void);
 
 int func_0032E760(void);
-void func_00367B10(int officer, int in_use);
+static void func_00367B10(int officer, int in_use);
 void func_00367CF0(void);
 int func_00327C40(void);
 void func_00327C10(int value);
@@ -1815,7 +1823,7 @@ void func_00369220(void)
 {
 }
 
-/* 0x00369230, 0x218 bytes. Scene 0x13 update: nothing while message box 1 is open or
+/* 0x00369230, 0x218 bytes, matching. Scene 0x13 update: nothing while message box 1 is open or
  * func_003F5410 / func_003F13E0 hold; else the phase's handler. */
 int func_00369230(void)
 {
@@ -1851,9 +1859,7 @@ int func_00369230(void)
         func_00368B50();
         break;
     case 8:
-        if (func_0017DDA0() != 0)
-            return 1;
-        if (box1_open())
+        if (func_0017DDA0() != 0 || box1_open())
             return 1;
         g_007B7070 = 9;
         break;
