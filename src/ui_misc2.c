@@ -222,3 +222,124 @@ u8 func_002C5C10(int o)
 {
     return g_005BA6A0[func_002F27D0(o) * 0x2C + 6];
 }
+
+/* ---- Text drawing with a style (colours 0x0056CCA4, sizes 0x0056CCC0/C4, flags 0x0056CCCF),
+ * centred or right aligned, and the gauges' pulse (parts of 0x002C4C50-0x002C5C04). ---- */
+
+extern int g_0056CCA4[4], g_0056CCB4, g_0056CCB8;
+extern float g_0056CCC0, g_0056CCC4;
+extern u8 g_0056CCCF;
+
+int func_00146D00(char *t, int w);
+int func_00146D80(char *t, int *w, int *h);
+void func_00146B40(char *t, int x, int y, int w, int h, int a, int b);
+void func_00146270(char *t, int x, int y, int a, int b);
+
+#define FONT_COLOUR(c) (g_0056CCA4[0] = g_0056CCA4[1] = g_0056CCA4[2] = g_0056CCA4[3] = (c))
+#define FONT_RESET() do {                                               \
+    g_0056CCC0 = 16.0f;                                                 \
+    g_0056CCC4 = 16.0f;                                                 \
+    FONT_COLOUR(5);                                                     \
+} while (0)
+
+/* 0x002C4C50, 0x110 bytes. Text centred in width `w`. */
+void func_002C4C50(float s, char *t, int x, int y, int w, int a, int b, int col)
+{
+    FONT_COLOUR(col);
+    g_0056CCC0 = s;
+    g_0056CCC4 = s;
+    func_00146B40(t, x + (w - func_00146D00(t, w)) / 2, y, w, (int)s, a, b);
+    FONT_RESET();
+}
+
+/* 0x002C4D60, 0xDC bytes. Text ending at `x`. */
+void func_002C4D60(float s, char *t, int x, int y, int a, int b, int col)
+{
+    FONT_COLOUR(col);
+    g_0056CCC0 = s;
+    g_0056CCC4 = s;
+    func_00146270(t, x - func_00146D80(t, 0, 0), y, a, b);
+    FONT_RESET();
+}
+
+/* 0x002C4E40, 0xFC bytes. Text ending at `x` in width `w`. */
+void func_002C4E40(float s, char *t, int x, int y, int w, int a, int b, int col)
+{
+    FONT_COLOUR(col);
+    g_0056CCC0 = s;
+    g_0056CCC4 = s;
+    func_00146B40(t, x - func_00146D00(t, w), y, w, (int)s, a, b);
+    FONT_RESET();
+}
+
+/* 0x002C4F40, 0xDC bytes. Narrow digits (20 wide, `s` high). */
+void func_002C4F40(float s, char *t, int x, int y, int a, int b, int col)
+{
+    u8 f = g_0056CCCF;
+
+    g_0056CCCF = (g_0056CCCF & 0xFD) | 2;
+    g_0056CCC0 = 20.0f;
+    FONT_COLOUR(col);
+    g_0056CCC4 = s;
+    func_00146270(t, x, y, a, b);
+    g_0056CCC0 = 16.0f;
+    g_0056CCCF = (g_0056CCCF & 0xFD) | (((f & 3) >> 1 != 0) << 1);
+    g_0056CCC4 = 16.0f;
+    FONT_COLOUR(5);
+}
+
+/* 0x002C5020, 0x138 bytes. The same, ending at `x`. */
+void func_002C5020(float s, char *t, int x, int y, int a, int b, int col)
+{
+    u8 f = g_0056CCCF;
+
+    g_0056CCCF = (g_0056CCCF & 0xFD) | 2;
+    g_0056CCC0 = 20.0f;
+    FONT_COLOUR(col);
+    g_0056CCC4 = s;
+    func_00146270(t, x - func_00146D80(t, 0, 0), y, a, b);
+    g_0056CCC0 = 16.0f;
+    g_0056CCCF = (g_0056CCCF & 0xFD) | (((f & 3) >> 1 != 0) << 1);
+    g_0056CCC4 = 16.0f;
+    FONT_COLOUR(5);
+}
+
+/* 0x002C5160, 0xC0 bytes. Outlined text. */
+void func_002C5160(float s, char *t, int x, int y, int w, int h, int a, int b)
+{
+    g_0056CCB8 = 3;
+    g_0056CCB4 = 0x16;
+    FONT_COLOUR(0x17);
+    g_0056CCC0 = s;
+    g_0056CCC4 = s;
+    func_00146B40(t, x, y, w, h, a, b);
+    g_0056CCC0 = 16.0f;
+    g_0056CCC4 = 16.0f;
+    g_0056CCB4 = 5;
+    FONT_COLOUR(5);
+    g_0056CCB8 = 1;
+}
+
+/* 0x002C5AE0, 0x124 bytes. Steps gauge `g`'s pulse between its two values (30 steps). */
+u8 func_002C5AE0(u8 *g)
+{
+    u8 lo = g[6], hi = g[5];
+    u32 step = (u32)((float)(int)(hi - lo) / 30.0f) & 0xFF;
+
+    if (*(int *)(g + 0xC) == 0) {
+        if (*(int *)(g + 8) == 1) {
+            u32 v = g[4] + step;
+
+            g[4] = hi < v ? hi : v;
+            if (g[5] <= g[4])
+                *(int *)(g + 8) = 0;
+        } else {
+            int v = g[4] - step;
+
+            g[4] = lo < v ? v : lo;
+            if (g[4] <= g[6])
+                *(int *)(g + 8) = 1;
+        }
+    }
+    return g[4];
+}
