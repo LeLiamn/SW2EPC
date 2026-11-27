@@ -141,6 +141,20 @@ What makes the compiler produce the game's exact code, learnt so far:
 - **Write pointer walks step by step** when the game stores as it goes (`out[0] = c; c += 0x14;
   out[1] = c; ...`), not as independent expressions.
 
+- **A base kept in a register means a byte pointer** (StateStartUp.c): when the game loads a
+  fixed address once (`lui s0` + `addiu s0`) and reaches every field from it, write a local
+  `u8 *st = &first_field;` and the fields as offsets from it (`ST_AT(st, off, i)`). A pointer of
+  the struct's own type to the known address is folded back into constants by the compiler.
+- **Booleans that end up in a register come from inlined functions**: a test compiled as
+  "set 0 / set 1, then branch on the value" (`slti v1` / `xori` and a `beq v0, zero`) is a small
+  inline function or a variable (`int ok = a && b; if (ok)`), not an `if` on the expression.
+- **One `return` per branch** when the game computes the return value at the end of each branch
+  and jumps to a shared `jr ra`.
+- **Check the size tag** when ours has an epilogue the original lacks: the function may go on past
+  the tagged size (0x366030 was 0xF0 bytes, not 0xE0).
+- **A loop the game unrolls by 4 or 5 needs the unroller for that function**: wrap the function
+  with `#pragma opt_unroll_loops on` / `off` (outside the function body).
+
 ## Status
 
 **StateTreasures.c is fully matching** (all 24 functions of `src/scene_treasures.c`), and so is
