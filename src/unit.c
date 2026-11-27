@@ -50,7 +50,7 @@ Unit *func_0016BE40(Unit *u);
 void func_001CF2A0(Unit *u, Unit *v, int a);
 void func_00156AF0(Unit *u, u16 id);
 void func_001CF000(Unit *u, Unit *v);
-void func_00158CD0(Unit *u, int a);
+void func_00158CD0(Unit *u, u32 kind);
 u32 func_001C8340(int a, u8 *b, int c, u32 d);
 void func_001C8620(u8 *a, int b, u8 *c, int d, u32 e);
 void func_001C8780(int a, Unit *u, int b, u32 c);
@@ -794,8 +794,8 @@ void func_0027A080(float a, u8 *pos, int b, int c);
 int func_00272ED0(Unit *u, Unit *v);
 int func_0016C040(Unit *u);
 void func_001C7FC0(int a, u8 *pos, float *dir, u32 f);
-int func_00273770(Unit *u, short damage, u32 *out);
-void func_0016C180(u32 a, Unit *u);
+int func_00273770(Unit *u, short damage, float *out);
+void func_0016C180(float amount, Unit *u);
 void func_001CCFA0(Unit *u);
 
 /* Wraps an angle into (-pi, pi]. */
@@ -989,7 +989,7 @@ int func_00153230(Unit *u, Unit *v, u8 *hit, float *dir, short damage, int keep_
                   int no_action)
 {
     int ret = 1, special, action, snd;
-    u32 got;
+    float got;
 
     flat_normalise(dir);
     if (keep_dir == 0)
@@ -2525,5 +2525,225 @@ void func_001589B0(Unit *u, u8 kind, u8 slot)
         F32(e, 0x160) = 600.0f;
     } else if (U8(e, 0x15A) == 0) {
         F32(e, 0x160) = 600.0f;
+    }
+}
+
+extern u32 g_00669DE8[][0x12];           /* per player (0x48 bytes): +0 a level */
+
+float func_001F2B70(void);
+void func_001F2EF0(void *move);
+void func_00161520(float *out, Unit *u);
+u8 *func_0016C980(u8 player, int frames_back);
+u8 func_002F41E0(u32 level);
+
+/* A player's bodyguard `slot` (units 0x89 + player * 3 + slot), or 0. */
+#define BODYGUARD(p, slot) g_00574DE0[(slot) + (p) * 3 + 0x89]
+
+/* 0x00158CD0, 0xB8 bytes. Dismisses the player's bodyguards of kind `kind` (4: all). */
+void func_00158CD0(Unit *u, u32 kind)
+{
+    int i;
+
+    for (i = 0; i < 3; i++) {
+        Unit *e = BODYGUARD(PLAYER(u), i);
+
+        if (e != 0 && (U8(e, 0x198) & 2) && (kind == 4 || kind == U8(e, 0x15A)))
+            func_00166160(e);
+    }
+}
+
+/* 0x00158D90, 0x70 bytes. The number of the player's bodyguards present. */
+int func_00158D90(Unit *u)
+{
+    int n = 0, i;
+
+    for (i = 0; i < 3; i++) {
+        Unit *e = BODYGUARD(PLAYER(u), i);
+
+        if (e != 0 && (U8(e, 0x198) & 2))
+            n++;
+    }
+    return n;
+}
+
+/* A move test (func_001F2EF0): from `from` to `to` for unit `who`. */
+typedef struct {
+    float *from;
+    float *to;
+    Unit *who;
+    u32 radius;
+    u32 a;
+    u32 b;
+    u8 blocked;
+} MoveTest;
+
+/* 0x00158E00, 0x1A8 bytes. A bodyguard's appearance: kind 1 steps out of its player 4 units a
+ * frame for 25 frames (on the ground, facing as the player does; it vanishes when blocked);
+ * kinds 2 and others only set their alpha. */
+void func_00158E00(Unit *e)
+{
+    Unit *m = g_00574DE0[U8(e, 0x15B)];
+
+    if (U8(e, 0x15A) == 1) {
+        if (F32(e, 0x164) < 25.0f) {
+            float pos[4], from[4], to[4], h;
+            MoveTest t;
+            int i;
+
+            for (i = 0; i < 4; i++)
+                pos[i] = F32(e, 0x40 + i * 4) + F32(e, 0xC0 + i * 4) * 4.0f;
+            pos[1] = func_001F2B70();
+            func_001660C0(e, (u8 *)pos);
+            F32(e, 0x238) = F32(m, 0x54);
+            U8(e, 0x27C) &= ~1;
+            for (i = 0; i < 4; i++)
+                U32(e, 0x50 + i * 4) = U32(m, 0x50 + i * 4);
+            h = F32(PTR(m, 0x114), 0x80);
+            for (i = 0; i < 4; i++) {
+                from[i] = F32(m, 0x40 + i * 4);
+                to[i] = pos[i];
+            }
+            from[1] = F32(m, 0x44) - h;
+            to[1] = pos[1] - h;
+            t.from = from;
+            t.to = to;
+            t.who = m;
+            t.radius = U32(PTR(m, 0x114), 0x88);
+            t.a = 0;
+            func_001F2EF0(&t);
+            if (t.blocked)
+                F32(e, 0x160) = 0.0f;
+            U32(e, 0x13C) = 0;
+            for (i = 0; i < 4; i++)
+                F32(e, 0x1D0 + i * 4) = VEC_ZERO[i];
+        }
+    } else if (U8(e, 0x15A) == 2) {
+        U8(e, 0x14D) = 0x30;
+    } else {
+        U8(e, 0x14D) = 0x60;
+    }
+}
+
+/* Places a unit at `pos` (its points of reference with it), facing `yaw` with angles +0x50. */
+static inline void unit_place(Unit *e, const u32 *pos, const u32 *angles)
+{
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        U32(e, 0x40 + i * 4) = pos[i];
+        U32(e, 0x80 + i * 4) = 0;
+    }
+    for (i = 0; i < 4; i++)
+        F32(e, 0x90 + i * 4) = F32(e, 0x40 + i * 4) + F32(e, 0x80 + i * 4);
+    for (i = 0; i < 4; i++) {
+        U32(e, 0xB0 + i * 4) = U32(e, 0x90 + i * 4);
+        U32(e, 0xA0 + i * 4) = U32(e, 0x40 + i * 4);
+    }
+    F32(e, 0x238) = ((float *)angles)[1];
+    U8(e, 0x27C) &= ~1;
+    for (i = 0; i < 4; i++)
+        U32(e, 0x50 + i * 4) = angles[i];
+}
+
+/* A bodyguard's timer (+0x160) running down by `dt`, its alpha from it (at most `max`); it is
+ * dismissed at 0. */
+static inline void bodyguard_timer(Unit *e, float dt, float max, u8 full)
+{
+    float t;
+
+    F32(e, 0x164) = F32(e, 0x164) + dt;
+    t = F32(e, 0x160) - dt;
+    F32(e, 0x160) = t;
+    if (t < max)
+        U8(e, 0x14D) = (u8)(u32)t;
+    else
+        U8(e, 0x14D) = full;
+    if (F32(e, 0x160) < 0.0f)
+        func_00166160(e);
+}
+
+/* 0x00158FB0, 0x600 bytes. A bodyguard each frame, by kind: 3 copies its player's action 50
+ * units behind it; 2 fades out; 1 waits; 0 follows its player's path (the position its player
+ * had (slot + 1) x 9 frames before). */
+void func_00158FB0(float dt, Unit *e)
+{
+    u8 kind = U8(e, 0x15A);
+    Unit *m = g_00574DE0[U8(e, 0x15B)];
+
+    if (kind == 3) {
+        float p[4];
+        int i;
+
+        if (S16(ACT(e), 0) != S16(ACT(m), 0)) {
+            for (i = 0; i < 4; i++)
+                U32(e, 0x1D0 + i * 4) = U32(m, 0x1D0 + i * 4);
+            func_00156AF0(e, U16(ACT(m), 0));
+        }
+        F32(e, 0x21C) = F32(m, 0x21C);
+        func_00161520(p, m);
+        for (i = 0; i < 4; i++)
+            p[i] = p[i] * -50.0f;
+        p[1] = p[1] - 20.0f;
+        for (i = 0; i < 4; i++)
+            p[i] = p[i] + F32(m, 0x90 + i * 4);
+        unit_place(e, (u32 *)p, (u32 *)(m + 0x50));
+        if (90.0f < F32(e, 0x160) && (U32(ACT(m), 0x18) & 0x440))
+            F32(e, 0x160) = 90.0f;
+        bodyguard_timer(e, dt, 90.0f, 0x5A);
+    } else if (kind == 2) {
+        float t;
+
+        F32(e, 0x164) = F32(e, 0x164) + 1.0f;
+        t = F32(e, 0x160) - 1.0f;
+        F32(e, 0x160) = t;
+        if (t < 32.0f) {
+            u8 a = (u8)(u32)(t * 4.0f);
+
+            U8(e, 0x14D) = a;
+            U8(e, 0x14D) = 0x30 < a ? 0x30 : a;
+        }
+        if (F32(e, 0x160) < 0.0f)
+            func_00166160(e);
+    } else if (kind == 1) {
+        bodyguard_timer(e, dt, 96.0f, 0x60);
+    } else if (kind == 0) {
+        u8 *r = func_0016C980(U8(e, 0x15B), (U8(e, 0x17C) + 1) * 9);
+        float x = F32(r, 0), y = F32(r, 4), z = F32(r, 8);
+
+        if (1.0f < sqrtf(x * x + y * y + z * z)) {
+            int i;
+
+            if (S16(ACT(e), 0) != S16(r, 0x2C)) {
+                for (i = 0; i < 4; i++)
+                    U32(e, 0x1D0 + i * 4) = U32(r, 0x30 + i * 4);
+                func_00156AF0(e, U16(r, 0x2C));
+            }
+            F32(e, 0x21C) = F32(r, 0x20);
+            U8(e, 0x27C) = (U8(e, 0x27C) & ~2) | ((S16(r, 0x2E) != 0) << 1);
+            unit_place(e, (u32 *)r, (u32 *)(r + 0x10));
+        }
+        bodyguard_timer(e, dt, 96.0f, 0x60);
+    }
+}
+
+/* 0x001595B0, 0x94 bytes. Gives musou (?) for a hit: 30 to 60 by the player's level. */
+void func_001595B0(Unit *u)
+{
+    if ((U8(u, 0x19C) & 2) == 0) {
+        u8 b = func_002F41E0(g_00669DE8[PLAYER(u)][0]);
+
+        func_0016C180(((float)b / 49.0f + 1.0f) * 30.0f, u);
+    }
+}
+
+/* 0x00159650, 0x94 bytes. Collects the hit's flags (+0x12) while within its active frames (+5 to
+ * +6) into +0x148, and always into +0x14A (low six bits cleared). */
+void func_00159650(float t, Unit *u, u8 *hit)
+{
+    if ((U8(u, 0x19C) & 0x20) == 0) {
+        if ((hit[5] != 0 || hit[6] != 0) && (float)hit[5] <= t && t <= (float)hit[6])
+            U16(u, 0x148) |= U16(hit, 0x12);
+        U16(u, 0x14A) |= U16(hit, 0x12);
+        U16(u, 0x14A) &= 0xFFC0;
     }
 }
