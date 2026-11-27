@@ -652,3 +652,185 @@ void func_00392A10(void)
     func_002C7310(x + 0x18, 0x58, 0, 0xB8, 0x18, 0x80, 0);
     func_002C4C50(20.0f, t, x + 0x30, 0x5A, 0x88, 1, 0, 6);
 }
+
+/* Item rows, gauges and two more command steps (0x00381DF0, 0x00382410, 0x00383050,
+ * 0x00389E40, 0x0038A8F0, 0x0038AB80). */
+
+extern int g_0056CCA4[4];                /* the text style: colours */
+extern float g_0056CCC0[2];              /* the text style: sizes */
+extern char g_00459590[], g_00459500[];
+extern u32 g_00459910, g_00459914;
+extern u8 g_00459870[][0x14];
+extern int g_007B9F30, g_007B9F38;
+
+int *func_002FC2C0(void);
+char *func_002F8DE0(int f);
+char *func_002F2890(int o);
+void func_00120B78(char *to, const char *from, int n);
+void func_00146B40(char *text, int x, int y, int w, int h, int a, int b);
+void func_00146270(char *text, int x, int y, int a, int b);
+void func_003DC180(int k, int a, int *r);
+u8 *func_001050F0(void);
+void func_00105230(u8 *p, int a);
+void func_003B5970(int x, int y, int a, int w, int h, int b, int c);
+u8 *func_00106F10(u8 *t);
+u8 func_003A60F0(u32 v);
+int func_002FB2A0(int o);
+int func_002F9060(int f);
+int func_002F8F20(int f);
+void func_0037DDD0(int a, int b, int c, int d);
+
+static void text_style(int col, float size)
+{
+    g_0056CCA4[0] = col;
+    g_0056CCA4[1] = col;
+    g_0056CCA4[2] = col;
+    g_0056CCA4[3] = col;
+    g_0056CCC0[0] = size;
+    g_0056CCC0[1] = size;
+}
+
+/* 0x00381DF0, 0x1F8 bytes. Draws an item row with its target's name (items 0x2D, 0x34, 0x37). */
+void func_00381DF0(int a, int x, int y, int item, int sel, int w)
+{
+    u8 *m = (u8 *)func_002FC2C0()[0x1AB];
+    char buf[64];
+
+    if (sel == 0)
+        func_002C80A0(x, y, 0, 0x118, 0x18, 0x80, 1);
+    else
+        func_002C8500(x, y, 0, 0x118, 0x18, 0x80, 1);
+    func_003B5820(item, x + 10, y, 0, 0x80, 1);
+    func_00381CA0(a, x + 0x2C, y, item, w);
+    buf[0] = 0;
+    if (item == 0x2D)
+        func_00120B78(buf, func_002F8DE0(*(int *)(m + 0x10)), 0x40);
+    else if (item == 0x34)
+        func_00120B78(buf, func_002F2890(*(int *)(m + 0x14)), 0x40);
+    else if (item == 0x37)
+        func_00120B78(buf, func_002F8DE0(*(int *)(m + 0x18)), 0x40);
+    text_style(6, 16.0f);
+    func_00146B40(buf, x + 0x90, y + 4, 0x7A, 0x10, 1, 0);
+    text_style(5, 16.0f);
+}
+
+/* 0x00382410, 0x180 bytes. Draws window 1's rank stars (`n` of 5 lit). */
+void func_00382410(u8 *t, int n)
+{
+    int r[2], j;
+    u8 *p;
+
+    func_003DC180(1, 0, r);
+    func_003B5480(r[0] - 0x14, r[1] + 0x16, 0, 0xB8, 0x80, 1);
+    func_001ABEA0(t, 7, r[0], r[1], 0, 0x80, 0x18, 0);
+    p = func_001050F0();
+    *(unsigned long long *)(p + 0x10) = 0x13C00000009ULL;
+    *(unsigned long long *)(p + 0x18) = 9;
+    func_00105230(p, 1);
+    r[0] += 0x4A;
+    for (j = 0; j < 5; j++) {
+        func_001ABEA0(t, n <= j ? 0xD2 : 0xD3, r[0], r[1] + 4, 0, 0x10, 0x10, 0);
+        r[0] += 0xC;
+    }
+    p = func_001050F0();
+    *(unsigned long long *)(p + 0x10) = 0;
+    *(unsigned long long *)(p + 0x18) = 9;
+    func_00105230(p, 1);
+}
+
+/* 0x00383050, 0x1E4 bytes. Draws a value box (`v` -1: the empty text). */
+void func_00383050(u8 *t, int x, int y, int a, int b, int v)
+{
+    char buf[16];
+
+    func_003B5970(x, y, a, 0xD0, 0x14, 0x80, b);
+    func_001ABEA0(t, 7, x + 0x18, y - 2, a, 0x80, 0x18, 0);
+    if (v == -1) {
+        func_001204B0(buf, g_00459590, 0);
+        text_style(5, 12.0f);
+        func_00146270(buf, x + 0xA1, y + 4, 1, 0);
+        text_style(5, 16.0f);
+    } else {
+        func_001204B0(buf, g_00459500, v);
+        func_002CD780(v, 0, x + 0xA1, y + 4, 0, 0xC, 0xC, 0x80);
+        func_001ABEA0(t, 7, x + 0xA0, y - 2, a, 0x80, 0x18, 0);
+    }
+}
+
+/* 0x00389E40, 0x150 bytes. Colours the map texture's palette: all provinces (`k` -1), or the
+ * first 3-5 provinces of route `k`. */
+void func_00389E40(u8 *m, u8 *t, int k)
+{
+    int n = E32(m, 0xB8), j;
+    u8 *img, *pal;
+
+    n = n < 4 ? 3 : n < 6 ? 4 : 5;
+    img = func_00106F10(t + *(int *)(t + 8) * *(int *)(t + 0xA78));
+    pal = img + *(u16 *)(img + 0xC) + *(int *)(img + 8);
+    if (k == -1) {
+        u32 v;
+
+        for (v = 1; (int)v < 0x1B; v++)
+            *(u32 *)(pal + func_003A60F0(v & 0xFF) * 4) = g_00459910;
+    } else {
+        for (j = 0; j < n; j++)
+            *(u32 *)(pal + func_003A60F0(g_00459870[k][j * 4]) * 4) = g_00459914;
+    }
+}
+
+/* 0x0038A8F0, 0x138 bytes. A command step (messages 0x36-0x39 by the item, window 1). */
+int func_0038A8F0(u8 *m)
+{
+    int o = E32(m, 0x80), v = E32(m, 0x84), k = 0x36;
+
+    if (v == 0x62)
+        k = 0x38;
+    else if (v == 0x61)
+        k = 0x39;
+    else if (v == 99)
+        k = 0x37;
+    if (STEP(m) == 2) {
+        func_003DB480(1, 2);
+    } else if (STEP(m) == 1) {
+        if (func_0030E1F0() == 2) {
+            int r[2];
+
+            func_0030E100();
+            r[0] = 0x40;
+            r[1] = 0x50;
+            func_003DB220(1, r);
+            func_003DB460(1, 2);
+        }
+    } else if (STEP(m) == 0 && func_002FB2A0(o) != 0) {
+        func_0030E140(k, func_002F8F20(o), -1, -1);
+    }
+    return 0;
+}
+
+/* 0x0038AB80, 0x1E0 bytes. Draws a gold count moving into the force's purse over 30 frames. */
+void func_0038AB80(u8 *m)
+{
+    int f = *(int *)(m + 4);
+    int *e = (int *)(ENTRY(m) + 0x80);
+    u8 *p = (u8 *)func_003DB900(0);
+
+    g_007B9F3C = 0x1E;
+    if (STEP(m) == 2) {
+        g_007B9F38 = 0x1E;
+        g_007B9F30 = 0;
+        func_0037DDD0(func_0030D7D0(), *(int *)(p + 0x10), 0, e[0] / 10 + func_002F9060(f));
+    } else if (STEP(m) == 1) {
+        int v = e[0], t;
+
+        g_007B9F30 = 1;
+        g_007B9F38++;
+        t = v * g_007B9F38 / 0x1E;
+        if (t <= v)
+            v = t;
+        func_0037DDD0(func_0030D7D0(), *(int *)(p + 0x10), e[0] - v, v / 10 + func_002F9060(f));
+    } else if (STEP(m) == 0) {
+        g_007B9F30 = 0;
+        g_007B9F38 = 0;
+        func_0037DDD0(func_0030D7D0(), *(int *)(p + 0x10), e[0], func_002F9060(f));
+    }
+}

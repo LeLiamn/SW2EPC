@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 158336,
-    "non_matching": 1084436
+    "non_matching": 1086964
   },
   "data": {
     "total": 2155890688,
@@ -163,14 +163,14 @@
         },
         {
           "name": "StateEdit.c",
-          "description": "Estimated range 0x36DE68-0x382E28; 136 function(s) decompiled",
+          "description": "Estimated range 0x36DE68-0x382E28; 138 function(s) decompiled",
           "code": {
             "total": 85952,
             "matching": 2272,
-            "non_matching": 29156
+            "non_matching": 30052
           },
           "decompiled_functions": {
-            "count": 136,
+            "count": 138,
             "matching": 47
           }
         },
@@ -350,14 +350,14 @@
         },
         {
           "name": "emp_free_setup.c",
-          "description": "Estimated range 0x382E28-0x38FE30; 27 function(s) decompiled",
+          "description": "Estimated range 0x382E28-0x38FE30; 31 function(s) decompiled",
           "code": {
             "total": 53256,
             "matching": 320,
-            "non_matching": 4244
+            "non_matching": 5876
           },
           "decompiled_functions": {
-            "count": 27,
+            "count": 31,
             "matching": 2
           }
         },
