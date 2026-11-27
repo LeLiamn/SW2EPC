@@ -27,7 +27,7 @@ extern int g_005BA6A0;                   /* (pointer) the officer table */
 
 u8 *func_00347980(void);
 u8 *func_00347900(int a, int b);
-int func_0034ED90(u8 *u, short *out);
+void func_0034ED90(u8 *b, u8 *out);
 int func_0035D560(int a, int b);
 u16 *func_00338410(int g);
 u8 *func_0033EFD0(int side, int k);
@@ -100,7 +100,7 @@ int func_0034A660(u8 *a, u8 *b)
 
     if (a == 0 || b == 0)
         return 0;
-    func_0034ED90(b, s);
+    func_0034ED90(b, (u8 *)s);
     return s[0] == *(short *)(a + 0x40);
 }
 
@@ -1440,4 +1440,280 @@ int func_0034E370(u8 *g)
     if (func_00361CE0(s) < 0x1E && RANDOM() % 100 < 10)
         return 1;
     return func_0034DFB0() != 0;
+}
+
+extern u8 *g_0045D2F0;                   /* (small data) the battle map (bases at +0x110) */
+
+u32 func_00361D40(int s);
+u32 func_0033F430(int s, int a, int *out, int max);
+u32 func_00361E20(int s);
+u32 func_0033F7D0(int s, int a);
+int func_003F6C10(int s);
+int func_003F7090(int a, int b);
+u32 func_003F6CA0(int s, int k);
+int func_003F77F0(int s, int k);
+void func_003F7920(int s, int k, int g);
+void func_0034E760(u8 *st);
+int func_0034F330(u8 *b, int k);
+int func_0034F300(u8 *b, int k);
+int func_0034F310(u8 *b, int k);
+
+/* 0x0034E430, 0x0034E450, 0x0034E470, 0x20 bytes each. The elapsed-time chance. */
+int func_0034E430(void)
+{
+    return func_0034DFB0() != 0;
+}
+
+int func_0034E450(void)
+{
+    return func_0034DFB0() != 0;
+}
+
+int func_0034E470(void)
+{
+    return func_0034DFB0() != 0;
+}
+
+/* 0x0034E490, 0x110 bytes. Whether group `g`'s side (below 701) has half its groups or fewer
+ * threatened, then by the elapsed-time chance. */
+int func_0034E490(u8 *g)
+{
+    u8 s = GROUP_UNIT(g)[0x79];
+    int l[16];
+    u32 n, m = 0, k;
+
+    if (func_00361D40(s) >= 0x2BD)
+        return 0;
+    n = func_0033F430(s, 1, l, 0x10);
+    for (k = 0; k < n; k++) {
+        if (func_0033CEA0(g_006A1D58[l[k]], func_0035D5A0(s)) != 0)
+            m++;
+    }
+    if (n >> 1 < m)
+        return 0;
+    return func_0034DFB0() != 0;
+}
+
+/* 0x0034E5A0, 0x48 bytes, matching. Whether the other side is strong (300 or more), then the chance. */
+int func_0034E5A0(u8 *g)
+{
+    if (func_00361D40(func_0035D5A0(GROUP_UNIT(g)[0x79])) < 300)
+        return 0;
+    return func_0034DFB0() != 0;
+}
+
+/* 0x0034E5F0, 0xD0 bytes. Whether group `g`'s side (unless func_0036F520 0x1C) acts: plan 10 at
+ * 10%, else func_0034E060, else the chance. */
+int func_0034E5F0(u8 *g)
+{
+    u8 s = GROUP_UNIT(g)[0x79];
+
+    if (func_0036F520(s, 0x1C) != 0)
+        return 0;
+    if (SIDE_STATE(s)[7] == 10 && RANDOM() % 100 < 10)
+        return 1;
+    if (func_0034E060() != 0)
+        return 1;
+    return func_0034DFB0() != 0;
+}
+
+/* 0x0034E6C0, 0x5C bytes. The same for event 0x1D with func_00361E20 at 100 or more. */
+int func_0034E6C0(u8 *g)
+{
+    u8 s = GROUP_UNIT(g)[0x79];
+
+    if (func_0036F520(s, 0x1D) != 0)
+        return 0;
+    if (func_00361E20(s) < 100)
+        return 0;
+    return func_0034DFB0() != 0;
+}
+
+/* 0x0034E720, 0x40 bytes, matching. The same for event 0x1E. */
+int func_0034E720(u8 *g)
+{
+    if (func_0036F520(GROUP_UNIT(g)[0x79], 0x1E) != 0)
+        return 0;
+    return func_0034DFB0() != 0;
+}
+
+/* 0x0034E910, 0x1C bytes, matching. */
+u8 *func_0034E910(u8 *st)
+{
+    return func_0034DE70(st);
+}
+
+/* 0x0034E930, 0x270 bytes. Every 30 counts, a side with three groups or more may change one of
+ * its six formation slots for a better one against the enemy's (20%, less when already ahead). */
+void func_0034E930(u8 *st)
+{
+    int side = func_0034B160((int)st);
+    u8 *g;
+
+    if (func_0036D300() == 0 && side == 0)
+        return;
+    if (st[10] == 0)
+        return;
+    if (--st[10] != 0 || func_0033F7D0(side, 1) <= 2 || (g = func_0034E910(st)) == 0)
+        return;
+    {
+        int e = func_003F6C10(func_0035D5A0(side)), m = func_003F7090(func_003F6C10(side), e);
+        u32 best = 6, k;
+
+        if ((m >= 1 && RANDOM() % 100 <= 0x4F) || RANDOM() % 100 >= 0x14)
+            return;
+        for (k = 0; k < 6; k++) {
+            u32 x = func_003F6CA0(side, k);
+            int v;
+
+            if (x < 10 && func_003F77F0(side, k) != 0 && (v = func_003F7090(x, e), m < v && v >= 0)
+                && (best > 5 || RANDOM() % 100 < 0x32))
+                best = k;
+        }
+        if (best < 6) {
+            func_003F7920(side, best, GROUP_INDEX(g));
+            st[10] = 0x1E;
+        }
+    }
+}
+
+/* 0x0034EBA0, 0x3C bytes. A side's frame. */
+void func_0034EBA0(u8 *st)
+{
+    func_0034D170();
+    func_0034DE20(st);
+    func_0034E760(st);
+    func_0034E930(st);
+}
+
+/* 0x0034EBE0, 0xA0 bytes. After ten counts of 50 frames, one side per frame in turn (of 50). */
+void func_0034EBE0(void)
+{
+    u32 k = g_006AA624;
+
+    if (g_00669F9C / 0x32 > 9) {
+        if (k < 2)
+            func_0034EBA0(SIDE_STATE(k));
+        g_006AA624 = k < 0x31 ? k + 1 : 0;
+    }
+}
+
+/* 0x0034EC80, 0x1C bytes, matching. Base `k` (0x3C bytes each). */
+int func_0034EC80(int k)
+{
+    return (int)(g_0045D2F0 + k * 0x3C + 0x110);
+}
+
+/* 0x0034ECA0, 0x98 bytes. The base at position code `code` (0 for none). */
+u8 *func_0034ECA0(u8 *code)
+{
+    u32 k;
+
+    for (k = 0; k < 0x14; k++) {
+        u8 *b = BASE(k), c[2];
+
+        if (func_0034EE50(b) != 0) {
+            func_0034ED90(b, c);
+            if (c[0] == code[0] && c[1] == code[1])
+                return b;
+        }
+    }
+    return 0;
+}
+
+/* 0x0034ED40, 0x4C bytes, matching. Base `b`'s number. */
+int func_0034ED40(u8 *b)
+{
+    return ((int)b - func_0034EC80(0)) / 0x3C;
+}
+
+/* 0x0034ED90, 0x14 bytes, matching. Base or unit `b`'s position code. */
+void func_0034ED90(u8 *b, u8 *out)
+{
+    out[0] = b[0];
+    out[1] = b[1];
+}
+
+/* 0x0034EDB0, 0x4C bytes. Base `b`'s owner (0, 1, 2 neutral?, 3 none). */
+int func_0034EDB0(u8 *b)
+{
+    u8 c = b[6];
+
+    if (c == 3)
+        return 2;
+    if (c == 2)
+        return 1;
+    if (c == 1)
+        return 0;
+    return 3;
+}
+
+/* 0x0034EE00, 0x4C bytes. Sets base `b`'s owner. */
+void func_0034EE00(u8 *b, int o)
+{
+    if (o == 3)
+        b[6] = 4;
+    else if (o == 1)
+        b[6] = 2;
+    else if (o == 0)
+        b[6] = 1;
+}
+
+/* 0x0034EE50, 0xC bytes, matching. Whether base `b` exists. */
+int func_0034EE50(u8 *b)
+{
+    return b[6] != 0;
+}
+
+/* 0x0034EE60-0x0034EEC0, 0x1C bytes each. */
+int func_0034EE60(u8 *b)
+{
+    return func_0034F330(b, 1);
+}
+
+int func_0034EE80(u8 *b)
+{
+    return func_0034F330(b, 2);
+}
+
+int func_0034EEA0(u8 *b)
+{
+    return func_0034F300(b, 2);
+}
+
+int func_0034EEC0(u8 *b)
+{
+    return func_0034F310(b, 2);
+}
+
+/* 0x0034EEE0, 8 bytes, matching. */
+void func_0034EEE0(u8 *b, u8 v)
+{
+    b[7] = v;
+}
+
+/* 0x0034EEF0, 0x58 bytes. How many bases base `b` links to (up to four). */
+u32 func_0034EEF0(u8 *b)
+{
+    u8 k;
+
+    for (k = 0; k < 4; k++) {
+        if (func_0034EF60(b, k) == 0)
+            return k;
+    }
+    return k;
+}
+
+/* 0x0034EF50, 0xC bytes, matching. */
+u8 func_0034EF50(u8 *b, int k)
+{
+    return b[k + 2];
+}
+
+/* 0x0034EF60, 0x3C bytes. Base `b`'s link `k` (0 for none). */
+u8 *func_0034EF60(u8 *b, u32 k)
+{
+    u8 x = func_0034EF50(b, k);
+
+    return x < 0x14 ? BASE(x) : 0;
 }
