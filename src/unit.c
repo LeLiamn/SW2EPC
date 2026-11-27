@@ -1113,3 +1113,293 @@ int func_00153610(Unit *u, u8 *hit, u32 base, float *dir, u8 *other, int quiet, 
         return 1;
     }
 }
+
+extern u8 g_00574DE0[][0x630];           /* (effect?) objects; the players' from index 0x89 */
+extern u8 g_005B7120[];                  /* the description used once a unit's guard is broken */
+
+void func_00245360(Unit *u, u8 *hit);
+void func_0016E910(u8 *slot);
+void func_00164B40(Unit *u, int a);
+void func_0016A0D0(Unit *u, float *out, int a);
+void func_001C7F30(int a, float *pos, float *dir, int b);
+void func_002A6D20(u8 player, int message);
+void func_0015EA30(Unit *u, Unit *v, u8 *hit, short damage, int a, int b, int quiet);
+
+/* The current action's motion record (the weapon kind's tables, or the shared ones). */
+static inline u8 *unit_motion(Unit *u)
+{
+    u8 *d = DESC(u);
+    u8 *a = PTR(d, 8) + U16(ACT(u), 0) * 0x20;
+
+    if ((U32(a, 0x1C) & 0x40000000) == 0) {
+        if ((U32(a, 0x1C) & 0x80000000) == 0)
+            return *(u8 **)(*(u8 **)(g_005B5078[U8(d, 0x1C)]) + U16(a, 2) * 0x20);
+        return *(u8 **)(*(u8 **)(g_005B5078[U8(d, 0x1C)] + 0x50) + U16(a, 2) * 0x20);
+    }
+    return *(u8 **)(g_005BA688 + U16(a, 2) * 0x20);
+}
+
+/* Pushed back along `dir` (flattened and normalised in place), at the hit's speed (+8). */
+static inline void unit_push(Unit *u, u8 *hit, float *dir)
+{
+    int i;
+
+    flat_normalise(dir);
+    for (i = 0; i < 4; i++)
+        F32(u, 0x1F0 + i * 4) = dir[i] * -1.0f;
+    F32(u, 0x22C) = (float)(s8)hit[8];
+}
+
+/* The usual flinch: pushed back, the hit's reaction (+0xC, +1 from behind, some swapped for
+ * officers with flag +0xAB, some varied at random), the lift (+9) and the hit stop by damage. */
+static inline void unit_flinch(Unit *u, u8 *hit, float *dir, int back, short damage)
+{
+    short a, b;
+
+    unit_push(u, hit, dir);
+    a = S16(hit, 0xC);
+    b = a + back;
+    if (g_00669DB8 != 4 && U8(OFFICER(u), 0xAB) != 0) {
+        if (b == 0x22)
+            b = 0x13;
+        else if (b == 0x23)
+            b = 0x14;
+    }
+    if (b == a) {
+        if (a == 0x1A) {
+            if (RANDOM() % 100 < 0x32)
+                b = 0x7C;
+        } else if (a == 0x20) {
+            u32 r = RANDOM() % 100;
+
+            if (r < 0x21)
+                b = 0x7E;
+            else if (r < 0x42)
+                b = 0x90;
+        } else if (a == 0x92 && RANDOM() % 100 < 0x32) {
+            b = 0x94;
+        }
+    }
+    func_00156AF0(u, b);
+    if (hit[9] != 0 && (U32(ACT(u), 0x18) & 0x20)) {
+        F32(u, 0x224) = (float)(s8)hit[9];
+        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+    }
+    if ((U32(ACT(u), 0x18) & 0x8000420) == 0) {
+        u8 *r = unit_motion(u);
+        int k = damage / 2;
+
+        if (k > 0x19)
+            k = 0x19;
+        F32(u, 0x234) = (float)S32(r, 8) / (float)(S32(r, 8) + (short)k);
+    }
+}
+
+/* 0x00153990, 0x114 bytes. Whether `v`'s charged attack (+0x17E = 2, level +0x17F) stuns `u`:
+ * a chance of level x 33% (x 16% against officers with special flags). */
+int func_00153990(Unit *u, Unit *v, u8 *rec)
+{
+    u32 chance;
+
+    if (v == 0)
+        return 0;
+    if (U8(v, 0x17E) != 2)
+        return 0;
+    if (U32(ACT(u), 0x18) & 0x8040020)
+        return 0;
+    if ((U32(rec, 0xB8) & 0x26C) == 0)
+        chance = U8(v, 0x17F) * 100 / 3;
+    else
+        chance = U8(v, 0x17F) * 100 / 6;
+    return RANDOM() % 100 < chance;
+}
+
+/* 0x00153AB0, 0x78 bytes. Only pushed back (while stunned). */
+void func_00153AB0(Unit *u, u8 *hit, float *dir)
+{
+    unit_push(u, hit, dir);
+}
+
+/* 0x00153B30, 0x104 bytes. Stunned by `v` (action 0x13) for its level x 60 frames. */
+void func_00153B30(Unit *u, Unit *v, u8 *hit, float *dir)
+{
+    unit_push(u, hit, dir);
+    func_00156AF0(u, 0x13);
+    S16(u, 0x15C) = 0;
+    U16(u, 0x172) = U8(v, 0x17F) * 0x3C;
+    U16(u, 0x174) = U8(v, 0x17F) * 0x3C;
+    func_00253300(U8(v, 0x17F) < 3 ? 0xF : 0x10, u);
+}
+
+/* 0x00153C40, 0x160 bytes. Hit in the air: the hit's air reaction (+0xE, swapped as above),
+ * speed +0xA, lift +0xB. */
+void func_00153C40(Unit *u, u8 *hit, float *dir, u16 base)
+{
+    short b;
+    int i;
+
+    flat_normalise(dir);
+    for (i = 0; i < 4; i++)
+        F32(u, 0x1F0 + i * 4) = dir[i] * -1.0f;
+    F32(u, 0x22C) = (float)(s8)hit[10];
+    b = S16(hit, 0xE) + (base & 0xFF);
+    if (g_00669DB8 != 4 && U8(OFFICER(u), 0xAB) != 0) {
+        if (b == 0x22)
+            b = 0x13;
+        else if (b == 0x23)
+            b = 0x14;
+    }
+    func_00156AF0(u, b);
+    if (hit[0xB] != 0) {
+        F32(u, 0x224) = (float)(s8)hit[0xB];
+        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+    }
+}
+
+/* 0x00153DA0, 0xA4 bytes. Whether a weapon kind ':' unit's guard breaks: when it has none left,
+ * or its officer is below a quarter of its life (+0x82 / +0x80), unless `v` is in a special
+ * state. */
+int func_00153DA0(Unit *u, Unit *v, u8 *rec)
+{
+    if (U8(DESC(u), 0x1C) != ':')
+        return 0;
+    if (v != 0 && (U8(v, 0x19C) & 2))
+        return 1;
+    if (S16(u, 0x1B8) < 1)
+        return 1;
+    return !(0.25f < (float)S16(rec, 0x82) / (float)S16(rec, 0x80));
+}
+
+/* 0x00153E50, 0x12E8 bytes. Takes hit `hit` from `v` along `dir` for `damage`: guard break
+ * (the unit's description changes), stun, the reaction by the unit's state (on a mount, in the
+ * air, knocked down, special officers...), the hit stop, the players' effect timers, then the
+ * damage itself (func_0015EA30). The mount's result when riding. */
+int func_00153E50(Unit *u, Unit *v, u8 *hit, int unused, float *dir, short damage, int quiet)
+{
+    int stunned = 0, ret = 0, broke = 0, back;
+    u8 *act = ACT(u);
+    u8 *rec = OFFICER(u);
+    u32 f;
+
+    back = !(F32(u, 0x70) * dir[0] + F32(u, 0x74) * dir[1] + F32(u, 0x78) * dir[2]
+             + F32(u, 0x7C) * dir[3] > 0.0f);
+    if (U32(rec, 0xB8) & 2)
+        S16(u, 0x172) = 0;
+    if (U32(hit, 0x2C) & 0x400)
+        S16(u, 0x172) = 0;
+    if (U16(hit, 0x1C) & 8)
+        func_00245360(u, hit);
+    if (U8(u, 0x19D) & 8)
+        U8(u, 0x19D) &= ~8;
+    if (func_00153DA0(u, v, rec) != 0) {
+        int k;
+
+        broke = 1;
+        PTR(u, 0x110) = g_005B7120;
+        U8(u, 0x19D) &= ~1;
+        for (k = 0; k < 4; k++) {
+            if (U8(u, 0x2DC + k * 0x70) & 1)
+                func_0016E910(u + 0x290 + k * 0x70);
+        }
+        U8(u, 0x158) = 0x6C;
+        func_00164B40(u, 0);
+        if (S32(u, 0x11C) != 0) {
+            float pos[4];
+
+            func_0016A0D0(u, pos, 0x15);
+            g_70000D60 = 1;
+            func_001C7F30(8, pos, dir, 0);
+        }
+    }
+    if ((u32)(S32(u, 0x118) - 0x3D) < 3) {
+        func_002A6D20(PLAYER(u), 0x229);
+        return 0;
+    }
+    if (PTR(u, 0x288) == 0) {
+        if (S16(u, 0x172) != 0) {
+            func_00153AB0(u, hit, dir);
+            f = U32(hit, 0x28);
+            goto tail;
+        }
+        if ((U32(rec, 0xB8) & 2) == 0 && func_00153990(u, v, rec) != 0) {
+            func_00153B30(u, v, hit, dir);
+        } else if ((U32(hit, 0x2C) & 0x400) == 0) {
+            u32 af = U32(act, 0x18), f2 = U32(hit, 0x2C);
+
+            if ((af & 0x60) == 0 && broke) {
+                func_00151D60(u);
+            } else if (U8(u, 0x19C) & 0x20) {
+                func_00152250(u, (short *)act, hit, U32(rec, 0xB8) & 2, back);
+            } else if ((U32(rec, 0xB8) & 2) == 0) {
+                if (quiet == 0) {
+                    if ((af & 0x20) == 0) {
+                        if ((af & 0x40000) == 0) {
+                            if ((af & 0x40) == 0 || (f2 & 2) == 0) {
+                                unit_flinch(u, hit, dir, back, damage);
+                            } else {
+                                func_00152190(u, act, hit);
+                                S16(u, 0x190) = 10;
+                            }
+                        } else if ((U32(PTR(DESC(u), 8) + U16(hit, 0xC) * 0x20, 0x18) & 0x400)
+                                   == 0) {
+                            int i;
+
+                            flat_normalise(dir);
+                            for (i = 0; i < 4; i++)
+                                F32(u, 0x1F0 + i * 4) = dir[i] * -1.0f;
+                            F32(u, 0x22C) = 3.0f;
+                            func_00156AF0(u, back + 0x2C);
+                            F32(u, 0x224) = 10.0f;
+                            U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+                        } else {
+                            unit_flinch(u, hit, dir, back, damage);
+                        }
+                    } else {
+                        func_00153C40(u, hit, dir, back);
+                    }
+                } else {
+                    F32(u, 0x244) = 5.0f;
+                    stunned = 1;
+                }
+            } else if ((af & 0x20) == 0) {
+                if ((af & 0x40) == 0 || (f2 & 2) == 0)
+                    func_00151EB0(u, hit, back, dir);
+                else
+                    func_00152190(u, act, hit);
+            } else {
+                func_00153C40(u, hit, dir, back);
+            }
+        } else if ((U32(act, 0x18) & 0x20) == 0) {
+            unit_flinch(u, hit, dir, back, damage);
+        } else {
+            func_00153C40(u, hit, dir, back);
+        }
+    } else {
+        ret = func_00153610(u, hit, back, dir, rec, quiet, &stunned);
+    }
+    f = U32(hit, 0x28);
+tail:
+    if ((f & 0x10000) && (U32(ACT(u), 0x18) & 0x8000420) == 0 && stunned == 0 && hit[0x15] != 0)
+        F32(u, 0x234) = (float)U32(unit_motion(u), 8) / (float)hit[0x15];
+    if (PLAYER(u) < 2 && stunned == 0) {
+        int k;
+
+        for (k = 0; k < 3; k++) {
+            u8 *e = g_00574DE0[k + PLAYER(u) * 3 + 0x89];
+
+            if (e != 0 && (U8(e, 0x198) & 2) && U8(e, 0x15A) != 2 && U8(e, 0x15A) != 3
+                && 30.0f < F32(e, 0x160)) {
+                F32(e, 0x160) = 30.0f;
+                break;
+            }
+        }
+    }
+    if ((s8)U8(u, 0x19C) >= 0) {
+        int charged = (U8(u, 0x19F) & 0x10) != 0;
+
+        func_0015EA30(u, v, hit, damage, charged ? -1 : 0, (U32(rec, 0xB8) & 2) != 0 && !charged,
+                      quiet);
+        U8(u, 0x19F) &= ~0x10;
+    }
+    return ret;
+}
