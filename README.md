@@ -32,7 +32,7 @@ with a native PC port as the long-term goal.
 | Sound effects (1,610) | Bank split and decoded to WAV (17 minutes) |
 | Battlefield terrain (186) | Decoded from the game code (Stage.c); terrain exports to OBJ |
 | Effects, events, text, save icon... | Read by checked tools; **100% of the data bytes are classified** |
-| Decompilation | 10.6% of the code in C (39 files in `src/`), 548 functions matching the original byte for byte ([docs/code.md](docs/code.md), [docs/matching.md](docs/matching.md)) |
+| Decompilation | 16.9% of the code in C (50 files in `src/`), 691 functions matching the original byte for byte ([docs/code.md](docs/code.md), [docs/matching.md](docs/matching.md); what is left: [docs/inventory.md](docs/inventory.md)) |
 
 ## Decompilation
 
@@ -111,6 +111,7 @@ addresses.
 - [docs/formats/](docs/formats/README.md): file formats
 - [docs/code.md](docs/code.md): the code, module by module
 - [docs/matching.md](docs/matching.md): compiler settings and how to write matching C
+- [docs/inventory.md](docs/inventory.md): what is left to decompile, and the plan
 
 ## Contributing rules
 
