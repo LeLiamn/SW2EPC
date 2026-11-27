@@ -48,7 +48,7 @@ void func_001185E0(void *to, u32 n, u8 c);
 void func_0016BD30(Unit *u);
 Unit *func_0016BE40(Unit *u);
 void func_001CF2A0(Unit *u, Unit *v, int a);
-void func_00156AF0(Unit *u, int action);
+void func_00156AF0(Unit *u, u16 id);
 void func_001CF000(Unit *u, Unit *v);
 void func_00158CD0(Unit *u, int a);
 u32 func_001C8340(int a, u8 *b, int c, u32 d);
@@ -697,13 +697,13 @@ void func_00152250(Unit *u, short *act, u8 *hit, int other, u16 base)
     }
 }
 
-/* 0x001523C0, 0x4C bytes. One of four other reactions, at random. */
+/* 0x001523C0, 0x4C bytes, matching. One of four other reactions, at random. */
 void func_001523C0(Unit *u)
 {
     func_00156AF0(u, g_0045CC60[RANDOM() & 3]);
 }
 
-/* 0x00152410, 0xB4 bytes. Reaction `k` (table at 0x004063F8); for the players, the message box
+/* 0x00152410, 0xB4 bytes, matching. Reaction `k` (table at 0x004063F8); for the players, the message box
  * of their weapon (`k` 2) or its closing. */
 int func_00152410(Unit *u, int k)
 {
@@ -1744,4 +1744,383 @@ float func_00155FD0(Unit *u, u8 *m)
         return F32(m, 0x44);
     }
     return (float)S16(PTR(m, 0x30), 6);
+}
+
+extern u8 g_00669E2A[][0x48];            /* per player: the controller's vibration level? */
+
+float func_00136E18(float x, float y);   /* fmodf */
+void func_001CE800(Unit *u);
+void func_001CE9A0(Unit *u);
+void func_001CEA20(Unit *u);
+int func_002A6910(int sound, int a, u8 *pos);
+void func_002A5A60(float a, float b, float c, float d, float e, int sound);
+void func_002A5B10(int sound);
+void func_001489F0(u8 *actor, u8 *model);
+void func_001589B0(Unit *u, int a, u8 k);
+void func_0029F3C0(Unit *u);
+void func_0016CB60(Unit *u, u8 level, int a, int b, int c);
+void func_0016A1C0(Unit *u);
+void func_00148B60(u8 *actor, int first, int last);
+
+/* An angle brought into (-pi, pi] after fmodf by 2 pi. */
+static inline float angle_mod(float a)
+{
+    float f = func_00136E18(a, TWO_PI);
+
+    if (PI < f)
+        return func_00136E18(a, TWO_PI) - TWO_PI;
+    if (f <= -PI)
+        return func_00136E18(a, TWO_PI) + TWO_PI;
+    return func_00136E18(a, TWO_PI);
+}
+
+/* Saves the pose of a model object's nodes for a transition (see model.c, func_0014E380). */
+static inline void save_pose(u8 *actor)
+{
+    float *n = *(float **)(actor + 0x208);
+    float *s = *(float **)(actor + 0x218);
+    u8 *m = (actor[0x20C] & 2) ? PTR(actor, 0x1EC) : PTR(actor, 0x1E8);
+    u32 i, count = m[0x29];
+
+    for (i = 0; i < count; i++, n += 0x1C, s += 8) {
+        s[4] = n[0];
+        s[5] = n[1];
+        s[6] = n[2];
+        s[7] = n[3];
+        s[0] = angle_mod(n[4]);
+        s[1] = angle_mod(n[5]);
+        s[2] = angle_mod(n[6]);
+    }
+}
+
+void func_00156070(Unit *u);
+
+/* 0x00156070, 0x6AC bytes. Starts a transition to the new action: the length from the motion
+ * pair, the pose saved (the root at its height only), and the same for the two extra motion
+ * slots (+0x290 + 0x44 / +0x300 + 0x44) when the action uses them. */
+void func_00156070(Unit *u)
+{
+    u8 *a = PTR(u, 0x11C);
+    float *s;
+    float len;
+
+    if (PTR(a, 0x208) == 0)
+        return;
+    len = func_00155FD0(u, u + 0x1E0);
+    F32(a, 0x214) = len;
+    F32(a, 0x210) = len;
+    U8(a, 0x21D) = (U32(PTR(u, 0x214), 0x18) & 0x40000000) != 0;
+    if (g_00669DB8 == 4)
+        U8(a, 0x21D) = 0;
+    U8(a, 0x21E) = (U32(ACT(u), 0x18) & 0x8000000) != 0;
+    save_pose(a);
+    s = *(float **)(a + 0x218);
+    s[4] = 0.0f;
+    s[5] = F32(PTR(PTR(u, 0x11C), 0x208), 4);
+    s[6] = 0.0f;
+    s[7] = 1.0f;
+    if (S16(ACT(u), 0xA) != -1 && (U8(u, 0x2DC) & 4)) {
+        u8 *b = PTR(u, 0x2D4);
+
+        F32(b, 0x214) = F32(a, 0x214);
+        F32(b, 0x210) = F32(a, 0x214);
+        U8(b, 0x21D) = 0;
+        U8(b, 0x21E) = 1;
+        save_pose(b);
+    }
+    if (S16(ACT(u), 8) != -1 && (U8(u, 0x34C) & 4)) {
+        u8 *b = PTR(u, 0x344);
+
+        F32(b, 0x214) = F32(a, 0x214);
+        F32(b, 0x210) = F32(a, 0x214);
+        U8(b, 0x21D) = 0;
+        U8(b, 0x21E) = 1;
+        save_pose(b);
+    }
+}
+
+/* 0x00156720, 0x3D0 bytes. After an action change: the lift kept or dropped by the hits'
+ * flags, entering / leaving the air and the 0x200000 states, the players' looping sound for the
+ * actions 0x6D-0x6E, the nodes to rebuild, the hit's messages and effect timers. */
+void func_00156720(Unit *u)
+{
+    u8 *act = ACT(u), *prev = PTR(u, 0x214);
+    u8 *hit = PTR(act, 0x14);
+
+    if (hit != 0 && (U32(prev, 0x18) & 0x20)) {
+        if ((U32(hit, 0x28) & 1) == 0) {
+            if (U32(hit, 0x28) & 0x80)
+                F32(u, 0x224) = 0.0f < F32(u, 0x224) ? F32(u, 0x224) * 0.5f : 0.0f;
+        } else {
+            F32(u, 0x224) = 0.0f;
+        }
+    }
+    if (hit != 0 && PTR(prev, 0x14) != 0 && (U32(PTR(prev, 0x14), 0x28) & 0x80)
+        && (U32(hit, 0x28) & 1))
+        F32(u, 0x224) = 0.0f;
+    if ((U32(prev, 0x18) & 0x40) == 0 && (U32(act, 0x18) & 0x40)) {
+        F32(u, 0x22C) = 0.0f;
+        func_001CE800(u);
+    }
+    if ((U32(prev, 0x18) & 0x200000) == 0 && (U32(act, 0x18) & 0x200000))
+        func_001CE9A0(u);
+    if ((U32(prev, 0x18) & 0x200000) && (U32(act, 0x18) & 0x200000) == 0)
+        func_001CEA20(u);
+    if (PLAYER(u) < 2) {
+        u8 *a;
+
+        if (S32(u, 0x128) == -1) {
+            if ((u16)(U16(act, 0) - 0x6D) < 2) {
+                int s = func_002A6910(0x23A, 0, u + 0x40);
+
+                S32(u, 0x128) = s;
+                if (s != 0x107)
+                    func_002A5A60(270.0f, 600.0f, 2000.0f, 2250.0f, 1.0f, s);
+            }
+        } else if (U16(act, 0) != 0x6D && U16(act, 0) != 0x6E) {
+            if (S32(u, 0x128) != 0x107)
+                func_002A5B10(S32(u, 0x128));
+            S32(u, 0x128) = -1;
+        }
+        a = PTR(u, 0x11C);
+        if (a != 0) {
+            if (prev != 0 && PTR(prev, 0x14) != 0 && (U16(PTR(prev, 0x14), 0x1C) & 1))
+                func_001489F0(a, PTR(a, 0x1E8));
+            if (prev != 0 && (U32(prev, 0x1C) & 0x20000))
+                func_001489F0(PTR(u, 0x11C), PTR(PTR(u, 0x11C), 0x1E8));
+        }
+    }
+    if (hit != 0 && (s8)U8(u, 0x19C) >= 0) {
+        if ((U32(hit, 0x2C) & 0x1000000) && g_00669DB8 != 4)
+            func_002A6D20(PLAYER(u), 0x239);
+        if (PLAYER(u) < 2) {
+            if (U32(hit, 0x2C) & 0x40000000) {
+                u32 k;
+
+                for (k = 0; (int)k < 3; k++) {
+                    u8 *e = g_00574DE0[k + PLAYER(u) * 3 + 0x89];
+
+                    if (e != 0 && (U8(e, 0x198) & 2) == 0) {
+                        func_001589B0(u, 2, k);
+                        U8(u, 0x196) = 1;
+                        break;
+                    }
+                }
+            }
+            if (U32(hit, 0x2C) & 0x40) {
+                U8(u, 0x157) = 0;
+                S16(u, 0x194) = 0;
+            }
+        }
+    }
+    if ((U32(act, 0x18) & 0x800) == 0)
+        U8(u, 0x19F) &= ~8;
+    func_0029F3C0(u);
+}
+
+/* 0x00156AF0, 0xD60 bytes. Starts action `id` (an index into the unit's description: ignored
+ * when out of range, without motion, or a mounted action the weapon kind lacks): the root
+ * movement settled, the previous action kept (+0x214), the speeds by the action's kind, getting
+ * off or throwing, the turn the action makes (by the direction held or its flags), the model's
+ * extra motion slots and the transition, and the action's state reset. */
+void func_00156AF0(Unit *u, u16 id)
+{
+    u8 tmp[16];
+    u8 *d = DESC(u);
+    u8 *act, *prev, *hit, *oldrec, *newrec;
+    float turn = 0.0f;
+    int keep = 0, i;
+    short aid;
+
+    for (i = 0; i < 16; i++)
+        tmp[i] = 0;
+    if (U32(PTR(d, 4), 8) <= id)
+        return;
+    act = PTR(d, 8) + id * 0x20;
+    if (S16(act, 2) == -1)
+        return;
+    if ((U32(act, 0x1C) & 0x80000000) && (U8(g_005B5078[U8(d, 0x1C)], 0x54) & 1) == 0)
+        return;
+    if (id != 0x55 && id != 0x56)
+        func_00155F70(u, (float *)tmp);
+    PTR(u, 0x214) = PTR(u, 0x210);
+    oldrec = unit_motion(u);
+    PTR(u, 0x210) = act;
+    prev = PTR(u, 0x214);
+    if (prev != 0 && (U32(prev, 0x18) & 0x800) && (U32(prev, 0x18) & 0x40) == 0 && id != 0x45)
+        F32(u, 0x228) = F32(u, 0x22C);
+    act = ACT(u);
+    aid = S16(act, 0);
+    hit = PTR(act, 0x14);
+    if (aid == 0x34 || aid == 0x35) {
+        F32(u, 0x224) = 5.0f;
+        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        F32(u, 0x228) = F32(u, 0x228) * 0.5f;
+        F32(u, 0x22C) = F32(u, 0x22C) * 0.5f;
+        if (PLAYER(u) < 2)
+            func_0016CB60(u, g_00669E2A[PLAYER(u)][0], 1, 0xFF, 0xF);
+    } else if (aid == 0x36 || aid == 0x37) {
+        F32(u, 0x224) = 7.0f;
+        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        F32(u, 0x228) = F32(u, 0x228) * 0.75f;
+        F32(u, 0x22C) = F32(u, 0x22C) * 0.75f;
+        if (PLAYER(u) < 2)
+            func_0016CB60(u, g_00669E2A[PLAYER(u)][0], 1, 0xFF, 0xF);
+    }
+    prev = PTR(u, 0x214);
+    if (prev != 0 && (U32(act, 0x18) & 0x8000000) == 0 && (U32(prev, 0x18) & 0x8000000))
+        func_00155E50(u);
+    if (hit != 0 && (U32(hit, 0x2C) & 0x800) && PTR(u, 0x280) != 0)
+        func_00155DB0(u, hit);
+    if ((U32(act, 0x18) & 0x800) == 0)
+        U32(u, 0x16C) = 0;
+    newrec = unit_motion(u);
+    if (((U32(PTR(u, 0x214), 0x18) & 0x40000000) && (U32(ACT(u), 0x18) & 0x20))
+        || ((U32(PTR(u, 0x214), 0x18) & 0x40000) && (U32(ACT(u), 0x18) & 0x800)
+            && (U32(ACT(u), 0x18) & 0x20))) {
+        float y = F32(u, 0x94) - F32(newrec, 0x14);
+
+        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        for (i = 0; i < 4; i++)
+            U32(u, 0x200 + i * 4) = U32(u, 0x1D0 + i * 4);
+        if (g_00669DB8 != 4)
+            F32(u, 0x44) = F32(u, 0xE0) < y ? F32(u, 0xE0) : y;
+    }
+    if (g_00669DB8 != 4) {
+        short a = S16(ACT(u), 0);
+        int turned = 0;
+
+        if (a == 1 || a == 2 || a == 3 || a == 4) {
+            float x = F32(u, 0x1D0), z = F32(u, 0x1D8);
+
+            if (0.0001f < x * x + z * z && U8(u, 0x155) == 0) {
+                turn = wrap_angle(vu0_angle(x, z) - F32(u, 0x54));
+                turned = 1;
+            }
+        }
+        if (!turned) {
+            u32 f = U32(ACT(u), 0x18);
+
+            if (f & 0x4000) {
+                turn = PI;
+                keep = U8(u, 0x155) == 1;
+            } else if (f & 0x8000) {
+                turn = -1.5707964f;
+                keep = U8(u, 0x155) == 1;
+            } else if (f & 0x10000) {
+                turn = 1.5707964f;
+                keep = U8(u, 0x155) == 1;
+            } else {
+                turn = 0.0f;
+            }
+        }
+    }
+    {
+        float y = F32(u, 0x54) + turn;
+
+        if (PI < y)
+            y -= TWO_PI;
+        else if (y <= -PI)
+            y += TWO_PI;
+        F32(u, 0x238) = y;
+        F32(u, 0x54) = y;
+        F32(u, 0x230) = 0.0f;
+        if (S32(u, 0x118) == 0x3C)
+            U8(u, 0x27C) &= ~1;
+        else
+            U8(u, 0x27C) = (U8(u, 0x27C) & ~1) | 1;
+    }
+    if (PTR(u, 0x11C) != 0 && U8(u, 0x155) == 0) {
+        u8 *nodes = PTR(PTR(u, 0x11C), 0x208);
+        float r = F32(nodes, 0x80) - turn;
+
+        if (PI < r)
+            r -= TWO_PI;
+        else if (r <= -PI)
+            r += TWO_PI;
+        F32(nodes, 0x80) = r;
+        nodes = PTR(PTR(u, 0x11C), 0x208);
+        r = F32(nodes, 0x390) + turn;
+        if (PI < r)
+            r -= TWO_PI;
+        else if (r <= -PI)
+            r += TWO_PI;
+        F32(nodes, 0x390) = r;
+    }
+    if (PTR(u, 0x11C) != 0) {
+        if ((U32(ACT(u), 0x1C) & 0x2000000) == 0) {
+            if (U8(u, 0x19D) & 1) {
+                for (i = 0; i < 4; i++) {
+                    if (U8(u, 0x2DC + i * 0x70) & 1)
+                        func_0016E910(u + 0x290 + i * 0x70);
+                }
+                func_00164B40(u, 0);
+                U8(u, 0x19D) &= ~1;
+            }
+        } else if ((U8(u, 0x19D) & 1) == 0) {
+            for (i = 0; i < 4; i++) {
+                if (U8(u, 0x2DC + i * 0x70) & 1)
+                    func_0016E910(u + 0x290 + i * 0x70);
+            }
+            func_00164B40(u, 1);
+            U8(u, 0x19D) = (U8(u, 0x19D) & ~1) | 1;
+        }
+        if (PTR(u, 0x214) != 0 && (U32(PTR(u, 0x214), 0x1C) & 0x10) && PTR(u, 0x11C) != 0)
+            func_00148B60(PTR(u, 0x11C), 0xE, 0x15);
+    }
+    if (PTR(u, 0x11C) != 0) {
+        u8 *a = PTR(u, 0x11C);
+
+        if (0.0f < F32(a, 0x214)) {
+            F32(a, 0x210) = 0.0f;
+            F32(a, 0x214) = 0.0f;
+            U8(u, 0x27C) &= ~0x20;
+        }
+        if (S16(ACT(u), 0xA) != -1 && (U8(u, 0x2DC) & 4)) {
+            u8 *b = PTR(u, 0x2D4);
+
+            if (0.0f < F32(b, 0x214)) {
+                F32(b, 0x210) = 0.0f;
+                F32(b, 0x214) = 0.0f;
+            }
+        }
+        if (S16(ACT(u), 8) != -1 && (U8(u, 0x34C) & 4)) {
+            u8 *b = PTR(u, 0x344);
+
+            if (0.0f < F32(b, 0x214)) {
+                F32(b, 0x210) = 0.0f;
+                F32(b, 0x214) = 0.0f;
+            }
+        }
+        if (!keep) {
+            int blend = 0 < S16(ACT(u), 6);
+
+            if (S16(PTR(u, 0x214), 4) == S16(ACT(u), 0) && (U32(PTR(u, 0x214), 0x18) & 0x80000))
+                blend = 0;
+            if (blend && oldrec != newrec)
+                func_00156070(u);
+        }
+    }
+    hit = PTR(ACT(u), 0x14);
+    F32(u, 0x21C) = (float)(hit == 0 || (U32(hit, 0x28) & 0x800000) == 0 ? 0 : hit[5]);
+    F32(u, 0x23C) = 0.0f;
+    F32(u, 0x220) = 0.0f;
+    F32(u, 0x234) = 1.0f;
+    F32(u, 0x218) = 0.0f;
+    {
+        u8 b = U8(u, 0x27C);
+        u8 was = (b >> 3 & 1) << 4;
+
+        U8(u, 0x27C) = (b & 0xEF) | was;
+        U8(u, 0x27C) = (b & 0xE7) | was;
+    }
+    S16(u, 0x278) = -1;
+    U8(u, 0x27C) = (U8(u, 0x27C) & ~0x40) | 0x40;
+    if ((U32(ACT(u), 0x18) & 0x800) == 0)
+        U8(u, 0x19F) &= ~1;
+    if ((U32(ACT(u), 0x18) & 0x8000000) == 0)
+        U8(u, 0x19F) &= ~0x40;
+    func_00150930(u);
+    func_0016A1C0(u);
+    func_00156720(u);
 }
