@@ -397,3 +397,258 @@ void func_0038B9B0(u8 *m)
     else if (STEP(m) == 0)
         func_0037FD50(func_0030D7D0(), p[0], p[1], E32(m, 0x80));
 }
+
+/* More command drawers, the officer list screen and the save screen texts (parts of
+ * 0x0038BAA0-0x00392AE8). */
+
+extern u8 g_007B9EA0[], g_007B9ED0[];
+extern int g_007B9F3C;
+extern void (*g_004176D0[0x16])(void);
+extern u8 *g_0045D7D4, *g_0045D7D8;      /* (small data) the list screen textures */
+extern char g_00459A10[];                /* the allocations' source name */
+extern u8 *g_0043C120[];                 /* message texts ("Checking the memory card ...") */
+extern short g_007BA830, g_007BA7F0, g_007BA7D0, g_007BA7D4;
+extern u8 *g_007BA7E0;
+
+void func_0037E9F0(int a, int k, int x, int y, int b, int c);
+u8 *func_0019FBC0(int k);
+int func_001A11F0(int a, int b, int c, int d, u8 *e);
+void func_003DF970(int a, u8 *b, int c, int d, u8 *e);
+int func_0030D810(void);
+void func_003DFD80(int a, int b, int c, int x, int y, int d, u8 *e, u8 *f);
+u8 *func_0038C6E0(void);
+int func_0030AB90(void);
+void func_003A9510(int *list, int n, int a);
+void func_003A9010(int v);
+int func_003635F0(void);
+u8 *func_001026D0(int a, int b, int c, int d, int e, int f, char *name, int line);
+int func_00102960(int a);
+void func_003A5C40(int k);
+void func_003A5FA0(int a, int b, int c, int d);
+void func_003A9AF0(int v);
+void func_0038FA80(int k, int on);
+int func_0039FEE0(int k);
+u8 *func_00390940(void);
+u8 *func_0038FB10(void);
+void func_003B24F0(void);
+void func_003BCDD0(void);
+void func_003BD230(void);
+u8 *func_00391250(void);
+void func_00376100(int a, int b, int c);
+void func_001A7DC0(u8 *text, int a, int b);
+char *func_00372780(int k);
+void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
+void func_002C4C50(float s, char *text, int x, int y, int w, int a, int b, int c);
+char *func_002F2970(int o);
+char *func_003727B0(int k);
+char *func_003728A0(int k);
+
+/* 0x0038BAA0, 0xA4 bytes. */
+void func_0038BAA0(u8 *m)
+{
+    int k = *(int *)(m + 8);
+    u8 *p = (u8 *)func_003DB900(8);
+
+    if (STEP(m) == 1)
+        func_0037E9F0(func_0030D7D0(), k, 0xB4, 0x4A, *(int *)(p + 0x10), 1);
+    else if (STEP(m) == 0)
+        func_0037E9F0(func_0030D7D0(), k, 0xB4, 0x4A, *(int *)(p + 0x10), 1);
+}
+
+/* 0x0038BE00, 0x90 bytes, matching. */
+void func_0038BE00(int a, int b, int c)
+{
+    int v = *(int *)func_0019FBC0(a);
+    int *q = (int *)func_0019FBC0(a);
+    int r = func_001A11F0(b, a, c + *q, v, g_007B9EA0);
+
+    func_003DF970(a, g_007B9ED0, c, r, g_007B9EA0);
+}
+
+/* 0x0038C240, 0x108 bytes. */
+void func_0038C240(u8 *m)
+{
+    int *p = func_003DB900(9);
+
+    g_007B9F3C = 0x1E;
+    if (STEP(m) == 2)
+        func_003DFD80(E32(m, 0x84), func_0030D7D0(), func_0030D810(), p[0], p[1], 1, g_007B9EA0, g_007B9ED0);
+    else if (STEP(m) == 1)
+        func_003DFD80(E32(m, 0x84), func_0030D7D0(), func_0030D810(), p[0], p[1], 1, g_007B9EA0, g_007B9ED0);
+}
+
+/* 0x0038C370, 0x8C bytes. */
+int func_0038C370(int v)
+{
+    if (v == 0xF || v == 0x13 || v == 0x12 || v == 0x11 || v == 5 || v == 7 || v == 6 || v == 2
+        || v == 4 || v == 3)
+        return 1;
+    return 0;
+}
+
+/* 0x0038C800, 0x68 bytes. Draws the current command's page. */
+void func_0038C800(void)
+{
+    u8 *m = func_0038C6E0();
+    int k = E32(m, 0x7C);
+
+    if (k < 0x16)
+        g_004176D0[k]();
+}
+
+/* 0x0038C870, 0x9C bytes. Shows the provinces flagged in `p` on the map. */
+void func_0038C870(u8 *p)
+{
+    int list[28], n = 0, f;
+
+    for (f = 0; f < func_0030AB90(); f++) {
+        if (*(int *)(p + 0x14 + f * 4) != 0)
+            list[n++] = f;
+    }
+    func_003A9510(list, n, 0);
+    func_003A9010(1);
+}
+
+/* 0x0038D180, 0xD4 bytes. */
+int func_0038D180(int a, int b)
+{
+    if (a == 2) {
+        if (func_003635F0() == 0)
+            return b == 0 ? 8 : 0xD;
+        return b == 0 ? 0xD : 8;
+    }
+    if (a == 1)
+        return 10;
+    if (a == 0) {
+        if (func_003635F0() == 0)
+            return b == 0 ? 0xD : 8;
+        return b == 0 ? 8 : 0xD;
+    }
+    return 10;
+}
+
+/* 0x0038F4B0, 0xA8 bytes, matching. Loads the officer list screen. */
+void func_0038F4B0(void)
+{
+    g_0045D7D4 = 0;
+    g_0045D7D8 = 0;
+    g_0045D7D4 = func_001026D0(1, 0x81, 0, 1, 0, 0, g_00459A10, 0x2F);
+    func_00102960(1);
+    g_0045D7D8 = func_001026D0(1, 0x82, 0, 1, 0, 0, g_00459A10, 0x33);
+    func_00102960(1);
+    func_003A5C40(10);
+    func_003A5FA0(1, 1, 0, 1);
+    func_003A9AF0(0);
+}
+
+/* 0x0038F9D0, 0x84 bytes. */
+void func_0038F9D0(void)
+{
+    int k;
+
+    for (k = 0; k < 0x1E; k++) {
+        if (k < 0x19)
+            func_0038FA80(k, 1);
+        else if (func_0039FEE0(k) == 0)
+            func_0038FA80(k, 0);
+        else
+            func_0038FA80(k, 1);
+    }
+}
+
+/* 0x003906F0, 0x6C bytes, matching. */
+void func_003906F0(void)
+{
+    u8 *m = func_00390940();
+
+    func_0038FB10();
+    func_003B24F0();
+    if (*(int *)(m + 0x8E6C) == 3)
+        func_003BCDD0();
+    else if (*(int *)(m + 0x8E6C) == 4)
+        func_003BD230();
+}
+
+/* 0x00391CC0, 0xD8 bytes. The save screen's title and help. */
+void func_00391CC0(void)
+{
+    u8 *s = func_00391250();
+    int v = *(int *)(s + 0x94), a, b, c = -1, w;
+
+    if (v < 0x1C) {
+        a = 5;
+        b = 0xF;
+    } else if (v < 0x1B || v > 0x32) {
+        a = -1;
+        b = -1;
+    } else {
+        a = 6;
+        b = 0x10;
+    }
+    w = *(int *)(s + 4);
+    if (w == 4)
+        c = 0x16;
+    else if (w == 3 || w == 2)
+        c = 0x15;
+    else if (w != 1 && w == 0)
+        b = -1;
+    func_00376100(a, b, c);
+}
+
+/* 0x00391DA0, 0xB8 bytes. The save screen's help line. */
+void func_00391DA0(void)
+{
+    u8 *s = func_00391250();
+    int w = *(int *)(s + 4), k = 0x116;
+
+    if (w == 4)
+        k = 0x194;
+    else if (w == 3)
+        k = 0x193;
+    else if (w == 2)
+        k = 0x192;
+    else if (w != 1 && w == 0 && *(int *)(s + 0x34) == 0)
+        k = 0x191;
+    func_001A7DC0(g_0043C120[k], 0x80, 2);
+}
+
+/* 0x003923A0, 0x94 bytes. */
+void func_003923A0(void)
+{
+    u8 *s = func_00391250();
+    char *t = func_00372780(*(int *)(s + 8));
+    int x = g_007BA830;
+
+    if (x > 0x10)
+        x = 0x10;
+    func_002C7310(x + 10, 0x3C, 0, 0xA4, 0x18, 0x80, 0);
+    func_002C4C50(20.0f, t, x + 0x1C, 0x3F, 0x80, 1, 0, 6);
+}
+
+/* 0x00392790, 0xB4 bytes. */
+void func_00392790(int alt)
+{
+    u8 *s = func_00391250();
+    int o = *(int *)(s + 0x94);
+    char *t;
+
+    func_002C7310(g_007BA7F0, 0x24, 0, 0xA8, 0x18, 0x80, 0);
+    if (alt == 0)
+        t = func_002F2970(o);
+    else
+        t = func_003727B0(*(int *)(s + 0x94) - 0x1C);
+    func_002C4C50(20.0f, t, g_007BA7F0 + 8, 0x28, 0x98, 2, 0, 6);
+}
+
+/* 0x00392A10, 0xD8 bytes. */
+void func_00392A10(void)
+{
+    u8 *s = func_00391250();
+    char *t = func_003728A0(*(int *)(s + 0xC));
+    int x = g_007BA7D0 - (-(g_007BA7E0[0x13] - 10) * g_007BA7D4) / 10;
+
+    if (x > 0x10)
+        x = 0x10;
+    func_002C7310(x + 0x18, 0x58, 0, 0xB8, 0x18, 0x80, 0);
+    func_002C4C50(20.0f, t, x + 0x30, 0x5A, 0x88, 1, 0, 6);
+}

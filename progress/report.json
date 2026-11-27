@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 157904,
-    "non_matching": 1082224
+    "matching": 158336,
+    "non_matching": 1084436
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1966
+    "matching": 1969
   },
   "layout": "treemap",
   "areas": [
@@ -176,14 +176,14 @@
         },
         {
           "name": "StateSetupEmpMogi.c",
-          "description": "Estimated range 0x390A10-0x392FD0; 5 function(s) decompiled",
+          "description": "Estimated range 0x390A10-0x392FD0; 10 function(s) decompiled",
           "code": {
             "total": 9664,
             "matching": 1056,
-            "non_matching": 448
+            "non_matching": 1440
           },
           "decompiled_functions": {
-            "count": 5,
+            "count": 10,
             "matching": 4
           }
         },
@@ -272,15 +272,15 @@
         },
         {
           "name": "emp_cq_text.c",
-          "description": "Estimated range 0x38FE30-0x390A10; 3 function(s) decompiled",
+          "description": "Estimated range 0x38FE30-0x390A10; 4 function(s) decompiled",
           "code": {
             "total": 3040,
-            "matching": 96,
+            "matching": 208,
             "non_matching": 720
           },
           "decompiled_functions": {
-            "count": 3,
-            "matching": 2
+            "count": 4,
+            "matching": 3
           }
         },
         {
@@ -350,15 +350,15 @@
         },
         {
           "name": "emp_free_setup.c",
-          "description": "Estimated range 0x382E28-0x38FE30; 18 function(s) decompiled",
+          "description": "Estimated range 0x382E28-0x38FE30; 27 function(s) decompiled",
           "code": {
             "total": 53256,
-            "matching": 0,
-            "non_matching": 3024
+            "matching": 320,
+            "non_matching": 4244
           },
           "decompiled_functions": {
-            "count": 18,
-            "matching": 0
+            "count": 27,
+            "matching": 2
           }
         },
         {
