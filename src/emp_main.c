@@ -1438,3 +1438,297 @@ int func_002FF990(int f, int c, u32 *l, int n)
     }
     return -1;
 }
+
+
+int func_0030C4E0(int r, int *out);
+int func_001A06D0(void);
+void func_002CAD90(u8 *out);
+u8 *func_0019FBC0(int k);
+void func_0030BBD0(int f, int a);
+int func_00327E50(void);
+int func_002F80C0(u32 i, int f);
+int func_002F8110(u32 i, int f);
+int func_002F8740(u32 i, int r);
+int func_002F8710(u32 i);
+int func_002F8570(u32 i);
+void func_0030B440(int f);
+int func_002F3F20(u32 i);
+
+/* 0x002FFA70, 0xF8 bytes. How many of region `r`'s neighbours its force can attack. */
+int func_002FFA70(int r)
+{
+    int f = func_0030AFF0(r), l[8], n, m = 0, k;
+
+    if (!IS_FORCE(f))
+        return 0;
+    n = func_0030C4E0(r, l);
+    for (k = 0; k < n; k++) {
+        int g = func_0030AFF0(l[k]);
+
+        if (IS_FORCE(g) && func_002FD6E0(f, g) != 0)
+            m++;
+    }
+    return m;
+}
+
+/* 0x002FFB70, 0x1E8 bytes. Force `f`'s region that most needs troops (for command 0xF only
+ * those lacking two or more): the largest lack, then the most threatened, then its home, then
+ * the largest, then at random; -1 for none. */
+int func_002FFB70(int f, int c)
+{
+    int reg[28], n = func_002FB320(f, reg), home = func_002FB2D0(f), best = 0x19, lack = 0, k;
+    int thr = -1, isHome = -1, size = -1;
+
+    for (k = 0; k < n; k++) {
+        int have = func_0030B090(reg[k]), d;
+
+        if (have == func_0030ACE0(reg[k]))
+            continue;
+        d = func_0030ACE0(reg[k]) - have;
+        if (c == 0xF && d <= 1)
+            continue;
+        if (IS_FORCE(best) && d <= lack) {
+            if (d == lack) {
+                int t = func_002FFA70(reg[k]);
+
+                if (thr < t) {
+                    thr = t;
+                    best = reg[k];
+                } else if (t == thr) {
+                    int h = home == reg[k];
+
+                    if (isHome < h) {
+                        isHome = h;
+                        best = reg[k];
+                    } else if (h == isHome) {
+                        int s = func_0030ACE0(reg[k]);
+
+                        if (size < s || (s == size && func_0030CB50(0x32) != 0)) {
+                            best = reg[k];
+                            size = s;
+                        }
+                    }
+                }
+            }
+        } else {
+            lack = d;
+            best = reg[k];
+        }
+    }
+    if (!IS_FORCE(best))
+        best = -1;
+    return best;
+}
+
+/* 0x002FFD60, 0xA8 bytes. 0 when force `f` (two regions or more) has three regions short of
+ * troops, else -1. */
+int func_002FFD60(int f)
+{
+    int reg[28], n = func_002FB320(f, reg), m = 0, k;
+
+    if (n < 2)
+        return -1;
+    for (k = 0; k < n; k++) {
+        if (func_0030B090(reg[k]) < func_0030ACE0(reg[k]))
+            m++;
+    }
+    return m < 3 ? -1 : 0;
+}
+
+/* 0x002FFE10, 0x28 bytes. 0 when a stable slot is free, else -1. */
+int func_002FFE10(void)
+{
+    return func_001A06D0() != 0 ? 0 : -1;
+}
+
+/* 0x002FFE40, 0xB8 bytes. A random horse of the stable below level 9 (-1 for none). */
+int func_002FFE40(void)
+{
+    u8 st[8];
+    int ok[6], n = 0, k;
+
+    func_002CAD90(st);
+    for (k = 0; k < st[4]; k++) {
+        if (func_0019FBC0(st[k])[8] < 9)
+            ok[n++] = k;
+    }
+    if (n == 0)
+        return -1;
+    return ok[func_0030CB00(n)];
+}
+
+/* 0x002FFF00, 0x2B0 bytes. The same as func_002FF710 for commands 10-18. */
+void func_002FFF00(int *out, u32 i, int k, int a, int b)
+{
+    int f = func_002F4080(i), cmd[100], val[100], n = 0, c, j;
+
+    for (c = 10; c < 0x13; c++) {
+        if (func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
+            && func_002FD1D0(f, c, 0) != 0 && func_002FD050(c) == 0
+            && func_00314C40(c, i, a, b) != 0
+            && (c != 0x12 || (g_0045D6A0 != 8 && g_0045D6A0 != 0x32 && g_0045D6A0 != 0x33))) {
+            cmd[n] = c;
+            val[n] = func_002FF230(c, i);
+            n++;
+        }
+    }
+    if (n == 0)
+        return;
+    func_002FF330(cmd, val, n);
+    for (j = 0; j < n; j++) {
+        int t = -1, g, m;
+
+        switch (cmd[j]) {
+        case 10: case 11: case 12:
+            t = func_002FF990(f, cmd[j], (u32 *)a, b);
+            break;
+        case 0xD:
+            for (m = 0, g = 0; g < 3; g++) {
+                if (func_002F9480(f, g) > 4)
+                    m++;
+            }
+            if (m < 2)
+                t = 0;
+            break;
+        case 0xE: case 0xF:
+            t = func_002FFB70(f, cmd[j]);
+            break;
+        case 0x10:
+            t = func_002FFD60(f);
+            break;
+        case 0x11:
+            t = func_002FFE10();
+            break;
+        case 0x12:
+            t = func_002FFE40();
+            break;
+        }
+        if (t != -1) {
+            out[k + 1] = cmd[j];
+            out[k + 3] = t;
+            return;
+        }
+    }
+}
+
+/* 0x003001C0, 0xB0 bytes. Whether one of the forces bordering the player's home has five
+ * active officers or fewer. */
+int func_003001C0(void)
+{
+    int g, r = 0;
+
+    func_0030BBD0(func_002FB2D0(func_00327D50()), 1);
+    for (g = 0; g <= 0x18; g++) {
+        if (func_0030B2F0(g) != 0
+            && func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, g, 0, 1) <= 5) {
+            r = 1;
+            break;
+        }
+    }
+    func_0030B330();
+    return r;
+}
+
+/* 0x00300270, 0x150 bytes. Whether force `f`'s neighbours lack officers of role 2 or more
+ * (`a`, the first in `fa`) or of role 0-1 (`b`, the first in `fb`). */
+void func_00300270(int f, int *a, int *fa, int *b, int *fb)
+{
+    int g;
+
+    *b = 0;
+    *a = 0;
+    if (fa != 0)
+        *fa = 0x19;
+    if (fb != 0)
+        *fb = 0x19;
+    func_0030BBD0(func_002FB2D0(f), 1);
+    for (g = 0; g < 0x19; g++) {
+        if (func_0030B2F0(g) == 0)
+            continue;
+        if (*a == 0 && func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, g, 0, 1) < 3) {
+            *a = 1;
+            if (fa != 0)
+                *fa = g;
+        }
+        if (*b == 0 && func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, g, 0, 0) < 3) {
+            *b = 1;
+            if (fb != 0)
+                *fb = g;
+        }
+    }
+    func_0030B330();
+}
+
+/* 0x003003C0, 0x1A0 bytes. How many officers the player's force may still take (its limit less
+ * its officers), and the neighbours short of officers of each kind with how many each needs. */
+int func_003003C0(int *fa, int *fb, int *na, int *nb)
+{
+    int f = func_00327D50(), have = func_002FB430(f), lim = func_00327E50(), g;
+
+    if (fa != 0)
+        *fa = 0x19;
+    if (fb != 0)
+        *fb = 0x19;
+    if (na != 0)
+        *na = 0;
+    if (nb != 0)
+        *nb = 0;
+    func_0030BBD0(func_002FB2D0(f), 1);
+    for (g = 0; g < 0x19; g++) {
+        int m;
+
+        if (func_0030B2F0(g) == 0)
+            continue;
+        m = func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, g, 0, 1);
+        if (m < 3) {
+            if (fa != 0)
+                *fa = g;
+            if (na != 0)
+                *na += 3 - m;
+        }
+        m = func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, g, 0, 0);
+        if (m < 3) {
+            if (fb != 0)
+                *fb = g;
+            if (nb != 0)
+                *nb += 3 - m;
+        }
+    }
+    func_0030B330();
+    return lim - have;
+}
+
+/* 0x00300560, 0x20 bytes, matching. */
+int func_00300560(int *fa, int *fb)
+{
+    return func_003003C0(fa, fb, 0, 0);
+}
+
+/* 0x00300580, 0x40 bytes. 0 when region `r` has officers of rank 1, else -1. */
+int func_00300580(int r)
+{
+    return func_002F7D90(0, (int (*)(u32, int, int))func_002F8740, r, 0, 0) == 0 ? -1 : 0;
+}
+
+/* 0x003005C0, 0x40 bytes. 0 when there are officers of rank 1, else -1. */
+int func_003005C0(int r)
+{
+    return func_002F7D90(0, (int (*)(u32, int, int))func_002F8710, r, 0, 0) == 0 ? -1 : 0;
+}
+
+/* 0x00300600, 0xE8 bytes. The first free officer near force `f` (named ones only when `named`,
+ * others only when `other`); -1 for none. */
+int func_00300600(int f, int named, int other)
+{
+    int n, k;
+    u32 *l;
+
+    func_0030B440(func_002FB2D0(f));
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8570, 0, 0, 0);
+    l = func_002F7B10();
+    for (k = 0; k < n; k++) {
+        if ((func_002F3F20(l[k]) != 0 ? named : other) != 0)
+            break;
+    }
+    return k < n ? (int)func_002F7B10()[k] : -1;
+}
