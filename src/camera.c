@@ -351,7 +351,7 @@ typedef struct {
     float range;
     u32 pad;
     u32 result;              /* +0x18: low byte hit, bit 0x8000 a soft hit */
-    u32 pad2;
+    float height;            /* +0x1C: the ceiling met */
     float hit[4];            /* +0x20 */
     float normal[4];         /* +0x30 */
 } Ray;
@@ -651,4 +651,186 @@ int func_00162C30(int *cam, float *eye, float *target, float *closeness, int fre
     if (free == 0 || func_00162840(cam, eye, target) == 0)
         func_00162B00(cam, eye, target, &r, closeness);
     return 1;
+}
+
+/* A ground probe (func_001F2BF0): the area under a point. */
+typedef struct {
+    float *pos;
+    u32 pad[6];
+    u8 area;                 /* +0x1C */
+    u8 pad2[0x23];
+} Probe;
+
+extern float g_0045CE74, g_0045CE78, g_0045CE7C;   /* (small data) the target's dead zone */
+
+float func_0029DDE0(float cur, float prev, float want, float rate, float dt);
+void func_001F2BF0(Probe *p);
+
+/* Wraps an angle into -pi..pi (one turn at most). */
+static inline float wrap1(float a)
+{
+    if (PI < a)
+        a -= TWO_PI;
+    else if (a < -PI)
+        a += TWO_PI;
+    return a;
+}
+
+/* 0x00163050, 0x328 bytes. The camera turning to a set yaw (+8) around the target: the eye's
+ * direction from the target eased towards the yaw (rate 4), at the camera's distance (+0xC);
+ * the turn timer (+0x18) runs out, or ends once within 5 degrees. */
+void func_00163050(float dt, int *cam)
+{
+    u8 *obj = (u8 *)cam[0];
+    float t[4], e[4], d[4], v[4], ang, want, left, close, len;
+    int k, hit, pulled;
+
+    func_00162250(g_0045CE74, g_0045CE78, g_0045CE7C, cam, t);
+    for (k = 0; k < 4; k++)
+        d[k] = F32(obj, 0x1C0 + k * 4) - F32(obj, 0x1D0 + k * 4);
+    ang = vu0_angle(d[0], d[2]);
+    want = func_0029DDE0(*(float *)&cam[2], *(float *)&cam[2], ang, 4.0f, dt);
+    left = wrap1(*(float *)&cam[2] - ang);
+    turn_y(v, wrap1(want - ang), d);
+    len = len3(v);
+    for (k = 0; k < 4; k++)
+        e[k] = t[k] + v[k] / len * *(float *)&cam[3];
+    hit = func_00162C30(cam, e, t, &close, 0);
+    pulled = func_00161790(close, (Unit *)cam[1], cam, e, t, 0);
+    func_001626E0(cam, t, e, 6.0f, 6.0f, (hit == 0 && pulled == 0) ? 1.0f : 3.0f, dt);
+    if (fabsf(left) < 0.08726647f)
+        cam[6] = 0;
+    else
+        cam[6] = cam[6] - 1;
+}
+
+/* 0x00163380, 0x268 bytes. The usual camera: behind the unit along the flat line from the eye
+ * to the target, at the camera's distance (1.25 times for actions with flag 1); eased at 2.5
+ * (4 when mounted), or 5 when the scenery was in the way. */
+void func_00163380(float dt, int *cam)
+{
+    u8 *obj = (u8 *)cam[0];
+    float t[4], e[4], f[4], dist, len, close;
+    int k, hit, pulled;
+
+    *(float *)&cam[3] = func_00161D90(*(float *)&cam[3], (Unit *)cam[1], 0);
+    func_00162250(g_0045CE74, g_0045CE78, g_0045CE7C, cam, t);
+    for (k = 0; k < 4; k++)
+        f[k] = t[k] - F32(obj, 0x1C0 + k * 4);
+    f[1] = 0.0f;
+    len = len3(f);
+    if (0.0001f < len) {
+        for (k = 0; k < 4; k++)
+            f[k] = f[k] / len;
+    }
+    dist = *(float *)&cam[3];
+    if (U32(ACT((Unit *)cam[1]), 0x1C) & 1)
+        dist = dist * 1.25f;
+    for (k = 0; k < 3; k++)
+        e[k] = f[k] * (dist * -1.0f) + t[k];
+    e[3] = 1.0f;
+    hit = func_00162C30(cam, e, t, &close, 1);
+    pulled = func_00161790(close, (Unit *)cam[1], cam, e, t, 0);
+    if (hit == 0 && pulled == 0) {
+        if ((U32(ACT((Unit *)cam[1]), 0x18) & 0x8000000) == 0)
+            func_001626E0(cam, t, e, 2.5f, 2.5f, 1.0f, dt);
+        else
+            func_001626E0(cam, t, e, 4.0f, 4.0f, 1.0f, dt);
+    } else {
+        func_001626E0(cam, t, e, 5.0f, 5.0f, 3.0f, dt);
+    }
+}
+
+/* 0x001635F0, 0x1BC bytes. The camera straight behind the unit's facing (func_00161520), for
+ * actions that keep their direction; the height offset eases back to 0. */
+void func_001635F0(float dt, int *cam)
+{
+    Unit *u = (Unit *)cam[1];
+    float t[4], e[4], f[4], s, r, close;
+    int hit, pulled;
+
+    *(float *)&cam[3] = func_00161D90(*(float *)&cam[3], u, 0);
+    func_00162250(g_0045CE74, g_0045CE78, g_0045CE7C, cam, t);
+    s = F32(cam, 0x14);
+    r = g_0045CE88 * 2.0f;
+    if (r < s)
+        F32(cam, 0x14) = s - r;
+    else if (s < -r)
+        F32(cam, 0x14) = s + r;
+    else
+        F32(cam, 0x14) = 0.0f;
+    func_00161520(f, u);
+    s = -*(float *)&cam[3];
+    e[0] = f[0] * s + t[0] + 0.0f;
+    e[1] = f[1] * s + t[1] + 0.0f;
+    e[2] = f[2] * s + t[2] + 0.0f;
+    e[3] = 1.0f;
+    hit = func_00162C30(cam, e, t, &close, 0);
+    pulled = func_00161790(close, (Unit *)cam[1], cam, e, t, 1);
+    if (hit == 0 && pulled == 0)
+        func_001626E0(cam, t, e, 2.5f, 2.5f, 0.5f, dt);
+    else
+        func_001626E0(cam, t, e, 5.0f, 5.0f, 3.0f, dt);
+}
+
+/* 0x001637B0, 0x270 bytes. The battle camera each frame: the mode for the unit's action (none
+ * with flag 0x8000; turning while the timer +0x18 runs; behind the facing for actions with flag
+ * 8, or 0x20000 / 0x100 kept from the previous action +0x1C; else the usual one); the view angle
+ * (15 degrees, 10 with two players); then, if the eye went through the scenery, the eye kept
+ * under the ceiling when it stays in the target's area. */
+void func_001637B0(float dt, int *cam)
+{
+    u8 *obj = (u8 *)cam[0];
+    u8 *act = ACT((Unit *)cam[1]);
+    float old[4], q[4];
+    Ray r;
+    int k;
+
+    for (k = 0; k < 4; k++)
+        old[k] = F32(obj, 0x1C0 + k * 4);
+    if ((U32(act, 0x1C) & 0x8000) == 0) {
+        if (cam[6] != 0) {
+            func_00163050(dt, cam);
+        } else if (act != 0 && (U32(act, 0x1C) & 8)) {
+            func_00162130(cam);
+        } else if (act == 0 || ((U32(act, 0x18) & 0x20000) == 0 && (U32(act, 0x18) & 0x100) == 0)) {
+            func_00163380(dt, cam);
+        } else if (cam[7] == 0 || ((U32(cam[7], 0x18) & 0x20000) == 0
+                                   && (U32(cam[7], 0x18) & 0x100) == 0)) {
+            func_00162130(cam);
+        } else {
+            func_001635F0(dt, cam);
+        }
+    }
+    F32(obj, 0x224) = (g_00669F60 & 2) == 0 ? 0.2617994f : 0.17453294f;
+    F32(obj, 0x220) = 0.0f;
+    cam[7] = (int)act;
+    if ((U8(cam, 0x3C) & 2) && (U32(act, 0x18) & 0x20) == 0)
+        U8(cam, 0x3C) &= ~2;
+    r.from = old;
+    r.to = &F32(obj, 0x1C0);
+    r.who = 0;
+    r.radius = 30.0f;
+    r.range = 100.0f;
+    U8(cam, 0x3C) &= ~4;
+    func_001F3930(&r);
+    if (r.result & 0x100) {
+        Probe p;
+        u8 area;
+
+        for (k = 0; k < 4; k++)
+            q[k] = F32(obj, 0x1C0 + k * 4);
+        q[1] = q[1] + 100.0f;
+        p.pos = q;
+        func_001F2BF0(&p);
+        area = p.area;
+        p.pos = &F32(obj, 0x1D0);
+        func_001F2BF0(&p);
+        if (area == p.area) {
+            float y = old[1] + 6.0f;
+
+            F32(obj, 0x1C4) = y < r.height ? y : r.height;
+        }
+        U8(cam, 0x3C) = (U8(cam, 0x3C) & ~4) | 4;
+    }
 }
