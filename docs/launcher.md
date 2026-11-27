@@ -106,6 +106,8 @@ Earlier proposals there (`init(platform, config)`, a `sw2e_` prefix) are superse
     `PS2_PTR(addr)` and back with `PS2_ADDR(ptr)`;
   - native pointers only in C locals and parameters;
   - shared prototypes in headers (`src/sw2e_draw.h` started).
+  - conventions and the PC rewrite of the sources: [port.md](port.md) (all 137 files already
+    compile as 64-bit C).
 - [ ] **Report here when known:**
   - is there a 60 Hz mode (the evidence is mixed)?
   - which text languages are on the disc?

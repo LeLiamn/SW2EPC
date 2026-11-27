@@ -12,7 +12,6 @@ typedef unsigned int u32;
 
 #include "sw2e_draw.h"
 
-extern int g_00731208;
 
 /* Flag bytes of the live settings (bitfields, first field = lowest bit). */
 typedef struct {             /* 0x00669DB0 */

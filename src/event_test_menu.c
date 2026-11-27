@@ -16,6 +16,8 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#include "sw2e_mem.h"
+
 #include "sw2e_draw.h"
 
 /* A sliding window: position, size, speed, alpha, flags (bit 0 sliding), its animation. */
@@ -35,7 +37,7 @@ extern int g_0056CCA4[4];
 extern float g_0056CCC0, g_0056CCC4;
 extern u8 g_00500764, g_00500765;
 extern u16 g_0050074C, g_0050074E;
-extern u8 *g_0043C77C;
+extern ps2ptr g_0043C77C;
 
 #define PAD1_PRESSED() ((g_00500764 & 1) == 0 || (g_00500765 & 1) != 1 ? 0 : g_0050074C)
 #define PAD1_REPEAT() ((g_00500764 & 1) == 0 || (g_00500765 & 1) != 1 ? 0 : g_0050074E)
@@ -394,7 +396,7 @@ void func_003B2010(void)
 void func_003B20B0(void)
 {
     if (g_0045D7F4 != 2)
-        func_001A7DC0(g_0043C77C, 0x80, 2);
+        func_001A7DC0((u8 *)PS2_PTR(g_0043C77C), 0x80, 2);
 }
 
 /* 0x003B21A0, 0x58 bytes. */
@@ -414,9 +416,10 @@ void func_003B21A0(void)
 /* ---- The event scene's choice windows (state 0x003B2340: +0x98 mode, +4 the four choices, boxes
  * at +0x9C and +0xEC, 0x14 bytes each: from (x, y, w, h), to (x, y, w, h), alphas, steps, step). */
 
-extern u8 *g_0045D7FC;                   /* (small data) the sprite bank */
+extern ps2ptr g_0045D7FC;                /* (small data) the sprite bank */
+#define BANK ((u8 *)PS2_PTR(g_0045D7FC))
 extern short g_0045B6A0[5][2];
-extern u8 *g_0043C5A8;
+extern ps2ptr g_0043C5A8;
 
 u8 *func_003B2340(void);
 void func_003B2360(short *xy, int k);
@@ -509,7 +512,7 @@ void func_003B24F0(void)
     }
     func_003B34A0(1);
     if (ST_INT(g, 0x8E6C) == 2)
-        func_001A7DC0(g_0043C5A8, 0x80, 2);
+        func_001A7DC0((u8 *)PS2_PTR(g_0043C5A8), 0x80, 2);
 }
 
 /* 0x003B27E0, 0xC48 bytes. Sets the windows' moves for mode +0x98: 4 open, 2 / 1 turn one way or
@@ -577,14 +580,14 @@ void func_003B39A0(int x, int y, int a, int w, int h, int k)
             k = 0;
         else
             k++;
-        func_001ABEA0(g_0045D7FC, 0, x, y, 0, w, h, (k % 0x15) * 0x18, (k / 0x15) * 0x18, 0x18, 0x18, 0x80, a, 0);
+        func_001ABEA0(BANK, 0, x, y, 0, w, h, (k % 0x15) * 0x18, (k / 0x15) * 0x18, 0x18, 0x18, 0x80, a, 0);
     }
 }
 
 /* 0x003B3D50, 0x78 bytes. Draws tab `k` (lit or not). */
 void func_003B3D50(int k, int x, int y, int a, int b, int lit)
 {
-    func_001ABEA0(g_0045D7FC, lit == 0 ? 8 : 9, x, y, a, 0x48, 0x20, 0, k * 0x20, 0x48, 0x20, 0x80, b, 0);
+    func_001ABEA0(BANK, lit == 0 ? 8 : 9, x, y, a, 0x48, 0x20, 0, k * 0x20, 0x48, 0x20, 0x80, b, 0);
 }
 
 /* 0x003B3DD0, 0x98 bytes, matching. Draws the five tabs, `cur` lit. */
@@ -603,7 +606,7 @@ int func_00313B30(int k);
 void func_001AB4E0(u8 *img, u8 *pal, int x, int y, int z, int w, int h, int u, int v, int uw,
                    int vh, const u32 *rgba, int layer, int centred);
 
-#define BANK_SPR(k) (g_0045D7FC + *(int *)(g_0045D7FC + 8) * *(int *)(g_0045D7FC + 0x10 + (k) * 8))
+#define BANK_SPR(k) (BANK + *(int *)(BANK + 8) * *(int *)(BANK + 0x10 + (k) * 8))
 
 /* 0x003B4FE0, 0x90 bytes. */
 void func_003B4FE0(int k, int x, int y, int z, int p4)
@@ -618,20 +621,20 @@ void func_003B4FE0(int k, int x, int y, int z, int p4)
         s = 0x1C;
     else
         s = x;
-    func_001ABEA0(g_0045D7FC, s, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
+    func_001ABEA0(BANK, s, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
 }
 
 /* 0x003B5070, 0x16C bytes. A level mark by value (< 20, < 50, < 80, more). */
 void func_003B5070(int v, int x, int y, int z, int p4)
 {
     if (v < 0x14)
-        func_001ABEA0(g_0045D7FC, 0x17, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
+        func_001ABEA0(BANK, 0x17, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
     else if (v < 0x32)
-        func_001ABEA0(g_0045D7FC, 0x18, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
+        func_001ABEA0(BANK, 0x18, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
     else if (v < 0x50)
-        func_001ABEA0(g_0045D7FC, 0x19, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
+        func_001ABEA0(BANK, 0x19, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
     else
-        func_001ABEA0(g_0045D7FC, 0x1A, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
+        func_001ABEA0(BANK, 0x1A, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
 }
 
 /* 0x003B5300, 0xB4 bytes. */
@@ -649,27 +652,27 @@ void func_003B5300(int k, int x, int y, int z, int p4)
         s = 0x11;
     else
         return;
-    func_001ABEA0(g_0045D7FC, s, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
+    func_001ABEA0(BANK, s, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
 }
 
 /* 0x003B53C0, 0x44 bytes, matching. */
 void func_003B53C0(int x, int y, int z, int a, int b, int k)
 {
-    func_001ABE40(g_0045D7FC, k + 0x1F, x, y, z, 0x40, 0x20, a, b, 0);
+    func_001ABE40(BANK, k + 0x1F, x, y, z, 0x40, 0x20, a, b, 0);
 }
 
 /* 0x003B5480, 0x114 bytes. A bar of width `w` (two caps and a middle). */
 void func_003B5480(int x, int y, int z, int w, int b, int c)
 {
-    func_001ABEA0(g_0045D7FC, 3, x, y, z, 0x18, 8, 0, 0, 0x18, 8, b, c, 0);
-    func_001ABEA0(g_0045D7FC, 3, x + 0x18, y, z, w - 0x30, 8, 0x18, 0, 8, 8, b, c, 0);
-    func_001ABEA0(g_0045D7FC, 3, x + 0x18 + w - 0x30, y, z, 0x18, 8, 0x20, 0, 0x18, 8, b, c, 0);
+    func_001ABEA0(BANK, 3, x, y, z, 0x18, 8, 0, 0, 0x18, 8, b, c, 0);
+    func_001ABEA0(BANK, 3, x + 0x18, y, z, w - 0x30, 8, 0x18, 0, 8, 8, b, c, 0);
+    func_001ABEA0(BANK, 3, x + 0x18 + w - 0x30, y, z, 0x18, 8, 0x20, 0, 0x18, 8, b, c, 0);
 }
 
 /* 0x003B5820, 0x80 bytes, matching. The icon of kind `k`. */
 void func_003B5820(int k, int x, int y, int z, int a, int b)
 {
-    func_001ABE40(g_0045D7FC, func_00313B30(k) + 0x2F, x, y, z, 0x20, 0x18, a, b, 0);
+    func_001ABE40(BANK, func_00313B30(k) + 0x2F, x, y, z, 0x20, 0x18, a, b, 0);
 }
 
 /* 0x003B5970, 0x124 bytes. A frame of width `w` (at least 0x20). */
@@ -677,9 +680,9 @@ void func_003B5970(int x, int y, int z, int w, int p4, int p5, int p6)
 {
     if (w < 0x20)
         w = 0x20;
-    func_001ABEA0(g_0045D7FC, 0x49, x, y, z, 0x10, 0x18, 0, 0, 0x10, 0x18, p5, p6, 0);
-    func_001ABEA0(g_0045D7FC, 0x49, x + 0x10, y, z, w - 0x20, 0x18, 0x10, 0, 8, 0x18, p5, p6, 0);
-    func_001ABEA0(g_0045D7FC, 0x49, x + 0x10 + w - 0x20, y, z, 0x10, 0x18, 0x18, 0, 0x10, 0x18, p5, p6, 0);
+    func_001ABEA0(BANK, 0x49, x, y, z, 0x10, 0x18, 0, 0, 0x10, 0x18, p5, p6, 0);
+    func_001ABEA0(BANK, 0x49, x + 0x10, y, z, w - 0x20, 0x18, 0x10, 0, 8, 0x18, p5, p6, 0);
+    func_001ABEA0(BANK, 0x49, x + 0x10 + w - 0x20, y, z, 0x10, 0x18, 0x18, 0, 0x10, 0x18, p5, p6, 0);
 }
 
 /* 0x003B5AA0, 0x8C bytes. Digit sprite `d` (0..9 = 1..9, 0), dimmed when `dim`. */
@@ -735,14 +738,14 @@ void func_003B5D50(int k, int x, int y, int z, int alpha, int layer, int dim)
 void func_003B5E10(int k, int x, int y, int z, int p4, int p5)
 {
     if (k >= 0 && k < 3)
-        func_001ABEA0(g_0045D7FC, 0x54, x, y, z, 0x38, 0x10, 0, k * 0x10, 0x38, 0x10, p4, p5, 0);
+        func_001ABEA0(BANK, 0x54, x, y, z, 0x38, 0x10, 0, k * 0x10, 0x38, 0x10, p4, p5, 0);
 }
 
 /* ---- The Empire ending (state 0x003B5E90: +4 step, +0x20.. loaded files, +0x514 the cleared
  * player officers (8 x 0x24), +0x634 their marks, +0x654 count, +0x658 cursor, +0x760 timer). ---- */
 
 extern char g_0045B6E8[];                /* this source file's name */
-extern char *g_0043C31C;
+extern ps2ptr g_0043C31C;
 extern char g_006935DB, g_006935DC;
 extern u8 g_0056CCC8[4];
 
@@ -944,7 +947,7 @@ void func_003B6620(void)
 
     if (ST_INT(s, 0x71C) == 0) {
         g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = 0x80;
-        func_001204B0(t, g_0043C31C);
+        func_001204B0(t, (char *)PS2_PTR(g_0043C31C));
         func_001AE9F0(1, t, 1);
         func_001AFC50(1);
         g_006935DB = 5;
@@ -1116,7 +1119,7 @@ void func_003B6F20(void)
     func_001AFEC0(0);
 }
 
-extern u8 *g_0043C5F0;
+extern ps2ptr g_0043C5F0;
 extern char g_0069395E;
 extern int g_0045D894, g_0045D898, g_0045D89C, g_0045D8A0;
 extern u8 g_00669FC7[][0x38];            /* custom officers' records (+0x267 in the settings) */
@@ -1171,7 +1174,7 @@ void func_003B7090(void)
     if (n == cur)
         func_002C6040(-0x3C, 0x118, 0x100, 0x20, 0, 0x80);
     func_003838B0(func_003725A0(0x38), 0);
-    func_001A7DC0(g_0043C5F0, 0x80, 1);
+    func_001A7DC0((u8 *)PS2_PTR(g_0043C5F0), 0x80, 1);
 }
 
 /* 0x003B7160, 0xB0 bytes. Draw. */
