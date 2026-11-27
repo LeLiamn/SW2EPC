@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 125216,
-    "non_matching": 920732
+    "non_matching": 930532
   },
   "data": {
     "total": 2155890688,
@@ -768,14 +768,14 @@
         },
         {
           "name": "sc_sysmsg.c",
-          "description": "Estimated range 0x23CED8-0x245518; 0 function(s) decompiled",
+          "description": "Estimated range 0x23CED8-0x245518; 14 function(s) decompiled",
           "code": {
             "total": 34368,
             "matching": 0,
-            "non_matching": 0
+            "non_matching": 6264
           },
           "decompiled_functions": {
-            "count": 0,
+            "count": 14,
             "matching": 0
           }
         },
@@ -877,14 +877,14 @@
         },
         {
           "name": "SeManager.c",
-          "description": "Estimated range 0x234490-0x23CED8; 38 function(s) decompiled",
+          "description": "Estimated range 0x234490-0x23CED8; 50 function(s) decompiled",
           "code": {
             "total": 35400,
             "matching": 784,
-            "non_matching": 9616
+            "non_matching": 13152
           },
           "decompiled_functions": {
-            "count": 38,
+            "count": 50,
             "matching": 21
           }
         },
