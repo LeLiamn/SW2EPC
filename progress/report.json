@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 172896,
-    "non_matching": 1169316
+    "matching": 172976,
+    "non_matching": 1171516
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2205
+    "matching": 2207
   },
   "layout": "treemap",
   "areas": [
@@ -672,15 +672,15 @@
         },
         {
           "name": "HorseModel.c",
-          "description": "Estimated range 0x2AA7D8-0x2C1EA8; 62 function(s) decompiled",
+          "description": "Estimated range 0x2AA7D8-0x2C1EA8; 74 function(s) decompiled",
           "code": {
             "total": 95952,
-            "matching": 1840,
-            "non_matching": 3624
+            "matching": 1920,
+            "non_matching": 5824
           },
           "decompiled_functions": {
-            "count": 62,
-            "matching": 33
+            "count": 74,
+            "matching": 35
           }
         },
         {
