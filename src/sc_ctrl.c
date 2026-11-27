@@ -912,3 +912,322 @@ void func_00187A70(short *cmd, int player)
     g_005BD728 = 0;
     func_0022EF90(g_005BC3A0, g_005BC020, 0);
 }
+
+/* The scenario's integer variables (the scenario object's +0x1BD0; the same table as the
+ * texts by index). */
+#define SC_VAR(i) (*(int *)&g_005BC260[i])
+
+#define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+
+extern u32 g_005BD73C;
+extern short g_00669DEC[][0x24];         /* per player settings (0x48 bytes): +0 a value */
+
+int func_0017E0A0(void);
+int func_0017E0B0(void);
+void func_0017DE50(void);
+void func_0017DE70(u16 a);
+void func_00190860(u8 *a, u8 *b, char c, u32 mask);
+void func_001906B0(u8 *a, u8 *b, u32 mask, int on);
+void func_001F11E0(u8 kind, float *out);
+void func_00253B50(u8 *u, u8 kind);
+
+/* 0x00188C00, 0x7C bytes. Command: variable cmd[3] = cmd[0] + or x (cmd[2] 0 / 1) cmd[1]. */
+void func_00188C00(u16 *cmd)
+{
+    int b = SC_VAR(cmd[1]), a = SC_VAR(cmd[0]), r;
+
+    switch (cmd[2]) {
+    case 1:
+        r = a * b;
+        break;
+    case 0:
+        r = a + b;
+        break;
+    default:
+        return;
+    }
+    SC_VAR(cmd[3]) = r;
+}
+
+/* 0x00188C80, 0x8C bytes. Command: variable cmd[0] = a random number between cmd[1] and cmd[2]. */
+void func_00188C80(u16 *cmd)
+{
+    short a = cmd[1], b = cmd[2];
+    int lo, n;
+
+    if (a < b) {
+        n = b - a;
+        lo = a;
+    } else {
+        n = a - b;
+        lo = b;
+    }
+    if (n + 1 == 0)
+        n = 0;
+    else
+        n = (int)RANDOM() % (n + 1);
+    SC_VAR(cmd[0]) = lo + n;
+}
+
+/* 0x00188D10, 0x3C bytes. Command: variable cmd[0] = player cmd[1]'s setting value. */
+void func_00188D10(u16 *cmd)
+{
+    SC_VAR(cmd[0]) = g_00669DEC[cmd[1]][0];
+}
+
+/* 0x00188D50, 0x7C bytes. Command: plays music cmd[0] (not in battle state 0x4000000, nor
+ * while the music players are in state 0x16); kept as the scenario's music. */
+void func_00188D50(u16 *cmd)
+{
+    if (g_00669F60[0] & 0x4000000)
+        return;
+    if (func_0017E0A0() != 0x16 && func_0017E0B0() != 0x16) {
+        func_0017DE50();
+        func_0017DE70(cmd[0]);
+    }
+    g_005BD73C = cmd[0];
+}
+
+/* 0x00188DD0, 0xBC bytes. Command: marks an area (cells cmd[3]-cmd[4] to cmd[5]-cmd[6]) on the
+ * map: kinds 1-3 with colour cmd[1] (bit `kind`), kind 0 the flag 0x8000 (on with cmd[2]). */
+void func_00188DD0(u16 *cmd)
+{
+    u8 a[2], b[2];
+    u32 k = cmd[0];
+
+    a[0] = (u8)cmd[3];
+    a[1] = (u8)cmd[4];
+    b[0] = (u8)cmd[5];
+    b[1] = (u8)cmd[6];
+    if (k == 3 || k == 2 || k == 1) {
+        if (cmd[0] > 7)
+            k = 8;
+        func_00190860(a, b, (char)cmd[1], 1 << k);
+    } else if (k == 0) {
+        func_001906B0(a, b, 0x8000, cmd[2] == 1);
+    }
+}
+
+/* A strength scaled from one unit kind's factor to another's, between 1 and 1000. */
+static inline short scale_stat(short v, float from, float to)
+{
+    short s = (short)(int)(to * ((float)(int)v / from));
+
+    if (s > 1000)
+        s = 1000;
+    if (s < 2)
+        s = 1;
+    return s;
+}
+
+/* 0x00188E90, 0x1EC bytes. Command: officer cmd[0] (free) changes its troop kind (+0x7E) to
+ * cmd[1]; in battle its two strengths are scaled to the new kind and its unit told. */
+void func_00188E90(u16 *cmd)
+{
+    u32 id = func_00185E00(cmd[0], 1);
+    u8 *o, old, nw;
+
+    if (id >= 0x1AD)
+        return;
+    o = REC88(id);
+    old = U8(o, 0x7E);
+    U8(o, 0x7E) = (u8)cmd[1];
+    nw = U8(o, 0x7E);
+    if (U32(o, 0x80) & 0x20000) {
+        float a, b;
+        u8 *bo;
+
+        func_001F11E0(old, &a);
+        func_001F11E0(nw, &b);
+        bo = g_006A3A30[U32(o, 0x14)];
+        if (U32(bo, 0xB8) & 0x80) {
+            *(short *)(bo + 0x8A) = scale_stat(*(short *)(bo + 0x8A), a, b);
+            *(short *)(bo + 0x8C) = scale_stat(*(short *)(bo + 0x8C), a, b);
+            func_00253B50(PTR(bo, 0x14), nw);
+        }
+    }
+}
+
+void func_001D4D90(float v, u8 *base);
+void func_001D4CA0(u8 *base, short v);
+void func_001EF190(u8 *o, short v, int a, int b);
+void func_001D4D20(u8 *base, u16 v, int on);
+void func_001EC900(u8 *o, u16 v, int on);
+void func_001D50C0(u8 *base, u8 v);
+void func_001EE6B0(u8 *o, u8 v);
+void func_001D5120(u8 *base, u8 v);
+void func_001EE750(u8 *o, u8 v);
+void func_001D51F0(u8 *base, short v);
+void func_001D51A0(u8 *base, short v);
+void func_0018ACA0(u8 *cell);
+void func_0018AD30(u32 id);
+void func_00183670(float *pos);
+
+/* 0x00189080, 0xD0 bytes. Command: officer cmd[1]'s base (cmd[0] = 0) gets value cmd[2]
+ * (func_001D4D90), else the officer's +0x24 becomes cmd[2] kept between 1 and 20. */
+void func_00189080(short *cmd)
+{
+    u32 id = func_00185E00(cmd[1], 1);
+    u8 *o;
+
+    if (id >= 0x1AD)
+        return;
+    o = REC88(id);
+    if (cmd[0] == 0 && U32(o, 0x10) < 0x47) {
+        func_001D4D90((float)cmd[2], BASE68(U32(o, 0x10)));
+    } else {
+        float v = (float)cmd[2];
+
+        v = v < 20.0f ? v : 20.0f;
+        *(float *)(o + 0x24) = 1.0f < v ? v : 1.0f;
+    }
+}
+
+/* 0x00189150, 0xB8 bytes. Command: value cmd[2] for officer cmd[1]'s base (func_001D4CA0) or
+ * the officer (func_001EF190, with cmd[3] and cmd[4]). */
+void func_00189150(short *cmd)
+{
+    u32 id = func_00185E00(cmd[1], 1);
+    u8 *o;
+
+    if (id >= 0x1AD)
+        return;
+    o = REC88(id);
+    if (cmd[0] == 0 && U32(o, 0x10) < 0x47)
+        func_001D4CA0(BASE68(U32(o, 0x10)), cmd[2]);
+    else
+        func_001EF190(o, cmd[2], cmd[3] == 1, cmd[4] == 1);
+}
+
+/* 0x00189210, 0x104 bytes. Command: officer cmd[0] (on the field, not beaten nor away) gets
+ * cmd[1] (on with cmd[2]) for its base (cmd[3] = 0) or itself. */
+void func_00189210(u16 *cmd)
+{
+    u32 id = func_00185ED0(cmd[0]);
+    u8 *o;
+    u32 f;
+
+    if (func_00185EC0(id) != 0)
+        return;
+    o = REC88(id);
+    f = U32(o, 0x80);
+    if ((f & 1) && (f & 2) == 0 && (f & 4) == 0 && (f & 0x30) == 0) {
+        if (cmd[3] == 0 && U32(o, 0x10) < 0x47)
+            func_001D4D20(BASE68(U32(o, 0x10)), cmd[1], cmd[2] == 1);
+        else
+            func_001EC900(o, cmd[1], cmd[2] == 1);
+    }
+}
+
+/* 0x00189320, 0xC0 bytes. Command: officer cmd[0] (on the field) gets byte cmd[1] for its base
+ * (func_001D50C0) or itself (func_001EE6B0). */
+void func_00189320(u16 *cmd)
+{
+    u32 id = func_00185ED0(cmd[0]);
+    u8 *o;
+
+    if (func_00185EC0(id) != 0)
+        return;
+    o = REC88(id);
+    if ((U32(o, 0x80) & 1) && (U32(o, 0x80) & 0x30) == 0) {
+        if (U32(o, 0x10) < 0x47)
+            func_001D50C0(BASE68(U32(o, 0x10)), *(u8 *)&cmd[1]);
+        else
+            func_001EE6B0(o, *(u8 *)&cmd[1]);
+    }
+}
+
+/* 0x001893E0, 0xC0 bytes. The same with func_001D5120 / func_001EE750. */
+void func_001893E0(u16 *cmd)
+{
+    u32 id = func_00185ED0(cmd[0]);
+    u8 *o;
+
+    if (func_00185EC0(id) != 0)
+        return;
+    o = REC88(id);
+    if ((U32(o, 0x80) & 1) && (U32(o, 0x80) & 0x30) == 0) {
+        if (U32(o, 0x10) < 0x47)
+            func_001D5120(BASE68(U32(o, 0x10)), *(u8 *)&cmd[1]);
+        else
+            func_001EE750(o, *(u8 *)&cmd[1]);
+    }
+}
+
+/* 0x001894A0, 0x38 bytes. Command: command cmd[0] (from the first of this group, +8) may be
+ * met again. */
+void func_001894A0(u16 *cmd)
+{
+    u8 *c = g_005BA7CC.data
+            + *(u32 *)(g_005BA7CC.data + (cmd[0] + g_005BA7CC.pad[0]) * 4 + 0xC);
+
+    c[0] &= ~3;
+}
+
+/* 0x001894E0, 0x108 bytes. Command: one of two rates (cmd[1]) of officer cmd[2]'s base, or of
+ * the officer itself (+0x58 / +0x5C), becomes cmd[3] percent. */
+void func_001894E0(short *cmd)
+{
+    u32 id = func_00185E00(cmd[2], 1);
+    u8 *o;
+
+    if (id >= 0x1AD)
+        return;
+    o = REC88(id);
+    if (cmd[0] == 0 && U32(o, 0x10) < 0x47) {
+        u8 *b = BASE68(U32(o, 0x10));
+
+        if (cmd[1] == 0)
+            func_001D51F0(b, cmd[3]);
+        else
+            func_001D51A0(b, cmd[3]);
+    } else if (cmd[1] == 0) {
+        *(float *)(o + 0x58) = (float)cmd[3] * 0.01f;
+    } else {
+        *(float *)(o + 0x5C) = (float)cmd[3] * 0.01f;
+    }
+}
+
+/* 0x001895F0, 0x2C bytes. Command: func_0018ACA0 on cell (cmd[0], cmd[1]). */
+void func_001895F0(u16 *cmd)
+{
+    u8 c[2];
+
+    c[0] = (u8)cmd[0];
+    c[1] = (u8)cmd[1];
+    func_0018ACA0(c);
+}
+
+/* 0x00189620, 0xB4 bytes. Command: func_0018AD30 for officer cmd[0] if it is on the field
+ * (the player's own for the player ids). */
+void func_00189620(u16 *cmd, int player)
+{
+    u32 id = func_00185ED0(cmd[0]);
+
+    if (func_00185EC0(id) == 0) {
+        u32 f = U32(REC88(id), 0x80);
+        int ok = 0;
+
+        if ((f & 1) && ((f & 0x8C40002) != 0) ^ 1)
+            ok = 1;
+        if (!ok)
+            return;
+    } else {
+        id = func_0035DC70(func_00186480(player)) & 0xFFFF;
+    }
+    func_0018AD30(id);
+}
+
+/* 0x001896E0, 0x74 bytes. Command: the point of cell (cmd[0], cmd[2] bytes) for
+ * func_00183670, kept at 0x005BD728. */
+void func_001896E0(u8 *cmd)
+{
+    float p[2];
+
+    p[0] = (float)cmd[0] * 1000.0f + 500.0f;
+    p[1] = (float)cmd[2] * 1000.0f + 500.0f;
+    func_00183670(p);
+    ((float *)&g_005BD728)[0] = p[0];
+    ((float *)&g_005BD728)[1] = p[1];
+}
