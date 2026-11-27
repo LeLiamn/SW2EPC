@@ -18,6 +18,7 @@ typedef unsigned int u32;
 #define U8(o, off)  (*(u8 *)((u8 *)(o) + (off)))
 #define U16(o, off) (*(u16 *)((u8 *)(o) + (off)))
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
+#define S32(o, off) (*(int *)((u8 *)(o) + (off)))
 #define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
 
 #pragma opt_unroll_loops on
@@ -1061,7 +1062,7 @@ void func_001EE750(u8 *o, u8 v);
 void func_001D51F0(u8 *base, short v);
 void func_001D51A0(u8 *base, short v);
 void func_0018ACA0(u8 *cell);
-void func_0018AD30(u32 id);
+void func_0018AD30(int id);
 void func_00183670(float *pos);
 
 /* 0x00189080, 0xD0 bytes. Command: officer cmd[1]'s base (cmd[0] = 0) gets value cmd[2]
@@ -1458,4 +1459,298 @@ void func_00189F10(u16 *cmd)
             && cmd[2] <= U8(o, 0x41) && U8(o, 0x41) <= cmd[4])
             func_00349AF0(o, cmd[5]);
     }
+}
+
+void func_0024D380(u16 a, u8 *unit);
+
+/* 0x0018A030, 0xFC bytes. Command: for officer cmd[0] in battle, its battle officers (those
+ * of the 143 whose record is it, alive) get func_0024D380 with cmd[1]. */
+void func_0018A030(u16 *cmd)
+{
+    u8 *o = REC88(cmd[0]), *b;
+    u32 f = U32(o, 0x80), k;
+
+    if (!on_field(f) || (f & 0x20000) == 0)
+        return;
+    b = g_006A3A30[0];
+    for (k = 0; k < 0x8F; k++, b += 0xC0) {
+        if ((U32(b, 0xB8) & 1) && PTR(b, 0x10) == o && (U32(b, 0xB8) & 2) == 0)
+            func_0024D380(cmd[1], PTR(b, 0x14));
+    }
+}
+
+/* The record index of the officer named by scenario officer `n` (func_0034B0D0), or -1. */
+static inline int named_index(u16 n)
+{
+    u8 *o = func_0034B0D0(n);
+
+    if (o == 0)
+        return -1;
+    return (o - REC88(0)) / 0x88;
+}
+
+/* 0x0018A130, 0x70 bytes. func_0018A030 for a named officer. */
+void func_0018A130(u16 *cmd)
+{
+    int i = named_index(cmd[0]);
+    u16 c[2];
+
+    if (i >= 0) {
+        c[0] = (u16)i;
+        c[1] = cmd[1];
+        func_0018A030(c);
+    }
+}
+
+/* 0x0018A1A0, 0x7C bytes. func_00189760 for a named officer. */
+void func_0018A1A0(u16 *cmd, int player)
+{
+    int i = named_index(cmd[0]);
+    u16 c[2];
+
+    if (i >= 0) {
+        c[0] = (u16)i;
+        c[1] = cmd[1];
+        func_00189760(c, player);
+    }
+}
+
+/* 0x0018A220, 0x70 bytes. func_001893E0 for a named officer. */
+void func_0018A220(u16 *cmd)
+{
+    int i = named_index(cmd[0]);
+    u16 c[2];
+
+    if (i >= 0) {
+        c[0] = (u16)i;
+        c[1] = cmd[1];
+        func_001893E0(c);
+    }
+}
+
+/* The scenario's objectives (0x005BA7E8): 16 records of 0x170 bytes ([0] state, [1] id, [2]
+ * kind, [3] result, +4 the frame it started, +8 the frame it ended, +0xC its number of points,
+ * +0xD its number of officers, +0xE a byte, +0x10 8 points (x, z), +0x50 8 officer ids, +0x70
+ * its text); then +0x1700 their count, +0x1704 the 8 map markers in use, +0x1724 the current
+ * one, +0x1728 a timer. */
+extern u8 g_005BA7E8[];
+extern u32 g_005BBEE8;                   /* (= +0x1700) the objectives' count */
+extern u8 g_0073DB80[8][0x1C];           /* player 1's map markers */
+extern u8 g_0073DE10[8][0x1C];           /* player 2's map markers */
+extern u8 *g_0073DA28, *g_0073DA2C;      /* player 1's marker sprites */
+extern u8 *g_0073DCB8, *g_0073DCBC;      /* player 2's marker sprites */
+extern int g_00669F9C;                   /* the battle's frame counter */
+
+u32 func_001839B0(u32 a);
+void func_0019B4E0(int a, u32 b);
+
+#define OBJ(i) (g_005BA7E8 + (i) * 0x170)
+
+/* A marker's sprite pair cleared. */
+static inline void marker_sprite_clear(u8 *s)
+{
+    *(unsigned long long *)(s + 0xABB0) = 0;
+    *(unsigned long long *)(s + 0xABC0) = 0;
+    *(unsigned long long *)(s + 0xAC00) = 0;
+    *(unsigned long long *)(s + 0xAC10) = 0;
+    *(unsigned long long *)(s + 0xAC50) = 0;
+    *(unsigned long long *)(s + 0xAC60) = 0;
+}
+
+/* A map marker cleared (its point at (-1, -1)). */
+static inline void marker_clear(u8 *m)
+{
+    U32(m, 0) = 0;
+    U32(m, 4) = 0;
+    U32(m, 8) = 0;
+    U32(m, 0xC) = 0;
+    *(float *)(m + 0x10) = -1.0f;
+    *(float *)(m + 0x14) = -1.0f;
+    U32(m, 0x18) = 0;
+}
+
+/* 0x0018A870, 0x198 bytes. Takes the objective markers off the map (both players'). */
+void func_0018A870(u8 *m)
+{
+    u32 k;
+
+    for (k = 0; k < 8; k++, m += 4) {
+        int s = S32(m, 0x1704);
+
+        if (s != -1) {
+            marker_clear(g_0073DB80[s]);
+            marker_sprite_clear(g_0073DA28 + s * 0xF0);
+            marker_sprite_clear(g_0073DA2C + s * 0xF0);
+            if (g_00669F60[0] & 2) {
+                marker_clear(g_0073DE10[S32(m, 0x1704)]);
+                marker_sprite_clear(g_0073DCB8 + S32(m, 0x1704) * 0xF0);
+                marker_sprite_clear(g_0073DCBC + S32(m, 0x1704) * 0xF0);
+            }
+            S32(m, 0x1704) = -1;
+        }
+    }
+}
+
+/* A free marker (the first unused, else the oldest one), taken. */
+static inline int take_marker(u8 (*mk)[0x1C])
+{
+    int best = 8, age = 0, i;
+
+    for (i = 0; i < 8; i++) {
+        int v = S32(mk[i], 0);
+
+        if (v == 0) {
+            best = i;
+            break;
+        }
+        if (age < v) {
+            best = i;
+            age = v;
+        }
+    }
+    S32(mk[best], 0) = 1;
+    return best;
+}
+
+/* 0x0018AA10, 0x134 bytes. Gives objective `r`'s officers markers on the map. */
+void func_0018AA10(u8 *m, u8 *r)
+{
+    u32 n = U8(r, 0xD), k;
+
+    for (k = 0; k < n; k++, m += 4) {
+        if (g_00669F60[0] & 2)
+            S32(m, 0x1704) = take_marker(g_0073DE10);
+        S32(m, 0x1704) = take_marker(g_0073DB80);
+    }
+}
+
+/* 0x0018AB50, 0x58 bytes. Makes objective `i` the current one. */
+void func_0018AB50(u8 *m, int i)
+{
+    if (U32(m, 0x1724) < 0x10)
+        func_0018A870(m);
+    S32(m, 0x1724) = i;
+    U32(m, 0x1728) = 0;
+    func_0018AA10(m, m + i * 0x170);
+}
+
+/* 0x0018ABB0, 0x64 bytes. The next objective after the current one that is not finished
+ * (+3); 0x10 for none. */
+int func_0018ABB0(u8 *m)
+{
+    u32 n = U32(m, 0x1700), k;
+
+    for (k = 1; k <= n; k++) {
+        int i = (int)(S32(m, 0x1724) + k) % (int)n;
+
+        if (U8(m + i * 0x170, 3) == 0)
+            return i;
+    }
+    return 0x10;
+}
+
+/* 0x0018AC20, 0x40 bytes. The objective being added (the next free record); 0 when full. */
+u8 *func_0018AC20(void)
+{
+    if (g_005BBEE8 < 0x10)
+        return OBJ(g_005BBEE8);
+    return 0;
+}
+
+/* 0x0018AC60, 0x3C bytes. The objective with id `id`; 0 for none. */
+u8 *func_0018AC60(u32 id)
+{
+    u8 *r = OBJ(0);
+    u32 k;
+
+    for (k = 0; k < 0x10; k++, r += 0x170) {
+        if (id == r[1])
+            return r;
+    }
+    return 0;
+}
+
+/* 0x0018ACA0, 0x90 bytes. Adds cell `c` as a point of the objective being added. */
+void func_0018ACA0(u8 *c)
+{
+    u8 *r = func_0018AC20();
+    float *p = (float *)(r + U8(r, 0xC) * 8 + 0x10);
+
+    p[0] = (float)c[0] * 1000.0f + 500.0f;
+    p[1] = (float)c[1] * 1000.0f + 500.0f;
+    if (U8(r, 0xC) < 8)
+        U8(r, 0xC) += 1;
+}
+
+/* 0x0018AD30, 0x70 bytes. Adds officer `id` to the objective being added (not hidden ones,
+ * flag 0x4000). */
+void func_0018AD30(int id)
+{
+    if ((U32(REC88(id), 0x84) & 0x4000) == 0) {
+        u8 *r = func_0018AC20();
+
+        S32(r + U8(r, 0xD) * 4, 0x50) = id;
+        if (U8(r, 0xD) < 8)
+            U8(r, 0xD) += 1;
+    }
+}
+
+/* 0x0018ADA0, 0xCC bytes. Ends objective `id` (1 won, 2 lost); a won one gives the players a
+ * reward by its kind (200, 500, 2000), unless battle flag 4. */
+void func_0018ADA0(u8 id, int won)
+{
+    u8 *r = func_0018AC60(id);
+
+    if (r == 0)
+        return;
+    if (won == 0) {
+        r[3] = 2;
+    } else {
+        r[3] = 1;
+        if ((g_00669F60[0] & 4) == 0) {
+            u32 v;
+
+            if (r[2] == 2)
+                v = 2000;
+            else if (r[2] == 1)
+                v = 500;
+            else if (r[2] == 0)
+                v = 200;
+            else
+                v = 0;
+            func_0019B4E0(0, func_001839B0(v));
+        }
+    }
+    S32(r, 8) = g_00669F9C;
+}
+
+/* 0x0018AE70, 0x3C bytes. Sets objective `id`'s text. */
+void func_0018AE70(u8 id, char *text)
+{
+    u8 *r = func_0018AC60(id);
+
+    if (r != 0)
+        func_00120928((char *)(r + 0x70), text);
+}
+
+/* 0x0018AEB0, 0x7C bytes. Adds objective `id` of kind `kind` with its text, and makes it the
+ * current one. */
+void func_0018AEB0(u8 id, int kind, int e, char *text)
+{
+    u8 *r = func_0018AC20();
+    u32 n;
+
+    if (r == 0)
+        return;
+    r[0] = 1;
+    r[1] = id;
+    r[2] = (u8)kind;
+    r[0xE] = (u8)e;
+    r[3] = 0;
+    S32(r, 4) = g_00669F9C;
+    func_00120928((char *)(r + 0x70), text);
+    n = g_005BBEE8;
+    if (n < 0x10)
+        g_005BBEE8 = n + 1;
+    func_0018AB50(g_005BA7E8, n);
 }
