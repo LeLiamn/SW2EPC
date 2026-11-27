@@ -715,3 +715,283 @@ void func_00396480(u32 *p)
         func_001037F0(1);
     }
 }
+
+/* ---- The movie gallery's frame, the special officers list (the same windows) and the command
+ * menu's checks (parts of 0x00397160-0x00397F3C). ---- */
+
+extern u8 g_007BA870[0x38];              /* the movie gallery */
+extern float g_007BA858;
+extern u8 *g_007BA860;
+extern u8 g_007BA8B0[];                  /* the command menu */
+
+void func_00102990(void);
+void func_001265F0(int a, int b);
+void func_00143D60(u32 a);
+u8 *func_002EE540(void);
+void func_00395AC0(void);
+void func_00395C90(void);
+void func_003967D0(u32 *p);
+char *func_003727B0(int k);
+void func_00146270(char *text, int x, int y, int a, int b);
+void func_003955A0(void);
+int func_0030AB90(void);
+void func_0030BBD0(int p, int a);
+int func_0030B2F0(int k);
+void func_0030B330(void);
+
+/* 0x00397160, 0xC bytes, matching. */
+u8 *func_00397160(void)
+{
+    return g_007BA870;
+}
+
+/* 0x00397170, 0x38 bytes, matching. */
+void func_00397170(void)
+{
+    u8 *q = func_00397160();
+
+    func_00118850(q, 0x38);
+    *(int *)(q + 0x18) = 0;
+    func_003963D0();
+}
+
+/* 0x003971B0, 0x80 bytes. Opens the gallery (once). */
+void func_003971B0(void)
+{
+    u8 *q = func_00397160();
+
+    if (*(int *)(q + 0x18) == 0) {
+        func_00395E20(g_007BA870, 0);
+        func_00102960(0);
+        *(int *)(q + 0x18) = 1;
+        func_001037F0(0);
+        g_007BA858 = 1.0f;
+        g_007BA85D &= 0xFE;
+    }
+}
+
+/* 0x00397230, 0x28 bytes. */
+void func_00397230(void)
+{
+    func_00397160();
+    func_00396410();
+}
+
+/* 0x00397260, 0xC8 bytes. Closes the gallery (stopping the movie). */
+void func_00397260(void)
+{
+    u32 *q = (u32 *)func_00397160();
+    int k;
+
+    if (q[6] == 0)
+        return;
+    func_00102990();
+    func_00102960(1);
+    func_001265F0(0, 1);
+    if ((q[0] & 0x10) != 0) {
+        func_00143D60(q[3]);
+        q[0] &= ~0x10;
+    }
+    for (k = 3; k < 6; k++) {
+        if (q[k] != 0) {
+            func_00102EC0((u8 *)q[k]);
+            q[k] = 0;
+        }
+    }
+    q[6] = 0;
+    func_001037F0(1);
+}
+
+/* 0x00397330, 0xB0 bytes. Draws the gallery. */
+void func_00397330(void)
+{
+    u8 *q = func_00397160();
+    int r;
+
+    if (q == 0)
+        return;
+    g_007BA860 = func_002EE540();
+    r = func_001AE550(g_007BA858, g_007BA860, &g_007BA850, &g_007BA85C, 0);
+    g_007BA85D = (g_007BA85D & 0xFE) | (r & 1);
+    func_00396420((u32 *)q);
+    func_003957E0();
+    func_00395940();
+    func_00395AC0();
+    func_00395C90();
+}
+
+/* 0x003973E0, 0x48 bytes. The gallery's frame. */
+int func_003973E0(void)
+{
+    u8 *q = func_00397160();
+
+    if (q != 0) {
+        func_00396480((u32 *)q);
+        func_003967D0((u32 *)q);
+    }
+    return 0;
+}
+
+/* 0x00397430, 0x10C bytes. The special officers list window's frame. */
+void func_00397430(void)
+{
+    u8 *p = func_00391250();
+    short n = *(short *)(p + 0x144);
+    u8 *b = func_00391C80();
+
+    if (*(short *)(p + 0x146) < n)
+        n = *(short *)(p + 0x146);
+    LW_STEP(b, func_002EE560(), (n - 1) * 2 + 10, n * 2 + 10);
+    func_00392340(0);
+    func_00392570(1);
+}
+
+/* 0x00397540, 0x11C bytes. */
+void func_00397540(void)
+{
+    u8 *b = func_00391C90(), *c = func_00391CA0();
+    int r;
+
+    LW_STEP(b, func_002EE570(), 0xC, 0xE);
+    LW_WIN(c) = func_002EE5D0();
+    r = func_001AE550(LW_SPEED(c), LW_WIN(c), (short *)c, c + 0xC, 0);
+    LW_FLAGS(c) = (LW_FLAGS(c) & 0xFE) | (r & 1);
+    func_00392790(1);
+    func_00392850();
+}
+
+/* 0x00397660, 0x94 bytes. The special officers (0x1C-0x32). */
+void func_00397660(void)
+{
+    u8 *p = func_00391250();
+    int k;
+
+    for (k = 0; k < 0x17; k++)
+        *(int *)(p + 0x38 + k * 4) = k + 0x1C;
+    *(short *)(p + 0x144) = 0x17;
+    *(short *)(p + 0x146) = 10;
+}
+
+/* 0x00397700, 0x12C bytes. Draws special officer `o`'s name on line `i`. */
+void func_00397700(int o, int i)
+{
+    int x = slide_x(func_00391C80(), i);
+    char *s = func_003727B0(o - 0x1C);
+
+    FONT_COLOUR(6);
+    FONT_SIZE(20.0f);
+    func_00146270(s, x + 0x10, i * 0x18 + 0x5E, 2, 0);
+    FONT_SIZE(16.0f);
+    FONT_COLOUR(5);
+}
+
+/* 0x00397830, 0xB4 bytes. */
+void func_00397830(void)
+{
+    u8 *a = func_00391C80(), *b = func_00391C90(), *c = func_00391CA0(), *d = func_00391CB0();
+
+    func_00397660();
+    LW_FLAGS(a) &= 0xFE;
+    LW_SPEED(a) = 1.0f;
+    LW_FLAGS(b) &= 0xFE;
+    LW_SPEED(b) = 1.0f;
+    LW_FLAGS(c) &= 0xFE;
+    LW_SPEED(c) = 1.0f;
+    LW_FLAGS(d) &= 0xFE;
+    LW_SPEED(d) = 1.0f;
+}
+
+/* 0x003978F0, 8 bytes, matching. */
+void func_003978F0(void)
+{
+}
+
+/* 0x00397900, 0x104 bytes. */
+void func_00397900(void)
+{
+    u8 *p = func_00391250(), *b = func_00391CB0();
+    int n = *(short *)(p + 0x144);
+
+    if (n > 9)
+        n = 9;
+    LW_STEP(b, func_002EE580(), (n - 1) * 2 + 10, n * 2 + 10);
+    func_00392790(1);
+    func_00392A10();
+    func_00392AF0();
+}
+
+/* 0x00397A10, 0xB0 bytes. Draws the special officers screen by its step. */
+void func_00397A10(void)
+{
+    int s = *(int *)(func_00391250() + 4);
+
+    if (s == 4) {
+        func_00397900();
+        func_003E8940();
+    } else if (s == 2 || s == 3) {
+        func_00392FF0(1);
+        func_003E8940();
+    } else if (s == 1) {
+        func_003E8940();
+        func_00397540();
+    } else if (s == 0) {
+        func_00397430();
+    }
+}
+
+/* 0x00397AC0, 0x1C bytes, matching. */
+void func_00397AC0(void)
+{
+    func_00395510();
+}
+
+/* 0x00397AE0, 0x1C bytes, matching. */
+void func_00397AE0(void)
+{
+    func_003955A0();
+}
+
+/* 0x00397B00, 8 bytes, matching. */
+int func_00397B00(int v)
+{
+    return v;
+}
+
+/* 0x00397E00, 0x44 bytes. Makes every command available. */
+void func_00397E00(void)
+{
+    int k;
+
+    for (k = 0; k < 0x15; k++)
+        *(int *)(g_007BA8B0 + 0x24 + k * 4) = 1;
+}
+
+/* 0x00397E50, 0xA8 bytes. Whether the chosen province has a force to act on. */
+int func_00397E50(void)
+{
+    int v = *(int *)g_007BA8B0, r = 0, k;
+
+    if (v >= 0 && v < func_0030AB90()) {
+        func_0030BBD0(v, 0);
+        for (k = 0; k < 0x19; k++) {
+            if (func_0030B2F0(k) != 0) {
+                r = 1;
+                break;
+            }
+        }
+        func_0030B330();
+    }
+    return r;
+}
+
+/* 0x00397F00, 0x40 bytes, matching. Whether a slot is in use. */
+int func_00397F00(void)
+{
+    int k;
+
+    for (k = 0; k < 6; k++) {
+        if (*(short *)(g_007BA8B0 + 0x1A4 + k * 2) != -1)
+            return 1;
+    }
+    return 0;
+}
