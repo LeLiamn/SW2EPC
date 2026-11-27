@@ -1,6 +1,6 @@
 /*
- * text_window.c - the battle's text windows (0x001AE550-..., after Bullet.c; the original file's
- * name is unknown). Written so far: from 0x001AE550.
+ * text_window.c - the battle's text windows (0x001AE550-0x001B92A4, after Bullet.c; the original file's
+ * name is unknown). Complete: the windows, a menu and the screen fade.
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -1560,4 +1560,275 @@ void func_001B7D20(TextWindow *w, int k)
     }
     g_0056CCA4 = c0;
     g_0056CCB8 = layer;
+}
+
+/* A menu line: its normal and chosen parts (packet lists or texts) and its kind (1 packets,
+ * 0 a text). */
+typedef struct {
+    u32 *normal, *chosen;
+    u8 kind;
+    u8 pad[3];
+} MenuLine;
+
+extern MenuLine *g_00693960;             /* the menu's lines */
+extern u8 g_00693964, g_00693965, g_00693966, g_00693967;   /* count, chosen, colours */
+extern u8 g_0069395C, g_0069395D, g_0069395F;               /* fade: mode, layer, speed */
+extern signed char g_0069395E;           /* fade: its alpha (also read by sc_ubase.c) */
+extern u32 g_00669F60[4];
+
+u8 *func_00105410(void);
+u8 *func_001050F0(void);
+void func_00105230(u8 *p, int layer);
+void func_001054B0(u8 *p, int layer);
+
+/* Draws text `s` at (x, y) with glyph drawer `draw`, its characters 4/5 as wide. */
+static inline void narrow_text(void (*draw)(Glyph *g), const char *s, int x, int y, int z, int a)
+{
+    float cw = g_0056CCC0;
+    u32 layer = g_0056CCB8;
+
+    g_0056CCB8 = 5;
+    g_0056CCA0 = draw;
+    g_0056CCC0 = g_0056CCC0 * 512.0f / 640.0f;
+    func_00146270(s, x, y, z, a);
+    g_0056CCB8 = layer;
+    g_0056CCC0 = cw;
+}
+
+/* 0x001B8800, 0x90 bytes. Draws text `s` (y scaled), its characters 4/5 as wide. */
+void func_001B8800(const char *s, int x, int y, int z, int a)
+{
+    narrow_text(func_001B06B0, s, x, y, z, a);
+}
+
+/* 0x001B8890, 0x90 bytes. The same with y as given. */
+void func_001B8890(const char *s, int x, int y, int z, int a)
+{
+    narrow_text(func_001B0B50, s, x, y, z, a);
+}
+
+/* 0x001B8920, 0x60 bytes. The size of text `s` drawn that way. */
+void func_001B8920(const char *s, int *w, int *h)
+{
+    float cw = g_0056CCC0;
+
+    g_0056CCC0 = g_0056CCC0 * 512.0f / 640.0f;
+    func_00146D80(s, w, h);
+    g_0056CCC0 = cw;
+}
+
+/* 0x001B8980, 0x154 bytes. Draws the five windows (window 2 by its kind: list, plate or titled
+ * plate). */
+void func_001B8980(void)
+{
+    int k;
+
+    for (k = 0; k < 5; k++) {
+        TextWindow *w = &g_00693394[k];
+
+        if (w->state == 0 || (w->state & 0x80))
+            continue;
+        if (k == 4)
+            func_001B7D20(w, 4);
+        else if (k == 3)
+            func_001B5400(w, 3);
+        else if (k == 2) {
+            if (g_00693390[1] == 0)
+                func_001B4460(w, 2);
+            else if (g_00693390[1] == 1)
+                func_001B47A0(w, 2);
+            else if (g_00693390[1] == 2)
+                func_001B4D10(w, 2);
+        } else {
+            func_001B25A0(w, k);
+        }
+    }
+}
+
+void func_001B8C20(int half);
+
+/* 0x001B8AF0, 0xC0 bytes, matching. Sets up both frames' window packets and resets the five windows, for
+ * one or two players. */
+void func_001B8AF0(void)
+{
+    int k;
+
+    for (k = 0; k < 2; k++) {
+        func_001AF420(g_0068F3E0[k]);
+        func_001AF4D0(g_0068F3E0[0] + 0x6E0 + k * 0x7F0);
+        func_001AF8D0(g_0068F3E0[0] + 0x16C0 + k * 0x3E0);
+        func_001AFA70(g_0068F3E0[0] + 0x1E80 + k * 0xC30);
+    }
+    for (k = 0; k < 5; k++)
+        func_001AEE80(k);
+    func_001B8C20(g_00669F60[0] & 2);
+}
+
+/* 0x001B8BB0, 0x34 bytes. Empties the five windows. */
+void func_001B8BB0(void)
+{
+    int k;
+
+    for (k = 0; k < 5; k++)
+        func_001AF290(k);
+}
+
+/* 0x001B8BF0, 0x24 bytes, matching. */
+void func_001B8BF0(void)
+{
+    func_001B8BB0();
+    func_001B8AF0();
+}
+
+/* 0x001B8C20, 0xE8 bytes. The portrait windows' margins, sizes and places for one or two
+ * players. */
+void func_001B8C20(int half)
+{
+    g_00693968 = half != 0;
+    func_001AEE40(3, 4, 4, 0x28, 0x10);
+    func_001AEE10(3, 0xB2, 0x18);
+    func_001AEDB0(3, 0x200, g_00693968 == 1 ? 0xB4 : 0xA1, 0);
+    func_001AEE40(4, 6, 6, 0x10, 0xC);
+    func_001AEDB0(4, 0x3E, g_00693968 == 1 ? 0xC4 : 0x106, 0);
+}
+
+/* 0x001B8D10, 0x28 bytes. Empties the menu. */
+void func_001B8D10(void)
+{
+    g_00693966 = 5;
+    g_00693960 = 0;
+    g_00693967 = 1;
+    g_00693964 = 0;
+    g_00693965 = 0;
+}
+
+/* 0x001B8D40, 0x28 bytes. The same. */
+void func_001B8D40(void)
+{
+    g_00693966 = 5;
+    g_00693960 = 0;
+    g_00693967 = 1;
+    g_00693964 = 0;
+    g_00693965 = 0;
+}
+
+/* 0x001B8D70, 0x1B4 bytes. Draws the menu's lines, the chosen one in its own colour (texts) or
+ * its own packets. */
+void func_001B8D70(void)
+{
+    u32 k;
+
+    for (k = 0; k < g_00693964; k++) {
+        MenuLine *l = &g_00693960[k];
+        u32 c0 = g_0056CCA4;
+
+        if (l->kind == 1) {
+            u32 *e = k == g_00693965 ? l->chosen : l->normal;
+            int i;
+
+            for (i = 0; i < ((u8 *)e)[4]; i++)
+                func_00105900((u8 *)e[0] + i * 0x50, ((u8 *)e)[5]);
+        } else if (l->kind == 0) {
+            u32 *t = k == g_00693965 ? l->chosen : l->normal;
+            u8 c = k == g_00693965 ? g_00693967 : g_00693966;
+
+            g_0056CCA4 = c;
+            g_0056CCAC = c;
+            g_0056CCA8 = g_0056CCA4;
+            g_0056CCB0 = g_0056CCAC;
+            func_00146270((const char *)t[4], t[0], t[1], 5, 0);
+            g_0056CCA8 = c0;
+            g_0056CCAC = c0;
+            g_0056CCB0 = c0;
+            g_0056CCA4 = c0;
+        }
+    }
+}
+
+/* 0x001B8F30, 0x2C bytes. Resets the screen fade (mode 1, layer 6). */
+void func_001B8F30(void)
+{
+    g_0069395C = 1;
+    g_0069395D = 6;
+    g_0069395E = 0;
+    g_0069395F = 0;
+}
+
+/* 0x001B8F60, 0x98 bytes. Starts a fade (`mode` 0 / 2 in, 1 / 3 out, 4 cancels one running) on
+ * layer `layer` at speed `speed`. Whether none was running. */
+int func_001B8F60(u8 mode, u8 layer, u8 speed)
+{
+    int busy = g_0069395E != 0 && g_0069395E != -1;
+
+    if (busy) {
+        if (mode == 4)
+            g_0069395E = 0;
+        else
+            g_0069395C = mode;
+    } else if (mode != 4) {
+        g_0069395C = mode;
+    }
+    g_0069395D = layer;
+    g_0069395F = speed;
+    return !busy;
+}
+
+/* 0x001B9000, 0x1FC bytes. Steps the fade and draws it: a full-screen grey sprite whose alpha
+ * goes up (modes 0, 2) or down (1, 3), blended by subtraction (0x68, modes 2-3) or addition
+ * (0x62). */
+void func_001B9000(void)
+{
+    u64 blend = 0;
+    u8 a = (u8)g_0069395E;
+
+    if (g_0069395C == 3 || g_0069395C == 1) {
+        a = (int)(a - g_0069395F) < 0 ? 0 : a - g_0069395F;
+        blend = (u64)a << 32 | (g_0069395C == 3 ? 0x68 : 0x62);
+    } else if (g_0069395C == 2 || g_0069395C == 0) {
+        a = a + g_0069395F < 0xFF ? a + g_0069395F : 0xFF;
+        blend = (u64)a << 32 | (g_0069395C == 2 ? 0x68 : 0x62);
+    }
+    g_0069395E = (signed char)a;
+    if (a != 0) {
+        u8 *s = func_00105410(), *r0 = func_001050F0(), *r1 = func_001050F0();
+
+        *(u64 *)(r0 + 0x10) = blend;
+        *(u64 *)(r0 + 0x18) = 0x43;
+        func_00105230(r0, g_0069395D);
+        *(u64 *)(s + 0x20) = 0xFFFF72007000ULL;
+        *(u64 *)(s + 0x28) = 0xFFFF8E009000ULL;
+        *(u64 *)(s + 0x18) = (u64)a << 24 | 0x3F80000000808080ULL;
+        func_001054B0(s, g_0069395D);
+        *(u64 *)(r1 + 0x10) = 0x8000000044ULL;
+        *(u64 *)(r1 + 0x18) = 0x43;
+        func_00105230(r0, g_0069395D);   /* (as in the original: the first register packet) */
+    }
+}
+
+/* 0x001B9200, 0x30 bytes. Sets the windows, the menu and the fade up. */
+void func_001B9200(void)
+{
+    g_00693968 = 0;
+    func_001B8AF0();
+    func_001B8D10();
+    func_001B8F30();
+}
+
+/* 0x001B9230, 0x24 bytes, matching. Empties the windows and the menu. */
+void func_001B9230(void)
+{
+    func_001B8BB0();
+    func_001B8D40();
+}
+
+/* 0x001B9260, 0x48 bytes, matching. Each frame (unless paused by flag 0x200): steps and draws the
+ * windows, the menu and the fade. */
+void func_001B9260(void)
+{
+    if ((g_00669F60[0] & 0x200) == 0) {
+        func_001B0310();
+        func_001B8D70();
+        func_001B8980();
+        func_001B9000();
+    }
 }
