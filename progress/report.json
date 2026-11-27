@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 128272,
-    "non_matching": 965528
+    "non_matching": 966776
   },
   "data": {
     "total": 2155890688,
@@ -189,14 +189,14 @@
         },
         {
           "name": "SceneTitle.c",
-          "description": "Estimated range 0x268448-0x27BF40; 22 function(s) decompiled",
+          "description": "Estimated range 0x268448-0x27BF40; 28 function(s) decompiled",
           "code": {
             "total": 80632,
             "matching": 144,
-            "non_matching": 4416
+            "non_matching": 5664
           },
           "decompiled_functions": {
-            "count": 22,
+            "count": 28,
             "matching": 3
           }
         },

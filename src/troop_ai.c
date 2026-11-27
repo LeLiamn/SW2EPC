@@ -450,3 +450,84 @@ void func_0027DEA0(int k, int v)
         }
     }
 }
+
+u32 func_001F1360(u8 *s, int a);
+void func_0027B350(u32 t, u8 *s, u8 *cmd);
+
+/* 0x0027AE70, 0x7C bytes. A healer soldier goes to its commander. */
+void func_0027AE70(u8 *s)
+{
+    u8 *c = SIDE_CMD(s);
+
+    func_0027B350(func_001F1360(s, 1), s, c);
+}
+
+/* 0x0027AEF0, 0x34 bytes. Soldier `s` takes order `k`. */
+void func_0027AEF0(u8 *s, int k)
+{
+    order2(s);
+    func_00271A10(s, k);
+}
+
+/* 0x0027AF30, 0x114 bytes. A healer's choice (orders 0x1B-0x1D or going to its commander). */
+void func_0027AF30(u8 *s, u8 *t)
+{
+    if (RANDOM() % 100 < t[0])
+        func_0027AEF0(s, 0x1C);
+    else if (RANDOM() % 100 < t[1])
+        func_0027AEF0(s, 0x1D);
+    else if (RANDOM() % 100 < t[2])
+        func_0027AE70(s);
+    else if (RANDOM() % 100 < t[3])
+        func_0027AEF0(s, 0x1B);
+    else
+        func_0027AE70(s);
+}
+
+/* 0x0027B050, 0x158 bytes. Now and then a hurt soldier drops a healing item (0xC) for itself. */
+int func_0027B050(u8 *s, u8 *t)
+{
+    float life, most;
+
+    if (*(short *)(s + 0xA4) != 0)
+        return 0;
+    life = (float)*(short *)(s + 0x82);
+    most = (float)*(short *)(s + 0x80);
+    if (most < life * 2.0f)
+        return 0;
+    if (RANDOM() % 100 >= (u32)(int)(((50.0f - life / most * 100.0f) * 0.01f + 1.0f) * (float)t[9]))
+        return 0;
+    func_0024D380(0xC, *(u8 **)(s + 0x14));
+    func_00206080(s);
+    return 1;
+}
+
+/* 0x0027B1B0, 0x118 bytes. The healer's attack choice. */
+void func_0027B1B0(u8 *s)
+{
+    u8 *t = func_001F14E0();
+
+    if (func_0027B050(s, t) != 0)
+        return;
+    if (RANDOM() % 100 < t[0])
+        func_002B0180(s, 0);
+    else if (RANDOM() % 100 < t[3])
+        func_0027AF30(s, t);
+    else if (RANDOM() % 100 < t[1])
+        func_002B0180(s, 1);
+    else
+        func_00206080(s);
+}
+
+/* 0x0027B2D0, 0x74 bytes. */
+void func_0027B2D0(u8 *s)
+{
+    char st = s[0x7C];
+
+    if (st == 3 || st == 2)
+        func_00239780(s, 1);
+    else if (st == 1)
+        func_002396B0(s);
+    else if (st == 0)
+        func_0027B1B0(s);
+}
