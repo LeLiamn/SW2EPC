@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 65168,
-    "non_matching": 392124
+    "non_matching": 396608
   },
   "data": {
     "total": 2155890688,
@@ -408,11 +408,11 @@
         },
         {
           "name": "Weapon.c",
-          "description": "Estimated range 0x166E68-0x1748E8; 0 function(s) decompiled",
+          "description": "Estimated range 0x166E68-0x1748E8; 7 function(s) decompiled",
           "code": {
             "total": 55936,
             "matching": 0,
-            "non_matching": 0
+            "non_matching": 4484
           }
         },
         {

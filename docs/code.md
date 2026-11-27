@@ -922,7 +922,7 @@ disassembly rather than from Ghidra's output.
 ## Unit set-up (`src/unit_setup.c`)
 
 After the camera, from 0x00164680 up to `Weapon.c` (0x0016CD30), the code sets units up. Done
-so far (0x00164680-0x0016772C, 17 functions, 5 match):
+so far (0x00164680-0x001688CC, 24 functions, 5 match):
 
 - **Reset:** a unit is cleared (0x630 bytes) and reset for its player: origin, scale 1, its
   matrix, state 0x40, its four motion slots (+0x290, 0x70 each) and ten records (+0x450, 0x30
@@ -944,6 +944,13 @@ so far (0x00164680-0x0016772C, 17 functions, 5 match):
   motion and an extra one, expressions, the root held in place for some states, and the root's
   height scaled from the height the motion was made for (114.3 or 107.5 for some weapon kinds,
   117.5 for shared motions) to the state's. A rider takes its position from a node of its mount.
+- **Cheaper poses:** a unit without its model still gets its root offset from the root node's
+  track in the motion (`0x00167730`); far units get only their first 6 or 8 nodes posed
+  (`0x00167AB0`). A carried unit or a rider takes its place from its carrier's node or mount
+  (`0x00168190`).
+- **Weapon trails** (`0x00168400`-`0x001688CC`): the trails of a weapon's parts (which parts
+  depends on the weapon kind) and of a unit's slots are started, kept following their two points
+  and stopped; a trail still drawing is only told to stop.
 - **Removal** (`0x00166160`): the unit drops its links and the effects it owns; it then becomes an
   empty unit (state 0x40).
 
