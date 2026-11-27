@@ -1211,3 +1211,113 @@ void func_003276D0(void)
     if (g_0068EFDC > 0xCDFE5C4)
         g_0068EFDC = 0xCDFE5C4;
 }
+
+/* The yearly officer step (0x00329A00-0x00329D1C; its state at FC2C0()[0x1A6]). */
+
+#define STEP3() ((int *)func_002FC2C0()[0x1A6])
+
+int func_0032D9C0(void);
+int func_003760C0(void);
+int func_003760E0(void);
+void func_00376100(int a, int b, int c);
+int func_0032E760(void);
+int func_0030E1F0(void);
+void func_002F4360(int o, int v);
+void func_002F4510(int o, int v);
+void func_002F4760(int o, int v);
+void func_0030E140(int k, int a, int b, int c);
+void func_0030E100(void);
+void func_002FCF20(void);
+int func_00305040(int o);
+int func_002F8F20(int f);
+void func_0039F960(void);
+void func_003298A0(int *p);
+void func_0032D3C0(int a);
+void func_003298B0(void);
+int func_003280E0(void);
+
+/* 0x00329A00, 0x78 bytes, matching. */
+void func_00329A00(void)
+{
+    int *p = STEP3();
+    int v = func_0032D9C0();
+
+    if (v == 1) {
+        func_00376100(func_003760C0(), func_003760E0(), -1);
+        p[0] = 2;
+    } else if (v == 0) {
+        p[0] = 4;
+    }
+}
+
+/* 0x00329A80, 0xDC bytes, matching. */
+void func_00329A80(void)
+{
+    int *p = STEP3();
+    int o = func_0032E760();
+
+    if (func_0030E1F0() == 0) {
+        func_002F4360(o, 2);
+        func_002F4510(o, 0);
+        func_002F4760(o, func_003280E0() * 0xF);
+        func_0030E140(0x1C, o, func_002F8F20(func_00327D50()), -1);
+    } else if (func_0030E1F0() == 2) {
+        int list[28];
+
+        func_0030E100();
+        func_002FCF20();
+        func_002FB320(func_00327D50(), list);
+        p[0] = 3;
+    }
+}
+
+/* 0x00329B60, 0x74 bytes. */
+void func_00329B60(void)
+{
+    int *p = STEP3();
+
+    if (func_00305040(func_0032E760()) == 0) {
+        int v = p[1]++;
+
+        if (func_003280E0() <= v + 1) {
+            func_003280C0(0);
+            func_0039F960();
+            p[0] = 4;
+        }
+    }
+}
+
+/* 0x00329BE0, 0x38 bytes, matching. */
+void func_00329BE0(void)
+{
+    int *st = func_002FC2C0();
+
+    func_003298A0((int *)st[0x1A6]);
+    func_002FC560();
+    st[0] = 0;
+}
+
+/* 0x00329C20, 0x48 bytes. */
+void func_00329C20(void)
+{
+    if (*STEP3() == 1)
+        func_0032D3C0(func_0030D7D0());
+}
+
+/* 0x00329C70, 0xB0 bytes. */
+int func_00329C70(void)
+{
+    int v = *STEP3();
+
+    if (v == 4)
+        func_00329BE0();
+    else if (v == 3)
+        func_00329B60();
+    else if (v == 2)
+        func_00329A80();
+    else if (v == 1)
+        func_00329A00();
+    else if (v == 0)
+        func_003298B0();
+    return 5;
+}
