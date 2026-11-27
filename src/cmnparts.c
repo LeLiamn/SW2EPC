@@ -20,6 +20,9 @@ typedef unsigned long long u64;
 
 #define g_70000154 (*(int *)0x70000154)    /* (scratchpad) the vertical scale */
 
+/* A texture coordinate pair (texel centres). */
+#define GS_UV(u, v) ((u64)(long long)((u) << 4 | 8) | (u64)(long long)((v) << 4 | 8) << 16)
+
 extern u8 *g_0068F3D0;                   /* the portraits' buffer */
 extern u8 *g_0068F10C[0xB1];             /* the portraits loaded */
 extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each; +6 portrait) */
@@ -37,6 +40,7 @@ void func_00104520(u8 *p);
 void func_001057F0(u8 *p, u64 tex0, int a);
 void func_00104600(u8 *p, const u8 *src, u32 n, int dbp, int dbw, int psm, int x, int y);
 void func_001046E0(u8 *p, int layer);
+u8 *func_00105860(u64 tex, int a);
 void func_00105900(u8 *p, int layer);
 const char *func_0019B0C0(u32 id);
 int func_00146D00(float size, const char *s, int h);
@@ -462,4 +466,148 @@ int func_001AB430(float size, float h, u8 *p, u8 *rec, float *pos, int col, int 
 {
     return func_001AB1D0(size, h, p, 0x1DD, func_0019AE90(func_003629E0(rec)), pos, col, a, flat,
                          out);
+}
+
+extern int g_0045D1C8;                   /* (small data) 1: textures at the second place */
+
+u8 *func_00106F10(u8 *tim2);
+u64 func_00104AC0(u8 *tim2, int dbp, int layer);
+u64 func_00104D00(u8 *tim2, int cbp, int layer);
+u64 func_00106C50(u64 tex, u64 clut);
+
+/* Image `k` of a pack `f` (+8 the unit, +0x10 the offsets). */
+#define PACK_IMAGE(f, k) ((f) + *(int *)((f) + 8) * *(int *)((f) + 0x10 + (k) * 8))
+
+/* 0x001AB4E0, 0x4B4 bytes. Draws TIM2 image `img` (with the palette of `pal`) on layer `layer`:
+ * texels (u, v) `uw` x `vh` (-1: all) at (x, y) `w` x `h` (-1: its size), centred on (x, y)
+ * with `centred`, colour `rgba`. */
+void func_001AB4E0(u8 *img, u8 *pal, int x, int y, int z, int w, int h, int u, int v, int uw,
+                   int vh, const u32 *rgba, int layer, int centred)
+{
+    u8 *info = func_00106F10(img);
+    u64 t = func_00104AC0(img, g_0045D1C8 == 1 ? 0x1320 : 0x1D00, layer);
+    u8 *p;
+
+    t = func_00106C50(t, func_00104D00(pal, 0x3FFC, layer));
+    p = func_00105860(t, 0);
+    *(u64 *)(p + 0x20) = (u64)*rgba | 0x3F80000000000000ULL;
+    if (uw == -1)
+        uw = *(u16 *)(info + 0x14) - 1;
+    if (vh == -1)
+        vh = *(u16 *)(info + 0x16) - 1;
+    *(u64 *)(p + 0x28) = GS_UV(u, v);
+    *(u64 *)(p + 0x38) = GS_UV(uw + u, vh + v);
+    if (w == -1)
+        w = *(u16 *)(info + 0x14);
+    if (h == -1)
+        h = *(u16 *)(info + 0x16);
+    if (centred != 0) {
+        y = y - h / 2;
+        x = x - w / 2;
+    }
+    *(u64 *)(p + 0x30) = (u64)(long long)(0xFFFE - z) << 32 | (u64)(long long)(x * 0x10 + 0x7000)
+                         | (u64)(long long)((scale_y(y) * 0x10 - 0xE00) / g_70000154 + 0x8000) << 16;
+    *(u64 *)(p + 0x40) = (u64)(long long)(0xFFFE - z) << 32
+                         | (u64)(long long)((w + x) * 0x10 + 0x7000)
+                         | (u64)(long long)((scale_y(h + y) * 0x10 - 0xE00) / g_70000154 + 0x8000)
+                               << 16;
+    func_00105900(p, layer);
+}
+
+/* 0x001AB9A0, 0x60 bytes. The same in grey 0x80 with alpha `alpha`. */
+void func_001AB9A0(u8 *img, u8 *pal, int x, int y, int z, int w, int h, int u, int v, int uw,
+                   int vh, int alpha, int layer, int centred)
+{
+    u8 c[4];
+
+    c[0] = 0x80;
+    c[3] = (u8)alpha;
+    c[1] = 0x80;
+    c[2] = 0x80;
+    func_001AB4E0(img, pal, x, y, z, w, h, u, v, uw, vh, (const u32 *)c, layer, centred);
+}
+
+/* 0x001ABA00, 0x70 bytes. With its own palette. */
+void func_001ABA00(u8 *img, int x, int y, int z, int w, int h, int u, int v, int uw, int vh,
+                   int alpha, int layer, int centred)
+{
+    func_001AB9A0(img, img, x, y, z, w, h, u, v, uw, vh, alpha, layer, centred);
+}
+
+/* 0x001ABA70, 0x3C bytes. The whole image. */
+void func_001ABA70(u8 *img, int x, int y, int z, int w, int h, int alpha, int layer, int centred)
+{
+    func_001ABA00(img, x, y, z, w, h, 0, 0, -1, -1, alpha, layer, centred);
+}
+
+/* 0x001ABAB0, 0x50 bytes. The size of TIM2 image `img`. */
+void func_001ABAB0(u8 *img, u32 *w, u32 *h)
+{
+    u8 *info = func_00106F10(img);
+
+    if (w != 0)
+        *w = *(u16 *)(info + 0x14);
+    if (h != 0)
+        *h = *(u16 *)(info + 0x16);
+}
+
+/* 0x001ABB00, 0x90 bytes. Image `i` of pack `f` with the palette of image `j`. */
+void func_001ABB00(u8 *f, int i, int j, int x, int y, int z, int w, int h, int u, int v, int uw,
+                   int vh, const u32 *rgba, int layer, int centred)
+{
+    func_001AB4E0(PACK_IMAGE(f, i), PACK_IMAGE(f, j), x, y, z, w, h, u, v, uw, vh, rgba, layer,
+                  centred);
+}
+
+/* 0x001ABB90, 0x150 bytes. Image `i` of pack `f` at point `pos`, scaled by (sx, sy). */
+void func_001ABB90(float sx, float sy, u8 *f, int i, float *pos, int alpha, int layer,
+                   int centred)
+{
+    u8 *img = PACK_IMAGE(f, i), *info = func_00106F10(img);
+
+    func_001ABA00(img, (int)pos[0], (int)pos[1], (int)pos[2],
+                  (int)((float)*(u16 *)(info + 0x14) * sx), (int)((float)*(u16 *)(info + 0x16) * sy),
+                  0, 0, -1, -1, alpha, layer, centred);
+}
+
+/* 0x001ABCE0, 0x154 bytes. The same with colour `rgba`. */
+void func_001ABCE0(float sx, float sy, u8 *f, int i, float *pos, const u32 *rgba, int layer,
+                   int centred)
+{
+    u8 *img = PACK_IMAGE(f, i), *info = func_00106F10(img);
+
+    func_001AB4E0(img, img, (int)pos[0], (int)pos[1], (int)pos[2],
+                  (int)((float)*(u16 *)(info + 0x14) * sx), (int)((float)*(u16 *)(info + 0x16) * sy),
+                  0, 0, -1, -1, rgba, layer, centred);
+}
+
+/* 0x001ABE40, 0x54 bytes. The whole image `i` of pack `f`. */
+void func_001ABE40(u8 *f, int i, int x, int y, int z, int w, int h, int alpha, int layer,
+                   int centred)
+{
+    func_001ABA70(PACK_IMAGE(f, i), x, y, z, w, h, alpha, layer, centred);
+}
+
+/* 0x001ABEA0, 0x74 bytes. Part of image `i` of pack `f`. */
+void func_001ABEA0(u8 *f, int i, int x, int y, int z, int w, int h, int u, int v, int uw, int vh,
+                   int alpha, int layer, int centred)
+{
+    func_001ABA00(PACK_IMAGE(f, i), x, y, z, w, h, u, v, uw, vh, alpha, layer, centred);
+}
+
+/* 0x001ABF20, 0x174 bytes. Image `i` of pack `f` with the palette of image `j`, scaled. */
+void func_001ABF20(float sx, float sy, u8 *f, int i, int j, float *pos, int alpha, int layer,
+                   int centred)
+{
+    u8 *img = PACK_IMAGE(f, i), *info = func_00106F10(img);
+
+    func_001AB9A0(img, PACK_IMAGE(f, j), (int)pos[0], (int)pos[1], (int)pos[2],
+                  (int)((float)*(u16 *)(info + 0x14) * sx), (int)((float)*(u16 *)(info + 0x16) * sy),
+                  0, 0, -1, -1, alpha, layer, centred);
+}
+
+/* 0x001AC0A0, 0x38 bytes. The size of image `i` of pack `f`. */
+void func_001AC0A0(u8 *f, int i, u32 *w, u32 *h)
+{
+    func_001ABAB0(PACK_IMAGE(f, i), w, h);
 }
