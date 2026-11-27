@@ -4460,3 +4460,538 @@ void func_00354600(u8 *u)
 {
     func_00354580(u);
 }
+
+/* Placement record `k` (through the pointer kept at 0x005BA7C8). */
+#define SPAWN(k) ((Spawn *)g_005BA7C4[1] + (k))
+
+int func_0019A800(short *out, u32 slot, int x, int z);
+int func_0032E7B0(void);
+extern u8 *g_006AA580[6];                /* the units placed with an officer */
+extern int g_006AA598;                   /* their number */
+extern u8 g_004155E0[16], g_004155F0[50];  /* cells kept free on maps 6 and 0x13 */
+extern int g_00415580[15], g_004155C0[7];  /* the reserve actions (two kinds of battle) */
+
+u32 func_003555C0(Spawn *r, int id, int officer);
+void func_00355510(void);
+u32 func_0033EF10(int k);
+u32 func_0033EF20(int s, int k);
+u8 *func_0033F020(int s, int j);
+u8 *func_0033F070(int s, int k);
+u8 *func_0033F0C0(int s, int k);
+u32 func_0035DCB0(int p);
+int func_003E6CD0(void);
+int func_0018F680(u8 *out, u8 *from, u8 *to, int c);
+u32 func_0018C320(u8 *cell, u8 *dir);
+int func_0018F7D0(u8 *cell, u32 d, int c);
+u32 func_003DD300(u8 *cell);
+int func_00215480(u8 *cell);
+int func_00190590(u8 *cell, int c);
+u32 func_001F1C00(u8 *cell, int side);
+int func_003650D0(int l);
+u8 **func_0033F110(u8 kind);
+
+/* 0x00354620, 0xA0 bytes. Places officer `u` of record `r` (player `p`: 0, 1, else none). */
+void func_00354620(Spawn *r, u8 *u, u8 *g, int p, u32 act)
+{
+    u32 f = 8;
+
+    if (p == 0)
+        f = 0x18;
+    else if (p == 1)
+        f = 0x28;
+    if ((g_00669F60 & 0x10) != 0)
+        f |= 0x40;
+    func_00347F20((int)r, u, act, f);
+    u[0x7D] = 0;
+    func_001BB5C0((int)r, u, g);
+    func_001F1A30(u);
+}
+
+/* 0x003546C0, 0xA0 bytes, matching. Places the leading unit `u` of record `r` (flag 0x40000 when `hidden`). */
+void func_003546C0(Spawn *r, u8 *u, u8 *g, int hidden, u32 act)
+{
+    u32 f = func_003555C0(r, 0x252, 1);
+
+    if (hidden != 0)
+        f |= 0x40000;
+    func_00347F20((int)r, u, act, f);
+    func_001BB5C0((int)r, u, g);
+    func_001F1A30(u);
+    func_00354580(u);
+}
+
+/* 0x00354760, 0x228 bytes. Places `n` soldier units from `u` on around record `r`'s position
+ * (into group `g` when given); the position is then clamped and the count kept. */
+void func_00354760(Spawn *r, u8 *lead, u8 *u, u32 n, u8 *g, int hidden, u32 act)
+{
+    int side = r->side;
+    u32 f = func_003555C0(r, 0x252, 0), k;
+    short x, y;
+
+    (void)lead;
+    if (hidden != 0)
+        f |= 0x40000;
+    y = r->y;
+    x = r->x;
+    for (k = 0; k < n; k++, u += 0x88) {
+        if (func_0019A800((short *)r, k, x, y) == 0) {
+            func_0032E7B0();
+            continue;
+        }
+        func_00347F20((int)r, u, act, f);
+        if (g_006AA5B0[side] < ++g_006AA5BC[side])
+            g_006AA5B0[side] = g_006AA5BC[side];
+        if (g != 0) {
+            func_001BB5C0((int)r, u, g);
+            func_001F1A30(u);
+        }
+        func_00354580(u);
+    }
+    if (x > 0x63F)
+        x = 0x63F;
+    else if (x < 1)
+        x = 0;
+    r->x = x;
+    if (y > 0x63F)
+        y = 0x63F;
+    else if (y < 1)
+        y = 0;
+    r->y = y;
+    r->f = n;
+}
+
+/* 0x00354990, 0x184 bytes. Places the two sides' officers (the players' with their flags). */
+void func_00354990(void)
+{
+    u32 s, k;
+
+    for (s = 0; s < 2; s++) {
+        for (k = 0; k < 8; k++) {
+            int i = k + s * 8, p;
+            Spawn *r = SPAWN(i);
+            u8 *u, *g;
+            u32 gi;
+
+            if (r == 0 || r->b18 != 0)
+                continue;
+            u = UNIT(func_0034A8D0(i));
+            gi = func_0033EF10(i);
+            g = (u8 *)g_006A1D58 + gi * 0x68;
+            for (p = 0; p < 2; p++) {
+                if (gi == (func_0035DCB0(p) & 0xFFFF))
+                    break;
+            }
+            if (p < 0 || p > 1)
+                func_003546C0(r, u, g, 0, k);
+            else
+                func_00354620(r, u, g, p, k);
+        }
+    }
+}
+
+/* 0x00354B20, 0x148 bytes. Without func_0036D310: the officers' soldiers. */
+void func_00354B20(void)
+{
+    u32 s, k;
+
+    if (func_0036D310() != 0)
+        return;
+    for (s = 0; s < 2; s++) {
+        for (k = 0; k < 8; k++) {
+            int i = k + s * 8;
+            Spawn *r = SPAWN(i);
+            u8 **g, *u;
+            u32 n, j;
+
+            if (r == 0 || r->b18 != 0)
+                continue;
+            g = (u8 **)func_0033EF80(i);
+            if ((((u32 *)g)[0x19] & 1) == 0)
+                continue;
+            u = func_0034AA50(i, 0);
+            n = r->f;
+            for (j = 0; j < n; j++, u += 0x88)
+                func_00354760(r, g[0], u, 1, (u8 *)g, 0, func_003489E0((u8 *)s, k));
+        }
+    }
+}
+
+/* 0x00354C70, 0x1B8 bytes. Places each base's guards (both sides), with soldiers for the base's
+ * owner. */
+void func_00354C70(void)
+{
+    u32 k, s;
+
+    for (k = 0; k < 0x14; k++) {
+        u8 *b = BASE(k);
+
+        if (b == 0 || func_0034EE50(b) == 0)
+            continue;
+        for (s = 0; s < 2; s++) {
+            Spawn *r = SPAWN(k + 0x10 + s * 0x14);
+            u8 *lead, *g;
+
+            if (r == 0)
+                continue;
+            lead = UNIT(func_0034A8E0(s, k));
+            g = (u8 *)g_006A1D58 + func_0033EF20(s, k) * 0x68;
+            func_003546C0(r, lead, g, 0, 8);
+            if (s == (u32)func_0034EDB0(b)) {
+                u8 *u = func_0034AA90(s, k, 0);
+                u32 n = r->f, j;
+
+                for (j = 0; j < n; j++, u += 0x88)
+                    func_00354760(r, lead, u, 1, g, 0, func_00348AE0());
+            }
+        }
+    }
+}
+
+/* 0x00354E30, 0xB8 bytes. Places the reserve (record 0x38) with `n` units doing `acts`. */
+void func_00354E30(int *acts, u32 n)
+{
+    Spawn *r = SPAWN(0x38);
+    u8 *u = (u8 *)g_00693970 + 0xB390;
+    u32 k;
+
+    func_003546C0(r, (u8 *)g_00693970 + 0x1DC0, (u8 *)g_006A1D58 + 0x16C0, 0, 8);
+    for (k = 0; k < n; k++, u += 0x88)
+        func_00354760(r, 0, u, 1, 0, 1, *acts++);
+}
+
+/* 0x00354EF0, 0x4C bytes. */
+void func_00354EF0(void)
+{
+    int t[15], k;
+
+    for (k = 0; k < 15; k++)
+        t[k] = g_00415580[k];
+    func_00354E30(t, 0xF);
+}
+
+/* 0x00354F40, 0x74 bytes. */
+void func_00354F40(void)
+{
+    int t[7];
+
+    t[0] = g_004155C0[0];
+    t[1] = g_004155C0[1];
+    t[2] = g_004155C0[2];
+    t[3] = g_004155C0[3];
+    t[4] = g_004155C0[4];
+    t[5] = g_004155C0[5];
+    t[6] = g_004155C0[6];
+    func_00354E30(t, 7);
+}
+
+/* 0x00354FC0, 0x3C bytes. */
+void func_00354FC0(void)
+{
+    if (func_0036D310() == 0)
+        func_00354EF0();
+    else
+        func_00354F40();
+}
+
+/* 0x00355000, 0x124 bytes. Each side's main base troop (record 0x3A + side). */
+void func_00355000(void)
+{
+    int n = func_003E6CD0();
+    u32 s;
+
+    for (s = 0; s < 2; s++) {
+        u32 m = func_00348BA0((u8 *)s);
+
+        if (m == 0x1D)
+            m = 0x1E;
+        if (m < 0x25) {
+            Spawn *r = SPAWN(s + 0x3A);
+            u8 *g = func_0033F020(s, 0), *lead = func_0034AAD0(s, 0, 0);
+
+            func_003546C0(r, lead, g, 0, m);
+            func_00354760(r, lead, func_0034AAD0(s, 0, 1), n - 1, g, 0, m);
+        }
+    }
+}
+
+/* 0x00355130, 0x138 bytes. Three hidden troops per side (records 0x3C + side * 2 ...). */
+void func_00355130(void)
+{
+    u32 s, k;
+
+    for (s = 0; s < 2; s++) {
+        for (k = 0; k < 3; k++) {
+            Spawn *r = SPAWN(k + 0x3C + s * 2);
+            u8 *g = func_0033F070(s, k), *lead = func_0034AB10(s, k, 0), *u;
+            u32 j;
+
+            func_003546C0(r, lead, g, 1, func_00348C90((u8 *)s));
+            u = func_0034AB10(s, k, 1);
+            for (j = 0; j < 4; j++, u += 0x88)
+                func_00354760(r, lead, u, 1, g, 1, func_00348C90((u8 *)s));
+        }
+    }
+}
+
+/* 0x00355270, 0xFC bytes. Three more hidden troops per side (records 0x40 + side * 3 ...). */
+void func_00355270(void)
+{
+    u32 s, k;
+
+    for (s = 0; s < 2; s++) {
+        for (k = 0; k < 3; k++) {
+            Spawn *r = SPAWN(k + 0x40 + s * 3);
+            u8 *g = func_0033F0C0(s, k), *lead = func_0034AB50(s, k, 0);
+
+            func_003546C0(r, lead, g, 1, 0x1A);
+            func_00354760(r, lead, func_0034AB50(s, k, 1), 4, g, 1, 0x1A);
+        }
+    }
+}
+
+/* 0x00355370, 0x94 bytes. Every active unit outside a troop gets its group's formation slot. */
+void func_00355370(void)
+{
+    u8 *u = (u8 *)g_00693970;
+    u32 k;
+
+    for (k = 0; k < 0x1AD; k++, u += 0x88) {
+        u32 f = UNIT_FLAGS(u);
+
+        if ((f & 1) != 0 && (f & 0x30) == 0) {
+            u8 *g = func_0034A740(u);
+
+            if (g == 0)
+                g = (u8 *)func_0033F110(u[0x79]);
+            if (g != 0)
+                u[0x7F] = func_0033B970(g);
+        }
+    }
+}
+
+/* 0x00355410, 0x78 bytes. The same for the players in play. */
+void func_00355410(void)
+{
+    int p;
+
+    for (p = 0; p < 2; p++) {
+        if (*(int *)(g_00669D60 + p * 0x48 + 0xA0) != 0) {
+            u8 *u = func_0035DCD0(p);
+
+            u[0x7F] = func_0033B970(func_0034A740(u));
+        }
+    }
+}
+
+/* 0x00355490, 0x40 bytes. Places the units at the start of a battle. */
+void func_00355490(void)
+{
+    g_005BD730 = 0;
+    func_00354C70();
+    func_00354990();
+    func_00354FC0();
+    func_00355510();
+    func_00355410();
+}
+
+/* 0x003554D0, 0x3C bytes, matching. Then the troops. */
+void func_003554D0(void)
+{
+    func_00354B20();
+    func_00355000();
+    func_00355130();
+    func_00355270();
+    func_00355370();
+}
+
+/* 0x00355510, 0xB0 bytes. Lists the units of the records with an officer (past the first four). */
+void func_00355510(void)
+{
+    int n = *(int *)g_005BA7C4[0];
+    Spawn *r = SPAWN(0);
+    u32 k;
+
+    if (n == 4)
+        return;
+    for (k = 0; k < (u32)(n - 4); k++, r++) {
+        if (r->b18 == 0 && r->c == 0 && r->officer < 0x1AD)
+            g_006AA580[g_006AA598++] = UNIT(r->officer);
+    }
+}
+
+/* 0x003555C0, 0xC4 bytes. The unit flags for record `r` (its leader when `officer`). */
+u32 func_003555C0(Spawn *r, int id, int officer)
+{
+    u32 f = 0;
+
+    (void)id;
+    if (officer == 0) {
+        if (r->d == 5)
+            f = 0x10000000;
+    } else {
+        f = 8;
+        if (r->d == 5)
+            f = 0x8000008;
+        else if (r->d == 4)
+            f = 0x800008;
+        else if (r->d == 3)
+            f = 0x4008;
+        if (r->b13 != 0)
+            f |= 0x80000;
+    }
+    if (r->b12 != 0)
+        f |= 0x40000;
+    if (r->b18 != 0)
+        f |= 6;
+    return f;
+}
+
+/* Whether cell `c` is one of the `n` cells of table `t`. */
+static int in_table(u8 *c, u8 *t, int n)
+{
+    int k;
+
+    for (k = 0; k < n; k++, t += 2) {
+        if (c[0] == t[0] && c[1] == t[1])
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00355690, 0x12C bytes. Whether cell `c` may take units (some cells of maps 6 and 0x13 not). */
+int func_00355690(u8 *c)
+{
+    if (func_003623B0() == 6) {
+        u8 t[16];
+        int k;
+
+        for (k = 0; k < 16; k++)
+            t[k] = g_004155E0[k];
+        if (in_table(c, t, 8))
+            return 0;
+    }
+    if (func_003623B0() == 0x13) {
+        u8 t[50];
+        int k;
+
+        for (k = 0; k < 50; k++)
+            t[k] = g_004155F0[k];
+        if (in_table(c, t, 0x19))
+            return 0;
+    }
+    return 1;
+}
+
+/* 0x003557C0, 0x124 bytes. Whether side `side` may place units on cell `c`: open, not on the
+ * enemy's front nor at the enemy's base, with fewer than six units. */
+int func_003557C0(u8 *c, int side)
+{
+    u8 *b;
+
+    if (func_00190480(c) == 0 || func_00215480(c) != 0)
+        return 0;
+    b = func_0034ECA0(c);
+    if (b != 0) {
+        int o = func_0034EDB0(b);
+
+        if (o != side && o == func_0035D5A0(side))
+            return 0;
+    }
+    if (func_00353A50(c) == func_0035D5A0(side))
+        return 0;
+    if (func_001F1C00(c, 0) + func_001F1C00(c, 1) >= 6)
+        return 0;
+    return func_00355690(c) != 0;
+}
+
+/* 0x003558F0, 0xBC bytes, matching. The 25x25 cells at distance `d` from `from` into list `l`. */
+int func_003558F0(u8 *from, u32 d, int l)
+{
+    int x, y;
+
+    func_00365230(l);
+    for (y = 0; y < 0x19; y++) {
+        for (x = 0; x < 0x19; x++) {
+            u8 c[2];
+
+            c[0] = x;
+            c[1] = y;
+            if (d == (func_0018F6F0(from, c, 0) & 0xFFFF))
+                func_00364E40(l, x + y * 0x19);
+        }
+    }
+    return func_00365050(l);
+}
+
+/* 0x003559B0, 0x17C bytes. The nearest cell to `from` side `side` may place units on (into
+ * `out`, picked at random among the cells at the same distance). */
+int func_003559B0(u8 *from, u8 *out, int side)
+{
+    u8 buf[2512], l[12];
+    int found = 0x271, d;
+
+    func_003653F0((int)l, buf, 0x271);
+    for (d = 0; d < 0x271 && found == 0x271; d++) {
+        func_003558F0(from, d, (int)l);
+        while (func_00365050((int)l) > 0) {
+            int k = func_003650D0((int)l);
+            u8 c[2];
+
+            c[0] = k % 0x19;
+            c[1] = k / 0x19;
+            if (func_003557C0(c, side) != 0) {
+                found = k;
+                break;
+            }
+        }
+    }
+    if (found == 0x271)
+        return 0;
+    out[0] = found % 0x19;
+    out[1] = found / 0x19;
+    return 1;
+}
+
+/* 0x00355B30, 0xA0 bytes. The place side `side` puts units at near cell `from` (in map units). */
+void func_00355B30(u8 *from, float *out, int side)
+{
+    u8 c[4], xy[2];
+
+    if (func_003559B0(from, c, side) == 0)
+        *(short *)c = *(short *)from;
+    func_001F1640(c, xy);
+    out[0] = (float)xy[0] * 1000.0f + 500.0f;
+    out[1] = (float)xy[1] * 1000.0f + 500.0f;
+}
+
+/* 0x00355BD0, 0x44 bytes, matching. The same near base `b`. */
+void func_00355BD0(u8 *b, float *out, int side)
+{
+    u8 c[4];
+
+    func_0034ED90(b, c);
+    func_00355B30(c, out, side);
+}
+
+/* 0x00355C20, 0xDC bytes. Unit `u`'s direction from cell `cell` toward the enemy's main base
+ * (another open one, else random). */
+u32 func_00355C20(u8 *u, u8 *cell)
+{
+    u8 dir[4], c[4];
+    u32 d;
+
+    func_0034ED90(BASE(func_0035F200(func_0035D5A0(u[0x79]))), c);
+    func_0018F680(dir, cell, c, 0);
+    d = func_0018C320(cell, dir);
+    if ((d == 8 || func_0018F7D0(cell, d, 0) == 0) && (d = func_003DD300(cell)) == 8)
+        d = RANDOM() & 7;
+    return d;
+}
+
+/* 0x00355D00, 0x60 bytes. Whether cell `c` is open. */
+int func_00355D00(u8 *c)
+{
+    if (func_00190480(c) == 0 || func_00215480(c) != 0)
+        return 0;
+    return func_00190590(c, 8) == 0;
+}

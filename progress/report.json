@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 113472,
-    "non_matching": 810472
+    "matching": 113968,
+    "non_matching": 815912
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 1175
+    "matching": 1179
   },
   "layout": "treemap",
   "areas": [
@@ -246,15 +246,15 @@
       "children": [
         {
           "name": "emp_FldBase.c",
-          "description": "Estimated range 0x33F608-0x357160; 339 function(s) decompiled",
+          "description": "Estimated range 0x33F608-0x357160; 366 function(s) decompiled",
           "code": {
             "total": 97112,
-            "matching": 8176,
-            "non_matching": 37748
+            "matching": 8672,
+            "non_matching": 43188
           },
           "decompiled_functions": {
-            "count": 339,
-            "matching": 135
+            "count": 366,
+            "matching": 139
           }
         },
         {
