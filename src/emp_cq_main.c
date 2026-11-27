@@ -4461,6 +4461,7 @@ int func_00319200(CmdRecord *p)
 }
 
 int func_002FA490(int f);
+int func_0030C1C0(int x, int g);
 int func_002FB470(int f);
 int func_002FB500(int f, int g);
 int func_002F95C0(int f);
@@ -4648,4 +4649,186 @@ int func_00319BE0(CmdRecord *p)
     func_003155C0(p, &home, 1);
     func_003F4D20(9);
     return 0;
+}
+
+extern u32 g_00414BA0[3];                /* by command: a horse kind wanted */
+extern int g_00414BB0[2][3];             /* by command: the skills it may teach the force */
+
+int func_002FAAD0(int f);
+void func_002FAB40(int f, int v);
+void func_002FAA50(int f, int k, int v);
+
+/* 0x00319C50, 0x110 bytes. Whether the stable has room for a horse of command `c`'s kind and
+ * has none of it yet; the first free slot into `out` (-1 for none). */
+int func_00319C50(int *out, int f, int c)
+{
+    u32 kinds[4];
+    int row, n = 0, k;
+
+    kinds[0] = g_00414BA0[0];
+    kinds[1] = g_00414BA0[1];
+    kinds[2] = g_00414BA0[2];
+    row = c == 0x32 ? 0 : c == 0x33 ? 1 : 2;
+    *out = -1;
+    for (k = 0; k < 4; k++) {
+        if (func_0019FBC0(k)[4] == 4) {
+            if (*out == -1)
+                *out = k;
+        } else {
+            if (kinds[row] == func_0019FBC0(k)[5])
+                return 0;
+            n++;
+        }
+    }
+    return n != 4;
+}
+
+/* 0x00319D70, 0x130 bytes. The skill of command `c`'s three force `f` knows least (below its
+ * limit): the skill into `skill`, its level into `lv`; 0 when none. */
+int func_00319D70(int *skill, int *lv, int f, int c)
+{
+    int t[6], *row, k, found = 0;
+
+    for (k = 0; k < 6; k++)
+        t[k] = (&g_00414BB0[0][0])[k];
+    *lv = 4;
+    row = t + (c != 0x32) * 3;
+    for (k = 0; k < 3; k++) {
+        int s = row[k], l = func_002FA9E0(f, s);
+
+        if (l < func_0030AB50(s) && l < *lv) {
+            *lv = l;
+            found = 1;
+            *skill = s;
+        }
+    }
+    return found;
+}
+
+/* 0x00319EA0, 0x19C bytes. Whether command `c` brings force `f` a horse or a skill as well
+ * (below the value limits, by chance from its size and fame). */
+int func_00319EA0(int f, int c)
+{
+    int h, s, l, fame, r, v, pct;
+
+    if (func_002FABC0(f) >= 1000 || func_002FAAD0(f) >= 1000)
+        return 0;
+    if (func_00319C50(&h, f, c) == 0 && func_00319D70(&s, &l, f, c) == 0)
+        return 0;
+    fame = func_002FB2A0(f) == 0 ? 0 : func_0011B740(func_00327E90());
+    r = func_002FB3B0(f);
+    v = func_002FABC0(f);
+    pct = r + fame * 3 + 10;
+    if (pct < 0xB)
+        pct = 0xB;
+    if (pct > 0x4E)
+        pct = 0x4F;
+    if (c == 0x33) {
+        pct = v / 100 + r + fame * 2 + 10;
+        if (pct < 0xB)
+            pct = 0xB;
+        if (pct > 0x49)
+            pct = 0x4A;
+    }
+    return func_0030CB50(pct) != 0;
+}
+
+/* 0x0031A040, 0x490 bytes. Command result: a market (gold, message 6) or by chance a good trade
+ * (more gold, message 7, maybe more through func_00319EA0); whether more follows. */
+int func_0031A040(CmdRecord *p)
+{
+    int f = p->f, c = p->cmd, ok = 0, fame, fv, b = 0, n, s, m, pct, root, x, y;
+    CmdResult *r;
+
+    func_002F8F20(f);
+    r = func_003155A0(p, 0);
+    fame = func_002FB2A0(f) == 0 ? 0 : func_0011B740(func_00327E90());
+    fv = func_002FABC0(f);
+    if (func_002FB2A0(f) != 0 && (u32)func_00327870() < 0x19F)
+        b = 5;
+    if (func_002FB2A0(f) != 0 && func_00327B70(f) != 0)
+        b = 5;
+    n = func_002FB430(f);
+    s = func_002FB3B0(f);
+    m = c == 0x33 ? 4 : 2;
+    b += fv / 100 + fame * m;
+    root = (int)sqrtf((float)(n + s));
+    pct = b + root + 0x28 < 100 ? b + root + 0x28 : 100;
+    if (c == 0x33 && pct < 0x29)
+        pct = 0x29;
+    if (func_0030CB50(pct) == 0) {
+        x = func_002FB2A0(f) == 0 ? 100 : func_0011B740(func_00327E90()) * 10;
+        y = func_0030CB00(4);
+        b = func_002FB2A0(f) == 0 ? 0 : (500 - x + y * -0x32) / 0x14 * 10;
+        r->kind = 0;
+        r->v[0] = (b + y * 0x32 + x + 500) / 10 * 10;
+        func_001204B0(r->text, func_00390760(6), func_00372250(c), func_0030CB80(r->v[0]));
+        r->v[0x1E] = 2;
+    } else {
+        x = 200;
+        if (func_002FB2A0(f) != 0)
+            x = (func_00327E90() < 0 ? 0x14 : 10) * func_0011B740(func_00327E90());
+        y = func_0030CB00(5);
+        r->kind = 0;
+        r->v[0] = f;
+        r->v[0] = (y * 0x32 + x + 0x5DC) / 10 * 10;
+        func_001204B0(r->text, func_00390760(7), func_00372250(c), func_0030CB80(r->v[0]));
+        ok = func_00319EA0(f, c) != 0;
+        r->v[0x1E] = 1;
+    }
+    return ok;
+}
+
+/* A market command (`c`, horse sound `snd`, trait list `t`): on a good trade the force's value
+ * grows (up to 5, message 10), then a horse (message 9) or a skill (message 8). */
+static int market(CmdRecord *p, int c, int snd, int t)
+{
+    CmdResult *r = func_003155A0(p, 1);
+    int reg[25], h, s, l, inc, a, b;
+
+    if (func_0031A040(p) != 0) {
+        r->kind = 0x15;
+        a = func_002FABC0(p->f);
+        b = func_002FAAD0(p->f);
+        inc = 1000 - (1000 - b < 1000 - a ? b : a);
+        if (inc >= 5)
+            inc = 5;
+        r->v[0] = p->f;
+        r->v[1] = inc;
+        func_001204B0(r->text, func_00390760(10), func_0030CB80(inc));
+        func_002FAB40(p->f, inc + func_002FAAD0(p->f));
+        if (func_00319C50(&h, p->f, c) != 0) {
+            r = func_003155A0(p, 2);
+            r->kind = 0xE;
+            r->v[0] = p->f;
+            r->v[1] = h;
+            func_001A0020(snd);
+            func_001204B0(r->text, func_00390760(9), func_0019FBC0(h) + 0x13);
+            func_0038BE90(func_0019FBC0(h));
+            func_0038BE00(h, 0, 0);
+        } else if (func_00319D70(&s, &l, p->f, c) != 0) {
+            r = func_003155A0(p, 2);
+            r->kind = 0x15;
+            r->v[0] = p->f;
+            r->v[1] = s;
+            r->v[2] = l;
+            func_001204B0(r->text, func_00390760(8), g_0042D3E0[s], func_0030CB80(l + 1));
+            func_002FAA50(p->f, s, l + 1);
+        }
+    }
+    func_003155C0(p, reg, func_002FBF20(p->f, t, reg));
+    func_003F4D20(10);
+    return 0;
+}
+
+/* 0x0031A4D0, 0x26C bytes. Command 0x32's market. */
+int func_0031A4D0(CmdRecord *p)
+{
+    return market(p, 0x32, 0xD, 7);
+}
+
+/* 0x0031A740, 0x26C bytes. Command 0x33's market. */
+int func_0031A740(CmdRecord *p)
+{
+    return market(p, 0x33, 0xF, 8);
 }
