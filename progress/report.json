@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 180960,
-    "non_matching": 1226304
+    "matching": 181104,
+    "non_matching": 1227904
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2297
+    "matching": 2302
   },
   "layout": "treemap",
   "areas": [
@@ -659,15 +659,15 @@
         },
         {
           "name": "MotionManager.c",
-          "description": "Estimated range 0x1748E8-0x1814A8; 27 function(s) decompiled",
+          "description": "Estimated range 0x1748E8-0x1814A8; 30 function(s) decompiled",
           "code": {
             "total": 52160,
-            "matching": 1088,
-            "non_matching": 3956
+            "matching": 1136,
+            "non_matching": 4340
           },
           "decompiled_functions": {
-            "count": 27,
-            "matching": 8
+            "count": 30,
+            "matching": 9
           }
         },
         {
@@ -755,15 +755,15 @@
         },
         {
           "name": "sc_ctrl.c",
-          "description": "Estimated range 0x1814A8-0x1890D0; 42 function(s) decompiled",
+          "description": "Estimated range 0x1814A8-0x1890D0; 59 function(s) decompiled",
           "code": {
             "total": 31784,
-            "matching": 1760,
-            "non_matching": 7744
+            "matching": 1856,
+            "non_matching": 8960
           },
           "decompiled_functions": {
-            "count": 42,
-            "matching": 16
+            "count": 59,
+            "matching": 20
           }
         },
         {
