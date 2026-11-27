@@ -3278,3 +3278,181 @@ u8 func_003519E0(void)
 {
     return g_0045D2F0[0x5C0];
 }
+
+extern int g_006AA5B0[2], g_006AA5BC[2];   /* per side: the most units, the units */
+extern int g_005BD730, g_005BD738;
+
+void func_00347F20(int a, u8 *u, int act, u32 flags);
+void func_001BB5C0(int a, u8 *u, u8 *g);
+u8 func_0033B970(u8 *g);
+void func_00353850(int x0, int y0, int x1, int y1);
+
+/* 0x003519F0, 0x1FC bytes. A new guard unit for side `side` at base `b` (when its group has
+ * room): placed, counted, its group's orders cleared; side 1's new units add to the total. */
+u8 *func_003519F0(u8 *b, int side)
+{
+    int k = func_0034ED40(b), off, gi;
+    u8 *s = func_0034AA10(side, k), *g, *u;
+    u32 n = 0, j;
+
+    off = *(int *)(s + 4);
+    gi = *(int *)(s + 0x10);
+    g = g_006A1D58[gi];
+    for (j = 0; j < 0xD; j++) {
+        if (((int *)g)[j] != 0)
+            n++;
+    }
+    if (n >= 0xD)
+        return 0;
+    u = func_0034AC40(side, k);
+    if (u == 0)
+        return 0;
+    func_00347F20(off, u, func_00348AE0(), 0x10000000);
+    if (g_006AA5B0[side] < ++g_006AA5BC[side])
+        g_006AA5B0[side] = g_006AA5BC[side];
+    func_001BB5C0(off, u, g);
+    *(int *)(g + 0x34) = 0;
+    *(int *)(g + 0x38) = 0;
+    *(int *)(g + 0x3C) = 0;
+    *(int *)(g + 0x40) = 0;
+    g_005BD738 = 1;
+    *(int *)(g + 0x44) = 0;
+    u[0x7F] = func_0033B970(g);
+    func_001F1A30(u);
+    if (side != 0) {
+        u32 f = UNIT_FLAGS(u);
+
+        if (((f & 1) != 0 && (f & 0x8C40002) == 0) || (f & 0x40000) == 0)
+            g_005BD730 += u[0x74] + 1;
+    }
+    return u;
+}
+
+/* 0x00351BF0, 0x1D4 bytes. Base `b`'s front value (+0x34, -100 side 0 to 100 side 1): fixed for a
+ * flagged base, else from the sides holding it and its links. */
+void func_00351BF0(u8 *b)
+{
+    u32 o = func_0034EDB0(b), n, k;
+    int c[2], v;
+
+    if (o < 2 && func_0034EE80(b) != 0) {
+        if (o == 0)
+            func_0034F3A0(b, -100);
+        else if (o == 1)
+            func_0034F3A0(b, 100);
+        return;
+    }
+    c[0] = 0;
+    c[1] = 0;
+    if (func_0034EE80(b) == 0 && (o = func_0034EDB0(b)) < 2)
+        c[o]++;
+    n = func_0034EEF0(b);
+    for (k = 0; k < n; k++) {
+        u8 *x = func_0034EF60(b, k);
+
+        if (x != 0 && func_0034EE80(x) == 0 && (o = func_0034EDB0(x)) < 2)
+            c[o]++;
+    }
+    if (c[0] == 0 && c[1] == 0)
+        v = 0;
+    else if (c[0] == 0)
+        v = -100;
+    else if (c[1] == 0)
+        v = 100;
+    else
+        v = (c[0] - c[1]) * 10;
+    if (v < -99)
+        v = -100;
+    if (v > 100)
+        v = 100;
+    func_0034F3A0(b, v);
+}
+
+/* 0x00351DD0, 0x110 bytes. Whether base `b` reaches a flagged (1) base through its side's bases
+ * (`mask`: those seen). */
+int func_00351DD0(u8 *b, u32 *mask)
+{
+    int o;
+    u32 n, k;
+
+    if (func_0034EE60(b) != 0)
+        return 1;
+    *mask |= 1 << func_0034ED40(b);
+    o = func_0034EDB0(b);
+    n = func_0034EEF0(b);
+    for (k = 0; k < n; k++) {
+        u32 x = func_0034EF50(b, k);
+
+        if ((*mask & 1 << x) == 0) {
+            u8 *l = func_0034EF60(b, k);
+
+            if (o == func_0034EDB0(l) && func_00351DD0(l, mask) != 0)
+                return 1;
+        }
+    }
+    return 0;
+}
+
+/* 0x00351EE0, 0x20 bytes, matching. */
+int func_00351EE0(u8 *b)
+{
+    u32 m = 0;
+
+    return func_00351DD0(b, &m);
+}
+
+/* 0x00351F00, 0x78 bytes. Sets or clears base `b`'s flag 2 (cut off from the flagged bases);
+ * whether it changed. */
+int func_00351F00(u8 *b)
+{
+    if (func_00351EE0(b) == 0) {
+        if (func_0034EE80(b) == 0) {
+            func_0034EEA0(b);
+            return 1;
+        }
+    } else if (func_0034EE80(b) != 0) {
+        func_0034EEC0(b);
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00351F80, 0xD4 bytes. Updates the cut-off flags from base `b` on through the bases it
+ * changes (all of `b`'s links when `force`). */
+void func_00351F80(u8 *b, u32 *mask, int force)
+{
+    u32 n, k;
+
+    *mask |= 1 << func_0034ED40(b);
+    if (func_00351F00(b) == 0 && force == 0)
+        return;
+    n = func_0034EEF0(b);
+    for (k = 0; k < n; k++) {
+        u32 x = func_0034EF50(b, k);
+
+        if ((*mask & 1 << x) == 0)
+            func_00351F80(BASE(x), mask, 0);
+    }
+}
+
+/* 0x00352060, 0x9C bytes, matching. After base `b` changed hands: the cut-off flags, front values and the
+ * map areas of the bases concerned. */
+void func_00352060(u8 *b)
+{
+    u32 m = 0, k;
+
+    func_00351F80(b, &m, 1);
+    for (k = 0; k < 0x14; k++) {
+        if ((m & 1 << k) != 0) {
+            u8 *x = BASE(k);
+
+            if (x != 0) {
+                u8 *r;
+
+                func_00351BF0(x);
+                r = func_0034F3C0(x);
+                func_00353850(r[0], r[3], r[2], r[1]);
+            }
+        }
+    }
+}
