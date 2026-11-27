@@ -52,7 +52,7 @@ u32 func_0032F780(void);
 int func_0032F090(u32 a);
 u8 *func_002EFB00(int a);
 
-/* 0x0018C490, 0x70 bytes. Loads map file `entry` into map object `map`. */
+/* 0x0018C490, 0x70 bytes, matching. Loads map file `entry` into map object `map`. */
 void func_0018C490(u8 *map, int entry)
 {
     u32 *d = func_001026D0(1, entry, 0, 1, 0, 0, g_004251D0, 0x136);
@@ -95,7 +95,7 @@ void func_0018C500(void)
     func_0018E870();
 }
 
-/* 0x0018C730, 0x74 bytes. Frees the map(s). */
+/* 0x0018C730, 0x74 bytes, matching. Frees the map(s). */
 void func_0018C730(void)
 {
     if (g_00669DB8[0] == 2) {
@@ -172,21 +172,21 @@ void func_0018C870(u8 *map, u32 *blk)
     }
 }
 
-/* 0x0018CA50, 0x18 bytes. Table +0x58 (16-byte entries): count and data from `blk`. */
+/* 0x0018CA50, 0x18 bytes, matching. Table +0x58 (16-byte entries): count and data from `blk`. */
 void func_0018CA50(u8 *map, u32 *blk)
 {
     U32(map, 0x58) = blk[1] >> 4;
     U32(map, 0x5C) = blk[0];
 }
 
-/* 0x0018CA70, 0x18 bytes. Table +0x60 (16-byte entries). */
+/* 0x0018CA70, 0x18 bytes, matching. Table +0x60 (16-byte entries). */
 void func_0018CA70(u8 *map, u32 *blk)
 {
     U32(map, 0x60) = blk[1] >> 4;
     U32(map, 0x64) = blk[0];
 }
 
-/* 0x0018CA90, 0x18 bytes. Table +0x68 (8-byte entries). */
+/* 0x0018CA90, 0x18 bytes, matching. Table +0x68 (8-byte entries). */
 void func_0018CA90(u8 *map, u32 *blk)
 {
     U32(map, 0x68) = blk[1] >> 3;
@@ -310,7 +310,7 @@ u32 func_0018D010(u32 **k)
     return h;
 }
 
-/* 0x0018D0A0, 0x60 bytes. Whether two keys are the same. */
+/* 0x0018D0A0, 0x60 bytes, matching. Whether two keys are the same. */
 int func_0018D0A0(u32 **a, u32 **b)
 {
     if (*(unsigned long long *)a[0] != *(unsigned long long *)b[0])
@@ -320,7 +320,7 @@ int func_0018D0A0(u32 **a, u32 **b)
     return (((u32)a[2] ^ (u32)b[2]) & 1) == 0;
 }
 
-/* 0x0018D100, 0x40 bytes. Allocates the map's two work tables (+0x100, +0x104). */
+/* 0x0018D100, 0x40 bytes, matching. Allocates the map's two work tables (+0x100, +0x104). */
 void func_0018D100(u8 *map)
 {
     PTR(map, 0x100) = func_00102D30(0x800);
@@ -335,4 +335,41 @@ void func_0018D140(u8 *map)
     PTR(map, 0x100) = 0;
     func_00102EC0(PTR(map, 0x104));
     PTR(map, 0x104) = 0;
+}
+
+void func_001185E0(void *p, int size, int value);  /* memset */
+void func_0018DA60(u8 *map, u8 *e, int side);
+
+/* 0x0018D460, 0x98 bytes. Resets the map's route cache: 64 entries of 0x20 bytes (+0x100) in a
+ * list from +0x108 (head 0, tail 0x3F; +0xD the next one, +4 the link pointing at it), 0x57
+ * hash buckets (+0x104) empty. */
+void func_0018D460(u8 *map)
+{
+    u8 *e;
+    int k;
+
+    func_00118850(PTR(map, 0x100), 0x800);
+    func_001185E0(PTR(map, 0x104), 0x57, 0xFF);
+    U8(map, 0x108) = 0;
+    U8(map, 0x109) = 0x3F;
+    e = PTR(map, 0x100);
+    PTR(e, 4) = map + 0x108;
+    for (k = 1; k < 0x40; k++, e += 0x20) {
+        U8(e, 0xD) = (u8)k;
+        PTR(e, 0x24) = e + 0xD;
+    }
+    U8(e, 0xD) = 0xFF;
+}
+
+/* 0x0018D9B0, 0xA4 bytes. Builds both sides' data (func_0018DA60) for every province. */
+void func_0018D9B0(u8 *map)
+{
+    u32 i;
+
+    for (i = 0; i < U8(map, 0x54); i = (i + 1) & 0xFF) {
+        int s;
+
+        for (s = 0; s < 2; s++)
+            func_0018DA60(map, PTR(map, 0x50) + i * 0x88, s);
+    }
 }
