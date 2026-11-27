@@ -212,3 +212,6 @@ Answers to the renderer items:
   interface as platform version 2) and added threads to platform version 1. Agreed.
 - 2026-11-27: feedback from this project: PS2-like thread scheduling (one thread at a time, by
   priority), atomic save writes, the GS colour scale, and answers on CLUT, render-to-texture and fog.
+- 2026-11-27: launcher side accepted the feedback (PS2 thread model with a run token,
+  folder-atomic `save_*` calls, GS colour scale, indexed textures) and asked about interrupt
+  handlers.
