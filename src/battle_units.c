@@ -72,7 +72,7 @@ void func_0024BE90(void);
 int func_0032E7B0(void);
 void func_00179700(int a);
 
-/* 0x00173970, 0xFC bytes. Runs func_00173430 for every unit on the field (flag 2 of +0x198)
+/* 0x00173970, 0xFC bytes, matching. Runs func_00173430 for every unit on the field (flag 2 of +0x198)
  * that is not hidden (or is a bodyguard of kind 1 or 2), not riding (except actions 0x55, 0x56,
  * 0x60, 0x61), not in states 0x3D-0x3F, with flag 0x10 of +0x198. */
 void func_00173970(void)
@@ -148,7 +148,7 @@ u8 *func_00177ED0(void)
     return r;
 }
 
-/* 0x001781C0, 0x88 bytes. Shuts the battlefield managers down. */
+/* 0x001781C0, 0x88 bytes, matching. Shuts the battlefield managers down. */
 void func_001781C0(void)
 {
     func_00178460();
@@ -163,7 +163,7 @@ void func_001781C0(void)
     BIT(g_005B5030, 0, 0) = 0;
 }
 
-/* 0x00178460, 0x80 bytes. Resets the battlefield managers. */
+/* 0x00178460, 0x80 bytes, matching. Resets the battlefield managers. */
 void func_00178460(void)
 {
     func_00178250();
@@ -177,9 +177,196 @@ void func_00178460(void)
     BIT(g_005B5030, 0, 0) = 0;
 }
 
-/* 0x001796D0, 0x2C bytes. func_00179700(0) unless func_0032E7B0 says otherwise. */
+/* 0x001796D0, 0x2C bytes, matching. func_00179700(0) unless func_0032E7B0 says otherwise. */
 void func_001796D0(void)
 {
     if (func_0032E7B0() == 0)
         func_00179700(0);
+}
+
+typedef unsigned long long u64;
+
+#define g_70000158 (*(u32 **)0x70000158)         /* the DMA chain's write cursor */
+
+extern u32 g_0045D2B8;                   /* (small data) the number of units drawn */
+extern Unit *g_00574DA0[];               /* the units to draw */
+extern int g_0045D2C8;                   /* (small data) the side in the duel view */
+extern int g_0045CC80;                   /* (small data) */
+
+int func_001F2450(void);
+void func_0014FCB0(u32 a);
+void func_0014FE00(void);
+void func_001500E0(int a);
+void func_002AD960(Unit *u);
+void func_001698D0(Unit *u, int mode);
+int func_00100FB0(void);                 /* the screen width */
+int func_00100FC0(void);                 /* the screen height */
+float func_00100FD0(void);
+float func_00136D70(float a);            /* tanf? */
+void func_00165560(Unit *u);
+
+/* 0x0017A350, 0xAC bytes, matching. Draws the units of the draw list. */
+void func_0017A350(void)
+{
+    u32 k;
+    int mode = func_001F2450();
+
+    func_0014FCB0(g_0045D2C0);
+    func_0014FE00();
+    func_001500E0(100);
+    if (g_0045D2B8 != 0) {
+        for (k = 0; k < g_0045D2B8; k++) {
+            Unit *u = g_00574DA0[k];
+
+            if (u != 0) {
+                func_002AD960(u);
+                func_001698D0(u, mode);
+            }
+        }
+    }
+}
+
+/* The GS packet setting both scissor registers to `s`. */
+static inline void set_scissor(u64 s)
+{
+    u32 *d = g_70000158;
+    u64 *q;
+
+    d[0] = 0x10000003;
+    d[1] = 0;
+    d[2] = 0x13000000;
+    d[3] = 0x50000003;
+    q = (u64 *)(d + 4);
+    q[0] = 0x1000000000008002ULL;
+    q[1] = 0xE;
+    q[2] = s;
+    q[3] = 0x40;
+    q[4] = s;
+    q[5] = 0x41;
+    g_70000158 = (u32 *)(q + 6);
+}
+
+/* 0x0017A400, 0x130 bytes. Limits drawing to the top (`bottom` 0) or bottom half of the
+ * screen (the two-player split). */
+void func_0017A400(int bottom)
+{
+    int w = func_00100FB0(), y0, y1;
+
+    if (bottom == 0) {
+        y0 = 0;
+        y1 = func_00100FC0() / 2;
+    } else {
+        y0 = func_00100FC0() / 2;
+        y1 = func_00100FC0();
+    }
+    set_scissor((u64)(y1 - 1) << 48 | (u64)(w - 1) << 16 | (u64)y0 << 32);
+}
+
+/* 0x0017A530, 0x104 bytes. Draws on the whole screen again. */
+void func_0017A530(void)
+{
+    u32 *d = g_70000158;
+    u64 *q;
+
+    d[0] = 0x10000003;
+    d[1] = 0;
+    d[2] = 0x13000000;
+    d[3] = 0x50000003;
+    q = (u64 *)(d + 4);
+    q[0] = 0x1000000000008002ULL;
+    q[1] = 0xE;
+    q[2] = (u64)(func_00100FB0() - 1) << 16 | (u64)(func_00100FC0() - 1) << 48;
+    q[3] = 0x40;
+    q[4] = (u64)(func_00100FB0() - 1) << 16 | (u64)(func_00100FC0() - 1) << 48;
+    q[5] = 0x41;
+    g_70000158 = (u32 *)(q + 6);
+}
+
+/* 0x0017A640, 0x78 bytes. Takes every unit's model away (end of a battle). */
+void func_0017A640(void)
+{
+    u8 *u = g_00574DE0[0];
+    int k;
+
+    for (k = 0; k < 0x8F; k++, u += 0x630) {
+        if (BIT(u, 0x198, 1) && PTR(u, 0x11C) != 0)
+            func_00165560(u);
+    }
+    g_0045D2C8 = 0;
+    g_0045CC80 = 8;
+}
+
+/* The identity matrix. */
+static inline void identity(float *m)
+{
+    int i, k;
+
+    for (i = 0; i < 4; i++)
+        for (k = 0; k < 4; k++)
+            m[i * 4 + k] = i == k ? 1.0f : 0.0f;
+}
+
+/* 0x0017A6C0, 0x78 bytes. A perspective matrix: screen `w` x `h` at distance `d`, depth from
+ * `n` to `f`. */
+void func_0017A6C0(float w, float h, float d, float n, float f, float *m)
+{
+    identity(m);
+    m[0] = d / w;
+    m[5] = d / h;
+    m[10] = (f + n) / (f - n);
+    m[14] = f * n * -2.0f / (f - n);
+    m[11] = 1.0f;
+    m[15] = 0.0f;
+}
+
+/* 0x0017A740, 0x64 bytes. The matrix from view space to the screen: scales `sx` x `kx`,
+ * `sy` x `ky`, centre (`cx`, `cy`), depth `zf` / `zn` to the middle of the range. */
+void func_0017A740(float sx, float sy, float kx, float ky, float cx, float cy, float zf,
+                   float zn, float *m)
+{
+    identity(m);
+    m[0] = sx * kx;
+    m[5] = sy * ky;
+    m[10] = (-zn + zf) * 0.5f;
+    m[14] = (zn + zf) * 0.5f;
+    m[12] = cx;
+    m[13] = cy;
+}
+
+/* 0x0017A920, 0x158 bytes. A camera object's defaults: eye 100 behind the origin, the screen
+ * centre 2048 x 2048, a 15-degree view angle with its distance for a 224 view height, depth
+ * from 64 to 50000, far clip 10000 (4500 with flag 4, just cleared). */
+void func_0017A920(u8 *c)
+{
+    F32(c, 0x1C0) = 0.0f;
+    F32(c, 0x1C4) = 0.0f;
+    F32(c, 0x1C8) = -100.0f;
+    F32(c, 0x1CC) = 1.0f;
+    F32(c, 0x1D0) = 0.0f;
+    F32(c, 0x1D4) = 0.0f;
+    F32(c, 0x1D8) = 0.0f;
+    F32(c, 0x1DC) = 1.0f;
+    F32(c, 0x1F0) = 0.0f;
+    F32(c, 0x1F4) = 0.0f;
+    F32(c, 0x1F8) = 512.0f;
+    F32(c, 0x1FC) = func_00100FD0();
+    F32(c, 0x200) = 2048.0f;
+    F32(c, 0x204) = 2048.0f;
+    F32(c, 0x208) = 0.8f;
+    F32(c, 0x20C) = func_00100FD0() / 480.0f;
+    F32(c, 0x210) = 64.0f;
+    F32(c, 0x214) = 50000.0f;
+    F32(c, 0x218) = 2047.9688f;
+    F32(c, 0x21C) = 2047.9688f;
+    F32(c, 0x220) = 0.0f;
+    F32(c, 0x224) = 0.2617994f;
+    BIT(c, 0x230, 1) = 0;
+    F32(c, 0x22C) = 112.0f;
+    F32(c, 0x228) = F32(c, 0x22C) / func_00136D70(F32(c, 0x224) * 0.5f);
+    BIT(c, 0x230, 2) = 0;
+    F32(c, 0x238) = 1.0f;
+    if (BIT(c, 0x230, 2))
+        F32(c, 0x23C) = 4500.0f;
+    else
+        F32(c, 0x23C) = 10000.0f;
 }
