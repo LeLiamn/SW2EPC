@@ -2520,3 +2520,205 @@ void func_0034A250(u8 *u, u8 *cell, float *out)
     out[0] = (float)cell[0] * 5000.0f + 2500.0f;
     out[1] = (float)cell[1] * 5000.0f + 2500.0f;
 }
+
+extern int g_00669F6C;                   /* settings: 1 = load a saved battle */
+
+int func_0035ECF0(u32 f, u32 k);
+void func_00350820(u8 *b);
+void func_0034F730(u8 *map);
+void func_003516B0(void);
+int func_00190480(u8 *cell);
+u32 func_00353390(u8 *cell);
+u8 *func_00353400(u8 *cell, u32 k);
+u32 func_0035DC70(int p);
+
+/* 0x0034FCA0, 0x80 bytes. Sets each base's plan byte from the battlefield table (2 becomes 1). */
+void func_0034FCA0(u8 *map)
+{
+    u32 f = func_003623B0(), k;
+
+    for (k = 0; k < 0x14; k++, map += 0x3C) {
+        int v = func_0035ECF0(f, k);
+
+        if (v == 2)
+            v = 1;
+        func_0034EEE0(map + 0x110, v);
+    }
+}
+
+/* 0x0034FD20, 0x60 bytes. func_00350820 for each base in use. */
+void func_0034FD20(u8 *map)
+{
+    u32 k;
+
+    for (k = 0; k < 0x14; k++, map += 0x3C) {
+        if (func_0034EE50(map + 0x110) != 0)
+            func_00350820(map + 0x110);
+    }
+}
+
+/* 0x0034FD80, 0x4C bytes, matching. Sets up battle map `map`'s bases. */
+void func_0034FD80(u8 *map)
+{
+    func_0034F520(map);
+    func_0034F5A0(map);
+    func_0034F660(map);
+    func_0034F730(map);
+    func_0034FCA0(map);
+    func_0034FD20(map);
+}
+
+/* 0x0034FDD0, 0x1C bytes, matching. */
+void func_0034FDD0(void)
+{
+    func_0034F480();
+}
+
+/* 0x0034FDF0, 0x48 bytes. The bases at a battle's start (loaded back from a save, or set up). */
+void func_0034FDF0(u8 *map)
+{
+    if (g_00669F6C == 1)
+        func_0034FDD0();
+    else
+        func_0034FD80(map);
+    func_003516B0();
+}
+
+/* 0x0034FE40, 0x44 bytes, matching. The same set-up without loading the positions. */
+void func_0034FE40(u8 *map)
+{
+    func_0034F520(map);
+    func_0034F660(map);
+    func_0034F730(map);
+    func_0034FCA0(map);
+    func_0034FD20(map);
+}
+
+/* 0x0034FE90, 0x124 bytes, matching. Each base's area: the bounding box of the map cells (32x32) that
+ * belong to it, into its +0x36 bytes (left, bottom, right, top). */
+void func_0034FE90(void)
+{
+    int x, y;
+
+    for (y = 0; y < 0x20; y++) {
+        for (x = 0; x < 0x20; x++) {
+            u8 c[2];
+            u32 n, k;
+
+            c[0] = x;
+            c[1] = y;
+            if (func_00190480(c) == 0)
+                continue;
+            n = func_00353390(c);
+            for (k = 0; k < n; k++) {
+                u8 *r = func_0034F3C0(func_00353400(c, k));
+
+                r[0] = x < r[0] ? x : r[0];
+                r[3] = y < r[3] ? y : r[3];
+                r[2] = x < r[2] ? r[2] : x;
+                r[1] = y < r[1] ? r[1] : y;
+            }
+        }
+    }
+}
+
+/* 0x0034FFC0, 0x20 bytes, matching. Whether side `side` has units at base `b`. */
+int func_0034FFC0(u8 *b, u32 side)
+{
+    return func_0034F140(b, side) != 0;
+}
+
+/* 0x0034FFE0, 0xAC bytes, matching. Whether base `b` links to a base of side `side` without flag 2. */
+int func_0034FFE0(u8 *b, int side)
+{
+    u32 n = func_0034EEF0(b), k;
+
+    for (k = 0; k < n; k++) {
+        u8 *x = func_0034EF60(b, k);
+
+        if (x != 0 && side == func_0034EDB0(x) && func_0034EE80(x) == 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00350090, 0x9C bytes. Whether base `b` (flag 1) is a main base taken from its side. */
+int func_00350090(u8 *b)
+{
+    if (func_0034EE60(b) != 0) {
+        int o = func_0034EDB0(b), i = func_0034ED40(b);
+
+        if (i == func_0035F200(0)) {
+            if (o != 0)
+                return 1;
+        } else if (i == func_0035F200(1) && o != 1) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* 0x00350130, 0x174 bytes. Who holds base `b` now: a side's base falls to the enemy standing
+ * alone on it (unless flag 1 keeps it); a neutral base goes to the side standing on it (one at
+ * random when both). */
+u32 func_00350130(u8 *b)
+{
+    u32 o = func_0034EDB0(b), r = o;
+
+    if (o < 2) {
+        u32 e = func_0035D5A0(o);
+
+        if (func_0034FFC0(b, e) != 0 && func_0034FFC0(b, o) == 0) {
+            r = e;
+            if (func_0034EE60(b) != 0 && func_00350090(b) == 0 && func_0034FFE0(b, e) == 0)
+                r = o;
+        }
+    } else {
+        u32 m = 3, s;
+
+        for (s = 0; s < 2; s++) {
+            if (func_0034FFC0(b, s) != 0) {
+                if (m < 2) {
+                    if (RANDOM() % 100 < 0x32)
+                        m = s;
+                } else {
+                    m = s;
+                }
+            }
+        }
+        if (m < 2)
+            r = m;
+    }
+    return r;
+}
+
+/* 0x003502B0, 0x158 bytes. The unit that takes base `b` for side `side`: a player standing on
+ * it, else the side's lowest numbered unit there, else player 0's. */
+u8 *func_003502B0(u8 *b, u32 side)
+{
+    short c[2];
+    u32 best = 0x1AD, k;
+    int p;
+
+    func_0034EDB0(b);
+    func_0034ED90(b, (u8 *)c);
+    for (p = 0; p < 2; p++) {
+        if (*(int *)(g_00669D60 + p * 0x48 + 0xA0) != 0 && c[0] == *(short *)(func_0035DCD0(p) + 0x40))
+            best = func_0035DC70(p) & 0xFFFF;
+    }
+    if (best == 0x1AD) {
+        for (k = 0; k < 0x14; k++) {
+            u8 *u = func_0034F280(b, k);
+
+            if (u != 0 && side == u[0x79]) {
+                u32 i = (u - g_00693970) / 0x88;
+
+                if (i < best)
+                    best = i;
+            }
+        }
+    }
+    if (best == 0x1AD)
+        best = func_0035DC70(0) & 0xFFFF;
+    return UNIT(best);
+}
