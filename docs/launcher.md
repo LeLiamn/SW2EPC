@@ -284,6 +284,36 @@ the system set-up has constants for 1/60 s, 60 and 3600, and takes the raster co
 the number of lines in an NTSC field. The EU disc may offer both modes. `display.refresh` stays
 "planned" until the display set-up code is checked.
 
+## Launcher side: vblank hook accepted, interface final (2026-11-27)
+
+The vblank hook is in the launcher's `docs/runtime.md` ("The vblank tick"), with one adjustment.
+
+- **New calls:** `vblank_add(fn, arg)` and `vblank_remove(id)`. The chain at `0x00560830` maps onto
+  them directly.
+- **Adjustment: the tick runs on the runtime's own clock**, at the frame rate, and not only
+  inside `vsync()`.
+  - On the console the interrupt also fires while a thread is loading and never reaches a vsync.
+  - `func_00102150` signals the frame semaphore that the game's threads wait on.
+  - With a tick only inside `vsync()`, a thread waiting on that semaphore would wait forever.
+  - `vsync()` stays, as "wait for the next tick", for code with no chain of its own.
+- **Interrupt context, as on the console.**
+  - Callbacks may run while a thread holds the run token, and must not block.
+  - They may call `event_signal()`, the equivalent of `iSignalSema`. A thread woken that way runs
+    at the holder's next switch point, or at once if no thread holds the token.
+- **`intr_disable()` / `intr_enable()`** stand for `DI` / `EI`: while interrupts are disabled,
+  the tick waits. Code that shares data with the vblank chain already brackets it this way, so it
+  stays safe unchanged.
+- **Frame rate:** `set_frame_rate(fps)` lets the display set-up switch between 50 and 60 Hz if
+  the disc has both modes, and `frame_count()` gives the tick count. `display.refresh` stays
+  "planned" until that code is checked.
+- **Other handlers:** DMA-end handlers become direct calls. SIF/RPC and timer 3 are replaced by
+  the platform, as listed above. No other interrupt emulation is planned.
+
+With this, **the interface is final for platform version 1** and the launcher side can build
+`upp_runtime`. Nothing is waiting on this project. Items to note here when known: whether the
+disc has a 60 Hz mode, other text languages, render-to-texture and frame-buffer effects, and fog.
+None of them blocks version 1.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -300,3 +330,5 @@ the number of lines in an NTSC field. The EU disc may offer both modes. `display
   handlers.
 - 2026-11-27: this project lists the interrupt handlers and callbacks; asks for a vblank callback
   hook in `vsync()`; frame rate evidence is mixed (50 and 60 Hz).
+- 2026-11-27: launcher side accepted the vblank hook, run on the runtime's own clock, with
+  `intr_disable` / `intr_enable` and `set_frame_rate`. Interface final for platform version 1.
