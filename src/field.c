@@ -621,3 +621,166 @@ void func_0018EFC0(u8 *cell)
         }
     }
 }
+
+/* A route query: the side (0 / 1), the cell it leaves from, the cell it goes to. */
+typedef struct {
+    u32 side;
+    u8 from[2];              /* +4 */
+    u8 to[2];                /* +6 */
+} RouteQuery;
+
+/* A step of a route: moves `cell` one step (by its own way, with `arg`); whether it could. */
+typedef int (*StepFn)(u8 *map, u16 *in, u16 *out, u32 arg);
+
+extern int g_0042A290[];                 /* per first step: the province flag byte it needs (0-7, else none) */
+extern u8 g_004251F0[];                  /* per side: the flag bit of a link */
+extern struct {
+    StepFn fn;
+    u32 arg;
+} g_0042A2E0[];                          /* the step functions */
+
+void func_0027DDE0(void);
+
+/* The index of a province entry. */
+#define PROV_INDEX(map, e) ((((e) - PTR(map, 0x50)) / 0x88) & 0xFF)
+
+/* 0x0018F080, 0x13C bytes. Blocks every province, then updates the gates and the map. */
+void func_0018F080(void)
+{
+    u32 n = U8(g_0045D2F0, 0x54), i;
+
+    for (i = 0; i < n; i++)
+        U32(PTR(g_0045D2F0, 0x50) + i * 0x88, 0x10) |= 0x1000000;
+    func_0018E870();
+    func_0027DDE0();
+}
+
+/* 0x0018F1C0, 0x1C bytes. Resets the current map's route cache. */
+void func_0018F1C0(void)
+{
+    func_0018D460(g_0045D2F0);
+}
+
+/* 0x0018F1E0, 0x320 bytes. The next cell of the route `q` (*next; the start when there is no
+ * route), and its first-step kind (*kind, with `kind` given). Whether there is a next step
+ * the side may take (sides barred by +0x56 have none). */
+int func_0018F1E0(u8 *map, RouteQuery *q, u16 *next, u32 *kind)
+{
+    u32 side = q->side, step = 0;
+    u8 *a, *b;
+    int ok = 1;
+
+    if (U8(map, 0x56) & 1 << side) {
+        *next = *(u16 *)q->from;
+        if (kind != 0)
+            *kind = 0;
+        return 0;
+    }
+    a = province_at(map, q->from);
+    b = province_at(map, q->to);
+    if (a == 0 || b == 0) {
+        *next = *(u16 *)q->from;
+        if (kind != 0)
+            *kind = 0;
+        return 0;
+    }
+    if (a == b) {
+        *next = *(u16 *)q->from;
+    } else {
+        u16 *t = (u16 *)PTR(map, 8 + side * 4) + PROV_INDEX(map, a) * U8(map, 0x54)
+                 + PROV_INDEX(map, b);
+        int need;
+        u16 c;
+
+        if ((*t & 0xFFF) == 0xFFF) {
+            *next = *(u16 *)q->from;
+            if (kind != 0)
+                *kind = 0;
+            return 0;
+        }
+        step = ((u8 *)t)[1] >> 4;
+        need = g_0042A290[step];
+        if (need >= 0 && need < 8 && (U8(a, need + 0x18) & g_004251F0[side]) == 0)
+            ok = 0;
+        c = U16(PTR(a, 0), 4);
+        if (g_0042A2E0[step].fn(map, &c, &c, g_0042A2E0[step].arg) == 0)
+            a = 0;
+        else
+            a = province_at(map, (u8 *)&c);
+        *next = U16(PTR(a, 0), 4);
+    }
+    if (kind != 0)
+        *kind = step;
+    return ok;
+}
+
+/* 0x0018F500, 0x14C bytes. The cost of route `q` (0xFFF for none). */
+u32 func_0018F500(u8 *map, RouteQuery *q)
+{
+    u8 *a = province_at(map, q->from), *b = province_at(map, q->to);
+
+    if (a == 0 || b == 0)
+        return 0xFFF;
+    return ((u16 *)PTR(map, 8 + q->side * 4))[PROV_INDEX(map, a) * U8(map, 0x54)
+                                              + PROV_INDEX(map, b)] & 0xFFF;
+}
+
+/* 0x0018F650, 0x30 bytes. The same, 0xFFF past 0x100. */
+u32 func_0018F650(u8 *map, RouteQuery *q)
+{
+    u32 c = func_0018F500(map, q);
+
+    if (c > 0x100)
+        c = 0xFFF;
+    return c;
+}
+
+/* 0x0018F680, 0x64 bytes. The next cell from `from` towards `to` for side `side` on the
+ * current map (*next = `from` when there is none). */
+void func_0018F680(u16 *next, u16 *from, u16 *to, u32 side)
+{
+    RouteQuery q;
+
+    *(u16 *)q.from = *from;
+    *(u16 *)q.to = *to;
+    q.side = side;
+    if (func_0018F1E0(g_0045D2F0, &q, next, 0) == 0)
+        *next = *from;
+}
+
+/* 0x0018F6F0, 0x34 bytes. The cost from `from` to `to` for side `side` on the current map. */
+u32 func_0018F6F0(u16 *from, u16 *to, u32 side)
+{
+    RouteQuery q;
+
+    *(u16 *)q.from = *from;
+    *(u16 *)q.to = *to;
+    q.side = side;
+    return func_0018F650(g_0045D2F0, &q);
+}
+
+/* 0x0018F730, 0x94 bytes. Whether the province at `cell` has link `dir` for side `side`. */
+int func_0018F730(u8 *map, u8 *cell, int dir, int side)
+{
+    u8 *e = province_at(map, cell);
+
+    if (e == 0)
+        return 0;
+    return (g_004251F0[side] & U8(e, dir + 0x18)) != 0;
+}
+
+/* 0x0018F7D0, 0x2C bytes. The same on the current map. */
+int func_0018F7D0(u8 *cell, int dir, int side)
+{
+    return func_0018F730(g_0045D2F0, cell, dir, side);
+}
+
+/* 0x0018F800, 0x84 bytes. Whether the province at `cell` has link `dir` at all (bit 0). */
+int func_0018F800(u8 *cell, int dir)
+{
+    u8 *e = province_at(g_0045D2F0, cell);
+
+    if (e == 0)
+        return 0;
+    return (U8(e, dir + 0x18) & 1) != 0;
+}
