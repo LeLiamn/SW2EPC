@@ -1,0 +1,239 @@
+/*
+ * emp_cmd_state.c - the Empire command state's small accessors between 0x0032E760 and
+ * 0x0032EE08: the chosen officers (five slots at 0x007B5E50), the chosen provinces and
+ * forces (gp 0x0045D004-0x0045D01C), the menus' open and close glue and the "same force
+ * officers" checks. Original file name unknown.
+ *
+ * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
+ * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
+ * with a question mark are hypotheses.
+ */
+
+typedef unsigned char u8;
+typedef unsigned short u16;
+typedef unsigned int u32;
+
+extern int *g_007B5E4C;
+extern short g_007B5E44, g_007B5E46;
+extern int g_007B5E24;
+extern int g_007B5E50[5];
+extern int g_0045D6FC;                   /* (small data) */
+extern u32 g_0045D004;
+extern int g_0045D010, g_0045D014, g_0045D018, g_0045D01C;
+
+void func_0032BAF0(void);
+void func_0032BB10(void);
+void func_0032BB30(void);
+void func_003D3980(void);
+void func_003D36D0(void);
+void func_003D3770(void);
+void func_003D3A40(void);
+void func_003D39F0(void);
+void func_003D3720(void);
+void func_0032F770(int a);
+int func_0030AB90(void);
+u32 func_002F8F20(int p);
+int func_00327C70(void);
+int func_002F8CB0(int f);
+int func_00327C00(void);
+int func_002F2840(u32 o);
+int func_002F3DC0(u32 o);
+int func_002F4080(u32 o);
+
+/* 0x0032E760, 0x20 bytes. The officer under the list's cursor. */
+int func_0032E760(void)
+{
+    return g_007B5E4C[g_007B5E44];
+}
+
+/* 0x0032E780, 0x10 bytes. */
+void func_0032E780(void)
+{
+    g_007B5E24 = 1;
+}
+
+/* 0x0032E790, 0xC bytes. */
+short func_0032E790(void)
+{
+    return g_007B5E46;
+}
+
+/* 0x0032E7A0, 8 bytes, matching. */
+void func_0032E7A0(int v)
+{
+    g_0045D6FC = v;
+}
+
+/* 0x0032E7B0, 8 bytes, matching. */
+int func_0032E7B0(void)
+{
+    return g_0045D6FC;
+}
+
+/* 0x0032E7C0, 0x34 bytes, matching. */
+void func_0032E7C0(void)
+{
+    func_0032BAF0();
+    func_003D3980();
+    func_003D36D0();
+    func_0032F770(-1);
+}
+
+/* 0x0032E800, 0x2C bytes, matching. */
+void func_0032E800(void)
+{
+    func_003D3770();
+    func_003D3A40();
+    func_0032BB30();
+}
+
+/* 0x0032E830, 0x34 bytes, matching. */
+void func_0032E830(void)
+{
+    func_0032BB10();
+    func_003D39F0();
+    func_003D3720();
+    func_0032F770(-1);
+}
+
+/* 0x0032E870, 0x2C bytes, matching. */
+void func_0032E870(void)
+{
+    func_003D3770();
+    func_003D3A40();
+    func_0032BB30();
+}
+
+/* 0x0032E8A0, 0x34 bytes, matching. */
+void func_0032E8A0(int k, int o)
+{
+    if (k < 5 && o < 0x19F)
+        g_007B5E50[k] = o;
+}
+
+/* 0x0032E8E0, 0x30 bytes. */
+int func_0032E8E0(int k)
+{
+    if (k < 5)
+        return g_007B5E50[k];
+    return 0;
+}
+
+/* 0x0032E910, 0x3C bytes. Chooses officer `o`. */
+void func_0032E910(u32 o)
+{
+    if (o < 0x19F) {
+        g_0045D004 = o;
+        func_0032E8A0(0, o);
+    }
+}
+
+/* 0x0032E950, 8 bytes, matching. */
+u32 func_0032E950(void)
+{
+    return g_0045D004;
+}
+
+/* 0x0032E960, 0x78 bytes. Chooses province `p` (and its lord). */
+void func_0032E960(int p)
+{
+    if (p >= 0 && p < func_0030AB90()) {
+        u32 o;
+
+        g_0045D010 = p;
+        o = func_002F8F20(p);
+        if (o < 0x19F)
+            func_0032E8A0(0, o);
+    }
+}
+
+/* 0x0032E9E0, 0x48 bytes. */
+void func_0032E9E0(int p)
+{
+    if (p >= 0 && p < func_0030AB90())
+        g_0045D014 = p;
+}
+
+/* 0x0032EA30, 0x48 bytes. */
+void func_0032EA30(int p)
+{
+    if (p >= 0 && p < func_0030AB90())
+        g_0045D018 = p;
+}
+
+/* 0x0032EA80, 0x18 bytes, matching. */
+void func_0032EA80(int k)
+{
+    if (k < 5)
+        g_0045D01C = k;
+}
+
+/* 0x0032EAA0, 8 bytes, matching. */
+int func_0032EAA0(void)
+{
+    return g_0045D01C;
+}
+
+/* 0x0032EAB0, 0xC bytes, matching. */
+void func_0032EAB0(int a, int *b, int *c)
+{
+    *b = 0;
+    *c = 0;
+}
+
+/* 0x0032EAC0, 0x1C bytes, matching. */
+int func_0032EAC0(void)
+{
+    return func_00327C70();
+}
+
+/* 0x0032EAE0, 0x1C bytes, matching. */
+int func_0032EAE0(int f)
+{
+    return func_002F8CB0(f);
+}
+
+/* 0x0032EB00, 8 bytes, matching. */
+int func_0032EB00(void)
+{
+    return 0;
+}
+
+/* 0x0032EB10, 0x24 bytes, matching. */
+int func_0032EB10(void)
+{
+    return func_00327C00() != 10;
+}
+
+/* 0x0032EB40, 0x108 bytes. Whether officers `a` and `b` serve the same force (`c`: `a` may be
+ * `b`). */
+int func_0032EB40(u32 a, u32 b, int c)
+{
+    if (a >= 0x19F || b >= 0x19F)
+        return 0;
+    if (func_002F2840(a) == 0 || func_002F2840(b) == 0)
+        return 0;
+    if (func_002F3DC0(a) != 3)
+        return 0;
+    if (c == 0 && a == b)
+        return 0;
+    return func_002F4080(a) == func_002F4080(b);
+}
+
+/* 0x0032EC50, 0xDC bytes. Whether `a` serves with both `b` and `c`. */
+int func_0032EC50(u32 a, u32 b, int c, int d)
+{
+    if (a >= 0x19F || b >= 0x19F || c < 0 || c >= 0x19F)
+        return 0;
+    return func_0032EB40(a, b, d) != 0 && func_0032EB40(a, c, d) != 0;
+}
+
+/* 0x0032ED30, 0xD8 bytes. Whether `a` serves with exactly one of `b` and `c`. */
+int func_0032ED30(u32 a, u32 b, u32 c, int d)
+{
+    if (a >= 0x19F)
+        return 0;
+    if (func_0032EB40(a, b, d) == 0 || func_0032EB40(a, c, d) != 0)
+        return func_0032EB40(a, b, d) == 0 && func_0032EB40(a, c, d) != 0;
+    return 1;
+}
