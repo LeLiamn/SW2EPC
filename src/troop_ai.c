@@ -845,3 +845,188 @@ void func_00201E30(u8 *s)
         func_002015A0(s);
     }
 }
+
+/* More soldier steps (0x00202B00-0x00203FFC). */
+
+int func_00202C50(u8 *s);
+int func_002027F0(u8 *s);
+void func_00201F80(u8 *s);
+void func_00202F60(u8 *s);
+void func_002032F0(u8 *s);
+void func_00203C70(u8 *s);
+void func_002398A0(u8 *s); void func_00237200(u8 *s); void func_002E1820(u8 *s);
+void func_00237550(u8 *s); void func_0023A0C0(u8 *s); void func_00239E60(u8 *s);
+void func_00238570(u8 *s); void func_00237410(u8 *s); void func_002B0980(u8 *s);
+void func_002B1350(u8 *s); void func_002AFB80(u8 *s); void func_002B0E40(u8 *s);
+void func_002B31A0(u8 *s); void func_002B27F0(u8 *s); void func_002B1F90(u8 *s);
+void func_002B18D0(u8 *s); void func_002B3C30(u8 *s); void func_002B3820(u8 *s);
+
+/* 0x00202B00, 0x14C bytes. Whether soldier `s` counters its attacker (by the difficulty). */
+int func_00202B00(u8 *s)
+{
+    u8 *a = *(u8 **)(s + 0x14), *st = *(u8 **)(a + 0x210), *o;
+
+    if (2.0f <= *(float *)(a + 0x23C) || (st != 0 && (*(u32 *)(st + 0x18) & 0x10) != 0))
+        return 0;
+    if (*(u8 **)(a + 0x214) != 0 && (*(u32 *)(*(u8 **)(a + 0x214) + 0x18) & 0x10) == 0)
+        return 0;
+    if ((*(u32 *)(s + 0xBC) & 0x80000) == 0)
+        return 0;
+    o = *(u8 **)(s + 8);
+    if (o == 0 || (*(u32 *)(o + 0xB8) & 0xC) == 0)
+        return 0;
+    if ((*(u8 **)(s + 0x10))[0x79] == (*(u8 **)(o + 0x10))[0x79])
+        return 0;
+    if ((*(u32 *)(st + 0x18) & 4) == 0)
+        return 0;
+    if (RANDOM() % 100 >= (u32)(g_00669D60[0x21] + 1) * 0x14)
+        return 0;
+    func_00201F80(s);
+    return 1;
+}
+
+/* 0x00202EB0, 0x8C bytes, matching. Soldier `s`'s reactions in turn; whether one took it. */
+int func_00202EB0(u8 *s)
+{
+    if (func_00202C50(s) != 0)
+        return 1;
+    if ((*(u32 *)(g_00669D60 + 0x200) & 8) == 0 || (*(u32 *)(s + 0xB8) & 0x10) != 0) {
+        if (func_00202B00(s) != 0)
+            return 1;
+        if (func_002027F0(s) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00202F40, 0x20 bytes, matching. */
+int func_00202F40(u8 *s)
+{
+    return func_00202C50(s) != 0;
+}
+
+/* 0x002034F0, 0x10C bytes. Order 4 (keep running) while the actor runs; a new run length of
+ * 80-175 frames over the soldier's rank each time it ends. */
+void func_002034F0(u8 *s)
+{
+    if ((*(u32 *)(*(u8 **)(*(u8 **)(s + 0x14) + 0x210) + 0x18) & 0x200000) == 0) {
+        order2(s);
+        s[0x7D] = 0;
+    } else if (*(short *)(s + 0x78) == 0) {
+        u32 n = ((RANDOM() % 0x14) * 5 + 0x50) / (s[0x7B] + 1);
+
+        if (n == 0) {
+            *(short *)(s + 0x78) = 0;
+        } else {
+            n = n * 0x32 / 0x3C;
+            *(short *)(s + 0x78) = n == 0 ? 1 : n;
+        }
+        func_00204D00(s, 0x783F);
+    }
+}
+
+/* 0x00203600, 0x5C bytes. Order 3 (keep walking) while the actor walks. */
+void func_00203600(u8 *s)
+{
+    if ((*(u32 *)(*(u8 **)(*(u8 **)(s + 0x14) + 0x210) + 0x18) & 0x40) == 0) {
+        order2(s);
+        s[0x7D] = 0;
+    } else if (*(short *)(s + 0x78) == 0) {
+        func_00204D00(s, 0x783F);
+    }
+}
+
+/* 0x00203660, 0x88 bytes. Steps soldier `s`'s order 3-6. */
+void func_00203660(u8 *s)
+{
+    char o = s[0x7D];
+
+    if (o == 6)
+        func_00202F60(s);
+    else if (o == 5)
+        func_002032F0(s);
+    else if (o == 4)
+        func_002034F0(s);
+    else if (o == 3)
+        func_00203600(s);
+}
+
+/* 0x002036F0, 0xD8 bytes. Soldier `s`'s timed boosts run out (+0xA4: attack 0x8000000, defence
+ * 0x10000000, 0x20000000). */
+void func_002036F0(u8 *s)
+{
+    u32 f;
+
+    if (*(short *)(s + 0xA4) != 0)
+        (*(short *)(s + 0xA4))--;
+    f = *(u32 *)(s + 0xBC);
+    if ((f & 0x8000000) != 0) {
+        if (*(short *)(s + 0xA4) == 0) {
+            *(float *)(s + 0x98) = 1.0f;
+            *(u32 *)(s + 0xBC) &= 0xF7FFFFFF;
+        }
+    } else if ((f & 0x10000000) != 0) {
+        if (*(short *)(s + 0xA4) == 0) {
+            *(float *)(s + 0x9C) = 1.0f;
+            *(u32 *)(s + 0xBC) &= 0xEFFFFFFF;
+        }
+    } else if ((f & 0x20000000) != 0 && *(short *)(s + 0xA4) == 0) {
+        s[0xA9] = 0;
+        *(u32 *)(s + 0xBC) &= 0xDFFFFFFF;
+    }
+}
+
+/* 0x002037D0, 0x15C bytes, matching. Soldier `s`'s choice by its kind. */
+void func_002037D0(u8 *s)
+{
+    switch ((*(u8 **)(s + 0x68))[0x1C]) {
+    case 0: func_002398A0(s); break;
+    case 1: func_00237200(s); break;
+    case 2: func_002E1820(s); break;
+    case 3: func_00237550(s); break;
+    case 4: func_0023A0C0(s); break;
+    case 5: func_00239E60(s); break;
+    case 6: func_00238570(s); break;
+    case 7: func_00237410(s); break;
+    case 8: func_002B0980(s); break;
+    case 9: func_002B1350(s); break;
+    case 10: func_002AFB80(s); break;
+    case 0xB: func_002B0E40(s); break;
+    case 0xC: func_0027D2C0(s); break;
+    case 0xD: func_0027B2D0(s); break;
+    case 0xE: func_0027B970(s); break;
+    case 0xF: func_0027BAF0(s); break;
+    case 0x10: func_0027CCF0(s); break;
+    case 0x11: func_0027C610(s); break;
+    }
+}
+
+/* 0x00203930, 0xBC bytes, matching. The special soldiers' step by their officer's kind bits. */
+void func_00203930(u8 *s)
+{
+    u32 f = *(u32 *)(*(u8 **)(s + 0x68) + 0x28);
+
+    if ((f & 4) != 0)
+        func_002B3820(s);
+    else if ((f & 8) != 0)
+        func_002B3C30(s);
+    else if ((f & 0x10) != 0)
+        func_002B18D0(s);
+    else if ((f & 0x20) != 0)
+        func_002B1F90(s);
+    else if ((f & 0x40) != 0)
+        func_002B27F0(s);
+    else if ((f & 0x80) != 0)
+        func_002B31A0(s);
+}
+
+/* 0x00203F90, 0x70 bytes. */
+void func_00203F90(u8 *s)
+{
+    u32 f = *(u32 *)(g_00669D60 + 0x200);
+
+    if ((f & 0x10) != 0)
+        func_00203C70(s);
+    else if ((f & 8) != 0 && (f & 0x4000000) != 0)
+        stop_target(*(u8 **)(s + 0x14));
+}
