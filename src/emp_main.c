@@ -2969,3 +2969,287 @@ void func_00304C80(int *out, u32 i, int k, int a, int b)
     if ((u32)out[k + 1] > 99)
         out[k + 1] = 99;
 }
+
+extern u32 g_007A3430[];                 /* copy of the officer list for the command choice */
+extern int g_0045D694, g_0045D698;       /* (small data) the player was targeted this turn */
+
+void func_00315510(int *cmd, int f);
+void func_0031BD90(int *cmd, int a);
+void func_0030DFA0(void);
+int func_0030C250(int f);
+void func_002FD180(int c, int a);
+void func_002FCFC0(int i);
+void func_002FD0E0(int i);
+void func_002FD170(void);
+void func_002F5BE0(u32 i, int r);
+int func_002F5CC0(u32 i);
+int func_002F33F0(u32 i);
+int func_002F80C0(u32 i, int f);
+int func_002F9F10(int k);
+int func_002F9F20(int k);
+int func_002F3E30(u32 i);
+int func_002F9EA0(u32 f);
+
+/* 0x00304DE0, 0x254 bytes. Officer `i`'s command record `out` for this turn (one command, two
+ * when `two`; with two, the first one's target and the diplomacy targets are marked as used,
+ * and "none" (99) becomes command 0). */
+void func_00304DE0(int *out, u32 i, int two)
+{
+    int f, n, slots, j, c;
+    u32 *l;
+
+    func_002F7B10();
+    out[1] = 100;
+    out[3] = -1;
+    out[5] = -1;
+    out[2] = 100;
+    out[4] = -1;
+    out[6] = -1;
+    func_002FD170();
+    f = func_002F4080(i);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1);
+    l = func_002F7B10();
+    for (j = 0; j < n; j++)
+        g_007A3430[j] = l[j];
+    slots = two == 0 ? 1 : 2;
+    out[0] = i;
+    for (j = 0; j < slots; j++) {
+        func_00304C80(out, i, j, (int)g_007A3430, n);
+        if (two != 0) {
+            if (j == 0)
+                func_002FD180(out[1], out[3]);
+            func_002FCFC0(out[j + 1]);
+            c = out[j + 1];
+            if (c == 0x2B || c == 0x2C || c == 0x2F)
+                func_002FD0E0(out[j + 3]);
+        }
+    }
+    if (two != 0 && out[1] == 99)
+        out[1] = 0;
+}
+
+/* 0x00305040, 0x164 bytes. Computer officer `i` gives its command: the record is built, the
+ * player-targeting flags set, and the command run. */
+void func_00305040(u32 i)
+{
+    int f = func_002F4080(i), player = func_002FB2A0(f), cmd[0x1A4], rec[8];
+
+    func_00304DE0(rec, i, 0);
+    if (player != 0)
+        func_002FCFC0(rec[1]);
+    if (rec[1] > 0x2A && rec[1] < 0x30 && func_002FB2A0(rec[3]) != 0)
+        g_0045D698 = 1;
+    if (rec[1] == 0x35 && func_0030C250(rec[3]) != 0)
+        g_0045D694 = 1;
+    if (rec[1] == 0x36 && func_0030C250(rec[3]) != 0)
+        g_0045D694 = 1;
+    if (rec[1] == 0x39 && rec[3] >= 0 && rec[3] < 0x19F && func_002FB2A0(func_002F4080(rec[3])) != 0)
+        g_0045D694 = 1;
+    func_00315510(cmd, f);
+    cmd[1] = rec[1];
+    cmd[2] = rec[3];
+    cmd[3] = rec[5];
+    func_0031BD90(cmd, 0);
+    func_0030DFA0();
+}
+
+/* 0x003051B0, 0x2C4 bytes. Marks force `f`'s regions `r` (`n`) in `mark`: 0 at the front (a
+ * neighbour it can attack, or from year 3 on the player's), 1 bordering another force, 2 next to
+ * those, 3 deep inside (4 for regions not its own). */
+void func_003051B0(int f, int *r, int n, int *mark)
+{
+    int nb[8], k, j, m;
+
+    for (k = 0; k < 0x19; k++)
+        mark[k] = 4;
+    for (k = 0; k < n; k++) {
+        m = func_0030C4E0(r[k], nb);
+        for (j = 0; j < m; j++) {
+            int g = func_0030AFF0(nb[j]);
+
+            if (IS_FORCE(g) && (func_002FD6E0(f, g) != 0 || (func_00327C40() > 2 && func_002FB2A0(g) != 0))) {
+                mark[r[k]] = 0;
+                break;
+            }
+        }
+    }
+    for (k = 0; k < n; k++) {
+        int *p = &mark[r[k]];
+
+        if (*p != 4)
+            continue;
+        m = func_0030C4E0(r[k], nb);
+        for (j = 0; j < m; j++) {
+            int g = func_0030AFF0(nb[j]);
+
+            if (!IS_FORCE(g) || f != g) {
+                *p = 1;
+                break;
+            }
+        }
+    }
+    for (k = 0; k < n; k++) {
+        int *p = &mark[r[k]];
+
+        if (*p != 4)
+            continue;
+        m = func_0030C4E0(r[k], nb);
+        for (j = 0; j < m; j++) {
+            if (mark[nb[j]] < 2) {
+                *p = 2;
+                break;
+            }
+        }
+        if (j == m)
+            *p = 3;
+    }
+}
+
+/* 0x00305480, 0x1A0 bytes. Moves officer `i` to region `r`; when `r` already has three officers
+ * of role 2 or more, the one of them with the lowest func_002F33F0 (then the highest level)
+ * goes to `i`'s old region. */
+void func_00305480(u32 i, int r)
+{
+    int old, n, top = 0, k;
+    u32 best, *o;
+
+    func_002F4080(i);
+    func_002F7B10();
+    old = func_002F5CC0(i);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, r, 0, 1);
+    o = func_002F7B10();
+    if (n < 3) {
+        func_002F5BE0(i, r);
+        return;
+    }
+    best = 0x19F;
+    for (k = 0; k < n; k++, o++) {
+        int v = func_002F33F0(*o);
+
+        if (best >= 0x19F || v < top) {
+            best = *o;
+            top = v;
+        } else if (v == top) {
+            int a = func_002F41E0(best), b = func_002F41E0(*o);
+
+            if (b < a || (b == a && func_0030CB50(0x32) != 0))
+                best = *o;
+        }
+    }
+    if (best < 0x19F) {
+        func_002F5BE0(i, r);
+        func_002F5BE0(best, old);
+    }
+}
+
+/* 0x00305630, 0x23C bytes. A computer force whose leader sits at the front moves its leader
+ * back to a neighbouring second-line region (one of its wanted traits first, then the most
+ * troops, then the largest). */
+void func_00305630(int f, int player, int *mark)
+{
+    int nb[8], home, best = 0x19, m, j;
+    u32 top = 0;
+
+    if (player != 0)
+        return;
+    home = func_002FB2D0(f);
+    if (mark[home] >= 2)
+        return;
+    m = func_0030C4E0(home, nb);
+    for (j = 0; j < m; j++) {
+        u32 v = 0;
+        int k;
+
+        if (mark[nb[j]] != 2)
+            continue;
+        k = func_002F9EA0(f);
+        if (func_002F9F10(k) != 0 && nb[j] == func_002FA060(f))
+            v = 10;
+        else if (func_002F9F20(k) != 0 && func_0030AC50(nb[j]) == func_002FA060(f))
+            v = 10;
+        if (!IS_FORCE(best) || top < v) {
+            best = nb[j];
+            top = v;
+        } else if (v == top) {
+            int a = func_0030B090(best), b = func_0030B090(nb[j]);
+
+            if (a < b) {
+                best = nb[j];
+            } else if (a == b) {
+                a = func_0030ACE0(best);
+                b = func_0030ACE0(nb[j]);
+                if (a < b || (a == b && func_0030CB50(0x32) != 0))
+                    best = nb[j];
+            }
+        }
+    }
+    if (IS_FORCE(best))
+        func_00305480(func_002F8F20(f), best);
+}
+
+/* 0x00305870, 0x78 bytes. The officers wanted in a region marked `mark` (0 front, 1 border,
+ * 2 second line, 3 inside); `large` for a large force. */
+static int func_00305870(int mark, int large)
+{
+    if (mark == 3)
+        return 0;
+    if (mark == 2)
+        return large == 0 ? 4 : 2;
+    if (mark == 1)
+        return 4;
+    if (mark == 0)
+        return large == 0 ? 4 : 6;
+    return 0;
+}
+
+/* 0x003058F0, 0x78 bytes. The same scaled by `have` / `total` officers, at most 6. */
+static int func_003058F0(int mark, int large, int total, int have)
+{
+    int n = have * (func_00305870(mark, large) * 100 / total) / 100;
+
+    return n > 5 ? 6 : n;
+}
+
+/* 0x00305970, 0x14C bytes. Whether officer `i` is needed in its group `l` (`n`): fewer than
+ * three of kind 2 or named ones (counting generic ones past three), or for a generic officer
+ * fewer than three others or generic ones. */
+int func_00305970(u32 i, u32 *l, int n)
+{
+    int k2 = 0, oth = 0, named = 0, gen = 0, k;
+
+    for (k = 0; k < n; k++, l++) {
+        if (func_002F3E30(*l) == 2)
+            k2++;
+        else
+            oth++;
+        if (func_002F3F20(*l) == 0)
+            gen++;
+        else
+            named++;
+    }
+    if (gen > 2)
+        named += gen - 3;
+    if (named < k2)
+        k2 = named;
+    if (k2 < 3)
+        return 1;
+    if (func_002F3F20(i) == 0) {
+        if (gen < oth)
+            oth = gen;
+        if (oth < 3)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00305AC0, 0x94 bytes. Whether one of officers `o` (`m`) is needed in group `l` (`n`). */
+int func_00305AC0(u32 *o, int m, u32 *l, int n)
+{
+    int k;
+
+    for (k = 0; k < m; k++, o++) {
+        if (func_00305970(*o, l, n) != 0)
+            return 1;
+    }
+    return 0;
+}
