@@ -2578,3 +2578,225 @@ int func_003CA780(void)
 {
     return lead_event(0x103, 0xD, 0xD);
 }
+
+int func_002F41E0(int o);
+int func_003282C0(void);
+int func_00329680(int k);
+u32 func_00327C80(void);
+
+/* Event `ev` (once): from turn `turn`, player `p` knows `o`. */
+static int player_knows(int ev, u32 turn, int p, int o)
+{
+    if (func_00329540(ev) != 0 || func_00327C70() < turn || func_00327820() != p)
+        return 0;
+    return KNOWS(o, 0);
+}
+
+/* Event `ev` (once): from turn `turn`, the player knows `a` and `b` (`how`). */
+static int knows2(int ev, u32 turn, int a, int b, int how)
+{
+    if (func_00329540(ev) != 0 || func_00327C70() < turn || !KNOWS(a, how))
+        return 0;
+    return KNOWS(b, how);
+}
+
+/* 0x003CA860, 0x98 bytes. */
+int func_003CA860(void)
+{
+    if (player_knows(0x104, 0x1F, 0xD, 0xE) == 0)
+        return 0;
+    return func_0032EE10(0x10) != 0;
+}
+
+/* 0x003CA900, 0x9C bytes. */
+int func_003CA900(void)
+{
+    if (player_knows(0x105, 0x1F, 0x10, 0xE) == 0)
+        return 0;
+    return func_002F33F0(0xE) > 0x13;
+}
+
+/* 0x003CA9A0, 0x8C bytes. */
+int func_003CA9A0(void)
+{
+    if (func_00329540(0x106) != 0 || func_00327C70() < 0x10 || !KNOWS(0x12, 0))
+        return 0;
+    return KNOWS(0xE, 0);
+}
+
+/* 0x003CAA30, 0x80 bytes. */
+int func_003CAA30(void)
+{
+    return func_00329540(0x107) == 0 && face(0xE, 0x15);
+}
+
+/* 0x003CAAB0, 0x70 bytes. */
+int func_003CAAB0(void)
+{
+    return knows2(0x108, 0, 0xE, 0x1B, 0);
+}
+
+/* 0x003CAB20, 0xEC bytes. */
+int func_003CAB20(void)
+{
+    if (func_00329540(0x109) != 0 || !KNOWS(0xE, 0) || !KNOWS(func_00337A10(0x3A), 0))
+        return 0;
+    if (!KNOWS(func_00337A10(0x39), 0))
+        return 0;
+    return KNOWS(func_00337A10(0x2A), 0);
+}
+
+/* 0x003CAC10, 0xB0 bytes. */
+int func_003CAC10(void)
+{
+    if (func_00329540(0x10A) != 0 || !KNOWS(0xE, 0) || !KNOWS(func_00337A10(0x2A), 0))
+        return 0;
+    return func_002F41E0(func_00337A10(0x2A)) < func_002F41E0(0xE);
+}
+
+/* 0x003CACC0, 0x110 bytes. */
+int func_003CACC0(void)
+{
+    int me = func_00327820();
+
+    if (func_00329540(0x10B) != 0 || func_00327C70() < 6)
+        return 0;
+    if (func_0032EB40(me, func_00337A10(0x8C), 1) == 0 || func_0032EB40(me, 0xF, 0) == 0)
+        return 0;
+    if (func_002F5CC0(func_00337A10(0x8C)) != func_002F5CC0(0xF))
+        return 0;
+    if (func_002F3BB0(0xE) == 0 || func_002F3BB0(0xE) == 3)
+        return 0;
+    return func_003282C0() == 0;
+}
+
+/* 0x003CADD0, 0xE4 bytes. */
+int func_003CADD0(void)
+{
+    if (func_00329540(0x10C) != 0 || func_003282C0() != 0 || func_002F2840(func_00337A10(0x8C)) == 0)
+        return 0;
+    if (func_002F4080(func_00337A10(0x8C)) != func_002F4080(0))
+        return 0;
+    return face(0xF, 0);
+}
+
+/* 0x003CAEC0, 0xB4 bytes. */
+int func_003CAEC0(void)
+{
+    if (knows2(0x10D, 6, 7, 0xF, 1) == 0)
+        return 0;
+    return KNOWS(0xE, 1);
+}
+
+/* 0x003CAF80, 0x80 bytes. */
+int func_003CAF80(void)
+{
+    return func_00329540(0x10E) == 0 && face(0xF, 7);
+}
+
+/* 0x003CB000, 0x64 bytes. */
+int func_003CB000(void)
+{
+    if (func_00329540(0x10F) != 0 || !KNOWS(0xE, 1))
+        return 0;
+    return func_0032E950() == 0xF;
+}
+
+/* 0x003CB070, 0xB4 bytes. */
+int func_003CB070(void)
+{
+    if (knows2(0x110, 0xB, 0xF, 0x17, 1) == 0)
+        return 0;
+    return KNOWS(0xD, 1);
+}
+
+/* 0x003CB130, 0x8C bytes. */
+int func_003CB130(void)
+{
+    return knows2(0x111, 0x10, 0xF, 10, 1);
+}
+
+/* 0x003CB1C0, 0xC0 bytes. */
+int func_003CB1C0(void)
+{
+    if (func_00329540(0x112) != 0 || !KNOWS(0xF, 1) || !KNOWS(5, 0) || !KNOWS(10, 1))
+        return 0;
+    return KNOWS(6, 0);
+}
+
+/* 0x003CB280, 0x120 bytes. */
+int func_003CB280(void)
+{
+    if (func_00327C00() == 10 || func_003C1850() != 0 || func_00329540(0x113) != 0)
+        return 0;
+    if (func_00329680(10) == 0 && func_00329680(0xB) == 0 && func_0032EE10(2) != 0
+        && func_00327C80() < 0x62E)
+        return 0;
+    if (func_0030AFF0(9) == func_002F4080(0x10))
+        return 0;
+    return face(0x10, 0x13);
+}
+
+/* 0x003CB3A0, 0x58 bytes. */
+int func_003CB3A0(void)
+{
+    if (func_00329540(0x114) != 0 || func_00327820() != 0x10)
+        return 0;
+    return func_0032E950() == 3;
+}
+
+/* 0x003CB400, 0x70 bytes. */
+int func_003CB400(void)
+{
+    return knows2(0x115, 0, 8, 0x10, 1);
+}
+
+/* 0x003CB470, 0x80 bytes. */
+int func_003CB470(void)
+{
+    return player_knows(0x116, 0x1F, 0x10, 0xD);
+}
+
+/* 0x003CB4F0, 0x80 bytes. */
+int func_003CB4F0(void)
+{
+    return player_knows(0x117, 0x1F, 0xD, 0x10);
+}
+
+/* 0x003CB570, 0x90 bytes. */
+int func_003CB570(void)
+{
+    if (func_00329540(0x118) != 0 || func_0032EE10(0x10) == 0)
+        return 0;
+    return pair_event(0x118, 0xE, 0x10);
+}
+
+/* 0x003CB600, 0xA8 bytes. */
+int func_003CB600(void)
+{
+    if (func_00329540(0x119) != 0 || func_00327820() != 0x10 || !KNOWS(0xF, 0) || !KNOWS(0xE, 0))
+        return 0;
+    return func_003282C0() == 0;
+}
+
+/* 0x003CB6B0, 0x68 bytes. */
+int func_003CB6B0(void)
+{
+    return with_event(0x11A, 0x10, 0x41);
+}
+
+/* 0x003CB720, 0x84 bytes. */
+int func_003CB720(void)
+{
+    if (func_00329540(0x11B) != 0 || !KNOWS(0x10, 1))
+        return 0;
+    return KNOWS(func_00337A10(0x158), 1);
+}
+
+/* 0x003CB7B0, 0x9C bytes. */
+int func_003CB7B0(void)
+{
+    if (player_knows(0x11C, 0x15, 0xD, 0x11) == 0)
+        return 0;
+    return func_002F33F0(0x11) > 0x13;
+}
