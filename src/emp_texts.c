@@ -687,3 +687,180 @@ void func_00376490(int a, int b)
     *(int *)(g_0045D7C0 + 4) = a;
     *(int *)(g_0045D7C0 + 0x10) = b;
 }
+
+/* Event results and province picks (parts of 0x00370020-0x00373A08). */
+
+extern char *g_00456080[], *g_00454E60[];
+
+int func_0036FC90(void);
+int func_0036FC60(void);
+int func_0036FCD0(void);
+int func_0036FD00(void);
+int func_0036FEF0(int a, int b);
+void func_0035CDB0(int a, int b, int c);
+void func_0035CD80(int a);
+void func_0035CD50(int a);
+void func_0035CD20(int a);
+u8 *func_00338410(u32 k);
+void func_0036FC20(void);
+int func_0030AB90(void);
+int func_0030AFF0(int p);
+int func_0030AD20(int p, int j);
+int func_0030CB00(int n);
+int func_002F4080(int o);
+int func_0030C440(int a, int f);
+void func_002F5A10(int o, int v);
+int func_002F3DC0(int o);
+void func_002F5BE0(int o, int v);
+int func_00327820(void);
+int func_00327D50(void);
+int func_00327D60(void);
+void func_003737E0(int k, int a, int b, int p);
+int func_0039E6C0(int k);
+
+/* Whether `f` is a force. */
+static int is_force(int f)
+{
+    return f >= 0 && f < func_0030AB90();
+}
+
+/* 0x00370020, 0x114 bytes. Sends the pending battle request (kinds 0-3) and marks it sent. */
+void func_00370020(void)
+{
+    int k, g;
+
+    if (func_0036FC90() == 0)
+        return;
+    k = func_0036FC60();
+    g = func_0036FCD0();
+    if (k == 3) {
+        int h = func_0036FD00();
+
+        func_0035CDB0(g, h, func_0036FEF0(g, h));
+    } else if (k == 2) {
+        func_0035CD80(g);
+    } else if (k == 1) {
+        func_0035CD50(g);
+    } else if (k == 0) {
+        func_0035CD20(g);
+    }
+    func_00338410(g)[0x2B] |= 0x80;
+    func_0036FC20();
+}
+
+/* 0x003704C0, 0xA8 bytes. Lists the provinces without an owner; their count. */
+int func_003704C0(int *out)
+{
+    int p, n = 0;
+
+    for (p = 0; p < func_0030AB90(); p++) {
+        if (!is_force(func_0030AFF0(p)))
+            out[n++] = p;
+    }
+    return n;
+}
+
+/* 0x003707A0, 0x104 bytes. The first of provinces `list` with no free neighbour (else one at
+ * random). */
+int func_003707A0(int *list, int n)
+{
+    int i;
+
+    for (i = 0; i < n; i++) {
+        int p = list[i], j;
+
+        for (j = 0; j < 6; j++) {
+            int q = func_0030AD20(p, j);
+
+            if (q >= 0 && q < func_0030AB90() && !is_force(func_0030AFF0(q)))
+                break;
+        }
+        if (j == 6)
+            return i;
+    }
+    return func_0030CB00(n);
+}
+
+/* 0x003708B0, 0xB4 bytes. The first force of officers `list` passing func_0030C440 (else one at
+ * random). */
+int func_003708B0(int a, int *list, int n)
+{
+    int i;
+
+    for (i = 0; i < n; i++) {
+        int f = func_002F4080(list[i]);
+
+        if (func_0030C440(a, f) != 0)
+            return f;
+    }
+    return func_002F4080(list[func_0030CB00(n)]);
+}
+
+/* 0x00370970, 0x84 bytes. Whether an officer of `list` serves force `f`. */
+int func_00370970(int *list, int n, int f)
+{
+    int i;
+
+    for (i = 0; i < n; i++) {
+        if (f == func_002F4080(list[i]))
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00371030, 0x88 bytes. Gives every officer a random temper (and a random province when
+ * free). */
+void func_00371030(void)
+{
+    int o;
+
+    for (o = 0; o < 0x19F; o++) {
+        if (func_002F2840(o) != 0) {
+            func_002F5A10(o, func_0030CB00(4));
+            if (func_002F3DC0(o) == 0)
+                func_002F5BE0(o, func_0030CB00(0x19));
+        }
+    }
+}
+
+/* 0x003717A0, 0xAC bytes. The player force's officers (and the ruler's sworn pairs) start with
+ * value 20. */
+void func_003717A0(void)
+{
+    int r = func_00327820(), o;
+
+    for (o = 0; o < 0x19F; o++) {
+        if (func_002F4080(o) == func_00327D50())
+            func_00371230(o, 0x14);
+    }
+    func_003712C0(r, 0xD, 7, 0x14);
+    func_003712C0(r, 0x11, 0xAF, 0x14);
+    func_003712C0(r, 1, 0x16, 0x14);
+}
+
+/* 0x00373970, 0x98 bytes. */
+void func_00373970(int k, int a, int b)
+{
+    int p;
+
+    if (k == 6) {
+        p = 0;
+    } else {
+        p = func_00327D60();
+        if (!is_force(p))
+            p = 0;
+    }
+    func_003737E0(k, a, b, p);
+}
+
+/* 0x00372A30, 0xF8 bytes. The unification text `k` for ruler `o` (two versions by the ruler). */
+char *func_00372A30(int k, int o)
+{
+    if (k >= 0x9D)
+        return 0;
+    if (o == 5 || o == 6 || o == 10 || o == 0xF || o == 0x15 || o == 0x17)
+        return g_00456080[k];
+    if (o < 400 || o > 0x19E || o - 400 < 0 || func_0039E6C0(o - 400) != 1)
+        return g_00454E60[k];
+    return g_00456080[k];
+}
