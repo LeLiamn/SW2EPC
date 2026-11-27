@@ -198,6 +198,7 @@ typedef u8 Model;
 u8 *func_0016CF30(u8 kind);
 int func_0016E300(u8 *slot, char motion, char node, int c, int b, int a);
 void func_0016E910(u8 *slot);
+void func_001F2BF0(u8 *probe);
 void func_00150930(Unit *u);
 void func_00149620(Actor *a, Model *m, Model *m2);
 void func_00149720(Actor *a);
@@ -416,4 +417,238 @@ int func_00165180(Unit *u, int keep, int add)
     }
     setup_rest(u, keep, 0);
     return 1;
+}
+
+/* The state records really start 0x10 bytes before g_006CDF60 (+4: the state's model, 0 = none). */
+#define STATE_REC(s) (g_006CDF60[s] - 0x10)
+
+extern u8 g_005B50A0[][0xD0];            /* the unit descriptions (+0x10 flag 1: usable, +0x1C weapon kind) */
+extern u8 g_006A3A30[][0xC0];            /* the officers (+0x10 record, +0x82 life, +0xB8 flags) */
+extern u8 *g_0045D300;                   /* (small data) the state descriptions (0xA0 each) */
+extern float g_004064D0[4][4];           /* the unit colours by player (the first: the default) */
+extern float g_00406510[4][4], g_00406550[4][4], g_00406590[4][4];  /* states 0x2E, 0x31, 0x32 */
+
+void func_0016BD30(Unit *u);
+void func_00150A10(Unit *u);
+void func_002AD8B0(u8 *horse);
+void func_002406D0(u8 player);
+float func_003E6EC0(void);
+void func_001F5370(Unit *u);
+
+/* 0x00165560, 0x17C bytes. Takes a unit's model away: the actor, the partner (+0x270), the
+ * grab (+0x280), the slots, the weapon model, the records and the horse. */
+void func_00165560(Unit *u)
+{
+    u8 *a = PTR(u, 0x11C), *v;
+    int k;
+
+    PTR(a, 0x1FC) = 0;
+    U8(a, 0x201) = 0;
+    U8(PTR(u, 0x11C), 0x20C) &= ~1;
+    PTR(PTR(u, 0x11C), 0x1E8) = 0;
+    PTR(u, 0x11C) = 0;
+    v = PTR(u, 0x270);
+    if (v != 0) {
+        PTR(u, 0x270) = 0;
+        PTR(v, 0x270) = 0;
+    }
+    v = PTR(u, 0x280);
+    if (v != 0) {
+        func_0016BD30(u);
+        func_00150A10(v);
+        func_00150A10(u);
+    }
+    U8(u, 0x19D) &= ~1;
+    for (k = 0; k < 4; k++) {
+        if (U8(u + k * 0x70, 0x2DC) & 1)
+            func_0016E910(u + k * 0x70 + 0x290);
+    }
+    PTR(u, 0x130) = 0;
+    if (PTR(u, 0x134) != 0) {
+        func_0014FCA0(PTR(u, 0x134), 0);
+        U8(PTR(u, 0x134), 0x168) &= ~1;
+        PTR(u, 0x134) = 0;
+    }
+    func_001649C0(u);
+    func_002AD8B0(u + 0x1A0);
+    U32(u, 0x16C) = 0;
+    U8(u, 0x19E) &= ~0x20;
+    U32(u, 0x1B4) = 0;
+    if (g_00669DB8 != 4 && g_00669DB8 != 2)
+        func_002406D0(U8(u, 0x14E));
+}
+
+/* The common part of setting a unit up: its fields cleared, its mount kind (+0x155: 1 horse, 2
+ * states 0x3D-0x3F), the officer's level (+0x1BA, at most 3; 7 = none), the extra life of kind
+ * ':' (+0x1B8, `life8`: an eighth of the officer's, else scaled by func_003E6EC0), the colour
+ * (+0x60: by player for a set state with `coloured`). */
+static inline void unit_init(Unit *u, int state, u8 slot_kind, u8 weapon, u8 b154, u8 b14f,
+                             int coloured, int life8)
+{
+    u8 *o;
+    float *c;
+
+    func_00150B20(u);
+    U8(u, 0x156) = weapon;
+    U8(u, 0x154) = b154;
+    U8(u, 0x14F) = b14f;
+    U8(u, 0x198) = (U8(u, 0x198) & ~2) | 2;
+    U8(u, 0x19C) = (U8(u, 0x19C) & ~0x10) | 0x10;
+    if (state == 0x3C)
+        U8(u, 0x155) = 1;
+    else if ((u32)(state - 0x3D) < 3)
+        U8(u, 0x155) = 2;
+    else
+        U8(u, 0x155) = 0;
+    U8(u, 0x158) = slot_kind;
+    U32(u, 0x138) = 0;
+    U8(u, 0x17D) = 0;
+    U16(u, 0x15C) = 0;
+    U16(u, 0x172) = 0;
+    U16(u, 0x174) = 0;
+    U16(u, 0x170) = 0;
+    U16(u, 0x176) = 0;
+    U8(u, 0x17F) = 0;
+    U8(u, 0x17E) = 0;
+    U32(u, 0x16C) = 0;
+    U16(u, 0x12C) = 0;
+    U16(u, 0x12E) = 0;
+    S32(u, 0x128) = -1;
+    U16(u, 0x15E) = 0;
+    U8(u, 0x187) = 0;
+    U8(u, 0x18A) = 0;
+    U8(u, 0x18B) = 0;
+    U8(u, 0x157) = 0;
+    U16(u, 0x194) = 0;
+    U8(u, 0x185) = 0x17;
+    U8(u, 0x14D) = 0x80;
+    U32(u, 0x120) = 0;
+    U32(u, 0x124) = 0;
+    U8(u, 0x14C) = 0x40;
+    U16(u, 0x188) = 0;
+    U16(u, 0x190) = 0;
+    U16(u, 0x192) = 0;
+    U8(u, 0x1BC) = 0;
+    U8(u, 0x1BB) = 0;
+    U32(u, 0x1B4) = 0;
+    U8(u, 0x198) &= ~0x20;
+    U16(u, 0x1CC) = 0xFFFF;
+    U16(u, 0x1CE) = 0xFFFF;
+    o = g_006A3A30[S16(u, 0x178)];
+    if (o == 0 || (U32(o, 0xB8) & 0x200) == 0) {
+        U8(u, 0x1BA) = 7;
+    } else if (PTR(o, 0x10) != 0) {
+        U8(u, 0x1BA) = U8(PTR(o, 0x10), 0x7C);
+        U8(u, 0x1BA) = U8(u, 0x1BA) < 3 ? U8(u, 0x1BA) : 3;
+    } else {
+        U8(u, 0x1BA) = 7;
+    }
+    if (U8(PTR(u, 0x110), 0x1C) == ':') {
+        if (life8)
+            S16(u, 0x1B8) = S16(o, 0x82) / 8;
+        else
+            S16(u, 0x1B8) = (short)(int)((float)(int)S16(o, 0x82) * func_003E6EC0());
+    } else {
+        S16(u, 0x1B8) = 0;
+    }
+    U32(u, 0x19C) = 0;
+    if (U8(u, 0x1BA) < 4 || S32(u, 0x118) > 0x3B || coloured == 0)
+        c = g_004064D0[0];
+    else if (state == 0x2E)
+        c = g_00406510[U8(u, 0x14E) & 3];
+    else if (state == 0x31)
+        c = g_00406550[U8(u, 0x14E) & 3];
+    else if (state == 0x32)
+        c = g_00406590[U8(u, 0x14E) & 3];
+    else
+        c = g_004064D0[U8(u, 0x14E) & 3];
+    F32(u, 0x60) = c[0];
+    F32(u, 0x64) = c[1];
+    F32(u, 0x68) = c[2];
+    F32(u, 0x6C) = c[3];
+    if (S32(u, 0x118) != 0x3C)
+        U8(u, 0x180) = 0x10;
+    if ((u32)(S32(u, 0x118) - 0x3D) < 3)
+        func_001F5370(u);
+}
+
+/* 0x001656E0, 0x578 bytes. Sets a unit up in `state` with description `kind`: a state without
+ * a model falls back to the first one that has one (0x22-0x37, then 0-0x20; not for
+ * 0x3D-0x3F); an unusable description becomes 0x26 or 0x24 (slot kind 0x6F). Returns 1. */
+int func_001656E0(Unit *u, int state, int kind, u8 slot_kind, u8 weapon, u8 b154, u8 b14f,
+                  int coloured)
+{
+    S32(u, 0x118) = state;
+    if (PTR(STATE_REC(state), 4) == 0) {
+        if (state != 0x3D && state != 0x3E && state != 0x3F) {
+            int s = state, k;
+
+            for (k = 0x22; k < 0x38; k++) {
+                if (PTR(STATE_REC(k), 4) != 0) {
+                    s = k;
+                    break;
+                }
+            }
+            state = s;
+            if (PTR(STATE_REC(s), 4) == 0) {
+                for (k = 0; k < 0x21; k++) {
+                    if (PTR(STATE_REC(k), 4) != 0) {
+                        state = k;
+                        break;
+                    }
+                }
+            }
+        }
+        S32(u, 0x118) = state;
+    }
+    if ((g_005B50A0[kind][0x10] & 1) == 0) {
+        kind = (g_005B50A0[0x26][0x10] & 1) ? 0x26 : 0x24;
+        slot_kind = 0x6F;
+    }
+    PTR(u, 0x114) = g_0045D300 + state * 0xA0;
+    PTR(u, 0x110) = g_005B50A0[kind];
+    unit_init(u, state, slot_kind, weapon, b154, b14f, coloured, 0);
+    return 1;
+}
+
+/* 0x00165C60, 0x41C bytes. The same without the fallbacks; the extra life is an eighth of the
+ * officer's. */
+int func_00165C60(Unit *u, int state, int kind, u8 slot_kind, u8 weapon, u8 b154, u8 b14f,
+                  int coloured)
+{
+    S32(u, 0x118) = state;
+    PTR(u, 0x114) = g_0045D300 + state * 0xA0;
+    PTR(u, 0x110) = g_005B50A0[kind];
+    unit_init(u, state, slot_kind, weapon, b154, b14f, coloured, 1);
+    return 1;
+}
+
+/* 0x00166080, 0x38 bytes, matching. Sets a unit up as a horse (state 0x3C, description 0x36) of kind
+ * `horse`. */
+void func_00166080(Unit *u, u8 b154, u8 horse)
+{
+    U8(u, 0x180) = horse;
+    func_001656E0(u, 0x3C, 0x36, 0x8D, 0x11, b154, 0, 0);
+}
+
+/* 0x001660C0, 0x98 bytes. Places a unit at `pos`, on the ground (the probe at +0xD0) unless
+ * flag 0x40 of +0x19E is set; its offsets cleared and its kept positions set. */
+void func_001660C0(Unit *u, float *pos)
+{
+    int k;
+
+    for (k = 0; k < 4; k++)
+        F32(u, 0x40 + k * 4) = pos[k];
+    PTR(u, 0xD0) = u + 0x40;
+    func_001F2BF0(u + 0xD0);
+    if ((U8(u, 0x19E) & 0x40) == 0)
+        F32(u, 0x44) = F32(u, 0xE0);
+    for (k = 0; k < 4; k++)
+        F32(u, 0x80 + k * 4) = 0.0f;
+    for (k = 0; k < 4; k++)
+        F32(u, 0x90 + k * 4) = F32(u, 0x40 + k * 4) + F32(u, 0x80 + k * 4);
+    for (k = 0; k < 4; k++)
+        F32(u, 0xB0 + k * 4) = F32(u, 0x90 + k * 4);
+    for (k = 0; k < 4; k++)
+        F32(u, 0xA0 + k * 4) = F32(u, 0x40 + k * 4);
 }
