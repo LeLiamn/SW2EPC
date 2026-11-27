@@ -208,9 +208,9 @@ const char *func_0019AFD0(u32 id, int blank)
 }
 
 /* 0x0019B0C0, 0x1C bytes, matching. */
-void func_0019B0C0(u32 id)
+const char *func_0019B0C0(u32 id)
 {
-    func_0019AFD0(id, 0);
+    return func_0019AFD0(id, 0);
 }
 
 /* 0x0019B0E0, 0x48 bytes. Copies title `t`'s name to `out`. */
