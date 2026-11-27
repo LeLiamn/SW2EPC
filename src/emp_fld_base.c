@@ -374,7 +374,7 @@ void func_00118AC0(void *to, const void *from, int n);
 void func_00118850(void *p, int n);
 int func_0035D5A0(int a);
 void func_00364E40(int a, int g);
-void func_00365050(int a);
+int func_00365050(int a);
 int func_0033B150(u8 *g);
 int func_0033B580(u8 *g);
 
@@ -712,7 +712,7 @@ u32 func_00352B00(u8 *b, int c);
 #define BASE(k) ((u8 *)func_0034EC80(k))
 
 /* 0x0034C010, 0xB4 bytes, matching. The bases linked to base `b` not owned by `skip`, into list `l`. */
-void func_0034C010(int l, u8 *b, int skip)
+int func_0034C010(int l, u8 *b, int skip)
 {
     u32 n, k;
 
@@ -724,12 +724,12 @@ void func_0034C010(int l, u8 *b, int skip)
         if (skip != func_0034EDB0(x))
             func_00364E40(l, func_0034ED40(x));
     }
-    func_00365050(l);
+    return func_00365050(l);
 }
 
 /* 0x0034C0D0, 0x198 bytes. Side `side`'s bases where one of its groups is (a kind 1 group's own
  * base, or a flagged unit's func_0033CB60), into list `l`. */
-void func_0034C0D0(int l, int side)
+int func_0034C0D0(int l, int side)
 {
     int s = func_0035D5A0(side);
     u32 b, k;
@@ -759,12 +759,12 @@ void func_0034C0D0(int l, int side)
             }
         }
     }
-    func_00365050(l);
+    return func_00365050(l);
 }
 
 /* 0x0034C270, 0xF0 bytes, matching. The bases side `side` does not own and may take (func_003521B0; only
  * unowned ones with `free`), into list `l`. */
-void func_0034C270(int l, int side, int free)
+int func_0034C270(int l, int side, int free)
 {
     u32 b;
 
@@ -782,7 +782,7 @@ void func_0034C270(int l, int side, int free)
         if (func_0034EE80(B) != side && func_003521B0(B, side) != 0)
             func_00364E40(l, b);
     }
-    func_00365050(l);
+    return func_00365050(l);
 }
 
 /* 0x0034C360, 0x104 bytes. How much group `g` wants base `B` (0 when it cannot go; kind 1's own
@@ -902,4 +902,304 @@ int func_0034C9E0(u8 *B, int side)
     if (func_003522F0(B, side) == 0)
         return 0;
     return 1000 + near_main(B, side);
+}
+
+int func_003653D0(int l);
+void func_003651F0(int l, int i);
+int func_00365030(int l, int k);
+void func_003653F0(int l, void *buf, int cap);
+u8 *func_0035DD10(int which);
+int func_0036D300(void);
+int func_0033CEA0(u8 *g, int side);
+int func_00352240(u8 *b, int s);
+int func_003531F0(int k);
+int func_003519E0(void);
+int func_0035F0C0(void);
+
+/* 0x0034CAB0, 0x30 bytes, matching. func_0034C910 by number. */
+int func_0034CAB0(int b, int side)
+{
+    return func_0034C910(BASE(b), side);
+}
+
+/* 0x0034CAE0, 0x30 bytes, matching. The base of list `l` side `side` most wants to take. */
+u8 *func_0034CAE0(int l, int side)
+{
+    return BASE(func_00365350(l, func_0034CAB0, side, 0));
+}
+
+/* 0x0034CB10, 0x30 bytes, matching. func_0034C9E0 by number. */
+int func_0034CB10(int b, int side)
+{
+    return func_0034C9E0(BASE(b), side);
+}
+
+/* 0x0034CB40, 0x30 bytes, matching. The base of list `l` side `side` most wants to hold. */
+u8 *func_0034CB40(int l, int side)
+{
+    return BASE(func_00365350(l, func_0034CB10, side, 0));
+}
+
+/* 0x0034CB70, 0xCC bytes. Sends up to `n` groups of list `l` (those wanting it most) to take
+ * base `B`; how many. */
+u32 func_0034CB70(int l, u8 *B, u32 n)
+{
+    u32 k;
+
+    for (k = 0; k < n; k++) {
+        u8 *g;
+
+        if (func_003653D0(l) == 0)
+            return k;
+        g = func_0034C6F0(l, B);
+        func_003651F0(l, GROUP_INDEX(g));
+        func_003385E0(g, 0, func_0034ED40(B));
+    }
+    return k;
+}
+
+/* 0x0034CC40, 0xCC bytes. The same to hold base `B` (order 2). */
+u32 func_0034CC40(int l, u8 *B, u32 n)
+{
+    u32 k;
+
+    for (k = 0; k < n; k++) {
+        u8 *g;
+
+        if (func_003653D0(l) == 0)
+            return k;
+        g = func_0034C8A0(l, B);
+        func_003651F0(l, GROUP_INDEX(g));
+        func_003385E0(g, 2, func_0034ED40(B));
+    }
+    return k;
+}
+
+/* 0x0034CD10, 0x130 bytes. Sends up to `n` groups of list `l` to group func_0035DD10(`which`)
+ * (order 1), unless func_0036D300 or func_0033CEA0. */
+u32 func_0034CD10(int l, int which, u32 n)
+{
+    u8 *h = func_0035DD10(which);
+    u32 k;
+
+    if (func_0036D300() != 0 || func_0033CEA0(h, GROUP_UNIT(h)[0x79]) != 0)
+        return 0;
+    for (k = 0; k < n; k++) {
+        u8 *g;
+
+        if (func_003653D0(l) == 0)
+            return k;
+        g = func_0034C7C0(l, h);
+        func_003651F0(l, GROUP_INDEX(g));
+        func_003385E0(g, 1, GROUP_INDEX(h));
+    }
+    return k;
+}
+
+/* 0x0034CE40, 0xE0 bytes. Gives up to `n` groups of list `l` no order. */
+u32 func_0034CE40(int l, u32 n)
+{
+    u32 k;
+
+    for (k = 0; k < n; k++) {
+        int i;
+
+        if (func_003653D0(l) == 0)
+            return k;
+        i = func_00365030(l, 0);
+        func_003651F0(l, i * 0x68 / 0x68);
+        func_003385E0(g_006A1D58[i], 4, 0xFF);
+    }
+    return k;
+}
+
+/* 0x0034CF20, 0x11C bytes. Sends up to `n` groups of list `l`, at most `per` per base, to take
+ * the bases of list `bl` side `side` wants most; how many. */
+u32 func_0034CF20(int l, u32 n, int bl, u32 per, int side)
+{
+    u32 k, c;
+
+    for (k = 0; func_003653D0(l) != 0 && func_003653D0(bl) != 0 && k < n; k += c) {
+        u8 *B = func_0034CAE0(bl, side);
+
+        c = func_00365050(l);
+        if (per < c)
+            c = per;
+        if (c > n - k)
+            c = n - k;
+        func_0034CB70(l, B, c);
+        func_003651F0(bl, func_0034ED40(B));
+    }
+    return k;
+}
+
+/* 0x0034D040, 0x11C bytes. The same to hold the bases of list `bl`. */
+u32 func_0034D040(int l, u32 n, int bl, u32 per, int side)
+{
+    u32 k, c;
+
+    for (k = 0; func_003653D0(l) != 0 && func_003653D0(bl) != 0 && k < n; k += c) {
+        u8 *B = func_0034CB40(bl, side);
+
+        c = func_00365050(l);
+        if (per < c)
+            c = per;
+        if (c > n - k)
+            c = n - k;
+        func_0034CC40(l, B, c);
+        func_003651F0(bl, func_0034ED40(B));
+    }
+    return k;
+}
+
+/* 0x0034D160, 8 bytes, matching. */
+u32 func_0034D160(void)
+{
+    return 1;
+}
+
+/* 0x0034D170, 8 bytes, matching. */
+void func_0034D170(void)
+{
+}
+
+/* 0x0034D180, 0xFC bytes. Side state `st`'s plan (+7): 9 when its main base is threatened,
+ * 10 when it holds 31% of the bases or more, else by its kind; a change marks it. */
+void func_0034D180(u8 *st)
+{
+    int side = func_0034B160((int)st), s, m;
+    u8 *main = BASE(func_0035F200(side)), cur = st[7];
+
+    s = func_0035D5A0(side);
+    if (func_00352240(main, s) != 0) {
+        m = 9;
+    } else if ((u32)(func_003531F0(3) * 100 / func_003519E0()) < 0x1F) {
+        m = side == func_0035F0C0() ? func_0034B700(st) : func_0034B710(st);
+    } else {
+        m = 10;
+    }
+    if (m != cur) {
+        st[7] = m;
+        st[8] |= 1;
+    }
+}
+
+/* 0x0034D280, 0x58 bytes. Plan: all of the side's free groups wait. */
+void func_0034D280(u8 *st)
+{
+    u8 buf[64], list[16];
+
+    func_003653F0((int)list, buf, 0x10);
+    func_0034BD20((int)list, func_0034B160((int)st));
+    func_0034CE40((int)list, func_00365050((int)list));
+}
+
+/* The attack plans: free groups go to the side's target group, hold the bases where they are,
+ * take enemy bases (`per` groups each), the rest wait. */
+static void attack_plan(u8 *st, u32 per)
+{
+    u8 b1[64], b2[80], l1[16], l2[16];
+    u32 lim = func_0034D160(), c;
+    int side = func_0034B160((int)st), w;
+
+    func_003653F0((int)l1, b1, 0x10);
+    func_003653F0((int)l2, b2, 0x14);
+    func_0034BD20((int)l1, side);
+    if (func_003653D0((int)l1) == 0)
+        return;
+    w = func_0034B720(st);
+    if (w >= 0 && w < 2) {
+        c = func_00365050((int)l1);
+        if (lim < c)
+            c = lim;
+        func_0034CD10((int)l1, w, c);
+    }
+    if (func_0034C0D0((int)l2, side) != 0) {
+        c = func_00365050((int)l2);
+        if (func_00365050((int)l1) < c)
+            c = func_00365050((int)l1);
+        func_0034D040((int)l1, c, (int)l2, 1, side);
+    }
+    if (func_0034C270((int)l2, side, 0) != 0)
+        func_0034CF20((int)l1, func_00365050((int)l1), (int)l2, per, side);
+    if (func_003653D0((int)l1) != 0)
+        func_0034CE40((int)l1, func_00365050((int)l1));
+}
+
+/* 0x0034D2E0, 0x188 bytes. Attack plan, three groups per base. */
+void func_0034D2E0(u8 *st)
+{
+    attack_plan(st, 3);
+}
+
+/* 0x0034D470, 0x0034D490, 0x1C bytes each. */
+void func_0034D470(u8 *st)
+{
+    func_0034D2E0(st);
+}
+
+void func_0034D490(u8 *st)
+{
+    func_0034D2E0(st);
+}
+
+/* 0x0034D4B0, 0x1C bytes, matching. */
+void func_0034D4B0(u8 *st)
+{
+    func_0034D280(st);
+}
+
+/* 0x0034D4D0, 0x188 bytes. Attack plan, two groups per base. */
+void func_0034D4D0(u8 *st)
+{
+    attack_plan(st, 2);
+}
+
+/* 0x0034D660, 0x0034D680, 0x1C bytes each. */
+void func_0034D660(u8 *st)
+{
+    func_0034D4D0(st);
+}
+
+void func_0034D680(u8 *st)
+{
+    func_0034D4D0(st);
+}
+
+/* 0x0034D6A0, 0x1C bytes, matching. */
+void func_0034D6A0(u8 *st)
+{
+    func_0034D280(st);
+}
+
+/* 0x0034D6C0, 0x198 bytes. Defence plan: a third of the free groups hold the main base, some go
+ * to the target group, the rest take the bases linked to the main base. */
+void func_0034D6C0(u8 *st)
+{
+    u8 b1[64], b2[80], l1[16], l2[16], *main;
+    u32 lim = func_0034D160(), c;
+    int side = func_0034B160((int)st), w;
+
+    func_003653F0((int)l1, b1, 0x10);
+    func_003653F0((int)l2, b2, 0x14);
+    func_0034BD20((int)l1, side);
+    if (func_003653D0((int)l1) == 0)
+        return;
+    main = BASE(func_0035F200(side));
+    c = (u32)(func_00365050((int)l1) * 0x22) / 100;
+    if (c < 2)
+        c = 1;
+    func_0034CC40((int)l1, main, c);
+    w = func_0034B720(st);
+    if (w >= 0 && w < 2) {
+        c = func_00365050((int)l1);
+        if (lim < c)
+            c = lim;
+        func_0034CD10((int)l1, w, c);
+    }
+    func_0034C010((int)l2, main, side);
+    if (func_003653D0((int)l2) != 0)
+        func_0034CF20((int)l1, func_00365050((int)l1), (int)l2, 3, side);
+    if (func_003653D0((int)l1) != 0)
+        func_0034CE40((int)l1, func_00365050((int)l1));
 }
