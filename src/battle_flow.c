@@ -238,3 +238,209 @@ void func_00183E70(u8 *o)
     func_002795A0(o[9]);
     func_002795A0(r[9]);
 }
+
+extern u32 g_006AA578;                   /* the next free battle officer */
+extern int g_005BD738;
+
+void func_001823A0(u8 *o);
+void func_002045E0(u8 *o);
+void func_002A69D0(int k);
+void func_00204D20(u8 *o);
+void func_00166160(u8 *u);
+void func_00118AC0(void *to, const void *from, u32 n);
+int func_00362F40(u32 s, u32 k);
+void func_00279240(void);
+void func_002796A0(u32 a);
+void func_0018C080(void);
+void func_0018BF10(void);
+void func_002C4BF0(void);
+void func_0023ED10(void);
+void func_00356050(void);
+void func_003577D0(void);
+void func_0022FF00(void);
+void func_0018BD40(void);
+void func_0018B890(void);
+void func_003E5DE0(void);
+void func_003E5D20(void);
+void func_00354560(void);
+void func_001BC280(void);
+void func_0036FEE0(void);
+void func_0035E0D0(void);
+void func_003F66B0(void);
+void func_003F81D0(void);
+void func_002D6FC0(void);
+void func_00184410(void);
+void func_001BB7F0(int a);
+void func_00184550(void);
+void func_003E5610(void);
+
+#define OFF_FL(o) (*(u32 *)((o) + 0xB8))
+
+/* 0x001827F0, 0xC0 bytes. The battle officers' frame (the shown life follows the life). */
+void func_001827F0(void)
+{
+    u32 k;
+
+    for (k = 0; k < 0x8F; k++) {
+        u8 *o = g_006A3A30[k];
+        u32 f;
+
+        if ((OFF_FL(o) & 1) == 0)
+            continue;
+        if ((OFF_FL(o) & 0x6000C) != 0)
+            func_001823A0(o);
+        f = OFF_FL(o);
+        if ((f & 0xC) == 0 || (f & 0x10) != 0) {
+            if ((f & 2) == 0)
+                func_002045E0(o);
+        } else if (*(short *)(o + 0x82) < *(short *)(o + 0x84)) {
+            *(short *)(o + 0x84) -= 1;
+        }
+    }
+}
+
+/* 0x001828C0, 0x90 bytes. Takes a free battle officer record (from 4 on; 0: none). */
+u8 *func_001828C0(void)
+{
+    u32 n;
+
+    for (n = 4; n < 0x7A; n++) {
+        u8 *o = g_006A3A30[g_006AA578];
+
+        if ((OFF_FL(o) & 1) == 0) {
+            OFF_FL(o) |= 1;
+            return o;
+        }
+        if (g_006AA578 < 0x79)
+            g_006AA578++;
+        else
+            g_006AA578 = 4;
+    }
+    return 0;
+}
+
+/* 0x00182960, 0x7C bytes. Frees battle officer `o`. */
+void func_00182960(u8 *o)
+{
+    if ((OFF_FL(o) & 0x8000) == 0)
+        func_002A69D0((o - g_006A3A30[0]) / 0xC0);
+    else
+        func_00204D20(o);
+    func_00166160(*(u8 **)(o + 0x14));
+    *(u32 *)(o + 0xBC) = 0;
+    OFF_FL(o) = 0;
+}
+
+/* 0x00182B40, 0xD8 bytes. Saves the four players' officers into `p`; its end. */
+u8 *func_00182B40(u8 *p)
+{
+    u32 k;
+
+    for (k = 0; k < 4; k++) {
+        u8 *o = g_006A3A30[k];
+
+        if ((OFF_FL(o) & 1) != 0) {
+            func_00118AC0(p, *(u8 **)(o + 0x14) + 0x90, 0x10);
+            func_00118AC0(p + 0x10, *(u8 **)(o + 0x14) + 0x50, 0x10);
+            func_00118AC0(p + 0x20, o + 0x80, 0x18);
+            func_00118AC0(p + 0x38, o + 0x98, 0x20);
+            func_00118AC0(p + 0x58, o + 0xB8, 4);
+            func_00118AC0(p + 0x5C, o + 0xBC, 4);
+            p += 0x60;
+        }
+    }
+    return p;
+}
+
+/* 0x00183F00, 0xF0 bytes. Keeps troop `t`'s two officers loaded (by its kind). */
+void func_00183F00(u8 *t)
+{
+    u32 i = (t - g_00693970) / 0x88, f = *(u32 *)(t + 0x80);
+    int kind = 2;
+    u8 *a, *b;
+
+    if ((f & 0x400) == 0 || func_00362F40(i >> 3, i & 7) == 0)
+        return;
+    a = *(u8 **)(t + 0xC);
+    b = *(u8 **)(t + 8);
+    if ((f & 0x10) != 0)
+        kind = 0;
+    else if ((f & 0x20) != 0)
+        kind = 1;
+    func_00279380(b[6], kind);
+    func_00279380(a[6], kind);
+    func_00279450(b[7], 0);
+    func_00279450(a[7], 0);
+    func_002795A0(b[9]);
+    func_002795A0(a[9]);
+}
+
+/* 0x00184270, 0x8C bytes. */
+void func_00184270(void)
+{
+    u32 k;
+
+    for (k = 0; k < 0x1AD; k++) {
+        u8 *t = g_00693970 + k * 0x88;
+        u32 f = *(u32 *)(t + 0x80);
+
+        if ((f & 1) != 0 && (f & 0x30) == 0 && (f & 0x180) == 0 && (k < 0x166 || k > 0x16F))
+            func_00183F00(t);
+    }
+}
+
+/* 0x00184980, 0x6C bytes, matching. */
+void func_00184980(void)
+{
+    u32 k;
+
+    func_00279240();
+    for (k = 0x166; k < 0x170; k++) {
+        u8 *t = g_00693970 + k * 0x88;
+
+        if ((*(u32 *)(t + 0x80) & 1) != 0)
+            func_00183F00(t);
+    }
+    func_002796A0(GAME_FLAGS & 2);
+}
+
+/* 0x00185160, 0xA4 bytes, matching. Frees the battle. */
+void func_00185160(void)
+{
+    func_0018C080();
+    func_0018BF10();
+    func_002C4BF0();
+    func_0023ED10();
+    func_00356050();
+    func_003577D0();
+    func_0022FF00();
+    func_0018BD40();
+    func_0018B890();
+    func_003E5DE0();
+    func_003E5D20();
+    func_00354560();
+    func_001BC280();
+    func_0036FEE0();
+    func_0035E0D0();
+    func_003F66B0();
+    func_003F81D0();
+    func_002D6FC0();
+}
+
+/* 0x00185300, 0x84 bytes. */
+void func_00185300(void)
+{
+    if (*(int *)(g_00669D60 + 0x20C) == 1) {
+        func_00184410();
+        func_001BB7F0(0);
+    } else {
+        func_00183600();
+        func_001835F0();
+        func_001835E0();
+        func_00184550();
+        g_005BD738 = 1;
+        func_00183A40(0);
+    }
+    func_003E5610();
+    func_00184980();
+}
