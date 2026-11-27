@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 158336,
-    "non_matching": 1088276
+    "matching": 159344,
+    "non_matching": 1089732
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1969
+    "matching": 1991
   },
   "layout": "treemap",
   "areas": [
@@ -672,15 +672,15 @@
         },
         {
           "name": "HorseModel.c",
-          "description": "Estimated range 0x2AA7D8-0x2C1EA8; 0 function(s) decompiled",
+          "description": "Estimated range 0x2AA7D8-0x2C1EA8; 17 function(s) decompiled",
           "code": {
             "total": 95952,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 560,
+            "non_matching": 432
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 17,
+            "matching": 11
           }
         },
         {
@@ -820,15 +820,15 @@
         },
         {
           "name": "BriefingCmnParts.c",
-          "description": "Estimated range 0x2C1EA8-0x2DE550; 0 function(s) decompiled",
+          "description": "Estimated range 0x2C1EA8-0x2DE550; 22 function(s) decompiled",
           "code": {
             "total": 116392,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 448,
+            "non_matching": 1024
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 22,
+            "matching": 11
           }
         }
       ]
