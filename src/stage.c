@@ -14,6 +14,7 @@
  */
 
 typedef unsigned char u8;
+typedef unsigned short u16;
 typedef unsigned int u32;
 
 #define SPAD(off) ((u8 *)0x70000000 + (off))
@@ -34,11 +35,11 @@ int func_0032E7B0(void);
 u8 *func_00194480(int k, int x, int z);
 int func_00193620(float *p);
 u32 *func_002184D0(int a, int i);
-int func_00200110(void);
+float func_00200110(void);
 void func_001930D0(u32 layer, float *m);
-void func_00196CB0(int a, u32 layer);
+void func_00196CB0(float r, u32 layer);
 void func_00195920(u32 layer, float *m);
-void func_00196B10(u32 bank);
+void func_00196B10(int bank);
 void func_00245D60(void);
 void func_001F5020(void);
 void func_001970C0(void);
@@ -52,6 +53,7 @@ void func_00193A70(void);
 u32 func_001934D0(void);
 u8 *func_002EFB00(int a);
 void func_00102EC0(void *data);          /* free */
+void *func_00102D30(u32 size);           /* allocate */
 void func_00193710(u32 bank, float *m);
 void func_00193830(u32 bank);
 
@@ -174,7 +176,7 @@ void func_00193830(u32 bank)
 void func_001938B0(u32 layer, float *m)
 {
     u32 b = BANK(layer);
-    int t = func_00200110();
+    float t = func_00200110();
 
     func_00193710(b, m);
     func_001930D0(layer, m);
@@ -275,8 +277,8 @@ void func_00195DB0(void);
 void func_001F4940(void);
 void func_00196530(void);
 void func_001F4DC0(void);
-u32 func_00196540(u32 a);
-void func_001966C0(u32 a, u32 b, u32 c);
+u32 func_00196540(u8 *h);
+void func_001966C0(u8 *a, u8 *b, u32 c);
 void func_00197470(u8 *a);
 void func_00196980(void);
 void func_0027F2C0(void);
@@ -369,8 +371,8 @@ void func_00194010(void)
     c = p[4];
     d = p[1];
     func_001F4DC0();
-    func_00193D40(func_00196540(d));
-    func_001966C0(a, b, c);
+    func_00193D40(func_00196540((u8 *)d));
+    func_001966C0((u8 *)a, (u8 *)b, c);
     func_00197470(SPP(0x884));
     func_00196980();
     if (g_00669F6C[0] == 1)
@@ -812,4 +814,323 @@ int func_00195E30(int k, int alt)
     if (k == 2)
         return 5;
     return 9;
+}
+
+/* The stage's objects (0x005D25E0): +0 their count, +4 their ids (u16), +8 their points (16
+ * bytes), +0xC words, +0x10 bytes; +0x18 / +0x1C / +0x20 / +0x24 / +0x28 counters, +0x2C a flag;
+ * +0x30 two banks of 10 light matrices (0x280 bytes each) and +0x530 their colour matrices; +0xA30
+ * four slots; +0xAD0 per bank the squared draw distances (3); +0xAE8 / +0xAEC the object followed. */
+extern u32 g_005D25E0;
+extern u16 *g_005D25E4;
+extern u8 *g_005D25E8;
+extern u32 *g_005D25EC;
+extern u8 *g_005D25F0;
+extern u32 g_005D25F8, g_005D25FC, g_005D2600, g_005D2604, g_005D2608, g_005D260C;
+extern u8 g_005D2610[2][0x280];          /* the light matrices per bank */
+extern u8 g_005D2B10[2][0x280];          /* the colour matrices per bank */
+extern u32 g_005D3010[4];
+extern float g_005D30B0[2][3];
+extern u32 g_005D30C8;
+extern u8 *g_005D30CC;
+extern u8 *g_0045D460;                   /* (small data) the light set */
+
+
+void func_00195DC0(u8 *p, u32 n);
+void func_00107440(u32 a, int b, int c);
+void func_001F6CA0(u8 a, u16 id, u8 *p, u32 w);
+void func_00143268(void *m, void *a, void *b, void *c);
+void func_00143328(void *m, void *a, void *b, void *c, void *d);
+
+/* 0x00196530, 0x8 bytes. Nothing. */
+void func_00196530(void)
+{
+}
+
+/* 0x00196540, 0x174 bytes. Opens the stage file's header (`h`, copied to +0x770): the ground
+ * grid (+0x80), the layers' grids (+0x84-+0x94, with layers), three more tables
+ * (+0x98-+0xA0), the stage's bounds, and two pairs of 0x34F-record buffers. Returns the number
+ * of layers. */
+u32 func_00196540(u8 *h)
+{
+    int k;
+
+    func_00118AC0(SPAD(0x770), h, 0x100);
+    SPP(0x7F0) = h + *(int *)(h + 0x80);
+    if (SP32(0x84C) != 0) {
+        for (k = 0; k < 5; k++)
+            SPP(0x7F4 + k * 4) = h + *(int *)(h + 0x84 + k * 4);
+    }
+    SPP(0x808) = h + *(int *)(h + 0x98);
+    SPP(0x80C) = h + *(int *)(h + 0x9C);
+    SPP(0x810) = h + *(int *)(h + 0xA0);
+    SPF(0x830) = (float)(int)(GRID_W - 1) + 0.0001f;
+    SPF(0x838) = (float)(int)(GRID_H - 1) + 0.0001f;
+    SPF(0x834) = SPF(0x830);
+    SPF(0x83C) = SPF(0x838);
+    for (k = 0; k < 2; k++) {
+        u8 *b = func_00102D30(0x17290);
+
+        SPP(0x7E0 + k * 8) = b;
+        func_00195DC0(b, 0x34F);
+        b = func_00102D30(0x17290);
+        SPP(0x7E4 + k * 8) = b;
+        func_00195DC0(b, 0x34F);
+    }
+    return SP32(0x84C);
+}
+
+/* Makes a list's offsets (count +0x38, table +0x3C of 16-byte entries) into addresses; entries
+ * of kind 0x18000 (+8) get flag +0x10. */
+static inline void open_list(u8 *l)
+{
+    u32 *e = (u32 *)(l + *(int *)(l + 0x3C) * 0x10), k;
+
+    *(u32 **)(l + 0x3C) = e;
+    for (k = 0; k < *(u32 *)(l + 0x38); k++, e += 4) {
+        u8 *o = l + e[0] * 0x10;
+
+        e[0] = (u32)o;
+        if ((*(u32 *)(o + 8) & 0x38000) == 0x18000)
+            *(u32 *)(o + 0x10) = 1;
+    }
+}
+
+/* 0x001966C0, 0x114 bytes. Opens the stage's two object lists and keeps them (+0x814, +0x818)
+ * with `c` (+0x81C). */
+void func_001966C0(u8 *a, u8 *b, u32 c)
+{
+    open_list(a);
+    open_list(b);
+    SP32(0x81C) = c;
+    SPP(0x814) = a;
+    SPP(0x818) = b;
+    func_00107440(c, 0x1320, 0x3ED8);
+}
+
+/* 0x001967E0, 0x64 bytes. The eight corners of the box from `b[0]` (min) to `b[1]` (max). */
+void func_001967E0(float *out, float *b)
+{
+    int k;
+
+    for (k = 0; k < 8; k++) {
+        out[k * 4 + 0] = (k & 1) ? b[4] : b[0];
+        out[k * 4 + 1] = (k & 2) ? b[5] : b[1];
+        out[k * 4 + 2] = (k & 4) ? b[6] : b[2];
+        out[k * 4 + 3] = b[3];
+    }
+}
+
+/* 0x00196850, 0xA8 bytes. The box `b` turned by `m`: the min and max of its eight corners. */
+void func_00196850(float *out, float *m, float *b)
+{
+    float c[8][4];
+    int i, k;
+
+    func_001967E0(c[0], b);
+    for (i = 0; i < 8; i++) {
+        float v[4];
+
+        for (k = 0; k < 4; k++)
+            v[k] = m[k] * c[i][0] + m[4 + k] * c[i][1] + m[8 + k] * c[i][2] + m[12 + k] * c[i][3];
+        for (k = 0; k < 4; k++) {
+            if (i == 0 || v[k] < out[k])
+                out[k] = v[k];
+            if (i == 0 || out[4 + k] < v[k])
+                out[4 + k] = v[k];
+        }
+    }
+}
+
+/* 0x00196900, 0x18 bytes. Object `i`'s id. */
+u16 func_00196900(int i)
+{
+    return g_005D25E4[i];
+}
+
+/* 0x00196920, 0x14 bytes. Object `i`'s point. */
+u8 *func_00196920(int i)
+{
+    return g_005D25E8 + i * 0x10;
+}
+
+/* 0x00196940, 0x18 bytes. Object `i`'s word. */
+u32 func_00196940(int i)
+{
+    return g_005D25EC[i];
+}
+
+/* 0x00196960, 0x14 bytes. Object `i`'s byte. */
+u8 func_00196960(int i)
+{
+    return g_005D25F0[i];
+}
+
+/* 0x00196980, 0x84 bytes. Places every stage object (func_001F6CA0). */
+void func_00196980(void)
+{
+    u32 k;
+
+    for (k = 0; k < g_005D25E0; k++) {
+        u16 id = func_00196900(k);
+        u8 *p = func_00196920(k);
+        u32 w = func_00196940(k);
+
+        func_001F6CA0(func_00196960(k), id, p, w);
+    }
+}
+
+/* 0x00196A10, 0xC bytes. */
+u32 func_00196A10(void)
+{
+    return g_005D2600;
+}
+
+/* 0x00196A20, 0x18 bytes. */
+void func_00196A20(void)
+{
+    g_005D2600 = g_005D2600 + 1;
+}
+
+/* 0x00196A40, 0xC bytes. */
+u32 func_00196A40(void)
+{
+    return g_005D2604;
+}
+
+/* 0x00196A50, 0x44 bytes. Counts one (+0x24, or +0x18 with the flag). */
+void func_00196A50(void)
+{
+    if (g_005D260C == 0)
+        g_005D2604 = g_005D2604 + 1;
+    else
+        g_005D25F8 = g_005D25F8 + 1;
+}
+
+/* 0x00196AA0, 0xC bytes. */
+u32 func_00196AA0(void)
+{
+    return g_005D2608;
+}
+
+/* 0x00196AB0, 0x44 bytes. Counts one (+0x28, or +0x1C with the flag). */
+void func_00196AB0(void)
+{
+    if (g_005D260C == 0)
+        g_005D2608 = g_005D2608 + 1;
+    else
+        g_005D25FC = g_005D25FC + 1;
+}
+
+/* 0x00196B00, 0xC bytes. The flag. */
+u32 func_00196B00(void)
+{
+    return g_005D260C;
+}
+
+/* 0x00196B10, 0x134 bytes. Bank `bank`'s ten light matrices and colour matrices from the ten
+ * lights (func_002184D0). */
+void func_00196B10(int bank)
+{
+    u8 *m = g_005D2610[bank], *c = g_005D2B10[bank];
+    int k;
+
+    for (k = 0; k < 10; k++, m += 0x40, c += 0x40) {
+        float nl[4][4], cl[4][4];
+        u32 *l1 = func_002184D0(1, k), *l2;
+        int i, j;
+
+        func_00143268(nl, g_0045D460 + 0x10, (void *)0x700000C0, (void *)0x700000C0);
+        l2 = func_002184D0(2, k);
+        func_00143328(cl, l2, (void *)0x700000C0, (void *)0x700000C0, l1);
+        for (i = 0; i < 4; i++)
+            for (j = 0; j < 4; j++)
+                ((float *)m)[i * 4 + j] = cl[0][j] * nl[i][0] + cl[1][j] * nl[i][1]
+                                          + cl[2][j] * nl[i][2] + cl[3][j] * nl[i][3];
+        func_00143328(c, (void *)0x700000C0, (void *)0x700000C0, (void *)0x700000C0, l1);
+    }
+}
+
+/* 0x00196C50, 0x28 bytes. The current bank's colour matrices. */
+u8 *func_00196C50(void)
+{
+    return g_005D2B10[SP32(0x88C)];
+}
+
+/* 0x00196C80, 0x28 bytes. The current bank's light matrices. */
+u8 *func_00196C80(void)
+{
+    return g_005D2610[SP32(0x88C)];
+}
+
+/* 0x00196CB0, 0x90 bytes. Layer `layer`'s squared draw distances from `r`: r², 1% of it and 4
+ * times it (layers 2 and 3: 1e6 and 4e8). */
+void func_00196CB0(float r, u32 layer)
+{
+    float *d = g_005D30B0[0x18 >> (layer & 0x1F) & 1];
+
+    r = r * r;
+    d[0] = r;
+    if ((0xC >> (layer & 0x1F) & 1) == 0) {
+        d[1] = r * 0.01f;
+        d[2] = r * 4.0f;
+    } else {
+        d[1] = 1000000.0f;
+        d[2] = 400000000.0f;
+    }
+}
+
+/* 0x00196D40, 0x30 bytes. Squared draw distance `i` of the current bank. */
+float func_00196D40(int i)
+{
+    return g_005D30B0[SP32(0x88C)][i];
+}
+
+/* 0x00196D70, 0x50 bytes. Puts `x` in the first free of the four slots. Whether there was one. */
+int func_00196D70(u32 x)
+{
+    u32 k;
+
+    for (k = 0; k < 4; k++) {
+        if (g_005D3010[k] == 0) {
+            g_005D3010[k] = x;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* 0x00196DC0, 0x50 bytes. Frees the slot holding `x`. */
+int func_00196DC0(u32 x)
+{
+    u32 k;
+
+    for (k = 0; k < 4; k++) {
+        if (x == g_005D3010[k]) {
+            g_005D3010[k] = 0;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* 0x00196E10, 0x68 bytes. Follows the last model (of the list at the scratchpad's +0x1D0) of
+ * kind above 0xC with `x`. */
+void func_00196E10(u32 x)
+{
+    u32 n = func_00196A10(), k;
+    u8 *m = SPP(0x1D0);
+
+    for (k = 0; k < n; k++, m += 0x70) {
+        if (m[0x68] > 0xC) {
+            g_005D30C8 = x;
+            g_005D30CC = m;
+        }
+    }
+}
+
+/* 0x00196E80, 0x14 bytes. Stops following. */
+void func_00196E80(void)
+{
+    g_005D30C8 = 0;
+    g_005D30CC = 0;
 }
