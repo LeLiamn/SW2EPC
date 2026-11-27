@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 178928,
-    "non_matching": 1214272
+    "matching": 180000,
+    "non_matching": 1216480
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2262
+    "matching": 2279
   },
   "layout": "treemap",
   "areas": [
@@ -877,15 +877,15 @@
         },
         {
           "name": "SeManager.c",
-          "description": "Estimated range 0x234490-0x23CED8; 50 function(s) decompiled",
+          "description": "Estimated range 0x234490-0x23CED8; 86 function(s) decompiled",
           "code": {
             "total": 35400,
-            "matching": 784,
-            "non_matching": 13152
+            "matching": 1856,
+            "non_matching": 15360
           },
           "decompiled_functions": {
-            "count": 50,
-            "matching": 21
+            "count": 86,
+            "matching": 38
           }
         },
         {
