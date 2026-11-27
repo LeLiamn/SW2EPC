@@ -921,8 +921,8 @@ disassembly rather than from Ghidra's output.
 
 ## Unit set-up (`src/unit_setup.c`)
 
-After the camera, from 0x00164680 up to `Weapon.c` (0x0016CD30), the code sets units up. Done
-so far (0x00164680-0x0016AA5C, 36 functions, 8 match):
+After the camera, from 0x00164680 up to `Weapon.c` (0x0016CD30), the code sets units up and
+handles their hits and gauges. It is fully decompiled (70 functions, 16 match):
 
 - **Reset:** a unit is cleared (0x630 bytes) and reset for its player: origin, scale 1, its
   matrix, state 0x40, its four motion slots (+0x290, 0x70 each) and ten records (+0x450, 0x30
@@ -962,6 +962,20 @@ so far (0x00164680-0x0016AA5C, 36 functions, 8 match):
   ratio of 2.2, or 4 against a major unit), the guard chance (`0x0016A210`: skill² / 8000 plus a
   percentage), struggles wearing down (`0x0016A6E0`), the last attacker and hit counters
   (`0x0016A8A0`).
+- **Taking a hit** (`0x0016AA60`): clashes, counters, dodges and guards come first; a real hit
+  wears a struggle down or deals damage, then the reaction; the player's pad vibrates (unless
+  vibration is off).
+- **Immunity** (`0x0016B9B0`): held, leaving or carried units, players during the duel, a unit
+  already hit by the same attack (its flash, or the attacker's weapon kind bit), and a mount
+  follows its rider.
+- **Items:** a healing item gives 50 life (more with the players' item 0x1E); a box gives at
+  random life (10%), double attack (40%), double defence (40%) or another effect (10%) for 500
+  frames.
+- **Musou gauge** (`0x0016C180`-`0x0016C620`): gains scaled by the officer and the players'
+  item 8, fractions in sixteenths, a sound per bar filled; the musou attack drains it by 1 a
+  frame and ends when it is empty.
+- **Misc:** mounting and getting off, the weapon reach (+30 / +50 during a power-up), the
+  bodyguards' share (1/3, 1/4 or 1/5 by the leader's count), the players' lists of 30 records.
 - **Removal** (`0x00166160`): the unit drops its links and the effects it owns; it then becomes an
   empty unit (state 0x40).
 

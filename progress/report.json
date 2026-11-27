@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 65392,
-    "non_matching": 404948
+    "matching": 65904,
+    "non_matching": 413348
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10623,
-    "matching": 572
+    "matching": 580
   },
   "layout": "treemap",
   "areas": [
@@ -408,11 +408,11 @@
         },
         {
           "name": "Weapon.c",
-          "description": "Estimated range 0x166E68-0x1748E8; 19 function(s) decompiled",
+          "description": "Estimated range 0x166E68-0x1748E8; 53 function(s) decompiled",
           "code": {
             "total": 55936,
-            "matching": 224,
-            "non_matching": 12824
+            "matching": 736,
+            "non_matching": 21224
           }
         },
         {
