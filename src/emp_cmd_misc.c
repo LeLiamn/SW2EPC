@@ -1787,3 +1787,132 @@ int func_003C6AC0(void)
         return 0;
     return face(3, 0xB);
 }
+
+int func_002F7550(int o);
+
+/* 0x003C6B40, 0xE0 bytes. */
+int func_003C6B40(void)
+{
+    if (func_00329540(0xAE) != 0 || func_00327C70() < 0x15 || func_00327820() != 2)
+        return 0;
+    return bond_event(0xAE, 0x15, 3, 0xD, 0, 0xF);
+}
+
+/* 0x003C6C20, 0xE0 bytes. */
+int func_003C6C20(void)
+{
+    return bond_event(0xAF, 0x15, 3, func_00337A10(0x70), 0, 10);
+}
+
+/* 0x003C6D00, 0xE0 bytes. */
+int func_003C6D00(void)
+{
+    if (func_00329540(0xB0) != 0 || func_00327C70() < 0x1F || func_00327820() != 0xD)
+        return 0;
+    return bond_event(0xB0, 0x1F, 3, 0x17, 0, 0x14);
+}
+
+/* Event `ev` (once): from turn 16, player `p` with a known officer of kind 0x1F. */
+static int kind_event(int ev, int p)
+{
+    int o;
+
+    if (func_00329540(ev) != 0 || func_00327C70() < 0x10 || func_00327820() != p)
+        return 0;
+    o = func_003C2A60(0x1F);
+    if (o == -1 || o < 0 || o >= 0x19F)
+        return 0;
+    func_0032E8A0(0, o);
+    return 1;
+}
+
+/* 0x003C6DE0, 0xB8 bytes. */
+int func_003C6DE0(void)
+{
+    return kind_event(0xB1, 3);
+}
+
+/* 0x003C6EA0, 0xB8 bytes. */
+int func_003C6EA0(void)
+{
+    return kind_event(0xB2, 0xD);
+}
+
+/* 0x003C6F60, 0xA8 bytes. Event 0xB3 (once): the player is officer 4 with officer 3, both values
+ * of func_002F7550 at 20 or more. */
+int func_003C6F60(void)
+{
+    int a = func_002F7550(4), b = func_002F7550(3);
+
+    if (func_00329540(0xB3) != 0 || func_00327820() != 4 || func_0032E950() != 3)
+        return 0;
+    if (a < 0x14)
+        return 0;
+    return b > 0x13;
+}
+
+/* 0x003C7010, 0x68 bytes. */
+int func_003C7010(void)
+{
+    if (func_00329540(0xB4) != 0 || func_00327820() != 4)
+        return 0;
+    return func_00337A10(0x107) == func_0032E950();
+}
+
+/* 0x003C7080, 0x58 bytes. */
+int func_003C7080(void)
+{
+    if (func_00329540(0xB5) != 0 || func_00327820() != 4)
+        return 0;
+    return func_0032E950() == 0x16;
+}
+
+/* 0x003C70E0, 0x80 bytes. */
+int func_003C70E0(void)
+{
+    return func_00329540(0xB6) == 0 && face(4, 2);
+}
+
+/* 0x003C7160, 0x80 bytes. */
+int func_003C7160(void)
+{
+    return func_00329540(0xB7) == 0 && face(4, 0x18);
+}
+
+/* 0x003C71E0, 0x80 bytes. */
+int func_003C71E0(void)
+{
+    return func_00329540(0xB8) == 0 && face(4, 0xB);
+}
+
+/* 0x003C7260, 0x80 bytes. */
+int func_003C7260(void)
+{
+    return func_00329540(0xB9) == 0 && face(4, 0xF);
+}
+
+/* 0x003C72E0, 0x80 bytes. */
+int func_003C72E0(void)
+{
+    return func_00329540(0xBA) == 0 && face(4, 0x15);
+}
+
+/* 0x003C7360, 0x98 bytes. */
+int func_003C7360(void)
+{
+    if (func_00329540(0xBB) != 0 || func_0032EE10(2) != 0)
+        return 0;
+    return face(4, 2);
+}
+
+/* 0x003C7400, 0xC4 bytes. */
+int func_003C7400(void)
+{
+    return bond_event(0xBC, 0xB, 4, 7, 1, 5);
+}
+
+/* 0x003C74D0, 0x80 bytes. */
+int func_003C74D0(void)
+{
+    return func_00329540(0xBD) == 0 && face(4, 0x14);
+}
