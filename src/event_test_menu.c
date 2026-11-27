@@ -1116,6 +1116,7 @@ typedef struct { u8 v[0x9D]; } Bytes157;
 extern Bytes157 g_0041C180;
 
 void func_003F0EC0(u32 a, u32 b, u8 *p);
+void func_002C6040(int x, int y, int w, int h, int a, int b);
 void func_003B4720(int x, int y, int a, int b);
 char *func_003725A0(int k);
 void func_003838B0(char *t, int a);
