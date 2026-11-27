@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 80848,
-    "non_matching": 594996
+    "non_matching": 597716
   },
   "data": {
     "total": 2155890688,
@@ -646,14 +646,14 @@
       "children": [
         {
           "name": "ModelManager.c",
-          "description": "Estimated range 0x1B56D8-0x1BE248; 28 function(s) decompiled",
+          "description": "Estimated range 0x1B56D8-0x1BE248; 29 function(s) decompiled",
           "code": {
             "total": 35696,
             "matching": 368,
-            "non_matching": 12408
+            "non_matching": 15128
           },
           "decompiled_functions": {
-            "count": 28,
+            "count": 29,
             "matching": 4
           }
         },

@@ -359,3 +359,187 @@ void func_001BA3D0(u8 *b)
     else if (U32(b, 0xB8) & 8)
         func_0019BD90(1);
 }
+
+extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each) */
+extern u8 *g_005BA7C8;                   /* the unit records (0x20 bytes each) */
+extern u32 g_00669F60[4];
+extern int g_00669F6C[4];
+extern u8 g_00669D81[0x10];
+extern int g_00669F88[4];
+extern u8 *g_006AA59C[2];                /* the two sides' leading reinforcements */
+
+int func_003E6F90(u8 *b);
+u32 func_001F0540(u8 side);
+u8 func_002F6980(u16 k);
+void func_001656E0(u8 *u, u8 a, u8 b, u8 c, u32 d, u8 side, u8 f, int g);
+void func_00164DA0(u8 *u, int a);
+void func_002075A0(u32 a, u8 *b, u8 *cell, int c);
+void func_00253B50(u8 *u, u8 kind);
+int func_0032E7B0(void);
+void func_00355D60(u8 *a, u8 *b, int c);
+
+/* 0x001BA480, 0xAA0 bytes. Sets battle officer `b` up for record `o` with table record `t`
+ * (life `max` / `cur`, `troop` for a troop): its links and random think rate, skills cleared,
+ * stats, its kind from the table (+0x1C: officers 0-3, troops 5-10), its level (in Empire battles
+ * from the record's unit and its base's value), its unit's model and colours, its place on the
+ * map, and for officers with followers a reinforcement brought in at its side. */
+void func_001BA480(u8 *o, u8 *b, u8 *t, short max, short cur, int troop)
+{
+    u8 side = o[0x79], *u, *at;
+    u8 cell[0x18];
+    float pt[2];
+    u32 n, kind;
+    u8 skin, mk;
+
+    *(u32 *)(b + 4) = 0;
+    *(u32 *)b = 0;
+    *(u8 **)(b + 0x10) = o;
+    *(u8 **)(b + 0x68) = t;
+    if (*(u32 *)(b + 8) != 0)
+        U32(b, 0xBC) &= ~2u;
+    *(u32 *)(b + 8) = 0;
+    b[0x7C] = 3;
+    if ((g_00669F60[0] & 8) == 0 && (U32(b, 0xB8) & 0x8000) == 0)
+        n = (U32(b, 0xB8) & 0x260) == 0 ? RANDOM() & 1 : 2;
+    else
+        n = 0;
+    b[0x42] = 0;
+    *(float *)(b + 0x58) = (float)n == 0.0f ? 0.0f : 1.0f / (float)n;
+    *(u32 *)(b + 0x6C) = 0;
+    *(int *)(b + 0x74) = -1;
+    U32(b, 0xBC) &= 0xFFF8003F;
+    b[0x7D] = 0;
+    *(u16 *)(b + 0x78) = 0;
+    b[0x7E] = 0;
+    b[0x7F] = (u8)troop;
+    func_001BA3D0(b);
+    func_001B9BE0(b, o, t, max, cur);
+    if ((U32(b, 0xB8) & 0x60) == 0) {
+        u8 c = t[0x1C];
+
+        if (c == 1) {
+            U32(b, 0xB8) |= 0x1000;
+            b[0x7A] = 0;
+        } else {
+            b[0x7A] = c == 0xB ? 3 : c == 0xA ? 2 : c == 9 ? 1 : 0;
+        }
+    } else {
+        switch (t[0x1C]) {
+        case 0xC: b[0x7A] = 5; break;
+        case 0xD: b[0x7A] = 6; break;
+        case 0xE: b[0x7A] = 7; U32(b, 0xB8) |= 0x1000; break;
+        case 0xF: b[0x7A] = 8; break;
+        case 0x10: b[0x7A] = 9; break;
+        case 0x11: b[0x7A] = 10; break;
+        default: b[0x7A] = 5; break;
+        }
+    }
+    if ((U32(b, 0xB8) & 0xC) != 0) {
+        b[0x7B] = 0x13;
+    } else if (g_00669F60[0] & 8) {
+        u32 lv = t[0x1D], unit = *(u8 **)(o + 4) == 0 ? 0xFFFFFFFF
+                                                     : (u32)((*(u8 **)(o + 4) - g_005BA7C8) / 0x20);
+
+        if ((g_00669F60[0] & 2) && unit < 0x1B) {
+            int k = *(short *)(*(u8 **)(o + 4) + 2) / 400;
+
+            lv = t[0x1D] + (k > 3 ? 3 : k);
+        }
+        lv &= 0xFF;
+        b[0x7B] = lv > 0x13 ? 0x13 : (u8)lv;
+    } else {
+        int v = 0, lv;
+
+        if (U32(o, 0x10) < 0x47) {
+            u8 *base = g_00693970[0] + 0xE3E8 + U32(o, 0x10) * 0x68;
+
+            if ((g_00669F60[0] & 0xC) == 0)
+                v = *(int *)(base + 0x4C);
+            else
+                v = (*(u8 **)base)[0x79] == 0 ? 0x15E : 0x28A;
+            v = v - 1;
+        }
+        if (v < 1)
+            v = 0;
+        v = g_00669D81[0] == 4 ? v / 0xFA : v / 200 - 2;
+        v = v + g_00669F88[0] / 3 - 2;
+        if (g_00669D81[0] == 0)
+            v = v - 2;
+        v = v < -3 ? -4 : v > 4 ? 4 : v;
+        lv = func_003E6F90(b);
+        lv = lv > 0x13 ? 0x13 : lv < 1 ? 0 : lv & 0xFF;
+        b[0x7B] = (u8)lv;
+    }
+    u = *(u8 **)(b + 0x14);
+    kind = (U32(t, 0x28) & 1) == 0 ? 0x11 : func_001F0540(side);
+    if (g_005BA6A0[((t - g_005BA6A0) / 0x2C) * 0x2C + 6] < 0x1C)
+        skin = 0;
+    else if ((U32(o, 0x80) & 0x400) == 0 || (U32(o, 0x80) & 0x800) == 0 || troop != 0)
+        skin = o[0x7F];
+    else
+        skin = func_002F6980(*func_00338410((func_0034A740(o) - (g_00693970[0] + 0xE3E8)) / 0x68));
+    mk = t[7];
+    if (u[0x14E] >= 2 && mk > 0x19) {
+        if (mk >= 0x3E && mk <= 0x48)
+            mk = 0x26;
+        else if (mk >= 0x49 && mk <= 0x53)
+            mk = 0x2A;
+        else if (mk >= 0x54 && mk <= 0x5C)
+            mk = 0x20;
+        else if (mk > 0x5C && mk < 0x68)
+            mk = 0x21;
+    }
+    func_001656E0(u, t[6], mk, t[9], kind, side, skin,
+                  (U32(t, 0x28) & 0x10) == 0 && (U32(t, 0x28) & 0x20) == 0);
+    if (U32(b, 0xB8) & 0xC)
+        func_00164DA0(u, 1);
+    U32(u, 0x238) = U32(o, 0x20);
+    u[0x27C] &= 0xFE;
+    U32(u, 0x54) = U32(o, 0x20);
+    if ((g_00669F60[0] & 8) == 0 && (U32(b, 0xB8) & 0x60) == 0) {
+        pt[0] = (float)o[0x46] * 1000.0f + 500.0f;
+        pt[1] = (float)o[0x47] * 1000.0f + 500.0f;
+    } else {
+        float *p = (float *)((U32(o, 0x80) & 0x20000) ? o + 0x30 : o + 0x28);
+
+        pt[0] = p[0];
+        pt[1] = p[1];
+    }
+    func_001911A0(cell, pt);
+    func_002075A0(U32(o, 0x20), b, cell, 0);
+    func_001660C0(u, cell);
+    func_002071F0(b, cell);
+    *(u32 *)(b + 0x30) = *(u32 *)(b + 0x18);
+    *(u32 *)(b + 0x34) = *(u32 *)(b + 0x1C);
+    if (U32(b, 0xB8) & 0x80)
+        func_00253B50(u, o[0x7E]);
+    if (func_0032E7B0() != 0)
+        return;
+    if (U32(b, 0xB8) & 0x800) {
+        if (func_001B9430(o, b) == 0)
+            U32(b, 0xB8) &= 0xFFFFD7FF;
+    } else if ((U32(b, 0xB8) & 0x80) && (U32(o, 0x80) & 0x80000) && (g_00669F60[0] & 0x10) == 0) {
+        if ((U32(b, 0xB8) & 0xC) == 0) {
+            func_001B9430(o, b);
+        } else if (g_00669F6C[0] != 1) {
+            u8 *r = func_001B9430(o, b);
+
+            if (r != 0) {
+                int s = (U32(b, 0xB8) & 4) == 0;
+
+                at = cell;
+                if (*(u32 *)(b + 0xC) == 0) {
+                    func_00355D60(at, at, s);
+                    func_001660C0(*(u8 **)(r + 0x14), at);
+                }
+                if (g_006AA59C[s] != 0) {
+                    U32(g_006AA59C[s], 0xB8) &= 0xFFF9FFFF;
+                    U32(g_006AA59C[s], 0xBC) &= 0xFEFFFFFF;
+                    g_006AA59C[s] = 0;
+                }
+                U32(r, 0xB8) |= s ? 0x40000 : 0x20000;
+                g_006AA59C[s] = r;
+            }
+        }
+    }
+}
