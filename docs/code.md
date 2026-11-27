@@ -1028,7 +1028,7 @@ so far (13 functions, 5 match):
 ## The battlefield stage (`src/stage.c`)
 
 Original source file `Stage.c` (its name is passed to the file loader at `0x00193B90` and
-`0x00194130`). Done so far: `0x00193450`-`0x00195EEC` except a few larger functions (55 functions, 28 match). The stage keeps
+`0x00194130`). Done so far: `0x00193450`-`0x0019750C` except a few larger functions (92 functions, 34 match). The stage keeps
 its state in the scratchpad (`0x70000700`-`0x70000BA0`).
 
 - **Files:** the stage table (LINKDATA entry 0x34, one 0x10-byte record per map) and, per
@@ -1040,6 +1040,18 @@ its state in the scratchpad (`0x70000700`-`0x70000BA0`).
   map to terrain kinds.
 - **Each frame:** the step is 50 x dt (a quarter in slow motion); two banks of matrices and
   vectors are kept for the two players' views.
+- **Stage objects** (`0x005D25E0`): their ids, points and words from the stage file, placed at
+  the start; draw distances per layer (r², 1% and 4 times it), ten light and colour matrices
+  per bank, slots for the models updated and drawn, and the models' states saved with the game
+  (a byte each, 0x2800 in all).
+
+## Scenario conditions (`src/sc_cond.c`)
+
+From `0x00197510`, before `sc_ubase.c`; the original file's name is unknown. A condition returns
+which players it holds for (bit 0 player 1, bit 1 player 2). Done so far: 12 functions (3
+match): an officer or its garrison in an area of cells, an officer's state (beaten, away, fled),
+two officers or bases meeting, comparisons, event bits, the number of players, the game mode,
+the players' officers, an officer's side.
 
 ## The strategic map (`src/field.c`)
 
