@@ -4817,3 +4817,271 @@ void func_00347E70(int p)
     *(u16 *)(r + 0x16) = *(u16 *)(s + 0x18);
     *(u16 *)(r + 0x18) = *(u16 *)(s + 0x1A);
 }
+
+/* More AI choices (0x003448E0, 0x003460B0, 0x00346280). */
+
+void func_0024D070(int kind, u8 *pos);
+
+/* 0x003448E0, 0x1DC bytes. A plain-led group that should stay back falls back to a place now
+ * and then (1 in 10; 1 in 2 for the second side's commander; never off the front under tactic
+ * 0xB). */
+int func_003448E0(u8 **g)
+{
+    u32 k, p;
+    u8 side;
+    int c;
+
+    if (g == 0 || (UNIT_FLAGS(LEADER(g)) & 0x30) != 0)
+        return 0;
+    k = GI(g);
+    if (func_00338410(k)[5] == 6)
+        return 0;
+    if (func_00338410(k)[2] == 3) {
+        side = LEADER(g)[0x79];
+        if (func_00338410(k)[3] == func_0035F200(side))
+            return 0;
+    }
+    if (func_0033D2C0(g) == 0)
+        return 0;
+    p = func_0033B150(g) == 0 ? 10 : 0x32;
+    if (func_0036F390(func_0035D5A0(LEADER(g)[0x79]), 0xB) != 0 && func_0033B150(g) == 0
+        && func_0033CEA0(g, func_0035D5A0(LEADER(g)[0x79])) == 0)
+        p = 0;
+    if (RANDOM() % 100 >= p)
+        return 0;
+    c = func_00340F90(g);
+    if (c == 0)
+        return 0;
+    func_003387C0(g, 6, func_0034ED40(c));
+    return 1;
+}
+
+/* 0x003460B0, 0x1C8 bytes. Under tactic 0x1E, an officer-led group sometimes sends a heal
+ * effect to the players standing with it (more often the lower their life). */
+void func_003460B0(u8 **g)
+{
+    u8 *l, *a;
+    u32 f;
+    int p;
+
+    if (g == 0 || func_0036F520(LEADER(g)[0x79], 0x1E) == 0)
+        return;
+    l = LEADER(g);
+    f = UNIT_FLAGS(l);
+    if ((f & 0x30) != 0 || (f & 0x20000) == 0)
+        return;
+    a = *(u8 **)(OFFICER(*(int *)(l + 0x14)) + 0x14);
+    for (p = 0; p < 2; p++) {
+        if (func_0033CC80(g, p) != 0) {
+            u8 *o = OFFICER(p);
+            short max = *(short *)(o + 0x80), cur = *(short *)(o + 0x82);
+            int q = max / 4, h = max / 2;
+            u32 m = 1;
+
+            if (q > 0x32)
+                q = 0x32;
+            if (h > 100)
+                h = 100;
+            if (cur < q)
+                m = 5;
+            else if (cur < h)
+                m = 3;
+            if (RANDOM() % 100 < m)
+                func_0024D070(func_00346040(), a + 0x40);
+        }
+    }
+}
+
+/* 0x00346280, 0x2F0 bytes. Comment 0: a group defending a place that fewer than 2 groups defend
+ * asks a friendly group going there for help. */
+int func_00346280(u8 **g)
+{
+    u32 list[16], n, j, k;
+    u8 **r = 0;
+    int c;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_00338410(k)[8] != 4 || func_0033B6E0(g) != 0 || func_00338410(k)[2] != 3)
+        return 0;
+    if (func_0033F810(3, func_00338410(k)[3], LEADER(g)[0x79]) >= 2)
+        return 0;
+    c = func_0033C320(g);
+    n = func_0033F430(LEADER(g)[0x79], 1, list, 0x10);
+    for (j = 0; j < n; j++) {
+        u8 **h = GROUP(list[j]);
+
+        if (h != g && func_0033B6E0(h) == 0 && (UNIT_FLAGS(LEADER(h)) & 0x30) == 0
+            && func_0033D230(h) == c && (INFO(h)[2] != 3 || func_0033C320(h) != c)
+            && (r == 0 || (int)RANDOM() % 100 < 0x32))
+            r = h;
+    }
+    if (r == 0)
+        return 0;
+    if ((int)RANDOM() % 100 < 0x1E) {
+        func_0035CEE0(0, k, GI(r));
+        return 1;
+    }
+    return 0;
+}
+
+/* Comments 1-3 and the chase choice (0x00343360, 0x00346570-0x00346E8C). */
+
+/* 0x00346570, 0x30C bytes. Comment 1: another plain group attacks the same place along with
+ * group `g` (both orders fresh). */
+int func_00346570(u8 **g)
+{
+    u32 list[16], n, j, k;
+    u8 **r = 0;
+    int c;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_00338410(k)[8] != 4 || func_0033B6E0(g) != 0 || func_00338410(k)[2] != 1)
+        return 0;
+    c = func_0033C320(g);
+    n = func_0033F430(LEADER(g)[0x79], 1, list, 0x10);
+    for (j = 0; j < n; j++) {
+        u8 **h = GROUP(list[j]);
+        u8 *hr;
+
+        if (h == g || func_0033B6E0(h) != 0 || (UNIT_FLAGS(LEADER(h)) & 0x30) != 0)
+            continue;
+        hr = INFO(h);
+        if (hr[2] == 1 && func_0033C320(h) == c && INFO(h)[4] < 0xB && INFO(h)[5] == 1
+            && func_0033C160(h) == c && INFO(h)[7] < 0xB
+            && (r == 0 || (int)RANDOM() % 100 < 0x32))
+            r = h;
+    }
+    if (r == 0)
+        return 0;
+    if ((int)RANDOM() % 100 < 0x1E) {
+        func_0035CEE0(1, k, GI(r));
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00346880, 0x2E8 bytes. Comment 2: group `g` attacks or chases toward a place a friendly
+ * group stands on and defends. */
+int func_00346880(u8 **g)
+{
+    u32 list[16], n, j, k;
+    u8 **r = 0;
+    int c;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_00338410(k)[8] != 4 || func_0033B6E0(g) != 0)
+        return 0;
+    if (func_00338410(k)[2] != 1 && func_00338410(k)[2] != 2)
+        return 0;
+    c = func_0033D230(g);
+    if (c == 0)
+        return 0;
+    n = func_0033F430(LEADER(g)[0x79], 1, list, 0x10);
+    for (j = 0; j < n; j++) {
+        u8 **h = GROUP(list[j]);
+
+        if (h != g && func_0033B6E0(h) == 0 && (UNIT_FLAGS(LEADER(h)) & 0x30) == 0
+            && func_0033CB60(h, c) != 0 && INFO(h)[2] == 3 && func_0033C320(h) == c
+            && (r == 0 || (int)RANDOM() % 100 < 0x32))
+            r = h;
+    }
+    if (r == 0)
+        return 0;
+    if ((int)RANDOM() % 100 < 0x1E) {
+        func_0035CEE0(2, k, GI(r));
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00346B70, 0x320 bytes. Comment 3: another plain group has just been given the same orders
+ * as group `g`. */
+int func_00346B70(u8 **g)
+{
+    u32 list[16], n, j, k;
+    u8 **r = 0;
+    char o, t, o2, t2;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_00338410(k)[8] != 4 || func_0033B6E0(g) != 0)
+        return 0;
+    o = func_00338410(k)[2];
+    t = func_00338410(k)[3];
+    o2 = func_00338410(k)[5];
+    t2 = func_00338410(k)[6];
+    n = func_0033F430(LEADER(g)[0x79], 1, list, 0x10);
+    if (o != 2 && o != 1)
+        return 0;
+    for (j = 0; j < n; j++) {
+        u8 **h = GROUP(list[j]);
+        u32 i;
+
+        if (h == g || func_0033B6E0(h) != 0 || (UNIT_FLAGS(LEADER(h)) & 0x30) != 0)
+            continue;
+        i = GI(h);
+        if (o == (char)func_00338410(i)[2] && t == (char)func_00338410(i)[3]
+            && func_00338410(i)[4] < 0xB && o2 == (char)func_00338410(i)[5]
+            && t2 == (char)func_00338410(i)[6] && func_00338410(i)[7] < 0xB
+            && (r == 0 || (int)RANDOM() % 100 < 0x32))
+            r = h;
+    }
+    if (r == 0)
+        return 0;
+    if ((int)RANDOM() % 100 < 0x1E) {
+        func_0035CEE0(3, k, 0x47);
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00343360, 0x310 bytes. Away from its place, group `g` sometimes (1 in 10) chases an enemy
+ * group on its cell (the one it chases already surely, one falling back 3 in 10, else 1 in 10). */
+int func_00343360(u8 **g)
+{
+    u8 **list[16], **pick = 0;
+    u32 n = 0, k;
+    int c;
+    u8 e;
+
+    if (g == 0)
+        return 0;
+    c = func_0033C320(g);
+    if (c != 0 && func_0033CB60(g, c) != 0)
+        return 0;
+    e = func_0035D5A0(LEADER(g)[0x79]);
+    for (k = 0; k < 0x10; k++) {
+        u8 **h = func_0033EF80(k);
+
+        if (h != 0 && (GFLAGS(h) & 1) != 0 && e == LEADER(h)[0x79] && func_0033CC20(g, h) != 0)
+            list[n++] = h;
+    }
+    if (n == 0)
+        return 0;
+    for (k = 0; k < n; k++) {
+        u8 **h = list[k];
+        u32 p = 10;
+
+        if (INFO(g)[2] == 2 && func_0033C3A0(g) == h)
+            p = 100;
+        else if (INFO(h)[5] == 6)
+            p = 0x1E;
+        if (RANDOM() % 100 < p)
+            pick = h;
+    }
+    if (pick == 0)
+        return 0;
+    if ((int)RANDOM() % 100 >= 10)
+        return 0;
+    if (INFO(g)[2] == 2 && func_0033C3A0(g) == pick)
+        return 0;
+    func_003386D0(g, 2, GI(pick));
+    return 1;
+}

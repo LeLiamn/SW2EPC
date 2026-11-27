@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 154368,
-    "non_matching": 1064976
+    "non_matching": 1069792
   },
   "data": {
     "total": 2155890688,
@@ -246,14 +246,14 @@
       "children": [
         {
           "name": "emp_FldBase.c",
-          "description": "Estimated range 0x33F608-0x357160; 546 function(s) decompiled",
+          "description": "Estimated range 0x33F608-0x357160; 553 function(s) decompiled",
           "code": {
             "total": 97112,
             "matching": 13760,
-            "non_matching": 71236
+            "non_matching": 76052
           },
           "decompiled_functions": {
-            "count": 546,
+            "count": 553,
             "matching": 201
           }
         },
