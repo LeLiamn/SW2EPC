@@ -1314,17 +1314,18 @@ static void func_00367B10(int officer, int available)
     }
 }
 
-/* 0x00367BD0, 0x44 bytes. Whether an officer is choosable (none counts as yes). */
+/* 0x00367BD0, 0x44 bytes, matching. Whether an officer is choosable (none counts as yes). */
 int func_00367BD0(int officer)
 {
-    int result = 1;
+    u8 *st = &g_007B7104;
+    int result = 1, ok = officer < 0x19F;
 
-    if (officer < 0x19F) {
-        if (g_007B7107[officer] == 0)
-            result = 0;
-        else if (g_007B7107[officer] == 1)
-            result = 1;
-    }
+    if (!ok)
+        return result;
+    if (ST_USED(st)[officer] == 0)
+        result = 0;
+    else if (ST_USED(st)[officer] == 1)
+        result = 1;
     return result;
 }
 
