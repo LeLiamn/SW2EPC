@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 125216,
-    "non_matching": 930532
+    "matching": 125232,
+    "non_matching": 931316
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1359
+    "matching": 1360
   },
   "layout": "treemap",
   "areas": [
@@ -768,15 +768,15 @@
         },
         {
           "name": "sc_sysmsg.c",
-          "description": "Estimated range 0x23CED8-0x245518; 14 function(s) decompiled",
+          "description": "Estimated range 0x23CED8-0x245518; 20 function(s) decompiled",
           "code": {
             "total": 34368,
-            "matching": 0,
-            "non_matching": 6264
+            "matching": 16,
+            "non_matching": 7048
           },
           "decompiled_functions": {
-            "count": 14,
-            "matching": 0
+            "count": 20,
+            "matching": 1
           }
         },
         {

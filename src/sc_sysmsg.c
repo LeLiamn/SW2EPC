@@ -2,7 +2,7 @@
  * sc_sysmsg.c - the battle's system messages: a queue of 0x40 requests of 8 bytes at 0x005BC3A8
  * (u16 kind 1-0x14, 0x15 = free, then three u16 parameters) turned into officer lines and
  * announcements in the message window (original source file sc_sysmsg.c, referenced at
- * 0x0023ED90). Written so far: 0x0023C190-0x0023EC2C.
+ * 0x0023ED90). Written so far: 0x0023C190-0x0023EF4C.
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -821,4 +821,74 @@ void func_0023EB40(short *r, int delay, int c)
         return;
     func_00118AC0(g_005BC3A8[k], r, 8);
     func_00183410(1, k, 3, delay, c);
+}
+
+extern u8 *g_005BA6B8;                   /* the battle text file */
+extern u8 *g_005BA7B4, *g_005BA7B8;
+extern const char g_0043D478[];
+
+u8 *func_001026D0(int a, int b, int c, int d, int e, int f, const char *path, int g);
+void func_00102EC0(void *p);
+
+/* 0x0023EC30, 0x64 bytes. Loads the requests from a save image; its end. */
+u8 *func_0023EC30(u8 *p)
+{
+    u32 k;
+
+    for (k = 0; k < 0x40; k++, p += 8)
+        func_00118AC0(g_005BC3A8[k], p, 8);
+    return p;
+}
+
+/* 0x0023ECA0, 0x64 bytes. Saves them. */
+u8 *func_0023ECA0(u8 *p)
+{
+    u32 k;
+
+    for (k = 0; k < 0x40; k++, p += 8)
+        func_00118AC0(p, g_005BC3A8[k], 8);
+    return p;
+}
+
+/* 0x0023ED10, 8 bytes, matching. */
+void func_0023ED10(void)
+{
+}
+
+/* 0x0023ED20, 0x48 bytes. Empties the requests. */
+void func_0023ED20(void)
+{
+    u32 k;
+
+    for (k = 0; k < 0x40; k++)
+        g_005BC3A8[k][0] = 0x15;
+}
+
+/* 0x0023ED70, 0x20 bytes. Frees the battle text file. */
+void func_0023ED70(void)
+{
+    func_00102EC0(g_005BA6B8);
+}
+
+/* 0x0023ED90, 0x1B8 bytes. Loads the battle text file and finds its text tables (by offsets):
+ * announcements, markers, 42 officer kinds' lines, 17 reply groups and three more. */
+void func_0023ED90(void)
+{
+    u8 *f = func_001026D0(1, 0x32, 0, 1, 0, 0, g_0043D478, 0x65E);
+    int *t;
+    u32 k;
+
+    g_005BA6BC = f + *(int *)(f + 4);
+    g_005BA6C0 = f + *(int *)(f + 0xC);
+    g_005BA6B8 = f;
+    t = (int *)(f + *(int *)(f + 0x14));
+    for (k = 0; k < 0x2A; k++)
+        g_005BA6C4[k] = (u8 *)t + t[k * 2];
+    t = (int *)(f + *(int *)(f + 0x1C));
+    for (k = 0; k < 0x11; k++)
+        g_005BA76C[k] = (u8 *)t + t[k * 2];
+    g_005BA7B0 = f + *(int *)(f + 0x24);
+    g_005BA7B4 = f + *(int *)(f + 0x2C);
+    g_005BA7BC = 0x40;
+    g_005BA7B8 = f + *(int *)(f + 0x34);
 }
