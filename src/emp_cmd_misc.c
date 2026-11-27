@@ -2800,3 +2800,172 @@ int func_003CB7B0(void)
         return 0;
     return func_002F33F0(0x11) > 0x13;
 }
+
+/* 0x003CB850, 0xA8 bytes. */
+int func_003CB850(void)
+{
+    return bond_event(0x11D, 0, 0x11, 0x10, 0, 5);
+}
+
+/* 0x003CB900, 0xA8 bytes. */
+int func_003CB900(void)
+{
+    return bond_event(0x11E, 0, 0x11, 0, 0, 10);
+}
+
+/* 0x003CB9B0, 0x8C bytes. */
+int func_003CB9B0(void)
+{
+    return knows2(0x11F, 0x15, 0x11, 3, 0);
+}
+
+/* 0x003CBA40, 0xBC bytes. */
+int func_003CBA40(void)
+{
+    if (func_00329540(0x120) != 0 || func_0032EE10(0x16) != 0 || func_002F4080(4) != func_002F4080(0x16))
+        return 0;
+    return face(0x11, 4);
+}
+
+/* 0x003CBB00, 0xA8 bytes. */
+int func_003CBB00(void)
+{
+    return bond_event(0x121, 0, 0x11, 0x16, 0, 0x1E);
+}
+
+/* 0x003CBDF0, 0xB8 bytes. */
+int func_003CBDF0(void)
+{
+    if (func_00329540(0x123) != 0 || func_00327820() != 0x12 || !KNOWS(5, 0))
+        return 0;
+    if (func_00328270() != 0 && func_00328270() != 1)
+        return 0;
+    return func_00327CC0() == 0;
+}
+
+/* 0x003CBEB0, 0xEC bytes. */
+int func_003CBEB0(void)
+{
+    if (pair_event(0x124, 0x12, 5) == 0 || func_003C27A0(1, 2, 0x19F, 0x19F, 0x19F) != 1)
+        return 0;
+    if (func_0032EE10(2) == 0 || func_0032EE10(0x12) == 0)
+        return 0;
+    return func_00328270() == 1;
+}
+
+/* 0x003CBFA0, 0xC4 bytes. */
+int func_003CBFA0(void)
+{
+    int v;
+
+    if (func_00329540(0x125) != 0)
+        return 0;
+    v = func_00328270();
+    if (v != 2 && func_00328270() != 3 && func_00328270() != 4)
+        return 0;
+    return face(0x12, 5);
+}
+
+/* 0x003CC070, 0xA8 bytes. */
+int func_003CC070(void)
+{
+    if (func_00329540(0x126) != 0 || func_0032EE10(0x12) != 0 || func_0032EE10(0x10) != 0)
+        return 0;
+    return pair_event(0x126, 0x12, 0x10);
+}
+
+/* 0x003CC120, 0xD0 bytes. */
+int func_003CC120(void)
+{
+    if (func_00329540(0x127) != 0 || func_0032EB40(2, 10, 0) == 0 || func_002F3BB0(5) == 0)
+        return 0;
+    if (func_00328270() == 0)
+        return 0;
+    return face(0x12, 10);
+}
+
+/* 0x003CC1F0, 0x80 bytes. */
+int func_003CC1F0(void)
+{
+    return func_00329540(0x128) == 0 && face(0x12, 0x18);
+}
+
+/* 0x003CC270, 0x80 bytes. */
+int func_003CC270(void)
+{
+    return func_00329540(0x129) == 0 && face(0x12, 0x1A);
+}
+
+/* 0x003CC2F0, 0x80 bytes. */
+int func_003CC2F0(void)
+{
+    return func_00329540(0x12A) == 0 && face(0x12, 0x19);
+}
+
+/* 0x003CC370, 0x80 bytes. */
+int func_003CC370(void)
+{
+    return func_00329540(299) == 0 && face(0x12, 0x1B);
+}
+
+/* 0x003CC3F0, 0x7C bytes. */
+int func_003CC3F0(void)
+{
+    if (func_00329540(300) != 0 || !KNOWS(0x11, 1) || func_002F33F0(0x11) < 1)
+        return 0;
+    return func_0032E950() == 0x13;
+}
+
+/* 0x003CC470, 0xE0 bytes. */
+int func_003CC470(void)
+{
+    if (func_00329540(0x12D) != 0 || func_003C23A0() == 0)
+        return 0;
+    if (func_0032EC50(func_00327820(), 0x11, 0x13, 1) == 0)
+        return 0;
+    if (func_003C27A0(0, 0x13, 0x19F, 0x19F, 0x19F) != 1 || func_00327820() != 0x11)
+        return 0;
+    if (func_0036B260() == 0)
+        return 0;
+    return func_003C2E90(0x13, 1) != 0;
+}
+
+/* 0x003CC550, 0xA8 bytes. */
+int func_003CC550(void)
+{
+    if (func_00329540(0x12E) != 0 || !KNOWS(0x11, 1) || !KNOWS(0x13, 0))
+        return 0;
+    if (func_002F33F0(0x11) < 5)
+        return 0;
+    return func_002F33F0(0x13) > 4;
+}
+
+/* 0x003CC600, 0xA8 bytes. */
+int func_003CC600(void)
+{
+    if (func_00329540(0x12F) != 0 || !KNOWS(8, 1) || !KNOWS(0x13, 0))
+        return 0;
+    if (func_002F33F0(8) < 5)
+        return 0;
+    return func_002F33F0(0x13) > 4;
+}
+
+/* 0x003CC6B0, 0x80 bytes. */
+int func_003CC6B0(void)
+{
+    return func_00329540(0x130) == 0 && face(8, 0x13);
+}
+
+/* 0x003CC730, 0x80 bytes. */
+int func_003CC730(void)
+{
+    return func_00329540(0x131) == 0 && face(0x13, 4);
+}
+
+/* 0x003CC7B0, 0x70 bytes. */
+int func_003CC7B0(void)
+{
+    if (func_00329540(0x132) != 0 || !KNOWS(0x13, 1))
+        return 0;
+    return KNOWS(0x14, 0);
+}
