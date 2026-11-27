@@ -947,3 +947,267 @@ void func_003255C0(void)
     func_0030E390(0x17, 0, -1, -1, (int)ids, n);
     func_00325360(3);
 }
+
+/* After-battle steps (parts of 0x003256B0-0x00327708): the province change, the captured
+ * officers' notices, the turn date and the game state's first fields. */
+
+extern int g_007B5CB0[];                 /* the second after-battle step */
+extern int g_00414D40[];                 /* the scenarios' first years */
+extern u32 g_0068EFD8, g_0068EFDC;
+
+#define AFTER() ((int *)func_002FC2C0()[0x1AA])
+#define AFTER2() ((int *)func_002FC2C0()[0x1AE])
+
+int func_0036BA60(int x);
+int func_0036BA40(int x);
+int func_00375B90(void);
+int func_0030C4E0(int p, int *list);
+int func_0030C250(int p);
+int func_002FB320(int f, int *list);
+void func_003986E0(int a, int b, int *c, int d);
+void func_0030E390(int k, int a, int b, int c, int d, int e);
+void func_0039B700(void);
+int func_003AF9F0(void);
+int func_00390760(int k);
+int func_00372660(int v);
+int func_00327C80(void);
+int func_0030CB80(int v);
+int func_002F2A30(int o);
+void func_001204B0(char *buf, int fmt, int a, int b, int c);
+int func_002FB430(int f);
+void func_0030A030(int a, int b);
+void func_00323E60(int *p);
+void func_003AF220(void);
+int func_00120A40(u8 *p);
+
+/* 0x003256B0, 0x60 bytes, matching. */
+int func_003256B0(int k, int x)
+{
+    if (k == 1) {
+        if (func_0036BA60(x) == 2)
+            return 1;
+    } else if (k == 0 && func_0036BA40(x) == 2) {
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00325B10, 0x30 bytes, matching. */
+void func_00325B10(void)
+{
+    if (func_00375B90() == 1)
+        func_00325360(5);
+}
+
+/* 0x00325B40, 0xB0 bytes. A province for province `p`'s defeated (the first neighbour that
+ * passes func_0030C250, else one of the player's at random). */
+int func_00325B40(int p)
+{
+    int list[28], n = func_0030C4E0(p, list), k;
+
+    if (n != 0) {
+        for (k = 0; k < n; k++) {
+            if (func_0030C250(list[k]) != 0)
+                return list[k];
+        }
+    }
+    n = func_002FB320(func_00327D50(), list);
+    return list[func_0030CB00(n)];
+}
+
+/* 0x00325BF0, 0x68 bytes. */
+void func_00325BF0(void)
+{
+    int *p = AFTER();
+    int t = p[5];
+
+    if (func_0030C250(t) == 0) {
+        func_003986E0(func_00325B40(t), -1, p + 6, p[0xC]);
+        func_00325360(6);
+    }
+}
+
+/* 0x00325C60, 0x30 bytes, matching. Notice 4 about officer `o`. */
+void func_00325C60(int o)
+{
+    func_0030E390(4, o, -1, -1, 0, 0);
+}
+
+/* 0x00325D40, 0x1C bytes, matching. */
+void func_00325D40(void)
+{
+    func_0039B700();
+}
+
+/* 0x00325D60, 0x30 bytes, matching. */
+void func_00325D60(void)
+{
+    if (func_003AF9F0() == 1)
+        func_00325360(9);
+}
+
+/* 0x00325E80, 0x84 bytes, matching. Shows message 0x70 about officer `o` (with the mode, the date). */
+void func_00325E80(int o)
+{
+    char buf[96];
+    int fmt = func_00390760(0x70);
+    int a = func_00372660(func_00327CC0());
+    int b = func_0030CB80(func_00327C80());
+
+    func_001204B0(buf, fmt, a, b, func_002F2A30(o));
+    func_00374EE0((u8 *)buf);
+}
+
+/* 0x00325F10, 0x78 bytes. The beaten force falls when it has no province (or no officer) left. */
+void func_00325F10(void)
+{
+    int *p = AFTER();
+
+    if (func_002FB3B0(p[3]) == 0 || func_002FB430(p[3]) == 0) {
+        func_00325E80(p[4]);
+        func_0030A030(p[3], p[2]);
+        func_00325360(10);
+    } else {
+        func_00325360(0xC);
+    }
+}
+
+/* 0x00325F90, 0x30 bytes, matching. */
+void func_00325F90(void)
+{
+    if (func_00375B90() == 1)
+        func_00325360(0xC);
+}
+
+/* 0x00325FC0, 0x38 bytes, matching. Leaves the after-battle steps. */
+void func_00325FC0(void)
+{
+    int *st = func_002FC2C0();
+
+    func_00323E60((int *)st[0x1AA]);
+    func_002FC560();
+    st[0] = 0;
+}
+
+/* 0x00326370, 0x1C bytes, matching. */
+void func_00326370(void)
+{
+    func_003AF220();
+}
+
+/* 0x00326390, 0x5C bytes. The after-battle steps' drawing. */
+void func_00326390(void)
+{
+    if (*AFTER() == 7)
+        func_00326370();
+    else if (*AFTER() == 6)
+        func_00325D40();
+}
+
+/* 0x00326490, 0xC bytes, matching. */
+int *func_00326490(void)
+{
+    return g_007B5CB0;
+}
+
+/* 0x003264A0, 0xC bytes, matching. */
+void func_003264A0(int v)
+{
+    g_007B5CB0[0] = v;
+}
+
+/* 0x00326660, 0x40 bytes, matching. */
+void func_00326660(void)
+{
+    int *p = AFTER2();
+
+    func_00325E80(p[4]);
+    func_0030A030(p[3], p[2]);
+    func_003264A0(4);
+}
+
+/* 0x00326A20, 0x68 bytes. */
+void func_00326A20(void)
+{
+    int *p = AFTER2();
+    int t = p[5];
+
+    if (func_0030C250(t) == 0) {
+        func_003986E0(func_00325B40(t), -1, p + 8, p[6]);
+        func_003264A0(6);
+    }
+}
+
+/* 0x00327090, 0x1C bytes, matching. */
+void func_00327090(void)
+{
+    func_0039B700();
+}
+
+/* 0x003270B0, 0x40 bytes. */
+void func_003270B0(void)
+{
+    if (*AFTER2() == 6)
+        func_00327090();
+}
+
+/* 0x003270F0, 0x50 bytes. Whether save image `p` holds a game (an officer and a valid name). */
+int func_003270F0(u8 *p)
+{
+    if (*(u16 *)(p + 0x1204) < 0x19F && func_00120A40(p + 0x125F) != 0)
+        return 1;
+    return 0;
+}
+
+/* 0x00327140, 0x30 bytes. The year of turn `t` in scenario `s` (4 turns a year). */
+int func_00327140(int s, int t)
+{
+    if (t == 0)
+        t = 1;
+    return g_00414D40[s] + ((t - 1u) >> 2);
+}
+
+/* 0x00327170, 0x18 bytes, matching. The season of turn `t`. */
+int func_00327170(int t)
+{
+    if (t == 0)
+        t = 1;
+    return (t - 1u) & 3;
+}
+
+/* 0x003273D0, 8 bytes, matching. */
+void func_003273D0(void)
+{
+}
+
+/* 0x00327690, 0xC bytes. */
+void func_00327690(u32 v)
+{
+    g_0068EFD8 = v;
+}
+
+/* 0x003276A0, 0xC bytes. */
+u32 func_003276A0(void)
+{
+    return g_0068EFD8;
+}
+
+/* 0x003276B0, 0xC bytes. */
+void func_003276B0(u32 v)
+{
+    g_0068EFDC = v;
+}
+
+/* 0x003276C0, 0xC bytes. */
+u32 func_003276C0(void)
+{
+    return g_0068EFDC;
+}
+
+/* 0x003276D0, 0x34 bytes. Counts the play time up (to 0xCDFE5C4 at most). */
+void func_003276D0(void)
+{
+    g_0068EFDC++;
+    if (g_0068EFDC > 0xCDFE5C4)
+        g_0068EFDC = 0xCDFE5C4;
+}
