@@ -352,3 +352,339 @@ int func_0034B160(int p)
         d = p - 0x6AA5E5;
     return d >> 4;
 }
+
+/* The two sides' 16-byte war states (0x006AA5F4 = game state +0x16C84). */
+#define SIDE_STATE(s) (g_00693970 + 0x16C84 + (s) * 0x10)
+
+extern void (*g_004154E0[4])(u8 *g);     /* by side state: what its groups do */
+extern u8 g_00669F60;                    /* settings flags */
+extern int g_00669F9C, g_00669FA0;
+extern int g_006AA624;
+#define g_7000015C (*(u32 *)0x7000015C)   /* (scratchpad) the random seed */
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+
+void func_003385E0(u8 *g, int a, int b);
+u8 *func_00347880(u8 *g, int a, int b);
+u8 *func_003478A0(u8 *g);
+u8 *func_003478C0(u8 *g, int a, int b);
+u8 *func_003478E0(u8 *g);
+int func_0034ED40(u8 *u);
+u8 *func_0033EF80(int k);
+void func_00118AC0(void *to, const void *from, int n);
+void func_00118850(void *p, int n);
+int func_0035D5A0(int a);
+void func_00364E40(int a, int g);
+void func_00365050(int a);
+int func_0033B150(u8 *g);
+int func_0033B580(u8 *g);
+
+/* Whether a group's unit is active (in use, none of flags 0x8C40002 and 4). */
+#define UNIT_ACTIVE(f) (((f) & 1) != 0 && ((f) & 0x8C40002) == 0 && ((f) & 4) == 0)
+/* A group's unit record and info record. */
+#define GROUP_UNIT(g) (*(u8 **)(g))
+#define GROUP_INFO(g) ((u8 *)func_00338410(GROUP_INDEX(g)))
+
+/* 0x0034B190, 0x154 bytes. Side 0's soldier group `g` picks its order (by its kind: 1 and 2 fixed,
+ * else toward a unit found by func_00347880, a group from func_003478A0, or none). */
+void func_0034B190(u8 *g)
+{
+    u8 st = GROUP_INFO(g)[8], kind, *info, *u;
+
+    GROUP_INFO(g);
+    kind = GROUP_INFO(g)[2];
+    info = GROUP_INFO(g);
+    if (st < 2)
+        return;
+    if (kind == 1) {
+        func_003385E0(g, 0, info[3]);
+    } else if (kind == 2) {
+        func_003385E0(g, 1, info[3]);
+    } else {
+        u = func_00347880(g, 1, info[3]);
+        if (u != 0) {
+            func_003385E0(g, 0, func_0034ED40(u));
+        } else {
+            u = func_003478A0(g);
+            if (u == 0)
+                func_003385E0(g, 4, 0xFF);
+            else
+                func_003385E0(g, 1, GROUP_INDEX(u));
+        }
+    }
+}
+
+/* 0x0034B2F0, 0x134 bytes. The same for side 1's groups (kind 3 fixed). */
+void func_0034B2F0(u8 *g)
+{
+    u8 st = GROUP_INFO(g)[8], kind, *info, *u;
+
+    GROUP_INFO(g);
+    kind = GROUP_INFO(g)[2];
+    info = GROUP_INFO(g);
+    if (st == 2)
+        return;
+    if (kind == 3) {
+        func_003385E0(g, 2, info[3]);
+    } else {
+        u = func_003478C0(g, 2, info[3]);
+        if (u != 0) {
+            func_003385E0(g, 2, func_0034ED40(u));
+        } else {
+            u = func_003478E0(g);
+            if (u == 0)
+                func_003385E0(g, 4, 0xFF);
+            else
+                func_003385E0(g, 3, GROUP_INDEX(u));
+        }
+    }
+}
+
+/* 0x0034B430, 0x40 bytes. Group `g` follows its side's target (order 3). */
+void func_0034B430(u8 *g)
+{
+    func_003385E0(g, 3, SIDE_STATE(GROUP_UNIT(g)[0x79])[1]);
+}
+
+/* 0x0034B470, 0x20 bytes, matching. Group `g` has no order. */
+void func_0034B470(u8 *g)
+{
+    func_003385E0(g, 4, 0xFF);
+}
+
+/* 0x0034B490, 0x140 bytes. Side state `st`'s active groups (not flagged 0x30) take its order. */
+void func_0034B490(u8 *st)
+{
+    void (*tbl[4])(u8 *);
+    u8 mode = st[0];
+    int side, k;
+
+    tbl[0] = g_004154E0[0];
+    tbl[1] = g_004154E0[1];
+    tbl[2] = g_004154E0[2];
+    tbl[3] = g_004154E0[3];
+    side = func_0034B160((int)st);
+    for (k = 0; k < 0x10; k++) {
+        u8 *g = func_0033EF80(k);
+
+        if (g != 0 && (*(int *)(g + 0x64) & 1) != 0) {
+            u8 *u = GROUP_UNIT(g);
+            u32 f = UNIT_FLAGS(u);
+
+            if (UNIT_ACTIVE(f) && side == u[0x79] && (f & 0x30) == 0 && tbl[mode] != 0)
+                tbl[mode](g);
+        }
+    }
+}
+
+/* 0x0034B5D0, 0x90 bytes. Sets side state `st`'s order `a` / `b` (its groups follow; a changed
+ * order counts once more, up to 0xFE). */
+int func_0034B5D0(u8 *st, int a, int b)
+{
+    u8 oa = st[0], ob = st[1];
+
+    st[0] = a;
+    st[1] = b;
+    func_0034B490(st);
+    if ((u32)a != oa || (u32)b != ob) {
+        if (st[a + 2] != 0xFF)
+            st[a + 2]++;
+    }
+    return 1;
+}
+
+/* 0x0034B660, 0x20 bytes. */
+int func_0034B660(int k)
+{
+    return k == 2;
+}
+
+/* 0x0034B680, 0x74 bytes. The group side state `st` aims at (order 2), else 0. */
+u8 *func_0034B680(u8 *st)
+{
+    if (st == 0 || func_0034B660(st[0]) == 0)
+        return 0;
+    return g_006A1D58[st[1]];
+}
+
+/* 0x0034B700, 0x10 bytes, matching. */
+int func_0034B700(u8 *p)
+{
+    return (p[6] & 3) + 1;
+}
+
+/* 0x0034B710, 0x10 bytes, matching. */
+int func_0034B710(u8 *p)
+{
+    return (p[6] & 3) + 5;
+}
+
+/* 0x0034B720, 0x34 bytes. Bit 6 of `p[6]` when settings flag 2 is on. */
+u8 func_0034B720(u8 *p)
+{
+    if ((g_00669F60 & 2) == 0)
+        return 0;
+    return p[6] >> 6 & 1;
+}
+
+/* 0x0034B760, 0x64 bytes. A random delay (60-239, scaled by setting +0x240 / 90000). */
+int func_0034B760(void)
+{
+    return (int)((RANDOM() % 0xB4 + 0x3C) * g_00669FA0) / 90000;
+}
+
+/* 0x0034B7D0, 0x6C bytes. Saves both side states to `p`; returns past them. */
+u8 *func_0034B7D0(u8 *p)
+{
+    u32 k;
+
+    for (k = 0; k < 2; k++, p += 0x10)
+        func_00118AC0(p, SIDE_STATE(k), 0x10);
+    return p;
+}
+
+/* 0x0034B840, 0x6C bytes. Loads them back. */
+u8 *func_0034B840(u8 *p)
+{
+    u32 k;
+
+    for (k = 0; k < 2; k++, p += 0x10)
+        func_00118AC0(SIDE_STATE(k), p, 0x10);
+    return p;
+}
+
+/* 0x0034B8B0, 0xCC bytes. Resets both side states (order 3 to none, a random byte, a delay). */
+void func_0034B8B0(void)
+{
+    u32 k;
+
+    for (k = 0; k < 2; k++) {
+        u8 *e = SIDE_STATE(k);
+
+        func_00118850(e, 0x10);
+        e[0] = 3;
+        e[1] = 0xFF;
+        e[2] = 0;
+        e[3] = 0;
+        e[4] = 0;
+        e[5] = 0;
+        e[6] = RANDOM() % 0xFF;
+        e[7] = 0;
+        e[8] = 0;
+        e[9] = func_0034B760();
+        e[10] = 0;
+    }
+    g_006AA624 = 0;
+}
+
+/* 0x0034B980, 8 bytes, matching. */
+void func_0034B980(void)
+{
+}
+
+/* 0x0034B990, 8 bytes, matching. */
+void func_0034B990(void)
+{
+}
+
+/* 0x0034B9A0, 0x60 bytes. Every 50 frames, for sides 0-1 (func_0034B990, empty). */
+void func_0034B9A0(void)
+{
+    if ((u32)(g_00669F9C % 0x32) < 2 && (u32)SIDE_STATE(g_00669F9C % 0x32) != 0)
+        func_0034B990();
+}
+
+/* 0x0034BA00, 0xA8 bytes. Marks group `g`'s side state (kind 1 groups, or when `force`). */
+void func_0034BA00(u8 *g, int force)
+{
+    if (GROUP_INFO(g)[2] == 1 || force == 1)
+        SIDE_STATE(func_0035D5A0(GROUP_UNIT(g)[0x79]))[8] |= 1;
+}
+
+/* 0x0034BAB0, 0x2C bytes, matching. Marks both side states. */
+void func_0034BAB0(void)
+{
+    SIDE_STATE(0)[8] |= 1;
+    SIDE_STATE(1)[8] |= 1;
+}
+
+/* 0x0034BAE0, 0x38 bytes. Marks group `g`'s own side state. */
+void func_0034BAE0(u8 *g)
+{
+    SIDE_STATE(GROUP_UNIT(g)[0x79])[8] |= 1;
+}
+
+/* 0x0034BB20, 0x2C bytes, matching. The same as func_0034BAB0. */
+void func_0034BB20(void)
+{
+    SIDE_STATE(0)[8] |= 1;
+    SIDE_STATE(1)[8] |= 1;
+}
+
+/* 0x0034BB50, 0xE4 bytes, matching. Lists the groups in use passing `test` (with `x`, `y`) into list `a`. */
+void func_0034BB50(int a, int (*test)(u8 *, int, int), int x, int y)
+{
+    u32 k;
+
+    for (k = 0; k < 0x10; k++) {
+        u8 *g = func_0033EF80(k);
+
+        if (g != 0 && (*(u32 *)(g + 100) & 1) != 0 && (test == 0 || test(g, x, y) != 0))
+            func_00364E40(a, GROUP_INDEX(g));
+    }
+    func_00365050(a);
+}
+
+/* 0x0034BC40, 0xD8 bytes. Whether group `g` is an active, free group of side `side`. */
+int func_0034BC40(u8 *g, u32 side)
+{
+    u32 f = UNIT_FLAGS(GROUP_UNIT(g));
+
+    if (!UNIT_ACTIVE(f) || (f & 0x30) != 0 || side != GROUP_UNIT(g)[0x79])
+        return 0;
+    if (func_0033B150(g) != 0)
+        return 0;
+    return func_0033B580(g) == 0;
+}
+
+/* 0x0034BD20, 0x28 bytes, matching. Side `side`'s free groups into list `a`. */
+void func_0034BD20(int a, int side)
+{
+    func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BC40, side, 0);
+}
+
+/* 0x0034BD50, 0x128 bytes. Whether group `g` is active, of side `side`, with info bytes +5 / +6
+ * matching `key` (high / low halves; low 0xFF = any). */
+int func_0034BD50(u8 *g, u32 side, u32 key)
+{
+    u32 f = UNIT_FLAGS(GROUP_UNIT(g));
+
+    if (!UNIT_ACTIVE(f) || side != GROUP_UNIT(g)[0x79])
+        return 0;
+    if (key >> 0x10 != GROUP_INFO(g)[5])
+        return 0;
+    return (key & 0xFFFF) == 0xFF || (key & 0xFFFF) == GROUP_INFO(g)[6];
+}
+
+/* 0x0034BE80, 0x30 bytes, matching. Such groups into list `a`. */
+void func_0034BE80(int a, int side, int k, u32 j)
+{
+    func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BD50, side, k << 0x10 | j);
+}
+
+/* 0x0034BEB0, 0x128 bytes. The same with info bytes +8 / +9. */
+int func_0034BEB0(u8 *g, u32 side, u32 key)
+{
+    u32 f = UNIT_FLAGS(GROUP_UNIT(g));
+
+    if (!UNIT_ACTIVE(f) || side != GROUP_UNIT(g)[0x79])
+        return 0;
+    if (key >> 0x10 != GROUP_INFO(g)[8])
+        return 0;
+    return (key & 0xFFFF) == 0xFF || (key & 0xFFFF) == GROUP_INFO(g)[9];
+}
+
+/* 0x0034BFE0, 0x30 bytes, matching. Such groups into list `a`. */
+void func_0034BFE0(int a, int side, int k, u32 j)
+{
+    func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BEB0, side, k << 0x10 | j);
+}
