@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 180784,
-    "non_matching": 1221984
+    "matching": 180928,
+    "non_matching": 1223472
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2293
+    "matching": 2296
   },
   "layout": "treemap",
   "areas": [
@@ -189,15 +189,15 @@
         },
         {
           "name": "SceneTitle.c",
-          "description": "Estimated range 0x268448-0x27BF40; 45 function(s) decompiled",
+          "description": "Estimated range 0x268448-0x27BF40; 58 function(s) decompiled",
           "code": {
             "total": 80632,
-            "matching": 432,
-            "non_matching": 7104
+            "matching": 576,
+            "non_matching": 8592
           },
           "decompiled_functions": {
-            "count": 45,
-            "matching": 7
+            "count": 58,
+            "matching": 10
           }
         },
         {

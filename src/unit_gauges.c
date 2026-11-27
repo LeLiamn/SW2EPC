@@ -220,3 +220,185 @@ void func_00272310(void)
         }
     }
 }
+
+/* ---- Event sound commands and the sound listener (gp 0x0045D530 per player: position, the
+ * position followed, its mode), parts of 0x00272780-0x00272ECC. ---- */
+
+extern u8 g_00730730[2][0x240];          /* the players' cameras, from +0x1C0 */
+extern void (*g_00410CE0[9])(u8 *p);
+
+u32 func_001D6BD0(void *out, u32 cur, u8 t, u8 s);
+void func_0023B3C0(int on, int all);
+void func_0023AD10(u32 s, int a, int b, int c, int d);
+void func_0023AA40(void);
+int func_002F6A60(u32 o);
+
+#define ARG(p, out) do {                                                \
+    u8 t_ = *(*(u8 **)((p) + 0x10))++;                                  \
+    u8 s_ = *(*(u8 **)((p) + 0x14))++;                                  \
+    *(u32 *)((p) + 0xC) = func_001D6BD0((out), *(u32 *)((p) + 0xC), t_, s_); \
+} while (0)
+
+#define LISTENER() g_0045D530[g_0045D3E0]
+
+/* 0x00272780, 0x64 bytes. Sets what the listener follows. */
+void func_00272780(u8 *p)
+{
+    u8 *l = LISTENER();
+
+    ARG(p, l + 0x14);
+}
+
+/* 0x002727F0, 0x20 bytes, matching. */
+void func_002727F0(void)
+{
+    func_0023B3C0(0, 1);
+}
+
+/* 0x00272810, 0x88 bytes. Lets sound `k` play on (100 seconds). */
+void func_00272810(u8 *p)
+{
+    u16 k;
+    u8 *r;
+
+    ARG(p, &k);
+    r = func_002721A0(k);
+    if (r != 0)
+        *(float *)(r + 0x10) = 6000.0f;
+}
+
+/* 0x002728A0, 0x8C bytes. Stops sound `k`. */
+void func_002728A0(u8 *p)
+{
+    u16 k;
+    u8 *r;
+
+    ARG(p, &k);
+    r = func_002721A0(k);
+    if (r != 0) {
+        func_002A5B10(*(u32 *)(r + 0x14));
+        r[0x1C] = 0;
+    }
+}
+
+/* 0x00272930, 0xB0 bytes. Plays effect `s`. */
+void func_00272930(u8 *p)
+{
+    u16 s;
+    u8 *r;
+
+    ARG(p, &s);
+    r = func_00272160();
+    if (r != 0) {
+        *(int *)(r + 0x18) = func_002A64C0(s);
+        *(int *)(r + 0x14) = 0x107;
+        r[0x1C] = 1;
+        *(float *)(r + 0x10) = 60.0f;
+        func_0023AD10(*(u32 *)(r + 0x18), 0x107, 0x2CDC, 0x2CDC, 0x1000);
+    }
+}
+
+/* 0x002729E0, 0x90 bytes. Stops effect `k`. */
+void func_002729E0(u8 *p)
+{
+    u16 k;
+    u8 *r;
+
+    ARG(p, &k);
+    r = func_002721A0(k);
+    if (r != 0) {
+        func_0023ACC0(*(u32 *)(r + 0x18), *(int *)(r + 0x14));
+        r[0x1C] = 0;
+    }
+}
+
+/* 0x00272B60, 0xA0 bytes. The listener's frame (on the camera or its target). */
+void func_00272B60(void)
+{
+    u8 *l = LISTENER();
+    u32 *t = *(u32 **)(l + 0x10), *s = 0;
+
+    if (*(short *)(l + 0x14) == 0)
+        s = (u32 *)(g_00730730[g_0045D3E0] + 0);
+    else if (*(short *)(l + 0x14) == 1)
+        s = (u32 *)(g_00730730[g_0045D3E0] + 0x10);
+    if (s != 0) {
+        t[0] = s[0];
+        t[1] = s[1];
+        t[2] = s[2];
+        t[3] = s[3];
+    }
+    func_00272260();
+}
+
+/* 0x00272C00, 0x5C bytes. Ends the event scene's sounds (the listener's place back). */
+void func_00272C00(void)
+{
+    u32 *l = (u32 *)LISTENER(), *t = (u32 *)l[4];
+
+    if (t != 0) {
+        t[0] = l[0];
+        t[1] = l[1];
+        t[2] = l[2];
+        t[3] = l[3];
+        l[4] = 0;
+    }
+    func_00272310();
+    func_0023AA40();
+    func_0023B3C0(1, 0);
+}
+
+/* 0x00272C60, 0x1C bytes, matching. */
+void func_00272C60(float dt)
+{
+    func_002722C0(dt);
+}
+
+/* 0x00272C80, 0x7C bytes. Starts them (keeping the player's place). */
+void func_00272C80(void)
+{
+    u32 *l, *t;
+
+    func_00272110();
+    l = (u32 *)LISTENER();
+    *(short *)(l + 5) = 0;
+    if (l[4] == 0)
+        l[4] = (u32)(*(u8 **)(g_006A3A30[g_0045D3E0 == 0 ? 0 : 1] + 0x14) + 0x40);
+    t = (u32 *)l[4];
+    l[0] = t[0];
+    l[1] = t[1];
+    l[2] = t[2];
+    l[3] = t[3];
+}
+
+/* 0x00272D00, 0x4C bytes, matching. Runs the event command by its kind. */
+void func_00272D00(u8 *p)
+{
+    u8 k = (*(u8 **)(p + 8))[5];
+
+    if (k < 9 && g_00410CE0[k] != 0)
+        g_00410CE0[k](p);
+}
+
+/* 0x00272D50, 0xEC bytes. Whether the player unit uses weapon kind 0x28's special attack. */
+int func_00272D50(u8 *u)
+{
+    short s;
+
+    if (u[0x14E] >= 2 || OFF(u)[0xB2] >= 0x35)
+        return 0;
+    if (func_002F6A60(*(u32 *)(g_00669D60 + 0x88 + u[0x14E] * 0x48)) != 0x28)
+        return 0;
+    s = **(short **)(u + 0x210);
+    if (s == 0x10 || s == 0x11 || s == 0x12)
+        return (KIND_FLAGS(u, 0x18) & 0x8000000) == 0;
+    return 0;
+}
+
+/* 0x00272E40, 0x90 bytes. */
+int func_00272E40(u8 *u)
+{
+    if (u[0x14E] >= 2 || OFF(u)[0xB2] >= 0x35)
+        return 0;
+    return func_002F6A60(*(u32 *)(g_00669D60 + 0x88 + u[0x14E] * 0x48)) == 0x29;
+}
