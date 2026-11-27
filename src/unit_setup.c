@@ -1,5 +1,5 @@
 /*
- * unit_setup.c - setting up battlefield units (original source file unknown; from 0x00164680,
+ * unit_setup.c - setting up battlefield units (original source file unknown; 0x00164680-0x0016CD24,
  * after camera.c, up to Weapon.c at 0x0016CD30).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
@@ -2794,4 +2794,145 @@ void func_0016C7A0(int p)
         S16(r, 0x2C) = -1;
         r += 0x40;
     }
+}
+
+extern u8 g_00574DE0[][0x630];           /* the units */
+
+void func_002A6770(u8 player, int sound);
+int func_001BEA50(u8 kind);
+void func_00103630(u8 port, int motor, int power, int frames);
+int func_002F57F0(int k);
+
+/* 0x0016C810, 0x16C bytes. Pushes a record at the front of player `p`'s list of 30 (the others
+ * move back one; the last drops): points `a`, `b`, `c`, value `t`, `id` and `flag`. */
+void func_0016C810(float t, int p, float *a, float *b, float *c, short id, int flag)
+{
+    u8 *list = (u8 *)0x56CCE0 + p * 0x780;
+    int k, i;
+
+    for (k = 0x1D; k > 0; k--)
+        for (i = 0; i < 0x10; i++)
+            ((u32 *)(list + k * 0x40))[i] = ((u32 *)(list + (k - 1) * 0x40))[i];
+    for (i = 0; i < 4; i++) {
+        F32(list, i * 4) = a[i];
+        F32(list, 0x10 + i * 4) = b[i];
+        F32(list, 0x30 + i * 4) = c[i];
+    }
+    S16(list, 0x2C) = id;
+    F32(list, 0x20) = t;
+    U16(list, 0x2E) = flag != 0;
+}
+
+/* 0x0016C980, 0x24 bytes, matching. Record `k` of player `p`'s list. */
+extern u8 g_0056CCE0[][0x1E][0x40];      /* the players' lists of 30 records */
+
+u8 *func_0016C980(int p, int k)
+{
+    return g_0056CCE0[p][k];
+}
+
+/* 0x0016C9B0, 0x4C bytes. Stops the unit's sound (+0x128) and plays sound 0x23E. */
+void func_0016C9B0(Unit *u)
+{
+    if (S32(u, 0x128) != -1) {
+        func_002A5B10();
+        S32(u, 0x128) = -1;
+    }
+    func_002A6770(U8(u, 0x14E), 0x23E);
+}
+
+/* 0x0016CA00, 0x10 bytes, matching. Bit 2 of +0xE8. */
+typedef struct {
+    u8 low : 2;
+    u8 bit2 : 1;
+} Bits_E8;
+
+u32 func_0016CA00(u8 *x)
+{
+    return ((Bits_E8 *)(x + 0xE8))->bit2;
+}
+
+/* 0x0016CA10, 0x104 bytes. A bodyguard's share (+0x15A: its kind; +0x15B its leader): 1/3 for
+ * kind 3, by the leader's +0x196 for kinds 0 and 1 (1/3, 1/4, else 1/5), else 1; halved when the
+ * leader's officer has flag 0x8000000. */
+float func_0016CA10(Unit *u)
+{
+    u8 *l = g_00574DE0[U8(u, 0x15B)];
+    char k = U8(u, 0x15A);
+    float f = 1.0f;
+
+    if (k == 3) {
+        f = 0.33333f;
+    } else if (k == 1 || k == 0) {
+        if (U8(l, 0x196) == 1)
+            f = 0.33333f;
+        else if (U8(l, 0x196) == 2)
+            f = 0.25f;
+        else
+            f = 0.2f;
+    }
+    if (U32(g_006A3A30[S16(l, 0x178)], 0xBC) & 0x8000000)
+        f = f * 0.5f;
+    return f;
+}
+
+/* 0x0016CB20, 0x34 bytes, matching. func_001BEA50 for the unit's weapon kind (0x6A without one). */
+int func_0016CB20(Unit *u)
+{
+    return func_001BEA50(PTR(u, 0x110) != 0 ? U8(PTR(u, 0x110), 0x1C) : 0x6A);
+}
+
+/* 0x0016CB60, 0x70 bytes. Vibrates a pad, unless vibration is off (battle flag 0x10) or flag
+ * 0x10 is set on the officer numbered like the player (as in the original). */
+void func_0016CB60(Unit *u, u8 port, int motor, int power, int frames)
+{
+    if ((g_00669F60 & 0x10) == 0 && (U32(g_006A3A30[U8(u, 0x14E)], 0xB8) & 0x10) == 0)
+        func_00103630(port, motor, power, frames);
+}
+
+/* 0x0016CBD0, 0xA4 bytes, matching. The weapon kind shown for kinds 0x85-0x8C. */
+int func_0016CBD0(int k)
+{
+    if (k == 0x85)
+        k = 0x68;
+    else if (k == 0x86)
+        k = 0x69;
+    else if (k == 0x87)
+        k = 0x6A;
+    else if (k == 0x88)
+        k = 0x78;
+    else if (k == 0x89)
+        k = 0x6C;
+    else if (k == 0x8A)
+        k = 0x6D;
+    else if (k == 0x8B)
+        k = 0x6E;
+    else if (k == 0x8C)
+        k = 0x6F;
+    return k;
+}
+
+/* 0x0016CC80, 0x58 bytes. The same by arithmetic (0x85-0x87 and 0x89-0x8C minus 0x1D). */
+int func_0016CC80(int k)
+{
+    if (k < 0x85 || k > 0x87) {
+        if (k == 0x88)
+            k = 0x78;
+        else if (k > 0x88 && k < 0x8D)
+            k = k - 0x1D;
+    } else {
+        k = k - 0x1D;
+    }
+    return k;
+}
+
+/* 0x0016CCE0, 0x48 bytes, matching. The kind of an extra weapon: for kinds 0x1B / 0x1A, func_002F57F0
+ * of `b` plus 0x89 / 0x85; else `b`. */
+int func_0016CCE0(int a, int b)
+{
+    if (a == 0x1B)
+        b = func_002F57F0(b) + 0x89;
+    else if (a == 0x1A)
+        b = func_002F57F0(b) + 0x85;
+    return b;
 }
