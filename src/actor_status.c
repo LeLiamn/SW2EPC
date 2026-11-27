@@ -2,7 +2,7 @@
  * actor_status.c - the battle actors' status effects (boosts, auras, elements): each running
  * status is a record whose word 0 is its kind (a bit of the actor's mask at 0x0076E700, 0x19 =
  * none); its handlers start, follow and end the effects that show it. Original file name unknown
- * (0x0024FA00-).
+ * (0x0024FA00-0x002537FC).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -1102,5 +1102,299 @@ void func_00252940(u8 *a, u32 *st)
             FX_LEAVE(st);
     } else if (st[0xC] != 0) {
         FX_LEAVE(st);
+    }
+}
+
+/* The status records: 4 of 0xB0 bytes per actor at 0x00755DC0. */
+extern u32 g_00755DC0[0x8F][4][0x2C];
+extern u8 g_00755CA0[0x8F];
+extern u8 g_00410A00[0x19];              /* statuses that wait for the actor to show */
+extern u8 g_00410A20[0x19];              /* the statuses' view distance kinds */
+extern u32 g_0045D520;                   /* (small data) */
+extern u8 g_00574DE0[][0x630];           /* the actors */
+
+int func_001C8BE0(int k, u8 *pos);
+
+/* 0x00252A10, 0x2DC bytes. Starts status record `st` of actor `a`. */
+void func_00252A10(u32 *st, u8 *a)
+{
+    switch (st[0]) {
+    case 0: func_0024FB50(a, st); break;
+    case 1: func_0024FEE0(a, st, func_00271280()); break;
+    case 2: func_00250310(a, st); break;
+    case 3:
+        func_002505E0(a, st, a[0x182] == 1 ? 0x14C : a[0x182] == 2 ? 0x150 : 0x148);
+        break;
+    case 4:
+        func_002505E0(a, st, a[0x182] == 1 ? 0x15A : a[0x182] == 2 ? 0x15F : 0x155);
+        break;
+    case 5: func_00250870(a, st); break;
+    case 6: func_00250BD0(a, st); break;
+    case 7: func_00250DC0(a, st); break;
+    case 8: func_00251370(a, st); break;
+    case 9: func_00251550(a, st, 0x21, 0x22); break;
+    case 10: func_00251550(a, st, 0x23, 0x24); break;
+    case 0xB: func_00251730(a, st, 0x35); break;
+    case 0xC: func_00251730(a, st, 0x36); break;
+    case 0xD: func_002519A0(a, st, 0x4B); break;
+    case 0xE: func_002519A0(a, st, 0x4C); break;
+    case 0xF: func_00251C20(a, st, 0x4F); break;
+    case 0x10: func_00251C20(a, st, 0x51); break;
+    case 0x11: func_002520A0(a, st); break;
+    case 0x12: func_00252250(a, st); break;
+    case 0x13: func_00252400(a); break;
+    case 0x14: func_002525A0(a, st, 0xCC); break;
+    case 0x15: func_002525A0(a, st, 0xCB); break;
+    case 0x16: func_002525A0(a, st, 0x9D); break;
+    case 0x17: func_002527B0(a, st); break;
+    case 0x18: func_00250470(a, st); break;
+    }
+}
+
+void func_00252F00(u32 *st, u8 *a);
+
+/* 0x00252CF0, 0x210 bytes. Restarts a waiting status once its actor shows (then steps it). */
+void func_00252CF0(u32 *st, u8 *a)
+{
+    int ok;
+
+    switch (st[0]) {
+    case 1: ok = func_0024FF60(a, st, func_00271280()); break;
+    case 2: ok = func_00250350(a, st); break;
+    case 6: ok = func_00250C10(a, st); break;
+    case 7: ok = func_00250E30(a, st); break;
+    case 8: ok = func_002513D0(a, st); break;
+    case 9: ok = func_00251590(a, st, 0x21, 0x22); break;
+    case 10: ok = func_00251590(a, st, 0x23, 0x24); break;
+    case 0xD: ok = func_00251A00(a, st, 0x4B); break;
+    case 0xE: ok = func_00251A00(a, st, 0x4C); break;
+    case 0xF: ok = func_00251C80(a, st, 0x4F); break;
+    case 0x10: ok = func_00251C80(a, st, 0x51); break;
+    case 0x11: ok = func_002520E0(a, st); break;
+    case 0x12: ok = func_00252290(a, st); break;
+    case 0x14: ok = func_00252600(a, st, 0xCC); break;
+    case 0x15: ok = func_00252600(a, st, 0xCB); break;
+    case 0x16: ok = func_00252600(a, st, 0x9D); break;
+    case 0x17: ok = func_00252810(a, st); break;
+    case 0x18: ok = func_002504B0(a, st); break;
+    default: ok = 0; break;
+    }
+    if (ok != 0) {
+        st[0xA] = 0;
+        func_00252F00(st, a);
+    }
+}
+
+/* 0x00252F00, 0x1A0 bytes, matching. Steps status record `st` of actor `a`. */
+void func_00252F00(u32 *st, u8 *a)
+{
+    switch (st[0]) {
+    case 0: func_0024FCB0(a, st); break;
+    case 1: func_0024FF00(a, st); break;
+    case 2: func_00250330(a, st); break;
+    case 3:
+    case 4: func_00250730(a, st); break;
+    case 5: func_00250A60(a, st); break;
+    case 6: func_00250BF0(a, st); break;
+    case 7: func_00250DE0(a, st); break;
+    case 8: func_00251390(a, st); break;
+    case 9:
+    case 10: func_00251570(a, st); break;
+    case 0xB:
+    case 0xC: func_00251860(a, st); break;
+    case 0xD:
+    case 0xE: func_002519C0(a, st); break;
+    case 0xF:
+    case 0x10: func_00251C40(a, st); break;
+    case 0x11: func_002520C0(a, st); break;
+    case 0x12: func_00252270(a, st); break;
+    case 0x13: func_002524B0(a, st); break;
+    case 0x14:
+    case 0x15:
+    case 0x16: func_002525C0(a, st); break;
+    case 0x17: func_002527D0(a, st); break;
+    case 0x18: func_00250490(a, st); break;
+    }
+}
+
+/* 0x002530A0, 0xD0 bytes. The end checks of a waiting status whose actor is out of view. */
+void func_002530A0(u32 *st, u8 *a)
+{
+    switch (st[0]) {
+    case 1:
+        func_00250120(a, st, func_00271280());
+        /* falls through */
+    case 7:
+        func_00251000(a, st);
+        break;
+    case 0xD:
+    case 0xE:
+        func_00251AB0(a, st);
+        break;
+    case 0xF:
+    case 0x10:
+        func_00251D90(a, st);
+        break;
+    case 0x14:
+    case 0x15:
+    case 0x16:
+        func_002526C0(a, st);
+        break;
+    case 0x17:
+        func_002528D0(a, st);
+        break;
+    }
+}
+
+/* 0x00253170, 0xE0 bytes. Stops status `st`'s effects; it ends, or waits when its kind waits. */
+void func_00253170(u8 *a, u32 *st)
+{
+    u32 k;
+
+    for (k = 0; k < 0x10; k++) {
+        if (st[0xC + k] != 0) {
+            FX_STOP((u8 *)st[0xC + k]);
+            st[0xC + k] = 0;
+        }
+    }
+    if (g_00410A00[st[0]] == 0) {
+        g_0076E700[a[0x14E]] &= ~(1 << (st[0] & 0x1F));
+        g_0076E700[a[0x14E]] &= ~(1 << (st[0] & 0x1F));
+        st[0] = 0x19;
+        g_00755D30[a[0x14E]]--;
+        st[0xA] = 0;
+    } else {
+        st[0xA] = 1;
+    }
+}
+
+/* 0x00253250, 0xB0 bytes. Clears all actors' statuses. */
+void func_00253250(void)
+{
+    u32 k, j, i;
+
+    for (k = 0; k < 0x8F; k++) {
+        for (j = 0; j < 4; j++) {
+            g_00755DC0[k][j][0] = 0x19;
+            for (i = 0; i < 0x10; i++)
+                g_00755DC0[k][j][0xC + i] = 0;
+        }
+        g_00755D30[k] = 0;
+        g_0076E700[k] = 0;
+        g_00755CA0[k] = 0;
+    }
+    g_0045D520 = 0;
+}
+
+/* 0x00253300, 0x180 bytes. Gives status `kind` to actor `a` (in a free record, unless it has it):
+ * started now when in view, else waiting when its kind waits. */
+void func_00253300(u32 kind, u8 *a)
+{
+    u32 *st = g_00755DC0[a[0x14E]][0], k;
+
+    for (k = 0; k < 4; k++, st += 0x2C) {
+        if (st[0] == 0x19)
+            break;
+        if (st[0] == kind)
+            k = 4;
+    }
+    if (k >= 4)
+        return;
+    if (*(int *)(a + 0x11C) == 0 || func_001C8BE0(g_00410A20[kind], a + 0x40) == 0) {
+        if (g_00410A00[kind] == 0)
+            return;
+        st[0] = kind;
+        st[0xA] = 1;
+        g_00755D30[a[0x14E]]++;
+    } else {
+        st[0] = kind;
+        st[0xA] = 0;
+        g_00755D30[a[0x14E]]++;
+        func_00252A10(st, a);
+    }
+    if (st[0] != 0x19) {
+        g_0076E700[a[0x14E]] |= 1 << (kind & 0x1F);
+        g_70000D60 = 0;
+    }
+}
+
+/* 0x00253480, 0x1F8 bytes. Steps every actor's statuses (waiting ones end when not kept, start
+ * when their actor shows). */
+void func_00253480(void)
+{
+    u32 k, j;
+
+    for (k = 0; k < 0x8F; k++) {
+        u8 *a = g_00574DE0[k];
+
+        if (g_0076E700[k] == 0)
+            continue;
+        for (j = 0; j < 4; j++) {
+            u32 *st = g_00755DC0[k][j];
+
+            if (st[0] == 0x19)
+                continue;
+            if (*(int *)(a + 0x11C) == 0 || st[0xA] != 0) {
+                if (st[0xA] == 0) {
+                    u32 kind = st[0], i;
+                    u8 n = a[0x14E];
+
+                    st[0] = 0x19;
+                    g_0076E700[n] &= ~(1 << (kind & 0x1F));
+                    g_00755D30[n]--;
+                    for (i = 0; i < 0x10; i++) {
+                        u8 *e = (u8 *)st[0xC + i];
+
+                        if (e != 0 && !(1.0f <= *(float *)(e + 0x28) && (*(u32 *)(e + 0x34) & 1) == 0)) {
+                            FX_STOP(e);
+                            st[0xC + i] = 0;
+                        }
+                    }
+                } else if (*(int *)(a + 0x11C) == 0) {
+                    func_002530A0(st, a);
+                } else if (func_001C8BE0(g_00410A20[st[0]], a + 0x40) != 0) {
+                    func_00252CF0(st, a);
+                }
+            } else {
+                func_00252F00(st, a);
+            }
+        }
+    }
+    g_70000D60 = 0;
+}
+
+/* 0x00253690, 0xF8 bytes. Ends status `kind` of actor `a`. */
+void func_00253690(u32 kind, u8 *a)
+{
+    u32 *st = g_00755DC0[a[0x14E]][0], k, i;
+
+    for (k = 0; k < 4; k++, st += 0x2C) {
+        if (st[0] == kind) {
+            u32 m;
+
+            for (i = 0; i < 0x10; i++) {
+                if (st[0xC + i] != 0) {
+                    FX_STOP((u8 *)st[0xC + i]);
+                    st[0xC + i] = 0;
+                }
+            }
+            m = ~(1 << (st[0] & 0x1F));
+            g_0076E700[a[0x14E]] &= m;
+            st[0] = 0x19;
+            g_0076E700[a[0x14E]] &= m;
+            st[0xA] = 0;
+            g_00755D30[a[0x14E]]--;
+        }
+    }
+}
+
+/* 0x00253790, 0x6C bytes. Stops all of actor `a`'s statuses. */
+void func_00253790(u8 *a)
+{
+    u32 *st = g_00755DC0[a[0x14E]][0], k;
+
+    for (k = 0; k < 4; k++, st += 0x2C) {
+        if (st[0] != 0x19)
+            func_00253170(a, st);
     }
 }

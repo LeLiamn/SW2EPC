@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 126608,
-    "non_matching": 946084
+    "matching": 127024,
+    "non_matching": 949212
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1390
+    "matching": 1391
   },
   "layout": "treemap",
   "areas": [
@@ -903,15 +903,15 @@
         },
         {
           "name": "SecretSorts.c",
-          "description": "Estimated range 0x24FF58-0x268448; 64 function(s) decompiled",
+          "description": "Estimated range 0x24FF58-0x268448; 74 function(s) decompiled",
           "code": {
             "total": 99568,
-            "matching": 976,
-            "non_matching": 9312
+            "matching": 1392,
+            "non_matching": 12440
           },
           "decompiled_functions": {
-            "count": 64,
-            "matching": 24
+            "count": 74,
+            "matching": 25
           }
         }
       ]
