@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 173984,
-    "non_matching": 1184344
+    "matching": 174208,
+    "non_matching": 1186840
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2216
+    "matching": 2218
   },
   "layout": "treemap",
   "areas": [
@@ -716,14 +716,14 @@
       "children": [
         {
           "name": "ev_main.c",
-          "description": "Estimated range 0x1D6F88-0x1DA818; 35 function(s) decompiled",
+          "description": "Estimated range 0x1D6F88-0x1DA818; 37 function(s) decompiled",
           "code": {
             "total": 14480,
             "matching": 1072,
-            "non_matching": 5072
+            "non_matching": 5712
           },
           "decompiled_functions": {
-            "count": 35,
+            "count": 37,
             "matching": 15
           }
         },
@@ -742,15 +742,15 @@
         },
         {
           "name": "ev_message.c",
-          "description": "Estimated range 0x1DA818-0x1E10A0; 21 function(s) decompiled",
+          "description": "Estimated range 0x1DA818-0x1E10A0; 33 function(s) decompiled",
           "code": {
             "total": 26760,
-            "matching": 848,
-            "non_matching": 448
+            "matching": 1072,
+            "non_matching": 2304
           },
           "decompiled_functions": {
-            "count": 21,
-            "matching": 15
+            "count": 33,
+            "matching": 17
           }
         },
         {

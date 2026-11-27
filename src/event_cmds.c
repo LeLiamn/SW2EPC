@@ -67,7 +67,7 @@ void func_001D7470(float dt);
 void func_001E2360(float dt, u32 *e);
 void func_001D8EC0(float dt, u32 *e);
 void func_00272C60(float dt, u32 *e);
-void func_001DADC0(u32 *e);
+void func_001DADC0(u8 *e);
 void func_0022E5D0(void);
 void func_00191240(int k);
 void func_00195C60(void);
@@ -310,7 +310,7 @@ int func_001D93B0(u32 *e, float *dt)
         f[0x10] = 0.0f;
     else
         f[0x10] += *dt;
-    func_001DADC0(e);
+    func_001DADC0((u8 *)e);
     return f[0x10] <= f[0x12];
 }
 
@@ -428,4 +428,278 @@ int func_001D9BC0(int o)
     default:
         return 0;
     }
+}
+
+extern u8 *g_0045D3F8[2];                /* (small data) the players' item model lists */
+extern u8 g_00730D10[];
+extern u8 g_00730DA0[3][0x10];           /* the effect pairs */
+extern u8 g_0073C79B[];
+
+int func_001D9C80(u8 *p, u16 a, u32 b, u16 c);
+float func_001D6C70(u8 *c);
+void func_001DA7E0(u8 *e);
+int func_0032F420(u16 k);
+int func_0032F7D0(int a);
+int func_001D9610(int a, u16 b);
+void func_0032FDD0(int a, u8 *out, int *r);
+void func_002723B0(u8 *e, int k, int a);
+int func_001D9670(void);
+void func_001DF1C0(u8 *e, u16 a, int b);
+void func_002AD8B0(u8 *p);
+void func_00118850(void *p, int n);
+void *func_0020EC50(int n);
+void func_001DC040(void);
+void func_001DBCF0(void);
+void func_002E9840(u8 *p);
+int func_0020E310(int a);
+
+/* The next command of event `e` (file + its offset). */
+#define EV_SEEK(e, c) do {                                              \
+    *(u8 **)((e) + 8) = (c);                                            \
+    *(u8 **)((e) + 0xC) = (c) + (c)[(c)[6] + 7] + 7;                    \
+    *(u8 **)((e) + 0x10) = (c) + 7;                                     \
+    *(u8 **)((e) + 0x14) = (c) + (c)[6] + 8;                            \
+} while (0)
+
+/* Tests the word at file offset `off` against the event's value (mode +0x50: 0 bits, 1 equal). */
+#define EV_TEST(e, x) ((e)[0x50] == 0 ? *(x) & *(u32 *)((e) + 0x18) :                     \
+                       (e)[0x50] == 1 ? *(x) == *(u32 *)((e) + 0x18) : 0)
+
+/* 0x001DA200, 0x140 bytes. Whether every condition of the command holds. */
+void func_001DA200(u8 *p)
+{
+    u32 n = (*(u8 **)(p + 8))[6] / 3, k;
+    u8 r = 1;
+
+    for (k = 0; k < n; k = (k + 1) & 0xFF) {
+        u16 a, c;
+        u32 b;
+
+        ARG(p, &a);
+        ARG(p, &b);
+        ARG(p, &c);
+        if (func_001D9C80(p, a, b, c) != 1) {
+            r = 0;
+            break;
+        }
+    }
+    p[0x51] = r;
+}
+
+/* 0x001DA340, 0x140 bytes. Whether one of them holds. */
+void func_001DA340(u8 *p)
+{
+    u32 n = (*(u8 **)(p + 8))[6] / 3, k;
+    u8 r = 0;
+
+    for (k = 0; k < n; k = (k + 1) & 0xFF) {
+        u16 a, c;
+        u32 b;
+
+        ARG(p, &a);
+        ARG(p, &b);
+        ARG(p, &c);
+        if (func_001D9C80(p, a, b, c) == 1) {
+            r = 1;
+            break;
+        }
+    }
+    p[0x51] = r;
+}
+
+/* 0x001DAD50, 0x68 bytes. Starts event file `f`. */
+void func_001DAD50(u32 *e, u8 *f)
+{
+    u8 *c;
+
+    if (f == 0)
+        return;
+    e[1] = (u32)f;
+    e[2] = (u32)f;
+    ((float *)e)[0x12] = 0.5f;
+    e[0] |= 1;
+    c = (u8 *)e[2];
+    e[3] = (u32)(c + c[c[6] + 7] + 7);
+    e[4] = (u32)(c + 7);
+    e[5] = (u32)(c + c[6] + 8);
+}
+
+/* 0x001DADC0, 0xD8 bytes. Runs the commands due (up to a wait not reached or the end). */
+void func_001DADC0(u8 *e)
+{
+    u8 *c = *(u8 **)(e + 8);
+
+    for (;;) {
+        if ((signed char)c[4] == -1)
+            return;
+        if (c[4] == 0 && c[5] == 0 && *(float *)(e + 0x40) < func_001D6C70(c))
+            break;
+        func_001DA7E0(e);
+        c = *(u8 **)(e + 4) + **(int **)(e + 8);
+        EV_SEEK(e, c);
+        c = *(u8 **)(e + 8);
+    }
+}
+
+/* 0x001DB0A0, 0xF8 bytes. Jumps after the first of the listed words that passes the test. */
+void func_001DB0A0(u8 *p, u32 *x)
+{
+    u8 i = 0;
+    u32 v;
+
+    if ((*(u8 **)(p + 8))[6] == 0)
+        return;
+    do {
+        int off;
+
+        ARG(p, &off);
+        x = (u32 *)(*(u8 **)(p + 4) + off);
+        v = EV_TEST(p, x);
+    } while (v == 0 && (i = i + 1) < (*(u8 **)(p + 8))[6]);
+    if (i != (*(u8 **)(p + 8))[6])
+        *(u32 **)(p + 0x20) = x + 1;
+}
+
+/* 0x001DB1E0, 0xD8 bytes. */
+void func_001DB1E0(u8 *p)
+{
+    u8 a[2];
+    int off;
+    u32 *x;
+
+    ARG(p, a);
+    ARG(p, &off);
+    x = (u32 *)(*(u8 **)(p + 4) + off);
+    if (EV_TEST(p, x) != 0)
+        *(u32 **)(p + 0x24) = x + 1;
+}
+
+/* 0x001DB520, 0x138 bytes. Plays officer `b`'s line `c` (and its voice). */
+void func_001DB520(u8 *p)
+{
+    u16 a, b, c;
+    int r;
+
+    ARG(p, &a);
+    ARG(p, &b);
+    ARG(p, &c);
+    func_0032FDD0(func_001D9610(func_0032F7D0(func_0032F420(b)), c), g_00730D10, &r);
+    func_002723B0(p, (r - 0xA6) & 0xFFFF, 1);
+    *(u8 **)(p + 0x20) = g_00730D10;
+    if (r > 0x11CE && r < 0x151E)
+        func_001DF1C0(p, a, func_001D9670());
+}
+
+/* 0x001DBA70, 0x58 bytes. The player's item model shown for `k` (0: none). */
+u8 *func_001DBA70(short k)
+{
+    u8 *r = g_0045D3F8[g_0045D3E0];
+    int i = 0;
+
+    while (r[0x17] == 0 || *(short *)(r + 0x14) != k) {
+        i++;
+        r += 0x18;
+        if (i > 3)
+            return 0;
+    }
+    return r;
+}
+
+/* 0x001DBB50, 0x70 bytes, matching. */
+void func_001DBB50(void)
+{
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        u8 *r = g_0045D3F8[g_0045D3E0] + i * 0x18;
+
+        func_002AD8B0(r);
+        func_00118850(r, 0x18);
+    }
+}
+
+/* 0x001DC2B0, 0x7C bytes. Sets up a trail effect. */
+void func_001DC2B0(u32 *p)
+{
+    p[7] = 0x1C;
+    p[4] = (u32)func_0020EC50(0x1C0);
+    p[5] = (u32)func_0020EC50(p[7] << 4);
+    p[0] = 0;
+    ((float *)p)[1] = 0.98f;
+    p[2] = 0;
+    p[3] = 0;
+    p[9] = 0x24;
+    ((float *)p)[8] = 4.6f;
+    p[6] = (u32)func_001DC040;
+}
+
+/* 0x001DC330, 0x84 bytes. The three effect pairs of event file 0xB6. */
+void func_001DC330(void)
+{
+    int k;
+
+    if (g_0073C790 != 0xB6)
+        return;
+    func_001DBCF0();
+    for (k = 0; k < 3; k++) {
+        u32 *e = (u32 *)g_00730DA0[k];
+
+        e[0] = (u32)func_0020EC50(0x30);
+        e[1] = (u32)func_0020EC50(0x30);
+        func_001DC2B0((u32 *)e[0]);
+        func_001DC2B0((u32 *)e[1]);
+    }
+}
+
+/* 0x001DC3C0, 0x6C bytes, matching. Draws them. */
+void func_001DC3C0(void)
+{
+    int k;
+
+    for (k = 0; k < 3; k++) {
+        u32 *e = (u32 *)g_00730DA0[k];
+
+        if (g_00730DA0[k][0xE] != 0) {
+            *(u32 **)(e[0] + 0x28) = e;
+            func_002E9840((u8 *)e[0]);
+            *(u32 **)(e[1] + 0x28) = e;
+            func_002E9840((u8 *)e[1]);
+        }
+    }
+}
+
+/* 0x001DC650, 0x88 bytes. Clears a list of `p[0]` 16-byte records. */
+void func_001DC650(u32 *p)
+{
+    u32 k;
+
+    for (k = 0; k < p[0]; k++) {
+        u8 *q = (u8 *)p[1] + k * 0x10;
+
+        *(u32 *)q = 0;
+        *(u32 *)(q + 8) = 0;
+        *(u32 *)(q + 4) = 0;
+        q[0xC] = 0;
+        q[0xD] = 0x2E;
+        q[0xE] = 0xFF;
+        q[0xF] = 0;
+    }
+}
+
+/* 0x001DCDE0, 0xC4 bytes. An event's actor id: special values for the player, the scene's
+ * officers and the force's members. */
+u32 func_001DCDE0(u32 v)
+{
+    v &= 0xFFFF;
+    if (v == 1000)
+        return g_0045D3E0 == 0 ? 0x41 : 0x42;
+    if (v == 0x3E9)
+        return g_0073C79B[g_0073C79D];
+    if (v == 0x3EA)
+        return 0x43;
+    if (v == 900)
+        return func_0020E310(func_0032F420(0));
+    if (v > 0x3B5 && v < 0x3BB)
+        return func_0020E310(func_0032F420(v - 0x3B5));
+    return v;
 }
