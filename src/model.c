@@ -901,7 +901,7 @@ void func_00149590(Actor *a, u8 *dir, u8 *colour, void *ambient)
     }
 }
 
-/* 0x00149620, 0xF4 bytes. Changes an object's models; the nodes are rebuilt when the node count
+/* 0x00149620, 0xF4 bytes, matching. Changes an object's models; the nodes are rebuilt when the node count
  * or the presence of the second model changes, or when there is no second model. */
 void func_00149620(Actor *a, Model *m, Model *m2)
 {
@@ -1210,7 +1210,7 @@ void func_0014D7E0(float t, Actor *a, MotionState *s, u32 first, u32 last)
     }
 }
 
-/* 0x0014D9A0, 0x40 bytes. The same for all the model's nodes. */
+/* 0x0014D9A0, 0x40 bytes, matching. The same for all the model's nodes. */
 void func_0014D9A0(float t, Actor *a, MotionState *s)
 {
     func_0014D7E0(t, a, s, 0, ACTOR_MODEL(a)->a);

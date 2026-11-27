@@ -118,7 +118,9 @@ What makes the compiler produce the game's exact code, learnt so far:
 
 - **Flag bits are signed one-bit fields**: a test compiled as `lb` + `dsll32` + `dsra32` is a
   `signed char x : 1` bitfield (LSB first), not `& mask`; the unit files use a `Bits8` struct and
-  a `BIT(o, off, n)` macro for them, for tests and for single-bit writes.
+  a `BIT(o, off, n)` macro for them, for tests and for single-bit writes; `model.c` gives the
+  actor's flag byte a `Bits8` member, and the scene files use `SBIT` / `UBIT` (signed or
+  unsigned, by `lb` or `lbu`) on their flag bytes.
 - **Officers are reached through the game state**: the code addresses officer `i` as
   `0x00693970 + i * 0xC0 + 0x100C0 + field` (a `lui 1` plus the field offset), not from the
   table's own address `0x006A3A30`.
