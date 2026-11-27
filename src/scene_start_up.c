@@ -186,6 +186,19 @@ extern struct StartState {
     int g_007B93D0;          /* set after a start, cleared when the list opens */
 } s_007B7104;
 #define g_007B7104 (s_007B7104.g_007B7104)
+/* The same fields through a byte pointer `st` to the state (the original keeps that base in a
+ * register; a typed pointer to the known address would be folded back into constants). */
+#define ST_USED(st)        ((st) + 3)                      /* g_007B7107 */
+#define ST_CHOOSABLE(st)   ((int *)((st) + 0x1A4))         /* g_007B72A8 */
+#define ST_GENERALS(st)    ((int *)((st) + 0x820))         /* g_007B7924 */
+#define ST_SHOWN(st)       ((int *)((st) + 0x1518))        /* g_007B861C */
+#define ST_NCHOOSABLE(st)  (*(int *)((st) + 0x1B94))       /* g_007B8C98 */
+#define ST_NGENERALS(st)   (*(int *)((st) + 0x1B98))       /* g_007B8C9C */
+#define ST_LEFT(st)        (*(int *)((st) + 0x1BA0))       /* g_007B8CA4 */
+#define ST_LEFT_GEN(st)    (*(int *)((st) + 0x1BA4))       /* g_007B8CA8 */
+#define ST_GAMES(st)       ((int *)((st) + 0x1BA8))        /* g_007B8CAC */
+/* Element `i` of an int array at offset `off` of the state, written as the original did. */
+#define ST_AT(st, off, i)  (*(int *)((st) + (i) * 4 + (off)))
 #define g_007B7106 (s_007B7104.g_007B7106)
 #define g_007B7107 (s_007B7104.g_007B7107)
 #define g_007B72A8 (s_007B7104.g_007B72A8)
@@ -543,18 +556,20 @@ void func_00365690(void)
     g_007B9390 = 0;
 }
 
-/* 0x003659A0, 0xA0 bytes. Marks which entries hold a game. */
+/* 0x003659A0, 0xA0 bytes, matching. Marks which entries hold a game. */
 void func_003659A0(void)
 {
+    u8 *st = &g_007B7104;
     int i;
 
     for (i = 0; i < func_0030AB90(); i++) {
-        int entry = func_0030AFF0(i);
+        int entry = func_0030AFF0(i), valid;
 
-        if (ENTRY_VALID(entry))
-            g_007B8CAC[i] = 1;
+        valid = entry >= 0 && entry < func_0030AB90();
+        if (valid)
+            ST_AT(st, 0x1BA8, i) = 1;
         else
-            g_007B8CAC[i] = 0;
+            ST_AT(st, 0x1BA8, i) = 0;
     }
 }
 
@@ -1280,22 +1295,22 @@ static void func_00367B10(int officer, int available)
         return;
     if (available != 0) {
         delta = 1;
-        if (st[officer + 3] == 1)
+        if (ST_USED(st)[officer] == 1)
             return;
-        st[officer + 3] = 1;
+        ST_USED(st)[officer] = 1;
     } else {
-        if (st[officer + 3] == 0)
+        if (ST_USED(st)[officer] == 0)
             return;
-        st[officer + 3] = 0;
+        ST_USED(st)[officer] = 0;
         delta = -1;
     }
     edited = officer >= 400 && officer < 0x19F;
     if (edited) {
-        *(int *)(st + 0x1BA0) += delta;
+        ST_LEFT(st) += delta;
     } else {
-        *(int *)(st + 0x1BA0) += delta;
+        ST_LEFT(st) += delta;
         if (officer >= 0x1C && officer < 400)
-            *(int *)(st + 0x1BA4) += delta;
+            ST_LEFT_GEN(st) += delta;
     }
 }
 
@@ -1313,26 +1328,28 @@ int func_00367BD0(int officer)
     return result;
 }
 
-/* 0x00367C20, 0xC4 bytes. The list shown: the choosable officers of g_007B72A8 (or of
+/* 0x00367C20, 0xC4 bytes, matching. The list shown: the choosable officers of g_007B72A8 (or of
  * g_007B7924 when `generals`), 0x19F after them. */
 int *func_00367C20(int generals)
 {
+    u8 *st = &g_007B7104;
     int i, n = 0;
 
     if (generals == 0) {
         for (i = 0; i < 0x19F; i++) {
-            g_007B861C[i] = 0x19F;
-            if (i < g_007B8C98 && g_007B7107[g_007B72A8[i]] != 0)
-                g_007B861C[n++] = g_007B72A8[i];
+            ST_AT(st, 0x1518, i) = 0x19F;
+            if (i < ST_NCHOOSABLE(st) && ST_USED(st)[ST_AT(st, 0x1A4, i)] != 0)
+                ST_AT(st, 0x1518, n++) = ST_AT(st, 0x1A4, i);
         }
+        return ST_SHOWN(st);
     } else {
         for (i = 0; i < 0x19F; i++) {
-            g_007B861C[i] = 0x19F;
-            if (i < g_007B8C9C && g_007B7107[g_007B7924[i]] != 0)
-                g_007B861C[n++] = g_007B7924[i];
+            ST_AT(st, 0x1518, i) = 0x19F;
+            if (i < ST_NGENERALS(st) && ST_USED(st)[ST_AT(st, 0x820, i)] != 0)
+                ST_AT(st, 0x1518, n++) = ST_AT(st, 0x820, i);
         }
+        return ST_SHOWN(st);
     }
-    return g_007B861C;
 }
 
 void func_0032D300(int a, int *list, int count);
@@ -1696,12 +1713,13 @@ void func_00368C00(void)
     GO_TO_NEXT_SCENE();
 }
 
-/* 0x00368CB0, 0x1AC bytes. The help line of the entry list: OK only while func_00375C10 is 1,
+/* 0x00368CB0, 0x1AC bytes, matching. The help line of the entry list: OK only while func_00375C10 is 1,
  * Back without a valid entry; else Info / Details with Edit when func_003A1A80 and Delete unless
  * the entry is protected (g_007B8CAC set and func_0030C9C0). */
 void func_00368CB0(void)
 {
-    int entry;
+    u8 *st = &g_007B7104;
+    int entry, valid;
 
     if (func_003F1160(0) != 0)
         return;
@@ -1710,18 +1728,19 @@ void func_00368CB0(void)
         return;
     }
     entry = func_0030AFF0(func_00374E00());
-    if (!(entry >= 0 && entry < func_0030AB90())) {
+    valid = entry >= 0 && entry < func_0030AB90();
+    if (!valid) {
         func_001A7DC0(g_0043C638, 0x80, 1);
-    } else if (func_003A1A80() == 0) {
-        if (g_007B8CAC[func_00374E00()] != 0 && func_0030C9C0(func_00374E00()) != 0)
-            func_001A7DC0(g_0043C824, 0x80, 1);
-        else
-            func_001A7DC0(g_0043C81C, 0x80, 1);
-    } else {
-        if (g_007B8CAC[func_00374E00()] != 0 && func_0030C9C0(func_00374E00()) != 0)
-            func_001A7DC0(g_0043C820, 0x80, 1);
-        else
+    } else if (func_003A1A80() != 0) {
+        if (ST_GAMES(st)[func_00374E00()] == 0 || func_0030C9C0(func_00374E00()) == 0)
             func_001A7DC0(g_0043C818, 0x80, 1);
+        else
+            func_001A7DC0(g_0043C820, 0x80, 1);
+    } else {
+        if (ST_GAMES(st)[func_00374E00()] == 0 || func_0030C9C0(func_00374E00()) == 0)
+            func_001A7DC0(g_0043C81C, 0x80, 1);
+        else
+            func_001A7DC0(g_0043C824, 0x80, 1);
     }
 }
 
