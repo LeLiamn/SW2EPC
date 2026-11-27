@@ -421,3 +421,173 @@ void func_001869F0(u16 *cmd)
         }
     }
 }
+
+extern u8 g_00669D70[];                  /* the scenario's event bits (in the settings) */
+
+void func_001D5060(u8 *base);
+void func_001EE570(u8 *o);
+void func_001D4DE0(u8 *base, short v);
+void func_001D4E40(u8 *base, short v);
+void func_001D4EA0(u8 *base, short v);
+void func_001EECE0(u8 *o, short v);
+void func_001EEDE0(u8 *o, short v);
+void func_001EEEE0(u8 *o, short v);
+
+
+
+/* Whether officer record `o` of side `side` stands in the area of cells x0-x1, z0-z1. */
+static inline int in_area(u8 *o, u16 side, int x0, int z0, int x1, int z1)
+{
+    u16 c;
+    int x, z;
+
+    if (side != U8(o, 0x79))
+        return 0;
+    c = U16(o, 0x40);
+    x = ((u8 *)&c)[0];
+    z = ((u8 *)&c)[1];
+    return !(x < x0) && !(x1 < x) && !(z < z0) && !(z1 < z);
+}
+
+/* 0x00186850, 0x194 bytes. Command: the base 0x46 (when active) and the officer 0x1AC, if
+ * their officer stands in the area cmd[1]-cmd[4] with side cmd[0], get func_001D4FB0 /
+ * func_001EE3B0. */
+void func_00186850(u16 *cmd)
+{
+    int x0 = (u8)cmd[1], z0 = (u8)cmd[2], x1 = (u8)cmd[3], z1 = (u8)cmd[4];
+    u8 *b = BASE68(0x46), *o;
+    u32 f;
+    int ok;
+
+    if (U32(b, 0x64) & 1) {
+        o = PTR(b, 0);
+        f = U32(o, 0x80);
+        ok = 0;
+        if ((f & 1) && ((f & 0x8C40002) != 0) ^ 1)
+            ok = 1;
+        if (ok && in_area(o, cmd[0], x0, z0, x1, z1))
+            func_001D4FB0(b);
+    }
+    o = REC88(0x1AC);
+    f = U32(o, 0x80);
+    ok = 0;
+    if ((f & 1) && ((f & 0x8C40002) != 0) ^ 1)
+        ok = 1;
+    if (ok && in_area(o, cmd[0], x0, z0, x1, z1))
+        func_001EE3B0(o);
+}
+
+/* 0x00186AD0, 0x1AC bytes. The same with func_001D5060 / func_001EE570, not for officers
+ * with flag 0x8000. */
+void func_00186AD0(u16 *cmd)
+{
+    int x0 = (u8)cmd[1], z0 = (u8)cmd[2], x1 = (u8)cmd[3], z1 = (u8)cmd[4];
+    u8 *b = BASE68(0x46), *o;
+    u32 f;
+    int ok;
+
+    if (U32(b, 0x64) & 1) {
+        o = PTR(b, 0);
+        f = U32(o, 0x80);
+        ok = 0;
+        if ((f & 1) && ((f & 0x8C40002) != 0) ^ 1)
+            ok = 1;
+        if (ok && cmd[0] == U8(o, 0x79) && (f & 0x8000) == 0
+            && in_area(o, cmd[0], x0, z0, x1, z1))
+            func_001D5060(b);
+    }
+    o = REC88(0x1AC);
+    f = U32(o, 0x80);
+    ok = 0;
+    if ((f & 1) && ((f & 0x8C40002) != 0) ^ 1)
+        ok = 1;
+    if (ok && cmd[0] == U8(o, 0x79) && (f & 0x8000) == 0 && in_area(o, cmd[0], x0, z0, x1, z1))
+        func_001EE570(o);
+}
+
+/* 0x00186C80, 0xD0 bytes, matching. Command: officer cmd[1]'s base (cmd[0] = 0) gets func_001D5060,
+ * else the officer func_001EE570. */
+void func_00186C80(u16 *cmd)
+{
+    u32 id = func_00185ED0(cmd[1]);
+
+    if (func_00185EC0(id) == 0) {
+        u8 *o = REC88(id);
+        u32 f = U32(o, 0x80);
+
+        if ((f & 0x30) == 0 && (f & 0x840002) == 0) {
+            if (cmd[0] == 0 && U32(o, 0x10) < 0x47)
+                func_001D5060(BASE68(U32(o, 0x10)));
+            else
+                func_001EE570(o);
+        }
+    }
+}
+
+/* 0x00186D50, 0xCC bytes, matching. Command: officer cmd[0] (not beaten or away) gets its troops back:
+ * +0x52 = +0x4E, at most +0x50; +0x74 cleared. */
+void func_00186D50(u16 *cmd)
+{
+    u32 id = func_00185ED0(cmd[0]);
+
+    if (func_00185EC0(id) == 0) {
+        u8 *o = REC88(id);
+
+        if ((U32(o, 0x80) & 6) == 0 && (U32(o, 0x80) & 0x30) == 0) {
+            short v, m, w;
+
+            U8(o, 0x74) = 0;
+            v = *(short *)(o + 0x4E);
+            m = *(short *)(o + 0x50);
+            w = m < v ? m : v;
+            *(short *)(o + 0x52) = w > 0 ? (m < v ? m : v) : 0;
+        }
+    }
+}
+
+/* 0x00186E20, 0x98 bytes. Command: sets (cmd[1]) or clears event bit cmd[0]. */
+void func_00186E20(u16 *cmd)
+{
+    u32 k = cmd[0];
+
+    if (cmd[1] == 0)
+        g_00669D70[(int)k >> 3] &= ~(1 << (k & 7));
+    else
+        g_00669D70[(int)k >> 3] |= 1 << (k & 7);
+}
+
+/* 0x00186EC0, 0x154 bytes. Command: changes value cmd[2] (0, 1, 2) by cmd[3] for officer
+ * cmd[1]'s base (cmd[0] = 0) or the officer itself. */
+void func_00186EC0(short *cmd)
+{
+    u32 id = func_00185ED0(cmd[1]);
+
+    if (func_00185EC0(id) == 0) {
+        u8 *o = REC88(id);
+
+        if ((U32(o, 0x80) & 0x30) == 0) {
+            if (cmd[0] == 0 && U32(o, 0x10) < 0x47) {
+                u8 *b = BASE68(U32(o, 0x10));
+
+                if (cmd[2] == 2)
+                    func_001D4DE0(b, cmd[3]);
+                else if (cmd[2] == 1)
+                    func_001D4E40(b, cmd[3]);
+                else if (cmd[2] == 0)
+                    func_001D4EA0(b, cmd[3]);
+            } else {
+                if (cmd[2] == 2)
+                    func_001EECE0(o, cmd[3]);
+                else if (cmd[2] == 1)
+                    func_001EEDE0(o, cmd[3]);
+                else if (cmd[2] == 0)
+                    func_001EEEE0(o, cmd[3]);
+            }
+        }
+    }
+}
+
+/* 0x00187020, 0x8 bytes, matching. Nothing. */
+void func_00187020(void)
+{
+}
