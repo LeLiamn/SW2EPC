@@ -1030,3 +1030,79 @@ void func_00203F90(u8 *s)
     else if ((f & 8) != 0 && (f & 0x4000000) != 0)
         stop_target(*(u8 **)(s + 0x14));
 }
+
+/* Target distances (0x00206480-0x00206DE8). */
+
+int func_00190610(u8 *pos, int k);
+void func_001F1470(u8 *s, u8 *t, u32 f, float *out);
+
+/* The squared ground distance between actors `a` and `b` (?: the VU0 code uses x and z). */
+static float dist2(u8 *a, u8 *b)
+{
+    float dx = *(float *)(b + 0x40) - *(float *)(a + 0x40);
+    float dz = *(float *)(b + 0x48) - *(float *)(a + 0x48);
+
+    return dx * dx + dz * dz;
+}
+
+/* 0x00206480, 0x108 bytes. Soldier `s`'s stance toward its target by distance (3 when the target
+ * is a friend; `far` doubles the distance). */
+void func_00206480(u8 *s, u8 *t, int far)
+{
+    u8 *o = *(u8 **)(s + 8);
+    float d, lim[4];
+    u32 k;
+
+    if (o == 0)
+        return;
+    if ((*(u8 **)(s + 0x10))[0x79] == (*(u8 **)(o + 0x10))[0x79]) {
+        s[0x7C] = 3;
+        return;
+    }
+    d = dist2(*(u8 **)(s + 0x14), *(u8 **)(o + 0x14));
+    if (far != 0)
+        d *= 2.0f;
+    func_001F1470(s, t, *(u32 *)(o + 0xB8) & 0x8000, lim);
+    for (k = 0; k < 3; k++) {
+        if (d < lim[k])
+            break;
+    }
+    s[0x7C] = k;
+}
+
+/* 0x00206B80, 0xE4 bytes. Whether soldier `s`'s target is a live one it can reach (its group
+ * active and not in state 3, the target not in the way of kind 2). */
+int func_00206B80(u8 *s)
+{
+    u8 *o = *(u8 **)(s + 8), *g;
+
+    if (o == 0 || (*(u32 *)(o + 0xB8) & 1) == 0 || (*(u32 *)(o + 0xB8) & 2) != 0)
+        return 0;
+    g = *(u8 **)(*(u8 **)(s + 0x10) + 0x18);
+    if (g == 0 || (*(u32 *)(g + 0x80) & 1) == 0 || (*(u32 *)(g + 0x80) & 0x8C40002) != 0)
+        return 0;
+    if (g[0x7A] == 3)
+        return 0;
+    return func_00190610(*(u8 **)(o + 0x14) + 0x40, 2) == 0;
+}
+
+/* 0x00206C70, 0x178 bytes. Whether soldier `s`'s target is within its reach (by its kind and
+ * order). */
+int func_00206C70(u8 *s)
+{
+    u32 f = *(u32 *)(s + 0xB8);
+    float r;
+
+    if ((*(u32 *)(g_00669D60 + 0x200) & 8) != 0) {
+        r = 22500.0f;
+    } else if ((f & 0x60) != 0) {
+        r = (*(u32 *)(s + 0xBC) & 0x2000000) == 0 ? 90000.0f : (float)func_001F1360(s, 0);
+    } else if ((f & 0x400) != 0) {
+        r = (*(u32 *)(s + 0xBC) & 0x1000000) == 0 ? 160000.0f : 640000.0f;
+    } else if (*(int *)(s + 0xC) != 0) {
+        r = 360000.0f;
+    } else {
+        r = (f & 0x8000) == 0 ? 90000.0f : 10000.0f;
+    }
+    return dist2(*(u8 **)(s + 0x14), *(u8 **)(*(u8 **)(s + 8) + 0x14)) < r;
+}
