@@ -1,7 +1,7 @@
 /*
  * fld_event_cmd.c - the battlefield's queued event commands (camera targets, battle messages,
  * scenario calls) and the helpers that queue them. Original file name unknown; this code follows
- * emp_fld_base.c's unit placement (0x00355FE0-0x00357764).
+ * emp_fld_base.c's unit placement (0x00355FE0-0x0035801C).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -700,4 +700,218 @@ void func_003576C0(char *out, int k, u32 ka, u16 a, u32 kb, u16 b)
     func_00356450(kb, b, &cb, sb);
     func_0022F120(f, fmt, TEXT(g_005BA6BC, k), ca, cb);
     func_001204B0(out, fmt, sa, sb);
+}
+
+/* The second queue (0x00357770-): 0x20 commands of 8 bytes at 0x007B6C30 (kind 0x31 = free). */
+
+extern EvCmd g_007B6C30[0x20];
+extern u8 g_00669D60[];                  /* the settings (+0x210: how the battle ended) */
+extern u32 g_7000015C;                   /* (scratchpad) the random seed */
+
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+#define BATTLE_END (*(int *)(g_00669D60 + 0x210))
+
+EvCmd *func_003577E0(u32 k);
+u8 **func_0033EF80(u32 i);
+int func_0033CC20(u8 **g, u8 **h);
+int func_0036D2E0(void);
+int func_0033BD10(u8 **g);
+int func_002F9C90(int f, int g);
+int func_0033B3B0(u8 **g);
+int func_0033B440(u8 **g);
+int func_0033B4E0(u8 **g);
+int func_0033B140(u8 **g);
+u32 func_0033BA90(u8 **g);
+u32 func_0033B740(u8 **g);
+u8 **func_0035DD10(int p);
+u8 **func_0033F110(u8 kind);
+
+/* 0x00357770, 0x58 bytes. Empties the second queue. */
+void func_00357770(void)
+{
+    EvCmd *c = func_003577E0(0);
+    u32 k;
+
+    for (k = 0; k < 0x20; k++, c++)
+        c->kind = 0x31;
+}
+
+/* 0x003577D0, 8 bytes, matching. */
+void func_003577D0(void)
+{
+}
+
+/* 0x003577E0, 0x2C bytes. Its slot `k`. */
+EvCmd *func_003577E0(u32 k)
+{
+    return k < 0x20 ? &g_007B6C30[k] : 0;
+}
+
+/* 0x00357810, 0x38 bytes, matching. Loads it from a save image. */
+u8 *func_00357810(u8 *p)
+{
+    func_00118AC0(g_007B6C30, p, 0x100);
+    return p + 0x100;
+}
+
+/* 0x00357850, 0x34 bytes, matching. Saves it. */
+u8 *func_00357850(u8 *p)
+{
+    func_00118AC0(p, g_007B6C30, 0x100);
+    return p + 0x100;
+}
+
+/* 0x00357890, 0x14C bytes. Another active group of `g`'s side that func_0033CC20 accepts (one at
+ * random among them), else 0. */
+u8 **func_00357890(u8 **g)
+{
+    u8 side = (*g)[0x79];
+    u8 **best = 0;
+    u32 k;
+
+    for (k = 0; k < 0x10; k++) {
+        u8 **h = func_0033EF80(k);
+        u32 f;
+
+        if (h == g || (((u32 *)h)[0x19] & 1) == 0)
+            continue;
+        f = UNIT_FLAGS(*h);
+        if ((f & 0x30) != 0)
+            continue;
+        if ((f & 1) != 0 && (f & 0x8C40002) == 0 && (f & 4) == 0 && side == (*h)[0x79]
+            && func_0033CC20(h, g) != 0 && (best == 0 || RANDOM() % 100 < 0x32))
+            best = h;
+    }
+    return best;
+}
+
+/* 0x003579E0, 0x1C0 bytes. Whether group `a` should give way to group `b` (by the officers'
+ * relation, then their kinds, then their ranks). */
+int func_003579E0(u8 **a, u8 **b)
+{
+    if (func_0036D2E0() != 0) {
+        int ia = func_0033BD10(a), ib = func_0033BD10(b);
+
+        if (ia >= 0 && ia < 0x19 && ib >= 0 && ib < 0x19) {
+            int r = func_002F9C90(ia, ib);
+
+            if (r == 2)
+                return 1;
+            if (r == 3)
+                return 0;
+        }
+    }
+    if (func_0033B3B0(b) != 0)
+        return func_0033B3B0(a) == 0;
+    if (func_0033B440(b) != 0 || func_0033B4E0(b) != 0)
+        return !(func_0033B3B0(a) != 0 || func_0033B440(a) != 0 || func_0033B4E0(a) != 0);
+    if (func_0033B3B0(a) != 0)
+        return 0;
+    if (func_0033B440(a) != 0 || func_0033B4E0(a) != 0)
+        return func_0033B3B0(b);
+    if (func_0033B140(b) != 0)
+        return 1;
+    if (func_0033B140(a) != 0)
+        return 0;
+    return func_0033BA90(a) < func_0033BA90(b);
+}
+
+/* 0x00357BA0, 0x74 bytes, matching. Whether group `b` is far stronger than `a`. */
+int func_00357BA0(u8 **a, u8 **b)
+{
+    if (func_0033BA90(a) + 10 < func_0033BA90(b))
+        return 1;
+    return func_0033B740(a) * 3 < func_0033B740(b);
+}
+
+/* 0x00357C20, 8 bytes, matching. */
+void func_00357C20(void)
+{
+}
+
+/* 0x00357C30, 0x5C bytes. The battle ends (message 0x75 when won, else 0x77). */
+void func_00357C30(int won)
+{
+    if (won == 0) {
+        func_00357110(0x77);
+        BATTLE_END = 3;
+    } else {
+        func_00357110(0x75);
+        BATTLE_END = 0;
+    }
+}
+
+/* 0x00357C90, 0x94 bytes. The same with messages 0x73 / 0x74 (the player's group named). */
+void func_00357C90(int won)
+{
+    if (won == 0) {
+        u8 **g = func_0033F110(0);
+
+        func_00357170(0x74, ((u8 *)g - g_006A1D58[0]) / 0x68 & 0xFFFF);
+        BATTLE_END = 3;
+    } else {
+        func_00357110(0x73);
+        BATTLE_END = 0;
+    }
+}
+
+/* 0x00357D30, 0x94 bytes. The same (a second ending kind). */
+void func_00357D30(int won)
+{
+    if (won == 0) {
+        u8 **g = func_0033F110(0);
+
+        func_00357170(0x74, ((u8 *)g - g_006A1D58[0]) / 0x68 & 0xFFFF);
+        BATTLE_END = 3;
+    } else {
+        func_00357110(0x73);
+        BATTLE_END = 0;
+    }
+}
+
+/* 0x00357DD0, 0x94 bytes. The same with messages 0x78 / 0x79 (ending 4). */
+void func_00357DD0(int won)
+{
+    if (won == 0) {
+        u8 **g = func_0033F110(0);
+
+        func_00357170(0x79, ((u8 *)g - g_006A1D58[0]) / 0x68 & 0xFFFF);
+        BATTLE_END = 4;
+    } else {
+        func_00357110(0x78);
+        BATTLE_END = 0;
+    }
+}
+
+/* 0x00357E70, 0x88 bytes. An ending command: kind `a` (0-3), result `b`. */
+void func_00357E70(EvCmd *c)
+{
+    u16 v = c->b;
+    short k = c->a;
+
+    if (k == 3)
+        func_00357DD0(v);
+    else if (k == 2)
+        func_00357D30(v);
+    else if (k == 1)
+        func_00357C90(v);
+    else if (k == 0)
+        func_00357C30(v);
+}
+
+/* 0x00357F00, 0x118 bytes. Now and then (30% below 50, 10% below 100 of the player's strength)
+ * group `g`'s leader comments on meeting player `p` (lines 0x59 / 0x5A). */
+void func_00357F00(int p, u8 **g)
+{
+    u8 **pg = func_0035DD10(p);
+    u32 m = 0x5C, chance = 0, v = func_0033B740(pg);
+
+    if (v < 0x32)
+        chance = 0x1E;
+    else if (v < 100)
+        chance = 10;
+    if (RANDOM() % 100 < chance)
+        m = func_003579E0(g, pg) != 0 ? 0x59 : 0x5A;
+    if (m < 0x5C)
+        func_00357420(m, ((u8 *)g - g_006A1D58[0]) / 0x68, 0, 2, 0);
 }
