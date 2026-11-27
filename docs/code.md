@@ -979,6 +979,24 @@ handles their hits and gauges. It is fully decompiled (70 functions, 16 match):
 - **Removal** (`0x00166160`): the unit drops its links and the effects it owns; it then becomes an
   empty unit (state 0x40).
 
+## Weapons (`src/weapon.c`)
+
+Original source file `Weapon.c` (its name is passed to the file loader at `0x0016CD30`). Done
+so far: `0x0016CD30`-`0x0016EC8C` except `0x0016D780`, 20 functions, 7 match. Unlike most of
+the game, this file was built with the loop unroller on.
+
+- **Tables** from LINKDATA_BNS: entry 0x56B gives each unit kind two sets of four (motion,
+  node) pairs (+3) and their modes (+0x13, +0x15); entry 0x56C gives the 0x30-byte weapon
+  records (two edges of six floats each). Kinds 0xCE-0xD5 use records 0x8B-0x92.
+- **Weapon objects:** 160 objects of 0xB0 bytes at `0x0056DC00` hold one edge each: a base
+  point, a direction, the current and previous ends (for trails), the matrix placing them.
+- **Slots** (`0x0016E300`): a unit's weapon slot takes one or two edges from the record, extra
+  edges for some kinds (0x3C-0x3F, 0x64-0x6F) or a shared edge for the two-handed kinds
+  (0x14-0x1B, 0x30-0x37), and a model object (a plain one, or a model actor).
+- **Hit tests:** a circle against a segment (`0x0016D3F0`) and a segment against a rectangle
+  (`0x0016D580`), used by the quad-against-body test `0x0016D780` (not written yet: Ghidra's
+  output for it is unreadable, it needs the disassembly).
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
