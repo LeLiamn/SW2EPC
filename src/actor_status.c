@@ -781,3 +781,326 @@ void func_00251B20(u8 *a, u32 *st)
         *(float *)((u8 *)st[0xC] + 0x2C) = (float)a[0x14D] / 128.0f;
     }
 }
+
+extern u8 g_005B4D80[], g_005B4FC0[];    /* two screen-corner positions (by player) */
+extern u8 g_005755A8;
+
+void func_001C8130(int k, float *pos, float *dir, u32 f, u8 who);
+u8 *func_001C84B0(int k, float *pos, float *dir, u32 f);
+int func_00240DB0(u8 *a);
+float func_001F2B70(float *pos);
+
+/* Copies node `n`'s position into the record's first vector. */
+static float *copy_node(u8 *a, u32 *st, int n)
+{
+    float *p = NODE_POS(a, n), *q = (float *)(st + 0x1C);
+
+    q[0] = p[0];
+    q[1] = p[1];
+    q[2] = p[2];
+    q[3] = p[3];
+    return q;
+}
+
+/* Leaves the first effect where it stands (to fade) and forgets it. */
+#define FX_LEAVE(st) (*(u32 *)((u8 *)(st)[0xC] + 0x34) |= 0x800, (st)[0xC] = 0)
+
+int func_00251C80(u8 *a, u32 *st, int k);
+void func_00251D90(u8 *a, u32 *st);
+void func_00251E00(u8 *a, u32 *st);
+
+/* 0x00251C20, 0x1C bytes, matching. */
+int func_00251C20(u8 *a, u32 *st, int k)
+{
+    return func_00251C80(a, st, k);
+}
+
+/* 0x00251C40, 0x3C bytes, matching. */
+void func_00251C40(u8 *a, u32 *st)
+{
+    func_00251D90(a, st);
+    func_00251E00(a, st);
+}
+
+/* 0x00251C80, 0x10C bytes. Starts a charge status (effect `k` between the hands). */
+int func_00251C80(u8 *a, u32 *st, int k)
+{
+    float *r = NODE_POS(a, 7), *l = NODE_POS(a, 6), *p = (float *)(st + 0x1C);
+    u32 f;
+
+    if (g_0045D344 == 0) {
+        st[0xA] = 1;
+        return 0;
+    }
+    f = fx_flags(a);
+    midpoint(p, r, l);
+    g_70000D60 = 0;
+    st[0xC] = (u32)func_001C8340(k, p, 0, f | 9);
+    st[3] = 0;
+    st[1] = k;
+    return 1;
+}
+
+/* 0x00251D90, 0x68 bytes. The charge ends with its timer (+0x172). */
+void func_00251D90(u8 *a, u32 *st)
+{
+    if (*(short *)(a + 0x172) == 0)
+        status_end(a, st);
+}
+
+/* 0x00251E00, 0x294 bytes. The charge: it follows the hands, bursts (0x50 / 0x52) at the root in
+ * its last 10 counts or when the timer runs out. */
+void func_00251E00(u8 *a, u32 *st)
+{
+    u16 t = *(u16 *)(a + 0x172);
+
+    if (t == 0) {
+        if (st[0xC] != 0) {
+            FX_STOP((u8 *)st[0xC]);
+            st[0xC] = 0;
+        }
+        if (st[3] == 0) {
+            u32 f = fx_flags(a);
+            float *p = NODE_POS(a, 0);
+
+            g_70000D60 = 1;
+            func_001C8130(st[1] == 0x51 ? 0x52 : 0x50, p, 0, f | 8, a[0x14E]);
+        }
+    } else if (t < 10) {
+        if (st[0xC] != 0) {
+            u32 f;
+            float *p;
+
+            st[3] = 1;
+            f = fx_flags(a);
+            midpoint((float *)(st + 0x1C), NODE_POS(a, 7), NODE_POS(a, 6));
+            *(u32 *)((u8 *)st[0xC] + 0x34) |= 0x400;
+            st[0xC] = 0;
+            p = NODE_POS(a, 0);
+            g_70000D60 = 1;
+            func_001C8130(st[0] == 0x10 ? 0x52 : 0x50, p, 0, f | 8, a[0x14E]);
+        }
+    } else {
+        midpoint((float *)(st + 0x1C), NODE_POS(a, 7), NODE_POS(a, 6));
+        if (st[0xC] != 0)
+            *(float *)((u8 *)st[0xC] + 0x2C) = (float)a[0x14D] / 128.0f;
+    }
+}
+
+int func_002520E0(u8 *a, u32 *st);
+void func_00252190(u8 *a, u32 *st);
+int func_00252290(u8 *a, u32 *st);
+void func_00252340(u8 *a, u32 *st);
+
+/* 0x002520A0, 0x1C bytes, matching. */
+int func_002520A0(u8 *a, u32 *st)
+{
+    return func_002520E0(a, st);
+}
+
+/* 0x002520C0, 0x1C bytes, matching. */
+void func_002520C0(u8 *a, u32 *st)
+{
+    func_00252190(a, st);
+}
+
+/* A ground status pair (effects `k1`, `k2` at the root). */
+static int ground_pair(u8 *a, u32 *st, int k1, int k2)
+{
+    float *p = NODE_POS(a, 0);
+
+    if (g_0045D344 < 2) {
+        st[0xA] = 1;
+        return 0;
+    }
+    if ((SETTINGS_FLAGS & 2) == 0) {
+        g_70000D60 = 3;
+        st[0xC] = (u32)func_001C8340(k1, p, 0, 0x209);
+    }
+    g_70000D60 = 0;
+    st[0xD] = (u32)func_001C8340(k2, p, 0, 0x209);
+    return 1;
+}
+
+/* It follows the root and fades with the gauge. */
+static void ground_pair_step(u8 *a, u32 *st)
+{
+    float *p = NODE_POS(a, 0);
+
+    if ((SETTINGS_FLAGS & 2) == 0 && st[0xC] != 0) {
+        *(float **)((u8 *)st[0xC] + 0xF0) = p;
+        *(float *)((u8 *)st[0xC] + 0x2C) = (float)a[0x14D] / 128.0f;
+    }
+    if (st[0xD] != 0) {
+        *(float **)((u8 *)st[0xD] + 0xF0) = p;
+        *(float *)((u8 *)st[0xD] + 0x2C) = (float)a[0x14D] / 128.0f;
+    }
+}
+
+/* 0x002520E0, 0xB0 bytes. */
+int func_002520E0(u8 *a, u32 *st)
+{
+    return ground_pair(a, st, 0x43, 0x44);
+}
+
+/* 0x00252190, 0xB8 bytes. */
+void func_00252190(u8 *a, u32 *st)
+{
+    ground_pair_step(a, st);
+}
+
+/* 0x00252250, 0x1C bytes, matching. */
+int func_00252250(u8 *a, u32 *st)
+{
+    return func_00252290(a, st);
+}
+
+/* 0x00252270, 0x1C bytes, matching. */
+void func_00252270(u8 *a, u32 *st)
+{
+    func_00252340(a, st);
+}
+
+/* 0x00252290, 0xB0 bytes. */
+int func_00252290(u8 *a, u32 *st)
+{
+    return ground_pair(a, st, 0x39, 0x3A);
+}
+
+/* 0x00252340, 0xB8 bytes. */
+void func_00252340(u8 *a, u32 *st)
+{
+    ground_pair_step(a, st);
+}
+
+/* 0x00252400, 0xA8 bytes. Starts the target status: a marker in the partner player's corner. */
+int func_00252400(u8 *a)
+{
+    u8 *o = *(u8 **)(a + 0x28C);
+
+    if (o != 0 && (o[0x19C] & 2) == 0) {
+        g_70000D60 = 0;
+        if (o[0x14E] == 1)
+            func_001C8340(0x26, (float *)g_005B4FC0, 0, 0x2A4);
+        else
+            func_001C8340(0x26, (float *)g_005B4D80, 0, 0x264);
+        if ((g_005755A8 & 2) == 0)
+            func_00229050(2);
+    }
+    return 1;
+}
+
+/* 0x002524B0, 0xF0 bytes. The target status ends with the partner. */
+void func_002524B0(u8 *a, u32 *st)
+{
+    if (*(u8 **)(a + 0x28C) == 0 || func_00240DB0(a) == 0)
+        status_end(a, st);
+}
+
+int func_00252600(u8 *a, u32 *st, int k);
+void func_002526C0(u8 *a, u32 *st);
+void func_00252740(u8 *a, u32 *st);
+
+/* 0x002525A0, 0x1C bytes, matching. */
+int func_002525A0(u8 *a, u32 *st, int k)
+{
+    return func_00252600(a, st, k);
+}
+
+/* 0x002525C0, 0x3C bytes, matching. */
+void func_002525C0(u8 *a, u32 *st)
+{
+    func_002526C0(a, st);
+    func_00252740(a, st);
+}
+
+/* 0x00252600, 0xB4 bytes. Starts a root status (effect `k`). */
+int func_00252600(u8 *a, u32 *st, int k)
+{
+    float *p;
+    u32 f;
+
+    if (g_0045D344 == 0) {
+        st[0xA] = 1;
+        return 0;
+    }
+    f = fx_flags(a);
+    p = copy_node(a, st, 0);
+    g_70000D60 = 0;
+    st[0xC] = (u32)func_001C84B0(k, p, 0, f | 0x109);
+    return 1;
+}
+
+/* 0x002526C0, 0x7C bytes. It ends when +0x157 and +0x194 are both clear. */
+void func_002526C0(u8 *a, u32 *st)
+{
+    if (a[0x157] == 0 && *(short *)(a + 0x194) == 0)
+        status_end(a, st);
+}
+
+/* 0x00252740, 0x64 bytes. It follows the root (left behind once +0x157 clears). */
+void func_00252740(u8 *a, u32 *st)
+{
+    copy_node(a, st, 0);
+    if (a[0x157] == 0)
+        FX_LEAVE(st);
+}
+
+int func_00252810(u8 *a, u32 *st);
+void func_002528D0(u8 *a, u32 *st);
+void func_00252940(u8 *a, u32 *st);
+
+/* 0x002527B0, 0x1C bytes, matching. */
+int func_002527B0(u8 *a, u32 *st)
+{
+    return func_00252810(a, st);
+}
+
+/* 0x002527D0, 0x3C bytes, matching. */
+void func_002527D0(u8 *a, u32 *st)
+{
+    func_002528D0(a, st);
+    func_00252940(a, st);
+}
+
+/* 0x00252810, 0xB8 bytes. Starts the ground shadow status (effect 0xE4 on the ground). */
+int func_00252810(u8 *a, u32 *st)
+{
+    float *p;
+    u32 f;
+
+    if (g_0045D344 == 0) {
+        st[0xA] = 1;
+        return 0;
+    }
+    f = fx_flags(a);
+    g_70000D60 = 0;
+    p = copy_node(a, st, 0);
+    p[1] = func_001F2B70(p);
+    st[0xC] = (u32)func_001C84B0(0xE4, p, 0, f | 0x11);
+    return 1;
+}
+
+/* 0x002528D0, 0x70 bytes. It ends with bit 3 of +0x19D. */
+void func_002528D0(u8 *a, u32 *st)
+{
+    if ((a[0x19D] & 8) == 0)
+        status_end(a, st);
+}
+
+/* 0x00252940, 0xC4 bytes. It follows the actor on the ground (left behind in states 0xA5-0xA6). */
+void func_00252940(u8 *a, u32 *st)
+{
+    u16 *s = *(u16 **)(a + 0x210);
+
+    NODE_POS(a, 0);
+    if ((a[0x19D] & 8) != 0 && st[0xC] != 0) {
+        float *p = copy_node(a, st, 0);
+
+        p[1] = func_001F2B70(p);
+        if (s != 0 && (u32)(*s - 0xA5) < 2)
+            FX_LEAVE(st);
+    } else if (st[0xC] != 0) {
+        FX_LEAVE(st);
+    }
+}
