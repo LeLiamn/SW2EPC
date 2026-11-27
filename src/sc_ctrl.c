@@ -287,3 +287,137 @@ int func_00186480(int x)
         return 0;
     return 1;
 }
+
+/* The game state object at 0x00693970 holds the 0x88-byte officer records (+0), 0x68-byte
+ * base records (+0xE3E8, 0x47 of them?) and the battle officers (0xC0 each, +0x100C0). */
+#define REC88(i) (g_00693970[0] + (i) * 0x88)
+#define BASE68(v) (g_00693970[0] + 0xE3E8 + (v) * 0x68)
+
+extern u8 g_006A3A30[][0xC0];            /* the battle officers (game state +0x100C0) */
+
+void func_001EEBF0(u8 *o);
+void func_001F1910(u8 *o);
+void func_001EE3A0(u8 *o);
+void func_001EE9C0(u8 *o, u8 a);
+void func_001ED160(u8 *o, u8 *a, int b);
+void func_00207260(u8 *r, float *pos);
+void func_002075A0(float yaw, u8 *r, float *out, int a);
+void func_001660C0(u8 *u, float *pos);
+void func_001F1A30(u8 *o);
+void func_001D4C20(u8 *base, int a);
+void func_001EEC50(u8 *o);
+void func_001D4FB0(u8 *base);
+void func_001D4C00(u8 *o);
+void func_001EE3B0(u8 *o);
+
+/* 0x001864B0, 0x2C8 bytes. Moves officer record `o` to `pos` facing `yaw` (wrapped to -pi..pi):
+ * its map cells (5000 and 1000 units), its links reset; an officer on the field (flag 0x20000)
+ * places its units, and their companions, around the point. `keep`: keep its state. */
+void func_001864B0(float yaw, u8 *o, float *pos, int keep)
+{
+    float x, y, a;
+
+    if (keep == 0) {
+        if ((U32(o, 0x80) & 2) == 0) {
+            if (U32(o, 0x80) & 0x40000)
+                func_001EEBF0(o);
+            func_001F1910(o);
+        } else {
+            func_001EE3A0(o);
+        }
+    } else {
+        func_001F1910(o);
+    }
+    x = pos[0];
+    y = pos[1];
+    *(float *)(o + 0x28) = pos[0];
+    *(float *)(o + 0x2C) = pos[1];
+    *(float *)(o + 0x30) = pos[0];
+    *(float *)(o + 0x34) = pos[1];
+    U8(o, 0x40) = (u8)((int)x / 5000);
+    U8(o, 0x41) = (u8)((int)y / 5000);
+    U8(o, 0x46) = (u8)((int)x / 1000);
+    U8(o, 0x47) = (u8)((int)y / 1000);
+    if (3.1415927f < yaw)
+        a = yaw - 6.2831855f;
+    else if (yaw <= -3.1415927f)
+        a = yaw + 6.2831855f;
+    else
+        a = yaw;
+    *(float *)(o + 0x20) = a;
+    func_001EE9C0(o, U8(o, 0x7B));
+    if (PTR(o, 0x18) != 0) {
+        func_001ED160(o, PTR(o, 0x18), 0);
+        PTR(o, 0x18) = 0;
+        U32(o, 0x84) |= 0x10;
+    }
+    PTR(o, 0x1C) = 0;
+    U32(o, 0x84) |= 0x10;
+    U8(o, 0x42) = 0;
+    U8(o, 0x43) = 0;
+    U8(o, 0x7A) = 0;
+    if (U32(o, 0x80) & 0x20000) {
+        u8 *r;
+
+        for (r = g_006A3A30[U32(o, 0x14)]; r != 0; r = PTR(r, 4)) {
+            u8 *u;
+            float p[4];
+            int k;
+
+            func_00207260(r, pos);
+            u = PTR(r, 0x14);
+            *(float *)(u + 0x238) = yaw;
+            U8(u, 0x27C) &= ~1;
+            *(float *)(u + 0x54) = yaw;
+            for (k = 0; k < 4; k++)
+                p[k] = *(float *)(r + 0x20 + k * 4);
+            func_002075A0(yaw, r, p, 0);
+            func_001660C0(u, p);
+            if (PTR(r, 0xC) != 0)
+                func_001660C0(PTR(PTR(r, 0xC), 0x14), p);
+        }
+    }
+    func_001F1A30(o);
+}
+
+/* 0x00186780, 0xD0 bytes, matching. Command: send officer cmd[1] (if free and on the field) to its base
+ * (cmd[0] = 0, a base under 0x47), else func_001EEC50. */
+void func_00186780(u16 *cmd)
+{
+    u32 id = func_00185ED0(cmd[1]);
+
+    if (func_00185EC0(id) == 0) {
+        u8 *o = REC88(id);
+        u32 f = U32(o, 0x80);
+
+        if ((f & 0x30) == 0 && (f & 0x840002) == 0) {
+            f = U32(o, 0x10);
+            if (cmd[0] == 0 && f < 0x47)
+                func_001D4C20(BASE68(f), 1);
+            else
+                func_001EEC50(o);
+        }
+    }
+}
+
+/* 0x001869F0, 0xD4 bytes, matching. Command: the reverse for officer cmd[1] (its base's func_001D4FB0,
+ * else func_001D4C00 and func_001EE3B0). */
+void func_001869F0(u16 *cmd)
+{
+    u32 id = func_00185ED0(cmd[1]);
+
+    if (func_00185EC0(id) == 0) {
+        u8 *o = REC88(id);
+
+        if ((U32(o, 0x80) & 0x30) == 0 && (U32(o, 0x80) & 0x840002) == 0) {
+            u32 b = U32(o, 0x10);
+
+            if (cmd[0] == 0 && b < 0x47) {
+                func_001D4FB0(BASE68(b));
+            } else {
+                func_001D4C00(o);
+                func_001EE3B0(o);
+            }
+        }
+    }
+}
