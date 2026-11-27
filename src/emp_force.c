@@ -376,19 +376,42 @@ int func_002F9A90(u32 i);
 void func_002F9E10(u32 i, int v);
 int func_002FA060(u32 i);
 void func_002FA0D0(u32 i, int v);
-int func_002FA160(u32 i);
 int func_002FA390(u32 i);
 void func_002FA400(u32 i, int v);
 int func_002FA490(u32 i);
-int func_002FA5A0(u32 i);
 void func_002FA720(u32 i, int v);
 int func_002FA790(u32 i);
 void func_002FA800(u32 i, int v);
 int func_002FA870(u32 i);
 void func_002FA8E0(u32 i, int v);
 int func_002FA970(u32 i);
-int func_002FAAD0(u32 i);
-int func_002FAD20(u32 i);
+void func_002FA220(int f, int v);
+void func_002FA500(int f, int g);
+int func_002FA9E0(int f, int k);
+void func_002FAA50(int f, int k, u8 v);
+void func_002FAB40(int f, int v);
+int func_002FABC0(int f);
+void func_002FAEA0(int f, int g, int v, int kind);
+void func_002FAF30(int f, int g);
+int func_002FAFA0(int f, int g);
+void func_002FAFC0(int f);
+int func_002FB040(int f, int *out);
+int func_002FB100(int f);
+int func_002FB120(int f);
+int func_002FB1A0(int f);
+int func_002FB220(int f);
+int func_002FB2A0(int f);
+int func_002FB2D0(int f);
+int func_002FB320(int r, int *out);
+int func_002FB3B0(int r);
+int func_00327D50(void);
+int func_00329790(void);
+int func_003297D0(void);
+int func_00329810(void);
+int func_002FBD80(int f);
+int func_002FBDA0(int f);
+int func_002F5CC0(u32 i);
+int func_0030AFF0(int f);
 /* END PROTOS */
 
 /* 0x002F9060, 0x64 bytes, matching. */
@@ -547,3 +570,247 @@ int func_002FAD20(u32 i)
     return *(u16 *)(frc(i) + 0xE);
 }
 
+
+int func_002FA160(u32 f);
+int func_002FA5A0(u32 f);
+int func_002FAAD0(u32 f);
+int func_002FAD20(u32 f);
+int func_00327D50(void);
+int func_00329790(void);
+int func_003297D0(void);
+int func_00329810(void);
+int func_002FBD80(int f);
+int func_002FBDA0(int f);
+int func_002F5CC0(u32 i);
+int func_0030AFF0(int f);
+
+/* Whether `v` is a force or 0x19. */
+#define FORCE_OR_NONE(v) (is_force(v) || (v) == 0x19)
+
+/* 0x002FA220, 0x170 bytes. Sets force `f`'s +0x71 by its +0x70 kind: kinds 0-1 a force or
+ * none, 2-3 at most 7, 4-6 a force or none, others a byte. */
+void func_002FA220(int f, int v)
+{
+    int k = func_002FA160(f);
+
+    if (func_002FA1D0(k) == 0) {
+        if (func_002FA1F0(k) != 0) {
+            if (v > 7)
+                return;
+        } else if (func_002FA210(k) == 0) {
+            if (v > 0xFF)
+                return;
+        } else if (!FORCE_OR_NONE(v)) {
+            return;
+        }
+    } else if (!FORCE_OR_NONE(v)) {
+        return;
+    }
+    frc(f)[0x71] = (u8)v;
+}
+
+/* 0x002FA500, 0xA0 bytes. Sets force `f`'s ally (+0x73: a force or none). */
+void func_002FA500(int f, int g)
+{
+    if (FORCE_OR_NONE(g))
+        frc(f)[0x73] = (u8)g;
+}
+
+/* 0x002FA610, 0xA0 bytes. Sets force `f`'s target (+0x74). */
+void func_002FA610(int f, int g)
+{
+    if (FORCE_OR_NONE(g))
+        frc(f)[0x74] = (u8)g;
+}
+
+/* 0x002FA9E0, 0x70 bytes, matching. Force `f`'s byte `k` of +0x46. */
+int func_002FA9E0(int f, int k)
+{
+    return frc(f)[0x46 + k];
+}
+
+/* 0x002FAA50, 0x7C bytes, matching. */
+void func_002FAA50(int f, int k, u8 v)
+{
+    frc(f)[0x46 + k] = v;
+}
+
+/* 0x002FAB40, 0x80 bytes. Sets force `f`'s +0xC (at most 1000). */
+void func_002FAB40(int f, int v)
+{
+    if (v > 1000)
+        v = 1000;
+    *(short *)(frc(f) + 0xC) = (short)v;
+}
+
+/* Clamps into 0-`max`. */
+#define CLAMP0(v, max) ((v) > (max) ? (max) : (v) < 1 ? 0 : (v))
+
+int func_002FAD90(int f);
+
+/* 0x002FABC0, 0x160 bytes. Force `f`'s strength (0-1000): its base, its policy's first value
+ * (at most 600), for the player's force a tenth of three counts (at most 300), and 2/5 of its
+ * power (at most 400). */
+int func_002FABC0(int f)
+{
+    int base = func_002FAAD0(f), pol = (short)func_002F9890(f), pl = 0, pw;
+
+    pol = CLAMP0(pol, 600);
+    if (f == func_00327D50()) {
+        pl = (func_00329810() + func_00329790() + func_003297D0()) / 10;
+        pl = CLAMP0(pl, 300);
+    }
+    pw = func_002FAD90(f) * 2 / 5;
+    pw = CLAMP0(pw, 400);
+    pw = pw + pl + base + pol;
+    return CLAMP0(pw, 1000);
+}
+
+/* 0x002FAD90, 0x104 bytes. Force `f`'s power (0-1000): its base, 7/10 of its three values (at
+ * most 840) and 40 per two counts. */
+int func_002FAD90(int f)
+{
+    int base = func_002FAD20(f);
+    int v = (func_002F9390(f, 2) + func_002F9390(f, 0) + func_002F9390(f, 1)) * 7 / 10;
+
+    v = CLAMP0(v, 0x348);
+    v = base + v + (func_002FBD80(f) + func_002FBDA0(f)) * 0x28;
+    return CLAMP0(v, 1000);
+}
+
+/* 0x002FAEA0, 0x8C bytes. Sets the relation of forces `f` and `g` both ways (kinds 2 and 3 are
+ * each other's mirror). */
+void func_002FAEA0(int f, int g, int v, int kind)
+{
+    int back = kind == 2 ? 3 : kind == 3 ? 2 : kind;
+
+    func_002F9B00(f, g, v, kind);
+    func_002F9B00(g, f, v, back);
+}
+
+/* 0x002FAF30, 0x70 bytes, matching. Ends any relation between forces `f` and `g` (and their alliance). */
+void func_002FAF30(int f, int g)
+{
+    func_002FAEA0(f, g, 0, 0);
+    if (g == func_002FA5A0(f))
+        func_002FA500(f, 0x19);
+    if (f == func_002FA5A0(g))
+        func_002FA500(g, 0x19);
+}
+
+/* 0x002FAFA0, 0x20 bytes. Whether forces `f` and `g` have a relation. */
+int func_002FAFA0(int f, int g)
+{
+    return func_002F9C90(f, g) != 0;
+}
+
+/* 0x002FAFC0, 0x7C bytes. Ends force `f`'s relations with every force in play. */
+void func_002FAFC0(int f)
+{
+    int g;
+
+    for (g = 0; g < func_0030AB90(); g++) {
+        if (f != g && func_002F8CB0(g) != 0)
+            func_002FAF30(f, g);
+    }
+}
+
+/* 0x002FB040, 0xBC bytes. The forces in play force `f` has a relation with (into `out` when
+ * given); returns how many. */
+int func_002FB040(int f, int *out)
+{
+    int g, n = 0;
+
+    for (g = 0; g < func_0030AB90(); g++) {
+        if (f != g && func_002F8CB0(g) != 0 && func_002F9C90(f, g) != 0) {
+            if (out != 0)
+                *out++ = g;
+            n++;
+        }
+    }
+    return n;
+}
+
+/* 0x002FB100, 0x1C bytes, matching. */
+int func_002FB100(int f)
+{
+    return func_002FB040(f, 0);
+}
+
+/* 0x002FB120, 0x80 bytes. Whether force `f` has a relation of kind 2 with a force in play. */
+int func_002FB120(int f)
+{
+    int g;
+
+    for (g = 0; g <= 0x18; g++) {
+        if (f != g && func_002F8CB0(g) != 0 && func_002F9C90(f, g) == 2)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x002FB1A0, 0x80 bytes. That force (0x19 for none). */
+int func_002FB1A0(int f)
+{
+    int g;
+
+    for (g = 0; g <= 0x18; g++) {
+        if (f != g && func_002F8CB0(g) != 0 && func_002F9C90(f, g) == 2)
+            return g;
+    }
+    return 0x19;
+}
+
+/* 0x002FB220, 0x80 bytes. Whether force `f` has a relation of kind 3. */
+int func_002FB220(int f)
+{
+    int g;
+
+    for (g = 0; g <= 0x18; g++) {
+        if (f != g && func_002F8CB0(g) != 0 && func_002F9C90(f, g) == 3)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x002FB2A0, 0x2C bytes, matching. Whether `f` is the player's force. */
+int func_002FB2A0(int f)
+{
+    return f == func_00327D50();
+}
+
+/* 0x002FB2D0, 0x4C bytes. Force `f`'s leader's second force (0x19 without a leader). */
+int func_002FB2D0(int f)
+{
+    int l = func_002F8F20(f);
+
+    if (l < 0 || l > 0x19E)
+        return 0x19;
+    return func_002F5CC0(l);
+}
+
+/* 0x002FB320, 0x90 bytes. The forces of region `r` (into `out`); returns how many. */
+int func_002FB320(int r, int *out)
+{
+    int f, n = 0;
+
+    for (f = 0; f < func_0030AB90(); f++) {
+        if (r == func_0030AFF0(f)) {
+            *out++ = f;
+            n++;
+        }
+    }
+    return n;
+}
+
+/* 0x002FB3B0, 0x7C bytes. How many forces region `r` has. */
+int func_002FB3B0(int r)
+{
+    int f, n = 0;
+
+    for (f = 0; f < func_0030AB90(); f++) {
+        if (r == func_0030AFF0(f))
+            n++;
+    }
+    return n;
+}
