@@ -205,7 +205,7 @@ const char *func_0019AFD0(u32 id, int blank)
     return g_00425740;
 }
 
-/* 0x0019B0C0, 0x1C bytes. */
+/* 0x0019B0C0, 0x1C bytes, matching. */
 void func_0019B0C0(u32 id)
 {
     func_0019AFD0(id, 0);
@@ -218,7 +218,7 @@ char *func_0019B0E0(char *out, u32 t)
     return out;
 }
 
-/* 0x0019B130, 0x3C bytes. Copies officer `id`'s name to `out`. */
+/* 0x0019B130, 0x3C bytes, matching. Copies officer `id`'s name to `out`. */
 char *func_0019B130(char *out, u32 id)
 {
     func_00120928(out, func_0019AFD0(id, 0));
@@ -243,7 +243,7 @@ char *func_0019B200(char *out, u32 t, u32 n)
     return out;
 }
 
-/* 0x0019B240, 0x38 bytes. */
+/* 0x0019B240, 0x38 bytes, matching. */
 char *func_0019B240(char *out, u32 t)
 {
     func_0019B0E0(out, func_0019AEF0(t));
@@ -304,7 +304,7 @@ short func_0019B410(u32 a, u32 kind)
     return sum;
 }
 
-/* 0x0019B4E0, 0x8 bytes. */
+/* 0x0019B4E0, 0x8 bytes, matching. */
 int func_0019B4E0(void)
 {
     return 0;
@@ -1198,4 +1198,327 @@ void func_0019EFD0(void)
         g_00669F60[0] = (g_00669F60[0] & ~c) | g_00669F64[0];
         g_00669F64[0] = 0;
     }
+}
+
+/* The settings' word / half / byte at `off`. */
+#define SET32(off) (*(u32 *)(g_00669D60 + (off)))
+#define SET16(off) (*(u16 *)(g_00669D60 + (off)))
+#define SET8(off)  (*(u8 *)(g_00669D60 + (off)))
+
+extern u8 *g_0045D2F8;                   /* (small data) the settings in use (0: the main ones) */
+extern u32 g_005DF9A0, g_006725B0;
+extern u8 g_0068DDE0[];
+
+void func_00118850(void *p, u32 n);
+void func_001A28F0(void);
+void func_001A1D10(void);
+u32 func_002EFB00(int k);
+void func_002EFB70(u8 *p);
+void func_0030D6B0(u8 *p);
+void func_0011EB80(void *d, const void *s, u32 n);
+u32 func_001A1840(int k);
+int func_003270F0(u32 a);
+
+/* Resets player `p`'s boosts and study. */
+static inline void clear_boosts(int p)
+{
+    int k;
+
+    for (k = 0; k < 5; k++) {
+        PSET(p, 0xA4) &= ~(1u << k);
+        PSET(p, 0xA8 + k * 4) = 0;
+    }
+    PSET(p, 0xBC) = -1;
+    U16(g_00669D60, p * 0x48 + 0xC0) = 0;
+    U16(g_00669D60, p * 0x48 + 0xC2) = 0;
+}
+
+/* 0x0019F350, 0xA8 bytes, matching. Clears the settings (0x25310 bytes) for mode 8 with no officers. */
+void func_0019F350(void)
+{
+    func_00118850(g_00669D60, 0x25310);
+    func_001A28F0();
+    g_00669DB8[0] = 8;
+    PSET(0, 0x88) = 0x19F;
+    PSET(0, 0xBC) = -1;
+    U16(g_00669D60, 0xC0) = 0;
+    U16(g_00669D60, 0xC2) = 0;
+    U16(g_00669D60, 0xC6) = 0;
+    SET8(0xCA) = 0;
+    PSET(1, 0x88) = 0x19F;
+    PSET(1, 0xBC) = -1;
+    U16(g_00669D60, 0x48 + 0xC0) = 0;
+    U16(g_00669D60, 0x48 + 0xC2) = 0;
+    U16(g_00669D60, 0x48 + 0xC6) = 0;
+    SET8(0x48 + 0xCA) = 0;
+    func_001A1D10();
+}
+
+/* 0x0019F400, 0x8 bytes, matching. Nothing. */
+void func_0019F400(void)
+{
+}
+
+/* 0x0019F410, 0x140 bytes. Before a battle: the players' counts, experience to go, boosts,
+ * study and a flag; the weapons and skills found; three counters (not in mode 3: player 2 off). */
+void func_0019F410(void)
+{
+    int p;
+
+    if (g_00669DB8[0] != 3) {
+        SET8(0xCA) = 0;
+        SET8(0x48 + 0xCA) = 1;
+    }
+    for (p = 0; p < 2; p++) {
+        PSET(p, 0x8C) = 0;
+        PSET(p, 0x90) = 0;
+        PSET(p, 0x94) = 0;
+        func_0019EF10(p);
+        clear_boosts(p);
+        SET8(p * 0x48 + 0xCC) &= 0xFE;
+        U16(g_00669D60, p * 0x48 + 0xC6) = 0;
+    }
+    func_0019DD20();
+    func_0019DD70();
+    SET32(0x210) = 0;
+    SET32(0x23C) = 0;
+    SET32(0x240) = 0;
+}
+
+/* 0x0019F550, 0x120 bytes. For a new game: both players without officers, their counts and
+ * boosts cleared, the found lists, the battle flags, the mode and the stage reached. */
+void func_0019F550(void)
+{
+    int p;
+
+    SET8(0xCA) = 0;
+    SET8(0x48 + 0xCA) = 1;
+    for (p = 0; p < 2; p++) {
+        PSET(p, 0x88) = 0x19F;
+        PSET(p, 0x8C) = 0;
+        PSET(p, 0x90) = 0;
+        PSET(p, 0x94) = 0;
+        PSET(p, 0x98) = 0;
+        clear_boosts(p);
+        U16(g_00669D60, p * 0x48 + 0xC6) = 0;
+        SET8(p * 0x48 + 0xCA) = 0;
+    }
+    func_0019DD20();
+    func_0019DD70();
+    SET32(0x200) = 0;
+    SET32(0x20C) = 0;
+    SET32(0x210) = 0;
+    SET32(0x238) = 0;
+    SET32(0x23C) = 0;
+    SET32(0x240) = 0;
+}
+
+/* 0x0019F670, 0xD4 bytes, matching. Saves the game settings to `p`; returns the end (0x148 bytes). */
+u8 *func_0019F670(u8 *p)
+{
+    func_00118AC0(p, g_00669D60 + 0x58, 4);
+    func_00118AC0(p + 4, g_00669D60 + 0x60, 0x14);
+    func_00118AC0(p + 0x18, g_00669D60 + 0x74, 0x14);
+    func_00118AC0(p + 0x2C, g_00669D60 + 0x88, 0x90);
+    func_00118AC0(p + 0xBC, g_00669D60 + 0x1C0, 0x40);
+    func_00118AC0(p + 0xFC, g_00669D60 + 0x200, 4);
+    func_00118AC0(p + 0x100, g_00669D60 + 0x204, 4);
+    func_00118AC0(p + 0x104, g_00669D60 + 0x208, 4);
+    func_00118AC0(p + 0x108, g_00669D60 + 0x214, 0x40);
+    return p + 0x148;
+}
+
+void func_0019F920(u8 *d, const u8 *s);
+
+/* 0x0019F750, 0xF4 bytes, matching. Loads them from `p`, then the scenario value from the save header. */
+void func_0019F750(u8 *p)
+{
+    u8 h[0xC];
+
+    func_00118AC0(g_00669D60 + 0x58, p, 4);
+    func_00118AC0(g_00669D60 + 0x60, p + 4, 0x14);
+    func_00118AC0(g_00669D60 + 0x74, p + 0x18, 0x14);
+    func_00118AC0(g_00669D60 + 0x88, p + 0x2C, 0x90);
+    func_00118AC0(g_00669D60 + 0x1C0, p + 0xBC, 0x40);
+    func_00118AC0(g_00669D60 + 0x200, p + 0xFC, 4);
+    func_00118AC0(g_00669D60 + 0x204, p + 0x100, 4);
+    func_00118AC0(g_00669D60 + 0x208, p + 0x104, 4);
+    func_00118AC0(g_00669D60 + 0x214, p + 0x108, 0x40);
+    func_0019F920(h, (const u8 *)func_002EFB00(0));
+    g_00669D81[0] = h[9];
+}
+
+/* 0x0019F850, 0xC4 bytes. Writes the 12-byte save header (a count, the stage reached, the mode,
+ * +0x5C, the stage, the scenario value, both players' officers); returns the end. */
+u8 *func_0019F850(u8 *p)
+{
+    u8 h[0xC];
+
+    *(u32 *)h = SET32(0x23C);
+    *(u16 *)(h + 4) = (u16)SET32(0x238);
+    h[6] = (u8)g_00669DB8[0];
+    h[7] = (u8)SET32(0x5C);
+    if (g_00669DB8[0] == 2)
+        h[8] = (u8)SET32(0x60 + SET32(0x238) % 5 * 4);
+    else
+        h[8] = (u8)SET32(0x60);
+    h[9] = g_00669D81[0];
+    h[10] = (u8)PSET(0, 0x88);
+    h[11] = (u8)PSET(1, 0x88);
+    func_00118AC0(p, h, 0xC);
+    return p + 0xC;
+}
+
+/* 0x0019F920, 0x1C bytes, matching. Copies a save header. */
+void func_0019F920(u8 *d, const u8 *s)
+{
+    func_00118AC0(d, s, 0xC);
+}
+
+/* 0x0019F940, 0x8 bytes, matching. Sets the settings in use. */
+void func_0019F940(u8 *p)
+{
+    g_0045D2F8 = p;
+}
+
+/* 0x0019F950, 0x8 bytes, matching. Nothing. */
+void func_0019F950(void)
+{
+}
+
+/* 0x0019F960, 0x10 bytes, matching. */
+void func_0019F960(u8 *s)
+{
+    *(u32 *)(s + 0xC8D0) = 0;
+}
+
+/* 0x0019F970, 0x1C bytes, matching. */
+void func_0019F970(u8 *p)
+{
+    func_002EFB70(p);
+}
+
+/* 0x0019F990, 0x20 bytes, matching. */
+void func_0019F990(u8 *s)
+{
+    func_0019F970(s + 0xC8D0);
+}
+
+u8 *func_0019FBA0(int k);
+u8 *func_0019FBE0(void);
+
+/* 0x0019F9B0, 0xD4 bytes, matching. Fills slot `k` of save image `s` (+6 the slot): its part, the
+ * 0x1280-byte state at 0x0068DDE0, the 0x348-byte records and the 0x90-byte items. */
+void func_0019F9B0(u8 *s, int k)
+{
+    *(short *)(s + 6) = (short)k;
+    func_0030D6B0(s + k * 0x94AC + 0x7A990);
+    func_0011EB80(s + k * 0x1280 + 0x3A0, func_0019FBE0(), 0x1280);
+    func_0011EB80(s + k * 0x348 + 0x3B20, func_0019FBA0(0), 0x348);
+    func_0011EB80(s + k * 0x90 + 0x44F8, func_0019FBC0(0), 0x90);
+}
+
+/* 0x0019FA90, 0x68 bytes, matching. The same, and slot `k`'s second part. */
+void func_0019FA90(u8 *s, int k)
+{
+    func_0019F9B0(s, k);
+    func_0019F970(s + k * 0x1B830 + 0x28100);
+}
+
+/* 0x0019FB00, 0xC bytes, matching. */
+u16 func_0019FB00(void)
+{
+    return SET16(6);
+}
+
+/* 0x0019FB10, 0x68 bytes. Whether one of the three save slots holds a game. */
+int func_0019FB10(void)
+{
+    int k;
+
+    for (k = 0; k < 3; k++) {
+        if (func_003270F0(func_001A1840(k)) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x0019FB80, 0x10 bytes. */
+int func_0019FB80(void)
+{
+    return g_005DF9A0 != 0;
+}
+
+/* 0x0019FB90, 0x10 bytes. */
+int func_0019FB90(void)
+{
+    return g_006725B0 != 0;
+}
+
+/* 0x0019FBA0, 0x20 bytes, matching. Record `k` (0x38 bytes, settings +0x254). */
+u8 *func_0019FBA0(int k)
+{
+    return g_00669D60 + 0x254 + k * 0x38;
+}
+
+/* 0x0019FBC0, 0x20 bytes, matching. Item `k` (0x24 bytes, settings +0x5A0; +0x13 its wearer's name). */
+u8 *func_0019FBC0(int k)
+{
+    return g_00669D60 + 0x5A0 + k * 0x24;
+}
+
+/* 0x0019FBE0, 0xC bytes, matching. */
+u8 *func_0019FBE0(void)
+{
+    return g_0068DDE0;
+}
+
+/* 0x0019FBF0, 0x24 bytes. The settings in use (else the copy at +0x630). */
+u8 *func_0019FBF0(void)
+{
+    u8 *p = g_0045D2F8;
+
+    if (p == 0)
+        p = g_00669D60 + 0x630;
+    return p;
+}
+
+/* 0x0019FC20, 0xC bytes. */
+u32 *func_0019FC20(void)
+{
+    return &g_006725B0;
+}
+
+/* 0x0019FC30, 0x120 bytes, matching. Clears the four items (state 4, no name). */
+void func_0019FC30(void)
+{
+    int i, k;
+
+    for (i = 0; i < 4; i++) {
+        func_0019FBC0(i)[4] = 4;
+        func_00120928((char *)func_0019FBC0(i) + 0x13, g_00425740);
+        func_0019FBC0(i)[5] = 0;
+        func_0019FBC0(i)[6] = 0;
+        func_0019FBC0(i)[7] = 0;
+        func_0019FBC0(i)[8] = 0;
+        func_0019FBC0(i)[9] = 0;
+        for (k = 0; k < 5; k++)
+            func_0019FBC0(i)[k + 0xE] = 0;
+        func_0019FBC0(i)[10] = 0;
+        func_0019FBC0(i)[11] = 0;
+        func_0019FBC0(i)[12] = 0;
+        for (k = 0; k < 4; k++)
+            func_0019FBC0(i)[0xD] &= ~(1 << k);
+    }
+}
+
+/* 0x0019FD50, 0x7C bytes. Item `k` becomes `src` (with `k` in +4). */
+void func_0019FD50(u8 k, u32 *src)
+{
+    u32 *d = (u32 *)func_0019FBC0(k);
+    int i;
+
+    for (i = 0; i < 9; i++)
+        d[i] = src[i];
+    *(u8 *)(d + 1) = k;
 }
