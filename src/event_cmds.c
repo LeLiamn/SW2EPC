@@ -281,7 +281,7 @@ void func_001D8F90(void)
     SP_PKT = p + 4;
 }
 
-/* 0x001D91F0, 0x84 bytes, matching. The event scene's actors' frame. */
+/* 0x001D91F0, 0x84 bytes. The event scene's actors' frame. */
 void func_001D91F0(u32 *e, int x)
 {
     if ((*e & 1) == 0)
@@ -605,7 +605,7 @@ u8 *func_001DBA70(short k)
     return r;
 }
 
-/* 0x001DBB50, 0x70 bytes, matching. */
+/* 0x001DBB50, 0x70 bytes. */
 void func_001DBB50(void)
 {
     int i;
@@ -651,7 +651,7 @@ void func_001DC330(void)
     }
 }
 
-/* 0x001DC3C0, 0x6C bytes, matching. Draws them. */
+/* 0x001DC3C0, 0x6C bytes. Draws them. */
 void func_001DC3C0(void)
 {
     int k;
@@ -702,4 +702,95 @@ u32 func_001DCDE0(u32 v)
     if (v > 0x3B5 && v < 0x3BB)
         return func_0020E310(func_0032F420(v - 0x3B5));
     return v;
+}
+
+extern u16 g_0073C794, g_0073C796;       /* the scene's two forces */
+extern u8 g_0073C7A2[], g_0073C7A5;
+extern u8 *g_0045D3E8;                   /* (small data) the caption buffer */
+extern char *g_0042E260[], *g_0042C730[], *g_0043CB80;
+extern char g_00428F50[], g_00428F60[], g_00428F70[], g_00428F78[];
+extern u8 g_00669D60[];
+extern u8 g_00730DE0[2][0x38];
+extern float g_0056CCC0, g_0056CCC4;
+
+u16 func_0019AE90(u16 f);
+int func_001204B0(void *buf, const char *fmt, ...);
+void func_00147160(const u8 *s, u8 *out, int w, int a, int b);
+void func_001B8920(u8 *s, int *w, int *h);
+void func_001B8800(u8 *s, int x, int y, int a);
+void func_001DC6E0(void);
+
+/* 0x001DB2D0, 0x248 bytes. The caption naming the battle's two forces. */
+void func_001DB2D0(u32 *e)
+{
+    char *army;
+
+    if ((*e & 0x10) == 0)
+        return;
+    g_0073C794 = func_0019AE90(g_0073C794);
+    army = g_0042E260[g_00669D60[0x24E + g_0073C7A2[g_0073C79D]]];
+    if (g_0073C7A5 == 0) {
+        if (g_0073C794 == g_0073C796)
+            func_001204B0(g_0045D3E8, g_00428F78, army, g_0042C730[g_0073C794]);
+        else
+            func_001204B0(g_0045D3E8, g_00428F70, army, g_0042C730[g_0073C794],
+                          g_0042C730[g_0073C796]);
+    } else if (g_0073C794 == g_0073C796) {
+        func_001204B0(g_0045D3E8, g_00428F60, army, g_0043CB80, g_0042C730[g_0073C794]);
+    } else {
+        func_001204B0(g_0045D3E8, g_00428F50, army, g_0043CB80, g_0042C730[g_0073C794],
+                      g_0042C730[g_0073C796]);
+    }
+    e[9] = (u32)g_0045D3E8;
+}
+
+/* 0x001DB6B0, 0x1F0 bytes. Draws the subtitles (when switched on in the settings). */
+void func_001DB6B0(u8 *e)
+{
+    u8 buf[264];
+    int w, h;
+    u8 *s;
+
+    if (g_00669D60[0x50] >> 6 == 0)
+        return;
+    g_0056CCC0 = g_0056CCC4 = 20.0f;
+    s = *(u8 **)(e + 0x24);
+    if (s != 0) {
+        func_00147160(s, buf, 0x200, 0, 0);
+        func_001B8920(buf, &w, &h);
+        func_001B8800(buf, (0x200 - w) >> 1,
+                      ((((0x330 - (0x1C0 - ((0x330 - h) >> 1))) - h) >> 1 << 9) / 0x280 * 0x1E0)
+                          / 0x1C0, 0);
+    }
+    if (*(u8 **)(e + 0x20) != 0) {
+        func_00147160(*(u8 **)(e + 0x20), buf, 0x200, 0, 0);
+        func_001B8920(buf, &w, &h);
+        func_001B8800(buf, (0x200 - w) >> 1,
+                      (s == 0 ? 0 : 4) + (((0x330 - h) >> 1 << 9) / 0x280 * 0x1E0) / 0x1C0, 0);
+    }
+    g_0056CCC0 = g_0056CCC4 = 16.0f;
+}
+
+/* 0x001DC9A0, 0x264 bytes. Allocates the player's particle buffers. */
+void func_001DC9A0(void)
+{
+    u8 *b = g_00730DE0[g_0045D3E0];
+    int n = *(int *)(b + 0x34), k;
+
+    if (n == 0)
+        return;
+    *(void **)(b + 0x00) = func_0020EC50(n << 2);
+    *(void **)(b + 0x04) = func_0020EC50(n << 5);
+    *(void **)(b + 0x08) = func_0020EC50(n << 4);
+    *(void **)(b + 0x0C) = func_0020EC50(n << 2);
+    *(void **)(b + 0x10) = func_0020EC50(n << 2);
+    *(void **)(b + 0x20) = func_0020EC50(n << 1);
+    *(void **)(b + 0x14) = func_0020EC50(n << 2);
+    *(void **)(b + 0x18) = func_0020EC50(n << 1);
+    *(void **)(b + 0x1C) = func_0020EC50(n);
+    *(void **)(b + 0x30) = func_0020EC50(n << 3);
+    *(void **)(b + 0x24) = func_0020EC50(n << 2);
+    for (k = 0; k < 2; k++)
+        *(void **)(b + 0x28 + k * 4) = func_0020EC50(n << 3);
+    func_001DC6E0();
 }
