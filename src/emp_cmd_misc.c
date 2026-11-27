@@ -3186,3 +3186,140 @@ int func_003CD7C0(void)
         return 0;
     return bond_event(0x149, 0xB, 9, 0x16, 0, 5);
 }
+
+/* 0x003CD8A0, 0xA8 bytes. */
+int func_003CD8A0(void)
+{
+    return bond_event(0x14A, 0, 9, 0x16, 0, 0xF);
+}
+
+/* 0x003CD950, 0x80 bytes. */
+int func_003CD950(void)
+{
+    return func_00329540(0x14B) == 0 && face(0x16, 0xB);
+}
+
+/* 0x003CD9D0, 0x80 bytes. */
+int func_003CD9D0(void)
+{
+    return func_00329540(0x14C) == 0 && face(0x16, 0x10);
+}
+
+/* 0x003CDA50, 0x80 bytes. */
+int func_003CDA50(void)
+{
+    return func_00329540(0x14D) == 0 && face(0x16, 0x11);
+}
+
+/* 0x003CDAD0, 0xEC bytes. */
+int func_003CDAD0(void)
+{
+    if (func_00329540(0x14E) != 0 || !KNOWS(0x12, 0) || !KNOWS(0, 0) || !KNOWS(0x16, 0))
+        return 0;
+    if (func_002F33F0(0x12) < 5 || func_002F33F0(0) < 5)
+        return 0;
+    return func_002F33F0(0x16) > 4;
+}
+
+/* 0x003CDBC0, 0xE0 bytes. */
+int func_003CDBC0(void)
+{
+    if (func_00329540(0x14F) != 0 || func_00327C70() < 0x15 || func_00327820() != 2)
+        return 0;
+    return bond_event(0x14F, 0x15, 0x17, 0xD, 0, 0x14);
+}
+
+/* Event `ev` (once): `o` (with func_0032EE10 false) together with 0x17 on side 0. */
+static int x17_pair(int ev, int o)
+{
+    if (func_00329540(ev) != 0 || func_0032EE10(o) != 0)
+        return 0;
+    return pair_event(ev, 0x17, o);
+}
+
+/* 0x003CDCA0, 0xB4 bytes. */
+int func_003CDCA0(void)
+{
+    return x17_pair(0x150, func_00337A10(0x9D));
+}
+
+/* 0x003CDD60, 0xB4 bytes. */
+int func_003CDD60(void)
+{
+    return x17_pair(0x151, func_00337A10(0xB2));
+}
+
+/* 0x003CDE20, 0x90 bytes. */
+int func_003CDE20(void)
+{
+    return x17_pair(0x152, 0x11);
+}
+
+/* 0x003CDEB0, 0x78 bytes. */
+int func_003CDEB0(void)
+{
+    return pair_event(0x153, 0x17, 4);
+}
+
+/* 0x003CDF30, 0x70 bytes. */
+int func_003CDF30(void)
+{
+    return knows2(0x154, 0, 0x17, 8, 1);
+}
+
+/* 0x003CDFA0, 0x8C bytes. */
+int func_003CDFA0(void)
+{
+    return knows2(0x155, 6, 0x17, 0x1A, 1);
+}
+
+/* 0x003CE030, 0x80 bytes. */
+int func_003CE030(void)
+{
+    return func_00329540(0x156) == 0 && face(0x17, 0xB);
+}
+
+/* 0x003CE0B0, 0x8C bytes. */
+int func_003CE0B0(void)
+{
+    if (func_00329540(0x157) != 0 || func_00327C70() < 0x10 || !KNOWS(0x18, 1))
+        return 0;
+    return KNOWS(5, 0);
+}
+
+/* 0x003CE140, 0x8C bytes. */
+int func_003CE140(void)
+{
+    if (func_00329540(0x158) != 0 || func_00327C70() < 0xB || !KNOWS(0x18, 1))
+        return 0;
+    return KNOWS(7, 0);
+}
+
+/* 0x003CE1D0, 0x8C bytes. */
+int func_003CE1D0(void)
+{
+    if (func_00329540(0x159) != 0 || func_00327C70() < 0x15 || !KNOWS(1, 1))
+        return 0;
+    return KNOWS(0x18, 0);
+}
+
+/* 0x003CE260, 0x100 bytes. Event 0x15A (once): officer 4 on the player's side faces officer
+ * 0x166 on the other one. */
+int func_003CE260(void)
+{
+    if (func_00329540(0x15A) != 0 || func_0032EE10(func_00337A10(0x166)) == 0 || func_0032EE10(4) == 0)
+        return 0;
+    if (func_003C25E0(4) == 0 || func_003C26C0(func_00337A10(0x166)) == 0)
+        return 0;
+    return face(4, func_00337A10(0x166));
+}
+
+/* 0x003CE360, 0xCC bytes. */
+int func_003CE360(void)
+{
+    if (func_00329540(0x15B) != 0 || func_00327C70() < 6 || func_00337A10(0x166) != func_00327820())
+        return 0;
+    if (!KNOWS(func_00337A10(0x176), 0))
+        return 0;
+    return KNOWS(func_00337A10(0x173), 0);
+}
