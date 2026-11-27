@@ -128,8 +128,8 @@ int func_001CEB30(void)
     return 0x17;
 }
 
-#define LIFE_CLAMP(o, v) ((v) > LIFE_MAX(o) ? LIFE_MAX(o) : (v)) < 1 ? 0 :                 \
-                         ((v) > LIFE_MAX(o) ? LIFE_MAX(o) : (v))
+#define LIFE_CLAMP(o, v) (((v) > LIFE_MAX(o) ? LIFE_MAX(o) : (v)) < 1 ? 0 :                \
+                          ((v) > LIFE_MAX(o) ? LIFE_MAX(o) : (v)))
 
 /* Lets a duelling officer go. */
 #define DUEL_RELEASE(o) do {                                            \
