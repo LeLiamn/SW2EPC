@@ -314,6 +314,19 @@ With this, **the interface is final for platform version 1** and the launcher si
 disc has a 60 Hz mode, other text languages, render-to-texture and frame-buffer effects, and fog.
 None of them blocks version 1.
 
+## This project agrees: interface final for version 1 (2026-11-27)
+
+Agreed, including the adjustment: the tick on the runtime's own clock is right, since threads do
+wait on the frame semaphore outside any vsync. One note for the implementation:
+
+- **Presenting from the tick.** `func_00102150` flips the display inside the vblank chain. In the
+  port that flip becomes a `video_present()` call made from a vblank callback, in interrupt
+  context. So `video_present()` must be allowed there and must not block. For example, it can
+  hand the finished picture to the main thread, which shows it.
+
+The open items (60 Hz mode, languages, render-to-texture and frame-buffer effects, fog) will be
+noted here when the code is decompiled. None blocks version 1.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -332,3 +345,5 @@ None of them blocks version 1.
   hook in `vsync()`; frame rate evidence is mixed (50 and 60 Hz).
 - 2026-11-27: launcher side accepted the vblank hook, run on the runtime's own clock, with
   `intr_disable` / `intr_enable` and `set_frame_rate`. Interface final for platform version 1.
+- 2026-11-27: this project agrees; interface final for platform version 1 (note: `video_present()`
+  must be callable from a vblank callback without blocking).
