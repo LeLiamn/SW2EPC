@@ -4459,3 +4459,193 @@ int func_00319200(CmdRecord *p)
     func_003155C0(p, reg, func_002FB320(g, reg));
     return 0;
 }
+
+int func_002FA490(int f);
+int func_002FB470(int f);
+int func_002FB500(int f, int g);
+int func_002F95C0(int f);
+int func_002F9690(int k, int *out);
+int func_002F9730(int f, int k, int gold);
+int func_002F68E0(u32 i);
+const char *func_003725F0(int k);
+void func_002F94C0(int f, short v);
+int func_00328230(void);
+const char *func_002F2BB0(u32 i);
+
+/* 0x003192A0, 0x4A4 bytes. Command result: force `f` demands force `target`'s submission (kind
+ * 4; at war or not): a computer target gives in when clearly weaker (sizes, officers and values,
+ * weighed by fame, bonuses and its kind) and by the fame's chance; messages 0x3F-0x42. */
+int func_003192A0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int g = p->target, ok = 1, war = func_002F9C90(p->f, g) == 3, homes[2];
+    char a[40], b[32];
+
+    if (func_002FB2A0(g) == 0) {
+        int fame = 0, fg, fv, ba = 1, bb = 1, fo, fn, fr, go, gn, gr, w, div, mul, gap, t;
+
+        if (func_002FB2A0(p->f) != 0)
+            fame = func_00327E90();
+        fg = 3;
+        if (fame < 3)
+            fg = 1;
+        else if (fame < 10)
+            fg = 2;
+        fv = func_002FABC0(p->f);
+        if (func_002FB2A0(p->f) != 0 && (u32)func_00327870() < 0x19F)
+            ba = 2;
+        if (func_002FB2A0(p->f) != 0 && func_00327B70(p->f) != 0)
+            bb = 2;
+        fo = func_002FB470(p->f);
+        fn = func_002FB430(p->f);
+        fr = func_002FB3B0(p->f);
+        go = func_002FB470(g);
+        gn = func_002FB430(g);
+        gr = func_002FB3B0(g);
+        t = func_002FA490(g);
+        w = t == 2 ? 0x32 : t == 1 ? 0x1E : 10;
+        if (!war)
+            w >>= 1;
+        div = func_002FB500(p->f, g) == 0 ? 10 : 1;
+        mul = war ? 7 : 4;
+        if (func_002FABC0(g) < func_002FABC0(p->f))
+            gap = (func_002FABC0(p->f) - func_002FABC0(g)) / 100 + 1;
+        else
+            gap = 1;
+        ok = 0;
+        if (((gn + gr) * 100 + go / 100) * w
+                < (gap * ((fn + fr) * 100 + fo / 100) * bb * ba * fg * (fv / 300 + 1)) / div
+            && gr * mul < fr) {
+            int c = func_0011B740(fame);
+
+            ok = func_0030CB00(10) < c;
+        }
+    }
+    r->kind = 4;
+    r->v[0] = g;
+    r->v[2] = war;
+    func_00120928(a, func_002F8DB0(g));
+    func_00120928(b, func_002F8DB0(p->f));
+    if (ok) {
+        r->v[1] = 1;
+        func_001204B0(r->text, func_00390760(war == 0 ? 0x41 : 0x3F), a, b);
+        r->v[0x1E] = 1;
+    } else {
+        r->v[1] = 0;
+        func_001204B0(r->text, func_00390760(war == 0 ? 0x42 : 0x40), a, b);
+        r->v[0x1E] = 2;
+    }
+    homes[0] = func_002FB2D0(p->f);
+    homes[1] = func_002FB2D0(g);
+    func_003155C0(p, homes, 2);
+    return 0;
+}
+
+/* 0x00319750, 0xA4 bytes. Command result: kind 0xC about force `target` (message 0x43). */
+int func_00319750(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int g = p->target, homes[2];
+
+    r->kind = 0xC;
+    r->v[0] = g;
+    func_001204B0(r->text, func_00390760(0x43), func_002F8DB0(g));
+    homes[0] = func_002FB2D0(p->f);
+    homes[1] = func_002FB2D0(g);
+    func_003155C0(p, homes, 2);
+    return 0;
+}
+
+/* Whether officer `i` is one of the special leaders (0xD, 0x9F, 0xA2, 0xA3). */
+#define SPECIAL_LEAD(i) ((i) == 0xD || (i) == 0x9F || (u32)((i) - 0xA2) < 2)
+
+/* 0x00319800, 0x3D4 bytes. Command result: force `target` changes its policy (kind 0x11, message
+ * 0x45) when its regions' +0x12 values pay for the next one (policy 0xD's successor by its
+ * leader, needing fame -15 or 15 for the player; else func_002F9730), or keeps a cheaper one;
+ * else nothing (kind 0xC, message 0x44). */
+int func_00319800(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int g = p->target, reg[26], s = 0, x, pol, cost, cost2, ok = 0, ok2, nx, next, cur;
+    u32 lead;
+
+    for (x = 0; x < 0x19; x++) {
+        x = func_0030C1C0(x, g);
+        if (x > 0x18)
+            break;
+        s += func_0030AD80(x);
+    }
+    pol = func_002F95C0(g);
+    cost = func_002F9690(pol == -1 ? 0 : pol + 1, &next);
+    if (cost <= s) {
+        if (pol == 0xD) {
+            if (func_002FB2A0(g) != 0)
+                ok = func_00327E90() == -0xF || func_00327E90() == 0xF;
+        } else {
+            ok = 1;
+        }
+    }
+    cost2 = func_002F9690(pol, &cur);
+    if (pol == 0xE)
+        ok = 0;
+    nx = pol != 0xE;
+    ok2 = nx && cost2 <= s;
+    lead = func_002F8F20(g);
+    if (ok) {
+        if (pol == 0xD) {
+            if (SPECIAL_LEAD(lead)) {
+                next = 0x62;
+            } else {
+                int k = func_002F68E0(lead);
+
+                next = k == 0 ? 99 : k == 1 ? 0x61 : k == 2 ? 0x62 : 0x61;
+            }
+        } else {
+            next = func_002F9730(g, next, s);
+            if (next == 100)
+                ok = 0;
+        }
+    } else if (nx && cost2 <= s) {
+        cur = func_002F9730(g, cur, s);
+        if (cur == 100)
+            ok2 = 0;
+    }
+    if (ok || ok2) {
+        r->kind = 0x11;
+        r->v[0] = g;
+        r->v[1] = cur;
+        if (ok)
+            r->v[1] = next;
+        func_001204B0(r->text, func_00390760(0x45), func_002F2890(lead), func_003725F0(r->v[1]));
+        r->v[0x1E] = 1;
+        func_002F94C0(r->v[0], (short)r->v[1]);
+        if (func_00328230() == 0 && next == 0x62 && SPECIAL_LEAD(lead)) {
+            r = func_003155A0(p, 1);
+            r->kind = 0x15;
+            func_001204B0(r->text, func_00390760(0x8D), func_002F2BB0(lead));
+        }
+    } else {
+        r->kind = 0xC;
+        r->v[1] = -1;
+        func_001204B0(r->text, func_00390760(0x44));
+        r->v[0x1E] = 2;
+    }
+    func_003155C0(p, reg, func_002FB320(g, reg));
+    func_003F4D20(0xB);
+    return 0;
+}
+
+/* 0x00319BE0, 0x70 bytes. Command result kind 0x14 for `target`, at the home region. */
+int func_00319BE0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int home;
+
+    r->kind = 0x14;
+    r->v[0] = p->target;
+    func_001204B0(r->text, g_00447840);
+    home = func_002FB2D0(p->f);
+    func_003155C0(p, &home, 1);
+    func_003F4D20(9);
+    return 0;
+}
