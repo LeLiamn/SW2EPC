@@ -567,3 +567,392 @@ int func_0036F5C0(int s)
 {
     return func_0036F520(s, 0x1C) != 0;
 }
+
+/* The voice queue's player and more battle set-up checks (parts of 0x00369580-0x0036E730). */
+
+extern char g_0045D780;
+extern int g_0045D79C, g_0045D7A4;
+extern int g_007B9560[0x10][2];          /* the voice queue (voice, delay) */
+extern int g_007B95FC[8];                /* the battle's officers */
+extern int g_007B9828[2];
+extern u8 *g_0045D2F0;
+extern u32 g_7000015C;
+
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+
+int func_00102960(int a);
+int func_0023A630(void);
+void func_0023A6D0(void);
+void func_0023A660(int v);
+int func_00327D50(void);
+int func_002F9060(int f);
+void func_002F4760(int o, int v);
+int func_002F8F20(int f);
+int func_00362160(int s, int k);
+int func_0036B880(u32 s, u32 k);
+u8 **func_0033EF80(u32 k);
+int func_0033B1E0(u8 **g);
+int func_00328B30(int k);
+void func_0036D180(int k, int p);
+void func_00328A00(int k, int v);
+void func_00328AA0(int k, int v);
+void func_0019FC30(void);
+void func_00329450(int s, int v);
+void func_003A5240(void);
+int func_00327AE0(int k);
+u8 func_002F6850(int o);
+int func_0035F0C0(void);
+int func_00362490(void);
+int func_0030B090(int f);
+int func_002FABC0(int f);
+int func_003623B0(void);
+int func_00327CC0(void);
+int func_0032E7B0(void);
+int func_0036D9B0(int f, int k);
+u8 func_0035D5A0(u32 s);
+u32 func_0033F430(u32 side, u32 alive, u32 *out, u32 max);
+extern u8 g_006A1D58[][0x68];
+
+/* 0x00369580, 0x94 bytes. The voice player's frame (a 50-frame pause between voices). */
+void func_00369580(void)
+{
+    if (g_0045D790 >= 1) {
+        g_0045D790--;
+        return;
+    }
+    if (g_0045D798 == 0)
+        return;
+    if (g_0045D794 == 0) {
+        g_0045D794 = 1;
+        return;
+    }
+    g_0045D780 = g_0045D780 == 0;
+    if (g_0045D780 == 0 && func_00102960(0) != 0) {
+        g_0045D794 = 0;
+        g_0045D798 = func_0023A630() != 0;
+    }
+}
+
+/* 0x00369620, 0xB0 bytes. Steps the voice loading (1 load, 2 wait, 4 loaded, 5 ready). */
+void func_00369620(void)
+{
+    if (g_0045D784 != 5) {
+        if (g_0045D784 == 4) {
+            if (func_00102960(0) != 0)
+                g_0045D784 = 5;
+        } else if (g_0045D784 == 2) {
+            if (func_0023A630() == 0)
+                g_0045D784 = 4;
+        } else if (g_0045D784 == 1 && func_00102960(0) != 0) {
+            g_0045D784 = 2;
+        }
+    }
+    func_00369580();
+}
+
+void func_00369750(int v);
+
+/* 0x003696D0, 0x80 bytes. Plays voice `v` once it is ready; whether it started. */
+int func_003696D0(int v)
+{
+    if (v == -1)
+        return 1;
+    if (g_0045D788 == v) {
+        if (g_0045D784 == 5) {
+            func_0023A6D0();
+            g_0045D790 = 0x32;
+            g_0045D784 = 0;
+            g_0045D798 = 1;
+            g_0045D794 = 0;
+            g_0045D78C = g_0045D788;
+            return 1;
+        }
+        return 0;
+    }
+    func_00369750(v);
+    return 0;
+}
+
+/* 0x00369750, 0x68 bytes. Starts loading voice `v`. */
+void func_00369750(int v)
+{
+    if (v == -1)
+        return;
+    if (g_0045D788 == v) {
+        if (g_0045D784 == 0)
+            g_0045D784 = 5;
+    } else {
+        func_0023A660(v);
+        g_0045D784 = 1;
+        g_0045D788 = v;
+    }
+}
+
+/* 0x00369820, 0x58 bytes, matching. Moves to the next queued voice. */
+void func_00369820(void)
+{
+    while (g_0045D7A8 < g_0045D7AC) {
+        g_0045D7A8++;
+        if (g_007B9560[g_0045D7A8][0] != -1)
+            break;
+    }
+}
+
+/* 0x00369890, 0x60 bytes. Queues voice `v` after `d` frames; its slot. */
+int func_00369890(int v, int d)
+{
+    if (v == -1)
+        return 1;
+    if (g_0045D7AC < 0x10) {
+        g_007B9560[g_0045D7AC][0] = v;
+        g_007B9560[g_0045D7AC][1] = d;
+        return g_0045D7AC++;
+    }
+    return 0x10;
+}
+
+/* 0x00369C90, 0x6C bytes. Whether the battle's cost fits the player force's means. */
+int func_00369C90(void)
+{
+    int v = g_007B95F0;
+
+    if (func_002F9060(func_00327D50()) * 10 < v)
+        return 0;
+    return g_007B95FC[0] >= 0 && g_007B95FC[0] < 0x19F;
+}
+
+/* 0x0036A9B0, 0x6C bytes. */
+void func_0036A9B0(void)
+{
+    int k;
+
+    for (k = 0; k < 8; k++) {
+        int o = g_007B95FC[k];
+
+        if (o >= 0 && o < 0x19F)
+            func_002F4760(o, 10);
+    }
+}
+
+/* 0x0036B170, 0x64 bytes. */
+void func_0036B170(int *out)
+{
+    int k;
+
+    for (k = 0; k < 8; k++)
+        out[k] = g_007B95FC[k];
+}
+
+/* 0x0036B280, 0x68 bytes. */
+int func_0036B280(int s)
+{
+    u32 m;
+
+    if (s < 0 || s > 1)
+        return 0;
+    if (s == 1)
+        m = 4;
+    else
+        m = 2;
+    return (g_007B9620 & m) != 0;
+}
+
+/* 0x0036B400, 0x9C bytes. Slot `k`'s soldiers lost. */
+int func_0036B400(u32 s, u32 k)
+{
+    int d;
+
+    if (s >= 2 || k >= 8)
+        return 0;
+    d = func_0036B3A0(s, k) - func_0036B340(s, k);
+    return d < 0 ? 0 : d;
+}
+
+/* 0x0036B510, 0x6C bytes. */
+char func_0036B510(int x)
+{
+    int k;
+    char n = 0;
+
+    for (k = 0; k < 8; k++)
+        n += func_0036B4D0(0, func_00362320(), k);
+    return n;
+}
+
+/* 0x0036C4B0, 0x80 bytes. The slot of side `s`'s lord (8: none). */
+int func_0036C4B0(int s)
+{
+    int l = func_002F8F20(func_002F4080(func_003620E0(s, 0))), k;
+
+    for (k = 0; k < 8; k++) {
+        if (l == func_003620E0(s, k))
+            return k;
+    }
+    return 8;
+}
+
+/* 0x0036CE50, 0x98 bytes. Both sides' soldier totals. */
+void func_0036CE50(void)
+{
+    u32 s, k;
+
+    for (s = 0; s < 2; s++) {
+        int n = 0;
+
+        for (k = 0; k < 8; k++) {
+            if (func_0036B880(s, k) != 0)
+                n += func_0036B340(s, k);
+        }
+        g_007B9828[s] = n;
+    }
+}
+
+/* 0x0036CEF0, 0xC4 bytes. Both sides' losses. */
+void func_0036CEF0(void)
+{
+    u32 s, k;
+
+    for (s = 0; s < 2; s++) {
+        int n = 0;
+
+        for (k = 0; k < 8; k++) {
+            u8 **g = func_0033EF80(k + s * 8);
+
+            if (func_0036B880(s, k) != 0 && func_0033B1E0(g) != 0)
+                n += func_0036B400(s, k);
+        }
+        g_007B9830[s] = n;
+    }
+}
+
+/* 0x0036D230, 0xB0 bytes. Resets the unlock bookkeeping (`v`: from the save instead). */
+void func_0036D230(int v)
+{
+    int k;
+
+    if (v != 0) {
+        func_003A5240();
+        return;
+    }
+    for (k = 0; k < 0x79; k++)
+        func_0036D180(k, func_00328B30(k));
+    for (k = 0; k < 0x1C; k++) {
+        func_00328A00(k, 0);
+        func_00328AA0(k, 0);
+    }
+    func_0019FC30();
+    for (k = 0; k < 2; k++)
+        func_00329450(k, 4);
+}
+
+/* 0x0036D400, 0x7C bytes. Whether officer `o` is a player officer (Empire battles). */
+int func_0036D400(int o)
+{
+    int k;
+
+    if (func_0036D2E0() == 0)
+        return 0;
+    for (k = 0; k < 4; k++) {
+        if (o == func_00327AE0(k))
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x0036D480, 0x80 bytes. Side `s`'s lord's colour. */
+int func_0036D480(int s)
+{
+    int o = func_003620E0(s, 0), f;
+
+    if (func_0036D2E0() == 0)
+        return 0;
+    f = func_002F4080(o);
+    if (f < 0 || f >= 0x19)
+        return 0;
+    o = func_002F8F20(f);
+    if (o < 0 || o > 0x19E)
+        return 0;
+    return func_002F6850(o);
+}
+
+/* 0x0036D5A0, 0x74 bytes. Side `s`'s province count. */
+int func_0036D5A0(u32 s)
+{
+    int f;
+
+    if (s >= 2)
+        return 0;
+    f = func_0036D500(s);
+    if (f < 0 || f > 0x18)
+        return s == 0 ? 10 : 4;
+    return func_002FB3B0(f);
+}
+
+/* 0x0036D620, 0x78 bytes. */
+int func_0036D620(int s)
+{
+    int f;
+
+    if (func_0036D2E0() == 0)
+        return 0;
+    if (s == func_0035F0C0())
+        return 0;
+    f = func_00362490();
+    if (f < 0 || f > 0x18)
+        return 0;
+    return func_0030B090(f);
+}
+
+/* 0x0036D780, 0x5C bytes. */
+int func_0036D780(void)
+{
+    if (func_0036D310() != 0)
+        return 0;
+    if (func_0036D2E0() == 0)
+        return 1;
+    return func_002FABC0(func_0036D6A0(0)) > 499;
+}
+
+/* 0x0036D7E0, 0x68 bytes. */
+int func_0036D7E0(void)
+{
+    int v;
+
+    if (func_0036D2E0() == 0)
+        return 0;
+    v = func_003623B0();
+    if (v == 1 || v == 0)
+        return func_00327CC0() != 3;
+    return 0;
+}
+
+/* 0x0036D970, 0x40 bytes. Whether pairs (a, b) and (c, d) are the same pair. */
+int func_0036D970(int a, int b, int c, int d)
+{
+    if (a == c && b == d)
+        return 1;
+    return a == d && b == c;
+}
+
+/* 0x0036DB00, 0x9C bytes. */
+int func_0036DB00(int o, int k)
+{
+    int f;
+
+    if (func_0032E7B0() != 0 || k < 0 || k >= 0x35 || k >= 0x28)
+        return 0;
+    f = func_002F4080(o);
+    if (f < 0 || f >= 0x19)
+        return 0;
+    return func_0036D9B0(f, k);
+}
+
+/* 0x0036E680, 0xB4 bytes. One of the enemy's officer groups at random. */
+u8 **func_0036E680(u32 s)
+{
+    u32 list[16], n = func_0033F430(func_0035D5A0(s), 1, list, 0x10);
+
+    if (n == 0)
+        return 0;
+    return (u8 **)g_006A1D58[list[(int)RANDOM() % (int)n]];
+}
