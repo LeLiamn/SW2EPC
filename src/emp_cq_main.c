@@ -15,6 +15,7 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 #define IS_FORCE(f) ((f) >= 0 && (f) < func_0030AB90())
+#define g_7000015C (*(u32 *)0x7000015C)   /* (scratchpad) the random seed */
 
 /* A notice to the player (0x007A3BC0, returned by func_0030E2C0). */
 typedef struct {
@@ -5076,4 +5077,278 @@ int func_0031B7A0(CmdRecord *p)
     func_001204B0(r->text, func_00390760(0x4F), func_002F8DB0(g));
     func_003155C0(p, reg, func_002FB320(g, reg));
     return 0;
+}
+
+extern int (*g_00414BD0[100])(CmdRecord *p);   /* the command results by command */
+
+int func_00328570(void);
+int func_00327C40(void);
+int func_0030AD20(int r, int k);
+int func_00328970(void);
+void func_002F9130(int f, int v);
+int func_003276A0(void);
+int func_00314000(int *p);
+int func_0038C6B0(CmdRecord *p);
+void func_003BA520(int c);
+int func_0031C5C0(CmdRecord *p, int k);
+void func_002F32F0(u32 i, u32 t);
+void func_002F4B70(u32 i, int v);
+int func_002F57F0(int w);
+int func_0030AB20(u8 w);
+u8 *func_00328B30(int w);
+void func_0030B030(int r, int v);
+
+/* 0x0031B840, 0x70 bytes. Command result: kind 0xC (message 0x50). */
+int func_0031B840(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28];
+
+    r->kind = 0xC;
+    func_001204B0(r->text, func_00390760(0x50));
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* 0x0031B8B0, 0x190 bytes. Command result: winning officer `target` over (kind 5, message 0x51,
+ * 0x52 for the player), or failing (kind 0x15, message 0x53; it may flee). */
+int func_0031B8B0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    u32 i = p->target;
+    int at;
+
+    if (func_00308F50(i, p->f) == 0) {
+        int esc = flees(i);
+
+        r->kind = 0x15;
+        r->v[1] = i;
+        r->v[2] = esc;
+        func_001204B0(r->text, func_00390760(0x53), func_002F2890(i));
+        r->v[0x1E] = 2;
+    } else {
+        r->kind = 5;
+        r->v[0] = i;
+        func_001204B0(r->text, func_00390760(func_002FB2A0(p->f) == 0 ? 0x51 : 0x52), func_002F2890(i));
+        r->v[0x1E] = 1;
+    }
+    at = func_002F5CC0(i);
+    func_003155C0(p, &at, 1);
+    return 0;
+}
+
+/* 0x0031BA40, 0x1F0 bytes. Command result: setting force `target` against its tied force
+ * (func_002FC0C0): by chance from their sizes (50% at least) when not already at odds; success
+ * kind 0xC (message 0x54), failure kind 0x15 (message 0x55). */
+int func_0031BA40(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int g = p->target, h = func_002FC0C0(p->f, g), reg[28], pct;
+    char a[32], b[32];
+
+    if (func_002FB500(g, h) == 0) {
+        int sa = func_002FB3B0(g), sb = func_002FB3B0(h);
+
+        if (sb < sa)
+            pct = sb * 100 / sa / 2;
+        else
+            pct = sa * 100 / sb / 2;
+        if (pct < 0x32)
+            pct = 0x32;
+    } else {
+        pct = func_0030CB00(0x33) + 0x1E;
+    }
+    if (func_0030CB50(pct) == 0) {
+        r->kind = 0x15;
+        r->v[0] = g;
+        func_001204B0(r->text, func_00390760(0x55), func_002F8DB0(g));
+        r->v[0x1E] = 2;
+    } else {
+        r->kind = 0xC;
+        r->v[0] = g;
+        r->v[1] = h;
+        func_00120928(a, func_002F8DB0(g));
+        func_00120928(b, func_002F8DB0(h));
+        func_001204B0(r->text, func_00390760(0x54), a, b);
+        r->v[0x1E] = 1;
+    }
+    func_003155C0(p, reg, func_002FB320(g, reg));
+    return 0;
+}
+
+/* 0x0031BC30, 0x70 bytes. Command 99's result: kind 0xC (message 0x5B). */
+int func_0031BC30(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28];
+
+    r->kind = 0xC;
+    func_001204B0(r->text, func_00390760(0x5B));
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* 0x0031BCA0, 0xF0 bytes. The free commands' result: kind 0xC, message 0x5A (0x3B-0x59) or 0x132
+ * (0x5A-0x62, 0x65) with the times used. */
+void func_0031BCA0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int home = func_002FB2D0(p->f), m = 0x5A, v = func_00328570(), c = p->cmd;
+
+    if ((c > 0x59 && c < 99) || c == 0x65) {
+        m = 0x132;
+        v = func_00328970();
+    }
+    r->kind = 0xC;
+    func_001204B0(r->text, func_00390760(m), func_00372250(p->cmd), func_0030CB80(v + 1));
+    home = func_002FB2D0(p->f);
+    func_003155C0(p, &home, 1);
+}
+
+/* 0x0031BD90, 0x1D8 bytes. Runs command record `p` (the player's always, the computer's only
+ * below difficulty 2): pays a tenth of its cost, builds its results (with the
+ * command's own random seed) and applies them (the player's through the result screen). */
+int func_0031BD90(CmdRecord *p, int a)
+{
+    u32 seed = g_7000015C;
+    int c = p->cmd, r = 0;
+
+    if ((u32)c >= 100)
+        return 0;
+    if (func_002FB2A0(p->f) == 0 && func_00327C40() >= 2)
+        return 0;
+    func_002F9130(p->f, func_00314000((int *)p) / 10);
+    g_7000015C = func_003276A0() | 1;
+    if ((c < 0x3B || c > 0x59) && (c < 0x5A || c > 0x62) && c != 0x65) {
+        if (c == 99)
+            func_0031BC30(p);
+        else
+            r = g_00414BD0[p->cmd](p);
+    } else {
+        func_0031BCA0(p);
+    }
+    if (r == 0) {
+        if (func_002FB2A0(p->f) == 0)
+            r = func_0031C5C0(p, a);
+        else
+            r = func_0038C6B0(p);
+    }
+    func_003BA520(c);
+    g_7000015C = seed | 1;
+    return r;
+}
+
+/* 0x0031BF70, 0x130 bytes. An officer without a role, away from force `f`, moves to one of its
+ * region's neighbours owned by `f`; its service date is set. */
+void func_0031BF70(u32 i, int f)
+{
+    int l[8], n = 0, k, reg;
+
+    if (func_002F2840(i) == 0 || func_002F3DC0(i) != 0)
+        return;
+    reg = func_002F5CC0(i);
+    if (f != func_0030AFF0(reg)) {
+        for (k = 0; k < 6; k++) {
+            int x = func_0030AD20(reg, k);
+
+            if (IS_FORCE(x) && f == func_0030AFF0(x))
+                l[n++] = x;
+        }
+        if (n != 0)
+            func_002F5BE0(i, l[func_0030CB00(n)]);
+    }
+    func_002F32F0(i, func_00327C70());
+}
+
+/* 0x0031C0A0, 0x368 bytes. Places officers `l` (`n`) in force `f`'s regions (at random) where
+ * their role has room (three per role), else in another role, else they are set free. */
+void func_0031C0A0(int f, u32 *l, int n)
+{
+    u32 o[8];
+    int reg[28], nr, k, j;
+
+    for (k = 0; k < n; k++)
+        o[k] = l[k];
+    nr = func_002FB320(f, reg);
+    for (k = 0; k < n; k++) {
+        u32 i = o[k];
+        int role, done = 0;
+
+        if (i >= 0x19F)
+            continue;
+        func_0030C920(reg, nr);
+        role = func_002F3DC0(i);
+        for (j = 0; j < nr; j++) {
+            if (role == 1) {
+                if (func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, reg[j], 0, 0) < 3) {
+                    func_002F5BE0(i, reg[j]);
+                    done = 1;
+                    break;
+                }
+            } else if (func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, reg[j], 0, 1) < 3) {
+                func_002F5BE0(i, reg[j]);
+                done = 1;
+                break;
+            }
+        }
+        if (done)
+            continue;
+        for (j = 0; j < nr; j++) {
+            int nrole = role;
+
+            if (role == 1 || func_002F3F20(i) == 0)
+                nrole = role == 1 ? 2 : 1;
+            if (nrole == 1) {
+                if (func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, reg[j], 0, 0) < 3) {
+                    func_002F3CF0(i, 1);
+                    func_002F5BE0(i, reg[j]);
+                    done = 1;
+                    break;
+                }
+            } else if (func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, reg[j], 0, 1) < 3) {
+                func_002F3CF0(i, nrole);
+                func_002F5BE0(i, reg[j]);
+                done = 1;
+                break;
+            }
+            role = nrole;
+        }
+        if (!done)
+            func_002F7410(i);
+    }
+}
+
+/* 0x0031C410, 0x108 bytes. Region `r` is hit (by a battle?): two troops lost, its officers lose
+ * 10% (30% when `heavy`) to 30% (50%) of their soldiers. */
+void func_0031C410(int r, int heavy)
+{
+    int t = func_0030B090(r), n, k, cut;
+    u32 *o;
+
+    if (t == 0)
+        return;
+    func_0030B030(r, t - 2 < 0 ? 0 : t - 2);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, r, 0, 1);
+    o = func_002F7B10();
+    cut = heavy != 0 ? 0x1E : 10;
+    for (k = 0; k < n; k++, o++) {
+        int x = func_0030CB00(0x15);
+
+        func_002F3660(*o, func_002F3770(*o) * ((100 - x) - cut) / 100);
+        func_002F4B70(*o, -1);
+    }
+}
+
+/* 0x0031C520, 0x94 bytes. A value grade `g` (2 or 3) reached in value `k`: the weapons of that
+ * grade and group are unlocked. */
+void func_0031C520(int g, int k)
+{
+    int w;
+
+    if ((u32)(g - 2) >= 2)
+        return;
+    for (w = 0; w < 0x79; w++) {
+        if (g - 1 == func_002F57F0(w) && k == func_0030AB20(w))
+            *func_00328B30(w) = w;
+    }
 }
