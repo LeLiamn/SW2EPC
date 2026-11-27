@@ -966,3 +966,170 @@ void func_001902B0(void)
 {
     func_001902D0(480000);
 }
+
+u32 func_00102360(int budget, void *fn, int *stop);  /* starts a time budget (a callback sets *stop) */
+void func_00102340(u32 t);
+void func_0022BC70(u8 *map, u32 a);
+int func_0022B890(u8 *bits, u32 *next);
+void func_00191200(float *out, void *a);
+
+/* 0x001902D0, 0x1A8 bytes. Rebuilds the routes marked at +0x56 one province at a time (+0x57),
+ * then the work marked by flag 0x80 (the bits at +0xA0 from +0xF0), within the time budget
+ * `budget` (none for 0): stops when the budget runs out. */
+void func_001902D0(int budget)
+{
+    u8 *m = g_0045D2F0;
+    u32 side = 0, t = (u32)-1;
+    int stop = 0;
+
+    if (budget != 0)
+        t = func_00102360(480000, (void *)0x191230, &stop);
+    while ((int)side < 2 && stop == 0) {
+        u8 bit = 1 << side;
+
+        if ((U8(m, 0x56) & bit) == 0) {
+            side++;
+        } else if (U8(m, 0x57) == U8(m, 0x54)) {
+            side++;
+            U8(m, 0x56) &= ~bit;
+            U8(m, 0x57) = 0;
+        } else {
+            func_0018DA60(m, PTR(m, 0x50) + U8(m, 0x57) * 0x88, side);
+            U8(m, 0x57) += 1;
+        }
+    }
+    if (U8(m, 0x56) & 0x80) {
+        do {
+            if (stop != 0)
+                goto out;
+            func_0022BC70(m, U32(m, 0xF0));
+            U8(m, 0xA0 + (U32(m, 0xF0) >> 3)) &= ~(1 << (U32(m, 0xF0) & 7));
+        } while (func_0022B890(m + 0xA0, (u32 *)(m + 0xF0)) != 0);
+        U8(m, 0x56) &= 0x7F;
+    }
+out:
+    if (budget != 0)
+        func_00102340(t);
+}
+
+/* 0x00190480, 0x60 bytes. Whether `cell` is on the map. */
+int func_00190480(u8 *cell)
+{
+    return province_at(g_0045D2F0, cell) != 0;
+}
+
+/* 0x001904E0, 0xA4 bytes. Whether `fn` holds for every province's cell. */
+int func_001904E0(int (*fn)(u16 *cell, void *a), void *a)
+{
+    u8 *m = g_0045D2F0;
+    u32 i;
+
+    for (i = 0; i < U8(m, 0x54); i++) {
+        u16 c = U16(PTR(PTR(m, 0x50) + i * 0x88, 0), 4);
+
+        if (fn(&c, a) == 0)
+            return 0;
+    }
+    return 1;
+}
+
+/* 0x00190590, 0x7C bytes. Whether the province at `cell` has one of `flags`. */
+int func_00190590(u8 *cell, u32 flags)
+{
+    u8 *e = province_at(g_0045D2F0, cell);
+
+    if (e == 0)
+        return 0;
+    return (flags & U32(e, 0x10)) != 0;
+}
+
+/* 0x00190610, 0x94 bytes. The same for the 5000-unit cell of a point (func_00191200). */
+void func_00190610(void *a, u32 flags)
+{
+    float p[2];
+    u8 c[2];
+
+    func_00191200(p, a);
+    c[0] = (u8)((int)p[0] / 5000);
+    c[1] = (u8)((int)p[1] / 5000);
+    func_00190590(c, flags);
+}
+
+/* 0x001906B0, 0x128 bytes. Sets (`on`) or puts back to the file state `flags` of the provinces
+ * in cells `a` to `b`. */
+void func_001906B0(u8 *a, u8 *b, u32 flags, int on)
+{
+    u8 c[2];
+
+    for (c[1] = a[1]; c[1] <= b[1]; c[1]++) {
+        for (c[0] = a[0]; c[0] <= b[0]; c[0]++) {
+            u8 *e = province_at(g_0045D2F0, c);
+
+            if (e != 0) {
+                if (on == 0)
+                    U32(e, 0x10) = (U32(e, 0x10) & ~flags) | U32(PTR(e, 0), 0);
+                else
+                    U32(e, 0x10) |= flags;
+            }
+        }
+    }
+}
+
+/* 0x001907E0, 0x7C bytes. Byte `k` of +0x14 of the province at `cell` (0 outside). */
+u8 func_001907E0(u8 *cell, u32 k)
+{
+    u8 *e = province_at(g_0045D2F0, cell);
+
+    if (e == 0)
+        return 0;
+    return U8(e, (k & 0xFF) + 0x14);
+}
+
+/* 0x00190860, 0x12C bytes. Sets (`on`) or clears bits `mask` of byte `k` of +0x14 for the
+ * provinces in cells `a` to `b` (the map areas of the scenario). */
+void func_00190860(u8 *a, u8 *b, u32 k, u8 mask, int on)
+{
+    u8 c[2];
+
+    for (c[1] = a[1]; c[1] <= b[1]; c[1]++) {
+        for (c[0] = a[0]; c[0] <= b[0]; c[0]++) {
+            u8 *e = province_at(g_0045D2F0, c);
+
+            if (e != 0) {
+                if (on == 0)
+                    U8(e, (k & 0xFF) + 0x14) &= ~mask;
+                else
+                    U8(e, (k & 0xFF) + 0x14) |= mask;
+            }
+        }
+    }
+}
+
+/* 0x00190990, 0x180 bytes. The terrain of the province at `cell` (+0xC, 0xF none); a named
+ * province without one takes the first linked neighbour's (links 0, 2, 4, 6 with flags 0x11). */
+char func_00190990(u8 *cell)
+{
+    u8 *e = province_at(g_0045D2F0, cell), *r;
+    char t;
+    int k;
+
+    if (e == 0)
+        return 0xF;
+    r = PTR(e, 0);
+    t = (char)U8(r, 0xC);
+    if (t == 0xF && (char)U8(r, 8) != -1) {
+        for (k = 0; k < 4; k++) {
+            if (U8(e, k * 2 + 0x18) & 0x11) {
+                u8 c[2], *n;
+
+                c[0] = U8(r, 4) + g_00424EF0[k * 2];
+                c[1] = U8(r, 5) + g_00424F10[k * 2];
+                n = province_at(g_0045D2F0, c);
+                if (n == 0)
+                    return 0xF;
+                return (char)U8(PTR(n, 0), 0xC);
+            }
+        }
+    }
+    return t;
+}
