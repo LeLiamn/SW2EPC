@@ -1,7 +1,7 @@
 /*
  * stage_units.c - the stage's placed units (map objects with models: houses, fences, gates...):
  * their tables live in a block whose pointers sit in the scratchpad at 0x70000180-0x7000019F.
- * Original file name unknown (0x00207CC0-0x00208268).
+ * Original file name unknown (0x00207CC0-0x00208268, parts of 0x0020A710-0x0020BF4C).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -213,4 +213,158 @@ void func_00208140(u8 *info, u32 *f)
     func_00118850(SU_DATA, size);
     func_00207E90();
     func_00207FA0((u32 *)f[4]);
+}
+
+/* The stage units' collision boxes (0x20 bytes each; parts of 0x0020A710-0x0020BF4C): a unit's
+ * parts (+0x5C: the parts in place) each own func_00207D80 boxes of the kinds func_00207DA0
+ * gives (0-3 a slope side, 4 and up flat). */
+
+u8 *func_001FF140(u16 v);
+u32 func_001FF100(u16 v, int k);
+u8 *func_001FF230(u8 *part);
+void func_00247530(u8 *u, u8 *a, int b, int c);
+void func_002E18C0(u8 *q, u8 *box, int side);
+void func_0020A970(u8 *q, u8 *box, int side);
+void func_0020AB00(u8 *q, u8 *box, int side);
+void func_0020AD40(u8 *q, u8 *box);
+u32 func_0020AEA0(u8 *q, u8 *box);
+void func_0020AFF0(u8 *q, u8 *box);
+void func_0020B110(u8 *q, u8 *box);
+void func_0020B2B0(u8 *q, u8 *box);
+void func_0020B410(u8 *q, u8 *box);
+u8 *func_0020BAC0(u8 *q, u8 *box, u8 *u, u8 *part);
+
+/* The slope side of box `j` of part `p` of unit `u`. */
+#define BOX_SIDE(p, k, u) ((*(char *)((p) + 8) + (k) + *(char *)((u) + 0x5B)) & 3)
+
+/* 0x0020A710, 0xD0 bytes. Actor `a` meets stage unit `u` (when it can break it). */
+int func_0020A710(u8 *a, u8 *u)
+{
+    u8 v;
+
+    if ((u[0x65] & 0x80) == 0)
+        return 0;
+    v = func_001FF100(*(u16 *)(u + 0x54), 0xC);
+    if (v == 1)
+        return 0;
+    if (v >= 2 && func_001FF100(*(u16 *)(u + 0x54), 0xD) >= 2)
+        return 0;
+    if ((char)func_001FF100(*(u16 *)(u + 0x54), 0xB) == 2)
+        return 0;
+    func_00247530(u, a, 0, 1);
+    return 1;
+}
+
+/* 0x0020B530, 0xCC bytes. Checks query `q` against part `p`'s slope boxes from `box`; past them. */
+u8 *func_0020B530(u8 *q, u8 *box, u8 *u, u16 *p)
+{
+    u32 n = func_00207D80(*p), k;
+    u8 *kinds = func_00207DA0(*p);
+
+    for (k = 0; k < n; k++, box += 0x20)
+        func_002E18C0(q, box, BOX_SIDE((u8 *)p, (char)kinds[k], u));
+    return box;
+}
+
+/* 0x0020B7A0, 0xEC bytes. The same with the slope or flat checks of another kind. */
+u8 *func_0020B7A0(u8 *q, u8 *box, u8 *u, u16 *p)
+{
+    u32 n = func_00207D80(*p), k;
+    u8 *kinds = func_00207DA0(*p);
+
+    for (k = 0; k < n; k++, box += 0x20) {
+        if (kinds[k] < 4)
+            func_0020A970(q, box, BOX_SIDE((u8 *)p, kinds[k], u));
+        else
+            func_0020B110(q, box);
+    }
+    return box;
+}
+
+/* 0x0020B890, 0x60 bytes. Height checks of part `p`'s boxes. */
+u8 *func_0020B890(u8 *q, u8 *box, u16 *p)
+{
+    u32 n = func_00207D80(*p), k;
+
+    for (k = 0; k < n; k++, box += 0x20)
+        func_0020AEA0(q, box);
+    return box;
+}
+
+/* 0x0020B8F0, 0x70 bytes. */
+u8 *func_0020B8F0(u8 *q, u8 *box, u16 *p)
+{
+    u32 n = func_00207D80(*p), k;
+
+    for (k = 0; k < n; k++, box += 0x20)
+        func_0020AFF0(q, box);
+    return box;
+}
+
+/* 0x0020B960, 0xEC bytes. */
+u8 *func_0020B960(u8 *q, u8 *box, u8 *u, u16 *p)
+{
+    u32 n = func_00207D80(*p), k;
+    u8 *kinds = func_00207DA0(*p);
+
+    for (k = 0; k < n; k++, box += 0x20) {
+        if (kinds[k] < 4)
+            func_0020AB00(q, box, BOX_SIDE((u8 *)p, kinds[k], u));
+        else
+            func_0020B2B0(q, box);
+    }
+    return box;
+}
+
+/* 0x0020BA50, 0x70 bytes. */
+u8 *func_0020BA50(u8 *q, u8 *box, u16 *p)
+{
+    u32 n = func_00207D80(*p), k;
+
+    for (k = 0; k < n; k++, box += 0x20)
+        func_0020B410(q, box);
+    return box;
+}
+
+/* 0x0020BD00, 0xE0 bytes. Checks query `q` against stage unit `u`'s parts in place. */
+void func_0020BD00(u8 *q, u8 *box, u8 *u)
+{
+    u16 v = *(u16 *)(u + 0x54);
+    u8 *d = func_001FF140(v), *p;
+    u32 on = *(u32 *)(u + 0x5C), k;
+
+    if ((char)func_001FF100(v, 1) == 0)
+        return;
+    p = d + 0x30;
+    for (k = 0; k < *(u16 *)(d + 4); k++) {
+        if ((on & 1 << k) != 0)
+            box = func_0020BAC0(q, box, u, p);
+        p = func_001FF230(p);
+    }
+}
+
+/* 0x0020BDE0, 0x16C bytes. The same with the climbing checks. */
+void func_0020BDE0(u8 *q, u8 *box, u8 *u)
+{
+    u16 v = *(u16 *)(u + 0x54);
+    u8 *d = func_001FF140(v), *p;
+    u32 on = *(u32 *)(u + 0x5C), k;
+
+    if ((char)func_001FF100(v, 5) == 0)
+        return;
+    p = d + 0x30;
+    for (k = 0; k < *(u16 *)(d + 4); k++) {
+        if ((on & 1 << k) != 0) {
+            u32 n = func_00207D80(*(u16 *)p), j;
+            u8 *kinds = func_00207DA0(*(u16 *)p);
+
+            for (j = 0; j < n; j++, box += 0x20) {
+                if (kinds[j] < 4)
+                    func_0020AB00(q, box, BOX_SIDE(p, kinds[j], u));
+                else
+                    func_0020AD40(q, box);
+            }
+        }
+        p = func_001FF230(p);
+    }
 }
