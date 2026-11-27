@@ -621,7 +621,7 @@ void func_0034BB20(void)
 }
 
 /* 0x0034BB50, 0xE4 bytes, matching. Lists the groups in use passing `test` (with `x`, `y`) into list `a`. */
-void func_0034BB50(int a, int (*test)(u8 *, int, int), int x, int y)
+int func_0034BB50(int a, int (*test)(u8 *, int, int), int x, int y)
 {
     u32 k;
 
@@ -631,7 +631,7 @@ void func_0034BB50(int a, int (*test)(u8 *, int, int), int x, int y)
         if (g != 0 && (*(u32 *)(g + 100) & 1) != 0 && (test == 0 || test(g, x, y) != 0))
             func_00364E40(a, GROUP_INDEX(g));
     }
-    func_00365050(a);
+    return func_00365050(a);
 }
 
 /* 0x0034BC40, 0xD8 bytes. Whether group `g` is an active, free group of side `side`. */
@@ -647,9 +647,9 @@ int func_0034BC40(u8 *g, u32 side)
 }
 
 /* 0x0034BD20, 0x28 bytes, matching. Side `side`'s free groups into list `a`. */
-void func_0034BD20(int a, int side)
+int func_0034BD20(int a, int side)
 {
-    func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BC40, side, 0);
+    return func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BC40, side, 0);
 }
 
 /* 0x0034BD50, 0x128 bytes. Whether group `g` is active, of side `side`, with info bytes +5 / +6
@@ -666,9 +666,9 @@ int func_0034BD50(u8 *g, u32 side, u32 key)
 }
 
 /* 0x0034BE80, 0x30 bytes, matching. Such groups into list `a`. */
-void func_0034BE80(int a, int side, int k, u32 j)
+int func_0034BE80(int a, int side, int k, u32 j)
 {
-    func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BD50, side, k << 0x10 | j);
+    return func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BD50, side, k << 0x10 | j);
 }
 
 /* 0x0034BEB0, 0x128 bytes. The same with info bytes +8 / +9. */
@@ -684,9 +684,9 @@ int func_0034BEB0(u8 *g, u32 side, u32 key)
 }
 
 /* 0x0034BFE0, 0x30 bytes, matching. Such groups into list `a`. */
-void func_0034BFE0(int a, int side, int k, u32 j)
+int func_0034BFE0(int a, int side, int k, u32 j)
 {
-    func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BEB0, side, k << 0x10 | j);
+    return func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BEB0, side, k << 0x10 | j);
 }
 
 void func_00365230(int list);
@@ -1202,4 +1202,242 @@ void func_0034D6C0(u8 *st)
         func_0034CF20((int)l1, func_00365050((int)l1), (int)l2, 3, side);
     if (func_003653D0((int)l1) != 0)
         func_0034CE40((int)l1, func_00365050((int)l1));
+}
+
+extern void (*g_004154F0[11])(u8 *st);   /* by side plan */
+extern void (*g_0045D060[2])(u8 *st);    /* (small data) more side steps */
+extern u8 g_00669D60[];                  /* the settings */
+extern u8 g_006A3A30[];                  /* the officers (0xC0 each) */
+
+int func_0033C160(u8 *g);
+int func_0033C4E0(u8 *g);
+void func_0033E850(u8 *g, u8 *h);
+int func_0036F4B0(int s, int x);
+void func_0036F990(int s, int k, int g);
+int func_0036F520(int s, int k);
+int func_0033C1E0(u8 *g);
+int func_0033CC20(u8 *g, int b);
+int func_0033D2C0(int b);
+u32 func_00361CE0(int s);
+
+/* 0x0034D860, 0xC4 bytes. Plan: the free groups take the unowned bases (one each), the rest
+ * wait. */
+void func_0034D860(u8 *st)
+{
+    u8 b1[64], b2[80], l1[16], l2[16];
+    int side = func_0034B160((int)st);
+
+    func_003653F0((int)l1, b1, 0x10);
+    func_003653F0((int)l2, b2, 0x14);
+    func_0034BD20((int)l1, side);
+    if (func_003653D0((int)l1) == 0)
+        return;
+    func_0034C270((int)l2, side, 1);
+    if (func_003653D0((int)l2) != 0)
+        func_0034CF20((int)l1, func_00365050((int)l1), (int)l2, 1, side);
+    if (func_003653D0((int)l1) != 0)
+        func_0034CE40((int)l1, func_00365050((int)l1));
+}
+
+/* 0x0034D930, 0xEC bytes. Runs side state `st`'s plan once it was marked. */
+void func_0034D930(u8 *st)
+{
+    void (*tbl[12])(u8 *);
+    int k;
+
+    for (k = 0; k < 11; k++)
+        tbl[k] = g_004154F0[k];
+    if ((st[8] & 1) != 0 && st[7] < 0xB) {
+        if (tbl[st[7]] != 0)
+            tbl[st[7]](st);
+        st[8] &= 0xFE;
+    }
+}
+
+/* 0x0034DA20, 0x17C bytes. The other active groups holding (state 2, kind 3) the same base as
+ * group `g`, into list `l`; their count. */
+int func_0034DA20(int l, u8 *g)
+{
+    int b = func_0033C160(g);
+    u32 k;
+
+    func_00365230(l);
+    for (k = 0; k < 0x10; k++) {
+        u8 *h = func_0033EF80(k);
+
+        if (h == 0 || (*(int *)(h + 0x64) & 1) == 0 || !UNIT_ACTIVE(UNIT_FLAGS(GROUP_UNIT(h))) || h == g)
+            continue;
+        if (GROUP_INFO(h)[8] == 2 && func_0033C4E0(h) == b && GROUP_INFO(h)[5] == 3)
+            func_00364E40(l, GROUP_INDEX(h));
+    }
+    return func_00365050(l);
+}
+
+/* 0x0034DBA0, 0x118 bytes. The side's kind 6 groups on a base that others hold hand over to the
+ * holder that wants it most. */
+void func_0034DBA0(u8 *st)
+{
+    u8 b1[64], b2[64], l1[16], l2[16];
+    int side = func_0034B160((int)st);
+    u32 n, k;
+
+    func_003653F0((int)l1, b1, 0x10);
+    func_003653F0((int)l2, b2, 0x10);
+    if (func_0034BE80((int)l1, side, 6, 0xFF) == 0)
+        return;
+    n = func_00365050((int)l1);
+    for (k = 0; k < n; k++) {
+        u8 *g = g_006A1D58[func_00365030((int)l1, k)];
+        int b = func_0033C160(g);
+
+        if (func_0033CB60(g, (u8 *)b) != 0 && func_0034DA20((int)l2, g) != 0)
+            func_0033E850(g, func_0034C8A0((int)l2, (u8 *)func_0033C160(g)));
+    }
+}
+
+/* 0x0034DCC0, 0xEC bytes. The side's state 0 groups whose base is no longer threatened stop. */
+void func_0034DCC0(u8 *st)
+{
+    u8 b1[64], l1[16];
+    int side = func_0034B160((int)st);
+    u32 n, k;
+
+    func_003653F0((int)l1, b1, 0x10);
+    if (func_0034BFE0((int)l1, side, 0, 0xFF) == 0)
+        return;
+    n = func_00365050((int)l1);
+    for (k = 0; k < n; k++) {
+        u8 *g = g_006A1D58[func_00365030((int)l1, k)];
+
+        if (func_00352240((u8 *)func_0033C4E0(g), side) == 0)
+            func_003385E0(g, 4, 0xFF);
+    }
+}
+
+/* 0x0034DDB0, 0x70 bytes. Runs the two extra side steps. */
+void func_0034DDB0(u8 *st)
+{
+    void (*tbl[2])(u8 *);
+    u32 k;
+
+    tbl[0] = g_0045D060[0];
+    tbl[1] = g_0045D060[1];
+    for (k = 0; k < 2; k++) {
+        if (tbl[k] != 0)
+            tbl[k](st);
+    }
+}
+
+/* 0x0034DE20, 0x44 bytes, matching. The computer side's turn: its plan chosen and run, then its steps. */
+void func_0034DE20(u8 *st)
+{
+    if (func_0034B160((int)st) != 0) {
+        func_0034D180(st);
+        func_0034D930(st);
+        func_0034DDB0(st);
+    }
+}
+
+/* 0x0034DE70, 0x140 bytes. An active group of side state `st` (its own eight first). */
+u8 *func_0034DE70(u8 *st)
+{
+    int sides[2], j, k;
+
+    sides[0] = func_0034B160((int)st);
+    sides[1] = func_0035D5A0(func_0034B160((int)st));
+    for (j = 0; j < 2; j++) {
+        for (k = 0; k < 8; k++) {
+            u8 *g = func_0033EF80(sides[j] * 8 + k);
+
+            if ((*(int *)(g + 0x64) & 1) != 0 && UNIT_ACTIVE(UNIT_FLAGS(GROUP_UNIT(g)))
+                && GROUP_UNIT(g)[0x79] == (u32)func_0034B160((int)st))
+                return g;
+        }
+    }
+    return 0;
+}
+
+/* 0x0034DFB0, 0xA4 bytes. A chance growing with the battle's elapsed time (1%, 3%, 5%, 10%). */
+int func_0034DFB0(void)
+{
+    u32 p = (g_00669F9C * 100) / g_00669FA0, pct;
+
+    if (p < 10)
+        pct = 1;
+    else if (p < 0x1E)
+        pct = 3;
+    else if (p < 0x32)
+        pct = 5;
+    else
+        pct = 10;
+    return RANDOM() % 100 < pct;
+}
+
+/* 0x0034E060, 0xC8 bytes. A chance for each player in play, higher with a low officer value
+ * (+0x82: 30% below 50, 10% below 100). */
+int func_0034E060(void)
+{
+    int k;
+
+    for (k = 0; k < 2; k++) {
+        if (*(int *)(g_00669D60 + k * 0x48 + 0xA0) != 0) {
+            u16 v = *(u16 *)(g_006A3A30 + k * 0xC0 + 0x82);
+            u32 pct = 0;
+
+            if (v < 0x32)
+                pct = 0x1E;
+            else if (v < 100)
+                pct = 10;
+            if (RANDOM() % 100 < pct)
+                return 1;
+        }
+    }
+    return 0;
+}
+
+/* 0x0034E130, 0x7C bytes, matching. */
+void func_0034E130(int x, u8 *g)
+{
+    int s = GROUP_UNIT(g)[0x79];
+    u32 k = func_0036F4B0(s, x);
+
+    if (k < 2)
+        func_0036F990(s, k, GROUP_INDEX(g));
+}
+
+/* 0x0034E1B0, 0x1B8 bytes. Whether group `g`'s side calls for help: a kind 2 group in trouble
+ * (30%), else by the elapsed-time chance; never with func_0036F520 0x15. */
+int func_0034E1B0(u8 *g)
+{
+    u8 s = GROUP_UNIT(g)[0x79];
+    u32 k;
+
+    if (func_0036F520(s, 0x15) != 0)
+        return 0;
+    for (k = 0; k < 0x10; k++) {
+        u8 *h = func_0033EF80(k);
+
+        if ((*(int *)(h + 0x64) & 1) == 0 || !UNIT_ACTIVE(UNIT_FLAGS(GROUP_UNIT(h))))
+            continue;
+        if (s == GROUP_UNIT(h)[0x79] && GROUP_INFO(h)[5] == 2) {
+            int b = func_0033C1E0(h);
+
+            if (h != 0 && func_0033CC20(h, b) != 0 && func_0033D2C0(b) != 0 && RANDOM() % 100 < 0x1E)
+                return 1;
+        }
+    }
+    return func_0034DFB0() != 0;
+}
+
+/* 0x0034E370, 0xB4 bytes. Whether group `g`'s side is weak (below 51; below 30 a 10% chance,
+ * else the elapsed-time chance). */
+int func_0034E370(u8 *g)
+{
+    u8 s = GROUP_UNIT(g)[0x79];
+
+    if (func_00361CE0(s) >= 0x33)
+        return 0;
+    if (func_00361CE0(s) < 0x1E && RANDOM() % 100 < 10)
+        return 1;
+    return func_0034DFB0() != 0;
 }
