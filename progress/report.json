@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 70016,
-    "non_matching": 428600
+    "matching": 70224,
+    "non_matching": 429576
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 618
+    "matching": 619
   },
   "layout": "treemap",
   "areas": [
@@ -535,11 +535,11 @@
         },
         {
           "name": "sc_ctrl.c",
-          "description": "Estimated range 0x1814A8-0x1890D0; 26 function(s) decompiled",
+          "description": "Estimated range 0x1814A8-0x1890D0; 30 function(s) decompiled",
           "code": {
             "total": 31784,
-            "matching": 1488,
-            "non_matching": 3504
+            "matching": 1696,
+            "non_matching": 4480
           }
         },
         {

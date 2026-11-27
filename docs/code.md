@@ -1029,7 +1029,7 @@ so far (13 functions, 5 match):
 
 Original source file `sc_ctrl.c` (its name is passed to the file loader at `0x00185D10`, from
 line 1922 of the original, so the file starts well before). Done so far: `0x00185CA0`-
-`0x00187024`, 26 functions, 14 match. Like `Weapon.c`, it was built with the loop unroller on.
+`0x00187600`, 30 functions, 15 match. Like `Weapon.c`, it was built with the loop unroller on.
 
 - A table file (LINKDATA entry 0x35) is loaded at start; the scenario's frame calls one of two
   updates by the game mode.
@@ -1046,7 +1046,9 @@ line 1922 of the original, so the file starts well before). Done so far: `0x0018
 - **Command handlers** (from `0x001864B0`): move an officer (its map cells are its position
   / 5000 and / 1000), send an officer or its base somewhere, test who stands in an area of
   cells, give an officer its troops back, set or clear an event bit (a bit array at
-  `0x00669D70`), change one of three values of an officer or its base.
+  `0x00669D70`), change one of three values of an officer or its base, set one of ten
+  scenario switches (one is the players' camera follow), put an officer in a cell with its
+  base's 12 garrison officers around it, make an officer leave its base or the map.
 
 ## Motion data (`src/motion_manager.c`)
 
