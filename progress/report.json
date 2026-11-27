@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 181584,
-    "non_matching": 1233224
+    "matching": 182064,
+    "non_matching": 1234040
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2307
+    "matching": 2317
   },
   "layout": "treemap",
   "areas": [
@@ -820,15 +820,15 @@
         },
         {
           "name": "BriefingCmnParts.c",
-          "description": "Estimated range 0x2C1EA8-0x2DE550; 22 function(s) decompiled",
+          "description": "Estimated range 0x2C1EA8-0x2DE550; 43 function(s) decompiled",
           "code": {
             "total": 116392,
-            "matching": 448,
-            "non_matching": 1024
+            "matching": 928,
+            "non_matching": 1840
           },
           "decompiled_functions": {
-            "count": 22,
-            "matching": 11
+            "count": 43,
+            "matching": 21
           }
         }
       ]
