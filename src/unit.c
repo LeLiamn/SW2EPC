@@ -3629,3 +3629,253 @@ tail:
     if ((S16(ACT(u), 0) == 0x55 || S16(ACT(u), 0) == 0x56) && PTR(u, 0x288) != 0)
         func_00150FD0(u, PTR(u, 0x288), S16(ACT(u), 0));
 }
+
+extern int g_0045CC68[2];                /* (small data) the two extra motion slots: 0, 1 */
+
+/* The last frame of action `act`: its hit's +6, or its motion's length - 1. */
+static inline int act_end(Unit *u, u8 *act)
+{
+    u8 *hit = PTR(act, 0x14);
+    u8 *d = DESC(u), *a, *r;
+
+    if (hit != 0 && (U32(hit, 0x28) & 0x800000))
+        return hit[6];
+    a = PTR(d, 8) + U16(act, 0) * 0x20;
+    if ((U32(a, 0x1C) & 0x40000000) == 0) {
+        if ((U32(a, 0x1C) & 0x80000000) == 0)
+            r = *(u8 **)(*(u8 **)(g_005B5078[U8(d, 0x1C)]) + U16(a, 2) * 0x20);
+        else
+            r = *(u8 **)(*(u8 **)(g_005B5078[U8(d, 0x1C)] + 0x50) + U16(a, 2) * 0x20);
+    } else {
+        r = *(u8 **)(g_005BA688 + U16(a, 2) * 0x20);
+    }
+    return S32(r, 8) - 1;
+}
+
+/* Plays the queued action (+0x218) when the hit allows it; whether one was started. */
+static inline int play_queued(Unit *u)
+{
+    u8 *q = PTR(u, 0x218);
+    int r;
+
+    if (q == 0)
+        return 0;
+    if (PTR(q, 0x14) == 0 || (U32(PTR(q, 0x14), 0x28) & 0x2000) == 0) {
+        func_00156AF0(u, U16(q, 0));
+        PTR(u, 0x218) = 0;
+        return 1;
+    }
+    r = (U8(u, 0x27C) & 8) != 0;
+    if (r)
+        func_00156AF0(u, U16(q, 0));
+    PTR(u, 0x218) = 0;
+    return r;
+}
+
+/* Loops the frame back past `end` (counting the loops at +0x220). */
+static inline void loop_frame(Unit *u, int end, float dt)
+{
+    if ((float)end < F32(u, 0x21C)) {
+        if ((float)end < dt)
+            F32(u, 0x21C) = 0.0f;
+        else
+            F32(u, 0x21C) = F32(u, 0x21C) - (float)(end + 1);
+        S32(u, 0x220) += 1;
+    }
+}
+
+/* 0x0015DE30, 0xA54 bytes. Advances the animation by `dt` (times the speed +0x234): the
+ * transition first; then the frame, and at the end the next action (+4: a random idle among
+ * three when mounted, the queued action, or a loop; actions with flag 0x40 loop four times); the
+ * extra motion slots; the extra action (+0x250) and its chain; a rider's frame following its
+ * mount (action 0x58). */
+void func_0015DE30(float dt, Unit *u)
+{
+    u8 *act = ACT(u);
+    float *tr = PTR(u, 0x11C) == 0 ? 0 : &F32(PTR(u, 0x11C), 0x210);
+    int blending = tr != 0 && tr[1] > 0.0f;
+    int done = 0;
+
+    dt = dt * F32(u, 0x234);
+    if (blending) {
+        float v = tr[0];
+
+        tr[0] = v - dt;
+        if (v - dt < 0.0001f) {
+            tr[0] = 0.0f;
+            tr[1] = 0.0f;
+            U8(u, 0x27C) &= ~0x20;
+        }
+        if (S16(ACT(u), 0xA) != -1 && (U8(u, 0x2DC) & 4)) {
+            u8 *b = PTR(u, 0x2D4);
+
+            F32(b, 0x210) = F32(b, 0x210) - dt;
+            if (F32(b, 0x210) < 0.0001f) {
+                F32(b, 0x210) = 0.0f;
+                F32(b, 0x214) = 0.0f;
+            }
+        }
+        if (S16(ACT(u), 8) != -1 && (U8(u, 0x34C) & 4)) {
+            u8 *b = PTR(u, 0x344);
+
+            F32(b, 0x210) = F32(b, 0x210) - dt;
+            if (F32(b, 0x210) < 0.0001f) {
+                F32(b, 0x210) = 0.0f;
+                F32(b, 0x214) = 0.0f;
+            }
+        }
+    }
+    if (!blending || (U8(u, 0x27C) & 0x20)) {
+        int end = act_end(u, ACT(u));
+
+        F32(u, 0x21C) = F32(u, 0x21C) + dt;
+        if ((U32(act, 0x1C) & 0x40) == 0) {
+            short next = S16(act, 4);
+
+            if (S32(u, 0x118) == 0x3C && next == 0) {
+                if ((float)end < F32(u, 0x21C)) {
+                    F32(u, 0x21C) = (float)end;
+                    if (!play_queued(u)) {
+                        u32 r = RANDOM() % 100;
+
+                        func_00156AF0(u, r < 0x32 ? 0 : r < 0x4B ? 1 : 2);
+                    }
+                    done = 1;
+                }
+            } else if (next == -1 || S16(act, 0) == next) {
+                if (next == -1) {
+                    if ((float)end < F32(u, 0x21C))
+                        F32(u, 0x21C) = (float)end;
+                } else {
+                    loop_frame(u, end, dt);
+                }
+            } else if ((float)end < F32(u, 0x21C)) {
+                F32(u, 0x21C) = (float)end;
+                if (!play_queued(u))
+                    func_00156AF0(u, next);
+                done = 1;
+            }
+        } else if (S32(u, 0x220) < 4) {
+            loop_frame(u, end, dt);
+        } else {
+            func_00156AF0(u, S16(act, 4));
+            done = 1;
+        }
+        if (!done) {
+            u32 k;
+
+            for (k = 0; k < 2; k++) {
+                u8 *s = u + g_0045CC68[k] * 0x70;
+
+                if ((U8(s, 0x2DC) & 4) && PTR(s, 0x2F0) != 0) {
+                    int n = S32(*(u8 **)PTR(s, 0x2F0), 8);
+
+                    F32(s, 0x2F4) = F32(s, 0x2F4) + dt;
+                    if ((float)n <= F32(s, 0x2F4))
+                        F32(s, 0x2F4) = (float)(n - 1);
+                }
+            }
+        }
+    }
+    if (!blending && (U8(u, 0x27C) & 0x20) == 0 && PTR(u, 0x250) != 0) {
+        u8 *b = PTR(u, 0x250);
+        int end = act_end(u, b);
+        u16 nx;
+
+        F32(u, 0x254) = F32(u, 0x254) + dt;
+        nx = U16(PTR(u, 0x250), 4);
+        if (nx == 0xFFFF || U16(PTR(u, 0x250), 0) == nx) {
+            if ((float)end <= F32(u, 0x254))
+                F32(u, 0x254) = (float)end;
+        } else if ((float)end <= F32(u, 0x254)) {
+            PTR(u, 0x250) = PTR(DESC(u), 8) + nx * 0x20;
+            F32(u, 0x254) = 0.0f;
+            if (U32(PTR(u, 0x250), 0x1C) & 0x10000000)
+                PTR(u, 0x250) = 0;
+            if (PTR(u, 0x11C) != 0) {
+                func_00156070(u);
+                U8(u, 0x27C) = (U8(u, 0x27C) & ~0x20) | 0x20;
+            }
+        }
+        if ((U32(ACT(u), 0x1C) & 0x10000000) == 0) {
+            PTR(u, 0x250) = 0;
+            F32(u, 0x254) = 0.0f;
+            if (PTR(u, 0x11C) != 0) {
+                func_00156070(u);
+                U8(u, 0x27C) = (U8(u, 0x27C) & ~0x20) | 0x20;
+            }
+        }
+    }
+    if (PLAYER(u) < 2 && S32(u, 0x118) < 0x3C && S16(ACT(u), 0) == 0x58 && PTR(u, 0x11C) != 0
+        && PTR(u, 0x288) != 0
+        && (S16(ACT(PTR(u, 0x288)), 0) == 7 || S16(ACT(PTR(u, 0x288)), 0) == 0x13)) {
+        int end = act_end(u, ACT(u));
+        float f = dt + F32(PTR(u, 0x288), 0x21C);
+
+        F32(u, 0x21C) = f;
+        loop_frame(u, end, dt);
+    }
+    F32(u, 0x23C) = F32(u, 0x23C) + dt;
+}
+
+/* 0x0015E890, 0x60 bytes. The text of message `k` (*out: 0x100 + k, 0x1D8 + k from 0x28,
+ * 0x664 + k from 0x71); 1 for 0xFF (none). */
+int func_0015E890(int *out, int k)
+{
+    if (k < 0x28) {
+        *out = k + 0x100;
+        return 0;
+    }
+    if (k < 0x71) {
+        *out = k + 0x1D8;
+        return 0;
+    }
+    if (k == 0xFF)
+        return 1;
+    *out = k + 0x664;
+    return 0;
+}
+
+/* 0x0015E8F0, 0x134 bytes. The reaction kind of situation `k` (0-13; some at random); -1 for
+ * none. */
+int func_0015E8F0(u32 k)
+{
+    u32 r;
+
+    switch (k) {
+    case 0:
+    case 1:
+        r = RANDOM() % 100;
+        if (r < 0x19)
+            return -1;
+        if (r < 0x32)
+            return 1;
+        return 0;
+    case 2:
+        r = RANDOM() % 100;
+        return r < 0x32 ? 1 : 0;
+    case 3:
+        return 2;
+    case 4:
+        return 3;
+    case 5:
+        return 1;
+    case 6:
+        return 4;
+    case 7:
+        return 5;
+    case 8:
+        return 6;
+    case 9:
+        return 7;
+    case 10:
+        return 8;
+    case 11:
+        return 9;
+    case 12:
+        return 10;
+    case 13:
+        return 11;
+    }
+    return -1;
+}
