@@ -4129,3 +4129,334 @@ int func_003539D0(u8 *cell, int side)
 {
     return (side == 0 ? 1 : -1) * func_00353460(cell);
 }
+
+/* A unit placement record (0x20 bytes; 0x46 of them after a 0x10-byte header). */
+typedef struct {
+    u16 id;                  /* +0x00 unit kind (0x1AD = none) */
+    u16 x, y;                /* +0x02 position / 100 */
+    u16 hp;                  /* +0x06 */
+    u16 a8;                  /* +0x08 */
+    u16 aA;                  /* +0x0A */
+    u8 c, d, e, f;           /* +0x0C */
+    u8 b10, b11, b12, b13;   /* +0x10 */
+    u16 officer;             /* +0x14 (0x1AD = none) */
+    u8 side;                 /* +0x16 */
+    u8 b17, b18;             /* +0x17 */
+    u8 unknown_19[7];
+} Spawn;
+
+extern u8 *g_0045D764;                   /* (small data) the placement records */
+extern u8 *g_005BA7C4[2];                /* their header and first record */
+extern u32 g_006AA570;
+
+void *func_00102DB0(int align, int size);
+u32 func_00362570(void);
+int func_00363690(int side, int k);
+int func_0035EB10(u32 f, int side, int k);
+int func_003637D0(int side, int k);
+int func_00363800(int side, int k);
+
+/* 0x00353A10, 0x3C bytes, matching. Unit `u`'s cell front value from its side's view (0 when unused). */
+int func_00353A10(u8 *u)
+{
+    if (u == 0 || (UNIT_FLAGS(u) & 1) == 0)
+        return 0;
+    return func_003539D0(u + 0x40, u[0x79]);
+}
+
+/* 0x00353A50, 0x48 bytes. Cell `cell`'s front kind (0 side 1's, 1 side 0's, 3 contested). */
+int func_00353A50(u8 *cell)
+{
+    short v = func_00353460(cell);
+
+    if (v >= 0x1F)
+        return 0;
+    if (v < -0x1E)
+        return 1;
+    return 3;
+}
+
+/* 0x00353AA0, 8 bytes, matching. The placement records' header. */
+u8 *func_00353AA0(void)
+{
+    return g_0045D764;
+}
+
+/* 0x00353AB0, 0x14 bytes. Placement record `k`. */
+Spawn *func_00353AB0(int k)
+{
+    return (Spawn *)(g_0045D764 + 0x10 + k * 0x20);
+}
+
+/* 0x00353AD0, 0x80 bytes, matching. Clears placement record `r`. */
+void func_00353AD0(Spawn *r)
+{
+    if (r == 0)
+        return;
+    r->id = 0x252;
+    r->x = 0;
+    r->y = 0;
+    r->hp = 0;
+    r->a8 = 0x1D;
+    r->aA = 0x17;
+    r->c = 7;
+    r->d = 6;
+    r->e = 8;
+    r->f = 0;
+    r->b10 = 0x14;
+    r->b11 = 6;
+    r->b12 = 0;
+    r->b13 = 0;
+    r->officer = 0x1AD;
+    r->side = 3;
+    r->b17 = 0;
+    r->b18 = 1;
+}
+
+/* 0x00353B50, 0x1C bytes. */
+u16 func_00353B50(int side)
+{
+    return side == 0 ? 0xE : 0xF;
+}
+
+/* 0x00353B70, 0x8C bytes. Allocates and clears the placement records. */
+void func_00353B70(void)
+{
+    u32 k;
+
+    if (g_0045D764 != 0)
+        return;
+    g_0045D764 = func_00102DB0(0x10, 0x8D0);
+    func_00118850(g_0045D764, 0x8D0);
+    *(int *)func_00353AA0() = 0x46;
+    for (k = 0; k < 0x46; k++)
+        func_00353AD0(func_00353AB0(k));
+    g_005BA7C4[0] = func_00353AA0();
+    g_005BA7C4[1] = (u8 *)func_00353AB0(0);
+}
+
+/* Fills placement record `r` at base `b`'s centre. */
+static void place_at(Spawn *r, u8 *b, u16 id, u16 hp, int side)
+{
+    float xy[2];
+
+    func_00352D10(b, xy);
+    r->id = id;
+    r->x = (short)(int)(xy[0] / 100.0f);
+    r->y = (short)(int)(xy[1] / 100.0f);
+    r->hp = hp;
+    r->a8 = func_00353B50(side);
+    r->aA = 0x17;
+}
+
+/* 0x00353C00, 0x32C bytes. Places the two sides' eight officers: at their set base, else the
+ * leader at the main base and the others at one of their side's bases (with func_0036D310 the
+ * front bases for kinds 0-1). */
+void func_00353C00(void)
+{
+    int own[20], front[22], s, n, nf, k;
+
+    for (s = 0; s < 2; s++) {
+        n = func_00352FE0(s, (u32 *)own, 0x14);
+        nf = func_0036D310();
+        if (nf != 0)
+            nf = func_00353060(func_0035D5A0(s), (u32 *)front, 0x14);
+        for (k = 0; k < 8; k++) {
+            Spawn *r = func_00353AB0(func_0034A8D0(k + s * 8));
+            int id = func_00362160(s, k), kind, b, f;
+
+            if (id == 0x252)
+                continue;
+            kind = func_00363690(s, k);
+            b = func_0035EB10(func_00362570(), s, k);
+            if (b == -1) {
+                if (kind < 0 || kind > 1 || nf == 0) {
+                    if (k == 0)
+                        b = func_0035F200(s);
+                    else
+                        b = own[n == 0 ? 0 : (int)RANDOM() % n];
+                } else {
+                    b = front[nf == 0 ? 0 : (int)RANDOM() % nf];
+                }
+            }
+            if (kind != 2)
+                id = kind + 0x24E;
+            f = func_003637D0(s, k) != 0 ? 2 : 5;
+            place_at(r, BASE(b), id, 500, s);
+            r->c = k == 0 ? 0 : 2;
+            r->d = 0;
+            r->e = 2;
+            r->f = f;
+            r->b10 = 0;
+            r->b11 = 0;
+            r->b12 = func_00363800(s, k) == 0;
+            r->b13 = k == 0 && kind > 1;
+            r->officer = 0x1AD;
+            r->side = s;
+            r->b17 = 0;
+            r->b18 = 0;
+        }
+    }
+}
+
+/* 0x00353F30, 0x144 bytes. Places two guard records per side at each base. */
+void func_00353F30(void)
+{
+    u32 k, s;
+
+    for (k = 0; k < 0x14; k++) {
+        u8 *b = BASE(k);
+
+        if (func_0034EE50(b) == 0)
+            continue;
+        func_0034EDB0(b);
+        for (s = 0; s < 2; s++) {
+            Spawn *r = func_00353AB0(func_0034A8E0(s, k));
+
+            place_at(r, b, 0x1E2, 500, s);
+            r->c = 5;
+            r->d = 5;
+            r->e = 2;
+            r->f = 5;
+            r->b10 = 0;
+            r->b11 = 4;
+            r->b12 = 0;
+            r->b13 = 0;
+            r->officer = 0x1AD;
+            r->side = s;
+            r->b17 = 0;
+            r->b18 = 0;
+        }
+    }
+}
+
+/* Fills the standard soldier record (kind 0x1E1, `d`, `f`). */
+static void soldier(Spawn *r, int d, int f, int side)
+{
+    r->c = 5;
+    r->d = d;
+    r->e = 2;
+    r->f = f;
+    r->b10 = 0;
+    r->b11 = 0;
+    r->b12 = 0;
+    r->b13 = 0;
+    r->officer = 0x1AD;
+    r->side = side;
+    r->b17 = 0;
+    r->b18 = 0;
+}
+
+/* 0x00354080, 0x12C bytes. Two weak soldier records (records 0x38-0x39) at base 0. */
+void func_00354080(void)
+{
+    u8 *b = BASE(0);
+    u32 s;
+
+    if (b == 0)
+        return;
+    for (s = 0; s < 2; s++) {
+        Spawn *r = func_00353AB0(s + 0x38);
+
+        place_at(r, b, 0x1E1, 1, s);
+        soldier(r, 4, 0, s);
+    }
+}
+
+/* 0x003541B0, 0x100 bytes. A soldier record per side at its main base (records 0x3A-0x3B). */
+void func_003541B0(void)
+{
+    u32 s;
+
+    for (s = 0; s < 2; s++) {
+        u8 *b = BASE(func_0035F200(s));
+
+        if (b != 0) {
+            Spawn *r = func_00353AB0(s + 0x3A);
+
+            place_at(r, b, 0x1E1, 500, s);
+            soldier(r, 0, 10, s);
+        }
+    }
+}
+
+/* 0x003542B0, 0x11C bytes. Two more per side (records 0x3C-0x3F). */
+void func_003542B0(void)
+{
+    u32 s, j;
+
+    for (s = 0; s < 2; s++) {
+        u8 *b = BASE(func_0035F200(s));
+
+        if (b == 0)
+            continue;
+        for (j = 0; j < 2; j++) {
+            Spawn *r = func_00353AB0(j + 0x3C + s * 2);
+
+            place_at(r, b, 0x1E1, 500, s);
+            soldier(r, 0, 10, s);
+        }
+    }
+}
+
+/* 0x003543D0, 0x11C bytes. Three more per side (records 0x40-0x45). */
+void func_003543D0(void)
+{
+    u32 s, j;
+
+    for (s = 0; s < 2; s++) {
+        u8 *b = BASE(func_0035F200(s));
+
+        if (b == 0)
+            continue;
+        for (j = 0; j < 3; j++) {
+            Spawn *r = func_00353AB0(j + 0x40 + s * 3);
+
+            place_at(r, b, 0x1E1, 500, s);
+            soldier(r, 0, 10, s);
+        }
+    }
+}
+
+/* 0x003544F0, 0x10 bytes. */
+void func_003544F0(void)
+{
+    g_006AA570 = 0x1AC;
+}
+
+/* 0x00354500, 0x54 bytes, matching. Builds all placement records. */
+void func_00354500(void)
+{
+    func_003544F0();
+    func_00353B70();
+    func_00353C00();
+    func_00353F30();
+    func_00354080();
+    func_003541B0();
+    func_003542B0();
+    func_003543D0();
+}
+
+/* 0x00354560, 0x20 bytes, matching. Frees them. */
+void func_00354560(void)
+{
+    func_00102EC0(g_0045D764);
+    g_0045D764 = 0;
+}
+
+/* 0x00354580, 0x78 bytes. A side 1 unit adds to the total. */
+void func_00354580(u8 *u)
+{
+    if (u[0x79] != 0) {
+        u32 f = UNIT_FLAGS(u);
+
+        if (((f & 1) != 0 && (f & 0x8C40002) == 0) || (f & 0x40000) == 0)
+            g_005BD730 += u[0x74] + 1;
+    }
+}
+
+/* 0x00354600, 0x1C bytes, matching. */
+void func_00354600(u8 *u)
+{
+    func_00354580(u);
+}
