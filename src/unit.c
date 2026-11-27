@@ -33,7 +33,8 @@ typedef signed char s8;
 typedef u8 Unit;
 
 float sqrtf(float x);
-float vu0_angle(float x, float z);               /* VU0 micro subroutine 0x30 (atan2?) */
+float vu0_angle(float x, float z);
+void vu0_sincos(float a, float *s, float *c);     /* VU0 micro subroutine 0x20 */               /* VU0 micro subroutine 0x30 (atan2?) */
 void vu0_rot_y(float m[4][4], float yaw);        /* VU0 micro subroutine 0x70: rotation about Y */
 
 extern u8 g_005B5078[][0xD0];            /* per weapon kind: motion tables (+0, +0x10, +0x20, +0x50) */
@@ -3340,4 +3341,291 @@ void func_0015BEA0(float dt, Unit *u)
             PTR(u, 0x218) = 0;
         }
     }
+}
+
+extern float g_00406380[0x3E];           /* speed multipliers by weapon kind / item */
+
+float func_003B00A0(void);
+short func_001BE9B0(u8 kind);
+
+/* The flat length (squared) of +0x1D0, the direction held. */
+#define HELD_LEN2(u) (F32(u, 0x1D0) * F32(u, 0x1D0) + F32(u, 0x1D8) * F32(u, 0x1D8))
+
+/* Whether the hit still allows turning (until its frame +0x20; never when negative). */
+static inline int can_turn(Unit *u)
+{
+    u8 *hit = PTR(ACT(u), 0x14);
+    short s;
+
+    if (hit == 0)
+        return 1;
+    s = S16(hit, 0x20);
+    return s >= 0 && (short)(int)F32(u, 0x21C) <= s;
+}
+
+/* Aims at the direction held (at `rate` a frame), when it is allowed. */
+static inline void aim_held(Unit *u, float rate)
+{
+    if (can_turn(u) && 0.0001f < HELD_LEN2(u)) {
+        F32(u, 0x238) = vu0_angle(F32(u, 0x1D0), F32(u, 0x1D8));
+        F32(u, 0x230) = rate;
+    } else {
+        F32(u, 0x238) = F32(u, 0x54);
+        F32(u, 0x230) = 0.0f;
+    }
+    U8(u, 0x27C) &= ~1;
+}
+
+/* Turns towards the aim (+0x238) at its rate (+0x230) for `dt` (at once when flag 1 is set),
+ * turning the motion's root offset with the unit. */
+static inline void turn_to_aim(Unit *u, float dt)
+{
+    float d = wrap_angle(F32(u, 0x238) - F32(u, 0x54)), a;
+
+    if (fabsf(d) < 0.008726646f) {
+        F32(u, 0x54) = F32(u, 0x238);
+        return;
+    }
+    if (U8(u, 0x27C) & 1) {
+        U8(u, 0x27C) &= ~1;
+        a = d;
+    } else {
+        float r = F32(u, 0x230), s = -r;
+
+        if (s <= d) {
+            if (r < d) {
+                s = r;
+            } else {
+                F32(u, 0x230) = 0.0f;
+                s = d;
+            }
+        }
+        a = s * dt;
+        if ((U32(ACT(u), 0x18) & 0x800000) == 0) {
+            float off[4], m[4][4], r2[4];
+            int i;
+
+            off[0] = F32(u, 0x80);
+            off[1] = 0.0f;
+            off[2] = F32(u, 0x88);
+            off[3] = F32(u, 0x8C);
+            scratch_unit(m);
+            vu0_rot_y(m, a);
+            mat_vec(r2, m, off);
+            for (i = 0; i < 4; i++)
+                F32(u, 0x40 + i * 4) += off[i] - r2[i];
+        }
+    }
+    a = F32(u, 0x54) + a;
+    if (PI < a)
+        a -= TWO_PI;
+    else if (a <= -PI)
+        a += TWO_PI;
+    F32(u, 0x54) = a;
+}
+
+/* The running speed: the officer's (+0x90) + 1.5 in its special state, else func_003B00A0. */
+static inline float run_speed(Unit *u)
+{
+    u8 *hit = PTR(ACT(u), 0x14);
+
+    if ((U8(u, 0x19C) & 2) && (U32(ACT(u), 0x18) & 0x8000000) == 0
+        && (hit == 0 || (U32(hit, 0x28) & 0x1C) == 0))
+        return F32(OFFICER(u), 0x90) + 1.5f;
+    return func_003B00A0();
+}
+
+/* The speed index of an item (0x633-0x665 and 0x433-0x485, 0x4A7, 0x4A9). */
+static inline u32 item_speed_index(short id)
+{
+    if (id >= 0x633 && id <= 0x665 && (id & 1))
+        return (id - 0x633) / 2;
+    if (id >= 0x433 && id <= 0x485 && (id & 1))
+        return (id - 0x433) / 2 + 0x3E;
+    if (id == 0x4A7)
+        return 0x68;
+    if (id == 0x4A9)
+        return 0x69;
+    return 0;
+}
+
+/* Moves at `speed` for `dt` along `dir`. */
+static inline void move_along(Unit *u, float speed, float dt, float *dir)
+{
+    int i;
+
+    F32(u, 0x228) = speed * dt;
+    for (i = 0; i < 4; i++)
+        F32(u, 0x40 + i * 4) += dir[i] * (speed * dt);
+}
+
+/* 0x0015C2A0, 0x1B8C bytes. A unit's movement each frame: aiming at the direction held (10 or
+ * 5 degrees a frame on foot, the officer's +0x8E on a mount), turning towards the aim, the
+ * facing vector, the run (by the weapon's or item's multiplier, along the held direction or the
+ * facing), the push of the mount, jumps, gravity and pushes, being held, and the side placement
+ * of actions 0x55 / 0x56. */
+void func_0015C2A0(float dt, Unit *u)
+{
+    u8 *act = ACT(u), *hit = PTR(act, 0x14);
+    short aid = S16(act, 0);
+    u32 f;
+    u8 c;
+
+    if ((U32(act, 0x18) & 0x4000000) == 0) {
+        float rate;
+
+        if (hit == 0 || (U32(hit, 0x28) & 0x100)) {
+            int follow;
+
+            f = U32(ACT(u), 0x18);
+            if ((f & 0x10000000) == 0) {
+                u8 *h = PTR(ACT(u), 0x14);
+
+                if ((h == 0 ? 0 : U32(h, 0x28) & 0x100) == 0)
+                    follow = (f & 0x80) || (S32(u, 0x118) == 0x3C
+                                            && (aid == 3 || aid == 4 || aid == 5 || aid == 6));
+                else
+                    follow = 0;
+            } else {
+                follow = 0;
+            }
+            if (follow) {
+                rate = S32(u, 0x118) < 0x3C
+                           ? 0.17453294f
+                           : (float)S16(OFFICER(u), 0x8E) * PI / 180.0f;
+                aim_held(u, rate);
+            }
+        } else if (0.0001f < HELD_LEN2(u)) {
+            rate = S32(u, 0x118) < 0x3C ? 0.08726647f
+                                        : (float)S16(OFFICER(u), 0x8E) * PI / 180.0f;
+            aim_held(u, rate);
+        } else if (PTR(u, 0x270) == 0) {
+            F32(u, 0x238) = F32(u, 0x54);
+            F32(u, 0x230) = 0.0f;
+            U8(u, 0x27C) &= ~1;
+        }
+    }
+    if ((U8(u, 0x27C) & 0x40) == 0) {
+        if (!(aid == 1 || aid == 2 || aid == 3 || aid == 4) || U8(u, 0x155) != 0) {
+            if (PTR(u, 0x288) == 0)
+                turn_to_aim(u, dt);
+        } else if (0.0001f < HELD_LEN2(u)) {
+            F32(u, 0x238) = vu0_angle(F32(u, 0x1D0), F32(u, 0x1D8));
+            F32(u, 0x230) = 0.05235988f;
+            U8(u, 0x27C) &= ~1;
+            if (PTR(u, 0x288) == 0)
+                turn_to_aim(u, dt);
+        }
+    }
+    {
+        float y = F32(u, 0x54), s, co;
+
+        if (PI < y)
+            y -= TWO_PI;
+        else if (y <= -PI)
+            y += TWO_PI;
+        F32(u, 0x54) = y;
+        vu0_sincos(y, &s, &co);
+        F32(u, 0x70) = s;
+        F32(u, 0x78) = co;
+        F32(u, 0x74) = 0.0f;
+    }
+    f = U32(act, 0x18);
+    if ((f & 0x20) == 0 || (f & 0x800))
+        F32(u, 0x228) = 0.0f;
+    else
+        func_00155980(dt, u);
+    if (S32(u, 0x118) == 0x3C && PTR(u, 0x28C) != 0 && (U8(PTR(u, 0x28C), 0x19C) & 2)
+        && (f & 0x20000000) && (U32(PTR(u, 0x28C), 0x13C) & 0x20000)) {
+        func_00155310(dt, 20.0f, u);
+        goto tail;
+    }
+    if (U32(act, 0x1C) & 2) {
+        float s;
+
+        if (g_00669DB8 == 4) {
+            s = 14.0f;
+        } else if ((U8(u, 0xE8) & 3) >> 1 == 1) {
+            float x = F32(u, 0xF0), z = F32(u, 0xF8);
+
+            s = x * x + z * z < 100.0f ? F32(OFFICER(u), 0x94) * 0.75f
+                                       : F32(OFFICER(u), 0x94) * 0.25f;
+        } else {
+            s = F32(OFFICER(u), 0x94);
+        }
+        func_00155310(dt, s, u);
+        goto tail;
+    }
+    if ((f & 0x100) == 0) {
+        if (f & 0x80) {
+            if (hit == 0) {
+                float spd = run_speed(u), cosa;
+                int strafe;
+
+                if (S32(u, 0x118) < 0x3C) {
+                    if ((f & 0x10000000) == 0) {
+                        strafe = 1;
+                    } else {
+                        u8 k = U8(DESC(u), 0x1C);
+                        float mult;
+
+                        if (k < 0x1A || PLAYER(u) > 1) {
+                            mult = k < 0x1A ? g_00406380[k] : 1.0f;
+                        } else if (func_001BE9B0(k) != -1) {
+                            u32 idx = item_speed_index(func_001BE9B0(k));
+
+                            mult = idx < 0x3E ? g_00406380[idx] : g_00406380[0];
+                        } else {
+                            mult = 1.0f;
+                        }
+                        spd = spd * mult;
+                        strafe = 0;
+                    }
+                    cosa = F32(u, 0x1D0) * F32(u, 0x70) + F32(u, 0x1D4) * F32(u, 0x74)
+                           + F32(u, 0x1D8) * F32(u, 0x78) + F32(u, 0x1DC) * F32(u, 0x7C);
+                    if (!strafe || 0.9999f <= fabsf(cosa))
+                        move_along(u, spd, dt, &F32(u, 0x1D0));
+                    else
+                        move_along(u, spd, dt, &F32(u, 0x70));
+                } else {
+                    cosa = F32(u, 0x1D0) * F32(u, 0x70) + F32(u, 0x1D4) * F32(u, 0x74)
+                           + F32(u, 0x1D8) * F32(u, 0x78) + F32(u, 0x1DC) * F32(u, 0x7C);
+                    if (fabsf(cosa) < 0.9999f)
+                        move_along(u, spd, dt, &F32(u, 0x70));
+                    else
+                        move_along(u, spd, dt, &F32(u, 0x1D0));
+                }
+            } else if (g_00669DB8 != 4) {
+                func_00155310(dt, run_speed(u) + 3.0f, u);
+            }
+        }
+    } else {
+        float k;
+
+        if (S32(u, 0x118) == 0x3C) {
+            k = (PTR(u, 0x28C) == 0 || PLAYER(PTR(u, 0x28C)) > 1) ? 0.25f : 0.5f;
+        } else {
+            u8 kk = U8(DESC(u), 0x1C);
+
+            k = (kk < 0x1A || (0x3D < kk && kk < 0x68) || kk == 'h' || kk == 'i') ? 0.4f : 0.2f;
+        }
+        k = k * run_speed(u) * dt;
+        F32(u, 0x228) = k;
+        {
+            int i;
+
+            for (i = 0; i < 4; i++)
+                F32(u, 0x40 + i * 4) += F32(u, 0x1D0 + i * 4) * k;
+        }
+    }
+tail:
+    c = U8(u, 0x27C);
+    if (c & 2)
+        func_00155360(dt, F32(act, 0x10), u);
+    if ((U8(u, 0x19D) & 2) || ((U32(act, 0x18) & 0x800) && (U32(act, 0x18) & 0x40) == 0))
+        func_00155A80(dt, u);
+    if (S16(ACT(u), 0) == 0x62)
+        func_00155B20(u);
+    if ((S16(ACT(u), 0) == 0x55 || S16(ACT(u), 0) == 0x56) && PTR(u, 0x288) != 0)
+        func_00150FD0(u, PTR(u, 0x288), S16(ACT(u), 0));
 }
