@@ -2923,3 +2923,421 @@ void func_001596F0(float dt, Unit *u, int unused, int force)
         }
     }
 }
+
+extern u32 g_00669FA4;                   /* the battle's phase? */
+extern int g_0045D37C;                   /* (small data) */
+extern u8 g_0074B870[][0x70];            /* per player: the hints shown (+0) */
+extern s8 g_00406430[0x1A][2];           /* per weapon kind: two frames of action 0xB4 */
+
+int func_00240C00(Unit *u);
+void func_001CF430(float dt, Unit *u, int a);
+void func_001D0C20(Unit *u, int a);
+int func_00190610(u8 *pos, int a);
+void func_00253D20(Unit *u);
+void func_00240790(u32 player, u32 flags);
+void func_002409B0(Unit *u);
+void func_00240A60(Unit *u, u32 flags);
+void func_002444A0(Unit *u, u8 *hit);
+void func_00244490(Unit *u, u8 *hit);
+void func_00245510(Unit *u, u8 *hit);
+void func_002453C0(Unit *u, u8 *hit);
+void func_002454E0(Unit *u, u8 *hit);
+void func_001D1B50(Unit *u);
+void func_00244D20(Unit *u, u8 *hit);
+void func_00244570(Unit *u, u8 *hit);
+void func_00244540(Unit *u);
+void func_002445A0(Unit *u, u8 *hit);
+void func_00243DF0(Unit *u, u8 *hit);
+void func_001D1610(Unit *u);
+void func_001CF3E0(Unit *u, int a);
+
+/* Whether frame `x` falls within this frame (t to t + dt). */
+#define AT_FRAME(x, t, dt) (!((float)(x) < (t) || (t) + (dt) <= (float)(x)))
+
+/* Calls 1, 2 or 3 bodyguards of `kind` (by the hit's +0x2C bits 0x10 / 0x20). */
+static inline void call_bodyguards(Unit *u, u8 *hit, u8 kind)
+{
+    func_00158CD0(u, 4);
+    if ((U32(hit, 0x2C) & 0x20) == 0) {
+        if ((U32(hit, 0x2C) & 0x10) == 0) {
+            func_001589B0(u, kind, 0);
+            U8(u, 0x196) = 1;
+        } else {
+            func_001589B0(u, kind, 0);
+            func_001589B0(u, kind, 1);
+            U8(u, 0x196) = 2;
+        }
+    } else {
+        func_001589B0(u, kind, 0);
+        func_001589B0(u, kind, 1);
+        func_001589B0(u, kind, 2);
+        U8(u, 0x196) = 3;
+    }
+}
+
+/* 0x0015ABD0, 0x12D0 bytes. A unit's action each frame (`dt`): a queued action (+0x278); the
+ * mounted states (+0x155); struggles; the locked target's turning; the model's foot / ground
+ * contacts; the hints shown to the players by what the hit allows; the hit's special moves at
+ * its first frame (bodyguards, musou...); sounds at fixed frames. 0 while the hit stop (+0x244)
+ * runs. */
+int func_0015ABD0(float dt, Unit *u)
+{
+    u8 *act = ACT(u), *d = DESC(u), *hit = PTR(act, 0x14);
+    u32 flags = 0, p;
+    float t;
+    u16 id;
+    u8 kind;
+    char c;
+
+    if (g_00669DB8 == 4 || g_00669DB8 == 2)
+        return 1;
+    if (S16(u, 0x278) != -1) {
+        int i;
+
+        F32(u, 0x224) = -1.0f;
+        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        F32(u, 0x228) = 0.0f;
+        for (i = 0; i < 4; i++)
+            F32(u, 0x200 + i * 4) = VEC_ZERO[i];
+        func_00156AF0(u, U16(u, 0x278));
+        U8(u, 0x27C) = (U8(u, 0x27C) & 0x7F) | 0x80;
+        if (PTR(u, 0x280) != 0) {
+            Unit *v = PTR(u, 0x280);
+
+            func_0016BD30(u);
+            func_00150A10(v);
+        }
+    }
+    c = U8(u, 0x155);
+    if (c == 2)
+        goto end;
+    if (c == 1) {
+        if (U8(u, 0x181) == 0 && PTR(u, 0x11C) != 0 && (s8)U8(u, 0x19C) >= 0) {
+            id = U16(act, 0);
+            if (id == 0xD || id == 0xC || id == 0xB || id == 10)
+                func_001CF430(dt, u, 1);
+            else if (id == 0x1C || id == 0x9A || id == 0x99 || id == 0x14 || id == 0x13 || id == 7
+                     || id == 6 || id == 5 || id == 4 || id == 3)
+                func_001CF430(dt, u, 0);
+        }
+        goto end;
+    }
+    if (c != 0)
+        goto end;
+    if (func_00240C00(u) != 0)
+        F32(u, 0x244) = 0.0f;
+    if (U8(u, 0x27C) & 4) {
+        int a, b;
+
+        if (PTR(u, 0x280) != 0 && func_001578D0(u, &a, &b) != 0)
+            func_00157B60(u, a, b);
+        F32(u, 0x244) = 0.0f;
+    }
+    if (PLAYER(u) < 2) {
+        float speed, turn;
+
+        if ((U8(u, 0x27C) & 0x10) && (turn = func_00157EE0(u, &speed), PTR(u, 0x270) != 0)) {
+            int ok;
+
+            if (hit == 0) {
+                ok = 1;
+            } else {
+                short s = S16(hit, 0x20);
+
+                ok = s >= 0 && (short)(int)F32(u, 0x21C) <= s;
+            }
+            if (ok) {
+                F32(u, 0x238) = wrap_angle(F32(u, 0x54) + turn);
+                F32(u, 0x230) = speed;
+                U8(u, 0x27C) &= ~1;
+            }
+        }
+    } else {
+        PTR(u, 0x270) = 0;
+        U8(u, 0x27C) &= ~0x10;
+    }
+    if (U8(u, 0x181) == 0 && PTR(u, 0x11C) != 0 && (s8)U8(u, 0x19C) >= 0) {
+        if (U16(act, 0) != 5) {
+            u32 f = U32(act, 0x18);
+
+            if ((f & 0x100) == 0) {
+                if ((f & 0x10000000) && (f & 0x80))
+                    func_001CF430(dt, u, 2);
+            } else {
+                func_001CF430(dt, u, 1);
+            }
+        } else {
+            func_001CF430(dt, u, 0);
+        }
+    }
+    id = U16(act, 0);
+    if ((u16)(id - 0x6D) < 2 && (int)F32(u, 0x23C) > 0x19)
+        func_001D0C20(u, 1);
+    else if (g_0076E700[PLAYER(u)] & 1)
+        func_001D0C20(u, 0);
+    t = F32(u, 0x21C);
+    if (PLAYER(u) < 2 && PTR(u, 0x11C) != 0) {
+        if ((U32(act, 0x18) & 1) && g_00669FA4 - 2 < 2 && func_00190610(u + 0x40, 0x100) == 0)
+            func_00253D20(u);
+    } else if (U8(u, 0x181) == 0 && PTR(u, 0x11C) != 0 && g_0045D37C == 0 && (U32(act, 0x18) & 1)
+               && g_00669FA4 - 2 < 2 && func_00190610(u + 0x40, 0x100) == 0) {
+        func_00253D20(u);
+    }
+    kind = U8(d, 0x1C);
+    if (hit == 0) {
+        if (PLAYER(u) < 2) {
+            if (0.0001f < F32(u, 0x168)) {
+                if (kind == 2)
+                    flags = 0x20;
+                if (kind == 0x15)
+                    flags |= 0x100;
+            }
+            if (U8(u, 0x19E) & 2)
+                flags |= 0x400;
+            else if (S16(u, 0x192) != 0)
+                flags |= 0x1000;
+            if (U8(u, 0x19E) & 1)
+                flags |= 0x4000;
+            else if (U8(u, 0x19E) & 8)
+                flags |= 0x40000;
+        }
+    } else {
+        if ((float)hit[5] <= t || (float)hit[0x16] <= t) {
+            if (U16(hit, 0x1C) & 0x100) {
+                if (kind == 2) {
+                    if (t < (float)hit[6])
+                        flags = 0x10000;
+                } else if (kind != 8 && kind != 0xF) {
+                    flags = 0x20000;
+                }
+            }
+        } else {
+            u32 f28 = U32(hit, 0x28);
+
+            flags = (f28 & 1) != 0;
+            if (U32(hit, 0x2C) & 0x8000000)
+                flags |= 2;
+            if (f28 & 0x4000000)
+                flags |= 8;
+            if (f28 & 0x8000000)
+                flags |= 4;
+            if (U16(hit, 0x1C) & 0x40)
+                flags |= 0x10;
+            if (U8(u, 0x17F) > 1 && U8(u, 0x17E) != 0)
+                flags |= 0x100000 << (U8(u, 0x17E) - 1);
+            if ((U16(hit, 0x1C) & 0x20) && AT_FRAME(1, t, dt) && PLAYER(u) >= 2)
+                func_00253300(0xC, u);
+        }
+        kind = U8(d, 0x1C);
+        if (kind == 8 && (U16(hit, 0x1C) & 0x100) == 0 && t < (float)hit[6])
+            flags |= 0x80;
+        if (PLAYER(u) < 2) {
+            if ((U32(hit, 0x2C) & 0x80000) == 0) {
+                if (0.0001f < F32(u, 0x168)) {
+                    if (kind == 2)
+                        flags |= 0x20;
+                    if (kind == 0x15)
+                        flags |= 0x100;
+                }
+            } else if ((float)hit[5] <= t) {
+                if (kind == 2)
+                    flags |= 0x60;
+                if (kind == 0x15)
+                    flags |= 0x300;
+            }
+            if ((U32(hit, 0x28) & 0x20000) == 0) {
+                if (U8(u, 0x19E) & 2)
+                    flags |= 0x400;
+                else if ((U16(hit, 0x1C) & 0x80) == 0) {
+                    if (S16(u, 0x192) != 0)
+                        flags |= 0x1000;
+                } else if ((float)hit[5] <= t) {
+                    flags |= 0x3000;
+                }
+            } else if ((float)hit[5] <= t) {
+                flags |= 0xC00;
+            }
+            if ((U32(hit, 0x2C) & 0x80) == 0) {
+                if (U8(u, 0x19E) & 1)
+                    flags |= 0x4000;
+                else if ((U16(hit, 0x1C) & 0x10) == 0) {
+                    if (U8(u, 0x19E) & 8)
+                        flags |= 0x40000;
+                } else if ((float)hit[5] <= t) {
+                    flags |= 0xC0000;
+                }
+            } else if ((float)hit[5] <= t) {
+                flags |= 0xC000;
+            }
+            if (kind == 0xF && (U16(hit, 0x1C) & 0x100))
+                flags &= 0xFE0FFFFF;
+        }
+    }
+    p = PLAYER(u);
+    if ((flags != 0 || *(u32 *)g_0074B870[p] != 0) && (s8)U8(u, 0x19C) >= 0)
+        func_00240790(p, flags);
+    if (U8(d, 0x1C) == 0x15)
+        func_002409B0(u);
+    if (U8(u, 0x19E) & 0x20) {
+        if (U8(u, 0x17E) != 0 && U8(u, 0x17F) != 0)
+            flags |= 0x100000 << (U8(u, 0x17E) - 1);
+        func_00240A60(u, flags);
+    }
+    if (PLAYER(u) < 2 && hit != 0 && AT_FRAME(hit[5], F32(u, 0x21C), dt)) {
+        u32 f2C = U32(hit, 0x2C);
+        u16 f1C = U16(hit, 0x1C);
+
+        if (f2C & 0x400000)
+            call_bodyguards(u, hit, 0);
+        else if (f2C & 0x800000)
+            call_bodyguards(u, hit, 1);
+        else if (U32(hit, 0x28) & 0x10000000)
+            func_001D1610(u);
+        else if (f2C & 0x10000000) {
+            func_001589B0(u, 3, 0);
+            U8(u, 0x196) = 1;
+        } else if ((f1C & 2) || (f2C & 1))
+            func_00243DF0(u, hit);
+        else if (f2C & 0x200)
+            func_002445A0(u, hit);
+        else if (f2C & 0x80)
+            func_00244540(u);
+        else if (U32(hit, 0x28) & 0x20000)
+            func_00244570(u, hit);
+        else if (f1C & 4)
+            func_00244D20(u, hit);
+        else if (f2C & 0x4000000)
+            func_001D1B50(u);
+        else if (f1C & 0x10)
+            func_002454E0(u, hit);
+        else if (f2C & 0x40)
+            func_002453C0(u, hit);
+        else if (f1C & 0x80)
+            func_00245510(u, hit);
+        else if (f1C & 0x1000)
+            func_00244490(u, hit);
+        else if (f1C & 0x2000)
+            func_002444A0(u, hit);
+    }
+    if (hit != 0) {
+        if (U32(hit, 0x28) & 0x200000) {
+            if (AT_FRAME(hit[5], F32(u, 0x21C), dt)) {
+                U8(u, 0x19D) = (U8(u, 0x19D) & ~8) | 8;
+                g_70000D60 = 0;
+                func_001C7F30(0x65, &F32(u, 0x40), 0, 0);
+                func_00253300(0x17, u);
+            }
+        } else if (U32(hit, 0x28) & 0x400000) {
+            if (AT_FRAME(hit[5], F32(u, 0x21C), dt))
+                U8(u, 0x19D) &= ~8;
+        }
+    }
+    if (PLAYER(u) < 2) {
+        id = U16(act, 0);
+        t = F32(u, 0x21C);
+        if (id == 0xE || id == 0xF || id == 0xB1) {
+            if (AT_FRAME(2, t, dt))
+                func_001CF3E0(u, 0);
+            else if (AT_FRAME(6, t, dt))
+                func_001CF3E0(u, 1);
+        } else if (id == 0x79) {
+            if (AT_FRAME(20, t, dt))
+                func_001CF3E0(u, 0);
+            else if (AT_FRAME(23, t, dt))
+                func_001CF3E0(u, 1);
+        } else if (id == 0xB4) {
+            u32 k = DESC(u) == 0 ? 0x6A : U8(DESC(u), 0x1C);
+
+            if (k < 0x1A) {
+                if (g_00406430[k][0] >= 0 && AT_FRAME(g_00406430[k][0], t, dt))
+                    func_001CF3E0(u, 1);
+                if (g_00406430[k][1] >= 0 && AT_FRAME(g_00406430[k][1], t, dt))
+                    func_001CF3E0(u, 0);
+            }
+        }
+    }
+end:
+    if (0.0001f < F32(u, 0x244)) {
+        float v = F32(u, 0x244) - dt;
+
+        F32(u, 0x244) = v;
+        F32(u, 0x244) = v < 0.0f ? 0.0f : v;
+        return 0;
+    }
+    return 1;
+}
+
+u16 func_00241250(Unit *u, int *queue, int late);
+u16 func_00242C40(Unit *u, int *queue, int late);
+u16 func_002434F0(Unit *u);
+u16 func_00243C50(Unit *u);
+
+/* The action the controls (or the AI) ask for, by the unit's state. */
+static inline u16 unit_pick(Unit *u, int *queue, int late)
+{
+    if (S32(u, 0x118) < 0x3C) {
+        if ((U32(ACT(u), 0x18) & 0x8000000) == 0)
+            return func_00241250(u, queue, late);
+        return func_00242C40(u, queue, late);
+    }
+    if (S32(u, 0x118) == 0x3C)
+        return func_002434F0(u);
+    return func_00243C50(u);
+}
+
+/* 0x0015BEA0, 0x3F8 bytes. Takes the next action from the controls: at once without a cancel
+ * frame (+0x22 of the hit), else from that frame on (earlier ones queued at +0x218, played when
+ * the hit allows: +0x28 bit 0x2000 and the unit's flag 8). */
+void func_0015BEA0(float dt, Unit *u)
+{
+    u8 *hit = PTR(ACT(u), 0x14);
+    short cancel;
+    u8 *q;
+    int queue;
+    u16 next;
+
+    if ((s8)U8(u, 0x19C) < 0 && U8(u, 0x15A) != 1)
+        return;
+    if (hit == 0 || (cancel = S16(hit, 0x22)) < 1) {
+        next = unit_pick(u, &queue, 0);
+        if (S16(ACT(u), 0) != (short)next)
+            func_00156AF0(u, next);
+        return;
+    }
+    if (U16(hit, 0x1C) & 1) {
+        if ((short)(int)(F32(u, 0x21C) + dt) < cancel)
+            return;
+        next = unit_pick(u, &queue, 0);
+        if (S16(ACT(u), 0) != (short)next)
+            func_00156AF0(u, next);
+        return;
+    }
+    if ((short)(int)(F32(u, 0x21C) + dt) < cancel) {
+        next = unit_pick(u, &queue, 0);
+        if (U16(ACT(u), 0) != next) {
+            if (queue != 0)
+                func_00156AF0(u, next);
+            else
+                PTR(u, 0x218) = PTR(DESC(u), 8) + next * 0x20;
+        }
+    } else {
+        next = unit_pick(u, &queue, 1);
+        if (U16(ACT(u), 0) != next) {
+            if (queue != 0)
+                func_00156AF0(u, next);
+            else
+                PTR(u, 0x218) = PTR(DESC(u), 8) + next * 0x20;
+        }
+    }
+    q = PTR(u, 0x218);
+    if (q != 0) {
+        if (PTR(q, 0x14) == 0 || (U32(PTR(q, 0x14), 0x28) & 0x2000) == 0) {
+            func_00156AF0(u, U16(q, 0));
+            PTR(u, 0x218) = 0;
+        } else {
+            if (U8(u, 0x27C) & 8)
+                func_00156AF0(u, U16(q, 0));
+            PTR(u, 0x218) = 0;
+        }
+    }
+}
