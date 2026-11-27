@@ -1370,22 +1370,22 @@ void func_00168190(Unit *u)
     U8(u, 0x19C) &= ~1;
 }
 
-void func_0016F8E0(float f, u8 *part, u8 *x);
+void func_0016F8E0(float f, u8 *part, int player);
 void func_002088C0(u8 *trail);
 void func_0016EAB0(u8 *a, u8 *part);
-void func_00209190(float *a, float *b, u8 player, u8 *c);
+void func_00209190(float *a, float *b, u8 player, int c);
 u8 *func_002087A0(void);
 void func_00208820(u8 *trail, float *a, float *b, u8 player);
 void func_00208980(u8 *trail, void *m, u8 colour);
 
 /* 0x00168400, 0xB8 bytes. Turns a weapon part's trail (+0x68) on (func_0016F8E0, part flag 4
  * cleared) or off: a trail still drawing (+0xA) is only told to stop (+0x10). */
-void func_00168400(float f, u8 *x, u8 *part, int on)
+void func_00168400(float f, int player, u8 *part, int on)
 {
     u8 *t = PTR(part, 0x68);
 
     if (on && t == 0) {
-        func_0016F8E0(f, part, x);
+        func_0016F8E0(f, part, player);
         U8(part, 0x60) &= ~4;
     } else if (!on) {
         if (t != 0) {
@@ -1406,7 +1406,7 @@ void func_00168400(float f, u8 *x, u8 *part, int on)
  * for kinds 0x6C-0x6F and 0x3C-0x3F; else the part +0x50 (or the two +0x50 / +0x54, by `mask`)
  * and, except kinds 0x14-0x1B and 0x30-0x37, the two +0x58 / +0x5C. `second` gates the single
  * ones; `link` links new trails to +0x68. Whether a part was handled. */
-int func_001684C0(float f, u8 *x, u8 *w, int on, int second, int link, u16 mask)
+int func_001684C0(float f, int player, u8 *w, int on, int second, int link, u16 mask)
 {
     u8 k = U8(w, 0x48);
     int done = 0;
@@ -1416,7 +1416,7 @@ int func_001684C0(float f, u8 *x, u8 *w, int on, int second, int link, u16 mask)
     if ((u32)(k - 0x6C) < 4 || (u32)(k - 0x3C) < 4) {
         p = PTR(w, 0x5C);
         if (p != 0 && (U8(p, 0x60) & 1)) {
-            func_00168400(f, x, p, on);
+            func_00168400(f, player, p, on);
             done = 1;
         }
         return done;
@@ -1424,7 +1424,7 @@ int func_001684C0(float f, u8 *x, u8 *w, int on, int second, int link, u16 mask)
     if (PTR(w, 0x54) == 0 || (U8(PTR(w, 0x54), 0x60) & 1) == 0) {
         p = PTR(w, 0x50);
         if (p != 0 && (U8(p, 0x60) & 1)) {
-            func_00168400(f, x, p, on && second);
+            func_00168400(f, player, p, on && second);
             done = 1;
             if (link && PTR(p, 0x68) != 0)
                 func_0016EAB0(PTR(w, 0x68), p);
@@ -1433,7 +1433,7 @@ int func_001684C0(float f, u8 *x, u8 *w, int on, int second, int link, u16 mask)
         for (i = 0; i < 2; i++) {
             p = PTR(w, 0x50 + i * 4);
             if (p != 0 && (U8(p, 0x60) & 1)) {
-                func_00168400(f, x, p, on && (mask & 1 << i));
+                func_00168400(f, player, p, on && (mask & 1 << i));
                 done = 1;
             }
         }
@@ -1443,7 +1443,7 @@ int func_001684C0(float f, u8 *x, u8 *w, int on, int second, int link, u16 mask)
         for (i = 0; i < 2; i++) {
             p = PTR(w, 0x58 + i * 4);
             if (p != 0 && (U8(p, 0x60) & 1)) {
-                func_00168400(f, x, p, on && second);
+                func_00168400(f, player, p, on && second);
                 done = 1;
                 if (link && PTR(p, 0x68) != 0)
                     func_0016EAB0(PTR(w, 0x68), p);
@@ -1455,7 +1455,7 @@ int func_001684C0(float f, u8 *x, u8 *w, int on, int second, int link, u16 mask)
 
 /* 0x00168730, 0x90 bytes. Starts a trail for a unit's slot (+0x28) between the two points of
  * `c` (func_00209190). Whether it started. */
-int func_00168730(Unit *u, u8 *slot, u8 *c)
+int func_00168730(Unit *u, u8 *slot, int c)
 {
     float a[4], b[4];
     u8 *t;
@@ -1476,7 +1476,7 @@ int func_00168730(Unit *u, u8 *slot, u8 *c)
 
 /* 0x001687C0, 0x10C bytes. Keeps a slot's trail going (`on`) or stops it; while it lives, its
  * points follow `c` and, with `colour`, it gets the unit's colour (+0x184). */
-void func_001687C0(Unit *u, u8 *slot, u8 *c, int on, int colour)
+void func_001687C0(Unit *u, u8 *slot, int c, int on, int colour)
 {
     u8 *t = PTR(slot, 0x28);
 
@@ -1500,4 +1500,235 @@ void func_001687C0(Unit *u, u8 *slot, u8 *c, int on, int colour)
         if (colour)
             func_00208980(t, (void *)0x70000000, U8(u, 0x184));
     }
+}
+
+extern u32 g_004065D0[12];               /* the nodes the ten records follow (from index 2) */
+
+float func_0014D390(Actor *a, u8 mount);
+float func_0014D3B0(Actor *a);
+float func_0016BF10(Unit *u);
+int func_0016BE50(Unit *u, float *rate);
+u8 *func_0014F810(Actor *a, u8 node);
+void func_0016EC90(float rate, float f, u8 *slot, u8 *node, u8 colour, int flag, int hit);
+void func_001700F0(u8 *slot, int on, float *a, float *b, int side);
+void func_00170510(u8 *slot, int on, float *a, float *b);
+int func_00209160(void);
+
+/* A node's point (its matrix times the scratchpad's (0, 0, 0, 1), divided by w) into out. */
+static inline void node_point(float *out, float *m)
+{
+    float *s = (float *)0x70000030, w;
+    int k;
+
+    for (k = 0; k < 4; k++)
+        out[k] = m[k] * s[0] + m[4 + k] * s[1] + m[8 + k] * s[2] + m[12 + k] * s[3];
+    w = out[3];
+    for (k = 0; k < 4; k++)
+        out[k] = out[k] * (1.0f / w);
+}
+
+/* Writes the identity matrix at m (rows of the vector (0, 0, 0, 1) turned). */
+static inline void identity(float *m)
+{
+    int i, k;
+
+    for (i = 0; i < 4; i++)
+        for (k = 0; k < 4; k++)
+            m[i * 4 + k] = i == k ? 1.0f : 0.0f;
+}
+
+/* Shows a slot's weapon (flags 0x20 and 0x40 the first time, then 2). */
+static inline void slot_show(u8 *s)
+{
+    u8 b = U8(s, 0x4C);
+
+    if ((b & 2) == 0) {
+        U8(s, 0x4C) = (b & ~0x20) | 0x20;
+        U8(s, 0x4C) = (b & ~0x60) | 0x60;
+    }
+    U8(s, 0x4C) = (U8(s, 0x4C) & ~2) | 2;
+}
+
+/* Sets flag 2 (drawn) of a slot's weapon parts: +0x50 and +0x58 / +0x5C to `a`, +0x54 to `b`. */
+static inline void parts_drawn(u8 *s, int a, int b, int both)
+{
+    int i;
+
+    U8(PTR(s, 0x50), 0x60) = (U8(PTR(s, 0x50), 0x60) & ~2) | a << 1;
+    for (i = 0; i < 2; i++) {
+        u8 *p = PTR(s, 0x58 + i * 4);
+
+        if (p != 0)
+            U8(p, 0x60) = (U8(p, 0x60) & ~2) | a << 1;
+    }
+    if (both)
+        U8(PTR(s, 0x54), 0x60) = (U8(PTR(s, 0x54), 0x60) & ~2) | b << 1;
+}
+
+/* Whether the frame is inside the hit's window (+5 to +6). */
+static inline int in_hit(Unit *u, u8 *hit)
+{
+    return hit != 0 && !(F32(u, 0x21C) < (float)U8(hit, 5)) && !((float)U8(hit, 6) < F32(u, 0x21C));
+}
+
+/* 0x001688D0, 0xFF0 bytes. A unit's matrices and attached things each frame: its place from
+ * its carrier or mount; its matrix; the actor's base matrix (the unit's, or the identity with a
+ * parent: the carrier's node +0x275 or the mount's +0x274); the motion's matrices; on foot, the
+ * two weapon slots (their own motions, shown by the weapon mask +0x148 bits 0 / 1, placed on the
+ * hand nodes, special kinds 0x30-0x37 and 0x14-0x1B held between two nodes during their
+ * hits); the ten records following their nodes (mask bits 2-11, previous point kept); the
+ * weapon trails during hits with flag 0x2000000 (+0x2C), by the hit's mask +0x12. */
+void func_001688D0(Unit *u)
+{
+    u8 *hit = PTR(PTR(u, 0x210), 0x14);
+    u8 *a;
+    int k, carried;
+
+    carried = PTR(u, 0x284) != 0 && (char)U8(u, 0x275) != -1;
+    if ((U32(PTR(u, 0x210), 0x18) & 0x8000000) == 0) {
+        if (carried) {
+            node_point(&F32(u, 0x40), func_0016A170(PTR(u, 0x284), (char)U8(u, 0x275)));
+            for (k = 0; k < 4; k++)
+                F32(u, 0x50 + k * 4) = F32(PTR(u, 0x284), 0x50 + k * 4);
+        }
+    } else {
+        for (k = 0; k < 4; k++) {
+            F32(u, 0x40 + k * 4) = F32(PTR(u, 0x288), 0x40 + k * 4);
+            F32(u, 0x50 + k * 4) = F32(PTR(u, 0x288), 0x50 + k * 4);
+        }
+    }
+    unit_matrix(u);
+    a = PTR(u, 0x11C);
+    if ((U32(PTR(u, 0x210), 0x18) & 0x8000000) == 0) {
+        if (PTR(u, 0x284) != 0 && (char)U8(u, 0x275) != -1) {
+            identity(&F32(a, 0x1A0));
+            PTR(PTR(u, 0x11C), 0x1FC) = PTR(PTR(u, 0x284), 0x11C);
+            U8(PTR(u, 0x11C), 0x201) = U8(u, 0x275);
+        } else {
+            for (k = 0; k < 16; k++)
+                F32(a, 0x1A0 + k * 4) = F32(u, k * 4);
+            PTR(PTR(u, 0x11C), 0x1FC) = 0;
+            U8(PTR(u, 0x11C), 0x201) = 0;
+        }
+    } else {
+        identity(&F32(a, 0x1A0));
+        PTR(PTR(u, 0x11C), 0x1FC) = PTR(PTR(u, 0x288), 0x11C);
+        U8(PTR(u, 0x11C), 0x201) = U8(u, 0x274);
+    }
+    U8(PTR(u, 0x11C), 0x20C) = (U8(PTR(u, 0x11C), 0x20C) & ~0x10) | (U8(u, 0x19C) & 1) << 4;
+    if (plays_motion(u))
+        func_0014D390(PTR(u, 0x11C), U8(u, 0x155));
+    else
+        func_0014D3B0(PTR(u, 0x11C));
+    if (S32(u, 0x118) < 0x3C) {
+        float ft = func_0016BF10(u);
+        int w1 = (U16(u, 0x148) & 1) != 0, w2 = (U16(u, 0x148) & 2) != 0;
+        u8 *s = u + 0x290, *r;
+
+        for (k = 0; k < 2; k++, s += 0x70) {
+            u8 c;
+            int win;
+
+            if ((U8(s, 0x4C) & 1) == 0)
+                continue;
+            if ((U8(s, 0x4C) & 4) && PTR(s, 0x44) != 0) {
+                u8 *o = PTR(s, 0x44);
+
+                func_0014D9A0(F32(s, 0x64), o, PTR(s, 0x60));
+                if (PTR(u, 0x11C) != 0 && 0.0f < F32(PTR(u, 0x11C), 0x214))
+                    func_0014E380(o);
+                func_0014D6C0(o);
+                func_0014D390(o, 3);
+            }
+            if ((U8(s, 0x4C) & 0x10) == 0) {
+                float rate;
+                u8 b = U8(s, 0x4C);
+
+                if (b & 8) {
+                    if ((b & 2) == 0 && (w1 || w2)) {
+                        U8(s, 0x4C) = (b & ~0x20) | 0x20;
+                        U8(s, 0x4C) = (b & ~0x60) | 0x60;
+                    }
+                    U8(s, 0x4C) = (U8(s, 0x4C) & ~2) | (w1 || w2) << 1;
+                    parts_drawn(s, w1, w2, 1);
+                } else if ((U16(u, 0x148) & 1 << k) == 0) {
+                    U8(s, 0x4C) = b & ~2;
+                    parts_drawn(s, 0, 0, 0);
+                } else {
+                    slot_show(s);
+                    parts_drawn(s, 1, 0, 0);
+                }
+                if (func_0016BE50(u, &rate) == 0)
+                    rate = 1.0f;
+                func_0016EC90(rate, ft, s, func_0014F810(PTR(u, 0x11C), U8(s, 0x49)), U8(u, 0x184),
+                              -(U8(u, 0x19C) & 1), PTR(PTR(u, 0x210), 0x14) != 0);
+            }
+            c = U8(s, 0x48);
+            if (c >= '0' && c <= '7') {
+                u8 *h = PTR(PTR(u, 0x210), 0x14);
+                u32 f = U32(PTR(u, 0x210), 0x1C);
+
+                win = in_hit(u, h);
+                if (win && (w1 || w2) && (f & 0x2000)) {
+                    slot_show(s);
+                    func_001700F0(s, 1, func_0016A170(u, 0x12), func_0016A170(u, 0x14), 1);
+                } else if (win && (f & 0x1000)) {
+                    slot_show(s);
+                    func_001700F0(s, 1, func_0016A170(u, 0x13), func_0016A170(u, 0x15), 0);
+                } else {
+                    func_001700F0(s, 0, 0, 0, 1);
+                }
+            }
+            c = U8(s, 0x48);
+            if (c >= 0x14 && c <= 0x1B) {
+                win = in_hit(u, PTR(PTR(u, 0x210), 0x14));
+                if (win && w2 && (U32(PTR(u, 0x210), 0x1C) & 0x3000)) {
+                    slot_show(s);
+                    func_00170510(s, 1, func_0016A170(u, 0x15), func_0016A170(u, 0x14));
+                } else {
+                    func_00170510(s, 0, 0, 0);
+                }
+            }
+        }
+        r = u + 0x450;
+        for (k = 2; k < 0xC; k++, r += 0x30) {
+            if ((U16(u, 0x148) & 1 << k) == 0) {
+                U8(r, 0x24) &= ~1;
+            } else {
+                int i;
+
+                for (i = 0; i < 4; i++)
+                    F32(r, 0x10 + i * 4) = F32(r, i * 4);
+                node_point((float *)r, func_0016A170(u, g_004065D0[k] & 0xFF));
+                if ((U8(r, 0x24) & 1) == 0) {
+                    for (i = 0; i < 4; i++)
+                        F32(r, 0x10 + i * 4) = F32(r, i * 4);
+                }
+                U8(r, 0x24) = (U8(r, 0x24) & ~1) | 1;
+            }
+        }
+        if ((U8(u, 0x181) == 0 || (U8(u, 0x19E) & 0x20))
+            && (U8(u, 0x14E) < 2 || func_00209160() != 0 || (U8(u, 0x19E) & 0x20))) {
+            int on = hit != 0 && (U32(hit, 0x2C) & 0x2000000) && F32(u, 0x21C) <= (float)U8(hit, 6);
+
+            s = u + 0x290;
+            for (k = 0; k < 2; k++, s += 0x70) {
+                if ((U8(s, 0x4C) & 1) && (U8(s, 0x4C) & 0x10) == 0)
+                    func_001684C0(ft, U8(u, 0x14E), s, on, hit == 0 ? 0 : U16(hit, 0x12) & 1 << k,
+                                  F32(u, 0x21C) <= 1.0f, hit == 0 ? 0 : U16(hit, 0x12));
+            }
+            r = u + 0x450;
+            for (k = 0; k < 10; k++, r += 0x30) {
+                u32 bits = hit == 0 ? 0 : U16(hit, 0x12) & 1 << (k + 2);
+
+                if (!on)
+                    bits = 0;
+                func_001687C0(u, r, k, (U8(r, 0x24) & 1) && bits, -(U8(u, 0x19C) & 1));
+            }
+            s = u + 0x290;
+            for (k = 0; k < 2; k++, s += 0x70)
+                U8(s, 0x4D) = (U8(s, 0x4D) & ~1) | (U8(u, 0x19E) >> 5 & 1);
+        }
+    }
+    U8(u, 0x19C) &= ~1;
 }
