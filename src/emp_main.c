@@ -1732,3 +1732,295 @@ int func_00300600(int f, int named, int other)
     }
     return k < n ? (int)func_002F7B10()[k] : -1;
 }
+
+int func_00308980(u32 i, int f);
+int func_002F41E0(u32 i);
+int func_002F8630(u32 i, int r);
+int func_002F8480(u32 i);
+int func_002F85E0(u32 i);
+int func_002F8430(u32 i, int f);
+void func_002F87D0(u32 *l, int n, int (*less)(u32, u32, int, int), int a, int b);
+int func_003297D0(void);
+int func_00329810(void);
+int func_00329790(void);
+
+/* Whether officer `i` is named or created (not a generic one). */
+#define SPECIAL(i) ((int)(i) < 0x1C || (int)(i) > 399)
+
+/* 0x003006F0, 0x228 bytes. The officer of list `l` (`n`) force `f` would recruit: of the
+ * computer's or free officers (named ones when `named`, others when `other`, below level 19),
+ * by a random rule (most soldiers, highest level or a special one), if func_00308980 allows;
+ * -1 for none. */
+int func_003006F0(int f, int named, int other, u32 *l, int n)
+{
+    u32 best = 0x19F;
+    int top = 0, rule, k;
+
+    if (n == 0)
+        return -1;
+    rule = func_0030CB00(3);
+    for (k = 0; k < n; k++, l++) {
+        int g = func_002F4080(*l), v, lv;
+
+        if (IS_FORCE(g) && func_002FB2A0(g) != 0)
+            continue;
+        if ((func_002F3F20(*l) != 0 ? named : other) == 0)
+            continue;
+        lv = func_002F41E0(*l);
+        if (lv >= 0x13)
+            continue;
+        v = 0;
+        if (rule == 2)
+            v = func_002F3770(*l);
+        else if (rule == 1)
+            v = lv;
+        else if (rule == 0 && SPECIAL(*l))
+            v = 1;
+        if (best > 0x19E || top < v || (v == top && func_0030CB50(0x32) != 0)) {
+            best = *l;
+            top = v;
+        }
+    }
+    if (best < 0x19F && func_00308980(best, f) == 0)
+        return best;
+    return -1;
+}
+
+/* 0x00300920, 0xBC bytes. The officer force `f` would recruit among the free officers of its
+ * region and its neighbours. */
+int func_00300920(int f, int named, int other)
+{
+    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0), m;
+
+    func_0030B540(func_002FB2D0(f));
+    m = func_002F7D90(n, (int (*)(u32, int, int))func_002F8480, 0, 0, 1);
+    func_0030B330();
+    return func_003006F0(f, named, other, func_002F7B10(), n + m);
+}
+
+/* 0x003009E0, 0xA4 bytes. The same among all free officers and the other forces' officers. */
+int func_003009E0(int f, int named, int other)
+{
+    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F85E0, 0, 0, 0);
+    int m = func_002F7D90(n, (int (*)(u32, int, int))func_002F8430, f, 0, 0);
+
+    return func_003006F0(f, named, other, func_002F7B10(), n + m);
+}
+
+/* 0x00300A90, 0x2EC bytes. The same as func_002FF710 for the recruiting commands 0x1D-0x22
+ * (the player's force only while it has room for officers or a neighbour lacks them). */
+void func_00300A90(int *out, u32 i, int k, int a, int b)
+{
+    int f = func_002F4080(i), cmd[100], val[100], n = 0, c, j, na, nb, ok = 1;
+
+    if (func_002FB2A0(f) != 0) {
+        if (b < func_00327E50()) {
+            if (func_003001C0() == 0)
+                ok = 0;
+        } else {
+            ok = 0;
+        }
+    }
+    for (c = 0x1D; c < 0x23; c++) {
+        if (ok && func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
+            && func_002FD050(c) == 0 && func_002FD1D0(f, c, 0) != 0
+            && func_00314C40(c, i, a, b) != 0
+            && (c != 0x22 || func_00327C00() == 2 || func_00328190(0x22) != 0)) {
+            cmd[n] = c;
+            val[n] = func_002FF230(c, i);
+            n++;
+        }
+    }
+    if (n == 0)
+        return;
+    func_00300270(f, &na, 0, &nb, 0);
+    func_002FF330(cmd, val, n);
+    for (j = 0; j < n; j++) {
+        int t = -1;
+
+        switch (cmd[j]) {
+        case 0x1D: t = func_00300580(f); break;
+        case 0x1E: t = func_003005C0(f); break;
+        case 0x1F: t = func_00300920(f, na, nb); break;
+        case 0x20: t = func_003009E0(f, na, nb); break;
+        case 0x21: t = func_00300600(f, na, nb); break;
+        case 0x22: t = func_00300920(f, na, nb); break;
+        }
+        if (t != -1) {
+            out[k + 1] = cmd[j];
+            out[k + 3] = t;
+            return;
+        }
+    }
+}
+
+/* 0x00300D80, 0x168 bytes. An officer of list `l` (`n`, below level 19) by a random rule (at
+ * random, highest level or a special one); -1 for none. */
+int func_00300D80(u32 *l, int n)
+{
+    u32 best = 0x19F;
+    int top = 0, rule = func_0030CB00(3), k;
+
+    for (k = 0; k < n; k++, l++) {
+        int lv = func_002F41E0(*l), v = 0;
+
+        if (lv >= 0x13)
+            continue;
+        if (rule == 2)
+            v = func_0030CB00(0x19F);
+        else if (rule == 1)
+            v = lv;
+        else if (rule == 0 && SPECIAL(*l))
+            v = 1;
+        if (best > 0x19E || top < v || (v == top && func_0030CB50(0x32) != 0)) {
+            best = *l;
+            top = v;
+        }
+    }
+    if ((int)best < 0 || (int)best > 0x19E)
+        return -1;
+    return best;
+}
+
+/* 0x00300EF0, 0x88 bytes. Order: special officers first, else at random. */
+int func_00300EF0(int i, int j)
+{
+    if (SPECIAL(i) && !SPECIAL(j))
+        return 1;
+    if (SPECIAL(j) && !SPECIAL(i))
+        return 0;
+    return func_0030CB00(2);
+}
+
+/* 0x00300F80, 0x60 bytes, matching. Order: lower level first, else at random. */
+int func_00300F80(u32 i, u32 j)
+{
+    int a = func_002F41E0(i), b = func_002F41E0(j);
+
+    if (a < b)
+        return 1;
+    if (b < a)
+        return 0;
+    return func_0030CB00(2);
+}
+
+/* 0x00300FE0, 0x60 bytes, matching. Order: higher level first, else at random. */
+int func_00300FE0(u32 i, u32 j)
+{
+    int a = func_002F41E0(i), b = func_002F41E0(j);
+
+    if (b < a)
+        return 1;
+    if (a < b)
+        return 0;
+    return func_0030CB00(2);
+}
+
+/* 0x00301040, 0x248 bytes. For the training commands 0x24-0x2A: the pair of officers of list
+ * `l` (`n`, two or more) to train, sorted by a random rule, when force `f` has twice the cost
+ * and the trained value is below 1000; the first is returned (-1 when not) and the second goes
+ * into `second`. */
+int func_00301040(int f, int c, u32 *l, int n, u32 *second)
+{
+    int rule = func_0030CB00(3), first;
+
+    if (n < 2)
+        return -1;
+    if (func_002F9190(f) <= func_00313FC0(c, 0, f) / 2)
+        return -1;
+    switch (c) {
+    case 0x24: case 0x28:
+        if (func_003297D0() >= 1000)
+            return -1;
+        break;
+    case 0x25: case 0x29:
+        if (func_00329810() >= 1000)
+            return -1;
+        break;
+    case 0x26: case 0x2A:
+        if (func_00329790() > 999)
+            return -1;
+        break;
+    case 0x27:
+        if (func_003297D0() > 999 && func_00329810() > 999 && func_00329790() > 999)
+            return -1;
+        break;
+    }
+    if (rule == 0)
+        func_002F87D0(l, n, (int (*)(u32, u32, int, int))func_00300EF0, 0, 0);
+    else if (rule == 1)
+        func_002F87D0(l, n, (int (*)(u32, u32, int, int))func_00300F80, 0, 0);
+    else
+        func_002F87D0(l, n, (int (*)(u32, u32, int, int))func_00300FE0, 0, 0);
+    first = l[0];
+    *second = l[1];
+    if (first < 0 || first >= 0x19F || *second > 0x19E)
+        return -1;
+    return first;
+}
+
+/* 0x00301290, 0x23C bytes. The same as func_002FF710 for commands 0x23-0x2A (training). */
+void func_00301290(int *out, u32 i, int k, int a, int b)
+{
+    int f = func_002F4080(i), cmd[100], val[100], n = 0, c, j;
+    u32 second;
+
+    for (c = 0x23; c < 0x2B; c++) {
+        if (func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
+            && func_002FD050(c) == 0 && func_002FD1D0(f, c, 0) != 0
+            && func_00314C40(c, i, a, b) != 0
+            && (c != 0x27 || func_00327C00() == 3 || func_00328190(0x27) != 0)) {
+            cmd[n] = c;
+            val[n] = func_002FF230(c, i);
+            n++;
+        }
+    }
+    if (n == 0)
+        return;
+    func_002FF330(cmd, val, n);
+    for (j = 0; j < n; j++) {
+        int t = -1;
+
+        if (cmd[j] == 0x23)
+            t = func_00300D80((u32 *)a, b);
+        else if (cmd[j] >= 0x24 && cmd[j] <= 0x27)
+            t = func_00301040(f, cmd[j], (u32 *)a, b, &second);
+        if (t != -1) {
+            out[k + 1] = cmd[j];
+            out[k + 3] = t;
+            out[k + 5] = second;
+            return;
+        }
+    }
+}
+
+/* 0x003014E0, 0xD0 bytes, matching. Whether computer force `f` is at peace with the player and every
+ * other computer force is not. */
+int func_003014E0(int f)
+{
+    int l[28], p, n, k;
+
+    if (func_002FB2A0(f) != 0)
+        return 0;
+    p = func_00327D50();
+    if (func_002FAFA0(f, p) == 0)
+        return 0;
+    n = func_002FD660(f, l);
+    for (k = 0; k < n; k++) {
+        if (func_002FB2A0(l[k]) == 0 && func_002FAFA0(l[k], p) == 0)
+            return 0;
+    }
+    return 1;
+}
+
+/* 0x003015B0, 0x80 bytes, matching. Whether force `f` has a relation with every other force. */
+int func_003015B0(int f)
+{
+    int l[28], n = func_002FD660(f, l), k;
+
+    for (k = 0; k < n; k++) {
+        if (func_002FAFA0(f, l[k]) == 0)
+            return 0;
+    }
+    return 1;
+}
