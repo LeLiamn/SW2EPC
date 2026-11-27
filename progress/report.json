@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 154368,
-    "non_matching": 1071716
+    "matching": 154992,
+    "non_matching": 1072536
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1894
+    "matching": 1909
   },
   "layout": "treemap",
   "areas": [
@@ -524,15 +524,15 @@
         },
         {
           "name": "StgTexture.c",
-          "description": "Estimated range 0x1EF238-0x201B40; 3 function(s) decompiled",
+          "description": "Estimated range 0x1EF238-0x201B40; 29 function(s) decompiled",
           "code": {
             "total": 76040,
-            "matching": 0,
-            "non_matching": 528
+            "matching": 624,
+            "non_matching": 1348
           },
           "decompiled_functions": {
-            "count": 3,
-            "matching": 0
+            "count": 29,
+            "matching": 15
           }
         },
         {
