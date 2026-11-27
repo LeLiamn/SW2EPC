@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 125216,
-    "non_matching": 885964
+    "non_matching": 890716
   },
   "data": {
     "total": 2155890688,
@@ -415,14 +415,14 @@
         },
         {
           "name": "emp_zuroku.c",
-          "description": "Estimated range 0x3BCB78-0x3C84B8; 101 function(s) decompiled",
+          "description": "Estimated range 0x3BCB78-0x3C84B8; 128 function(s) decompiled",
           "code": {
             "total": 47424,
             "matching": 848,
-            "non_matching": 18512
+            "non_matching": 23264
           },
           "decompiled_functions": {
-            "count": 101,
+            "count": 128,
             "matching": 15
           }
         },
