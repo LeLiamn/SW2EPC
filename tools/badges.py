@@ -11,10 +11,27 @@ import csv
 import datetime
 import json
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROG = os.path.join(ROOT, "progress")
+SRC = os.path.join(ROOT, "src")
+# A decompiled function's tag ('/* 0xADDRESS, SIZE bytes[, matching]'), as in tools/progress.py.
+TAG = re.compile(r"/\* 0x([0-9A-Fa-f]{8}), (0x[0-9A-Fa-f]+|\d+) bytes(, matching)?")
+YES, NO = "\u2705", "\u2B1C"         # a ticked and an empty box
+
+
+def source_functions():
+    """[(file, [(address, size, matching), ...])] of the functions decompiled in src/, by file."""
+    out = []
+    for name in sorted(os.listdir(SRC)):
+        if name.endswith(".c"):
+            text = open(os.path.join(SRC, name), encoding="utf-8").read()
+            funcs = sorted({int(a, 16): (int(s, 0), bool(m)) for a, s, m in TAG.findall(text)}.items())
+            if funcs:
+                out.append((name, [(a, s, m) for a, (s, m) in funcs]))
+    return out
 FIELDS = ["date", "code_total", "code_matching", "code_non_matching", "functions_total",
           "functions_matching", "data_total", "data_done"]
 
@@ -95,7 +112,11 @@ def main():
            f"| Functions matching | {funcs['matching']:,} | {funcs['total']:,} | {pct(funcs['matching'], funcs['total'])} |",
            f"| Data understood (bytes) | {data['done']:,} | {data['total']:,} | {pct(data['done'], data['total'])} |",
            "", "## Code areas with decompiled code", "",
-           "| Area | Matching (bytes) | Non-matching (bytes) | Size (bytes) |", "|---|---:|---:|---:|"]
+           f"{YES} = every function decompiled in the area matches the original byte for byte; "
+           f"{NO} = some are still non-matching (equivalent C, not yet proven identical). The list of "
+           "each function follows the table.", "",
+           "| Area | All matching | Functions matching | Matching (bytes) | Non-matching (bytes) | Size (bytes) |",
+           "|---|:---:|---:|---:|---:|---:|"]
 
     def walk(areas, prefix=""):
         for a in areas:
@@ -104,8 +125,21 @@ def main():
                 walk(a["children"], name + " / ")
             elif "code" in a and (a["code"].get("matching") or a["code"].get("non_matching")):
                 c = a["code"]
-                out.append(f"| {name} | {c.get('matching', 0):,} | {c.get('non_matching', 0):,} | {c['total']:,} |")
+                f = a.get("functions", {})
+                n, m = f.get("decompiled", 0), f.get("matching", 0)
+                box = YES if n and m == n else NO
+                out.append(f"| {name} | {box} | {m} / {n} | {c.get('matching', 0):,} | "
+                           f"{c.get('non_matching', 0):,} | {c['total']:,} |")
     walk(report.get("areas", []))
+    out += ["", "## Functions by source file", "",
+            f"Each function decompiled in `src/`: {YES} matching, {NO} non-matching.", ""]
+    for name, funcs in source_functions():
+        m = sum(1 for f in funcs if f[2])
+        box = YES if m == len(funcs) else NO
+        out += [f"<details><summary>{box} <code>src/{name}</code>: {m} / {len(funcs)} matching</summary>", "",
+                "| Function | Size (bytes) | Matching |", "|---|---:|:---:|"]
+        out += [f"| `func_{a:08X}` | {s:,} | {YES if ok else NO} |" for a, s, ok in funcs]
+        out += ["", "</details>", ""]
     out += ["", "## History", "", "| Date | Code matching | Code decompiled | Functions matching | Data |",
             "|---|---:|---:|---:|---:|"]
     for r in reversed(rows):

@@ -22,6 +22,10 @@
         "total": 9232,
         "matching": 3408,
         "non_matching": 5216
+      },
+      "functions": {
+        "decompiled": 50,
+        "matching": 33
       }
     },
     {
@@ -34,6 +38,10 @@
             "total": 76760,
             "matching": 2336,
             "non_matching": 72816
+          },
+          "functions": {
+            "decompiled": 108,
+            "matching": 26
           }
         },
         {
@@ -43,6 +51,10 @@
             "total": 48448,
             "matching": 2352,
             "non_matching": 14284
+          },
+          "functions": {
+            "decompiled": 55,
+            "matching": 26
           }
         },
         {
@@ -52,6 +64,10 @@
             "total": 20024,
             "matching": 352,
             "non_matching": 5688
+          },
+          "functions": {
+            "decompiled": 25,
+            "matching": 8
           }
         },
         {
@@ -61,6 +77,10 @@
             "total": 36800,
             "matching": 2640,
             "non_matching": 16988
+          },
+          "functions": {
+            "decompiled": 67,
+            "matching": 30
           }
         },
         {
@@ -70,6 +90,10 @@
             "total": 35944,
             "matching": 1392,
             "non_matching": 25852
+          },
+          "functions": {
+            "decompiled": 76,
+            "matching": 23
           }
         },
         {
@@ -79,6 +103,10 @@
             "total": 31776,
             "matching": 416,
             "non_matching": 28160
+          },
+          "functions": {
+            "decompiled": 43,
+            "matching": 6
           }
         },
         {
@@ -88,6 +116,10 @@
             "total": 23768,
             "matching": 5456,
             "non_matching": 10432
+          },
+          "functions": {
+            "decompiled": 33,
+            "matching": 24
           }
         },
         {
@@ -97,6 +129,10 @@
             "total": 9360,
             "matching": 9440,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 24,
+            "matching": 24
           }
         },
         {
@@ -106,6 +142,10 @@
             "total": 49352,
             "matching": 14944,
             "non_matching": 6824
+          },
+          "functions": {
+            "decompiled": 42,
+            "matching": 37
           }
         },
         {
@@ -115,6 +155,10 @@
             "total": 56408,
             "matching": 832,
             "non_matching": 3088
+          },
+          "functions": {
+            "decompiled": 19,
+            "matching": 12
           }
         },
         {
@@ -124,6 +168,10 @@
             "total": 85952,
             "matching": 1712,
             "non_matching": 27840
+          },
+          "functions": {
+            "decompiled": 117,
+            "matching": 37
           }
         },
         {
@@ -133,6 +181,10 @@
             "total": 9664,
             "matching": 1056,
             "non_matching": 448
+          },
+          "functions": {
+            "decompiled": 5,
+            "matching": 4
           }
         },
         {
@@ -142,6 +194,10 @@
             "total": 80632,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -151,6 +207,10 @@
             "total": 23456,
             "matching": 1200,
             "non_matching": 2832
+          },
+          "functions": {
+            "decompiled": 14,
+            "matching": 11
           }
         },
         {
@@ -160,6 +220,10 @@
             "total": 75264,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -169,6 +233,10 @@
             "total": 36080,
             "matching": 3984,
             "non_matching": 12440
+          },
+          "functions": {
+            "decompiled": 103,
+            "matching": 60
           }
         }
       ]
@@ -183,6 +251,10 @@
             "total": 97112,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -192,6 +264,10 @@
             "total": 119888,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -201,6 +277,10 @@
             "total": 3040,
             "matching": 96,
             "non_matching": 720
+          },
+          "functions": {
+            "decompiled": 3,
+            "matching": 2
           }
         },
         {
@@ -210,6 +290,10 @@
             "total": 17464,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -219,6 +303,10 @@
             "total": 15120,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -228,6 +316,10 @@
             "total": 73256,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -237,6 +329,10 @@
             "total": 60472,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -246,6 +342,10 @@
             "total": 69536,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -255,6 +355,10 @@
             "total": 53256,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -264,6 +368,10 @@
             "total": 5192,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -273,6 +381,10 @@
             "total": 45000,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -282,6 +394,10 @@
             "total": 23600,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -291,6 +407,10 @@
             "total": 30144,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -300,6 +420,10 @@
             "total": 47424,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -309,6 +433,10 @@
             "total": 10456,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -318,6 +446,10 @@
             "total": 33928,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -327,6 +459,10 @@
             "total": 2680,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -336,6 +472,10 @@
             "total": 33176,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         }
       ]
@@ -350,6 +490,10 @@
             "total": 28480,
             "matching": 2784,
             "non_matching": 17468
+          },
+          "functions": {
+            "decompiled": 102,
+            "matching": 34
           }
         },
         {
@@ -359,6 +503,10 @@
             "total": 29792,
             "matching": 2432,
             "non_matching": 13380
+          },
+          "functions": {
+            "decompiled": 125,
+            "matching": 45
           }
         },
         {
@@ -368,6 +516,10 @@
             "total": 26048,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -377,6 +529,10 @@
             "total": 76040,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -386,6 +542,10 @@
             "total": 41840,
             "matching": 704,
             "non_matching": 17152
+          },
+          "functions": {
+            "decompiled": 45,
+            "matching": 10
           }
         },
         {
@@ -395,6 +555,10 @@
             "total": 59024,
             "matching": 2944,
             "non_matching": 8204
+          },
+          "functions": {
+            "decompiled": 72,
+            "matching": 34
           }
         },
         {
@@ -404,6 +568,10 @@
             "total": 33424,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -413,6 +581,10 @@
             "total": 55936,
             "matching": 1856,
             "non_matching": 29432
+          },
+          "functions": {
+            "decompiled": 87,
+            "matching": 24
           }
         },
         {
@@ -422,6 +594,10 @@
             "total": 47224,
             "matching": 352,
             "non_matching": 22596
+          },
+          "functions": {
+            "decompiled": 35,
+            "matching": 7
           }
         },
         {
@@ -431,6 +607,10 @@
             "total": 54952,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -440,6 +620,10 @@
             "total": 16080,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -449,6 +633,10 @@
             "total": 44872,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         }
       ]
@@ -463,6 +651,10 @@
             "total": 35696,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -472,6 +664,10 @@
             "total": 52160,
             "matching": 1088,
             "non_matching": 3956
+          },
+          "functions": {
+            "decompiled": 27,
+            "matching": 8
           }
         },
         {
@@ -481,6 +677,10 @@
             "total": 95952,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -490,6 +690,10 @@
             "total": 18776,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -499,6 +703,10 @@
             "total": 43584,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         }
       ]
@@ -513,6 +721,10 @@
             "total": 14480,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -522,6 +734,10 @@
             "total": 55496,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -531,6 +747,10 @@
             "total": 26760,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -540,6 +760,10 @@
             "total": 31784,
             "matching": 1760,
             "non_matching": 7744
+          },
+          "functions": {
+            "decompiled": 42,
+            "matching": 16
           }
         },
         {
@@ -549,6 +773,10 @@
             "total": 34368,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -558,6 +786,10 @@
             "total": 42880,
             "matching": 3616,
             "non_matching": 39176
+          },
+          "functions": {
+            "decompiled": 150,
+            "matching": 45
           }
         },
         {
@@ -567,6 +799,10 @@
             "total": 24624,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -576,6 +812,10 @@
             "total": 31624,
             "matching": 256,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 5,
+            "matching": 5
           }
         },
         {
@@ -585,6 +825,10 @@
             "total": 116392,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         }
       ]
@@ -599,6 +843,10 @@
             "total": 47192,
             "matching": 1232,
             "non_matching": 42936
+          },
+          "functions": {
+            "decompiled": 108,
+            "matching": 17
           }
         },
         {
@@ -608,6 +856,10 @@
             "total": 193992,
             "matching": 3376,
             "non_matching": 68108
+          },
+          "functions": {
+            "decompiled": 145,
+            "matching": 45
           }
         },
         {
@@ -617,6 +869,10 @@
             "total": 141496,
             "matching": 5552,
             "non_matching": 32404
+          },
+          "functions": {
+            "decompiled": 233,
+            "matching": 87
           }
         },
         {
@@ -626,6 +882,10 @@
             "total": 35400,
             "matching": 784,
             "non_matching": 9616
+          },
+          "functions": {
+            "decompiled": 38,
+            "matching": 21
           }
         },
         {
@@ -635,6 +895,10 @@
             "total": 60776,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         },
         {
@@ -644,6 +908,10 @@
             "total": 99568,
             "matching": 0,
             "non_matching": 0
+          },
+          "functions": {
+            "decompiled": 0,
+            "matching": 0
           }
         }
       ]
