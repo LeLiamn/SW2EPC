@@ -1988,3 +1988,142 @@ int func_0016A340(Unit *v, u8 *hit)
         return 2;
     return 0;
 }
+
+#define g_70000D60 (*(int *)0x70000D60)          /* (scratchpad) */
+
+int func_00273620(Unit *u, u8 *hit);
+float func_003AFF70(u8 *officer);
+float func_003AFE50(u8 *officer);
+void func_00151D60(Unit *u);
+int func_0016C040(Unit *u);
+void func_001C7FC0(int kind, float *pos, void *a, u32 flags);
+void func_001D2260(u8 player, int a);
+void func_00155140(Unit *u, Unit *v, u8 *hit, void *x);
+
+/* 0x0016A3D0, 0x310 bytes. Whether `u` withstands `v`'s hit `hit` (keeps its footing): hits
+ * with flag 0x20 during its own attack; officers of rank 2 (+0xAB) against flag 0x20000000,
+ * rank 3 during an armoured attack; func_00273620; an officer under a quarter of its life with
+ * flag 1 of +0x19E; actions with flag 0x4000000; otherwise when its strength beats the
+ * attacker's by 2.2 times (4 times for a minor unit against a major one). */
+int func_0016A3D0(Unit *u, Unit *v, u8 *hit)
+{
+    u32 f;
+    u8 *o;
+
+    if (v == 0)
+        return 0;
+    f = U32(hit, 0x28);
+    if ((f & 0x20) && PTR(PTR(u, 0x210), 0x14) != 0)
+        return 1;
+    if (U32(PTR(v, 0x210), 0x1C) & 0x20)
+        return 0;
+    o = g_006A3A30[S16(u, 0x178)];
+    if (U8(o, 0xAB) >= 2 && (f & 0x20000000))
+        return 1;
+    if (U8(o, 0xAB) > 2) {
+        u8 *h = PTR(PTR(u, 0x210), 0x14);
+
+        if ((h == 0 ? 0 : U32(h, 0x28) & 1) != 0 && (f & 0x400001D) == 0)
+            return 1;
+    }
+    if (U32(PTR(u, 0x210), 0x18) & 0x200000)
+        return 0;
+    if (f & 0x400001D)
+        return 0;
+    if (func_00273620(u, hit) != 0)
+        return 1;
+    if (U8(u, 0x19E) & 1) {
+        int lim = S16(o, 0x80) / 4;
+
+        if (lim >= 0x32)
+            lim = 0x32;
+        if (S16(o, 0x82) < lim)
+            return 1;
+    }
+    if (U32(PTR(u, 0x210), 0x18) & 0x420)
+        return 0;
+    if ((U32(PTR(u, 0x210), 0x1C) & 0x4000000) == 0) {
+        float a = func_003AFF70(o);
+        u8 rank = U8(u, 0x1BA);
+        float b = func_003AFE50(g_006A3A30[S16(v, 0x178)]);
+        float r = (float)(int)(short)(int)a / (float)(int)(short)(int)b;
+
+        if (rank < 5 && U8(v, 0x1BA) > 4) {
+            if (r < 4.0f)
+                return 0;
+        } else if (r < 2.2f) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* 0x0016A6E0, 0x134 bytes. Wears down a struggle (+0x157 by 1-3 per hit, +0x194 by 5 x `n`);
+ * when either runs out, the unit breaks free (an effect of kind 6 at its point). */
+void func_0016A6E0(Unit *u, u8 *hit, void *a, short n)
+{
+    u8 *h = PTR(PTR(u, 0x210), 0x14);
+    u8 d;
+
+    if ((h == 0 ? 0 : U32(h, 0x28) & 0x1C) != 0)
+        d = 3;
+    else
+        d = (U32(hit, 0x28) & 1) ? 2 : 1;
+    if (d < U8(u, 0x157))
+        U8(u, 0x157) = U8(u, 0x157) - d;
+    else
+        U8(u, 0x157) = 0;
+    if ((short)(n * 5) < U16(u, 0x194))
+        U16(u, 0x194) = U16(u, 0x194) - n * 5;
+    else
+        U16(u, 0x194) = 0;
+    if (U8(u, 0x157) == 0 || S16(u, 0x194) == 0) {
+        U8(u, 0x157) = 0;
+        U16(u, 0x194) = 0;
+        func_00151D60(u);
+        g_70000D60 = 1;
+        func_001C7FC0(6, &F32(u, 0x90), a, func_0016C040(u) != 0 ? 0x200 : 0);
+    }
+}
+
+/* 0x0016A820, 0x74 bytes. Lowers +0x168 by 5 x `n`; at 0 it ends (+0x18B cleared). */
+void func_0016A820(Unit *u, short n)
+{
+    if ((float)(int)(short)(n * 5) < F32(u, 0x168))
+        F32(u, 0x168) = F32(u, 0x168) - (float)(int)(short)(n * 5);
+    else
+        F32(u, 0x168) = 0.0f;
+    if (F32(u, 0x168) <= 0.0001f) {
+        F32(u, 0x168) = 0.0f;
+        U8(u, 0x18B) = 0;
+    }
+}
+
+/* 0x0016A8A0, 0x1C0 bytes. Notes that `v` hit `u` with `hit`: the attacker's weapon kind bit in
+ * +0x120, flag 8 of +0x27C and the player's hit counter (`counted`; not for kind ':' unless
+ * mounted), the last attacker (+0x144); grabs (actions 0x87-0x8A with hit flag 0x400) go on in
+ * func_00155140. */
+void func_0016A8A0(Unit *u, Unit *v, u8 *hit, int counted, void *x)
+{
+    u8 *prev = PTR(v, 0x214);
+    u16 id;
+
+    if ((U32(hit, 0x28) & 0xC0000000) == 0 && PTR(v, 0x11C) != 0)
+        *(u64 *)(u + 0x120) |= (u64)(long long)(1 << U8(PTR(v, 0x11C), 0x202));
+    if ((U8(PTR(v, 0x110), 0x1C) != ':' || (U32(PTR(v, 0x210), 0x18) & 0x800)) && counted) {
+        U8(u, 0x27C) = (U8(u, 0x27C) & ~8) | 8;
+        if (U8(u, 0x14E) < 2)
+            func_001D2260(U8(u, 0x14E), 1);
+        else if (U8(u, 0x19C) & 0x80)
+            func_001D2260(U8(u, 0x15B), 1);
+    }
+    PTR(u, 0x144) = v;
+    if (prev != 0 && (U32(prev, 0x1C) & 0x80000))
+        func_00151D60(u);
+    if (v == 0 || (U32(hit, 0x2C) & 0x400) == 0 || (U8(u, 0x19C) & 0x80))
+        return;
+    id = U16(PTR(v, 0x210), 0);
+    if (0x86 < id && id < 0x8B && PTR(v, 0x280) == 0 && PTR(v, 0x284) == 0
+        && (U8(v, 0x19C) & 0x80) == 0)
+        func_00155140(u, v, hit, x);
+}
