@@ -4995,3 +4995,47 @@ int func_00355D00(u8 *c)
         return 0;
     return func_00190590(c, 8) == 0;
 }
+
+u32 func_00190C30(void);
+void func_00190C00(u8 *out, u32 i);
+void func_001911A0(u8 *out, float *pos);
+
+/* 0x00355D60, 0x270 bytes. Moves object `o` to the open cell nearest to position `pos` (side
+ * `side`), else to its side's default place. */
+void func_00355D60(float *pos, u8 *o, int side)
+{
+    u8 buf[2512], l[16], c[2], xy[2];
+    float v[4], at[2];
+    int found = 0x271, d;
+
+    if (pos == 0 || o == 0 || side < 0 || side > 1)
+        return;
+    func_00191200(v, pos);
+    c[0] = (int)v[0] / 5000;
+    c[1] = (int)v[1] / 5000;
+    func_003653F0((int)l, buf, 0x271);
+    for (d = 0; d < 0x271 && found == 0x271; d++) {
+        func_003558F0(c, d, (int)l);
+        while (func_00365050((int)l) > 0) {
+            int k = func_003650D0((int)l);
+            u8 t[2];
+
+            t[0] = k % 0x19;
+            t[1] = k / 0x19;
+            if (func_00355D00(t) != 0) {
+                found = k;
+                break;
+            }
+        }
+    }
+    if (found == 0x271) {
+        func_00190C00(o, func_00190C30() + side - 2);
+        return;
+    }
+    c[0] = found % 0x19;
+    c[1] = found / 0x19;
+    func_001F1640(c, xy);
+    at[0] = (float)xy[0] * 1000.0f + 500.0f;
+    at[1] = (float)xy[1] * 1000.0f + 500.0f;
+    func_001911A0(o, at);
+}
