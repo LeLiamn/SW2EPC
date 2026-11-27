@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 165536,
-    "non_matching": 1100112
+    "matching": 165568,
+    "non_matching": 1101008
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2116
+    "matching": 2117
   },
   "layout": "treemap",
   "areas": [
@@ -163,15 +163,15 @@
         },
         {
           "name": "StateEdit.c",
-          "description": "Estimated range 0x36DE68-0x382E28; 228 function(s) decompiled",
+          "description": "Estimated range 0x36DE68-0x382E28; 232 function(s) decompiled",
           "code": {
             "total": 85952,
-            "matching": 3632,
-            "non_matching": 34592
+            "matching": 3664,
+            "non_matching": 34976
           },
           "decompiled_functions": {
-            "count": 228,
-            "matching": 87
+            "count": 232,
+            "matching": 88
           }
         },
         {
@@ -890,14 +890,14 @@
         },
         {
           "name": "JapanMap.c",
-          "description": "Estimated range 0x39DD30-0x3ACA98; 242 function(s) decompiled",
+          "description": "Estimated range 0x39DD30-0x3ACA98; 245 function(s) decompiled",
           "code": {
             "total": 60776,
             "matching": 4096,
-            "non_matching": 15200
+            "non_matching": 15712
           },
           "decompiled_functions": {
-            "count": 242,
+            "count": 245,
             "matching": 73
           }
         },

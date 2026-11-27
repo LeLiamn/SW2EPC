@@ -918,3 +918,33 @@ void func_0038DE60(void)
             ((u32 *)(q + 0x47EC))[(*n1)++] = o;
     }
 }
+
+extern int g_004169D0[];
+extern u8 *g_005BA6A0;
+int func_002F27D0(int o);
+char *func_00372580(int k);
+void func_0037E480(int a, int k, int x, int y, int z, char *t, int b, int c);
+
+/* 0x0037DA70, 0x40 bytes. Officer `o`'s look kind. */
+u8 func_0037DA70(int o)
+{
+    return g_005BA6A0[func_002F27D0(o) * 0x2C + 6];
+}
+
+/* 0x0037DAB0, 0x18 bytes, matching. */
+int func_0037DAB0(int k)
+{
+    return g_004169D0[k];
+}
+
+/* 0x0037E950, 0x94 bytes. Draws command `k`'s label (0x65 uses text 0x7F). */
+void func_0037E950(int a, int k, int x, int y, int z)
+{
+    func_0037E480(a, k, x, y, z, func_00372580(k == 0x65 ? 0x7F : k), 0, 0);
+}
+
+/* 0x0037EAA0, 0x94 bytes. */
+void func_0037EAA0(int a, int k, int x, int y, int z)
+{
+    func_0037E480(a, k, x, y, z, func_00372580(k == 0x65 ? 0x7F : k), 0, 0);
+}

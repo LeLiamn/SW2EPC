@@ -1387,3 +1387,33 @@ void func_0039FF60(int k, int on)
     else
         *b |= 1 << (k & 7);
 }
+
+extern u32 g_00428348[0x14];             /* the rank thresholds */
+extern int g_0041BFB0[0x10];
+u32 func_002F34E0(int o);
+void func_002F40F0(int o, int r);
+
+/* 0x003A4E50, 0xA4 bytes. Sets officer `o`'s rank by his merit. */
+void func_003A4E50(int o)
+{
+    u32 v = func_002F34E0(o), k;
+
+    for (k = 0; (int)k <= 0x12; k++) {
+        if (g_00428348[k & 0xFF] <= v && v < g_00428348[(k + 1) & 0xFF])
+            break;
+    }
+    func_002F40F0(o, (int)k > 0x12 ? 0x13 : k & 0xFF);
+}
+
+/* 0x003A5290, 0x90 bytes. Marks the special pages of officer `o`. */
+void func_003A5290(int o)
+{
+    int t[16], k;
+
+    for (k = 0; k < 16; k++)
+        t[k] = g_0041BFB0[k];
+    for (k = 0; k < 0x10; k++) {
+        if (o == t[k])
+            func_003A1410(k, 1);
+    }
+}

@@ -601,3 +601,22 @@ void func_003A9A30(int p, int on)
         func_003A86F0(p);
     }
 }
+
+/* 0x003A5FA0, 0xB8 bytes. Sets the map view (`a`, `b`: the cursor, `c`, `d`). */
+void func_003A5FA0(int a, int b, int c, int d)
+{
+    M32(0x110) = 1;
+    M32(0x114) = 1;
+    M32(0xF8) = 0;
+    M32(0xF4) = g_00459F80[M32(0x108)][3];
+    M32(0xFC) = 0x80;
+    M32(0x100) = 0x80;
+    M32(0x104) = 0x80;
+    M32(0x190) = c;
+    M32(0xF0) = g_00459F80[M32(0x108)][2];
+    M32(0x194) = d;
+    M32(0x18C) = b;
+    M32(0x188) = a;
+    M32(0x1A4) = b;
+    M32(0x10C) = -1;
+}
