@@ -876,3 +876,322 @@ void func_002FDF40(int f)
     func_002F9E10(f, 3);
     func_002F9F40(f, 0xFF);
 }
+
+extern int g_00446520[][4];              /* per region kind: the traits wanted in order */
+
+int func_002F9EA0(u32 f);
+int func_00327C00(void);
+int func_002FA060(int f);
+int func_0030C7A0(int a, int b);
+int func_0030CB00(int n);
+int func_002F38F0(u32 i);
+int func_002F7EC0(u32 i, int f);
+int func_0030B090(int f);
+int func_0030ACE0(int f);
+int func_0030C440(int a, int f);
+void func_002FA0D0(int f, int plan);
+void func_002FA220(int f, int v);
+int func_0030C9C0(int r);
+int func_002FA390(u32 f);
+
+/* 0x002FDF80, 0x2B4 bytes. A computer force picks its next trait to gain: a missing one that
+ * goes with those it has, else one of its regions' kinds, else at random; force plans above 4
+ * stop, and in the early years the forces of regions 1 and 14 hold back. */
+void func_002FDF80(int f)
+{
+    int have[10], lack[8], reg[28], nh, nl, pick = 8, k, j;
+
+    if (func_002F9EA0(f) > 4)
+        func_002FDF40(f);
+    if (func_00327C00() > 5 && func_002F9EA0(f) != 2 && func_0030C7F0(f, func_002FA060(f)) == 0) {
+        func_002FD5A0(f, have, lack, &nh, &nl);
+        if (nh < 3) {
+            for (k = 0; k < nl; k++) {
+                for (j = 0; j < nh; j++) {
+                    if (func_0030C7A0(lack[k], have[j]) != 0)
+                        break;
+                }
+                if (j != nh && (pick == 8 || func_0030CB50(0x32) != 0))
+                    pick = lack[k];
+            }
+            if (pick >= 8) {
+                int n = func_002FB320(f, reg);
+
+                for (k = 0; k < n; k++) {
+                    int t = func_0030AC50(reg[k]);
+
+                    for (j = 0; j < nl; j++) {
+                        if (t == lack[j] && (pick == 8 || func_0030CB50(0x32) != 0))
+                            pick = lack[j];
+                    }
+                }
+                if (pick >= 8)
+                    pick = lack[func_0030CB00(nl)];
+            }
+            func_002F9F40(f, pick);
+        }
+    }
+    if (func_002F9EA0(f) == 4) {
+        if (func_00327C00() < 6) {
+            if (func_00327C00() == 3 && f == func_0030AFF0(1))
+                func_002FDF40(f);
+        } else if (f == func_0030AFF0(0xE)) {
+            func_002FDF40(f);
+        }
+    }
+}
+
+/* 0x002FE240, 0xA4 bytes. The officers of list `l` (`n`): their average soldiers in percent of
+ * their maximum. */
+int func_002FE240(u32 *l, int n)
+{
+    int s = 0, k;
+
+    if (n == 0)
+        return 0;
+    for (k = 0; k < n; k++)
+        s += func_002F3770(l[k]) * 100 / func_002F38F0(l[k]);
+    return s / n;
+}
+
+/* 0x002FE2F0, 0x1B0 bytes. Whether computer force `f` is ready to attack: its leader's region's
+ * officers at 80% or more, the others' at 60% or more, three or more officers per region, and
+ * its regions' forces more than 60% full. */
+int func_002FE2F0(int f)
+{
+    int home = func_002FB2D0(f), reg[28], nr, n0, n = 0, k, s;
+    u32 *l;
+
+    n0 = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, home, 0, 1);
+    l = func_002F7B10();
+    if (func_002FE240(l, n0) < 0x50)
+        return 0;
+    nr = func_002FB320(f, reg);
+    for (k = 0; k < nr; k++) {
+        if (reg[k] != home)
+            n += func_002F7D90(n, (int (*)(u32, int, int))func_002F7EC0, reg[k], 0, 1);
+    }
+    if (n != 0 && func_002FE240(l, n) <= 0x3B)
+        return 0;
+    if (nr != 0 && (n0 + n) / nr <= 2)
+        return 0;
+    for (s = 0, k = 0; k < nr; k++)
+        s += func_0030B090(reg[k]) * 100 / func_0030ACE0(reg[k]);
+    return s > 0x3B;
+}
+
+/* 0x002FE4A0, 0x164 bytes. A plan of kind 1 for force `f`: against the weaker of regions 3 and
+ * 4's forces (by size, +0x75, func_0030C9C0, then at random), or region 1. */
+int func_002FE4A0(int f)
+{
+    int t;
+
+    if (func_0030C440(1, f) != 0) {
+        func_002FA0D0(f, 1);
+        func_002FA220(f, 1);
+        return 1;
+    }
+    func_002FA0D0(f, 1);
+    {
+        int a = func_0030AFF0(3), b = func_0030AFF0(4);
+        int sa = func_002FB3B0(a), sb = func_002FB3B0(b);
+
+        if (sa < sb) {
+            t = 3;
+        } else if (sb < sa) {
+            t = 4;
+        } else {
+            sa = func_002FA490(a);
+            sb = func_002FA490(b);
+            if (sa < sb) {
+                t = 3;
+            } else if (sb < sa) {
+                t = 4;
+            } else {
+                int ca = func_0030C9C0(3), cb = func_0030C9C0(4);
+
+                if (ca == 0 && cb != 0)
+                    t = 3;
+                else if (ca == 0 || cb != 0)
+                    t = func_0030CB00(2) + 3;
+                else
+                    t = 4;
+            }
+        }
+    }
+    func_002FA220(f, t);
+    return 1;
+}
+
+/* 0x002FE610, 0xB0 bytes. A plan of kind 2 for force `f`: the first trait of its home's region
+ * kind it lacks (4 when it has them all). */
+int func_002FE610(int f)
+{
+    int *w = g_00446520[func_0030AC50(func_002FB2D0(f))], t = 4, k;
+
+    for (k = 0; k < 4; k++) {
+        t = w[k];
+        if (t == 8) {
+            t = 4;
+            break;
+        }
+        if (func_0030C7F0(f, t) == 0)
+            break;
+    }
+    func_002FA0D0(f, 2);
+    func_002FA220(f, t);
+    return 1;
+}
+
+/* 0x002FE6C0, 0x16C bytes. Force `f`'s plan when it cannot attack: by its kind and the year
+ * (kind 4: early regions, later traits; kind 3 waits; kinds 1-2 a trait; kind 0 its home). */
+void func_002FE6C0(int f)
+{
+    int done = 0, k = func_002F9EA0(f);
+
+    if (k == 4) {
+        if (func_00327C00() == 3)
+            done = func_002FE4A0(f);
+        else if (func_00327C00() > 5)
+            done = func_002FE610(f);
+    } else if (k == 3) {
+        func_002FA0D0(f, 7);
+        func_002FA220(f, 0xFF);
+        done = 1;
+    } else if (k == 2 || k == 1) {
+        int t = func_002FA060(f);
+
+        if (func_0030C7F0(f, t) == 0) {
+            func_002FA0D0(f, 2);
+            func_002FA220(f, t);
+            done = 1;
+        }
+    } else if (k == 0) {
+        func_002FA0D0(f, 0);
+        func_002FA220(f, func_002FB2D0(f));
+        done = 1;
+    }
+    if (done == 0) {
+        func_002FA0D0(f, 0);
+        func_002FA220(f, func_002FB2D0(f));
+    }
+}
+
+/* Plans to take one of the free bordering forces `l` (`n`). */
+static inline void take_free(int f, int *l, int n)
+{
+    func_002FA0D0(f, 1);
+    func_002FA220(f, l[func_0030CB00(n)]);
+}
+
+/* 0x002FE830, 0x468 bytes. Force `f`'s plan when it is ready to attack, by its kind: free
+ * bordering forces first; kind 1 / 2 the traits they want; others a weaker or a similar
+ * neighbour (5 or 6), else waiting (7). */
+void func_002FE830(int f)
+{
+    int free[26], others[28], have[8], lack[8], nh, nl, n, k, t, o, no;
+
+    if (func_002FE2F0(f) == 0)
+        return;
+    k = func_002F9EA0(f);
+    if (k == 0) {
+        if ((n = func_002FD4C0(f, free)) == 0) {
+            func_002FA0D0(f, 0);
+            func_002FA220(f, func_002FB2D0(f));
+        } else {
+            take_free(f, free, n);
+        }
+    } else if (k == 1) {
+        t = func_002FA060(f);
+        if (func_0030C7F0(f, t) == 0) {
+            func_002FA0D0(f, 2);
+            func_002FA220(f, t);
+        } else if ((n = func_002FD4C0(f, free)) == 0) {
+            func_002FA0D0(f, 3);
+            func_002FA220(f, t);
+        } else {
+            take_free(f, free, n);
+        }
+    } else if (k == 2) {
+        t = func_002FA060(f);
+        o = func_0030AC50(func_002FB2D0(f));
+        if (func_0030C7F0(f, t) == 0) {
+            func_002FA0D0(f, 2);
+            func_002FA220(f, t);
+        } else if (func_0030C7F0(f, o) == 0) {
+            func_002FA0D0(f, 2);
+            func_002FA220(f, o);
+        } else if ((n = func_002FD4C0(f, free)) == 0) {
+            func_002FA0D0(f, 3);
+            func_002FA220(f, t);
+        } else {
+            take_free(f, free, n);
+        }
+    } else if (k != 3) {
+        o = func_0030AC50(func_002FB2D0(f));
+        func_002FD5A0(f, have, lack, &nh, &nl);
+        no = func_002FD660(f, others);
+        if ((n = func_002FD4C0(f, free)) != 0) {
+            take_free(f, free, n);
+        } else if (func_0030C7F0(f, o) == 0) {
+            func_002FA0D0(f, 2);
+            func_002FA220(f, o);
+        } else if (nh < 4) {
+            int g = func_002FDCB0(f, others, no);
+
+            if (no + 1 > 9 && IS_FORCE(g)) {
+                func_002FA0D0(f, 4);
+                func_002FA220(f, g);
+            } else if (IS_FORCE(g = func_002FDD90(f, others, no))) {
+                func_002FA0D0(f, 5);
+                func_002FA220(f, g);
+            }
+        } else if (IS_FORCE(t = func_002FDD90(f, others, no))) {
+            func_002FA0D0(f, 6);
+            func_002FA220(f, t);
+        } else {
+            func_002FA0D0(f, 7);
+            func_002FA220(f, 0xFF);
+        }
+    }
+}
+
+/* 0x002FECA0, 0x94 bytes. Plan 0 kept while its target is the force's own region, else
+ * replanned. */
+void func_002FECA0(int f)
+{
+    int t = func_002FA390(f);
+
+    if (IS_FORCE(t) && f == func_0030AFF0(t)) {
+        func_002FA0D0(f, 0);
+        func_002FA220(f, func_002FB2D0(f));
+    } else {
+        func_002FE6C0(f);
+    }
+}
+
+/* 0x002FED40, 0x60 bytes. Plan 2 done once the trait is had. */
+void func_002FED40(int f)
+{
+    int t = func_002FA390(f);
+
+    if (t < 8 && func_0030C7F0(f, t) != 0)
+        func_002FA0D0(f, 3);
+    else
+        func_002FE6C0(f);
+}
+
+/* 0x002FEDA0, 0x98 bytes. Plan 1 kept while its target force can still be reached. */
+void func_002FEDA0(int f)
+{
+    int t = func_002FA390(f);
+
+    if (func_002FE2F0(f) == 0)
+        return;
+    if (t < 8 && func_002FDE80(f, t) != 0) {
+        func_002FA0D0(f, 2);
+        func_002FA220(f, t);
+    } else {
+        func_002FE6C0(f);
+    }
+}

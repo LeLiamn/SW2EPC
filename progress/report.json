@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 89328,
-    "non_matching": 654728
+    "non_matching": 658504
   },
   "data": {
     "total": 2155890688,
@@ -150,14 +150,14 @@
         },
         {
           "name": "StateConquest.c",
-          "description": "Estimated range 0x2F1798-0x2FF3F0; 383 function(s) decompiled",
+          "description": "Estimated range 0x2F1798-0x2FF3F0; 393 function(s) decompiled",
           "code": {
             "total": 56408,
             "matching": 8032,
-            "non_matching": 43052
+            "non_matching": 46828
           },
           "decompiled_functions": {
-            "count": 383,
+            "count": 393,
             "matching": 112
           }
         },
