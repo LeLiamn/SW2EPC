@@ -129,7 +129,7 @@ extern struct {
 #define g_007B707C (s_007B7070.g_007B707C)
 
 /* The options screen (0x007B70E0, returned by func_00365460). */
-extern struct {
+extern struct OptionsScreen {
     u8 unknown_0[0x14];
     u8 g_007B70F4;           /* 1 in use, 3 closing (0 and 2: nothing to do) */
     u8 g_007B70F5;           /* how it closed: 0 back, 1 OK */
@@ -155,7 +155,7 @@ extern struct {
 #define g_007B7103 (s_007B70E0.rows[6])
 
 /* The start-up state (0x007B7104). */
-extern struct {
+extern struct StartState {
     u8 g_007B7104;           /* slot (0 = the ruler, 1-6 = officers, 7 = OK) */
     u8 unknown_1;
     u8 g_007B7106;           /* 0 choosing, 1 the officer list is open */
@@ -334,7 +334,7 @@ void func_00376100(int a, int b, int c);
 void func_003A5C40(int entry);
 void func_003F4D60(int a);
 void func_003B3DD0(int a, int level);
-void func_00327C10(u8 value);
+void func_00327C10(int value);
 void func_003A5E20(void);
 void func_003A8DC0(void);
 int func_003748C0(int no_entry, int unprotected, int edit);
@@ -404,19 +404,20 @@ void *func_00365490(void)
     return g_0045D774;
 }
 
-/* 0x003654A0, 0x50 bytes. Wraps a main menu position around the entries offered. */
+/* 0x003654A0, 0x50 bytes, matching. Wraps a main menu position around the entries offered. */
 int func_003654A0(int i)
 {
     StartMenu *menu = (StartMenu *)func_00365450();
+    int r = i;
 
-    if (i < 0)
-        i = menu->count + i;
-    else if (i >= menu->count)
-        i = i - menu->count;
-    return i;
+    if (r < 0)
+        r = menu->count + i;
+    else if (r >= menu->count)
+        r = i - menu->count;
+    return r;
 }
 
-/* 0x003654F0, 0x34 bytes. Whether main menu entry `entry` is one of 0-9. */
+/* 0x003654F0, 0x34 bytes, matching. Whether main menu entry `entry` is one of 0-9. */
 int func_003654F0(int entry)
 {
     int result = 0;
@@ -433,6 +434,8 @@ int func_003654F0(int entry)
     case 8:
     case 9:
         result = 1;
+        break;
+    case 10:
         break;
     }
     return result;
@@ -469,7 +472,8 @@ void func_003655F0(void)
     }
 }
 
-/* 0x00365650, 0x3C bytes. */
+/* 0x00365650, 0x3C bytes, matching. */
+#pragma opt_unroll_loops on
 void func_00365650(void)
 {
     int i;
@@ -477,6 +481,7 @@ void func_00365650(void)
     for (i = 0; i < 25; i++)
         g_007B707C[i] = -1;
 }
+#pragma opt_unroll_loops off
 
 /* 0x00365690, 0x304 bytes. Builds the officer lists: the officers that can be chosen (status 1-3
  * of func_002F3DC0 are listed but already taken; free ones need func_003A0040 and func_002F3BB0
@@ -732,7 +737,8 @@ void func_003661B0(void)
     func_00384E30();
 }
 
-/* 0x00366300, 0x78 bytes. */
+/* 0x00366300, 0x78 bytes, matching. */
+#pragma opt_unroll_loops on
 void func_00366300(void)
 {
     int i;
@@ -742,6 +748,7 @@ void func_00366300(void)
     for (i = 0; i < 11; i++)
         g_007B707C[i] = i;
 }
+#pragma opt_unroll_loops off
 
 /* 0x00366380, 0x148 bytes, matching. Sets up the entry list (phase 2). */
 void func_00366380(void)
@@ -775,15 +782,21 @@ void func_00366380(void)
     func_003A78E0(0, 0x1F, 1);
 }
 
-/* 0x003664D0, 0x50 bytes. The options' default values. */
+/* 0x003664D0, 0x50 bytes, matching. The options' default values. */
 void func_003664D0(void)
 {
-    g_007B70FB = 2;
-    g_007B70F8 = 0;
-    g_007B70FA = 0;
-    g_007B70FC = 1;
-    g_007B70F7 = g_007B70FD != 1;
-    g_007B70F9 = g_007B70FF != 1;
+    u8 *o = (u8 *)&s_007B70E0;
+
+    o[0x1B] = 2;
+    o[0x18] = 0;
+    o[0x17] = 1;
+    o[0x19] = 1;
+    o[0x1A] = 0;
+    o[0x1C] = 1;
+    if (o[0x1D] == 1)
+        o[0x17] = 0;
+    if (o[0x1F] == 1)
+        o[0x19] = 0;
 }
 
 /* 0x00366520, 0x8C bytes. Sets up the options screen: which rows are offered. */
@@ -802,11 +815,16 @@ void func_00366520(void)
     func_003664D0();
 }
 
-/* 0x003665B0, 0x44 bytes. */
+/* 0x003665B0, 0x44 bytes, matching. */
 void func_003665B0(void)
 {
-    g_007B7104 = func_003A1A80() == 0;
-    g_007B7106 = 0;
+    u8 *s = &g_007B7104;
+
+    if (func_003A1A80() != 0)
+        s[0] = 0;
+    else
+        s[0] = 1;
+    s[2] = 0;
 }
 
 /* 0x00366600, 0x44 bytes, matching. Resets the scene's state. */
@@ -854,13 +872,13 @@ void func_003666B0(void)
         (menu)->shown[3] = (menu)->entries[func_003654A0((menu)->index + 2)]; \
     } while (0)
 
-/* 0x00366740, 0x37C bytes. Phase 0: the main menu. OK picks the entry (9 sets func_003281F0)
+/* 0x00366740, 0x37C bytes, matching. Phase 0: the main menu. OK picks the entry (9 sets func_003281F0)
  * and goes to phase 1; Cancel goes back to the title (scene 1); Up / Down turn the wheel. */
 void func_00366740(void)
 {
     StartMenu *menu = (StartMenu *)func_00365450();
-    unsigned short pressed = pad1_pressed();
-    unsigned short held = pad1_held();
+    int pressed = (unsigned short)pad1_pressed();
+    int held = (unsigned short)pad1_held();
 
     func_003666B0();
     if (pressed & BTN_OK) {
@@ -913,12 +931,12 @@ void func_00366AC0(void)
         func_001A7DC0(g_0043C6D4, 0x80, 1);
 }
 
-/* 0x00366B10, 0x254 bytes. Phase 1: the level (0-4, Left / Right, wrapping on a press). OK keeps
+/* 0x00366B10, 0x254 bytes, matching. Phase 1: the level (0-4, Left / Right, wrapping on a press). OK keeps
  * it and opens the options; Cancel goes back to the main menu. */
 void func_00366B10(void)
 {
-    unsigned short pressed = pad1_pressed();
-    unsigned short held = pad1_held();
+    int pressed = (unsigned short)pad1_pressed();
+    int held = (unsigned short)pad1_held();
     StartMenu *menu = (StartMenu *)func_00365450();
 
     if (pressed & BTN_OK) {
@@ -966,7 +984,7 @@ void func_00366B10(void)
 void func_00366D70(void)
 {
     StartMenu *menu = (StartMenu *)func_00365450();
-    unsigned short pressed = pad1_pressed();
+    int pressed = (unsigned short)pad1_pressed();
     char text[256];
 
     func_003A8DC0();
@@ -1029,15 +1047,14 @@ void func_00366D70(void)
     }
 }
 
-/* 0x003671F0, 0x78 bytes. How many officers the level allows. */
+/* 0x003671F0, 0x78 bytes, matching. How many officers the level allows. */
 int func_003671F0(void)
 {
+    int p = func_00327D50();
     u8 level = g_007B70FB;
-    int n = g_00415E80[level].step * (func_002FB3B0(func_00327D50()) - 1) + 6;
+    int n = g_00415E80[level].step * (func_002FB3B0(p) - 1) + 6;
 
-    if (n >= g_00415E80[level].most)
-        n = g_00415E80[level].most;
-    return n;
+    return n < g_00415E80[level].most ? n : g_00415E80[level].most;
 }
 
 /* 0x00367270, 0x58 bytes, matching. Phase 6 draw. */
@@ -1066,13 +1083,15 @@ void func_003672D0(void)
         g_007B7070 = 2;
 }
 
-/* 0x00367330, 0x78 bytes. Opens the options screen (phase 3). */
+/* 0x00367330, 0x78 bytes, matching. Opens the options screen (phase 3). */
 void func_00367330(void)
 {
+    u8 *o = (u8 *)&s_007B70E0;
+
     func_00387AC0();
     g_007B7070 = 3;
     func_00376100(3, -1, -1);
-    if (g_007B70FE != 0 || g_007B7100 != 0 || g_007B7101 != 0 || g_007B7102 != 0)
+    if (o[0x1E] != 0 || o[0x20] != 0 || o[0x21] != 0 || o[0x22] != 0)
         func_003F1070(0);
 }
 
@@ -1091,7 +1110,7 @@ void func_003673B0(void)
 void func_003673E0(void)
 {
     OptionValues values = g_00415EB0;
-    unsigned short pressed, held;
+    int pressed, held;
     u32 row;
 
     if (g_007B70F4 == 0 || g_007B70F4 == 2)
@@ -1141,8 +1160,8 @@ void func_003673E0(void)
             }
         }
     }
-    pressed = pad1_pressed();
-    held = pad1_held();
+    pressed = (unsigned short)pad1_pressed();
+    held = (unsigned short)pad1_held();
     if (pressed & BTN_OK) {
         if (g_007B70F6 == 6) {
             SE(1);
@@ -1273,8 +1292,12 @@ int func_00367BD0(int officer)
 {
     int result = 1;
 
-    if (officer < 0x19F && g_007B7107[officer] == 0)
-        result = 0;
+    if (officer < 0x19F) {
+        if (g_007B7107[officer] == 0)
+            result = 0;
+        else if (g_007B7107[officer] == 1)
+            result = 1;
+    }
     return result;
 }
 
@@ -1317,8 +1340,8 @@ void func_002F9900(int a, int b);
  * Remove clears a slot; Cancel restores the choosable marks and goes back to phase 2. */
 void func_00367CF0(void)
 {
-    unsigned short pressed = pad1_pressed();
-    unsigned short held = pad1_held();
+    int pressed = (unsigned short)pad1_pressed();
+    int held = (unsigned short)pad1_held();
     char text[256];
     int i, j;
 
@@ -1511,7 +1534,7 @@ int func_0032E760(void);
 void func_00367B10(int officer, int in_use);
 void func_00367CF0(void);
 int func_00327C40(void);
-void func_00327C10(u8 value);
+void func_00327C10(int value);
 void func_00327880(int on);
 void func_003278D0(int on);
 void func_00327920(int on);
@@ -1618,16 +1641,18 @@ void func_00368980(void)
     }
 }
 
-/* 0x00368AD0, 0x80 bytes. Applies the start-up settings. */
+/* 0x00368AD0, 0x80 bytes, matching. Applies the start-up settings. */
 void func_00368AD0(void)
 {
-    func_00327C10(func_00327C40());
-    func_00327880(g_007B70F7 == 0);
-    func_003278D0(g_007B70F8 == 0);
-    func_00327920(g_007B70F9 == 0);
-    func_00327970(g_007B70FA);
-    func_003279D0(g_007B70FB);
-    func_00327A30(g_007B70FC == 0);
+    u8 *o = (u8 *)&s_007B70E0;
+
+    func_00327C10((u8)func_00327C40());
+    func_00327880(o[0x17] == 0);
+    func_003278D0(o[0x18] == 0);
+    func_00327920(o[0x19] == 0);
+    func_00327970(o[0x1A]);
+    func_003279D0(o[0x1B]);
+    func_00327A30(o[0x1C] == 0);
 }
 
 /* 0x00368B50, 0xAC bytes, matching. Phase 7: when func_00375BF0 is 0, sets up the chosen entry and its
