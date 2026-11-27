@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 173392,
-    "non_matching": 1178120
+    "matching": 173840,
+    "non_matching": 1179736
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2209
+    "matching": 2215
   },
   "layout": "treemap",
   "areas": [
@@ -298,14 +298,14 @@
         },
         {
           "name": "emp_ending_nenpyou.c",
-          "description": "Estimated range 0x3B9068-0x3BCB78; 37 function(s) decompiled",
+          "description": "Estimated range 0x3B9068-0x3BCB78; 38 function(s) decompiled",
           "code": {
             "total": 15120,
             "matching": 880,
-            "non_matching": 6400
+            "non_matching": 6896
           },
           "decompiled_functions": {
-            "count": 37,
+            "count": 38,
             "matching": 10
           }
         },
@@ -415,15 +415,15 @@
         },
         {
           "name": "emp_zuroku.c",
-          "description": "Estimated range 0x3BCB78-0x3C84B8; 173 function(s) decompiled",
+          "description": "Estimated range 0x3BCB78-0x3C84B8; 186 function(s) decompiled",
           "code": {
             "total": 47424,
-            "matching": 1392,
-            "non_matching": 29680
+            "matching": 1840,
+            "non_matching": 30800
           },
           "decompiled_functions": {
-            "count": 173,
-            "matching": 25
+            "count": 186,
+            "matching": 31
           }
         },
         {

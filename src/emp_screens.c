@@ -1575,3 +1575,259 @@ void func_003BC760(void)
         p[0x764] = 0x80;
     }
 }
+
+/* The report's frame, the Empire screens' state and their glue, an idle timer and two buffers
+ * (parts of 0x003BC890-0x003BF9DC). */
+
+typedef struct {
+    short x0, y0, w0, h0;
+    short x1, y1, w1, h1;
+    u8 alpha0, alpha1;
+    u8 frames;
+    u8 timer;
+} WindowAnim;
+
+typedef struct { int x, y, w, h, a; } Box5;
+
+extern char g_0045BC08[];
+extern int g_007BC2A0, g_007BC2A4, g_007BC2A8, g_007BC2AC;
+extern u8 g_007BC1E0[0xC][0x10];
+extern u8 g_007BC2B0[2][0x1410];
+extern int g_0045D810, g_0045D0C8, g_0045D808;   /* (small data) */
+
+int func_003A1FC0(int k);
+int func_003A01A0(int o);
+void func_00395420(void);
+void func_003978F0(void);
+void func_0039F580(void);
+void func_003E7C00(void);
+void func_003EEF50(void);
+void func_003B2170(void);
+void func_00397230(void);
+void func_003E4D80(void);
+int func_003E9730(void);
+int func_003E96E0(void);
+void func_003E9630(void);
+void func_003E9690(void);
+int func_003DC2D0(int k);
+void func_003DC090(int k, Box5 *to);
+void func_003DC0E0(int k, int open, int kind);
+void func_003BF5F0(float dt, int k);
+int func_003BF8F0(void);
+
+/* 0x003BC890, 0x1EC bytes. The report's frame (pages last 210 frames more each, or until a
+ * button). */
+int func_003BC890(void)
+{
+    u8 *p = func_003B5E90();
+    int l = *(int *)(p + 0x74C), min = l * 0x78 + 0x3C, extra = g_0045D804 == 0 ? 0 : 0xB4;
+
+    if (*(int *)(p + 0x710) == 0) {
+        func_003BC450();
+        *(int *)(p + 0x710) = 1;
+    }
+    func_003BC760();
+    if (*(int *)(p + 0x73C) != 3) {
+        if (extra + l * 0x96 + 0xD2 <= *(int *)(p + 0x748))
+            *(int *)(p + 0x73C) = 2;
+        if ((PAD1_REPEAT() & 0x40) != 0) {
+            if (min < *(int *)(p + 0x748))
+                *(int *)(p + 0x73C) = 2;
+            else
+                *(int *)(p + 0x748) = min;
+        }
+        if ((PAD1_REPEAT() & 0x800) != 0) {
+            p[0x763] = 5;
+            func_003BB5F0();
+            *(int *)(p + 0x73C) = 4;
+        }
+    }
+    if (g_0069395E == 0 || g_0069395E == -1)
+        *(int *)(p + 0x748) += 1;
+    return 0;
+}
+
+/* 0x003BD2A0, 0x14C bytes. Sets up the Empire screens' state (which menus have content). */
+void func_003BD2A0(u8 *b)
+{
+    int *p = (int *)b, k;
+
+    func_00118850(p, 0x34);
+    p[10] = 0;
+    p[11] = 0;
+    p[12] = (int)func_001026D0(1, 0x85, 0, 1, 0, 0, g_0045BC08, 0x28);
+    for (k = 0; k < 10; k++)
+        p[k] = 1;
+    p[6] = 0;
+    for (k = 0; k < 4; k++) {
+        if (func_003A1FC0(k) != 4) {
+            p[6] = 1;
+            break;
+        }
+    }
+    p[7] = 0;
+    for (k = 0; k < 0x3A; k++) {
+        if (func_003A01A0(k) != 0) {
+            p[7] = 1;
+            break;
+        }
+    }
+    p[8] = 0;
+    for (k = 0x3B; k < 0x59; k++) {
+        if (func_003A01A0(k) != 0)
+            p[8] = 1;
+    }
+}
+
+/* 0x003BD4A0, 0x98 bytes. Closes the Empire screens. */
+void func_003BD4A0(void)
+{
+    func_003BD3F0(g_007BC1A0);
+    func_00395420();
+    func_003978F0();
+    func_0039F580();
+    func_003E7C00();
+    func_003EEF50();
+    func_003B2170();
+    func_00397230();
+    func_003E4D80();
+    if (func_003E9730() != 0) {
+        if (func_003E96E0() == 0)
+            func_003E9630();
+        else
+            func_003E9690();
+    }
+}
+
+/* 0x003BD710, 0x84 bytes, matching. The banner window comes in. */
+void func_003BD710(void)
+{
+    u8 *p = func_003BD6F0();
+    WindowAnim *w = (WindowAnim *)(p + 0xC);
+
+    p[0x20] = 0;
+    w->x0 = 0x100; w->y0 = 0xC0; w->w0 = 0; w->h0 = 0;
+    w->x1 = 0x100; w->y1 = 0xC0; w->w1 = 0; w->h1 = 0;
+    w->frames = 0; w->timer = 0;
+    w->alpha0 = 0; w->alpha1 = 0;
+    w->x1 = 0; w->y1 = 0x8A; w->w1 = 0x200; w->h1 = 0x6C;
+    w->alpha1 = 0x80;
+    w->frames = 10;
+}
+
+/* 0x003BD890, 0x6C bytes. (Every case empty.) */
+void func_003BD890(int k)
+{
+    switch (k) {
+    case 0:
+        break;
+    case 1:
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
+    case 4:
+        break;
+    case 5:
+        break;
+    case 6:
+        break;
+    case 7:
+        break;
+    }
+}
+
+/* 0x003BD900, 0x34 bytes, matching. Whether boxes 0x13 or 0x14 are moving. */
+int func_003BD900(void)
+{
+    return func_003DC2D0(0x13) != 0 || func_003DC2D0(0x14) != 0;
+}
+
+/* 0x003BE6B0, 0x9C bytes, matching. */
+void func_003BE6B0(void)
+{
+    Box5 b;
+
+    b.x = 8; b.y = 0x67; b.w = 0xB8; b.h = 0x12; b.a = 0x80;
+    func_003DC090(0x13, &b);
+    func_003DC0E0(0x13, 1, 0xB);
+    b.x = 0xF0; b.y = 0x34; b.w = 0x108; b.h = 0x38; b.a = 0x80;
+    func_003DC090(0x14, &b);
+    func_003DC0E0(0x14, 2, 1);
+}
+
+/* 0x003BF6F0, 0xE4 bytes. An idle timer: on (g_007BC2AC) for a random while every 5-10
+ * seconds. */
+void func_003BF6F0(void)
+{
+    g_007BC2A0++;
+    if (g_007BC2A0 < g_007BC2A4) {
+        g_007BC2AC = 0;
+    } else if (g_007BC2A8 < g_007BC2A0) {
+        g_007BC2A8 = g_007BC2A4 + 200 + RAND16() % 200;
+        g_007BC2A0 = 0;
+        g_007BC2AC = 0;
+        g_007BC2A4 = RAND16() % 0xFA + 0xFA;
+    } else {
+        g_007BC2AC = 1;
+    }
+}
+
+/* 0x003BF7E0, 0x3C bytes. */
+void func_003BF7E0(void)
+{
+    int k;
+
+    for (k = 0; k < 0xC; k++)
+        g_007BC1E0[k][0xC] = 0;
+}
+
+/* 0x003BF820, 0x90 bytes. Drops the entries not kept this frame, then steps. */
+void func_003BF820(void)
+{
+    int k;
+
+    for (k = 0; k < 0xC; k++) {
+        u32 *e = (u32 *)g_007BC1E0[k];
+
+        if (e[1] != 0 && g_007BC1E0[k][0xC] == 0) {
+            e[0] = 0;
+            e[1] = 0;
+            e[2] = 0;
+        }
+    }
+    for (k = 0; k < 2; k++)
+        func_003BF5F0(1.0f / 60.0f, k);
+    func_003BF6F0();
+}
+
+/* 0x003BF8B0, 0x40 bytes. The next of two buffers. */
+u8 *func_003BF8B0(void)
+{
+    int v = g_0045D810;
+
+    g_0045D810++;
+    if (g_0045D810 > 1)
+        g_0045D810 = 0;
+    return g_007BC2B0[v];
+}
+
+/* 0x003BF990, 0x24 bytes, matching. */
+void func_003BF990(void)
+{
+    g_0045D0C8 = func_003BF8F0();
+    g_0045D808 = 0;
+}
+
+/* 0x003BF9C0, 0xC bytes, matching. */
+void func_003BF9C0(void)
+{
+    g_0045D0C8 = 0xC;
+}
+
+/* 0x003BF9D0, 0x10 bytes, matching. */
+int func_003BF9D0(void)
+{
+    return g_0045D0C8 != 0xC;
+}
