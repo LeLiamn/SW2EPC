@@ -1121,7 +1121,7 @@ void func_00189210(u16 *cmd)
     }
 }
 
-/* 0x00189320, 0xC0 bytes. Command: officer cmd[0] (on the field) gets byte cmd[1] for its base
+/* 0x00189320, 0xC0 bytes, matching. Command: officer cmd[0] (on the field) gets byte cmd[1] for its base
  * (func_001D50C0) or itself (func_001EE6B0). */
 void func_00189320(u16 *cmd)
 {
@@ -1139,7 +1139,7 @@ void func_00189320(u16 *cmd)
     }
 }
 
-/* 0x001893E0, 0xC0 bytes. The same with func_001D5120 / func_001EE750. */
+/* 0x001893E0, 0xC0 bytes, matching. The same with func_001D5120 / func_001EE750. */
 void func_001893E0(u16 *cmd)
 {
     u32 id = func_00185ED0(cmd[0]);
@@ -1190,7 +1190,7 @@ void func_001894E0(short *cmd)
     }
 }
 
-/* 0x001895F0, 0x2C bytes. Command: func_0018ACA0 on cell (cmd[0], cmd[1]). */
+/* 0x001895F0, 0x2C bytes, matching. Command: func_0018ACA0 on cell (cmd[0], cmd[1]). */
 void func_001895F0(u16 *cmd)
 {
     u8 c[2];
@@ -1657,7 +1657,7 @@ u8 *func_0018AC20(void)
     return 0;
 }
 
-/* 0x0018AC60, 0x3C bytes. The objective with id `id`; 0 for none. */
+/* 0x0018AC60, 0x3C bytes, matching. The objective with id `id`; 0 for none. */
 u8 *func_0018AC60(u32 id)
 {
     u8 *r = OBJ(0);
@@ -1724,7 +1724,7 @@ void func_0018ADA0(u8 id, int won)
     S32(r, 8) = g_00669F9C;
 }
 
-/* 0x0018AE70, 0x3C bytes. Sets objective `id`'s text. */
+/* 0x0018AE70, 0x3C bytes, matching. Sets objective `id`'s text. */
 void func_0018AE70(u8 id, char *text)
 {
     u8 *r = func_0018AC60(id);
@@ -1771,21 +1771,21 @@ void func_003DD710(char *to, u32 id);
 const char *func_00372C40(void);
 const char *func_00372C00(u32 k);
 
-/* 0x0018B810, 0x38 bytes. Restores the objectives from a save; returns the end. */
+/* 0x0018B810, 0x38 bytes, matching. Restores the objectives from a save; returns the end. */
 u8 *func_0018B810(u8 *p)
 {
     func_00118AC0(g_005BA7E8, p, 0x1730);
     return p + 0x1730;
 }
 
-/* 0x0018B850, 0x34 bytes. Saves the objectives; returns the end. */
+/* 0x0018B850, 0x34 bytes, matching. Saves the objectives; returns the end. */
 u8 *func_0018B850(u8 *p)
 {
     func_00118AC0(p, g_005BA7E8, 0x1730);
     return p + 0x1730;
 }
 
-/* 0x0018B890, 0x8 bytes. Nothing. */
+/* 0x0018B890, 0x8 bytes, matching. Nothing. */
 void func_0018B890(void)
 {
 }
@@ -1875,26 +1875,26 @@ void func_0018BB20(u32 k, u32 *ids, u8 b)
                   names[4], names[5]);
 }
 
-/* 0x0018BCC0, 0x38 bytes. Restores the officer lists; returns the end. */
+/* 0x0018BCC0, 0x38 bytes, matching. Restores the officer lists; returns the end. */
 u8 *func_0018BCC0(u8 *p)
 {
     func_00118AC0(g_005BC068, p, 0x138);
     return p + 0x138;
 }
 
-/* 0x0018BD00, 0x34 bytes. Saves the officer lists; returns the end. */
+/* 0x0018BD00, 0x34 bytes, matching. Saves the officer lists; returns the end. */
 u8 *func_0018BD00(u8 *p)
 {
     func_00118AC0(p, g_005BC068, 0x138);
     return p + 0x138;
 }
 
-/* 0x0018BD40, 0x8 bytes. Nothing. */
+/* 0x0018BD40, 0x8 bytes, matching. Nothing. */
 void func_0018BD40(void)
 {
 }
 
-/* 0x0018BD50, 0x4C bytes. Empties an officer list. */
+/* 0x0018BD50, 0x4C bytes, matching. Empties an officer list. */
 void func_0018BD50(u8 *l)
 {
     int k;
@@ -1945,7 +1945,7 @@ u8 *func_0018BEA0(u8 *p)
     return p;
 }
 
-/* 0x0018BF10, 0x8 bytes. Nothing. */
+/* 0x0018BF10, 0x8 bytes, matching. Nothing. */
 void func_0018BF10(void)
 {
 }
@@ -1983,7 +1983,99 @@ u8 *func_0018C010(u8 *p)
     return p;
 }
 
-/* 0x0018C080, 0x8 bytes. Nothing. */
+/* 0x0018C080, 0x8 bytes, matching. Nothing. */
 void func_0018C080(void)
 {
+}
+
+extern u8 *g_0045D2F0;                   /* (small data) the map: +4 its 32 x 32 blocks of 5 x 5 cells */
+
+void func_00190480(u8 *cell);
+int func_00352CA0(void);
+int func_0011B740(int x);                /* abs */
+
+/* 0x0018C090, 0x44 bytes, matching. Clears the 16 variables. */
+void func_0018C090(void)
+{
+    u32 k;
+
+    for (k = 0; k < 0x10; k++)
+        SC_VAR(k) = 0;
+}
+
+/* 0x0018C0E0, 0x7C bytes, matching. func_00190480 for the 5000-unit cell of point `p`. */
+void func_0018C0E0(float *p)
+{
+    u8 c[2];
+
+    c[0] = (u8)((int)p[0] / 5000);
+    c[1] = (u8)((int)p[1] / 5000);
+    func_00190480(c);
+}
+
+/* 0x0018C160, 0x134 bytes. Whether 1000-unit cell `c` is open on the map (its block's bit
+ * clear; never while func_00352CA0). */
+int func_0018C160(u8 *c)
+{
+    u8 *m = g_0045D2F0, *b;
+
+    if (func_00352CA0() != 0)
+        return 0;
+    if (c[0] / 5 > 0x1F || c[1] / 5 > 0x1F)
+        b = 0;
+    else
+        b = ((u8 **)PTR(m, 4))[c[0] / 5 + (c[1] / 5) * 0x20];
+    if (b == 0)
+        return 0;
+    return (U8(PTR(b, 0), 0x18 + c[1] % 5) & 1 << (c[0] % 5)) == 0;
+}
+
+/* 0x0018C2A0, 0x7C bytes, matching. func_0018C160 for the 1000-unit cell of point `p`. */
+void func_0018C2A0(float *p)
+{
+    u8 c[2];
+
+    c[0] = (u8)((int)p[0] / 1000);
+    c[1] = (u8)((int)p[1] / 1000);
+    func_0018C160(c);
+}
+
+/* 0x0018C320, 0xD0 bytes, matching. The direction (0-7, 8 for the same cell) from cell `a` to `b`. */
+int func_0018C320(u8 *a, u8 *b)
+{
+    if (a[0] == b[0]) {
+        if (a[1] < b[1])
+            return 2;
+        if (b[1] < a[1])
+            return 6;
+        return 8;
+    }
+    if (a[0] < b[0]) {
+        if (a[1] < b[1])
+            return 1;
+        if (b[1] < a[1])
+            return 7;
+        return 0;
+    }
+    if (a[1] < b[1])
+        return 3;
+    if (b[1] < a[1])
+        return 5;
+    return 4;
+}
+
+/* 0x0018C3F0, 0x24 bytes. The squared distance between two points. */
+float func_0018C3F0(float *a, float *b)
+{
+    return (a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1]);
+}
+
+/* 0x0018C420, 0x6C bytes, matching. The distance in cells between `a` and `b` (the larger of the two
+ * differences). */
+int func_0018C420(u8 *a, u8 *b)
+{
+    int x = func_0011B740(a[0] - b[0]);
+    int z = func_0011B740(a[1] - b[1]);
+
+    return z < x ? x : z;
 }
