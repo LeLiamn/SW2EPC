@@ -922,7 +922,7 @@ disassembly rather than from Ghidra's output.
 ## Unit set-up (`src/unit_setup.c`)
 
 After the camera, from 0x00164680 up to `Weapon.c` (0x0016CD30), the code sets units up. Done
-so far (0x00164680-0x001688CC, 24 functions, 5 match):
+so far (0x00164680-0x0016AA5C, 36 functions, 8 match):
 
 - **Reset:** a unit is cleared (0x630 bytes) and reset for its player: origin, scale 1, its
   matrix, state 0x40, its four motion slots (+0x290, 0x70 each) and ten records (+0x450, 0x30
@@ -951,6 +951,17 @@ so far (0x00164680-0x001688CC, 24 functions, 5 match):
 - **Weapon trails** (`0x00168400`-`0x001688CC`): the trails of a weapon's parts (which parts
   depends on the weapon kind) and of a unit's slots are started, kept following their two points
   and stopped; a trail still drawing is only told to stop.
+- **Matrices each frame** (`0x001688D0`): the unit's place from its carrier or mount, its
+  matrix, the actor's base matrix (or a parent node), the two weapon slots (shown by the weapon
+  mask +0x148, two-handed kinds held between two hand nodes during their hits), ten records
+  following nodes (mask bits 2-11) and the weapon trails during hits.
+- **Drawing** (`0x001698D0`): the unit's opacity (players always solid; hidden units faint;
+  others fade during the slow-motion duel), then a GS packet (alpha test, a blend for units held
+  still, colour and brightness for VU1), the model, weapons and horse.
+- **Hits:** whether a unit withstands a hit (`0x0016A3D0`: officer rank, low life, a strength
+  ratio of 2.2, or 4 against a major unit), the guard chance (`0x0016A210`: skill² / 8000 plus a
+  percentage), struggles wearing down (`0x0016A6E0`), the last attacker and hit counters
+  (`0x0016A8A0`).
 - **Removal** (`0x00166160`): the unit drops its links and the effects it owns; it then becomes an
   empty unit (state 0x40).
 
