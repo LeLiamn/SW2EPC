@@ -2,7 +2,7 @@
  * actor_status.c - the battle actors' status effects (boosts, auras, elements): each running
  * status is a record whose word 0 is its kind (a bit of the actor's mask at 0x0076E700, 0x19 =
  * none); its handlers start, follow and end the effects that show it. Original file name unknown
- * (0x0024FA00-0x002537FC).
+ * (0x0024FA00-0x0025407C).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -1396,5 +1396,207 @@ void func_00253790(u8 *a)
     for (k = 0; k < 4; k++, st += 0x2C) {
         if (st[0] != 0x19)
             func_00253170(a, st);
+    }
+}
+
+extern u8 g_0045CDF0[3];                 /* (small data) the three element sparks */
+extern u32 g_7000015C;                   /* (scratchpad) the random seed */
+
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+extern u8 g_006A3A30[][0xC0];            /* the battle officers */
+
+int func_00271210(void);
+u8 *func_001C8780(int k, u8 *a, u8 c, u32 f);
+u8 *func_001C8810(int k, u8 *a, u8 c, u32 f);
+void func_00229E20(int a);
+void func_00229E30(void);
+
+/* 0x00253800, 0xB8 bytes. Drops all of actor `a`'s statuses (without stopping their effects). */
+void func_00253800(u8 *a)
+{
+    u32 *st = g_00755DC0[a[0x14E]][0], k;
+
+    for (k = 0; k < 4; k++, st += 0x2C) {
+        if (st[0] != 0x19) {
+            u32 m = ~(1 << (st[0] & 0x1F));
+
+            g_0076E700[a[0x14E]] &= m;
+            st[0] = 0x19;
+            g_0076E700[a[0x14E]] &= m;
+            st[0xA] = 0;
+            g_00755D30[a[0x14E]]--;
+        }
+    }
+}
+
+/* 0x002538C0, 0x118 bytes. Fades actor `k`'s gauge statuses to `v` / 128. */
+void func_002538C0(u32 k, u8 v)
+{
+    u32 *st = g_00755DC0[k & 0xFF][0], j;
+    float f = (float)v / 128.0f;
+
+    for (j = 0; j < 4; j++, st += 0x2C) {
+        switch (st[0]) {
+        case 6:
+        case 9:
+        case 10:
+        case 0x11:
+            if (st[0xC] != 0)
+                *(float *)((u8 *)st[0xC] + 0x2C) = f;
+            if (st[0xD] != 0)
+                *(float *)((u8 *)st[0xD] + 0x2C) = f;
+            break;
+        case 0xD:
+        case 0xE:
+        case 0xF:
+        case 0x10:
+            if (st[0xC] != 0)
+                *(float *)((u8 *)st[0xC] + 0x2C) = f;
+            break;
+        }
+    }
+}
+
+/* 0x002539F0, 0x6C bytes. Actor `a` gets the level status (instead of the ring one). */
+void func_002539F0(u8 *a)
+{
+    if ((a[0x19C] & 2) == 0 && (g_0076E700[a[0x14E]] & 2) == 0) {
+        func_00253690(0, a);
+        func_00253300(1, a);
+    }
+}
+
+/* 0x00253A60, 0xE8 bytes. The same for a generic officer whose life fell to func_00271210. */
+void func_00253A60(u8 *a)
+{
+    if (*(int *)(a + 0x11C) != 0 && *(int *)(a + 0x118) < 0x1C && (a[0x19C] & 2) == 0) {
+        short life = *(short *)(g_006A3A30[*(short *)(a + 0x178)] + 0x88);
+        u8 n = a[0x14E];
+        short v = func_00271210();
+
+        if ((g_0076E700[n] & 2) == 0 && v <= life) {
+            func_00253690(0, a);
+            func_00253300(1, a);
+        }
+    }
+}
+
+/* 0x00253B50, 0x114 bytes. Actor `a`'s element ground status for element `e` (1-2: 10, 3-4: 9),
+ * room made first. */
+void func_00253B50(u8 *a, u32 e)
+{
+    u32 bits;
+
+    if (a == 0)
+        return;
+    bits = g_0076E700[a[0x14E]];
+    if ((bits & 0x200) != 0)
+        func_00253690(9, a);
+    else if ((bits & 0x400) != 0)
+        func_00253690(10, a);
+    if (g_00755D30[a[0x14E]] > 3)
+        func_00253790(a);
+    if (g_00755D30[a[0x14E]] > 3)
+        func_00253800(a);
+    if ((e & 0xFF) - 1 < 2)
+        func_00253300(10, a);
+    else if ((e & 0xFF) - 3 < 2)
+        func_00253300(9, a);
+}
+
+/* 0x00253C70, 0x3C bytes, matching. A burst (effect 0x47) at actor `a`. */
+void func_00253C70(u8 *a)
+{
+    if (*(int *)(a + 0x11C) != 0) {
+        g_70000D60 = 0;
+        func_001C7F30(0x47, (float *)(a + 0x40), 0, 8);
+    }
+}
+
+/* 0x00253CB0, 0x6C bytes. Actor `a`'s musou status (kind `k`: 0-1, 2, 3). */
+void func_00253CB0(u8 *a, u8 k)
+{
+    if (k < 2)
+        func_00253300(6, a);
+    else if (k == 2)
+        func_00253300(0x12, a);
+    else if (k == 3)
+        func_00253300(0x11, a);
+}
+
+/* 0x00253D20, 0x114 bytes. Now and then (1%) actor `a` gets one of the three element sparks it
+ * lacks. */
+void func_00253D20(u8 *a)
+{
+    u8 *m = &g_00755CA0[a[0x14E]];
+    u32 k;
+
+    for (k = 0; k < 3; k = (k + 1) & 0xFF) {
+        u32 b = 1 << k;
+
+        if ((*m & b) == 0 && RANDOM() % 100 == 0) {
+            u32 f = fx_flags(a);
+
+            *m |= b;
+            g_70000D60 = 0;
+            func_001C8780(0xF3, a, g_0045CDF0[k], f | 0x80000000);
+        }
+    }
+}
+
+/* 0x00253E40, 0x54 bytes. An element spark `c` of kind `k` at actor `a`. */
+void func_00253E40(u8 *a, u8 k, u8 c)
+{
+    u8 *e = func_001C8810(0xF3, a, c, 0x80000001);
+
+    if (e != 0) {
+        e[0x105] = k;
+        *(u32 *)(e + 0x34) &= ~1;
+    }
+}
+
+/* 0x00253EA0, 0x8C bytes. Actor `k` loses its spark of colour `c` (0xB, 0xD, 0xC). */
+void func_00253EA0(u32 k, char c)
+{
+    if (c == 0xB)
+        g_00755CA0[k & 0xFF] &= 0xFE;
+    else if (c == 0xD)
+        g_00755CA0[k & 0xFF] &= 0xFD;
+    else if (c == 0xC)
+        g_00755CA0[k & 0xFF] &= 0xFB;
+}
+
+/* 0x00253F30, 0x88 bytes, matching. Ends actor `a`'s root status (0x14-0x16). */
+void func_00253F30(u8 *a)
+{
+    u32 bits = g_0076E700[a[0x14E]];
+
+    if ((bits & 0x100000) != 0)
+        func_00253690(0x14, a);
+    else if ((bits & 0x200000) != 0)
+        func_00253690(0x15, a);
+    else if ((bits & 0x400000) != 0)
+        func_00253690(0x16, a);
+}
+
+/* 0x00253FC0, 0x64 bytes. Shows the player 0 corner marker (effect 0xCF, once). */
+void func_00253FC0(void)
+{
+    if ((g_005755A8 & 2) == 0 && g_0045D520 == 0) {
+        g_70000D60 = 0;
+        g_0045D520 = (u32)func_001C8340(0xCF, (float *)g_005B4D80, 0, 0x265);
+        func_00229E20(2);
+    }
+}
+
+/* 0x00254030, 0x50 bytes. Hides it. */
+void func_00254030(void)
+{
+    if ((g_005755A8 & 2) == 0) {
+        if (g_0045D520 != 0) {
+            *(u32 *)((u8 *)g_0045D520 + 0x34) |= 0x800;
+            g_0045D520 = 0;
+        }
+        func_00229E30();
     }
 }
