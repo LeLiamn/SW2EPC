@@ -28,6 +28,9 @@ typedef struct {
     u32 *data;
     u32 *entries;            /* data + 1 */
     u32 count;
+    u8 pad[0x1B10 - 0xC];
+    u32 timers[0x18][2];     /* +0x1B10 */
+    int vars[0x10];          /* +0x1BD0 */
 } ScTable;
 
 extern ScTable g_005BA690;               /* LINKDATA entry 0x35 */
@@ -916,13 +919,13 @@ void func_00187A70(short *cmd, int player)
 
 /* The scenario's integer variables (the scenario object's +0x1BD0; the same table as the
  * texts by index). */
-#define SC_VAR(i) (*(int *)&g_005BC260[i])
+#define SC_VAR(i) (*(int *)((u8 *)&g_005BA690 + (i) * 4 + 0x1BD0))
 
 #define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
 extern u32 g_005BD73C;
-extern short g_00669DEC[][0x24];         /* per player settings (0x48 bytes): +0 a value */
+extern u8 g_00669D60[];                  /* the settings (per player 0x48 bytes from +0x88) */
 
 int func_0017E0A0(void);
 int func_0017E0B0(void);
@@ -971,10 +974,10 @@ void func_00188C80(u16 *cmd)
     SC_VAR(cmd[0]) = lo + n;
 }
 
-/* 0x00188D10, 0x3C bytes. Command: variable cmd[0] = player cmd[1]'s setting value. */
+/* 0x00188D10, 0x3C bytes, matching. Command: variable cmd[0] = player cmd[1]'s setting value. */
 void func_00188D10(u16 *cmd)
 {
-    SC_VAR(cmd[0]) = g_00669DEC[cmd[1]][0];
+    SC_VAR(cmd[0]) = *(short *)(g_00669D60 + cmd[1] * 0x48 + 0x8C);
 }
 
 /* 0x00188D50, 0x7C bytes. Command: plays music cmd[0] (not in battle state 0x4000000, nor
@@ -1233,15 +1236,16 @@ void func_001896E0(u8 *cmd)
     ((float *)&g_005BD728)[1] = p[1];
 }
 
-extern u32 g_005BC1A0[][2];              /* scenario timers? (two words each) */
+extern u32 g_005BC1A0[][2];              /* scenario timers (the scenario object's +0x1B10) */
+#define SC_TIMER(k) (g_005BA690.timers[k])
 
 u8 *func_0035DCD0(int p);
 void func_001F1640(u8 *cell, u8 *out);
 void func_001D4F00(u8 *base, float *pos, u8 *cell);
 u8 *func_001EE150(u8 *o);
 void func_001D4F60(u8 *base, u8 *target);
-void func_001D5240(u8 *base, char v);
-void func_0033BDC0(u8 *base, u16 v);
+void func_001D5240(u8 *base, u8 v);
+void func_0033BDC0(u8 *base, short v);
 void func_0033BE80(u16 a, u16 b, int c);
 void func_0018F890(u8 *cell, int n, u8 k);
 void func_0018FC00(u8 *cell, int n, int on);
@@ -1357,9 +1361,9 @@ void func_00189A60(short *cmd, int player)
     }
 }
 
-/* 0x00189BD0, 0xA0 bytes. Command: byte cmd[2] for officer cmd[1]'s base (func_001D5240) or the
+/* 0x00189BD0, 0xA0 bytes, matching. Command: byte cmd[2] for officer cmd[1]'s base (func_001D5240) or the
  * officer (func_001EE9C0). */
-void func_00189BD0(short *cmd)
+void func_00189BD0(u16 *cmd)
 {
     u32 id = func_00185E00(cmd[1], 1);
     u8 *o;
@@ -1368,18 +1372,18 @@ void func_00189BD0(short *cmd)
         return;
     o = REC88(id);
     if (cmd[0] == 0 && U32(o, 0x10) < 0x47)
-        func_001D5240(BASE68(U32(o, 0x10)), (char)cmd[2]);
+        func_001D5240(BASE68(U32(o, 0x10)), (u8)cmd[2]);
     else
-        func_001EE9C0(o, (char)cmd[2]);
+        func_001EE9C0(o, (u8)cmd[2]);
 }
 
-/* 0x00189C70, 0x88 bytes. Command: func_0033BDC0 with cmd[1] for officer cmd[0]'s base. */
+/* 0x00189C70, 0x88 bytes, matching. Command: func_0033BDC0 with cmd[1] for officer cmd[0]'s base. */
 void func_00189C70(u16 *cmd)
 {
     u32 id = func_00185E00(cmd[0], 1);
 
     if (id < 0x1AD && U32(REC88(id), 0x10) < 0x47)
-        func_0033BDC0(BASE68(U32(REC88(id), 0x10)), cmd[1]);
+        func_0033BDC0(BASE68(U32(REC88(id), 0x10)), (short)cmd[1]);
 }
 
 /* 0x00189D00, 0x28 bytes. Command: func_0033BE80(cmd[0], cmd[1], 0). */
@@ -1931,7 +1935,7 @@ u8 *func_0018BE30(u8 *p)
     u32 k;
 
     for (k = 0; k < 0x18; k++, p += 8)
-        func_00118AC0(g_005BC1A0[k], p, 8);
+        func_00118AC0(SC_TIMER(k), p, 8);
     return p;
 }
 
@@ -1941,7 +1945,7 @@ u8 *func_0018BEA0(u8 *p)
     u32 k;
 
     for (k = 0; k < 0x18; k++, p += 8)
-        func_00118AC0(p, g_005BC1A0[k], 8);
+        func_00118AC0(p, SC_TIMER(k), 8);
     return p;
 }
 
@@ -2000,7 +2004,7 @@ void func_0018C090(void)
     u32 k;
 
     for (k = 0; k < 0x10; k++)
-        SC_VAR(k) = 0;
+        *(int *)&g_005BC260[k] = 0;
 }
 
 /* 0x0018C0E0, 0x7C bytes, matching. func_00190480 for the 5000-unit cell of point `p`. */

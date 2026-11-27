@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 71840,
-    "non_matching": 440620
+    "matching": 72208,
+    "non_matching": 440252
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 638
+    "matching": 641
   },
   "layout": "treemap",
   "areas": [
@@ -348,8 +348,8 @@
           "description": "Estimated range 0x1890D0-0x190010; 61 function(s) decompiled",
           "code": {
             "total": 28480,
-            "matching": 1616,
-            "non_matching": 7716
+            "matching": 1920,
+            "non_matching": 7412
           }
         },
         {
@@ -538,8 +538,8 @@
           "description": "Estimated range 0x1814A8-0x1890D0; 42 function(s) decompiled",
           "code": {
             "total": 31784,
-            "matching": 1696,
-            "non_matching": 7808
+            "matching": 1760,
+            "non_matching": 7744
           }
         },
         {
