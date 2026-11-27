@@ -1029,7 +1029,8 @@ so far (13 functions, 5 match):
 
 Original source file `sc_ctrl.c` (its name is passed to the file loader at `0x00185D10`, from
 line 1922 of the original, so the file starts well before). Done so far: `0x00185CA0`-
-`0x001874DC`, 30 functions, 15 match. Like `Weapon.c`, it was built with the loop unroller on.
+`0x0018C48C` (up to `Field.c`) except the larger functions `0x00187C90`-`0x001887A0`,
+`0x0018A290` and `0x0018AF30`: 103 functions, 34 match. Like `Weapon.c`, it was built with the loop unroller on.
 
 - A table file (LINKDATA entry 0x35) is loaded at start; the scenario's frame calls one of two
   updates by the game mode.
@@ -1048,7 +1049,16 @@ line 1922 of the original, so the file starts well before). Done so far: `0x0018
   cells, give an officer its troops back, set or clear an event bit (a bit array at
   `0x00669D70`), change one of three values of an officer or its base, set one of ten
   scenario switches (one is the players' camera follow), put an officer in a cell with its
-  base's 12 garrison officers around it, make an officer leave its base or the map.
+  base's 12 garrison officers around it, make an officer leave its base or the map; messages,
+  speech bubbles and introductions (the message window `0x005BC3A0`); 16 scenario variables
+  (arithmetic, random numbers), music, map areas, troop kinds, destinations and targets.
+- **Objectives** (`0x005BA7E8`): 16 records of 0x170 bytes (id, kind, result, start and end
+  frames, up to 8 points and 8 officers, a text), the current one shown with map markers for
+  both players. A won objective gives a reward by its kind (200, 500 or 2000).
+- **Saving:** the objectives, the two officer lists of the messages, 24 timers and the 16
+  variables are copied to and from the save.
+- **Map helpers:** whether a 1000-unit cell is open (the map's 32 x 32 blocks of 5 x 5 cells),
+  the direction (0-7) and distance between two cells.
 
 ## Motion data (`src/motion_manager.c`)
 
