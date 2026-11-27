@@ -515,3 +515,225 @@ int func_0032BFF0(int a, int b, int t, int n)
         t = 0;
     return a + t * (b - a) / n;
 }
+
+/* The portrait and text windows (parts of 0x0032C050-0x0032D9BC): two portraits (state at
+ * +0x4EC8: 0 opening, 1 shown, 2 closing, 3 closed; 8 frames each way) and one text window. */
+
+extern u8 *g_0045D6EC;                   /* (small data) the portraits */
+extern u8 *g_0045D6F0;                   /* (small data) the text window */
+extern u8 *g_0045D6F4;                   /* (small data) */
+extern int g_007B5E28, g_007B5E30, g_007B5E34, g_007B5E38;
+extern u8 g_007B5E4A, g_007B5E4B;
+
+u8 *func_00102DB0(int a, int n);
+void func_00120928(u8 *to, const u8 *from);
+void func_0032B640(void);
+void func_0023AD10(int a, int b, int c, int d, int e);
+void func_0028D5D0(int k);
+void func_0032CEB0(void);
+
+#define PI(p, o, k) (*(int *)((p) + (o) + (k) * 4))
+#define TW(o) (*(int *)(g_0045D6F0 + (o)))
+
+/* 0x0032C050, 8 bytes, matching. */
+u8 *func_0032C050(void)
+{
+    return g_0045D6EC;
+}
+
+/* 0x0032C060, 0x18 bytes, matching. */
+void func_0032C060(int v)
+{
+    if (g_0045D6EC != 0)
+        *(int *)(g_0045D6EC + 0x4EE0) = v;
+}
+
+/* 0x0032C7F0, 0x94 bytes. Steps the two portraits' open and close. */
+void func_0032C7F0(void)
+{
+    int k;
+
+    if (g_0045D6EC == 0)
+        return;
+    for (k = 0; k < 2; k++) {
+        u8 *p = g_0045D6EC;
+
+        if (PI(p, 0x4EC8, k) == 3)
+            continue;
+        PI(p, 0x4EC0, k)++;
+        if (PI(p, 0x4EC8, k) == 0) {
+            if (PI(p, 0x4EC0, k) > 7)
+                PI(p, 0x4EC8, k) = 1;
+        } else if (PI(p, 0x4EC8, k) == 2 && PI(p, 0x4EC0, k) > 7) {
+            PI(p, 0x4EC8, k) = 3;
+            PI(p, 0x4ED0, k) = 0x37F;
+        }
+    }
+}
+
+/* 0x0032C890, 0x30 bytes, matching. Closes both portraits. */
+void func_0032C890(void)
+{
+    u8 *p = g_0045D6EC;
+
+    *(int *)(p + 0x4EC0) = 0;
+    *(int *)(p + 0x4ED8) = 0;
+    *(int *)(p + 0x4EC8) = 3;
+    *(int *)(p + 0x4ED0) = 0x37F;
+    *(int *)(p + 0x4EC4) = 0;
+    *(int *)(p + 0x4EDC) = 0;
+    *(int *)(p + 0x4ECC) = 3;
+    *(int *)(p + 0x4ED4) = 0x37F;
+}
+
+/* 0x0032C8C0, 0x2C bytes, matching. */
+void func_0032C8C0(void)
+{
+    if (g_0045D6EC != 0) {
+        func_00102EC0(g_0045D6EC);
+        g_0045D6EC = 0;
+    }
+}
+
+/* 0x0032C8F0, 0x30 bytes, matching. */
+void func_0032C8F0(void)
+{
+    if (g_0045D6EC == 0)
+        g_0045D6EC = func_00102DB0(0x10, 0x4EF0);
+}
+
+/* 0x0032C920, 0x14 bytes. Portrait `k`'s state. */
+int func_0032C920(int k)
+{
+    return PI(g_0045D6EC, 0x4EC8, k);
+}
+
+/* 0x0032C9D0, 8 bytes, matching. */
+u8 *func_0032C9D0(void)
+{
+    return g_0045D6F0;
+}
+
+/* 0x0032CD60, 0xB0 bytes. Steps the text window's open and close. */
+void func_0032CD60(void)
+{
+    if (TW(0xC2C4) == 3)
+        return;
+    TW(0xC2C0)++;
+    if (TW(0xC2C4) == 0) {
+        if (TW(0xC2C0) > 7)
+            TW(0xC2C4) = 1;
+    } else if (TW(0xC2C4) == 2 && TW(0xC2C0) > 7) {
+        TW(0xC2C4) = 3;
+    }
+}
+
+/* 0x0032CE10, 0x70 bytes. Resets the text window (closed). */
+void func_0032CE10(void)
+{
+    func_0032CEB0();
+    TW(0xC2C0) = 0;
+    TW(0xC2C4) = 3;
+    TW(0xC2C8) = 0x37F;
+    g_0045D6F0[0xC2CC] = 0;
+    TW(0xC418) = 0;
+    TW(0xC41C) = 0;
+}
+
+/* 0x0032CE80, 0x2C bytes, matching. */
+void func_0032CE80(void)
+{
+    if (g_0045D6F0 != 0) {
+        func_00102EC0(g_0045D6F0);
+        g_0045D6F0 = 0;
+    }
+}
+
+/* 0x0032CEB0, 0x30 bytes, matching. */
+void func_0032CEB0(void)
+{
+    if (g_0045D6F0 == 0)
+        g_0045D6F0 = func_00102DB0(0x10, 0xC420);
+}
+
+/* 0x0032CEE0, 0x14 bytes, matching. */
+int func_0032CEE0(void)
+{
+    return TW(0xC2C4);
+}
+
+/* 0x0032CF00, 0x28 bytes, matching. Sets the speaker name shown. */
+void func_0032CF00(const u8 *s)
+{
+    func_00120928(g_0045D6F0 + 0xC2CC, s);
+}
+
+/* 0x0032CFC0, 0x2C bytes, matching. */
+void func_0032CFC0(void)
+{
+    if (g_0045D6F4 != 0) {
+        func_00102EC0(g_0045D6F4);
+        g_0045D6F4 = 0;
+    }
+}
+
+/* 0x0032D0E0, 0x24 bytes, matching. */
+void func_0032D0E0(void)
+{
+    func_0032C7F0();
+    func_0032CD60();
+}
+
+/* 0x0032D110, 0x3C bytes, matching. Opens the windows (all closed, the script reset). */
+void func_0032D110(void)
+{
+    func_0032C8F0();
+    func_0032CEB0();
+    func_0032B640();
+    func_0032C890();
+    func_0032CE10();
+}
+
+/* 0x0032D150, 0x24 bytes, matching. */
+void func_0032D150(void)
+{
+    func_0032C8C0();
+    func_0032CE80();
+}
+
+/* 0x0032D2F0, 0xC bytes. */
+void func_0032D2F0(int v)
+{
+    g_007B5E28 = v;
+}
+
+/* 0x0032D8B0, 0x48 bytes. The list's first mode (with a sound). */
+void func_0032D8B0(void)
+{
+    func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+    g_007B5E28 = 1;
+    g_007B5E30 = 0;
+    g_007B5E34 = 0;
+}
+
+/* 0x0032D900, 0x48 bytes. Its second mode. */
+void func_0032D900(void)
+{
+    func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+    g_007B5E28 = 0;
+    g_007B5E30 = 1;
+    g_007B5E34 = 0;
+}
+
+/* 0x0032D950, 0x68 bytes. Its third mode. */
+void func_0032D950(void)
+{
+    func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+    g_007B5E28 = 0;
+    g_007B5E30 = 0;
+    g_007B5E34 = 1;
+    g_007B5E38 = 1;
+    g_007B5E4A = 0;
+    g_007B5E4B = 0;
+    func_0028D5D0(0xC);
+}
