@@ -591,3 +591,138 @@ void func_00186EC0(short *cmd)
 void func_00187020(void)
 {
 }
+
+extern u8 g_005BD740[8];                 /* scenario switches 0, 5, 9 (+0, +1, +2), 4 (+4) */
+extern u8 g_00669FA9[0x10];              /* in the settings: switches 2, 3 (+0, +1), 6-8 (+8-+0xA) */
+extern u8 g_0073DCA3[], g_0073DF33[];    /* the two players' records (bit 2: no camera follow) */
+extern u32 g_00669F60[4];                /* +0: the battle flags */
+extern float g_00424EE0[];               /* the eight facing angles */
+
+int func_0019A800(short *out, u32 slot, int x, int z);
+void func_001D4C00(u8 *o);
+void func_001EE3B0(u8 *o);
+
+/* 0x00187030, 0x12C bytes. Command: sets scenario switch cmd[0] to (cmd[1] == 1); switch 1 is
+ * the players' camera follow (not with battle flag 0x10). */
+void func_00187030(u16 *cmd)
+{
+    u8 on = cmd[1] == 1;
+
+    switch (cmd[0]) {
+    case 0:
+        g_005BD740[0] = on;
+        break;
+    case 1:
+        if ((g_00669F60[0] & 0x10) == 0) {
+            g_0073DCA3[0] = (g_0073DCA3[0] & ~4) | on << 2;
+            g_0073DF33[0] = (g_0073DF33[0] & ~4) | on << 2;
+        }
+        break;
+    case 2:
+        g_00669FA9[0] = on;
+        break;
+    case 3:
+        g_00669FA9[1] = on;
+        break;
+    case 4:
+        g_005BD740[4] = on;
+        break;
+    case 5:
+        g_005BD740[1] = on;
+        break;
+    case 6:
+        g_00669FA9[8] = on;
+        break;
+    case 7:
+        g_00669FA9[9] = on;
+        break;
+    case 8:
+        g_00669FA9[0xA] = on;
+        break;
+    case 9:
+        g_005BD740[2] = on;
+        break;
+    }
+}
+
+/* 0x00187160, 0x68 bytes. Command: by cmd[2], func_00186780, func_001869F0 or func_00186C80. */
+void func_00187160(u16 *cmd)
+{
+    switch (cmd[2]) {
+    case 0:
+        func_00186C80(cmd);
+        break;
+    case 1:
+        func_001869F0(cmd);
+        break;
+    case 2:
+        func_00186780(cmd);
+        break;
+    }
+}
+
+/* 0x001871D0, 0x230 bytes. Command: puts officer cmd[1] (on the field; with `any`, even away)
+ * in cell (cmd[2], cmd[3]) facing angle cmd[4]; for a base command (cmd[0] = 0) its 12
+ * garrison officers go to their places around it (func_0019A800), or leave when there is
+ * none. */
+void func_001871D0(short *cmd, int any)
+{
+    u32 id = func_00185ED0(cmd[1]);
+    float pos[2], yaw, x, z;
+    u8 *o, *b;
+    u32 k;
+
+    if (func_00185EC0(id) != 0)
+        return;
+    o = REC88(id);
+    if ((U32(o, 0x80) & 1) == 0 || (any == 0 && (U32(o, 0x80) & 0x30)))
+        return;
+    pos[0] = (float)*(u8 *)&cmd[2] * 1000.0f + 500.0f;
+    pos[1] = (float)*(u8 *)&cmd[3] * 1000.0f + 500.0f;
+    yaw = g_00424EE0[(u16)cmd[4]];
+    func_001864B0(yaw, o, pos, 0);
+    if (cmd[0] != 0 || U32(o, 0x10) >= 0x47)
+        return;
+    x = pos[0] / 100.0f;
+    b = BASE68(U32(o, 0x10));
+    z = pos[1] / 100.0f;
+    for (k = 0; k < 0xC; k++, b += 4) {
+        u8 *g = PTR(b, 4);
+
+        if (g != 0) {
+            short out[4];
+
+            if (func_0019A800(out, k, (int)x, (int)z) == 0) {
+                func_001D4C00(g);
+                func_001EE3B0(g);
+            } else {
+                pos[0] = (float)out[1] * 100.0f;
+                pos[1] = (float)out[2] * 100.0f;
+                func_001864B0(yaw, g, pos, 0);
+            }
+        }
+    }
+}
+
+/* 0x00187410, 0xD0 bytes, matching. Command: officer cmd[1] (not away) leaves its base (cmd[0] = 0) or
+ * the map (func_001EEBF0); a beaten one gets func_001EE3A0. */
+void func_00187410(u16 *cmd)
+{
+    u32 id = func_00185ED0(cmd[1]);
+
+    if (func_00185EC0(id) == 0) {
+        u8 *o = REC88(id);
+        u32 f = U32(o, 0x80);
+
+        if ((f & 0x30) == 0) {
+            if (f & 2) {
+                func_001EE3A0(o);
+            } else {
+                if (cmd[0] == 0)
+                    func_001D4C20(BASE68(U32(o, 0x10)), 0);
+                else
+                    func_001EEBF0(o);
+            }
+        }
+    }
+}
