@@ -1381,3 +1381,156 @@ int func_003C4990(void)
     func_003C3170();
     return 1;
 }
+
+int func_0032EC50(int me, int a, int b, int c);
+int func_0030D470(int s);
+int func_0032EE10(int o);
+
+/* 0x003C4E30, 0x70 bytes. Event 0x77 (once, before 0x35): from turn 11 with a good fame. */
+int func_003C4E30(void)
+{
+    if (func_00329540(0x77) != 0 || func_00329540(0x35) != 0)
+        return 0;
+    if (func_00327C70() < 0xB)
+        return 0;
+    return func_00327E90() > 4;
+}
+
+/* 0x003C4EA0, 0x6C bytes. Event 0x78 (once, before 0x34): from turn 11 with a bad fame. */
+int func_003C4EA0(void)
+{
+    if (func_00329540(0x78) != 0 || func_00329540(0x34) != 0)
+        return 0;
+    if (func_00327C70() < 0xB)
+        return 0;
+    return func_00327E90() < -4;
+}
+
+/* 0x003C4FF0, 0x58 bytes. Event 0x87 (once) for officer 8 with no event officer. */
+int func_003C4FF0(void)
+{
+    if (func_00329540(0x87) != 0 || func_00327820() != 8)
+        return 0;
+    return func_0032E950() == 0;
+}
+
+/* 0x003C5050, 0x138 bytes. Event 0x88 (once): side 1's commander's force holds three regions or
+ * more and side 0 has officer 0 and officer 0x8E. */
+int func_003C5050(void)
+{
+    int me = func_00327820(), x = func_00337A10(0x8E), f, n;
+    u32 c = func_003620E0(1, 0);
+
+    if (func_003C0790(c) == 0)
+        return 0;
+    f = func_002F4080(c);
+    if (f < 0 || f >= func_0030AB90())
+        return 0;
+    n = func_002FB3B0(f);
+    if (func_00329540(0x88) != 0 || func_0032EC50(me, 0, x, 1) == 0)
+        return 0;
+    if (func_003C27A0(0, 0, x, 0x19F, 0x19F) != 2 || n < 3)
+        return 0;
+    return func_0030D470(1) != 0;
+}
+
+/* Event `ev` (once): officers 0 and `o` (of different forces) face each other. */
+static int duel_event(int ev, int o)
+{
+    if (func_00329540(ev) != 0 || func_003C23A0() == 0)
+        return 0;
+    if (func_002F4080(0) == func_002F4080(o))
+        return 0;
+    return func_003C2AE0(0, o) != 0;
+}
+
+/* 0x003C5190, 0x80 bytes. */
+int func_003C5190(void)
+{
+    return duel_event(0x89, 1);
+}
+
+/* 0x003C5210, 0x9C bytes. Event 0x8A (once): from turn 31, officer 9 knows officer 0 (rank 20 or
+ * more). */
+int func_003C5210(void)
+{
+    if (func_00329540(0x8A) != 0 || func_00327C70() < 0x1F || func_00327820() != 9)
+        return 0;
+    if (func_0032EB40(func_00327820(), 0, 0) == 0)
+        return 0;
+    return func_002F33F0(0) > 0x13;
+}
+
+/* 0x003C52B0, 0xC4 bytes. Event 0x8B (once): from turn 16, the player knows officers 9 and 0 (both
+ * rank 10 or more). */
+int func_003C52B0(void)
+{
+    if (func_00329540(0x8B) != 0 || func_00327C70() < 0x10)
+        return 0;
+    if (func_0032EB40(func_00327820(), 9, 1) == 0 || func_0032EB40(func_00327820(), 0, 0) == 0)
+        return 0;
+    if (func_002F33F0(0) < 10)
+        return 0;
+    return func_002F33F0(9) > 9;
+}
+
+/* 0x003C5380, 0xA0 bytes. Event 0x8C (once): officer 0x10 knows 0xB, and 0 faces 0xB. */
+int func_003C5380(void)
+{
+    if (func_00329540(0x8C) != 0 || func_0032EB40(0x10, 0xB, 0) == 0 || func_003C23A0() == 0)
+        return 0;
+    if (func_002F4080(0) == func_002F4080(0xB))
+        return 0;
+    return func_003C2AE0(0, 0xB) != 0;
+}
+
+/* 0x003C5420, 0x80 bytes. */
+int func_003C5420(void)
+{
+    return duel_event(0x8D, 0x11);
+}
+
+/* 0x003C54A0, 0xE0 bytes. Event 0x8E (once): officer 0x10 with officer 0 alone on side 0's
+ * front, 0 being side 0's best. */
+int func_003C54A0(void)
+{
+    if (func_00329540(0x8E) != 0 || func_003C23A0() == 0)
+        return 0;
+    if (func_0032EC50(func_00327820(), 0, 0x10, 1) == 0 || func_00327820() != 0x10)
+        return 0;
+    if (func_003C27A0(0, 0, 0x19F, 0x19F, 0x19F) != 1 || func_0036B260() == 0)
+        return 0;
+    return func_003C2E90(0, 1) != 0;
+}
+
+/* 0x003C5580, 0x98 bytes. Event 0x8F (once, after 0x8E): 0 faces 0x19. */
+int func_003C5580(void)
+{
+    if (func_00329540(0x8F) != 0 || func_00329540(0x8E) == 0 || func_003C23A0() == 0)
+        return 0;
+    if (func_002F4080(0) == func_002F4080(0x19))
+        return 0;
+    return func_003C2AE0(0, 0x19) != 0;
+}
+
+/* 0x003C5620, 0x8C bytes. Event 0x90 (once): the player is officer 0xAB, knows 0, and 0xD is in
+ * state 3. */
+int func_003C5620(void)
+{
+    if (func_00329540(0x90) != 0 || func_00337A10(0xAB) != func_00327820())
+        return 0;
+    if (func_0032EB40(func_00327820(), 0, 0) == 0)
+        return 0;
+    return func_002F3BB0(0xD) == 3;
+}
+
+/* 0x003C56B0, 0xB0 bytes. Event 0x91 (once): func_0032EE10 false for 0 and true for 0x10, and 0
+ * faces 0x10. */
+int func_003C56B0(void)
+{
+    if (func_00329540(0x91) != 0 || func_0032EE10(0) != 0 || func_0032EE10(0x10) == 0)
+        return 0;
+    if (func_003C23A0() == 0 || func_002F4080(0) == func_002F4080(0x10))
+        return 0;
+    return func_003C2AE0(0, 0x10) != 0;
+}
