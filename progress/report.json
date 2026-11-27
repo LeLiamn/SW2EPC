@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 175360,
-    "non_matching": 1197928
+    "non_matching": 1202648
   },
   "data": {
     "total": 2155890688,
@@ -402,14 +402,14 @@
         },
         {
           "name": "emp_war_wllt.c",
-          "description": "Estimated range 0x3E6768-0x3EDD28; 97 function(s) decompiled",
+          "description": "Estimated range 0x3E6768-0x3EDD28; 115 function(s) decompiled",
           "code": {
             "total": 30144,
             "matching": 1808,
-            "non_matching": 8992
+            "non_matching": 13712
           },
           "decompiled_functions": {
-            "count": 97,
+            "count": 115,
             "matching": 43
           }
         },
