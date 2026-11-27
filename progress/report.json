@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 168160,
-    "non_matching": 1115640
+    "matching": 170192,
+    "non_matching": 1123496
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2160
+    "matching": 2178
   },
   "layout": "treemap",
   "areas": [
@@ -807,15 +807,15 @@
         },
         {
           "name": "SeasonAnime.c",
-          "description": "Estimated range 0x3D70F0-0x3DEC78; 82 function(s) decompiled",
+          "description": "Estimated range 0x3D70F0-0x3DEC78; 131 function(s) decompiled",
           "code": {
             "total": 31624,
-            "matching": 2896,
-            "non_matching": 944
+            "matching": 4928,
+            "non_matching": 8800
           },
           "decompiled_functions": {
-            "count": 82,
-            "matching": 67
+            "count": 131,
+            "matching": 85
           }
         },
         {
