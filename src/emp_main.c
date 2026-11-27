@@ -4088,3 +4088,227 @@ void func_003081E0(void)
         q[0] = 5;
     }
 }
+
+void func_00328EC0(int f, int v);
+void func_0030E4E0(int a);
+void func_002F91C0(int f, int i);
+int func_00327B10(u32 i);
+void func_00327A80(int i, int k);
+int func_00327870(void);
+void func_00327830(int i);
+int func_002F7900(u32 i, u32 j);
+int func_002F6FE0(u32 i, int k);
+int func_00327E90(void);
+int func_002F4450(u32 i);
+int func_002F45A0(u32 i);
+int func_002F3380(u32 i);
+int func_002F4A70(u32 i);
+
+/* 0x003082D0, 0xE4 bytes. Step 6: the defender tied to the player asks for help (message 0x60
+ * once answered "no"). */
+void func_003082D0(void)
+{
+    int *q = CPU_ATTACK(), a, b, gb;
+    char text[1032];
+
+    func_00329160(q[3], &a, &b);
+    func_0030AFF0(a);
+    gb = func_0030AFF0(b);
+    if (func_0030E1F0() == 0) {
+        func_00328EC0(gb, 1);
+        func_0032EA80(4);
+        func_0030E140(0x2F, func_002F8F20(gb), gb, -1);
+    } else if (func_0030E1F0() == 2) {
+        func_0030E100();
+        func_001204B0(text, (const char *)func_00390760(0x60), func_002F8DB0(gb));
+        func_00374EE0(text);
+        q[0] = 7;
+    }
+}
+
+/* 0x003083C0, 0x5C bytes. Step 5: once the message is closed, step 6 or 8. */
+void func_003083C0(void)
+{
+    int *q = CPU_ATTACK();
+
+    if (func_00375B90() == 1) {
+        func_0030E4E0(0);
+        q[0] = q[5] == 0 ? 8 : 6;
+    }
+}
+
+/* 0x00308420, 0x44 bytes, matching. Step 7: once the message is closed, step 8. */
+void func_00308420(void)
+{
+    int *q = CPU_ATTACK();
+
+    if (func_00375B90() == 1) {
+        func_0030E4E0(0);
+        q[0] = 8;
+    }
+}
+
+/* 0x00308470, 0x30 bytes, matching. Step 2: raids filtered, then the end. */
+void func_00308470(void)
+{
+    int *q = CPU_ATTACK();
+
+    func_00307E00();
+    q[0] = 9;
+}
+
+/* 0x003084A0, 0x60 bytes. Step 8: the next force (step 1) or step 2. */
+void func_003084A0(void)
+{
+    int *q = CPU_ATTACK();
+
+    q[3] = -1;
+    q[4] = 0;
+    q[5] = 0;
+    if (++q[1] < q[2])
+        q[0] = 1;
+    else
+        q[0] = 2;
+}
+
+/* 0x00308500, 0xEC bytes. Runs the computer attacks; 0 once over. */
+int func_00308500(void)
+{
+    int r = 5;
+
+    switch (CPU_ATTACK()[0]) {
+    case 0:
+        func_00307F00();
+        return 5;
+    case 1: func_00307F50(); break;
+    case 2: func_00308470(); break;
+    case 3: func_00308050(); break;
+    case 4: func_003081E0(); break;
+    case 5: func_003083C0(); break;
+    case 6: func_003082D0(); break;
+    case 7: func_00308420(); break;
+    case 8: func_003084A0(); break;
+    case 9: r = 0; break;
+    }
+    return r;
+}
+
+/* 0x003085F0, 0x8 bytes, matching. */
+void func_003085F0(void)
+{
+}
+
+/* 0x00308600, 0xBC bytes. Officer `i` stops being anyone's envoy (forces, the event slots, the
+ * player's). */
+void func_00308600(u32 i)
+{
+    int g, k;
+
+    for (g = 0; g < func_0030AB90(); g++) {
+        if (func_002F8CB0(g) != 0 && func_002F9260(g) == (int)i)
+            func_002F91C0(g, 0x19F);
+    }
+    k = func_00327B10(i);
+    if (k < 4)
+        func_00327A80(0x19F, k);
+    if (func_00327870() == (int)i)
+        func_00327830(0x19F);
+}
+
+/* Whether officers `i` and `j` are tied (func_002F77A0, func_002F78C0 or func_002F7900). */
+#define TIED(i, j) (func_002F77A0(i, j) != 0 || func_002F78C0(i, j) != 0 || func_002F7900(i, j) != 0)
+
+/* 0x003086C0, 0x1C8 bytes. Officer `i` and force `f`: 0 when tied to one of its own force's
+ * officers, 100 when tied to one of `f`'s, else -1 (to be drawn). */
+int func_003086C0(u32 i, int f)
+{
+    u32 *o = func_002F7B10();
+    int g, n = 0, k;
+
+    if (i >= 0x19F)
+        return 0;
+    g = func_002F4080(i);
+    if (IS_FORCE(g))
+        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, g, 0, 1);
+    for (k = 0; k < n; k++, o++) {
+        u32 x = *o;
+
+        if (i != x && TIED(x, i))
+            return 0;
+    }
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1);
+    o = func_002F7B10();
+    for (k = 0; k < n; k++, o++) {
+        if (TIED(*o, i))
+            return 100;
+    }
+    return -1;
+}
+
+/* The player's fame grade for officer chances (0 none or computer, 1 for 1-9, 2 for 10-15). */
+static inline int fame_grade(int f)
+{
+    int m = func_002FB2A0(f) == 0 ? 0 : func_00327E90(), k = 0;
+
+    if (m < 1 || m > 9) {
+        if (m > 9 && m < 0x10)
+            k = 2;
+    } else {
+        k = 1;
+    }
+    return k;
+}
+
+/* 0x00308890, 0xEC bytes. Whether free officer `i` joins force `f`: drawn from its liking and
+ * `f`'s size (42-100%) unless tied. */
+int func_00308890(u32 i, int f)
+{
+    int v = func_003086C0(i, f);
+
+    if (v == -1) {
+        v = func_002F6FE0(i, fame_grade(f)) + func_002FB3B0(f) * 2;
+        v = v < 0x2B ? 0x2A : v;
+        v = v > 100 ? 100 : v;
+    }
+    return func_0030CB50(v);
+}
+
+/* 0x00308980, 0x1B8 bytes. The chance (18-100%) officer `i` joins force `f`: its liking, `f`'s
+ * size, its values, less a quarter of its years in service and its loyalty grade. */
+int func_00308980(u32 i, int f)
+{
+    int v = func_003086C0(i, f), x, s, a, b, y, e;
+
+    if (v != -1)
+        return v;
+    x = func_002F6FE0(i, fame_grade(f));
+    s = func_002FB3B0(f);
+    a = func_002F4450(i);
+    b = func_002F45A0(i);
+    y = (u32)(func_00327C70() - func_002F3380(i)) < 100 ? func_00327C70() - func_002F3380(i) : 100;
+    e = func_002F4A70(i);
+    v = (7 - e) * 10 + (s + x * 8 / 10 + a * b) - y / 4;
+    v = v < 0x13 ? 0x12 : v;
+    return v > 100 ? 100 : v;
+}
+
+/* 0x00308B40, 0x24 bytes, matching. Draws func_00308980. */
+int func_00308B40(u32 i, int f)
+{
+    return func_0030CB50(func_00308980(i, f));
+}
+
+/* 0x00308B70, 0x80 bytes. `v` cut by the player's fame: 0 from 10, a third from 5, half from
+ * 1, kept below. */
+int func_00308B70(int v)
+{
+    int m = func_00327E90();
+
+    if (m >= 10)
+        return 0;
+    if (m >= 5)
+        return v / 3;
+    if (m > 0)
+        return v / 2;
+    return v;
+}
