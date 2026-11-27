@@ -12,6 +12,7 @@
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
+typedef unsigned long long u64;
 
 extern u8 g_0045D7EC[2];                 /* (small data) the players' tactic bits */
 extern int g_0045D7F0, g_0045D7F4;       /* (small data) */
@@ -956,7 +957,7 @@ int func_0030ACE0(int p);
 int func_002FB100(int f);
 void func_003A5FA0(int a, int b, int c, int d);
 void func_003B8E00(void);
-int func_0032D180(void);
+int func_0032D180();
 u8 *func_003D3960(void);
 char *func_003B9770(void);
 void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
@@ -1276,5 +1277,301 @@ int func_003BA7F0(int k)
             return 3;
         }
         return func_00329540(0x16D) == 0 ? 0 : 1;
+    }
+}
+
+/* The turn's records (0x20 bytes each from func_00329850, five map snapshots of 0x18 bytes from
+ * +0x5A0: turn, season, officer, 2 bits per province), their pages and portraits (parts of
+ * 0x003BA8F0-0x003BC88C). */
+
+extern char g_007BC080[];
+extern char g_0045BA88[], g_0045BA90[];
+extern u8 g_007B4E60[], g_007B4E6A[];
+extern char g_0045BB50[];
+extern int g_0045D800, g_0045D804;       /* (small data) */
+
+u32 func_00327C80(void);
+int func_00327CC0(void);
+int func_00328230(void);
+u8 func_002F5CC0(int o);
+int func_003BAB40(int k);
+int func_00327C70(void);
+int func_00327140(int a, int b);
+int func_0030C250(int p);
+int func_0030AFF0(int p);
+int func_002F9C90(int f, int g);
+u32 func_00362370(void);
+int func_0036B260(void);
+int func_00362570(void);
+int func_0035D5B0(int a);
+int func_0030D150(void);
+char *func_002F2BB0(u32 o);
+char *func_0019B0C0(int k);
+char *func_002F2890(u32 o);
+void func_003A7C10(void);
+int func_001204B0(char *buf, const char *fmt, ...);
+void func_003A9A30(int p, int on);
+void func_0011EB80(void *to, const void *from, int n);
+void func_00120928(char *to, const char *from);
+u32 func_00120A40(const char *s);
+void func_00147160(const char *s, u8 *out, int w, u8 *a, int *h);
+void func_001ABEA0(u8 *t, int k, int x, int y, int a, int w, int h, int b);
+void func_001ABA70(u8 *t, int x, int y, int a, int w, int h, int b, int c);
+void func_003A9010(int a);
+void func_003A9170(void);
+void func_003A93A0(int a);
+void func_003A9AF0(int a);
+void func_003BC150(void);
+void func_0017E010(int k);
+
+/* 0x003BA8F0, 0x24C bytes. Records event `k` of this turn (kinds 0xD and 4-7 take the next free
+ * one; the others only once). */
+void func_003BA8F0(int k, int a, int b, int c, int d)
+{
+    u8 *q = func_00329850(), *r;
+    u32 t = func_00327C80();
+    int s = func_00327CC0(), o = func_00327820(), w = func_00328230(), i;
+    u8 f = func_002F5CC0(o), m = func_003BA7F0(k);
+
+    if (k == 0xE || k == 0xD) {
+        if (func_003BAB40(0xD) != 0)
+            k = 0xE;
+    } else if (k == 7 || k == 6 || k == 5 || k == 4) {
+        k = 0x2D;
+        for (i = 0; i < 4; i++) {
+            if (func_003BAB40(i + 4) == 0) {
+                k = i + 4;
+                break;
+            }
+        }
+        if (k == 0x2D) {
+            func_003BA700(7, 6);
+            k = 7;
+        }
+    } else if ((k == 0x21 || k == 0x1F || k == 0x1E || k == 0x18 || k == 0x17 || k == 0x16
+                || k == 0x15 || k == 0x14 || k == 0x13 || k == 3 || k == 1 || k == 0)
+               && func_003BAB40(k) != 0) {
+        return;
+    }
+    r = q + k * 0x20;
+    *(u32 *)r = t;
+    r[4] = s;
+    r[5] = m;
+    r[6] = f;
+    *(int *)(r + 8) = o;
+    r[7] = w != 0;
+    *(int *)(r + 0x10) = a;
+    *(int *)(r + 0x14) = b;
+    *(int *)(r + 0x18) = c;
+    *(int *)(r + 0x1C) = d;
+}
+
+/* 0x003BAB70, 0x130 bytes. Takes map snapshot `k` (owned, allied). */
+void func_003BAB70(int k)
+{
+    u8 *q = func_00329850(), *r;
+    int v = func_00327140(func_00327C00(), func_00327C70() + 1);
+    int s = func_00327CC0(), o = func_00327820(), f = func_00327D50(), p;
+
+    r = q + k * 0x18 + 0x5A0;
+    *(int *)r = v;
+    r[4] = s;
+    *(int *)(r + 8) = o;
+    for (p = 0; p < func_0030AB90(); p++) {
+        u64 b = func_0030C250(p) != 0;
+
+        if (func_002F9C90(f, func_0030AFF0(p)) == 3)
+            b = 2;
+        *(u64 *)(q + k * 0x18 + 0x5B0) |= b << (p * 2);
+    }
+}
+
+/* 0x003BAD20, 0x104 bytes, matching. Records the turn's battle (won 0x1E or lost 0x1F). */
+void func_003BAD20(void)
+{
+    u32 v = func_00362370();
+
+    if ((v < 0x19 || func_00362370() > 0x1D) && func_00362370() != 0x46) {
+        if (func_003BAB40(0x1E) == 0 && func_0036B260() != 0
+            && func_0035D5B0(func_00362570()) == 0)
+            func_003BA8F0(0x1E, func_0030D150(), 1, -1, -1);
+        if (func_003BAB40(0x1F) == 0 && func_0036B260() != 0
+            && func_0035D5B0(func_00362570()) == 1)
+            func_003BA8F0(0x1F, func_0030D150(), -1, -1, -1);
+    }
+}
+
+/* 0x003BAF40, 0x118 bytes. Officer `o`'s name for the report (some with a title). */
+char *func_003BAF40(u32 o, int k)
+{
+    int c = func_002F27D0(o);
+
+    if (o >= 0x19F)
+        return g_0045BA88;
+    if (c == 0xAF || c == 0xAE || c == 0xAB || c == 0xF) {
+        func_001204B0(g_007BC080, g_0045BA90, func_002F2BB0(o), func_0019B0C0(k == 0 ? 0x18 : 0x17));
+        return g_007BC080;
+    }
+    return func_002F2890(o);
+}
+
+/* 0x003BB520, 0xCC bytes. Shows map snapshot `k`. */
+void func_003BB520(int k)
+{
+    int n = func_0030AB90(), p;
+    u8 *q = func_00329850();
+
+    func_002F4080(func_00327820());
+    func_003A7C10();
+    for (p = 0; p < n; p++)
+        func_003A9A30(p, (*(u64 *)(q + k * 0x18 + 0x5B0) >> (p * 2) & 3) != 0);
+}
+
+/* 0x003BB6F0, 0xBC bytes. Splits a report line into its 5-byte head and its text; the box's
+ * height. */
+int func_003BB6F0(char *s, u8 **a, u8 **b)
+{
+    u8 tmp[4];
+    int h = 0;
+
+    func_0011EB80(g_007B4E60, s, 5);
+    g_007B4E60[5] = 0;
+    func_00120928((char *)g_007B4E6A, g_0045BA88);
+    if (func_00120A40(s) > 6)
+        func_00147160(s + 6, g_007B4E6A, 0x160, tmp, &h);
+    *a = g_007B4E60;
+    *b = g_007B4E6A;
+    return h + 0x10;
+}
+
+/* 0x003BB7B0, 0x12C bytes. A box of height `h` (top, middle, bottom). */
+void func_003BB7B0(int x, int y, int h)
+{
+    u8 *p = func_003B5E90();
+
+    func_001ABEA0(*(u8 **)(p + 8), 4, x, y, 0, 0x1C0, 8, 0);
+    func_001ABEA0(*(u8 **)(p + 8), 4, x, y + 8, 0, 0x1C0, h - 0x10, 0);
+    func_001ABEA0(*(u8 **)(p + 8), 4, x, y + 8 + h - 0x10, 0, 0x1C0, 8, 0);
+}
+
+/* 0x003BBFD0, 0x17C bytes. Draws the page's officer portrait. */
+void func_003BBFD0(void)
+{
+    u8 *q = func_00329850(), *p = func_003B5E90(), *t;
+    int *r, s;
+    u8 l, a;
+    u32 v;
+
+    if (p == 0)
+        return;
+    l = p[0x763];
+    t = *(u8 **)(p + l * 4 + 0xC);
+    if (t == 0)
+        return;
+    r = (int *)(q + l * 0x18 + 0x5A8);
+    func_0032D180(func_002F27D0(*r));
+    s = *(int *)(p + 0x73C);
+    a = p[0x764];
+    if (s == 1) {
+        if (l != 0) {
+            v = func_003BBF30(l);
+            if ((v & 0xFF) != 0xFF && *r == *(int *)(q + (v & 0xFF) * 0x18 + 0x5A8))
+                a = 0x80;
+        }
+    } else if (s == 2 || s == 3) {
+        v = func_003BBEC0(l);
+        if ((v & 0xFF) != 0xFF && *r == *(int *)(q + (v & 0xFF) * 0x18 + 0x5A8))
+            a = 0x80;
+    }
+    func_001ABA70(t, 0x28, 0x30, 0, 0xC0, 0xC0, a, 0);
+}
+
+/* 0x003BC450, 0x188 bytes. Opens the report. */
+void func_003BC450(void)
+{
+    u8 *p = func_003B5E90(), *q = func_00329850();
+    u32 k;
+
+    g_0045D800 = 0;
+    g_0045D804 = 0;
+    p[0x763] = 0;
+    *(int *)(p + 0x748) = 0;
+    *(int *)(p + 0x74C) = 0;
+    *(u8 **)(p + 8) = func_001026D0(1, 0xD83, 0, 1, 0, 0, g_0045BB50, 0x432);
+    for (k = 1; k < 5; k++) {
+        u8 *r = q + k * 0x18;
+
+        if (*(u64 *)(r + 0x5B0) == 0)
+            *(u64 *)(r + 0x5B0) = *(u64 *)(r + 0x598);
+    }
+    func_003A7C10();
+    func_003A5FA0(1, 1, 0, 1);
+    func_003A9010(0);
+    func_003A9170();
+    func_003A93A0(1);
+    func_003A9AF0(0);
+    func_003BC150();
+    func_003BB520(p[0x763]);
+    for (k = 0; k < 5; k++) {
+        *(int *)(p + k * 4 + 0xC) = 0;
+        func_003BB8E0(k, 1);
+    }
+    func_00102960(1);
+    func_001B8F60(1, 6, 1);
+    if (*(int *)(p + 0x75C) == 6 && func_003C1850() == 0)
+        func_0017E010(0x2F);
+    else
+        func_0017E010(0x31);
+}
+
+/* 0x003BC5E0, 0x7C bytes. Closes it. */
+void func_003BC5E0(void)
+{
+    u8 *p = func_003B5E90();
+    int k;
+
+    if (*(u8 **)(p + 8) != 0) {
+        func_00102EC0(*(u8 **)(p + 8));
+        *(u8 **)(p + 8) = 0;
+    }
+    for (k = 0; k < 5; k++) {
+        if (*(u8 **)(p + 0xC + k * 4) != 0) {
+            func_00102EC0(*(u8 **)(p + 0xC + k * 4));
+            *(u8 **)(p + 0xC + k * 4) = 0;
+        }
+    }
+    func_003A93A0(0);
+    func_003A9AF0(1);
+}
+
+/* 0x003BC760, 0x12C bytes. Steps the report's pages. */
+void func_003BC760(void)
+{
+    u8 *p = func_003B5E90();
+    int s = *(int *)(p + 0x73C), v;
+
+    if (s == 3) {
+        do {
+            func_003BB5F0();
+            v = func_003BB8E0(p[0x763], 0);
+            if (v > 0 || p[0x763] > 4)
+                break;
+        } while (v == 0);
+        *(int *)(p + 0x748) = 0;
+        *(int *)(p + 0x73C) = 1;
+    } else if (s == 4) {
+        p[0x764] = 0x80;
+    } else if (s == 2) {
+        p[0x764] -= 2;
+        if (p[0x764] > 0x7F)
+            p[0x764] = 0;
+        if (p[0x764] == 0 && *(int *)(p + 0x73C) == 2)
+            *(int *)(p + 0x73C) = 3;
+    } else if (s == 1) {
+        p[0x764] += 2;
+        if (p[0x764] > 0x7F)
+            *(int *)(p + 0x73C) = 0;
+    } else if (s == 0) {
+        p[0x764] = 0x80;
     }
 }
