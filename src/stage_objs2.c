@@ -225,3 +225,204 @@ void func_002BCA70(void)
         *(u8 **)p = p + 0x10;
     *(u8 **)p = 0;
 }
+
+/* ---- Moving stage objects: their switch records by map (0x007994E0, 0x20 bytes each), their
+ * sounds and paths (parts of 0x002BCAE0-0x002BFD2C). ---- */
+
+extern u8 g_00669D60[];
+extern u8 g_007994E0[][0x20];
+extern u8 g_00799410[4][0x10];
+extern u8 g_00796040[][0xC60];
+extern u32 g_0045D5DC;
+extern int g_0045D5CC, g_0045D5D0;
+
+#define MAP_ID() (*(int *)(g_00669D60 + 0x58) == 2 ?                                        \
+                  *(u32 *)(g_00669D60 + 0x74 + *(int *)(g_00669D60 + 0x238) % 5 * 4) :      \
+                  *(u32 *)(g_00669D60 + 0x74))
+
+char func_001FF100(short k, int a);
+u8 *func_0027F120(char v);
+u8 *func_0027E5F0(u8 *o, int a);
+void func_0027E610(u8 *o);
+u8 *func_0027E8C0(u8 *o, u32 k);
+int func_002A6910(int v, int a, u8 *p);
+void func_002A5A60(u32 a, u32 b, u32 c, u32 d, u32 e);
+short func_001FF120(short k);
+void func_001FD4B0(float f, u8 *o, short m, u8 *s);
+short *func_001FF230(short *m);
+
+/* Whether the object moves forward (its direction byte). */
+#define FORWARD(b) (((u8 *)(b))[9] == 2 || ((u8 *)(b))[9] == 0)
+
+/* 0x002BCAE0, 0x108 bytes. Loads the map's switch records into `p` (falling heights). */
+void func_002BCAE0(u8 *p, u8 *rec, u32 size)
+{
+    u32 n, k;
+
+    for (n = size >> 5; n != 0; n--, rec += 0x20) {
+        if (rec[0] == MAP_ID())
+            func_00118AC0(p + rec[1] * 0x30 + 0x20, rec, 0x20);
+    }
+    for (k = 0; k < 4; k++, p += 0x30) {
+        if (p[0x21] == k) {
+            float f = *(float *)(p + 0x3C) * 50.0f;
+
+            *(float *)(p + 0x14) = f * 0.5f * f;
+        }
+    }
+}
+
+/* 0x002BDC40, 0xCC bytes. Whether moving object `b` has covered its distance. */
+int func_002BDC40(int *b)
+{
+    int fwd = FORWARD(b);
+    u8 *r = func_0027F120(func_001FF100(*(short *)(b[0] + 0x54), 10));
+
+    return *(float *)(g_007994E0[r[0]] + 4)
+        <= (float)b[1] * *(float *)(g_007994E0[r[0]] + 8 + !fwd * 4);
+}
+
+/* 0x002BDD10, 0x114 bytes. Stops it when it arrives. */
+int func_002BDD10(int *b)
+{
+    u8 *o, *r, *q;
+    u8 n;
+    int i;
+
+    if (func_002BDC40(b) == 0)
+        return 0;
+    o = (u8 *)b[0];
+    r = func_0027F120(func_001FF100(*(short *)(o + 0x54), 10));
+    n = r[0];
+    if (FORWARD(b)) {
+        i = 1;
+    } else {
+        o[0x68] = 0;
+        i = 3;
+    }
+    if ((signed char)((u8 *)b)[10] != -1 && (q = func_002BBF40(((u8 *)b)[10])) != 0) {
+        func_002A5B10(*(u32 *)(q + 4));
+        func_002BBF00(((u8 *)b)[10]);
+    }
+    func_002BC110((int)o, g_007994E0[n][0x10 + i]);
+    return 1;
+}
+
+/* 0x002BE2C0, 0x84 bytes. Starts the object's sound at `pos`. */
+void func_002BE2C0(u8 *a, u32 *pos)
+{
+    u8 *q = func_002BBF40(a[0xB]);
+
+    if (q != 0 && *(int *)(q + 4) == 0x107) {
+        int h = func_002A6910(*(u16 *)(q + 8), 1, q + 0x10);
+
+        *(int *)(q + 4) = h;
+        if (h != 0x107)
+            func_002A5A60(pos[0], pos[1], pos[2], pos[3], pos[4]);
+    }
+}
+
+/* 0x002BE350, 0x50 bytes, matching. Stops it. */
+void func_002BE350(u8 *a)
+{
+    u8 *q = func_002BBF40(a[0xB]);
+
+    if (q != 0 && *(int *)(q + 4) != 0x107) {
+        func_002A5B10(*(u32 *)(q + 4));
+        *(int *)(q + 4) = 0x107;
+    }
+}
+
+/* 0x002BE3A0, 0x78 bytes. */
+int func_002BE3A0(u8 *o, int a, char c)
+{
+    if (func_0027E5F0(o, a) != 0)
+        return 1;
+    if (c == 3 || c == 1)
+        return 0;
+    return c == 2 || c == 0;
+}
+
+/* 0x002BE420, 0xC8 bytes. */
+int func_002BE420(u8 *o, int a, char c)
+{
+    u8 *r = func_0027E5F0(o, a);
+
+    if (r != 0 && r[10] == 0) {
+        func_002BE350(r);
+        func_002BBF00(r[0xB]);
+        func_0027E610(o);
+        r = 0;
+    }
+    if (c == 2 || c == 0)
+        return r != 0;
+    return r == 0;
+}
+
+/* 0x002BEAE0, 0xE0 bytes. Loads the map's four path records. */
+void func_002BEAE0(int *rec, u32 size)
+{
+    u32 n = size >> 4, k = 0;
+    u8 *d = g_00799410[0];
+
+    g_0045D5DC = 0;
+    while (n != 0 && k < 4) {
+        if ((u32)rec[0] == MAP_ID()) {
+            func_00118AC0(d, rec, 0x10);
+            d += 0x10;
+            k = ++g_0045D5DC;
+        }
+        rec += 4;
+        n--;
+    }
+}
+
+/* 0x002BEE30, 0xA4 bytes. */
+int func_002BEE30(u8 *o, u8 *v, u32 k)
+{
+    u8 *r;
+
+    func_0027E610(o);
+    k &= 0xFF;
+    if (k == 3 || k == 2)
+        return 1;
+    if (k == 1 || k == 0) {
+        r = func_0027E8C0(o, k);
+        if (r == 0)
+            return 0;
+        r[10] = *v;
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x002BFAB0, 0xDC bytes. Moves the object's parts along their paths. */
+void func_002BFAB0(float dt, u8 *o)
+{
+    u8 *r = func_0027E660(o), *s = g_00796040[r[10]];
+    u8 *b = func_001FF140(func_001FF120(*(short *)(o + 0x54)));
+    float f = *(float *)(r + 4);
+    short *m = (short *)(b + 0x30);
+    u16 n = *(u16 *)(b + 4), j;
+
+    for (j = 0; j < n; j++) {
+        func_001FD4B0(dt * (1.0f - f), o, *m, s + 0x60);
+        m = func_001FF230(m);
+        s += 0x60;
+    }
+}
+
+/* 0x002BFCC0, 0x6C bytes. */
+int func_002BFCC0(u8 *o, int a, u32 k)
+{
+    k &= 0xFF;
+    if (k == 3 || k == 1)
+        return func_0027E8C0(o, k) != 0;
+    if (k == 2 || k == 0) {
+        func_0027E610(o);
+        g_0045D5D0 = 0;
+        g_0045D5CC = 0;
+        return 1;
+    }
+    return 0;
+}
