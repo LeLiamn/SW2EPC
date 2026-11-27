@@ -834,3 +834,208 @@ void func_001637B0(float dt, int *cam)
         U8(cam, 0x3C) = (U8(cam, 0x3C) & ~4) | 4;
     }
 }
+
+typedef struct MotionState MotionState;
+
+extern float g_004064B0[3][2];           /* view angle and +0x220 of the three two-unit views */
+
+void func_001479D0(float t, MotionState *s, float *out);
+void func_0029EC70(float dt, int *cam);
+
+/* The matrix of rotation `rot` and position `pos` (VU0 micro subroutine 0x50) into m. */
+#define CAM_MATRIX(m, rot, pos)                                         \
+    __asm__ volatile("lqc2 $vf1, 0(%1)\n"                               \
+                     "lqc2 $vf2, 0(%2)\n"                               \
+                     "vcallms 0x50\n"                                   \
+                     "qmfc2.i $9, $vf1\n"                               \
+                     "sqc2 $vf16, 0x00(%0)\n"                           \
+                     "sqc2 $vf17, 0x10(%0)\n"                           \
+                     "sqc2 $vf18, 0x20(%0)\n"                           \
+                     "sqc2 $vf19, 0x30(%0)\n"                           \
+                     : : "r"(m), "r"(rot), "r"(pos) : "$9", "memory")
+
+/* 0x00163A20, 0x17C bytes. The camera looking down at the unit's point (+0x90) from 300 away
+ * along the flat line from it, at least 200 above it and 50 above the ground (Y points down);
+ * eased at 0.25; the eye kept in front of the scenery. */
+void func_00163A20(float dt, int *cam)
+{
+    u8 *u = (u8 *)cam[1], *obj = (u8 *)cam[0];
+    float t[4], d[4], e[4], h, len;
+    Ray r;
+    int k;
+
+    for (k = 0; k < 4; k++) {
+        t[k] = F32(u, 0x90 + k * 4);
+        d[k] = F32(obj, 0x1C0 + k * 4) - F32(u, 0x90 + k * 4);
+    }
+    d[1] = 0.0f;
+    len = len3(d);
+    for (k = 0; k < 4; k++)
+        e[k] = F32(u, 0x90 + k * 4) + d[k] / len * 300.0f;
+    e[1] = F32(obj, 0x1C4);
+    h = func_0029DEF0(e, 0) - 50.0f;
+    if (t[1] - 200.0f <= h)
+        h = t[1] - 200.0f;
+    e[1] = h;
+    func_001626E0(cam, t, e, 0.25f, 0.25f, 0.25f, dt);
+    ray_test(&r, &F32(obj, 0x1D0), &F32(obj, 0x1C0));
+    if ((u8)r.result != 0) {
+        for (k = 0; k < 4; k++)
+            F32(obj, 0x1C0 + k * 4) = r.hit[k];
+    }
+}
+
+/* 0x00163BA0, 0x35C bytes. The camera on two units (+4 and +0x2C): the target halfway between
+ * them, 100 above the ground; the eye 400 to the side of the line between them, on the side
+ * nearer the eye (the other one if the scenery is in the way), at least 50 above the ground. */
+void func_00163BA0(float dt, int *cam)
+{
+    u8 *obj = (u8 *)cam[0], *a = (u8 *)cam[1], *b = (u8 *)cam[0xB];
+    float half[4], mid[4], side[4], p[4], q[4], e[4], da, db, l, h;
+    Ray r;
+    int k;
+
+    for (k = 0; k < 4; k++) {
+        half[k] = (F32(a, 0x90 + k * 4) - F32(b, 0x90 + k * 4)) * 0.5f;
+        mid[k] = half[k] + F32(b, 0x90 + k * 4);
+    }
+    mid[1] = func_0029DEF0(mid, 1) - 100.0f;
+    side[0] = half[1] * g_00424D00[2] - half[2] * g_00424D00[1];
+    side[1] = half[2] * g_00424D00[0] - half[0] * g_00424D00[2];
+    side[2] = half[0] * g_00424D00[1] - half[1] * g_00424D00[0];
+    side[3] = 0.0f;
+    l = len3(side);
+    for (k = 0; k < 4; k++) {
+        side[k] = side[k] / l;
+        p[k] = side[k] * 400.0f + mid[k];
+        q[k] = side[k] * -400.0f + mid[k];
+    }
+    da = (F32(obj, 0x1C0) - p[0]) * (F32(obj, 0x1C0) - p[0])
+         + (F32(obj, 0x1C8) - p[2]) * (F32(obj, 0x1C8) - p[2]);
+    db = (F32(obj, 0x1C0) - q[0]) * (F32(obj, 0x1C0) - q[0])
+         + (F32(obj, 0x1C8) - q[2]) * (F32(obj, 0x1C8) - q[2]);
+    if (da < db) {
+        ray_test(&r, mid, p);
+        for (k = 0; k < 4; k++)
+            e[k] = (u8)r.result == 0 ? p[k] : q[k];
+    } else {
+        ray_test(&r, mid, q);
+        for (k = 0; k < 4; k++)
+            e[k] = (u8)r.result == 0 ? q[k] : p[k];
+    }
+    ray_test(&r, mid, e);
+    if ((u8)r.result != 0) {
+        for (k = 0; k < 4; k++)
+            e[k] = F32(obj, 0x1C0 + k * 4);
+    }
+    h = func_0029DEF0(e, 1) - 50.0f;
+    if (h < e[1])
+        e[1] = h;
+    func_001626E0(cam, mid, e, 1.0f, 1.0f, 1.0f, dt);
+}
+
+/* 0x00163F00, 0x368 bytes. A camera played from a motion (+0x28, frame +0x30): eye and target
+ * (components 9-14) placed by the rotation +0xA0 and position +0x90, the view angle and +0x220
+ * (15, 16); kept 50 above the ground. When the scenery stands between the unit and the eye or
+ * the target, the camera goes back to where it was and the motion ends; it also ends with its
+ * last frame. The unit (and +0x270) gets flag 8 at +0x199 meanwhile. */
+void func_00163F00(float dt, int *cam)
+{
+    u8 *obj = (u8 *)cam[0];
+    float t0[4], e0[4], m[4][4], o[8], v[4], h;
+    int k, cut = 0;
+    Ray r;
+
+    for (k = 0; k < 4; k++) {
+        t0[k] = F32(obj, 0x1D0 + k * 4);
+        e0[k] = F32(obj, 0x1C0 + k * 4);
+    }
+    func_001479D0(*(float *)&cam[0xC], (MotionState *)cam[0xA], o);
+    CAM_MATRIX(m, &cam[0x28], &cam[0x24]);
+    v[0] = o[0];
+    v[1] = o[1];
+    v[2] = o[2];
+    v[3] = 0.0f;
+    for (k = 0; k < 4; k++)
+        F32(obj, 0x1C0 + k * 4) = m[0][k] * v[0] + m[1][k] * v[1] + m[2][k] * v[2]
+                                  + m[3][k] * v[3] + *(float *)&cam[0x24 + k];
+    v[0] = o[3];
+    v[1] = o[4];
+    v[2] = o[5];
+    v[3] = 0.0f;
+    for (k = 0; k < 4; k++)
+        F32(obj, 0x1D0 + k * 4) = m[0][k] * v[0] + m[1][k] * v[1] + m[2][k] * v[2]
+                                  + m[3][k] * v[3] + *(float *)&cam[0x24 + k];
+    F32(obj, 0x224) = o[6];
+    F32(obj, 0x220) = o[7];
+    func_0029EC70(dt, cam);
+    h = func_0029DEF0(&F32(obj, 0x1C0), 1) - 50.0f;
+    if (h < F32(obj, 0x1C4))
+        F32(obj, 0x1C4) = h;
+    if (cam[1] != 0) {
+        u8 *u = (u8 *)cam[1];
+        int pass;
+
+        for (pass = 0; pass < 2; pass++) {
+            r.from = &F32(u, 0x90);
+            r.to = pass == 0 ? &F32(obj, 0x1D0) : &F32(obj, 0x1C0);
+            r.who = 0;
+            r.radius = 30.0f;
+            r.range = 0.0f;
+            func_001F3930(&r);
+            if ((u8)r.result != 0) {
+                cut = 1;
+                F32(obj, 0x224) = (g_00669F60 & 2) == 0 ? 0.2617994f : 0.17453294f;
+                F32(obj, 0x220) = 0.0f;
+                for (k = 0; k < 4; k++) {
+                    F32(obj, 0x1D0 + k * 4) = t0[k];
+                    F32(obj, 0x1C0 + k * 4) = e0[k];
+                }
+            }
+        }
+        U8(u, 0x199) = (U8(u, 0x199) & ~8) | 8;
+        if (PTR(u, 0x270) != 0)
+            U8(PTR(u, 0x270), 0x199) = (U8(PTR(u, 0x270), 0x199) & ~8) | 8;
+    }
+    *(float *)&cam[0xC] = *(float *)&cam[0xC] + dt;
+    if (cut || (float)(S32(*(u8 **)cam[0xA], 8) - 1) < *(float *)&cam[0xC]) {
+        cam[0xA] = 0;
+        cam[0xC] = 0;
+    }
+}
+
+/* 0x00164270, 0x1C4 bytes. The camera between two units (+0x20, +0x24), from a set eye (+0xE0):
+ * the target halfway between them (on the second with flag 1), jumping there when it is more
+ * than 400 away; the view angle from a table of three (indexed by the second unit's address,
+ * as in the original). The first float argument is not used. */
+void func_00164270(float unused, float dt, int *cam)
+{
+    u8 *obj = (u8 *)cam[0];
+    float t[4], d[4];
+    int k;
+
+    if (cam[8] == 0 || cam[9] == 0)
+        return;
+    for (k = 0; k < 4; k++) {
+        if (U8(cam, 0x3C) & 1)
+            t[k] = F32(cam[9], 0x90 + k * 4);
+        else
+            t[k] = (F32(cam[8], 0x90 + k * 4) - F32(cam[9], 0x90 + k * 4)) * 0.5f
+                   + F32(cam[9], 0x90 + k * 4);
+    }
+    func_001626E0(cam, t, &F32(cam, 0xE0), 0.25f, 1.0f, 1.0f, dt);
+    for (k = 0; k < 4; k++)
+        d[k] = F32(obj, 0x1D0 + k * 4) - t[k];
+    if (160000.0f < d[0] * d[0] + d[2] * d[2]) {
+        for (k = 0; k < 4; k++) {
+            F32(obj, 0x1D0 + k * 4) = t[k];
+            F32(cam, 0xB0 + k * 4) = t[k];
+        }
+    }
+    for (k = 0; k < 4; k++)
+        F32(obj, 0x1C0 + k * 4) = F32(cam, 0xE0 + k * 4);
+    if ((U8(cam, 0x3C) & 1) == 0) {
+        F32(obj, 0x224) = g_004064B0[cam[9] % 3][0];
+        F32(obj, 0x220) = g_004064B0[cam[9] % 3][1];
+    }
+}
