@@ -197,8 +197,9 @@ extern struct StartState {
 #define ST_LEFT(st)        (*(int *)((st) + 0x1BA0))       /* g_007B8CA4 */
 #define ST_LEFT_GEN(st)    (*(int *)((st) + 0x1BA4))       /* g_007B8CA8 */
 #define ST_GAMES(st)       ((int *)((st) + 0x1BA8))        /* g_007B8CAC */
+#define ST_NFREED(st)      (*(int *)((st) + 0x228C))       /* g_007B9390 */
 /* Element `i` of an int array at offset `off` of the state, written as the original did. */
-#define ST_AT(st, off, i)  (*(int *)((st) + (i) * 4 + (off)))
+#define ST_AT(st, off, i)  (*(int *)((i) * 4 + (st) + (off)))
 #define g_007B7106 (s_007B7104.g_007B7106)
 #define g_007B7107 (s_007B7104.g_007B7107)
 #define g_007B72A8 (s_007B7104.g_007B72A8)
@@ -1642,32 +1643,39 @@ void func_00376100(int a, int b, int c);
 void func_0017E010(int a);
 void func_003F4D60(int a);
 
-/* 0x00368980, 0x150 bytes. Phases 4 and 5: the officer of the current slot. With the list open,
+/* 0x00368980, 0x150 bytes, matching. Phases 4 and 5: the officer of the current slot. With the list open,
  * a choice (func_0032D9C0 1) frees the slot's previous officer (kept in g_007B8D14 unless
  * func_002F3E70), marks the new one in use and closes the list; 0 only closes it. */
 void func_00368980(void)
 {
+    u8 *st = &g_007B7104;
+    int *w = (int *)st;
+
     func_003A8DC0();
-    if (g_007B7106 == 1) {
+    switch (((u8 *)w)[2]) {
+    case 0:
+        func_00367CF0();
+        break;
+    case 1: {
         int r = func_0032D9C0();
 
         if (r == 1) {
             int officer;
 
-            if (SLOT_VALID(g_007B7104) && g_007B93B0[g_007B7104] < 0x19F && func_002F3E70(g_007B93B0[g_007B7104]) == 0)
-                g_007B8D14[g_007B9390++] = g_007B93B0[g_007B7104];
+            if (SLOT_VALID(st[0]) && w[st[0] + 0x22AC / 4] < 0x19F && func_002F3E70(w[st[0] + 0x22AC / 4]) == 0)
+                w[ST_NFREED(st)++ + 0x1C10 / 4] = w[st[0] + 0x22AC / 4];
             officer = func_0032E760();
-            if (SLOT_VALID(g_007B7104))
-                func_00367B10(g_007B93B0[g_007B7104], 1);
-            g_007B93B0[g_007B7104] = officer;
-            if (SLOT_VALID(g_007B7104))
+            if (SLOT_VALID(st[0]))
+                func_00367B10(w[st[0] + 0x22AC / 4], 1);
+            w[st[0] + 0x22AC / 4] = officer;
+            if (SLOT_VALID(st[0]))
                 func_00367B10(officer, 0);
-            g_007B7106 = 0;
+            st[2] = 0;
         } else if (r == 0) {
-            g_007B7106 = 0;
+            st[2] = 0;
         }
-    } else if (g_007B7106 == 0) {
-        func_00367CF0();
+        break;
+    }
     }
 }
 
