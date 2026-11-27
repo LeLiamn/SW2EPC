@@ -1025,6 +1025,27 @@ so far (13 functions, 5 match):
 - the perspective and screen matrices, and a camera object's defaults (a 15-degree view angle,
   depth 64 to 50000).
 
+## Motion data (`src/motion_manager.c`)
+
+Original source file `MotionManager.c` (its name is passed to the file loader at
+`0x0017C4A0`, `0x0017C6D0` and `0x0017CC40`), `0x0017C4A0`-`0x0017CCD8`, fully decompiled
+(10 functions, 4 match). It only manages the motion files; the motions themselves are evaluated
+by `model.c` (`track_value`, `0x001479D0` for cameras).
+
+- Each of the 106 weapon kinds has a 0xD0-byte record at `0x005B5060`: its motion file (a
+  LINKDATA entry: kinds 0-0x19 use 0x488 + kind, a few others 0x4A2-0x4A5), its mounted motion
+  file, up to three opened motion packs, its unit description (+0x40), the mounted pack (+0x60)
+  and three extra motion states.
+- A motion pack is a count and offsets; opening it gives one 0x20-byte motion state per motion
+  (`MotionPack`: pack, count, states, flags).
+- At start-up the face motion (entry 0x56D) and the shared motions (entry 0x631) are loaded,
+  then the files of every kind in use. Kinds not in use are freed between battles.
+- The motion index of a kind: 2k + i for kinds 0-0x19, from a table at `0x004067E0` for kinds
+  0x3E-0x67.
+
+The code right after it (`0x0017CCE0`, 2.2 KB) draws 2D sprites from a sprite sheet: another
+file.
+
 ## Camera shake and motion sets (`src/motion_misc.c`)
 
 Just before `MotionManager.c`: `0x0017C0D0`-`0x0017C49C`, 6 functions. A shake holds a timer

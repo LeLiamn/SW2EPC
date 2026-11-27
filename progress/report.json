@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 67936,
-    "non_matching": 423576
+    "matching": 68528,
+    "non_matching": 425096
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 600
+    "matching": 604
   },
   "layout": "treemap",
   "areas": [
@@ -467,11 +467,11 @@
         },
         {
           "name": "MotionManager.c",
-          "description": "Estimated range 0x1748E8-0x1814A8; 17 function(s) decompiled",
+          "description": "Estimated range 0x1748E8-0x1814A8; 27 function(s) decompiled",
           "code": {
             "total": 52160,
-            "matching": 496,
-            "non_matching": 2436
+            "matching": 1088,
+            "non_matching": 3956
           }
         },
         {
