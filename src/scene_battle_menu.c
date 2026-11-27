@@ -17,6 +17,17 @@
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
+
+/* Flag bytes the original tests as one-bit fields (LSB first). */
+typedef struct {
+    signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} Bits8;
+typedef struct {
+    unsigned char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} UBits8;
+
+#define SBIT(lv, n) (((Bits8 *)&(lv))->f##n)
+#define UBIT(lv, n) (((UBits8 *)&(lv))->f##n)
 typedef unsigned long long u64;
 
 /* The scene manager (0x0045D880, see main.c): one object, reached through lui / %lo. */
@@ -334,7 +345,7 @@ extern PadState g_00500700[2];
     } while (0)
 
 extern u8 g_0073DCA3[];                   /* player records, 0x290 bytes (+0: bit 2 a flag) */
-#define FOLLOW_OFF(player) (g_0073DCA3[(player) * 0x290] & 4)    /* the camera does not follow */
+#define FOLLOW_OFF(player) UBIT(g_0073DCA3[(player) * 0x290], 2)    /* the camera does not follow */
 
 extern u8 g_006A1D58[][0x68];             /* the soldier groups (see scene_battle_initialize.c) */
 #define GROUP(i) ((u8 **)g_006A1D58[i])

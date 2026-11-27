@@ -25,6 +25,17 @@
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
+
+/* Flag bytes the original tests as one-bit fields (LSB first). */
+typedef struct {
+    signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} Bits8;
+typedef struct {
+    unsigned char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} UBits8;
+
+#define SBIT(lv, n) (((Bits8 *)&(lv))->f##n)
+#define UBIT(lv, n) (((UBits8 *)&(lv))->f##n)
 typedef unsigned long long u64;
 
 #define g_70000154 (*(int *)0x70000154)          /* 1 or 2 (field mode?) */
@@ -450,8 +461,8 @@ void func_00146270(const u8 *text, int x, int y, int layer, int kind)
                 g.code = func_00145FB0(g.font, c);
                 if (g.font->widths != 0) {
                     start = g.x;
-                    if ((g_0056CCA0.flags & 1) == 0) {
-                        if (g_0056CCA0.flags & 2)
+                    if (UBIT(g_0056CCA0.flags, 0) == 0) {
+                        if UBIT(g_0056CCA0.flags, 1)
                             g.x += (0xC - g.font->widths[g.code]) / 2;
                     } else {
                         g.x += ((int)(cw & 0xFFFF)
@@ -466,8 +477,8 @@ void func_00146270(const u8 *text, int x, int y, int layer, int kind)
                 next = text;
                 if (g.font->widths == 0) {
                     g.x += g.w;
-                } else if ((g_0056CCA0.flags & 1) == 0) {
-                    if (g_0056CCA0.flags & 2)
+                } else if (UBIT(g_0056CCA0.flags, 0) == 0) {
+                    if UBIT(g_0056CCA0.flags, 1)
                         g.x = start + 0xC;
                     else
                         g.x += (int)((float)(g.font->draw_w * g.font->widths[g.code]
@@ -534,9 +545,9 @@ int func_00146D00(float scale, const u8 *text, int max)
 /* The width of one character. */
 static inline int char_width(u8 c, float sx)
 {
-    if (g_004053C0.widths == 0 || (g_0056CCA0.flags & 1))
+    if (g_004053C0.widths == 0 || UBIT(g_0056CCA0.flags, 0))
         return (int)((float)g_004053C0.draw_w * sx / 20.0f);
-    if (g_0056CCA0.flags & 2)
+    if UBIT(g_0056CCA0.flags, 1)
         return 0xC;
     return (int)((float)(g_004053C0.draw_w * g_004053C0.widths[func_00145FB0(&g_004053C0, c)]
                          / g_004053C0.cell_w) * sx / 20.0f);

@@ -16,6 +16,17 @@
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
+
+/* Flag bytes the original tests as one-bit fields (LSB first). */
+typedef struct {
+    signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} Bits8;
+typedef struct {
+    unsigned char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} UBits8;
+
+#define SBIT(lv, n) (((Bits8 *)&(lv))->f##n)
+#define UBIT(lv, n) (((UBits8 *)&(lv))->f##n)
 typedef unsigned long long u64;
 
 extern u8 *g_0045D870;                    /* (small data) the background */
@@ -166,7 +177,7 @@ int func_003F8E30(void)
     int n = p->count[p->shown];
     unsigned short pressed, held;
 
-    if (!(g_007BFF10[1].flags & 1) || !(g_007BFF10[0].flags & 1))
+    if (!SBIT(g_007BFF10[1].flags, 0) || !SBIT(g_007BFF10[0].flags, 0))
         return 0;
     pressed = pad1_pressed();
     held = pad1_held();
@@ -232,9 +243,9 @@ void func_003F90A0(void)
     p->unknown_21c = -1;
     func_003F8E00(1);
     g_007BFF10[0].speed = 1.0f;
-    g_007BFF10[0].flags &= ~1;
+    SBIT(g_007BFF10[0].flags, 0) = 0;
     g_007BFF10[1].speed = 1.0f;
-    g_007BFF10[1].flags &= ~1;
+    SBIT(g_007BFF10[1].flags, 0) = 0;
 }
 
 /* 0x003F93B0, 0x228 bytes. Steps the two windows and, when visible, draws list 11 and the

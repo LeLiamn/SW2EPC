@@ -17,6 +17,17 @@
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
+
+/* Flag bytes the original tests as one-bit fields (LSB first). */
+typedef struct {
+    signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} Bits8;
+typedef struct {
+    unsigned char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} UBits8;
+
+#define SBIT(lv, n) (((Bits8 *)&(lv))->f##n)
+#define UBIT(lv, n) (((UBits8 *)&(lv))->f##n)
 typedef unsigned long long u64;
 
 /* A window's animation (0x14 bytes): from a rectangle and alpha to another over `frames`. */
@@ -59,7 +70,7 @@ extern struct {
 #define PLAYER_OFFICER(p) (*(u32 *)((u8 *)&g_00669D60.g_00669DE8 + (p) * 0x48))
 
 extern u8 g_0073DCA3[];                   /* player records, 0x290 bytes (+0: bit 2 a flag) */
-#define FOLLOW_OFF(player) (g_0073DCA3[(player) * 0x290] & 4)
+#define FOLLOW_OFF(player) UBIT(g_0073DCA3[(player) * 0x290], 2)
 
 /* The font state (0x0056CCA4): the four corners' colours, then the size. */
 extern struct {

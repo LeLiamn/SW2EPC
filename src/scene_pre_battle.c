@@ -16,6 +16,17 @@
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
+
+/* Flag bytes the original tests as one-bit fields (LSB first). */
+typedef struct {
+    signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} Bits8;
+typedef struct {
+    unsigned char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} UBits8;
+
+#define SBIT(lv, n) (((Bits8 *)&(lv))->f##n)
+#define UBIT(lv, n) (((UBits8 *)&(lv))->f##n)
 typedef unsigned long long u64;
 
 /* The scene manager (0x0045D880, see main.c): one object, reached through lui / %lo. */
@@ -707,7 +718,7 @@ void func_002209E0(void)
         g_00749AF2 = 0;
         g_00749AF1 = 0;
         g_00749AF5 = 0;
-        if (g_0073DCA3[g_00749A1C * 0x290] & 4) {
+        if UBIT(g_0073DCA3[g_00749A1C * 0x290], 2) {
             float centre[4];
 
             g_007A1C18 = 2048.0f;
@@ -1295,7 +1306,7 @@ void func_00222910(int pad)
             P3_NEXT_VIEW(unit, 4);
         }
     }
-    if (moved && !(g_0073DCA3[pad * 0x290] & 4)) {
+    if (moved && !UBIT(g_0073DCA3[pad * 0x290], 2)) {
         if (P3_CURSOR < P3_COUNT(P3_SIDE))
             func_00222590(P3_UNIT(P3_SIDE, P3_CURSOR));
     }
@@ -1318,7 +1329,7 @@ void func_00222D90(int pad)
         SE(2);
         func_00222650(0);
     } else if (func_002C5220(port, &P3_TSCROLL, &P3_TCURSOR, shown, P3_TCOUNT) != 0) {
-        if (!(g_0073DCA3[pad * 0x290] & 4))
+        if (!UBIT(g_0073DCA3[pad * 0x290], 2))
             func_002225D0(func_0034EC80(P3_TLIST[P3_TCURSOR]));
     } else if (repeat & 4) {
         SE(0);
