@@ -1,7 +1,7 @@
 /*
  * fld_event_cmd.c - the battlefield's queued event commands (camera targets, battle messages,
  * scenario calls) and the helpers that queue them. Original file name unknown; this code follows
- * emp_fld_base.c's unit placement (0x00355FE0-).
+ * emp_fld_base.c's unit placement (0x00355FE0-0x0035D55C).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -2406,4 +2406,525 @@ void func_0035C9D0(u16 kind, int won)
     func_0035C8C0(kind);
     func_0035C8F0();
     func_0035C560(&c, won == 0 ? 8 : 7);
+}
+
+/* 0x0035CA60-0x0035D438: queue second-queue command kind K (parameters a, b, c) after a
+ * delay. */
+
+/* 0x0035CA60, 0x30 bytes, matching. */
+void func_0035CA60(u16 a, u16 b)
+{
+    EvCmd e;
+
+    e.kind = 2;
+    e.a = a;
+    e.b = b;
+    func_0035C560(&e, 5);
+}
+
+/* 0x0035CA90, 0x30 bytes, matching. */
+void func_0035CA90(u16 a, u16 b)
+{
+    EvCmd e;
+
+    e.kind = 3;
+    e.a = a;
+    e.b = b;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035CAC0, 0x30 bytes, matching. */
+void func_0035CAC0(u16 a, u16 b)
+{
+    EvCmd e;
+
+    e.kind = 4;
+    e.a = a;
+    e.b = b;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035CAF0, 0x38 bytes. */
+void func_0035CAF0(u16 a, u16 b, short c2, u16 d)
+{
+    EvCmd e;
+
+    e.b = c2 << 8 | b;
+    e.kind = 5;
+    e.a = a;
+    e.c = d;
+    func_0035C560(&e, 5);
+}
+
+/* 0x0035CB30, 0x28 bytes, matching. */
+void func_0035CB30(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 6;
+    e.a = a;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035CB60, 0x30 bytes, matching. */
+void func_0035CB60(u16 a, u16 b)
+{
+    EvCmd e;
+
+    e.kind = 7;
+    e.a = a;
+    e.b = b;
+    func_0035C560(&e, 2);
+}
+
+/* 0x0035CB90, 0x2C bytes, matching. */
+void func_0035CB90(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0xA;
+    e.a = a;
+    func_0035C560(&e, 2);
+}
+
+/* 0x0035CBC0, 0x2C bytes, matching. */
+void func_0035CBC0(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0xB;
+    e.a = a;
+    func_0035C560(&e, 2);
+}
+
+/* 0x0035CBF0, 0x2C bytes, matching. */
+void func_0035CBF0(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0xC;
+    e.a = a;
+    func_0035C560(&e, 2);
+}
+
+/* 0x0035CC20, 0x2C bytes, matching. */
+void func_0035CC20(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0xD;
+    e.a = a;
+    func_0035C560(&e, 0);
+}
+
+/* 0x0035CC50, 0x2C bytes, matching. */
+void func_0035CC50(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0xE;
+    e.a = a;
+    func_0035C560(&e, 0);
+}
+
+/* 0x0035CC80, 0x28 bytes, matching. */
+void func_0035CC80(void)
+{
+    EvCmd e;
+
+    e.kind = 0xF;
+    func_0035C560(&e, 5);
+}
+
+/* 0x0035CCB0, 0x2C bytes, matching. */
+void func_0035CCB0(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0x10;
+    e.a = a;
+    func_0035C560(&e, 8);
+}
+
+/* 0x0035CCE0, 0x34 bytes. */
+void func_0035CCE0(u16 a, u16 b)
+{
+    EvCmd e;
+
+    e.kind = 0x11;
+    e.a = a;
+    e.b = b;
+    func_0035C760(a);
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035CD20, 0x2C bytes, matching. */
+void func_0035CD20(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0x12;
+    e.a = a;
+    func_0035C560(&e, 0);
+}
+
+/* 0x0035CD50, 0x2C bytes, matching. */
+void func_0035CD50(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0x13;
+    e.a = a;
+    func_0035C560(&e, 0);
+}
+
+/* 0x0035CD80, 0x2C bytes, matching. */
+void func_0035CD80(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0x14;
+    e.a = a;
+    func_0035C560(&e, 0);
+}
+
+/* 0x0035CDB0, 0x34 bytes, matching. */
+void func_0035CDB0(u16 a, u16 b, u16 c)
+{
+    EvCmd e;
+
+    e.kind = 0x15;
+    e.a = a;
+    e.b = b;
+    e.c = c;
+    func_0035C560(&e, 0);
+}
+
+/* 0x0035CDF0, 0x34 bytes, matching. */
+void func_0035CDF0(u16 a, u16 b, u16 c)
+{
+    EvCmd e;
+
+    e.kind = 0x16;
+    e.a = a;
+    e.b = b;
+    e.c = c;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035CE30, 0x30 bytes, matching. */
+void func_0035CE30(u16 a, u16 b)
+{
+    EvCmd e;
+
+    e.kind = 0x17;
+    e.a = a;
+    e.b = b;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035CE60, 0x34 bytes. */
+void func_0035CE60(u16 a, u16 b)
+{
+    EvCmd e;
+
+    e.kind = 0x18;
+    e.a = a;
+    e.b = b;
+    func_0035C800(a);
+    func_0035C560(&e, 2);
+}
+
+/* 0x0035CEA0, 0x34 bytes. */
+void func_0035CEA0(u16 a, u16 b)
+{
+    EvCmd e;
+
+    e.kind = 0x19;
+    e.a = a;
+    e.b = b;
+    func_0035C800(a);
+    func_0035C560(&e, 2);
+}
+
+/* 0x0035CEE0, 0x3C bytes. */
+void func_0035CEE0(u16 a, u16 b, u16 c)
+{
+    EvCmd e;
+
+    e.kind = 0x1A;
+    e.a = a;
+    e.b = b;
+    e.c = c;
+    func_0035C800(b);
+    func_0035C560(&e, 2);
+}
+
+/* 0x0035CF20, 0x44 bytes, matching. */
+void func_0035CF20(u16 a)
+{
+    EvCmd e;
+
+    if (func_0036D310() != 0)
+        return;
+    e.kind = 0x1B;
+    e.a = a;
+    func_0035C560(&e, 2);
+}
+
+/* 0x0035CF70, 0x54 bytes, matching. */
+void func_0035CF70(u16 a, u16 b)
+{
+    EvCmd e;
+
+    if (func_0036D310() != 0)
+        return;
+    e.kind = 0x1C;
+    e.a = a;
+    e.b = b;
+    func_0035C560(&e, 0);
+}
+
+/* 0x0035CFD0, 0x44 bytes, matching. */
+void func_0035CFD0(u16 a)
+{
+    EvCmd e;
+
+    if (func_0036D310() != 0)
+        return;
+    e.kind = 0x1D;
+    e.a = a;
+    func_0035C560(&e, 0);
+}
+
+/* 0x0035D020, 0x44 bytes, matching. */
+void func_0035D020(u16 a)
+{
+    EvCmd e;
+
+    if (func_0036D310() != 0)
+        return;
+    e.kind = 0x1E;
+    e.a = a;
+    func_0035C560(&e, 0);
+}
+
+/* 0x0035D070, 0x44 bytes, matching. */
+void func_0035D070(u16 a)
+{
+    EvCmd e;
+
+    if (func_0036D310() != 0)
+        return;
+    e.kind = 0x1F;
+    e.a = a;
+    func_0035C560(&e, 0);
+}
+
+/* 0x0035D0C0, 0x28 bytes, matching. */
+void func_0035D0C0(void)
+{
+    EvCmd e;
+
+    e.kind = 0x20;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035D0F0, 0x28 bytes, matching. */
+void func_0035D0F0(void)
+{
+    EvCmd e;
+
+    e.kind = 0x21;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035D120, 0x28 bytes, matching. */
+void func_0035D120(void)
+{
+    EvCmd e;
+
+    e.kind = 0x22;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035D150, 0x38 bytes, matching. */
+void func_0035D150(void)
+{
+    EvCmd e;
+
+    if (func_0036D310() != 0)
+        return;
+    e.kind = 0x23;
+    func_0035C560(&e, 5);
+}
+
+/* 0x0035D190, 0x38 bytes, matching. */
+void func_0035D190(void)
+{
+    EvCmd e;
+
+    if (func_0036D310() != 0)
+        return;
+    e.kind = 0x24;
+    func_0035C560(&e, 5);
+}
+
+/* 0x0035D1D0, 0x38 bytes, matching. */
+void func_0035D1D0(void)
+{
+    EvCmd e;
+
+    if (func_0036D310() != 0)
+        return;
+    e.kind = 0x25;
+    func_0035C560(&e, 5);
+}
+
+/* 0x0035D210, 0x28 bytes, matching. */
+void func_0035D210(void)
+{
+    EvCmd e;
+
+    e.kind = 0x26;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035D240, 0x28 bytes, matching. */
+void func_0035D240(void)
+{
+    EvCmd e;
+
+    e.kind = 0x27;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035D270, 0x28 bytes, matching. */
+void func_0035D270(void)
+{
+    EvCmd e;
+
+    e.kind = 0x28;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035D2A0, 0x28 bytes, matching. */
+void func_0035D2A0(void)
+{
+    EvCmd e;
+
+    e.kind = 0x29;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035D2D0, 0x2C bytes, matching. */
+void func_0035D2D0(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0x2A;
+    e.a = a;
+    func_0035C560(&e, 5);
+}
+
+/* 0x0035D300, 0x30 bytes, matching. */
+void func_0035D300(u16 a, u16 b)
+{
+    EvCmd e;
+
+    e.kind = 0x2B;
+    e.a = a;
+    e.b = b;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035D330, 0x2C bytes, matching. */
+void func_0035D330(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0x2C;
+    e.a = a;
+    func_0035C560(&e, 5);
+}
+
+/* 0x0035D360, 0x34 bytes, matching. */
+void func_0035D360(u16 a, u16 b, u16 c)
+{
+    EvCmd e;
+
+    e.kind = 0x2D;
+    e.a = a;
+    e.b = b;
+    e.c = c;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035D3A0, 0x38 bytes, matching. */
+void func_0035D3A0(void)
+{
+    EvCmd e;
+
+    if (func_0036D310() != 0)
+        return;
+    e.kind = 0x2E;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035D3E0, 0x2C bytes, matching. */
+void func_0035D3E0(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0x2F;
+    e.a = a;
+    func_0035C560(&e, 6);
+}
+
+/* 0x0035D410, 0x2C bytes, matching. */
+void func_0035D410(u16 a)
+{
+    EvCmd e;
+
+    e.kind = 0x30;
+    e.a = a;
+    func_0035C560(&e, 6);
+}
+
+int func_0023E840(u8 *t);
+
+/* 0x0035D440, 0x44 bytes. A plain timer's step (func_0023E840); stops it when it is done. */
+int func_0035D440(u8 *t)
+{
+    int r = func_0023E840(t);
+
+    if (r != 0)
+        *t &= 0xFC;
+    return r != 0;
+}
+
+/* 0x0035D490, 0x7C bytes, matching. A command timer's step: starts its command when the first queue is
+ * idle, frees it once the queue is done. */
+int func_0035D490(u8 *t)
+{
+    EvCmd *c = func_003577E0(t[2] - 0x32);
+
+    if (func_00356EF0() == 0) {
+        func_00356F00();
+        func_0035C1C0(c);
+    }
+    if (func_00356E40() != 0) {
+        c->kind = 0x31;
+        *t &= 0xFC;
+    }
+    return 1;
+}
+
+/* 0x0035D510, 0x50 bytes. A timer's step. */
+void func_0035D510(u8 *t)
+{
+    if (t[2] < 0x32)
+        func_0035D440(t);
+    else if (t[2] > 0x31)
+        func_0035D490(t);
 }
