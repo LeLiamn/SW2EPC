@@ -1508,7 +1508,7 @@ float func_0014D390(Actor *a, u8 mount);
 float func_0014D3B0(Actor *a);
 float func_0016BF10(Unit *u);
 int func_0016BE50(Unit *u, float *rate);
-u8 *func_0014F810(Actor *a, u8 node);
+u8 *func_0014F810(Actor *a, int node);    /* (u8 node in model.c: callers pass it as is) */
 void func_0016EC90(float rate, float f, u8 *slot, u8 *node, u8 colour, int flag, int hit);
 void func_001700F0(u8 *slot, int on, float *a, float *b, int side);
 void func_00170510(u8 *slot, int on, float *a, float *b);
@@ -1731,4 +1731,260 @@ void func_001688D0(Unit *u)
         }
     }
     U8(u, 0x19C) &= ~1;
+}
+
+typedef unsigned long long u64;
+
+#define g_70000158 (*(u32 **)0x70000158)         /* the DMA chain's write cursor */
+
+extern int g_0045D2A8;                   /* (small data) slow motion: its timer */
+extern u8 *g_005B4A00, *g_005B4A04;      /* the two duelling units */
+extern u32 g_0076E700[];                 /* per player: state flags */
+extern float g_00574D90[4];              /* the units' colour (w: the brightness) */
+
+int func_003E1F80(Unit *u);
+void func_002538C0(u8 player, u32 alpha);
+void func_001C8ED0(u8 player);
+void func_0027A210(Unit *u);
+void func_0014F0E0(Actor *a, u32 alpha);
+void func_001700A0(u8 *slot, u32 alpha);
+void func_00170300(u8 *slot, float *a, float *b, float *c);
+void func_001706A0(u8 *slot, float *a, float *b);
+void func_0014F970(u8 *weapon);
+void func_002AD9A0(u8 *horse);
+
+/* 0x001698D0, 0x7F4 bytes. Draws a unit (not with flag 8 of +0x19D): its opacity (players
+ * always solid; hidden ones (flag 8 of +0x198) faint or invisible; during the slow-motion duel
+ * the others fade out; in `mode` hidden others are dropped unless func_003E1F80 says otherwise);
+ * a GS packet setting the alpha test (and, for a unit held still, the alpha blend), the colour
+ * and brightness (+0x186) for VU1; the model, the weapon slots (two-handed kinds between their
+ * nodes during their hits), the weapon model, the horse; the blend set back. */
+void func_001698D0(Unit *u, int mode)
+{
+    int still = (char)U8(u, 0x19C) < 0 && U8(u, 0x15A) == 3;
+    u8 p, b;
+    u32 alpha, n, *d, k;
+    u64 *q;
+    float c[4];
+    u8 *s;
+
+    if (U8(u, 0x19D) & 8)
+        return;
+    p = U8(u, 0x14E);
+    alpha = p < 2 ? 0x80 : U8(u, 0x14D);
+    if (mode == 0) {
+        if (g_0045D2A8 == 0) {
+            if (U8(u, 0x198) & 8) {
+                if (p < 2)
+                    alpha = 0;
+                else if (0x20 < alpha)
+                    alpha = 0x20;
+            }
+        } else if (u != g_005B4A00 && u != g_005B4A04
+                   && (S32(u, 0x118) != 0x3C
+                       || (PTR(u, 0x28C) != g_005B4A00 && PTR(u, 0x28C) != g_005B4A04))) {
+            if (U8(u, 0x198) & 8) {
+                u32 lim = S32(u, 0x118) != 0x3C ? 0x20 : 0x40;
+
+                if (lim < alpha)
+                    alpha = lim;
+            } else if (U8(u, 0x19F) & 4) {
+                float f = 1.0f - (float)g_0045D2A8 / 100.0f;
+
+                if (f < 0.75f) {
+                    f = 0.0f;
+                } else {
+                    float g = (f - 0.75f) / 0.25f;
+
+                    if (1.0f <= g)
+                        g = 1.0f;
+                    f = 0.0f;
+                    if (0.0f <= g)
+                        f = g;
+                }
+                alpha = (u32)((float)alpha * f) & 0xFF;
+            }
+        }
+    } else {
+        if ((U8(u, 0x198) & 8) && p > 3 && func_003E1F80(u) == 0)
+            alpha = 0;
+        if (U8(u, 0x19C) & 0x80)
+            alpha = 0;
+    }
+    if (mode != 0) {
+        if (g_0076E700[U8(u, 0x14E)] & 0x3E640)
+            func_002538C0(U8(u, 0x14E), alpha);
+        if (alpha == 0 || U8(u, 0x14E) < 2)
+            func_001C8ED0(U8(u, 0x14E));
+    }
+    func_0027A210(u);
+    n = still ? 2 : 1;
+    d = g_70000158;
+    d[0] = (n + 1) | 0x10000000;
+    d[1] = 0;
+    d[2] = 0;
+    d[3] = (n + 1) | 0x50000000;
+    q = (u64 *)(d + 4);
+    q[0] = n | 0x1000000000008000ULL;
+    q[1] = 0xE;
+    if (alpha < 0x80)
+        q[2] = 0x5001B;
+    else
+        q[2] = (u64)U8(PTR(PTR(u, 0x11C), 0x1E8), 0x2F) << 4 | 0x5000B;
+    q[3] = 0x47;
+    q += 4;
+    if (still) {
+        q[0] = U8(u, 0x186) < 0x80 ? 0x44 : 0x48;
+        q[1] = 0x42;
+        q += 2;
+    }
+    b = U8(u, 0x186);
+    d = (u32 *)q;
+    d[0] = 0x10000001;
+    d[1] = 0;
+    d[2] = 0;
+    d[3] = 0x6C010001;
+    g_00574D90[3] = (float)b;
+    for (k = 0; k < 4; k++)
+        c[k] = g_00574D90[k];
+    for (k = 0; k < 4; k++)
+        d[4 + k] = (u32)(int)(c[k] * 16.0f);    /* vftoi4 */
+    g_70000158 = d + 8;
+    func_0014F0E0(PTR(u, 0x11C), alpha);
+    s = u + 0x290;
+    for (k = 0; k < 4; k++, s += 0x70) {
+        u32 f = U32(PTR(u, 0x210), 0x1C);
+
+        if ((f & 1 << (k + 0x15)) == 0 && (U8(s, 0x4C) & 1)) {
+            func_001700A0(s, alpha);
+            if ((u32)(U8(s, 0x48) - 0x30) < 8) {
+                f = U32(PTR(u, 0x210), 0x1C);
+                if (f & 0x2000)
+                    func_00170300(s, func_0016A170(u, 0x12), func_0016A170(u, 0x15),
+                                  func_0016A170(u, 0x14));
+                else if (f & 0x1000)
+                    func_00170300(s, func_0016A170(u, 0x13), func_0016A170(u, 0x15),
+                                  func_0016A170(u, 0x14));
+            }
+            if ((u32)(U8(s, 0x48) - 0x14) < 8 && (U32(PTR(u, 0x210), 0x1C) & 0x3000))
+                func_001706A0(s, func_0016A170(u, 0x15), func_0016A170(u, 0x14));
+        }
+    }
+    if (PTR(u, 0x134) != 0)
+        func_0014F970(PTR(u, 0x134));
+    if (S32(u, 0x118) == 0x3C && U8(u, 0x180) < 0x14)
+        func_002AD9A0(u + 0x1A0);
+    if (still) {
+        d = g_70000158;
+        d[0] = 0x10000002;
+        d[1] = 0;
+        d[2] = 0;
+        d[3] = 0x50000002;
+        q = (u64 *)(d + 4);
+        q[0] = 0x1000000000008001ULL;
+        q[1] = 0xE;
+        q[2] = 0x44;
+        q[3] = 0x42;
+        g_70000158 = (u32 *)(q + 4);
+    }
+    d = g_70000158;
+    d[0] = 0x10000000;
+    d[1] = 0;
+    d[2] = 0x13000000;
+    d[3] = 0;
+    g_70000158 = d + 4;
+}
+
+#define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+
+short func_0034A530(void);
+
+/* 0x0016A0D0, 0x94 bytes. The point of the unit's node `node` (its matrix's translation). */
+void func_0016A0D0(Unit *u, float *out, u8 node)
+{
+    float *m, v[4];
+    int k;
+
+    out[0] = 0.0f;
+    out[1] = 0.0f;
+    out[2] = 0.0f;
+    out[3] = 1.0f;
+    m = (float *)func_0014F810(PTR(u, 0x11C), node);
+    for (k = 0; k < 4; k++)
+        v[k] = out[k];
+    for (k = 0; k < 4; k++)
+        out[k] = m[k] * v[0] + m[4 + k] * v[1] + m[8 + k] * v[2] + m[12 + k] * v[3];
+    v[3] = 1.0f / out[3];
+    for (k = 0; k < 4; k++)
+        out[k] = out[k] * v[3];
+}
+
+/* 0x0016A170, 0x1C bytes, matching. The world matrix of the unit's node `node`. */
+float *func_0016A170(Unit *u, int node)
+{
+    return (float *)func_0014F810(PTR(u, 0x11C), node);
+}
+
+/* 0x0016A190, 0x24 bytes, matching. The local matrix of the unit's node `node`. */
+u8 *func_0016A190(Unit *u, u32 node)
+{
+    return PTR(PTR(u, 0x11C), 0x208) + (node & 0xFF) * 0x70 + 0x20;
+}
+
+/* 0x0016A1C0, 0x50 bytes. Clears the unit's weapon mask and its related fields. */
+void func_0016A1C0(Unit *u)
+{
+    U8(u, 0x19D) &= ~2;
+    U16(u, 0x148) = 0;
+    U16(u, 0x14A) = 0;
+    U32(u, 0x140) = 0;
+    U8(u, 0x14C) = 0x40;
+    *(u64 *)(u + 0x120) = 0;
+    U8(u, 0x19F) &= ~0x80;
+}
+
+/* 0x0016A210, 0x12C bytes. Whether `v` guards a hit from `u` (0 no, 1 yes): its chance is
+ * skill² / 8000 + the officer's +0xA7 percent (skill from its record +0x68, or func_0034A530
+ * for some officers); 2 for an unguardable hit (+0x2C flag 0x80000000 during an attack). */
+int func_0016A210(Unit *u, Unit *v, u8 *hit)
+{
+    u8 *o;
+    short s;
+    u32 c;
+
+    if (v == 0)
+        return 0;
+    o = g_006A3A30[S16(v, 0x178)];
+    if (PTR(PTR(u, 0x210), 0x14) != 0 && (U32(hit, 0x2C) & 0x80000000))
+        return 2;
+    s = S16(PTR(o, 0x68), 0x1A);
+    if (PTR(o, 0x10) != 0 && U8(o, 0x7F) == 0)
+        s = func_0034A530();
+    c = (s * s) / 8000 + U8(o, 0xA7);
+    if (c == 0)
+        c = 1;
+    if (c < RANDOM() % 100)
+        return 0;
+    return 1;
+}
+
+/* 0x0016A340, 0x88 bytes, matching. How `v` is hit by `hit`: 5 nobody, 3 hit flag 0x400, 4 a unit whose
+ * action has flag 0x8000000 (+0x1C), 1 hit flag 0x40000000 (+0x28), 2 a mounted unit, else 0. */
+int func_0016A340(Unit *v, u8 *hit)
+{
+    u8 *act;
+
+    if (v == 0)
+        return 5;
+    if (U16(hit, 0x1C) & 0x400)
+        return 3;
+    act = PTR(v, 0x210);
+    if (U32(act, 0x1C) & 0x8000000)
+        return 4;
+    if (U32(hit, 0x28) & 0x40000000)
+        return 1;
+    if (U32(act, 0x18) & 0x8000000)
+        return 2;
+    return 0;
 }
