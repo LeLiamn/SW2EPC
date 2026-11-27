@@ -1097,6 +1097,26 @@ loads LINKDATA entry 0x33, the officer table). Done: `0x0019A7B0`-`0x001A2968`, 
 - **Save image** (`0x005D30D0`, 0x96C90 bytes): the settings' head and options, three slots (state,
   records, stable, two large parts), the settings block; a 12-byte header (`0x0019F850`).
 
+## Interface parts (`src/ui_parts.c`, `src/cmnparts.c`)
+
+`0x001A2970`-`0x001A8EF8` (`ui_parts.c`, name unknown) and `cmnparts.c` from `0x001A8F00` (its
+name is passed to the file loader at `0x001A9030`) to `0x001AC970`: 84 functions, 10 match.
+
+- **Sprite packets:** 0x50 bytes (+0x18 TEX0, +0x20 RGBAQ, +0x28 / +0x38 UV, +0x30 / +0x40 XYZ2),
+  taken from the packet buffer (`func_00105860`) and queued on a layer (`func_00105900`). Screen y
+  is scaled from 480 to 448 lines; some parts use half lines (y x 8 + 0x7900) instead.
+- **Parts:** large (40 x 48) and small (16 x 16) digits, a vertical scroll bar (8 sprites),
+  framed windows of 3 x 3 sprites (two frame textures), gradient bars (styles at `0x00425D20`),
+  header bars, tabs, title plates, a caption band at the bottom right, one- and three-value gauges
+  (colours at `0x00425CD0`) and twelve fixed sprites.
+- **Portraits** (LINKDATA entry 6): 0xB1 images of 0x1600 bytes (64 x 72, 8-bit and a palette);
+  officer portraits 0-0x21 and 0x33-0x38 have four variants. A portrait object (0x170 bytes) holds
+  the two uploads and its sprite. Large portraits are LINKDATA entries 9 and up.
+- **Text sprites:** the text font (`0x004053C0`) and the names' font (`0x004053F0`) with per glyph
+  widths; names are drawn one sprite per glyph, shrunk to fit, two-byte characters drawn as '@'.
+- **Interface textures** (LINKDATA entry 7): the two main texture sets (`0x0068F0F0`,
+  `0x0068F0F8`) and the plates (`0x0068F100`); four window layouts at `0x0068F070`.
+
 ## The strategic map (`src/field.c`)
 
 Original source file `Field.c` (its name is passed to the file loader at `0x0018C490`). Done

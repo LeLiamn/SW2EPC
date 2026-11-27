@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 79552,
-    "non_matching": 505664
+    "matching": 80352,
+    "non_matching": 545800
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 751
+    "matching": 761
   },
   "layout": "treemap",
   "areas": [
@@ -594,11 +594,11 @@
       "children": [
         {
           "name": "cmnparts.c",
-          "description": "Estimated range 0x1A1BF0-0x1AD448; 24 function(s) decompiled",
+          "description": "Estimated range 0x1A1BF0-0x1AD448; 108 function(s) decompiled",
           "code": {
             "total": 47192,
-            "matching": 432,
-            "non_matching": 2800
+            "matching": 1232,
+            "non_matching": 42936
           }
         },
         {
