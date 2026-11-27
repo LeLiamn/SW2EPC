@@ -11,6 +11,10 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+extern u32 g_7000015C;                   /* (scratchpad) the random seed */
+
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+
 extern u32 g_007BEAD4;
 extern int g_0045D818[2];                /* (small data) a step and a value */
 extern int g_0045D81C;
@@ -907,4 +911,310 @@ int func_003C2AE0(int a, int b)
         || (func_003C27A0(1, a, 0x19F, 0x19F, 0x19F) == 1 && func_003C27A0(0, b, 0x19F, 0x19F, 0x19F) == 1))
         return 1;
     return 0;
+}
+
+extern int g_0045D0D0[4];                /* (small data) two best scores and officers */
+extern int g_0045D834;                   /* (small data) */
+extern int g_00669DB8;
+
+int func_002F3DC0(int o);
+int func_0036B940(int s, int k);
+int func_00362160(int s, int k);
+int func_0036BA20(int s, int k);
+u32 func_0032EEB0(void);
+u32 func_0032EED0(void);
+int func_00329540(int k);
+int func_0032F2E0(int v);
+int func_0032F3D0(int v);
+void func_003BA8F0(int a, u32 o, int r, int x, int y);
+int func_002F3E70(u32 o);
+int func_0030DFA0(void);
+
+/* 0x003C2C60, 0x168 bytes. Whether side 0 has another officer (not the player's, `a` or `b`)
+ * that is free (`free`: of no force and kind 0) or of side 1's commander's force. */
+int func_003C2C60(u32 a, u32 b, int free)
+{
+    u32 me = func_00327820(), c = func_003620E0(1, 0), k;
+    int f;
+
+    if (c >= 0x19F)
+        return 0;
+    f = func_002F4080(c);
+    if (f < 0 || f >= func_0030AB90())
+        return 0;
+    for (k = 0; k < 8; k++) {
+        u32 o = func_003620E0(0, k);
+        int g;
+
+        if (o >= 0x19F || o == me || o == a || o == b)
+            continue;
+        g = func_002F4080(o);
+        if (free == 0) {
+            if (g == 0x19 && func_002F3DC0(o) == 0)
+                return 1;
+        } else if (f == g) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* 0x003C2DD0, 0xB8 bytes. Whether side 0 has another officer in state 3. */
+int func_003C2DD0(u32 a, u32 b)
+{
+    u32 me = func_00327820(), k;
+
+    for (k = 0; k < 8; k++) {
+        u32 o = func_003620E0(0, k);
+
+        if (o < 0x19F && o != me && o != a && o != b && func_002F3BB0(o) == 3)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x003C2E90, 0x138 bytes. Whether officer `o` is side 0's best (or, unless `best`, second best)
+ * by func_0036BA20. */
+int func_003C2E90(int o, int best)
+{
+    int s1 = g_0045D0D0[0], s2 = g_0045D0D0[1], o1 = g_0045D0D0[2], o2 = g_0045D0D0[3], k;
+
+    if (func_003C0790(o) == 0)
+        return 0;
+    for (k = 0; k < 6; k++) {
+        if (func_0036B940(0, k) == 0) {
+            int x = func_00337A10(func_00362160(0, k)), v = func_0036BA20(0, k);
+
+            if (s1 < v) {
+                s2 = s1;
+                o2 = o1;
+                o1 = x;
+                s1 = v;
+            } else if (s2 < v) {
+                o2 = x;
+                s2 = v;
+            }
+        }
+    }
+    if (best == 0)
+        return o1 == o || o2 == o;
+    return o1 == o;
+}
+
+/* 0x003C2FD0, 0x64 bytes. The player's force's officers. */
+int func_003C2FD0(void)
+{
+    int f = func_00327D50(), n = 0, k;
+
+    for (k = 0; k < 0x19F; k++) {
+        if (f == func_002F4080(k))
+            n++;
+    }
+    return n;
+}
+
+/* 0x003C3040, 0x14 bytes. */
+int func_003C3040(void)
+{
+    return g_00669DB8 == 0;
+}
+
+/* 0x003C3060, 0x10C bytes. Whether officer `o` serves side 1's commander's force. */
+int func_003C3060(u32 o)
+{
+    u32 c = func_003620E0(1, 0);
+    int f, g;
+
+    if (o >= 0x19F || c >= 0x19F)
+        return 0;
+    f = func_002F4080(c);
+    g = func_002F4080(o);
+    if (f < 0 || f >= func_0030AB90() || g < 0 || g >= func_0030AB90())
+        return 0;
+    if (func_0030D370() == 0)
+        return 0;
+    return f == g;
+}
+
+/* 0x003C3170, 0x48 bytes. Side 0's commander is the event's first officer. */
+void func_003C3170(void)
+{
+    int o = (short)func_003620E0(0, 0);
+
+    if (o >= 0 && o < 0x19F)
+        func_0032E8A0(0, o);
+}
+
+/* 0x003C31C0, 0x198 bytes. The event's first officer: side 0's hidden officer (kinds 1, 3, 5)
+ * or one of side 0's officers the player knows. */
+void func_003C31C0(void)
+{
+    int n = func_003C29C0(), r;
+    u8 kind = func_00362570();
+    u32 o = 0x19F;
+
+    r = n == 0 ? 0 : (int)RANDOM() % n;
+    switch (kind) {
+    case 1:
+    case 3:
+    case 5:
+        o = func_003620E0(0, 6);
+        break;
+    default: {
+        u32 t[8], *p = t;
+        int k;
+
+        for (k = 0; k < 8; k++)
+            t[k] = 0x19F;
+        for (k = 0; k < 8; k++) {
+            u32 x = func_003620E0(0, k);
+
+            if (x < 0x19F && func_0032EB40(func_00327820(), x, 1) != 0)
+                *p++ = x;
+        }
+        if (n != 0)
+            o = t[r];
+        break;
+    }
+    }
+    if (o < 0x19F)
+        func_0032E8A0(0, o);
+}
+
+/* 0x003C3360, 0x3C bytes, matching. */
+void func_003C3360(void)
+{
+    g_0045D834 = 0;
+    if (func_0030D370() != 0 && func_003C2360() != 0)
+        g_0045D834 = 1;
+}
+
+/* Event `ev` (once) for an officer of kind `kind`. */
+static int officer_event(int ev, int kind)
+{
+    if (func_00329540(ev) != 0)
+        return 0;
+    if (func_0032F3D0(func_0032F2E0(func_002F27D0(func_0032EEB0()))) != kind)
+        return 0;
+    func_003BA8F0(0, func_0032EEB0(), func_002F5CC0(func_0032EEB0()), -1, -1);
+    return 1;
+}
+
+/* 0x003C33A0, 0x98 bytes. */
+int func_003C33A0(void)
+{
+    return officer_event(0xC, 0);
+}
+
+/* 0x003C3440, 0x9C bytes. */
+int func_003C3440(void)
+{
+    return officer_event(0xD, 1);
+}
+
+/* 0x003C34E0, 0x9C bytes. */
+int func_003C34E0(void)
+{
+    return officer_event(0xE, 2);
+}
+
+/* 0x003C3580, 0xC4 bytes. Side 0's commander when the player knows it and it is a free officer
+ * of another force (0x19F otherwise). */
+u32 func_003C3580(void)
+{
+    u32 o = func_0032EED0();
+
+    if (func_003C23A0() == 0 || o >= 0x19F)
+        return 0x19F;
+    if (func_002F3E70(o) != 0)
+        return 0x19F;
+    if (o != func_00337A10(func_00362160(0, 0)))
+        return 0x19F;
+    if (func_00327D50() == func_002F4080(o))
+        return 0x19F;
+    return o;
+}
+
+/* Event with that commander of kind `kind`. */
+static int commander_event(int kind)
+{
+    u32 o = func_003C3580();
+
+    if (o == 0x19F)
+        return 0;
+    if (func_0032F3D0(func_0032F2E0(func_002F27D0(o))) != kind)
+        return 0;
+    func_0032E8A0(0, func_003C0D20(o));
+    func_0032E8A0(1, o);
+    return 1;
+}
+
+/* 0x003C3650, 0x84 bytes. */
+int func_003C3650(void)
+{
+    return commander_event(0);
+}
+
+/* 0x003C36E0, 0x88 bytes. */
+int func_003C36E0(void)
+{
+    return commander_event(1);
+}
+
+/* 0x003C3770, 0x88 bytes. */
+int func_003C3770(void)
+{
+    return commander_event(2);
+}
+
+/* 0x003C3800, 0x178 bytes. Event 0x14 (once, three regions or more), or in mode 6 the known
+ * officer with the most merit who may rise. */
+int func_003C3800(void)
+{
+    int best = -1, o = func_00337A10(0x29), me = func_00327820(), k;
+
+    if (func_003C1850() == 0) {
+        if (func_00329540(0x14) != 0 || g_0045D834 == 0)
+            return 0;
+        if (func_002FB3B0(func_00327D50()) < 3)
+            return 0;
+        func_0032E8A0(0, func_003C0D20(0x19F));
+        return 1;
+    }
+    if (func_0030DFA0() != 6)
+        return 0;
+    for (k = 0; k < 0x19F; k++) {
+        int m;
+
+        if (k != me && func_0032EB40(me, k, 0) != 0 && func_003C0830(k) != 0
+            && best < (m = func_002F34E0(k))) {
+            best = m;
+            o = k;
+        }
+    }
+    func_0032E8A0(0, o);
+    return 1;
+}
+
+/* Event `ev` (once) with at least `n` regions. */
+static int regions_event(int ev, int n)
+{
+    if (func_003C1850() != 0 || func_00329540(ev) != 0 || g_0045D834 == 0)
+        return 0;
+    if (func_002FB3B0(func_00327D50()) < n)
+        return 0;
+    func_0032E8A0(0, func_003C0D20(0x19F));
+    return 1;
+}
+
+/* 0x003C3980, 0x94 bytes. */
+int func_003C3980(void)
+{
+    return regions_event(0x15, 10);
+}
+
+/* 0x003C3A20, 0x94 bytes. */
+int func_003C3A20(void)
+{
+    return regions_event(0x16, 0x14);
 }

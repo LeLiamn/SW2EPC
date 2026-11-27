@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 125152,
-    "non_matching": 877916
+    "matching": 125216,
+    "non_matching": 881532
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1358
+    "matching": 1359
   },
   "layout": "treemap",
   "areas": [
@@ -415,15 +415,15 @@
         },
         {
           "name": "emp_zuroku.c",
-          "description": "Estimated range 0x3BCB78-0x3C84B8; 57 function(s) decompiled",
+          "description": "Estimated range 0x3BCB78-0x3C84B8; 76 function(s) decompiled",
           "code": {
             "total": 47424,
-            "matching": 784,
-            "non_matching": 10464
+            "matching": 848,
+            "non_matching": 14080
           },
           "decompiled_functions": {
-            "count": 57,
-            "matching": 14
+            "count": 76,
+            "matching": 15
           }
         },
         {
