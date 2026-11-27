@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 81920,
-    "non_matching": 609140
+    "matching": 82064,
+    "non_matching": 614764
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 790
+    "matching": 792
   },
   "layout": "treemap",
   "areas": [
@@ -59,15 +59,15 @@
         },
         {
           "name": "StateDemo.c",
-          "description": "Estimated range 0x1BE248-0x1C3080; 53 function(s) decompiled",
+          "description": "Estimated range 0x1BE248-0x1C3080; 75 function(s) decompiled",
           "code": {
             "total": 20024,
-            "matching": 928,
-            "non_matching": 6584
+            "matching": 1072,
+            "non_matching": 12208
           },
           "decompiled_functions": {
-            "count": 53,
-            "matching": 26
+            "count": 75,
+            "matching": 28
           }
         },
         {
