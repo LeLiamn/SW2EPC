@@ -368,3 +368,92 @@ void func_0020BDE0(u8 *q, u8 *box, u8 *u)
         p = func_001FF230(p);
     }
 }
+
+/* Ground heights over the stage units (0x00209BB0-0x0020A04C; heights grow downward, so the
+ * highest is the smallest). */
+
+#define SU_BOXES (*(float **)0x700001D4)  /* (scratchpad) the collision boxes (8 floats each) */
+#define UNITS (*(u8 **)0x700001D0)        /* (scratchpad) the stage units (0x70 bytes each) */
+
+int func_001FF290(u8 *part, u32 kind);
+u32 *func_001946A0(float *p, int a);
+void func_001185B0(void *p, int n);
+float func_00209310(float *b, int side, float *p);
+
+/* Whether point `p` lies over box `b` (with a 0.1 margin). */
+static int over_box(float *p, float *b)
+{
+    return p[0] < b[4] + 0.1f && p[2] < b[6] + 0.1f && b[0] - 0.1f < p[0] && b[2] - 0.1f < p[2];
+}
+
+/* 0x00209BB0, 0x250 bytes. The highest ground of stage unit `u`'s boxes at point `p` (0 when
+ * over none). */
+float func_00209BB0(u8 *u, float *p)
+{
+    u16 v = *(u16 *)(u + 0x54);
+    u8 *d = func_001FF140(v), *part = d + 0x30;
+    u32 on = *(u32 *)(u + 0x5C), kind = func_001FF100(v, 0), k;
+    float *b = SU_BOXES + *(u16 *)(u + 0x56) * 8, h = 0.0f;
+
+    for (k = 0; k < *(u16 *)(d + 4); k++) {
+        if ((on & 1 << k) != 0) {
+            u32 n = func_00207D80(*(u16 *)part), j;
+
+            if (func_001FF290(part, kind) == 1) {
+                u8 *kinds = func_00207DA0(*(u16 *)part);
+
+                for (j = 0; j < n; j++, b += 8) {
+                    if (over_box(p, b)) {
+                        float g = kinds[j] == 4 ? b[1]
+                            : func_00209310(b, (part[8] + kinds[j] + u[0x5B]) & 3, p);
+
+                        h = h < g ? h : g;
+                    }
+                }
+            } else {
+                b += n * 8;
+            }
+        }
+        part = func_001FF230(part);
+    }
+    return h;
+}
+
+/* 0x00209E00, 0x24C bytes. The highest stage unit ground at point `p` (each unit once). */
+float func_00209E00(float *p)
+{
+    u8 *seen = (u8 *)0x700001E0;
+    u32 *c;
+    float h = 0.0f;
+
+    func_001185B0(seen, 0x50);
+    for (c = func_001946A0(p, 1); c != 0; c = (u32 *)c[1]) {
+        u32 i = c[0], bit = 1 << (i & 7);
+        u8 *u;
+        int ok;
+        float g;
+
+        if ((bit & 0xFF & seen[i >> 3]) != 0)
+            continue;
+        seen[i >> 3] |= bit;
+        u = UNITS + i * 0x70;
+        if ((u[0x64] & 1) == 0)
+            ok = 0;
+        else if ((*(u32 *)(g_00669D60 + 0x200) & 0x100000) == 0
+                 || (char)func_001FF100(*(u16 *)(u + 0x54), 4) != 1)
+            ok = (u[0x69] & 4) == 0;
+        else
+            ok = 0;
+        if (!ok)
+            continue;
+        if ((u[0x64] & 4) == 0) {
+            g = func_00209BB0(u, p);
+        } else {
+            float *b = SU_BOXES + *(u16 *)(u + 0x56) * 8;
+
+            g = over_box(p, b) ? b[1] : 0.0f;
+        }
+        h = h < g ? h : g;
+    }
+    return h;
+}
