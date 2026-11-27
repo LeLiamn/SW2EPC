@@ -885,17 +885,34 @@ player * 3 + slot) whose fields are mostly unknown and are reached by offset. Th
 ## The battle camera (`src/camera.c`)
 
 The code from 0x00161490 on, after `scene_initialize.c`, is the battle camera. Done so far
-(0x00161490-0x00162244, 8 functions, none matching yet):
+(0x00161490-0x00163A1C, 17 functions, none matching yet):
 
-- **Placement:** the camera follows a unit from behind. Its eye sits at a set distance (on foot
-  or mounted) behind the unit's facing.
+- **State:** a block of words: +0 the 3D camera object (eye at +0x1C0, target at +0x1D0, view
+  angle at +0x224), +4 the unit followed, +8 a yaw to turn to, +0xC the distance, +0x10 the eye
+  height, +0x14 a height offset, +0x18 a turn timer, +0x1C the unit's previous action, +0x36 a
+  "free place" timer, +0x3C flags, +0x90 / +0xB0 / +0xC0 positions kept from the last frame,
+  +0xD0 the free place's offset.
+- **Modes** (dispatcher `0x001637B0`, by the unit's action): turning to a set yaw while the
+  timer runs (`0x00163050`), straight behind the facing (`0x001635F0`) for actions that keep
+  their direction, a fixed placement (`0x00162130`), else the usual one (`0x00163380`): behind
+  the unit along the flat line from the eye, 1.25 times farther for some actions.
+- **Target:** the unit's point, lowered by a height; it moves only outside a dead zone measured
+  in view space (`0x00162250`, larger during some hits). The height offset follows how much the
+  unit runs across the view.
+- **Smoothing:** eye and target ease towards their new places at a rate per mode
+  (`0x001626E0`); the eye's height has its own rate when the two are far apart.
+- **Scenery:** ray tests (`0x001F3930`, radius 30) keep walls out of the view: the target is
+  pulled back to the unit, a free place is looked for behind the unit or along the obstacle's
+  surface and used for 15 frames, else the eye is pulled in front of the obstacle. An eye that
+  went through a ceiling is held under it.
 - **Pitch:** the eye is pitched up by an angle that follows the slope of the ground between the
   eye and the unit (four ground samples), changing by 0.1 degree a frame. The original also
   lowers it when the difference is small and positive.
 - **Limits:** the eye is kept above the ground, and lowered when the player looks up.
 
-The next functions pass vectors to each other in VU0 registers. They need a closer reading
-than Ghidra's output gives.
+Some of these functions pass vectors to each other in VU0 registers (for example the dead-zone
+helper `0x0029DE30` gets its margins in float registers): their C was written from the
+disassembly rather than from Ghidra's output.
 
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
