@@ -658,7 +658,7 @@ void func_0018F080(void)
     func_0027DDE0();
 }
 
-/* 0x0018F1C0, 0x1C bytes. Resets the current map's route cache. */
+/* 0x0018F1C0, 0x1C bytes, matching. Resets the current map's route cache. */
 void func_0018F1C0(void)
 {
     func_0018D460(g_0045D2F0);
@@ -738,7 +738,7 @@ u32 func_0018F650(u8 *map, RouteQuery *q)
     return c;
 }
 
-/* 0x0018F680, 0x64 bytes. The next cell from `from` towards `to` for side `side` on the
+/* 0x0018F680, 0x64 bytes, matching. The next cell from `from` towards `to` for side `side` on the
  * current map (*next = `from` when there is none). */
 void func_0018F680(u16 *next, u16 *from, u16 *to, u32 side)
 {
@@ -751,7 +751,7 @@ void func_0018F680(u16 *next, u16 *from, u16 *to, u32 side)
         *next = *from;
 }
 
-/* 0x0018F6F0, 0x34 bytes. The cost from `from` to `to` for side `side` on the current map. */
+/* 0x0018F6F0, 0x34 bytes, matching. The cost from `from` to `to` for side `side` on the current map. */
 u32 func_0018F6F0(u16 *from, u16 *to, u32 side)
 {
     RouteQuery q;
@@ -772,7 +772,7 @@ int func_0018F730(u8 *map, u8 *cell, int dir, int side)
     return (g_004251F0[side] & U8(e, dir + 0x18)) != 0;
 }
 
-/* 0x0018F7D0, 0x2C bytes. The same on the current map. */
+/* 0x0018F7D0, 0x2C bytes, matching. The same on the current map. */
 int func_0018F7D0(u8 *cell, int dir, int side)
 {
     return func_0018F730(g_0045D2F0, cell, dir, side);
@@ -955,13 +955,13 @@ void func_00190060(u32 kind)
     func_00102EC0(dirs);
 }
 
-/* 0x001902A0, 0x10 bytes. Whether the routes must be rebuilt. */
+/* 0x001902A0, 0x10 bytes, matching. Whether the routes must be rebuilt. */
 int func_001902A0(void)
 {
     return U8(g_0045D2F0, 0x56) != 0;
 }
 
-/* 0x001902B0, 0x20 bytes. func_001902D0(480000). */
+/* 0x001902B0, 0x20 bytes, matching. func_001902D0(480000). */
 void func_001902B0(void)
 {
     func_001902D0(480000);
@@ -971,7 +971,7 @@ u32 func_00102360(int budget, void *fn, int *stop);  /* starts a time budget (a 
 void func_00102340(u32 t);
 void func_0022BC70(u8 *map, u32 a);
 int func_0022B890(u8 *bits, u32 *next);
-void func_00191200(float *out, void *a);
+void func_00191200(float *out, void *p);
 
 /* 0x001902D0, 0x1A8 bytes. Rebuilds the routes marked at +0x56 one province at a time (+0x57),
  * then the work marked by flag 0x80 (the bits at +0xA0 from +0xF0), within the time budget
@@ -1043,7 +1043,7 @@ int func_00190590(u8 *cell, u32 flags)
     return (flags & U32(e, 0x10)) != 0;
 }
 
-/* 0x00190610, 0x94 bytes. The same for the 5000-unit cell of a point (func_00191200). */
+/* 0x00190610, 0x94 bytes, matching. The same for the 5000-unit cell of a point (func_00191200). */
 void func_00190610(void *a, u32 flags)
 {
     float p[2];
@@ -1132,4 +1132,263 @@ char func_00190990(u8 *cell)
         }
     }
     return t;
+}
+
+float func_001F2B70(float *p);           /* the ground height under p */
+float func_001934E0(u8 part);
+u32 func_00193570(float *p);
+char func_00190990(u8 *cell);
+
+/* 0x00190B10, 0x80 bytes, matching. The terrain at a point (func_00191200's 5000-unit cell). */
+char func_00190B10(void *a)
+{
+    float p[2];
+    u8 c[2];
+
+    func_00191200(p, a);
+    c[0] = (u8)((int)p[0] / 5000);
+    c[1] = (u8)((int)p[1] / 5000);
+    return func_00190990(c);
+}
+
+/* 0x00190B90, 0x6C bytes. The first entry of table +0x64 for a point with a terrain. */
+int func_00190B90(u32 *out, void *a)
+{
+    u8 *m = g_0045D2F0;
+    u32 *e;
+
+    if (func_00190B10(a) == 0xF)
+        return 0;
+    if (U32(m, 0x60) == 0)
+        return 0;
+    e = (u32 *)PTR(m, 0x64);
+    out[0] = e[0];
+    out[1] = e[1];
+    out[2] = e[2];
+    out[3] = e[3];
+    return 1;
+}
+
+/* 0x00190C00, 0x30 bytes. Entry `i` of table +0x64. */
+void func_00190C00(u32 *out, u32 i)
+{
+    if (i < U32(g_0045D2F0, 0x60)) {
+        u32 *e = (u32 *)(PTR(g_0045D2F0, 0x64) + i * 0x10);
+
+        out[0] = e[0];
+        out[1] = e[1];
+        out[2] = e[2];
+        out[3] = e[3];
+    }
+}
+
+/* 0x00190C30, 0xC bytes, matching. The size of table +0x64. */
+u32 func_00190C30(void)
+{
+    return U32(g_0045D2F0, 0x60);
+}
+
+/* 0x00190C40, 0x88 bytes. Bit `k` of the file record's +0x24 of the province at `cell`. */
+int func_00190C40(u8 *cell, u32 k)
+{
+    u8 *e = province_at(g_0045D2F0, cell);
+
+    if (e == 0)
+        return 0;
+    return (U32(PTR(e, 0), 0x24) & 1 << (k & 0x1F)) != 0;
+}
+
+/* 0x00190CD0, 0x80 bytes. Whether that word has one of `mask`. */
+int func_00190CD0(u8 *cell, u32 mask)
+{
+    u8 *e = province_at(g_0045D2F0, cell);
+
+    if (e == 0)
+        return 0;
+    return (U32(PTR(e, 0), 0x24) & mask) != 0;
+}
+
+/* 0x00190D50, 0xC bytes, matching. The number of map parts. */
+u8 func_00190D50(void)
+{
+    return U8(g_0045D2F0, 0xF8);
+}
+
+/* 0x00190D60, 0x78 bytes. The map part of the province at `cell`. */
+u8 func_00190D60(u8 *cell)
+{
+    u8 *e = province_at(g_0045D2F0, cell);
+
+    if (e == 0)
+        return 0;
+    return U8(PTR(e, 0), 9);
+}
+
+/* 0x00190DE0, 0x68 bytes. `cell` in its part's own cells. */
+void func_00190DE0(char *out, u8 *cell)
+{
+    u8 *p = g_0045D2F0 + func_00190D60(cell) * 0x10;
+
+    out[0] = cell[0] - (char)U8(p, 0x74);
+    out[1] = cell[1] - (char)U8(p, 0x75);
+}
+
+/* The map part of a point (by its 5000-unit cell). */
+static inline u8 *part_of(u8 *map, float *p)
+{
+    u8 c[2], *e;
+
+    c[0] = (u8)((int)p[0] / 5000);
+    c[1] = (u8)((int)p[1] / 5000);
+    e = province_at(map, c);
+    return map + (e == 0 ? 0 : U8(PTR(e, 0), 9)) * 0x10;
+}
+
+/* 0x00190E50, 0x180 bytes. A map point (x, z) as a 3D point on the ground (out: x, height, z,
+ * 1), in its map part's own space when the map has several. */
+void func_00190E50(u8 *map, float *out, float *p)
+{
+    if (U8(map, 0xF8) < 2) {
+        out[0] = p[0];
+        out[2] = p[1];
+        out[3] = 1.0f;
+        out[1] = func_001F2B70(out);
+    } else {
+        u8 *part = part_of(map, p);
+
+        out[0] = p[0] - *(float *)(part + 0x78);
+        out[1] = func_001934E0(U8(part, 0x76));
+        out[2] = p[1] - *(float *)(part + 0x7C);
+        out[3] = 1.0f;
+        out[1] = func_001F2B70(out);
+    }
+}
+
+/* 0x00190FD0, 0x13C bytes. The same at height 0. */
+void func_00190FD0(u8 *map, float *out, float *p)
+{
+    if (U8(map, 0xF8) < 2) {
+        out[0] = p[0];
+        out[1] = 0.0f;
+        out[2] = p[1];
+        out[3] = 1.0f;
+    } else {
+        u8 *part = part_of(map, p);
+
+        out[0] = p[0] - *(float *)(part + 0x78);
+        out[1] = 0.0f;
+        out[2] = p[1] - *(float *)(part + 0x7C);
+        out[3] = 1.0f;
+    }
+}
+
+/* 0x00191110, 0x8C bytes. A 3D point back to a map point (x, z), adding its part's offset. */
+void func_00191110(u8 *map, float *out, float *p)
+{
+    if (U8(map, 0xF8) < 2) {
+        out[0] = p[0];
+        out[1] = p[2];
+    } else {
+        u8 *part = map + (func_00193570(p) & 0xFF) * 0x10;
+
+        out[0] = p[0] + *(float *)(part + 0x78);
+        out[1] = p[2] + *(float *)(part + 0x7C);
+    }
+}
+
+/* 0x001911A0, 0x28 bytes, matching. func_00190E50 on the current map. */
+void func_001911A0(float *out, float *p)
+{
+    func_00190E50(g_0045D2F0, out, p);
+}
+
+/* 0x001911D0, 0x28 bytes, matching. func_00190FD0 on the current map. */
+void func_001911D0(float *out, float *p)
+{
+    func_00190FD0(g_0045D2F0, out, p);
+}
+
+/* 0x00191200, 0x28 bytes, matching. func_00191110 on the current map. */
+void func_00191200(float *out, void *p)
+{
+    func_00191110(g_0045D2F0, out, (float *)p);
+}
+
+#define g_70000888 (*(u32 *)0x70000888)          /* (scratchpad) the current layer */
+#define g_7000088C (*(u32 *)0x7000088C)          /* (scratchpad) its bank (layers 3, 4: 1) */
+
+/* 0x00191240, 0x1C bytes. Selects layer `k`. */
+void func_00191240(u32 k)
+{
+    g_70000888 = k;
+    g_7000088C = 0x18 >> (k & 0x1F) & 1;
+}
+
+/* 0x00191260, 0x44 bytes. Sets colour `i` of the scratchpad table at 0x70000B90. */
+u8 *func_00191260(int i, u8 r, u8 g, u8 b, u8 a)
+{
+    u8 *c = (u8 *)0x70000B90 + i * 4;
+
+    c[0] = r;
+    c[1] = g;
+    c[2] = b;
+    c[3] = a;
+    return c;
+}
+
+/* 0x001912B0, 0x2C bytes. Bit grid `i` of the current bank (0x1E90 bytes each). */
+u8 *func_001912B0(int i)
+{
+    return (u8 *)0x5BF440 + i * 0x1E90 + g_7000088C * 0x98D0;
+}
+
+/* 0x001912E0, 0x44 bytes. Whether cell (x, z) of a 250-wide bit grid is clear. */
+int func_001912E0(u8 *grid, int x, int z)
+{
+    u32 k = x + z * 0xFA;
+
+    return (grid[(int)k >> 3] & 1 << (k & 7)) == 0;
+}
+
+/* 0x00191330, 0x78 bytes. Whether cell `c` is in rectangle `r` (x0, z0, x1, z1; the ends
+ * excluded). */
+int func_00191330(u8 *r, u8 *c)
+{
+    int in = 0, a = 0, b = 0;
+
+    if (c[0] < r[2] && c[1] < r[3])
+        a = 1;
+    if (a && r[0] <= c[0])
+        b = 1;
+    if (b && r[1] <= c[1])
+        in = 1;
+    return in;
+}
+
+/* 0x001913B0, 0x98 bytes, matching. Sets the bits of rectangle `r` in a 250-wide grid. */
+void func_001913B0(u8 *grid, u8 *r)
+{
+    u32 z, x;
+
+    for (z = r[1]; (int)z < (int)r[3]; z++) {
+        for (x = r[0]; (int)x < (int)r[2]; x++) {
+            u32 k = x + z * 0xFA;
+
+            grid[(int)k >> 3] |= 1 << (k & 7);
+        }
+    }
+}
+
+/* 0x00191450, 0xA0 bytes, matching. Clears them. */
+void func_00191450(u8 *grid, u8 *r)
+{
+    u32 z, x;
+
+    for (z = r[1]; (int)z < (int)r[3]; z++) {
+        for (x = r[0]; (int)x < (int)r[2]; x++) {
+            u32 k = x + z * 0xFA;
+
+            grid[(int)k >> 3] &= ~(1 << (k & 7));
+        }
+    }
 }
