@@ -548,12 +548,12 @@ void func_0018EA60(void)
     gates_update(0);
 }
 
-/* 0x0018EC60, 0x3C bytes. A gate's state: a door's (func_0018ECA0) or a passage's. */
+/* 0x0018EC60, 0x3C bytes, matching. A gate's state: a door's (func_0018ECA0) or a passage's. */
 int func_0018EC60(u8 *g)
 {
-    if ((U8(g, 10) & 0x40) == 0)
-        return func_0018ED40(g);
-    return func_0018ECA0(g);
+    if (U8(g, 10) & 0x40)
+        return func_0018ECA0(g);
+    return func_0018ED40(g);
 }
 
 /* 0x0018ECA0, 0x98 bytes. Whether a door's province is blocked. */
@@ -718,7 +718,7 @@ int func_0018F1E0(u8 *map, RouteQuery *q, u16 *next, u32 *kind)
 }
 
 /* 0x0018F500, 0x14C bytes. The cost of route `q` (0xFFF for none). */
-u32 func_0018F500(u8 *map, RouteQuery *q)
+u16 func_0018F500(u8 *map, RouteQuery *q)
 {
     u8 *a = province_at(map, q->from), *b = province_at(map, q->to);
 
@@ -728,10 +728,10 @@ u32 func_0018F500(u8 *map, RouteQuery *q)
                                               + PROV_INDEX(map, b)] & 0xFFF;
 }
 
-/* 0x0018F650, 0x30 bytes. The same, 0xFFF past 0x100. */
+/* 0x0018F650, 0x30 bytes, matching. The same, 0xFFF past 0x100. */
 u32 func_0018F650(u8 *map, RouteQuery *q)
 {
-    u32 c = func_0018F500(map, q);
+    int c = func_0018F500(map, q);
 
     if (c > 0x100)
         c = 0xFFF;
@@ -1317,11 +1317,11 @@ void func_00191200(float *out, void *p)
 #define g_70000888 (*(u32 *)0x70000888)          /* (scratchpad) the current layer */
 #define g_7000088C (*(u32 *)0x7000088C)          /* (scratchpad) its bank (layers 3, 4: 1) */
 
-/* 0x00191240, 0x1C bytes. Selects layer `k`. */
+/* 0x00191240, 0x1C bytes, matching. Selects layer `k`. */
 void func_00191240(u32 k)
 {
     g_70000888 = k;
-    g_7000088C = 0x18 >> (k & 0x1F) & 1;
+    g_7000088C = 0x18 >> k & 1;
 }
 
 /* 0x00191260, 0x44 bytes. Sets colour `i` of the scratchpad table at 0x70000B90. */
@@ -1347,7 +1347,7 @@ int func_001912E0(u8 *grid, int x, int z)
 {
     u32 k = x + z * 0xFA;
 
-    return (grid[(int)k >> 3] & 1 << (k & 7)) == 0;
+    return ((grid[(int)k >> 3] & (u8)(1 << (k & 7))) != 0) ^ 1;
 }
 
 /* 0x00191330, 0x78 bytes. Whether cell `c` is in rectangle `r` (x0, z0, x1, z1; the ends

@@ -1246,7 +1246,7 @@ u8 *func_001EE150(u8 *o);
 void func_001D4F60(u8 *base, u8 *target);
 void func_001D5240(u8 *base, u8 v);
 void func_0033BDC0(u8 *base, short v);
-void func_0033BE80(u16 a, u16 b, int c);
+void func_0033BE80(u16 a, short b, int c);
 void func_0018F890(u8 *cell, int n, u8 k);
 void func_0018FC00(u8 *cell, int n, int on);
 void func_0027F160(char a, char b);
@@ -1389,7 +1389,7 @@ void func_00189C70(u16 *cmd)
 /* 0x00189D00, 0x28 bytes. Command: func_0033BE80(cmd[0], cmd[1], 0). */
 void func_00189D00(u16 *cmd)
 {
-    func_0033BE80(cmd[0], cmd[1], 0);
+    func_0033BE80(cmd[0], (short)cmd[1], 0);
 }
 
 /* 0x00189D30, 0xA4 bytes. Command (unless func_0032E7B0): an effect on cell (cmd[0], cmd[1])

@@ -505,15 +505,17 @@ void func_001943B0(float *p)
     }
 }
 
-/* 0x001943F0, 0x58 bytes. The four corners of grid cell (x, z). */
+/* 0x001943F0, 0x58 bytes, matching. The four corners of grid cell (x, z). */
 void func_001943F0(u8 **out, int x, int z)
 {
     u8 *c = SPP(0x7F0) + (x + (GRID_W + 1) * z) * 0x14;
 
     out[0] = c;
-    out[1] = c + 0x14;
-    out[2] = c + 0x14 + GRID_W * 0x14;
-    out[3] = out[2] + 0x14;
+    c = c + 0x14;
+    out[1] = c;
+    c = c + GRID_W * 0x14;
+    out[2] = c;
+    out[3] = c + 0x14;
 }
 
 /* 0x00194450, 0x2C bytes, matching. Grid corner (x, z). */
@@ -537,10 +539,10 @@ u8 *func_00194480(int k, int x, int z)
     return c;
 }
 
-/* 0x00194530, 0x24 bytes. The current bank's entry for the frame parity (+0x7E0). */
+/* 0x00194530, 0x24 bytes, matching. The current bank's entry for the frame parity (+0x7E0). */
 u32 func_00194530(void)
 {
-    return ((u32 *)SPAD(0x7E0))[SP32(0x88C) * 2 + SP32(0x150)];
+    return *(u32 *)(SPAD(0x7E0) + SP32(0x88C) * 8 + SP32(0x150) * 4);
 }
 
 /* 0x00194560, 0xC bytes, matching. */
@@ -612,7 +614,7 @@ u32 func_001946A0(float *p, u8 flags)
     return *(u32 *)c;
 }
 
-/* 0x001947C0, 0x78 bytes. Marks grid corner (x, z) with `flags` (+0x13), flag 0x40 of +0xE
+/* 0x001947C0, 0x78 bytes, matching. Marks grid corner (x, z) with `flags` (+0x13), flag 0x40 of +0xE
  * with `f`, its value `v` (when not 0); its kind (+0xC). */
 u8 func_001947C0(int x, int z, u32 v, u8 flags, int f)
 {
@@ -620,7 +622,7 @@ u8 func_001947C0(int x, int z, u32 v, u8 flags, int f)
 
     c[0x13] |= flags;
     if (f != 0)
-        c[0xE] = (c[0xE] & ~0x40) | 0x40;
+        ((struct { u8 a : 6; u8 b : 1; } *)(c + 0xE))->b = 1;
     if (v != 0)
         *(u32 *)c = v;
     return c[0xC] & 0x7F;
@@ -659,7 +661,7 @@ u32 func_00194950(int x, int z)
 {
     u8 *c = func_00194450(x, z);
 
-    if (c[0xE] & 0x20)
+    if (((struct { u8 a : 5; u8 b : 1; } *)(c + 0xE))->b)
         return c[0xE] & 7;
     return 8;
 }
