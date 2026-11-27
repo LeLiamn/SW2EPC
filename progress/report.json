@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 185776,
-    "non_matching": 1277772
+    "matching": 186032,
+    "non_matching": 1285984
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2383
+    "matching": 2386
   },
   "layout": "treemap",
   "areas": [
@@ -324,15 +324,15 @@
         },
         {
           "name": "emp_ev_station.c",
-          "description": "Estimated range 0x3C84B8-0x3D70F0; 165 function(s) decompiled",
+          "description": "Estimated range 0x3C84B8-0x3D70F0; 181 function(s) decompiled",
           "code": {
             "total": 60472,
-            "matching": 592,
-            "non_matching": 36192
+            "matching": 752,
+            "non_matching": 41452
           },
           "decompiled_functions": {
-            "count": 165,
-            "matching": 9
+            "count": 181,
+            "matching": 11
           }
         },
         {
@@ -807,15 +807,15 @@
         },
         {
           "name": "SeasonAnime.c",
-          "description": "Estimated range 0x3D70F0-0x3DEC78; 151 function(s) decompiled",
+          "description": "Estimated range 0x3D70F0-0x3DEC78; 165 function(s) decompiled",
           "code": {
             "total": 31624,
-            "matching": 5504,
-            "non_matching": 11920
+            "matching": 5600,
+            "non_matching": 14872
           },
           "decompiled_functions": {
-            "count": 151,
-            "matching": 90
+            "count": 165,
+            "matching": 91
           }
         },
         {
