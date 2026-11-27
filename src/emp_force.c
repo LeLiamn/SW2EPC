@@ -883,7 +883,7 @@ int func_002FB430(int f)
 /* 0x002FB470, 0x90 bytes. Force `f`'s soldiers. */
 int func_002FB470(int f)
 {
-    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1, ARG_UNKNOWN), s = 0, k;
+    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1, 0), s = 0, k;
     u32 *l = func_002F7B10();
 
     for (k = 0; k < n; k++)

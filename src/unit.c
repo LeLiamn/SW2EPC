@@ -1427,7 +1427,7 @@ void func_001D0B20(Unit *u);
 u32 func_00177ED0(void);
 void func_001ACA70(u32 a, u8 *effect, float *pos, u8 *dir, u32 b);
 float *func_0016A170(Unit *u, int node);
-void func_001CD060(Unit *h, Unit *u, u8 *hit, u8 *dir, u8 *pos, int a, int b, int c);
+void func_001CD060(Unit *h, Unit *u, u8 *hit, u8 *dir, u8 *pos, int a, int b, int c, int a8, int a9);
 
 #define VEC_ZERO ((float *)0x700000C0)   /* (0, 0, 0, 0) in the scratchpad */
 
@@ -1695,7 +1695,7 @@ void func_00155DB0(Unit *u, u8 *hit)
     if (h == 0 || PTR(h, 0x284) != u) {
         func_0016BD30(u);
     } else {
-        func_001CD060(h, u, hit, u + 0x70, u + 0x90, 0, 0, 0);
+        func_001CD060(h, u, hit, u + 0x70, u + 0x90, 0, 0, 0, 0, 0);
         func_00155260(PTR(u, 0x280), hit, (u32 *)(u + 0x70));
         func_0016BD30(u);
     }

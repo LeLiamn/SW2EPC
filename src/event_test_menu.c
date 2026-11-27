@@ -189,7 +189,7 @@ void func_003B0E40(void)
             func_002C8500(x, ST_SHORT(s, 0x5F4) * 0x18 + 0x58, 0, 0xB8, 0x18, 0x80, 1);
     }
     if (g_007BAEF0.flags & 1)
-        func_001A3460(200, 0x50, 0, 0x10, 0xEA, 0x80, n, shown, ARG_UNKNOWN, 1);
+        func_001A3460(200, 0x50, 0, 0x10, 0xEA, 0x80, n, shown, ST_SHORT(s, 0x5F6), 1);
 }
 
 /* 0x003B10C0, 0x25C bytes. Draws the event list. */
@@ -220,7 +220,7 @@ void func_003B10C0(void)
         }
     }
     if ((g_007BAED0.flags & 1) && n > 9)
-        func_001A3460(0x128, 0x6C, 0, 8, 0xE8, 0x80, n, shown, ARG_UNKNOWN, 0);
+        func_001A3460(0x128, 0x6C, 0, 8, 0xE8, 0x80, n, shown, ST_SHORT(s, 0x5FA), 0);
 }
 
 /* 0x003B1320, 0x14C bytes. Draws the event page: the officer's name and the event list. */
@@ -569,7 +569,7 @@ void func_003B27E0(void)
     }
 }
 
-/* 0x003B39A0, 0xC0 bytes. Draws face `k` (0..0x43; 0x43 is face 0) from the face sheet. */
+/* 0x003B39A0, 0xC0 bytes, matching. Draws face `k` (0..0x43; 0x43 is face 0) from the face sheet. */
 void func_003B39A0(int x, int y, int a, int w, int h, int k)
 {
     if (k >= 0 && k < 0x44) {
@@ -577,14 +577,14 @@ void func_003B39A0(int x, int y, int a, int w, int h, int k)
             k = 0;
         else
             k++;
-        func_001ABEA0(g_0045D7FC, 0, x, y, 0, w, h, (k % 0x15) * 0x18, ARG_UNKNOWN, 0x18, 0x18, 0x80, a, 0);
+        func_001ABEA0(g_0045D7FC, 0, x, y, 0, w, h, (k % 0x15) * 0x18, (k / 0x15) * 0x18, 0x18, 0x18, 0x80, a, 0);
     }
 }
 
 /* 0x003B3D50, 0x78 bytes. Draws tab `k` (lit or not). */
 void func_003B3D50(int k, int x, int y, int a, int b, int lit)
 {
-    func_001ABEA0(g_0045D7FC, lit == 0 ? 8 : 9, x, y, a, 0x48, 0x20, 0, ARG_UNKNOWN, 0x48, 0x20, 0x80, b, 0);
+    func_001ABEA0(g_0045D7FC, lit == 0 ? 8 : 9, x, y, a, 0x48, 0x20, 0, k * 0x20, 0x48, 0x20, 0x80, b, 0);
 }
 
 /* 0x003B3DD0, 0x98 bytes, matching. Draws the five tabs, `cur` lit. */
@@ -627,11 +627,11 @@ void func_003B5070(int v, int x, int y, int z, int p4)
     if (v < 0x14)
         func_001ABEA0(g_0045D7FC, 0x17, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
     else if (v < 0x32)
-        func_001ABEA0(g_0045D7FC, 0x18, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, ARG_UNKNOWN, 0);
+        func_001ABEA0(g_0045D7FC, 0x18, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
     else if (v < 0x50)
-        func_001ABEA0(g_0045D7FC, 0x19, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, ARG_UNKNOWN, 0);
+        func_001ABEA0(g_0045D7FC, 0x19, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
     else
-        func_001ABEA0(g_0045D7FC, 0x1A, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, ARG_UNKNOWN, 0);
+        func_001ABEA0(g_0045D7FC, 0x1A, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
 }
 
 /* 0x003B5300, 0xB4 bytes. */
@@ -666,10 +666,10 @@ void func_003B5480(int x, int y, int z, int w, int b, int c)
     func_001ABEA0(g_0045D7FC, 3, x + 0x18 + w - 0x30, y, z, 0x18, 8, 0x20, 0, 0x18, 8, b, c, 0);
 }
 
-/* 0x003B5820, 0x80 bytes. The icon of kind `k`. */
-void func_003B5820(int k, int x, int y, int z, int a, int b, int p6)
+/* 0x003B5820, 0x80 bytes, matching. The icon of kind `k`. */
+void func_003B5820(int k, int x, int y, int z, int a, int b)
 {
-    func_001ABE40(g_0045D7FC, func_00313B30(k) + 0x2F, x, y, z, 0x20, 0x18, a, ARG_UNKNOWN, 0);
+    func_001ABE40(g_0045D7FC, func_00313B30(k) + 0x2F, x, y, z, 0x20, 0x18, a, b, 0);
 }
 
 /* 0x003B5970, 0x124 bytes. A frame of width `w` (at least 0x20). */
@@ -735,7 +735,7 @@ void func_003B5D50(int k, int x, int y, int z, int alpha, int layer, int dim)
 void func_003B5E10(int k, int x, int y, int z, int p4, int p5)
 {
     if (k >= 0 && k < 3)
-        func_001ABEA0(g_0045D7FC, 0x54, x, y, z, 0x38, 0x10, 0, ARG_UNKNOWN, 0x38, 0x10, p4, p5, 0);
+        func_001ABEA0(g_0045D7FC, 0x54, x, y, z, 0x38, 0x10, 0, k * 0x10, 0x38, 0x10, p4, p5, 0);
 }
 
 /* ---- The Empire ending (state 0x003B5E90: +4 step, +0x20.. loaded files, +0x514 the cleared

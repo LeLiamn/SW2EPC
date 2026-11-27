@@ -2152,7 +2152,7 @@ int func_00153230(Unit *u, Unit *v, u8 *hit, float *dir, short damage, int keep_
                   int no_action);
 void func_001C8130(int kind, float *pos, int a, int b, u8 player);
 short func_001CD060(Unit *u, Unit *v, u8 *hit, float *dir, void *pos, int kind, int guard,
-                    int stand);
+                    int stand, int a8, int a9);
 int func_00153E50(Unit *u, Unit *v, u8 *hit, void *pos, float *dir, short damage, int stand);
 Unit *func_0016BE40(Unit *u);
 void func_001CF2A0(Unit *u, Unit *m, int b);
@@ -2228,7 +2228,7 @@ int func_0016AA60(Unit *u, Unit *v, u8 *hit, void *pos, short *damage, u8 alpha)
                 *damage = 0;
                 stand = 1;
             } else {
-                *damage = func_001CD060(u, v, hit, dir, pos, kind, guard, stand);
+                *damage = func_001CD060(u, v, hit, dir, pos, kind, guard, stand, 0, 0);
             }
             if (0.0001f < F32(u, 0x168))
                 func_0016A820(u, *damage);

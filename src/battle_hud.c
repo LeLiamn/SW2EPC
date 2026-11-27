@@ -760,7 +760,7 @@ void func_003E31D0(int x, int y, int a, int b, int c, int sel)
 void func_003E3CE0(int x, int y, int a, int b, int s, int sel)
 {
     if (s >= 0 && s < 2)
-        func_001ABEA0(g_0045D838, sel == 0 ? 0x21 : 0x22, x, y, a, 0x58, 0x20, 0, ARG_UNKNOWN, 0x58, 0x20, 0x80, b, 0);
+        func_001ABEA0(g_0045D838, sel == 0 ? 0x21 : 0x22, x, y, a, 0x58, 0x20, 0, s * 0x20, 0x58, 0x20, 0x80, b, 0);
 }
 
 /* 0x003E3E30, 0x50 bytes. */
@@ -1278,7 +1278,7 @@ extern u8 g_0056CCC8[4];
 
 int func_001204B0(char *buf, const char *fmt, ...);
 int func_00313CB0(u8 *o);
-void func_0037E1B0(u8 *o);
+int func_0037E1B0(u8 *o);
 char *func_003729C0(int k);
 void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
 void func_002C4C50(float size, char *text, int x, int y, int w, int a, int b, int c);
@@ -1327,17 +1327,17 @@ void func_003E3470(int x, int y, int a, int w, int h, u8 r, u8 g, u8 b, u8 alpha
 void func_003E3990(u8 *o, int x, int y, int p3, int p4)
 {
     int v = func_00313CB0(o);
+    int row = func_0037E1B0(o);
 
-    func_0037E1B0(o);
     if (v > 6)
-        func_001ABEA0(g_0045D838, v + 0x34, x, y, 0, 0x60, 0x18, 0, ARG_UNKNOWN, 0x60, 0x18, p4, p3, 0);
+        func_001ABEA0(g_0045D838, v + 0x34, x, y, 0, 0x60, 0x18, 0, row * 0x18, 0x60, 0x18, p4, p3, 0);
 }
 
 /* 0x003E41A0, 0x7C bytes. */
 void func_003E41A0(int x, int y, int a, int b, int k)
 {
     if (k >= 0 && k < 3)
-        func_001ABEA0(g_0045D838, 0x39, x, y, a, 0x78, 0x10, 0, ARG_UNKNOWN, 0x78, 0xf, 0x80, b, 0);
+        func_001ABEA0(g_0045D838, 0x39, x, y, a, 0x78, 0x10, 0, k * 0x10, 0x78, 0xf, 0x80, b, 0);
 }
 
 /* 0x003E4300, 0xB8 bytes. */
@@ -1400,7 +1400,7 @@ void func_003E48A0(void)
         }
     }
     if (func_003E46B0() != 0 && n > 5)
-        func_001A3460(0x110, 100, 0, 0x10, 0xE8, 0x80, n, shown, ARG_UNKNOWN, 1);
+        func_001A3460(0x110, 100, 0, 0x10, 0xE8, 0x80, n, shown, *(short *)(p + 0xE), 1);
 }
 
 /* 0x003E4B30, 0xA8 bytes. The gallery's title. */

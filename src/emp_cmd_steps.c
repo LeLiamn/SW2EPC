@@ -38,8 +38,8 @@ void func_0030ADC0(int o, int v);
 int func_002F3770(int a, int o);
 void func_002C80A0(int x, int y, int a, int w, int h, int b, int c);
 void func_002C8500(int x, int y, int a, int w, int h, int b, int c);
-void func_003B5820(int k, int x, int y, int a, int b, int c, int p6);
-void func_00381CA0(int a, int x, int y, int k, int b, int p5);
+void func_003B5820(int k, int x, int y, int a, int b, int c);
+void func_00381CA0(int a, int x, int y, int k, int b);
 void func_003B5480(int x, int y, int a, int w, int b, int c);
 void func_001204B0(char *buf, char *fmt, int v);
 void func_002C4F40(float s, char *text, int x, int y, int a, int b, int c);
@@ -109,8 +109,8 @@ void func_00381FF0(int a, int x, int y, int item, int sel)
         func_002C80A0(x, y, 0, 0x96, 0x18, 0x80, 1);
     else
         func_002C8500(x, y, 0, 0x96, 0x18, 0x80, 1);
-    func_003B5820(item, x + 10, y, 0, 0x80, 1, ARG_UNKNOWN);
-    func_00381CA0(a, x + 0x2C, y, item, 0, ARG_UNKNOWN);
+    func_003B5820(item, x + 10, y, 0, 0x80, 1);
+    func_00381CA0(a, x + 0x2C, y, item, 0);
 }
 
 /* 0x00382310, 0x9C bytes, matching. */
@@ -699,8 +699,8 @@ void func_00381DF0(int a, int x, int y, int item, int sel, int w)
         func_002C80A0(x, y, 0, 0x118, 0x18, 0x80, 1);
     else
         func_002C8500(x, y, 0, 0x118, 0x18, 0x80, 1);
-    func_003B5820(item, x + 10, y, 0, 0x80, 1, ARG_UNKNOWN);
-    func_00381CA0(a, x + 0x2C, y, item, w, ARG_UNKNOWN);
+    func_003B5820(item, x + 10, y, 0, 0x80, 1);
+    func_00381CA0(a, x + 0x2C, y, item, w);
     buf[0] = 0;
     if (item == 0x2D)
         func_00120B78(buf, func_002F8DE0(*(int *)(m + 0x10)), 0x40);

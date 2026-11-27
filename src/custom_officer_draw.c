@@ -18,6 +18,7 @@ u8 *func_00376810(void);
 
 extern int g_0045D0E0[];                 /* (small data) */
 extern int g_0041CBA0[];
+extern int g_0041CBD0[0xD];
 extern int g_0056CCA4[4];
 extern float g_0056CCC0, g_0056CCC4;
 extern char g_0045C480[];                /* "%s%s"? */
@@ -39,7 +40,7 @@ void func_003D3A80(int x, int y, int a, int b, int c, int d, int k);
 #define FONT_COLOUR(c) (g_0056CCA4[0] = g_0056CCA4[1] = g_0056CCA4[2] = g_0056CCA4[3] = (c))
 
 /* 0x003D3B50, 0xB8 bytes, matching. Draws the big face of officer record `k` (0..0x42). */
-void func_003D3B50(int x, int y, int a, int b, int c, int k, int p6)
+void func_003D3B50(int x, int y, int a, int b, int c, int k)
 {
     if (k >= 0 && k < 0x43)
         func_001ABEA0(func_00376810(), k + 0x7A, x, y, 0, b, c, 0, 0, 0x40, 0x40, 0x80, a, 0);
@@ -111,9 +112,9 @@ void func_003D3F80(int x, int y, int a, int b, int k, int big)
 {
     if (k >= 0 && k < 0x8E) {
         if (big == 0)
-            func_001ABEA0(func_00376810(), k + 0xBD, x, y, 0, 0x20, 0x20, 0, 0, 0x40, 0x40, ARG_UNKNOWN, b, 0);
+            func_001ABEA0(func_00376810(), k + 0xBD, x, y, 0, 0x20, 0x20, 0, 0, 0x20, 0x20, a, b, 0);
         else
-            func_001ABEA0(func_00376810(), k + 0x14B, x, y, 0, 0x40, 0x40, 0, 0, 0x20, 0x20, ARG_UNKNOWN, b, 0);
+            func_001ABEA0(func_00376810(), k + 0x14B, x, y, 0, 0x40, 0x40, 0, 0, 0x40, 0x40, a, b, 0);
     }
 }
 
@@ -138,7 +139,7 @@ void func_003D4C70(int x, int y, int alpha)
 
     func_002C7310(x, y, 0, 0xEC, 0x48, alpha, 1);
     func_003D3CD0((char *)s + 0x405, (char *)s + 0x40E, x + 0x11, y + 0x1D, 1, 0x14, 6);
-    func_003D3B50(x + 0xA4, y + 4, 1, 0x40, 0x40, s[0x432], ARG_UNKNOWN);
+    func_003D3B50(x + 0xA4, y + 4, 1, 0x40, 0x40, s[0x432]);
 }
 
 /* 0x003D58F0, 0x1C8 bytes. Draws the ten slot buttons of the list page. */
@@ -155,25 +156,26 @@ void func_003D58F0(void)
             func_002C8500(xy[0], xy[1], 0, 0x50, 0x18, al, 1);
         else
             func_002C80A0(xy[0], xy[1], 0, 0x50, 0x18, al, 1);
-        func_001ABEA0(func_00376810(), 0xF, xy[0] + 0x10, xy[1], 0, 0x30, 0x18, 0, ARG_UNKNOWN, 0x30, 0x18, ARG_UNKNOWN, 1, 0);
+        func_001ABEA0(func_00376810(), 0xF, xy[0] + 0x10, xy[1], 0, 0x30, 0x18, 0,
+                      g_0041CBD0[k + *(int *)(s + 0x34)] * 0x18, 0x30, 0x18, al, 1, 0);
     }
     if (*(int *)(s + 0x9A4) == 3)
-        func_001A3460(0x58, 0x48, 0, 0x10, 0xF0, al, 0xD, 10, ARG_UNKNOWN, 1);
+        func_001A3460(0x58, 0x48, 0, 0x10, 0xF0, al, 0xD, 10, *(int *)(s + 0x34), 1);
 }
 
 /* 0x003D5AC0, 0x194 bytes. Draws the ten colour buttons, the chosen one framed. */
-void func_003D5AC0(int x, int y)
+void func_003D5AC0(int x, int y, int alpha)
 {
     u8 *s = func_003766C0();
     int k;
 
     for (k = 0; k < 10; k++, x += 0x1A) {
         if (*(int *)(s + 0x38) == k && *(int *)(s + 0x9A4) == 3) {
-            func_001ABEA0(func_00376810(), k + 0x10, x + 1, y + 1, 0, 0x18, 0x18, 0, 0, 0x18, 0x18, ARG_UNKNOWN, 1, 0);
+            func_001ABEA0(func_00376810(), k + 0x10, x + 1, y + 1, 0, 0x18, 0x18, 0, 0, 0x18, 0x18, alpha & 0xFF, 1, 0);
             func_003D4600(x - 6, y - 5, 0x26, 0x24, 1, s + 0x974);
         } else {
-            func_001ABEA0(func_00376810(), 0x1A, x, y, 0, 0x18, 0x18, 0, 0, 0x18, 0x18, ARG_UNKNOWN, 1, 0);
-            func_001ABEA0(func_00376810(), k + 0x10, x, y, 0, 0x18, 0x18, 0, 0, 0x18, 0x18, ARG_UNKNOWN, 1, 0);
+            func_001ABEA0(func_00376810(), 0x1A, x, y, 0, 0x18, 0x18, 0, 0, 0x18, 0x18, alpha & 0xFF, 1, 0);
+            func_001ABEA0(func_00376810(), k + 0x10, x, y, 0, 0x18, 0x18, 0, 0, 0x18, 0x18, alpha & 0xFF, 1, 0);
         }
     }
 }
@@ -188,6 +190,8 @@ typedef struct { int v[0xF]; } Ints15;
 extern Ints16 g_0041CC10;
 extern Ints18 g_0041CC50;
 extern Ints15 g_0041CCA0;
+
+extern int g_0041CDE0[0xC], g_0041CE10[0xC], g_0041CE40[0xC];
 extern char *g_0043C120[];               /* screen texts */
 extern char *g_0043C524, *g_0043C534;
 extern u8 *g_0043C738, *g_0043C750, *g_0043C754, *g_0043C758;
@@ -213,34 +217,34 @@ void func_003838B0(char *t, int a);
 void func_003D5C60(void)
 {
     u8 *s = func_003766C0();
-    Ints16 t1 = g_0041CC10;
-    Ints18 t2 = g_0041CC50;
-    Ints15 t3 = g_0041CCA0;
     int kind = *(int *)(s + 0x41C), n = 0;
+    const int *rows = 0;                 /* the original leaves it unset for other kinds */
     short xy[4];
     u8 al;
     int k;
 
-    (void)t1;
-    (void)t2;
-    (void)t3;
     if (kind == 0x30 || kind == 0x21 || kind == 0x20 || kind == 0x1F || kind == 0x1E
-        || kind == 0x1D || kind == 0x1C)
+        || kind == 0x1D || kind == 0x1C) {
         n = 0xF;
-    else if (kind == 0x38 || kind == 0x37 || kind == 0x36)
+        rows = g_0041CCA0.v;
+    } else if (kind == 0x38 || kind == 0x37 || kind == 0x36) {
         n = 0x12;
-    else if (kind == 0x35 || kind == 0x34 || kind == 0x33)
+        rows = g_0041CC50.v;
+    } else if (kind == 0x35 || kind == 0x34 || kind == 0x33) {
         n = 0x10;
+        rows = g_0041CC10.v;
+    }
     for (k = 0; k < 10; k++) {
         func_001AE550(1.0f, (int *)(s + 0xAB0 + k * 0x14), xy, &al, 0);
         if (*(int *)(s + 0x40) == k + *(int *)(s + 0x44))
             func_002C8500(xy[0], xy[1], 0, 0x88, 0x18, al, 1);
         else
             func_002C80A0(xy[0], xy[1], 0, 0x88, 0x18, al, 1);
-        func_001ABEA0(func_00376810(), 0x27, xy[0] + 0x10, xy[1], 0, 0x68, 0x18, 0, ARG_UNKNOWN, 0x68, 0x18, ARG_UNKNOWN, 1, 0);
+        func_001ABEA0(func_00376810(), 0x27, xy[0] + 0x10, xy[1], 0, 0x68, 0x18, 0,
+                      rows != 0 ? rows[k + *(int *)(s + 0x44)] * 0x18 : 0, 0x68, 0x18, al, 1, 0);
     }
     if (*(int *)(s + 0x9A4) == 3)
-        func_001A3460(0x90, 0x48, 0, 0x10, 0xF0, al, n, 10, ARG_UNKNOWN, 1);
+        func_001A3460(0x90, 0x48, 0, 0x10, 0xF0, al, n, 10, *(int *)(s + 0x44), 1);
 }
 
 /* 0x003D67F0, 0x3A4 bytes. The skill list page. */
@@ -252,22 +256,29 @@ void func_003D67F0(void)
     u8 al;
     int k;
 
-    if (kind == 0xF || kind == 7)
+    const int *rows;
+
+    if (kind == 0xF || kind == 7) {
         n = 0xC;
-    else if (kind == 0x15 || kind == 2)
+        rows = g_0041CE10;
+    } else if (kind == 0x15 || kind == 2) {
         n = 0xC;
-    else
+        rows = g_0041CDE0;
+    } else {
         n = 0xB;
+        rows = g_0041CE40;
+    }
     for (k = 0; k < 10; k++) {
         func_001AE550(1.0f, (int *)(s + 0xAB0 + k * 0x14), xy, &al, 0);
         if (*(int *)(s + 0x5C) == k + *(int *)(s + 0x60))
             func_002C8500(xy[0], xy[1], 0, 0x68, 0x18, al, 1);
         else
             func_002C80A0(xy[0], xy[1], 0, 0x68, 0x18, al, 1);
-        func_001ABEA0(func_00376810(), 0x24, xy[0] + 0x10, xy[1], 0, 0x48, 0x18, 0, ARG_UNKNOWN, 0x48, 0x18, ARG_UNKNOWN, 1, 0);
+        func_001ABEA0(func_00376810(), 0x24, xy[0] + 0x10, xy[1], 0, 0x48, 0x18, 0,
+                      rows[k + *(int *)(s + 0x60)] * 0x18, 0x48, 0x18, al, 1, 0);
     }
     if (*(int *)(s + 0x9A4) == 3)
-        func_001A3460(0x70, 0x48, 0, 0x10, 0xF0, al, n, 10, ARG_UNKNOWN, 1);
+        func_001A3460(0x70, 0x48, 0, 0x10, 0xF0, al, n, 10, *(int *)(s + 0x60), 1);
 }
 
 /* 0x003D6BA0, 0x128 bytes. A page of seven buttons. */
@@ -284,7 +295,7 @@ void func_003D6BA0(void)
             func_002C8500(xy[0], xy[1], 0, 0x50, 0x18, al, 1);
         else
             func_002C80A0(xy[0], xy[1], 0, 0x50, 0x18, al, 1);
-        func_001ABEA0(func_00376810(), 0x23, xy[0] + 0x10, xy[1], 0, 0x30, 0x18, 0, 0, 0x30, 0x18, ARG_UNKNOWN, 1, 0);
+        func_001ABEA0(func_00376810(), 0x23, xy[0] + 0x10, xy[1], 0, 0x30, 0x18, 0, 0, 0x30, 0x18, al, 1, 0);
     }
 }
 
@@ -302,7 +313,7 @@ void func_003D6CD0(void)
             func_002C8500(xy[0], xy[1], 0, 0x50, 0x18, al, 1);
         else
             func_002C80A0(xy[0], xy[1], 0, 0x50, 0x18, al, 1);
-        func_001ABEA0(func_00376810(), 0xD, xy[0] + 0x10, xy[1], 0, 0x30, 0x18, 0, 0, 0x30, 0x18, ARG_UNKNOWN, 1, 0);
+        func_001ABEA0(func_00376810(), 0xD, xy[0] + 0x10, xy[1], 0, 0x30, 0x18, 0, 0, 0x30, 0x18, al, 1, 0);
     }
 }
 
@@ -318,7 +329,7 @@ void func_003D6E00(void)
         if (k % 0xE == 0)
             func_001AE550(1.0f, (int *)(s + (k / 0xE) * 0x14 + 0xA4C), xy, &al, 0);
         x = xy[0] + (k % 0xE) * 0x22;
-        func_001ABEA0(func_00376810(), 0x22, x, xy[1], 0, 0x20, 0x20, 0, 0, 0x20, 0x20, ARG_UNKNOWN, 1, 0);
+        func_001ABEA0(func_00376810(), 0x22, x, xy[1], 0, 0x20, 0x20, 0, 0, 0x20, 0x20, al, 1, 0);
         func_003D3A80(x, xy[1], 1, 0x20, 0x20, al, k);
         if (k == cur) {
             sy = xy[1];
@@ -346,9 +357,9 @@ void func_003D7400(void)
             func_002C80A0(xy[0], xy[1], 0, 0xAC, 0x28, al, 1);
             spr = 0x1C;
         }
-        func_001ABEA0(func_00376810(), spr, xy[0] + 0x10, xy[1] + 0x10, 0, 0x5E, 0x18, 0, 0, 0x5e, 0x18, ARG_UNKNOWN, 1, 0);
+        func_001ABEA0(func_00376810(), spr, xy[0] + 0x10, xy[1] + 0x10, 0, 0x5E, 0x18, 0, 0, 0x5e, 0x18, al, 1, 0);
         ic = k == 0 ? s[0x433] : s[0x434];
-        func_001ABEA0(func_00376810(), 0x22, xy[0] + 0x78, xy[1] + 3, 0, 0x20, 0x20, 0, 0, 0x20, 0x20, ARG_UNKNOWN, 1, 0);
+        func_001ABEA0(func_00376810(), 0x22, xy[0] + 0x78, xy[1] + 3, 0, 0x20, 0x20, 0, 0, 0x20, 0x20, al, 1, 0);
         func_003D3F80(xy[0] + 0x78, xy[1] + 3, al, 1, ic, 0);
     }
     func_001AE550(1.0f, (int *)(s + 0xA10), xy, &al, 0);
@@ -403,9 +414,9 @@ void func_003D78B0(int x, int y, int alpha, int k, int lit, int used, int col)
         func_002C80A0(x, y, 0, 0x78, 0x18, alpha, 1);
     else
         func_002C8500(x, y, 0, 0x78, 0x18, alpha, 1);
-    func_001ABEA0(func_00376810(), 0x21, x + 0x10, y, 0, 0x40, 0x18, 0, ARG_UNKNOWN, 0x40, 0x18, ARG_UNKNOWN, 1, 0);
+    func_001ABEA0(func_00376810(), 0x21, x + 0x10, y, 0, 0x40, 0x18, 0, k * 0x18, 0x40, 0x18, alpha & 0xFF, 1, 0);
     if (used != 0) {
-        func_001ABEA0(func_00376810(), 0x25, x + 0x51, y, 0, 0x18, 0x18, 0, 0, 0x18, 0x18, ARG_UNKNOWN, 1, 0);
+        func_001ABEA0(func_00376810(), 0x25, x + 0x51, y, 0, 0x18, 0x18, 0, 0, 0x18, 0x18, alpha & 0xFF, 1, 0);
         func_003B3970(x + 0x51, y, 1, col);
     }
 }
@@ -425,7 +436,7 @@ void func_003D7A10(void)
                       s[i * 0x38 + 0xEA]);
     }
     if (*(int *)(s + 0x9A4) == 3)
-        func_001A3460(0x80, 0x48, 0, 0x10, 0xF0, al, 0xF, 10, ARG_UNKNOWN, 1);
+        func_001A3460(0x80, 0x48, 0, 0x10, 0xF0, al, 0xF, 10, *(int *)(s + 0xA8), 1);
 }
 
 /* 0x003D7B10, 0xC8 bytes. The help line of the chosen skill (two name the pad button). */
@@ -475,7 +486,7 @@ void func_003D7C40(void)
 
     func_003D58F0();
     func_001AE550(1.0f, (int *)(s + 0xA24), xy, &al, 0);
-    func_003D5AC0(xy[0], xy[1]);
+    func_003D5AC0(xy[0], xy[1], al);
     card(s);
     func_001A7DC0(g_0043C750, 0x80, 1);
 }

@@ -340,7 +340,7 @@ void func_00392570(int k)
         }
     }
     if ((g_007BA83D & 1) != 0 && *(short *)(p + 0x146) < n)
-        func_001A3460(200, 0x50, 0, 0x10, 0x102, 0x80, n, m, ARG_UNKNOWN, 1);
+        func_001A3460(200, 0x50, 0, 0x10, 0x102, 0x80, n, m, *(short *)(p + 0x14A), 1);
 }
 
 /* 0x00392850, 0x1B4 bytes. Draws the two choices. */
@@ -383,7 +383,7 @@ void func_00392AF0(void)
     }
     if ((g_007BA7DD & 1) != 0) {
         if (n > 9)
-            func_001A3460(0xF8, 0x72, 0, 0x10, 0xE8, 0x80, n < 9 ? 9 : n, 9, ARG_UNKNOWN, 0);
+            func_001A3460(0xF8, 0x72, 0, 0x10, 0xE8, 0x80, n < 9 ? 9 : n, 9, *(short *)(p + 0x14E), 0);
         func_003BD640(0x28, 0xD0, 0x5C, 0);
     }
 }

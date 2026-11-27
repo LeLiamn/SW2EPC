@@ -1125,8 +1125,8 @@ void func_0028EED0(float *out);
 void func_001911A0(float *out, u8 *pos);
 void vu0_rotate(float out[4][4], float in[4][4], float angle);   /* stand-in for VU0 micro 0x70 */
 void func_001FCAA0(int a, float matrix[4][4]);
-void func_002C99F0(int x, int y, int a, int w, int h, int alpha);
-void func_002CDB70(float time, int x, int y, int a);
+void func_002C99F0(int x, int y, int a, int w, int h, int alpha, int layer);
+void func_002CDB70(float time, int x, int y, int a, int layer, int col);
 void func_00147160(const u8 *text, char *out, int size, int a, int b);
 
 /* Page 5's record `i` (0x110 bytes: +0 its time, +8 its position, +0x10 its text). */
@@ -1174,11 +1174,11 @@ void func_00283FD0(int x, int y, int z, int w, int h, int blend, int a, u8 **rec
                 g_007725E0 += 0.05f;
             }
         }
-        func_002C99F0(x + 8, y + 0x38, 0, 0x1A0, 0x34, 0x80);
+        func_002C99F0(x + 8, y + 0x38, 0, 0x1A0, 0x34, 0x80, blend);
     }
     s_0056CCA4.g_0056CCCC = 0x12;
     if (shown == 1) {
-        func_002CDB70((float)*(int *)*records, x + 0x10, y + 0x3A, 0x0C);
+        func_002CDB70((float)*(int *)*records, x + 0x10, y + 0x3A, 0x0C, blend, 6);
         func_00147160(*records + 0x10, text, 400, 0, 0);
         DRAW_TEXT(text, x + 0x10, y + 0x48, blend);
     } else if (*(u32 *)(*records + 0x1100) < 0x10) {
@@ -1187,7 +1187,7 @@ void func_00283FD0(int x, int y, int z, int w, int h, int blend, int a, u8 **rec
             u32 j = total - ((cursor - 1) + i) - 1;
 
             if ((int)j >= 0 && j < total) {
-                func_002CDB70((float)*(int *)RECORD(*records, j), x + 0x10, y + 8 + (2 - i) * 0x32, 0x0C);
+                func_002CDB70((float)*(int *)RECORD(*records, j), x + 0x10, y + 8 + (2 - i) * 0x32, 0x0C, blend, 6);
                 func_00147160(RECORD(*records, j) + 0x10, text, 400, 0, 0);
                 DRAW_TEXT(text, x + 0x10, y + 0x16 + (2 - i) * 0x32, blend);
             }
@@ -1198,7 +1198,7 @@ void func_00283FD0(int x, int y, int z, int w, int h, int blend, int a, u8 **rec
 
             if ((int)j >= 0 && j < *(u32 *)(*records + 0x1100)) {
                 j = (*(int *)(*records + 0x1104) - j + 0x0F) & 0x0F;
-                func_002CDB70((float)*(int *)RECORD(*records, j), x + 0x10, y + 8 + (2 - i) * 0x32, 0x0C);
+                func_002CDB70((float)*(int *)RECORD(*records, j), x + 0x10, y + 8 + (2 - i) * 0x32, 0x0C, blend, 6);
                 func_00147160(RECORD(*records, j) + 0x10, text, 400, 0, 0);
                 DRAW_TEXT(text, x + 0x10, y + 0x16 + (2 - i) * 0x32, blend);
             }
@@ -1374,7 +1374,7 @@ void func_003DD730(char *out, u8 **group);
 void func_003E41A0(int x, int y, int a, int b, int c);
 const char *func_00372CF0(int id);
 const char *func_0030CB80(int entry);
-void func_003E3270(int x, int y, int a, int alpha, int b);
+void func_003E3270(int x, int y, int a, int alpha, int b, u32 t);
 extern u8 g_006A1D58[][0x68];             /* the soldier groups */
 
 /* 0x00285020, 0x564 bytes. Page 15 (a mission?): the window, the group's name in messages 0-3,
@@ -1443,7 +1443,7 @@ void func_00285020(int x, int y, int w, int h, u8 alpha, int a, int hidden)
     func_00147160((u8 *)g_007B4E60, g_007B5062, 400, 0, 0);
     DRAW_TEXT(g_007B5062, x + 0x18, y + 0x5C, a);
     if (limit * 3000 - g_00669F9C >= 0)
-        func_003E3270(x + 0x18, y + 0x9C, 0, 0x80, a);
+        func_003E3270(x + 0x18, y + 0x9C, 0, 0x80, a, limit * 3000 - g_00669F9C);
 }
 
 /* 0x00285590, 0x80 bytes. Page 15's drawer. */

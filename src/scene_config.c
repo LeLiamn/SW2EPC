@@ -12,6 +12,8 @@ typedef unsigned int u32;
 
 #include "sw2e_draw.h"
 
+extern int g_00731208;
+
 /* Flag bytes of the live settings (bitfields, first field = lowest bit). */
 typedef struct {             /* 0x00669DB0 */
     u8 unknown_0 : 1;
@@ -1574,7 +1576,7 @@ void func_001E6BC0(void)
     func_00105F70(v);
     if (g_007311F0 != 8)
         func_003F8BB0();
-    func_002B4BE0(g_00731214, g_007311F0, 0x10, 0x0C, 0, 0xD8, 0x28, 0x80, ARG_UNKNOWN);
+    func_002B4BE0(g_00731214, g_007311F0, 0x10, 0x0C, 0, 0xD8, 0x28, 0x80, g_00731208);
 
     switch (g_007311F0) {
     case 0: g_00731228 = func_002B6450(g_00731214, g_00731219); break;

@@ -15,6 +15,8 @@ typedef unsigned int u32;
 
 #include "sw2e_draw.h"
 
+extern int g_007BAD38;                  /* the map layer? */
+
 extern u8 g_007BAC40[];                  /* the map state */
 extern u8 g_0045B3F0[], g_0045A940[], g_0041BFF0[];
 extern int g_00459F80[][8];
@@ -136,19 +138,19 @@ u8 func_003A60F0(u32 v)
 void func_003A61F0(int x, int y, int f)
 {
     if (f < func_0030AB90())
-        func_001ABE40(MAP_TEX, f + 0xD, x, y, 0, 0x18, 0x18, 0x80, ARG_UNKNOWN, 0);
+        func_001ABE40(MAP_TEX, f + 0xD, x, y, 0, 0x18, 0x18, 0x80, g_007BAD38, 0);
 }
 
 /* 0x003A6270, 0x64 bytes. */
-void func_003A6270(int x, int y)
+void func_003A6270(int x, int y, int k)
 {
-    func_001ABEA0(MAP_TEX, 5, x, y, 0, 0x18, 0x10, 0, ARG_UNKNOWN, 0x18, 0x10, 0x80, ARG_UNKNOWN, 0);
+    func_001ABEA0(MAP_TEX, 5, x, y, 0, 0x18, 0x10, 0, k * 0x10, 0x18, 0x10, 0x80, g_007BAD38, 0);
 }
 
 /* 0x003A6380, 0x50 bytes. Draws the cursor. */
 void func_003A6380(int x, int y)
 {
-    func_001ABE40(MAP_TEX, 4, x, y, 0, 0x20, 0x20, M32(0xFC), ARG_UNKNOWN, 0);
+    func_001ABE40(MAP_TEX, 4, x, y, 0, 0x20, 0x20, M32(0xFC), g_007BAD38, 0);
 }
 
 /* 0x003A7BF0, 0x14 bytes, matching. */

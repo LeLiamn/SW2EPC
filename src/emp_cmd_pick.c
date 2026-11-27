@@ -63,7 +63,7 @@ void func_002C7A30(int x, int y, int a, int w, int h, int c, int d);
 void func_00382690(int x, int y, int a, int w, int h, int b, int o);
 char *func_002F2890(int o);
 void func_00146B40(char *t, int x, int y, int w, int h, int a, int b);
-void func_003B5820(int k, int x, int y, int a, int c, int d, int p6);
+void func_003B5820(int k, int x, int y, int a, int c, int d);
 u8 *func_002FC2C0(void);
 int func_0030D7D0(void);
 void func_00334A90(char *out, u32 k, int a, int b);
@@ -196,7 +196,7 @@ void func_00335300(int c, int o, int k1, int k2, int i, int sel)
     g_0056CCC4 = 16.0f;
     FONT_COLOUR(5);
     for (k = 0, x = 0x44; k < 2; k++, x += 0x28)
-        func_003B5820(k == 1 ? k2 : k1, box[0] + x, y + 0x73, 0, 0x80, 1, ARG_UNKNOWN);
+        func_003B5820(k == 1 ? k2 : k1, box[0] + x, y + 0x73, 0, 0x80, 1);
 }
 
 /* 0x003354D0, 0x1F8 bytes. Draws the records and the highlighted one's two texts and cost. */

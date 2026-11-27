@@ -732,9 +732,9 @@ void func_003D3A40(void)
     }
 }
 
-/* 0x003D3A80, 0xC4 bytes. Draws the face of officer record `k` (0..0x42). */
+/* 0x003D3A80, 0xC4 bytes, matching. Draws the face of officer record `k` (0..0x42). */
 void func_003D3A80(int x, int y, int a, int b, int c, int d, int k)
 {
     if (k >= 0 && k < 0x43)
-        func_001ABEA0(func_00376810(), k + 0x37, x, y, 0, b, c, 0, 0, 0x20, 0x20, ARG_UNKNOWN, a, 0);
+        func_001ABEA0(func_00376810(), k + 0x37, x, y, 0, b, c, 0, 0, 0x20, 0x20, d & 0xFF, a, 0);
 }

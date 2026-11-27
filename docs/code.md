@@ -60,6 +60,17 @@ short.
   `grep -n ARG_UNKNOWN src/*.c` lists them.
 - **`func_002F7D90`** takes six arguments. The sixth is always 0 and the function does not read
   it.
+- **All the `ARG_UNKNOWN` were then resolved by hand** from the disassembly. Most were a texture
+  row (`row * height`), an alpha taken from a parameter, or a scroll bar's first line. The
+  macro stays defined for later use.
+- **Checks still flag a few calls** (`func_003E8320` called through a macro, `func_003B5820` and
+  `func_00381CA0`, whose callers leave a register from an earlier call, `func_002F87D0`,
+  `func_001BB5C0`, `func_0018FF30`, `func_0018E060`, `func_0019FBC0`, `func_0029CEB0`,
+  `func_001C8340`, `func_001CCD60`, `func_00247FA0`, a `sprintf`). Each was checked: the callee
+  does not read the extra registers.
+- **Watch out for block reordering:** the compiler can lay out an if/else in the opposite order
+  from the source, so C calls cannot be paired with call sites by order alone. Pair them by their
+  constant arguments.
 
 ## The scene manager (`0x0045D880`)
 

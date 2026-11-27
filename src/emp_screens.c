@@ -301,16 +301,16 @@ void func_003B4720(void)
     func_003B4740();
 }
 
-/* 0x003B4DE0, 0x68 bytes. */
+/* 0x003B4DE0, 0x68 bytes, matching. */
 void func_003B4DE0(int x, int y, int a, int p3, int p4, int p5, int p6)
 {
-    func_003B4A40(TEX, 10, x, y, a, 0x78, 0x18, 0, 0, 0x78, 0x18, p3, ARG_UNKNOWN, p5, p6);
+    func_003B4A40(TEX, 10, x, y, a, 0x78, 0x18, 0, 0, 0x78, 0x18, p3, p4 & 0xFF, p5, p6);
 }
 
-/* 0x003B4E50, 0x68 bytes. */
+/* 0x003B4E50, 0x68 bytes, matching. */
 void func_003B4E50(int x, int y, int a, int p3, int p4, int p5, int p6)
 {
-    func_003B4A40(TEX, 0xC, x, y, a, 0x80, 0x20, 0, ARG_UNKNOWN, 0x80, 0x20, 0x80, p3, p5, p6);
+    func_003B4A40(TEX, 0xC, x, y, a, 0x80, 0x20, 0, p4 * 0x20, 0x80, 0x20, 0x80, p3, p5, p6);
 }
 
 /* 0x003B51E0, 0x58 bytes, matching. */
@@ -331,10 +331,10 @@ void func_003B52A0(int x, int y, int a, int p3)
     func_001ABEA0(TEX, 0x1B, x, y, a, 0x18, 0x14, 0, 0, 0x18, 0x14, 0x80, p3, 0);
 }
 
-/* 0x003B5410, 0x64 bytes. */
-void func_003B5410(int x, int y, int a, int p3, int p4)
+/* 0x003B5410, 0x64 bytes, matching. */
+void func_003B5410(int x, int y, int a, int p3, int p4, int p5)
 {
-    func_001ABEA0(TEX, 0x23, x, y, a, 0x60, 0x18, 0, ARG_UNKNOWN, 0x60, 0x18, p3, p4, 0);
+    func_001ABEA0(TEX, 0x23, x, y, a, 0x60, 0x18, 0, p5 * 0x18, 0x60, 0x18, p3, p4, 0);
 }
 
 /* 0x003B55A0, 0x40 bytes, matching. */
@@ -355,16 +355,16 @@ void func_003B5620(int x, int y, int a, int p3)
     func_001ABE40(TEX, 0x27, x, y, a, 0x30, 0x10, 0x80, p3, 0);
 }
 
-/* 0x003B5750, 0x60 bytes. */
+/* 0x003B5750, 0x60 bytes, matching. */
 void func_003B5750(int k, int x, int y, int a, int p4)
 {
-    func_001ABEA0(TEX, 0x2D, x, y, a, 0x40, 0x10, 0, ARG_UNKNOWN, 0x40, 0x10, 0x80, p4, 0);
+    func_001ABEA0(TEX, 0x2D, x, y, a, 0x40, 0x10, 0, k * 0x10, 0x40, 0x10, 0x80, p4, 0);
 }
 
-/* 0x003B57B0, 0x6C bytes. */
-void func_003B57B0(int k, int x, int y, int a, int p4)
+/* 0x003B57B0, 0x6C bytes, matching. */
+void func_003B57B0(int k, int x, int y, int a, int p4, int p5)
 {
-    func_001ABEA0(TEX, 0x2E, x, y, a, 0x48, 0x14, 0, ARG_UNKNOWN, 0x48, 0x14, ARG_UNKNOWN, p4, 0);
+    func_001ABEA0(TEX, 0x2E, x, y, a, 0x48, 0x14, 0, k * 0x14, 0x48, 0x14, p5 & 0xFF, p4, 0);
 }
 
 /* 0x003B58A0, 0x40 bytes, matching. */
@@ -1443,13 +1443,13 @@ int func_003BB6F0(char *s, u8 **a, u8 **b)
 }
 
 /* 0x003BB7B0, 0x12C bytes. A box of height `h` (top, middle, bottom). */
-void func_003BB7B0(int x, int y, int h)
+void func_003BB7B0(int x, int y, int h, int alpha)
 {
     u8 *p = func_003B5E90();
 
-    func_001ABEA0(*(u8 **)(p + 8), 4, x, y, 0, 0x1C0, 8, 0, 0, 0x1c0, 8, ARG_UNKNOWN, 2, 0);
-    func_001ABEA0(*(u8 **)(p + 8), 4, x, y + 8, 0, 0x1C0, h - 0x10, 0, 8, 0x1c0, 0x10, ARG_UNKNOWN, 2, 0);
-    func_001ABEA0(*(u8 **)(p + 8), 4, x, y + 8 + h - 0x10, 0, 0x1C0, 8, 0, 0x18, 0x1c0, 8, ARG_UNKNOWN, 2, 0);
+    func_001ABEA0(*(u8 **)(p + 8), 4, x, y, 0, 0x1C0, 8, 0, 0, 0x1c0, 8, alpha & 0xFF, 2, 0);
+    func_001ABEA0(*(u8 **)(p + 8), 4, x, y + 8, 0, 0x1C0, h - 0x10, 0, 8, 0x1c0, 0x10, alpha & 0xFF, 2, 0);
+    func_001ABEA0(*(u8 **)(p + 8), 4, x, y + 8 + h - 0x10, 0, 0x1C0, 8, 0, 0x18, 0x1c0, 8, alpha & 0xFF, 2, 0);
 }
 
 /* 0x003BBFD0, 0x17C bytes. Draws the page's officer portrait. */

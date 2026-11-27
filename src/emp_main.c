@@ -451,7 +451,7 @@ void func_002FCD70(u32 *l, int n)
  * units, rounded down to tens. */
 int func_002FCE40(int f)
 {
-    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1, ARG_UNKNOWN), s = 0, k;
+    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1, 0), s = 0, k;
     u32 *l = func_002F7B10();
 
     func_002FCD70(l, n);
@@ -1792,7 +1792,7 @@ int func_003006F0(int f, int named, int other, u32 *l, int n)
  * region and its neighbours. */
 int func_00300920(int f, int named, int other)
 {
-    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0, ARG_UNKNOWN), m;
+    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0, 0), m;
 
     func_0030B540(func_002FB2D0(f));
     m = func_002F7D90(n, (int (*)(u32, int, int))func_002F8480, 0, 0, 1, 0);
@@ -1803,7 +1803,7 @@ int func_00300920(int f, int named, int other)
 /* 0x003009E0, 0xA4 bytes. The same among all free officers and the other forces' officers. */
 int func_003009E0(int f, int named, int other)
 {
-    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F85E0, 0, 0, 0, ARG_UNKNOWN);
+    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F85E0, 0, 0, 0, 0);
     int m = func_002F7D90(n, (int (*)(u32, int, int))func_002F8430, f, 0, 0, 0);
 
     return func_003006F0(f, named, other, func_002F7B10(), n + m);
@@ -3556,7 +3556,7 @@ void func_00306970(int f)
         u32 *o;
 
         reg[idx] = 0x19;
-        c = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, to, 0, 1, ARG_UNKNOWN);
+        c = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, to, 0, 1, 0);
         o = func_002F7B10();
         for (k = 0; k < c; k++)
             l[k] = o[k];

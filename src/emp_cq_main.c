@@ -5023,7 +5023,7 @@ int func_0031AEA0(CmdRecord *p)
         int m, t;
 
         r->v[0x1E] = 1;
-        m = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, reg, 0, 1, ARG_UNKNOWN);
+        m = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, reg, 0, 1, 0);
         o = func_002F7B10();
         joined[0] = i;
         for (k = 0; k < m; k++, o++) {

@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 199024,
-    "non_matching": 1462496
+    "matching": 200096,
+    "non_matching": 1461424
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2502
+    "matching": 2510
   },
   "layout": "treemap",
   "areas": [
@@ -288,12 +288,12 @@
           "description": "Estimated range 0x3B4C30-0x3B9068; 67 function(s) decompiled",
           "code": {
             "total": 17464,
-            "matching": 992,
-            "non_matching": 13792
+            "matching": 1664,
+            "non_matching": 13120
           },
           "decompiled_functions": {
             "count": 67,
-            "matching": 13
+            "matching": 19
           }
         },
         {
@@ -327,12 +327,12 @@
           "description": "Estimated range 0x3C84B8-0x3D70F0; 202 function(s) decompiled",
           "code": {
             "total": 60472,
-            "matching": 1136,
-            "non_matching": 46404
+            "matching": 1344,
+            "non_matching": 46196
           },
           "decompiled_functions": {
             "count": 202,
-            "matching": 13
+            "matching": 14
           }
         },
         {
@@ -470,12 +470,12 @@
           "description": "Estimated range 0x3ACA98-0x3B4C30; 68 function(s) decompiled",
           "code": {
             "total": 33176,
-            "matching": 960,
-            "non_matching": 17320
+            "matching": 1152,
+            "non_matching": 17128
           },
           "decompiled_functions": {
             "count": 68,
-            "matching": 17
+            "matching": 18
           }
         }
       ]
