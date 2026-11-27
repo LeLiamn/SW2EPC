@@ -921,7 +921,7 @@ int func_002F77F0(u16 a, u16 b);
 int func_0036D850(u16 a, u16 b);
 int func_0036D970(u16 a, u16 b, int c, int d);
 int func_002F4080(u16 o);
-int func_0034ED40(u8 **g);
+int func_0034ED40(int c);
 int func_0035D560(u8 a, u8 b);
 u8 func_0034EDB0(int c);
 int func_0034ECA0(u8 *pos);
@@ -1556,15 +1556,15 @@ int func_0033C880(u32 order, u32 target, u32 side)
 }
 
 /* 0x0033CA20, 0x34 bytes, matching. */
-int func_0033CA20(u8 **g, u32 side)
+int func_0033CA20(int c, u32 side)
 {
-    return func_0033C880(1, func_0034ED40(g), side);
+    return func_0033C880(1, func_0034ED40(c), side);
 }
 
 /* 0x0033CA60, 0x34 bytes, matching. */
-int func_0033CA60(u8 **g, u32 side)
+int func_0033CA60(int c, u32 side)
 {
-    return func_0033C880(3, func_0034ED40(g), side);
+    return func_0033C880(3, func_0034ED40(c), side);
 }
 
 /* 0x0033CAA0, 0x48 bytes, matching. How many of side `side`'s groups go after group `g`. */
@@ -1696,7 +1696,7 @@ extern int g_004152B0[5];
 
 int func_0018F6F0(u8 *a, u8 *b, int c);
 void func_0018C3F0(u8 *a, u8 *b);
-void func_00352610(u8 *pos, u32 v);
+int func_00352610(u8 *pos, u32 v);
 void func_00352650(u8 *pos, int a, u32 v);
 void func_0035CA90(u32 h, u32 k);
 void func_0035CAC0(u32 h, u32 k);
@@ -1756,9 +1756,9 @@ int func_0033D150(u8 **g)
 }
 
 /* 0x0033D230, 0x3C bytes, matching. */
-void func_0033D230(u8 **g)
+int func_0033D230(u8 **g)
 {
-    func_00352610(func_0033B730(g), func_0033BFE0(g));
+    return func_00352610(func_0033B730(g), func_0033BFE0(g));
 }
 
 /* 0x0033D270, 0x4C bytes, matching. */
@@ -2333,7 +2333,7 @@ u8 **func_0033F1A0(u8 *a)
 
 /* 0x0033F350, 0xD8 bytes. Whether group `g` is an officer group of side `side` (any past 1;
  * `alive`: its leader must be up). */
-int func_0033F350(u8 **g, u32 side, int alive)
+int func_0033F350(u8 **g, u32 side, u32 alive)
 {
     if (alive != 0 && !ALIVE(UNIT_FLAGS(LEADER(g))))
         return 0;
@@ -2342,4 +2342,953 @@ int func_0033F350(u8 **g, u32 side, int alive)
     if (side < 2 && side != LEADER(g)[0x79])
         return 0;
     return 1;
+}
+
+/* Group lists, place choices and the AI's battle requests (0x0033F220-0x00341F9C). The 20
+ * places are func_0034EC80(0-19) (cells, bases). */
+
+typedef int (*GroupTest)(u8 **g, u32 a, u32 b);
+
+extern int (*g_0045D038[2])(u8 **g);     /* (small data) place choosers, first kind */
+extern int (*g_0045D040[2])(u8 **g);     /* second kind */
+extern int (*g_0045D048[2])(u8 **g);     /* third kind */
+extern void (*g_004152D0[4])(u8 **g);    /* request makers by officer temper */
+
+void func_00347820(u32 x, u32 k);
+void func_00347860(u32 x, u32 k);
+int func_0034EE50(int c);
+int func_0034EE60(int c);
+int func_0034EE80(int c);
+int func_003522F0(int c, u8 side);
+int func_00352780(int c, u8 e);
+int func_0035F2D0(u8 side);
+int func_003521B0(int c, u8 e);
+u32 func_0034EEF0(int c);
+u32 func_0034EF50(int c, u32 j);
+u32 func_00352B00(int c, int home);
+int func_003539D0(u8 *pos, u8 side);
+int func_003DCE70(u8 **g, int c);
+u32 func_003DCE30(u8 **g, u8 **h);
+u32 func_003DCDF0(u8 **g, u8 *pos);
+void func_0036FBE0(int kind, u32 k, u32 h);
+int func_0036FC90(void);
+u32 func_0036FD70(u8 side);
+
+/* 0x0033F240, 0x10C bytes. Lists the groups `from`-`to` in use that pass `fn` (none: all) into
+ * `out`, `max` at most; their count. */
+u32 func_0033F240(u32 *out, u32 max, GroupTest fn, u32 a, u32 b, u32 from, u32 to)
+{
+    u32 n = 0;
+
+    for (; from < to; from++) {
+        u8 **g = GROUP(from);
+
+        if (n >= max)
+            return n;
+        if ((GFLAGS(g) & 1) != 0 && (fn == 0 || fn(g, a, b) != 0)) {
+            *out++ = from;
+            n++;
+        }
+    }
+    return n;
+}
+
+/* 0x0033F220, 0x20 bytes, matching. The same over all 0x47 groups. */
+u32 func_0033F220(u32 *out, u32 max, GroupTest fn, u32 a, u32 b)
+{
+    return func_0033F240(out, max, fn, a, b, 0, 0x47);
+}
+
+/* 0x0033F430, 0x34 bytes, matching. Lists side `side`'s officer groups. */
+u32 func_0033F430(u32 side, u32 alive, u32 *out, u32 max)
+{
+    return func_0033F220(out, max, func_0033F350, side, alive);
+}
+
+/* 0x0033F470, 0x60 bytes. Whether group `g` is a live officer group of side `side` on place
+ * `i`. */
+int func_0033F470(u8 **g, u32 i, u32 side)
+{
+    if (func_0033F350(g, side, 1) == 0)
+        return 0;
+    return func_0033CB60(g, func_0034EC80(i));
+}
+
+/* 0x0033F4D0, 0x58 bytes, matching. Lists side `side`'s live officer groups on place `c`. */
+u32 func_0033F4D0(int c, u32 side, u32 *out, u32 max)
+{
+    return func_0033F220(out, max, (GroupTest)func_0033F470, func_0034ED40(c), side);
+}
+
+/* 0x0033F530, 0x44 bytes. */
+int func_0033F530(u8 **g, u32 x)
+{
+    func_00347820(x, GI(g));
+    return 0;
+}
+
+/* 0x0033F580, 0x30 bytes, matching. */
+u32 func_0033F580(u32 x, u32 *out, u32 max)
+{
+    return func_0033F220(out, max, (GroupTest)func_0033F530, x, 0);
+}
+
+/* 0x0033F5B0, 0x44 bytes. */
+int func_0033F5B0(u8 **g, u32 x)
+{
+    func_00347860(x, GI(g));
+    return 0;
+}
+
+/* 0x0033F600, 0x30 bytes, matching. */
+u32 func_0033F600(u32 x, u32 *out, u32 max)
+{
+    return func_0033F220(out, max, (GroupTest)func_0033F5B0, x, 0);
+}
+
+/* 0x0033F630, 0x154 bytes. Whether group `g` is a live officer group of side `side` with order
+ * `ot` (low half; high half its target, 0xFF: any). */
+int func_0033F630(u8 **g, u32 ot, u32 side)
+{
+    if (!ALIVE(UNIT_FLAGS(LEADER(g))))
+        return 0;
+    if (func_0033B050(g) == 0)
+        return 0;
+    if (side != LEADER(g)[0x79])
+        return 0;
+    if ((ot & 0xFFFF) != INFO(g)[2])
+        return 0;
+    return (ot >> 0x10) == 0xFF || (ot >> 0x10) == INFO(g)[3];
+}
+
+/* 0x0033F790, 0x3C bytes, matching. Lists side `side`'s groups with order `order` on `target`. */
+u32 func_0033F790(u32 order, u32 target, u32 side, u32 *out, u32 max)
+{
+    return func_0033F220(out, max, func_0033F630, order | target << 0x10, side);
+}
+
+/* 0x0033F7D0, 0x20 bytes, matching. Counts side `side`'s officer groups. */
+u32 func_0033F7D0(u32 side, u32 alive)
+{
+    u32 list[16];
+
+    return func_0033F430(side, alive, list, 0x10);
+}
+
+/* 0x0033F7F0, 0x20 bytes, matching. Counts side `side`'s groups on place `c`. */
+u32 func_0033F7F0(int c, u32 side)
+{
+    u32 list[16];
+
+    return func_0033F4D0(c, side, list, 0x10);
+}
+
+/* 0x0033F810, 0x20 bytes, matching. */
+u32 func_0033F810(u32 order, u32 target, u32 side)
+{
+    u32 list[16];
+
+    return func_0033F790(order, target, side, list, 0x10);
+}
+
+/* 0x0033F830, 0x24 bytes, matching. Whether any group has that order. */
+int func_0033F830(u32 order, u32 target, u32 side)
+{
+    u32 one;
+
+    return func_0033F790(order, target, side, &one, 1) != 0;
+}
+
+/* 0x0033F860, 0x16C bytes. One of side `side`'s officer groups at random (`plain`: only those
+ * with a plain leader). */
+u8 **func_0033F860(u32 side, u32 alive, int plain)
+{
+    u32 list[16], n = func_0033F430(side, alive, list, 0x10), k;
+    u8 **r;
+
+    if (n == 0)
+        return 0;
+    if (plain == 0)
+        return GROUP(list[(int)RANDOM() % (int)n]);
+    r = 0;
+    for (k = 0; k < n; k++) {
+        u8 **h = GROUP(list[k]);
+
+        if ((UNIT_FLAGS(LEADER(h)) & 0x30) == 0) {
+            if (r != 0 && (int)RANDOM() % 100 > 0x31)
+                continue;
+            r = h;
+        }
+    }
+    return r;
+}
+
+/* 0x0033F9D0, 8 bytes, matching. */
+int func_0033F9D0(u8 **g)
+{
+    return g != 0;
+}
+
+/* 0x0033F9E0, 0x88 bytes. Whether place `i` is a place group `g`'s side does not hold. */
+int func_0033F9E0(u8 **g, u32 i)
+{
+    int c;
+
+    if (g == 0 || i > 0x13)
+        return 0;
+    c = func_0034EC80(i);
+    if (c == 0 || func_0034EE50(c) == 0)
+        return 0;
+    return func_0033CB20(g, c) == 0;
+}
+
+/* 0x0033FA70, 0x124 bytes. Whether group `i` is a live enemy officer group of group `g`. */
+int func_0033FA70(u8 **g, u32 i)
+{
+    u8 **h;
+
+    if (g == 0 || i > 0x46)
+        return 0;
+    h = GROUP(i);
+    if (h == 0 || (GFLAGS(h) & 1) == 0 || !ALIVE(UNIT_FLAGS(LEADER(h))))
+        return 0;
+    if (func_0033B050(h) == 0)
+        return 0;
+    return func_0033CAF0(g, h) == 0;
+}
+
+/* 0x0033FBA0, 0x84 bytes. Whether place `i` is held by group `g`'s side. */
+int func_0033FBA0(u8 **g, u32 i)
+{
+    int c;
+
+    if (g == 0 || i > 0x13)
+        return 0;
+    c = func_0034EC80(i);
+    if (c == 0 || func_0034EE50(c) == 0)
+        return 0;
+    return func_0033CB20(g, c) != 0;
+}
+
+/* 0x0033FC30, 0x130 bytes. Whether group `i` is another live friendly officer group. */
+int func_0033FC30(u8 **g, u32 i)
+{
+    u8 **h;
+
+    if (g == 0 || i > 0x46)
+        return 0;
+    h = GROUP(i);
+    if (h == 0 || (GFLAGS(h) & 1) == 0 || !ALIVE(UNIT_FLAGS(LEADER(h))))
+        return 0;
+    if (func_0033B050(h) == 0 || g == h)
+        return 0;
+    return func_0033CAF0(g, h) != 0;
+}
+
+/* 0x0033FD60, 0xBC bytes. */
+int func_0033FD60(u8 **g, u32 i)
+{
+    int c;
+
+    if (g == 0 || i > 0x13)
+        return 0;
+    c = func_0034EC80(i);
+    if (c == 0 || func_0034EE50(c) == 0 || func_0033CB20(g, c) == 0)
+        return 0;
+    if (func_0034EE80(c) != 0)
+        return 0;
+    return func_003522F0(c, LEADER(g)[0x79]) != 0;
+}
+
+/* 0x0033FE20, 0x130 bytes. */
+int func_0033FE20(u8 **g, u32 i)
+{
+    int c;
+    u8 side;
+
+    if (g == 0 || i > 0x13)
+        return 0;
+    c = func_0034EC80(i);
+    if (c == 0)
+        return 0;
+    side = LEADER(g)[0x79];
+    if (*(short *)(INFO(g) + 0x1A) == 0)
+        return 0;
+    if (func_0034EE50(c) == 0 || func_0033CB20(g, c) == 0)
+        return 0;
+    if (func_0034EE80(c) != 0)
+        return 0;
+    if (func_0034EE60(c) == 0 && func_00352780(c, func_0035D5A0(side)) != 0)
+        return 0;
+    return 1;
+}
+
+/* 0x0033FF50, 0xBC bytes. */
+int func_0033FF50(u8 **g, u32 i)
+{
+    int c;
+
+    if (g == 0 || i > 0x13)
+        return 0;
+    c = func_0034EC80(i);
+    if (c == 0 || func_0035F2D0(LEADER(g)[0x79]) == 0)
+        return 0;
+    if (func_0034EE50(c) == 0 || func_0033CB20(g, c) == 0)
+        return 0;
+    return func_0034EE80(c) == 0;
+}
+
+/* 0x00340010, 0x98 bytes. An enemy place group `g` may attack. */
+int func_00340010(u8 **g, u32 i)
+{
+    int c;
+
+    if (g == 0 || i > 0x13)
+        return 0;
+    c = func_0034EC80(i);
+    if (c == 0 || func_0033F9E0(g, i) == 0)
+        return 0;
+    return func_00352240(c, LEADER(g)[0x79]) != 0;
+}
+
+/* 0x003400B0, 0xF8 bytes. A friendly place group `g` may defend (the enemy near it or about to
+ * come). */
+int func_003400B0(u8 **g, u32 i)
+{
+    int c;
+    u8 e;
+
+    if (g == 0 || i > 0x13)
+        return 0;
+    c = func_0034EC80(i);
+    if (c == 0 || func_0033FBA0(g, i) == 0)
+        return 0;
+    if (func_0034EE80(c) != 0)
+        return 0;
+    e = func_0035D5A0(func_0034EDB0(c));
+    if (func_00352690(c, e) != 0)
+        return 1;
+    if (func_0033CA20(c, e) != 0)
+        return 1;
+    return func_003521B0(c, e) != 0;
+}
+
+/* 0x003401B0, 0x38 bytes. */
+int func_003401B0(u8 **g, u32 i)
+{
+    if (g == 0 || i > 0x13)
+        return 0;
+    return func_0033FD60(g, i) != 0;
+}
+
+/* 0x003401F0, 0x38 bytes. */
+int func_003401F0(u8 **g, u32 i)
+{
+    if (g == 0 || i > 0x13)
+        return 0;
+    return func_0033FE20(g, i) != 0;
+}
+
+/* 0x00340230, 0x38 bytes. */
+int func_00340230(u8 **g, u32 i)
+{
+    if (g == 0 || i > 0x13)
+        return 0;
+    return func_0033FF50(g, i) != 0;
+}
+
+/* 0x00340270, 0xE8 bytes. An enemy place group `g` may attack while its side holds its own main
+ * base (else only that base). */
+int func_00340270(u8 **g, u32 i)
+{
+    int c;
+    u8 side;
+    u32 b;
+
+    if (g == 0 || i > 0x13)
+        return 0;
+    c = func_0034EC80(i);
+    if (c == 0)
+        return 0;
+    side = LEADER(g)[0x79];
+    if (func_0033F9E0(g, i) == 0)
+        return 0;
+    b = func_0035F200(side);
+    if (side == func_0034EDB0(func_0034EC80(b))) {
+        if (func_00352240(c, side) == 0)
+            return 0;
+    } else if (i != b) {
+        return 0;
+    }
+    return 1;
+}
+
+/* 0x00340360, 0x38 bytes. */
+int func_00340360(u8 **g, u32 i)
+{
+    if (g == 0 || i > 0x46)
+        return 0;
+    return func_0033FA70(g, i) != 0;
+}
+
+/* 0x003403A0, 0x1A4 bytes. A friendly place group `g` should stay at (or come back to). */
+int func_003403A0(u8 **g, u32 i)
+{
+    int c;
+    u8 e;
+
+    if (g == 0 || i > 0x13)
+        return 0;
+    c = func_0034EC80(i);
+    if (c == 0 || func_0033FBA0(g, i) == 0)
+        return 0;
+    if (func_0033B150(g) != 0 && func_0034EE60(c) != 0)
+        return 1;
+    if (func_0034EE80(c) != 0)
+        return 0;
+    e = func_0035D5A0(func_0034EDB0(c));
+    if (func_00352690(c, e) != 0 || func_0033CA20(c, e) != 0)
+        return 1;
+    if (func_003521B0(c, e) == 0)
+        return 0;
+    if (INFO(g)[4] < 0x3C)
+        return 1;
+    return (int)RANDOM() % 100 < 0x5A;
+}
+
+/* 0x00340550, 0x38 bytes. */
+int func_00340550(u8 **g, u32 i)
+{
+    if (g == 0 || i > 0x46)
+        return 0;
+    return func_0033FC30(g, i) != 0;
+}
+
+/* 0x00340590, 0x180 bytes. A place for group `g` to attack (a main one half the time, else any
+ * at random). */
+int func_00340590(u8 **g)
+{
+    u32 list[20], n = 0, main = 0x14, i;
+
+    if (g == 0)
+        return 0;
+    for (i = 0; i < 0x14; i++) {
+        int c = func_0034EC80(i);
+
+        if (func_0034EE50(c) != 0 && func_00340010(g, i) != 0) {
+            list[n++] = i;
+            if (func_0034EE60(c) != 0)
+                main = i;
+        }
+    }
+    if (n == 0)
+        return 0;
+    if (main == 0x14 || (int)RANDOM() % 100 > 0x31)
+        return func_0034EC80(list[(int)RANDOM() % (int)n]);
+    return func_0034EC80(main);
+}
+
+/* 0x00340710, 0x148 bytes. The place group `g` attacks next: its current one, else the
+ * neighbour nearest the enemy's main base. */
+int func_00340710(u8 **g)
+{
+    int c, best, home;
+    u32 min, n, j;
+
+    if (g == 0)
+        return 0;
+    c = func_0033D230(g);
+    if (c == 0)
+        return 0;
+    if (func_00340010(g, func_0034ED40(c)) != 0)
+        return c;
+    best = 0;
+    min = 0xFFFFFFFF;
+    home = func_0034EC80(func_0035F200(func_0035D5A0(LEADER(g)[0x79])));
+    n = func_0034EEF0(c);
+    for (j = 0; j < n; j++) {
+        u32 i = func_0034EF50(c, j);
+        int cc = func_0034EC80(i);
+
+        if (func_00340010(g, i) != 0) {
+            u32 d = func_00352B00(cc, home);
+
+            if (d < min) {
+                min = d;
+                best = cc;
+            }
+        }
+    }
+    return best;
+}
+
+/* Runs choosers `fn` until one gives a place. */
+static int first_choice(u8 **g, int (**tab)(u8 **))
+{
+    int (*fn[2])(u8 **);
+    u32 k;
+
+    fn[0] = tab[0];
+    fn[1] = tab[1];
+    if (g == 0)
+        return 0;
+    for (k = 0; k < 2; k++) {
+        int r;
+
+        if (fn[k] != 0 && (r = fn[k](g)) != 0)
+            return r;
+    }
+    return 0;
+}
+
+/* 0x00340860, 0x8C bytes. */
+int func_00340860(u8 **g)
+{
+    return first_choice(g, g_0045D038);
+}
+
+/* 0x003408F0, 8 bytes, matching. */
+int func_003408F0(void)
+{
+    return 0;
+}
+
+/* 0x00340900, 0x1A0 bytes. A place for group `g` to defend (where fewer than 2 groups go). */
+int func_00340900(u8 **g)
+{
+    u32 list[20], n = 0, main = 0x14, i;
+
+    if (g == 0)
+        return 0;
+    for (i = 0; i < 0x14; i++) {
+        int c = func_0034EC80(i);
+
+        if (func_0034EE50(c) != 0 && func_003400B0(g, i) != 0
+            && (u32)func_0033CA60(c, LEADER(g)[0x79]) < 2) {
+            list[n++] = i;
+            if (func_0034EE60(c) != 0)
+                main = i;
+        }
+    }
+    if (n == 0)
+        return 0;
+    if (main == 0x14 || (int)RANDOM() % 100 > 0x31)
+        return func_0034EC80(list[(int)RANDOM() % (int)n]);
+    return func_0034EC80(main);
+}
+
+/* 0x00340AA0, 0x148 bytes. The place group `g` defends next. */
+int func_00340AA0(u8 **g)
+{
+    int c, best, home;
+    u32 min, n, j;
+
+    if (g == 0)
+        return 0;
+    c = func_0033D230(g);
+    if (c == 0)
+        return 0;
+    if (func_003400B0(g, func_0034ED40(c)) != 0)
+        return c;
+    best = 0;
+    min = 0xFFFFFFFF;
+    home = func_0034EC80(func_0035F200(func_0035D5A0(LEADER(g)[0x79])));
+    n = func_0034EEF0(c);
+    for (j = 0; j < n; j++) {
+        u32 i = func_0034EF50(c, j);
+        int cc = func_0034EC80(i);
+
+        if (func_003400B0(g, i) != 0) {
+            u32 d = func_00352B00(cc, home);
+
+            if (d < min) {
+                min = d;
+                best = cc;
+            }
+        }
+    }
+    return best;
+}
+
+/* 0x00340BF0, 0x8C bytes. */
+int func_00340BF0(u8 **g)
+{
+    return first_choice(g, g_0045D040);
+}
+
+/* 0x00340C80, 8 bytes, matching. */
+int func_00340C80(void)
+{
+    return 0;
+}
+
+/* 0x00340C90, 0x104 bytes. A friendly place at random for group `g` (func_003401B0). */
+int func_00340C90(u8 **g)
+{
+    u32 list[20], n = 0, i;
+
+    if (g == 0)
+        return 0;
+    for (i = 0; i < 0x14; i++) {
+        int c = func_0034EC80(i);
+
+        if (c != 0 && func_0034EE50(c) != 0 && func_003401B0(g, i) != 0)
+            list[n++] = i;
+    }
+    if (n == 0)
+        return 0;
+    return func_0034EC80(list[(int)RANDOM() % (int)n]);
+}
+
+/* 0x00340DA0, 0x158 bytes. The same next to the place group `g` is going to. */
+int func_00340DA0(u8 **g)
+{
+    int c, r;
+    u32 n, j;
+
+    if (g == 0)
+        return 0;
+    c = func_0033D230(g);
+    if (c == 0)
+        return 0;
+    if (func_0033CB60(g, c) == 0 && func_003401B0(g, func_0034ED40(c)) != 0)
+        return c;
+    r = 0;
+    n = func_0034EEF0(c);
+    for (j = 0; j < n; j++) {
+        u32 i = func_0034EF50(c, j);
+        int cc = func_0034EC80(i);
+
+        if (func_003401B0(g, i) != 0) {
+            if (r != 0 && (int)RANDOM() % 100 > 0x31)
+                continue;
+            r = cc;
+        }
+    }
+    return r;
+}
+
+/* 0x00340F00, 0x8C bytes. */
+int func_00340F00(u8 **g)
+{
+    return first_choice(g, g_0045D048);
+}
+
+/* 0x00340F90, 0x130 bytes. Where group `g` falls back to: its side's main base for the second
+ * side's commander, else the nearest fitting friendly place. */
+int func_00340F90(u8 **g)
+{
+    u8 *pos, p[4];
+    int best;
+    u32 min, i;
+
+    if (g == 0)
+        return 0;
+    if (func_0033B150(g) != 0) {
+        int c = func_0034EC80(func_0035F200(LEADER(g)[0x79]));
+
+        if (func_0034EDB0(c) == LEADER(g)[0x79])
+            return c;
+    }
+    pos = func_0033B730(g);
+    best = 0;
+    min = 0xFFF;
+    for (i = 0; i < 0x14; i++) {
+        int c = func_0034EC80(i);
+
+        if (func_0034EE50(c) != 0 && func_003401F0(g, i) != 0) {
+            u32 d;
+
+            func_0034ED90(c, p);
+            d = func_0018F6F0(pos, p, 0);
+            if (d < min) {
+                best = c;
+                min = d;
+            }
+        }
+    }
+    return best;
+}
+
+/* 0x003410C0, 0x1A4 bytes. The friendly place best placed between group `g` and place `t`
+ * (near both, a little at random). */
+int func_003410C0(u8 **g, int t)
+{
+    u8 *pos, tp[4], p[4];
+    int best = 0;
+    u32 top = 0, i;
+
+    if (g == 0 || t == 0)
+        return 0;
+    pos = func_0033B730(g);
+    func_0034ED90(t, tp);
+    for (i = 0; i < 0x14; i++) {
+        int c = func_0034EC80(i);
+
+        if (c != 0 && func_00340230(g, i) != 0) {
+            int a, b;
+            u32 s;
+
+            func_0034ED90(c, p);
+            a = 5 - (func_0018F6F0(p, tp, 0) & 0xFFFF);
+            b = 5 - (func_0018F6F0(p, pos, 0) & 0xFFFF);
+            s = a * 5 * 0x14 + b * 5 * 2 + (int)RANDOM() % 10;
+            if (top < s) {
+                best = c;
+                top = s;
+            }
+        }
+    }
+    return best;
+}
+
+/* 0x00341270, 0x190 bytes. The friendly place group `g` should guard: its side's main base for
+ * a commander, else the one most threatened and nearest. */
+int func_00341270(u8 **g)
+{
+    u8 side, p[4];
+    int best = 0, top = 0;
+    u32 i;
+
+    if (g == 0)
+        return 0;
+    side = LEADER(g)[0x79];
+    if (func_0033B140(g) != 0) {
+        int c = func_0034EC80(func_0035F200(side));
+
+        if (c != 0 && side == func_0034EDB0(c))
+            return c;
+    }
+    for (i = 0; i < 0x14; i++) {
+        int c = func_0034EC80(i);
+
+        if (func_0034EE50(c) != 0 && side == func_0034EDB0(c)) {
+            int v, d, s;
+
+            func_0034ED90(c, p);
+            v = func_003539D0(p, side);
+            if (v < 1)
+                v = 0;
+            d = 5 - func_003DCE70(g, c);
+            if (d < 1)
+                d = 0;
+            s = v * 5 * 2 + d;
+            if (top < s) {
+                best = c;
+                top = s;
+            }
+        }
+    }
+    if (best == 0)
+        best = func_0034EC80(func_0035F200(side));
+    return best;
+}
+
+/* 0x00341400, 0xE4 bytes. Whether group `g` may make a battle request (+0x23 set, +0x2B bit 7
+ * clear, its second order not 6-9 or 0xC). */
+int func_00341400(u8 **g)
+{
+    u32 k;
+    char o;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_00338410(k)[0x23] == 0)
+        return 0;
+    if ((func_00338410(k)[0x2B] & 0x80) != 0)
+        return 0;
+    o = func_00338410(k)[5];
+    if (o == 0xC || o == 9 || o == 8 || o == 7 || o == 6)
+        return 0;
+    return 1;
+}
+
+/* 0x003414F0, 0x18C bytes. Request 0 (once, +0x2B bit 0): reached its place or near the group it
+ * goes after. */
+int func_003414F0(u8 **g)
+{
+    u32 k;
+    u8 *r;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if ((func_00338410(k)[0x2B] & 1) != 0 || func_00341400(g) == 0)
+        return 0;
+    if ((int)RANDOM() % 100 >= 0x3C)
+        return 0;
+    r = func_00338410(k);
+    if (r[2] == 2) {
+        if (func_003DCE30(g, func_0033C3A0(g)) > 1)
+            return 0;
+    } else {
+        if (r[2] != 1)
+            return 0;
+        if (func_0033CB60(g, func_0033C320(g)) == 0)
+            return 0;
+    }
+    if (LEADER(g)[0x7A] != 2)
+        return 0;
+    func_0036FBE0(0, k, 0xFF);
+    return 1;
+}
+
+/* 0x00341680, 0x1DC bytes. Request 1 (+0x2B bit 1): the same for orders 3-5. */
+int func_00341680(u8 **g)
+{
+    u32 k;
+    char o;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if ((func_00338410(k)[0x2B] & 2) != 0 || func_00341400(g) == 0)
+        return 0;
+    if ((int)RANDOM() % 100 >= 0x3C)
+        return 0;
+    o = func_00338410(k)[2];
+    if (o == 5) {
+        if (func_00338410(k)[5] != 5)
+            return 0;
+        if (func_0033CB60(g, func_0033C160(g)) == 0)
+            return 0;
+    } else if (o == 4) {
+        if (func_003DCE30(g, func_0033C3A0(g)) > 1)
+            return 0;
+    } else {
+        if (o != 3)
+            return 0;
+        if (func_0033CB60(g, func_0033C320(g)) == 0)
+            return 0;
+    }
+    if (LEADER(g)[0x7A] != 2)
+        return 0;
+    func_0036FBE0(1, k, 0xFF);
+    return 1;
+}
+
+/* 0x00341860, 0x1C0 bytes. Request 2 (+0x2B bit 2): still 3 and more from where it goes. */
+int func_00341860(u8 **g)
+{
+    u32 k;
+    char o;
+    u8 pos[4];
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if ((func_00338410(k)[0x2B] & 4) != 0 || func_00341400(g) == 0)
+        return 0;
+    if ((int)RANDOM() % 100 >= 0x3C)
+        return 0;
+    o = func_00338410(k)[2];
+    if (o == 5) {
+        if (func_00338410(k)[5] != 5)
+            return 0;
+        if (func_0033C290(g, pos) == 0)
+            return 0;
+    } else {
+        if (o != 4 && o != 2 && o != 3 && o != 1)
+            return 0;
+        if (func_0033C450(g, pos) == 0)
+            return 0;
+    }
+    if (func_003DCDF0(g, pos) < 3)
+        return 0;
+    func_0036FBE0(2, k, 0xFF);
+    return 1;
+}
+
+/* 0x00341A20, 0x1AC bytes. Lists the live enemy officer groups that hold a place of their own
+ * without a link (`max` at most). */
+u32 func_00341A20(u8 **g, u8 ***out, u32 max)
+{
+    u32 n = 0, k;
+    char side;
+
+    if (g == 0 || out == 0)
+        return 0;
+    side = LEADER(g)[0x79];
+    for (k = 0; k < 0x10 && n < max; k++) {
+        u8 **h = func_0033EF80(k);
+        u32 f;
+
+        if ((GFLAGS(h) & 1) == 0)
+            continue;
+        f = UNIT_FLAGS(LEADER(h));
+        if (!ALIVE(f) || (f & 0x30) != 0 || side == (char)LEADER(h)[0x79])
+            continue;
+        if (INFO(h)[0x2A] > 0x46 && INFO(h)[5] == 1
+            && func_0033CB60(h, func_0033C160(h)) != 0) {
+            *out++ = h;
+            n++;
+        }
+    }
+    return n;
+}
+
+/* 0x00341BD0, 0x1C8 bytes. Request 3 (+0x2B bit 3): a group of 3 and more asks to go after one
+ * of those enemy groups. */
+int func_00341BD0(u8 **g)
+{
+    u8 **list[16];
+    u32 k, n, i;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if ((func_00338410(k)[0x2B] & 8) != 0 || func_00341400(g) == 0)
+        return 0;
+    for (i = n = 0; i < 0xD; i++) {
+        if (g[i] != 0)
+            n++;
+    }
+    if (n < 3)
+        return 0;
+    if ((int)RANDOM() % 100 >= 0x3C)
+        return 0;
+    n = func_00341A20(g, list, 0x10);
+    if (n == 0)
+        return 0;
+    func_0036FBE0(3, k, GI(list[(int)RANDOM() % (int)n]));
+    return 1;
+}
+
+/* 0x00341DA0, 0xB8 bytes. Makes group `g`'s request by its officer's temper (at random for
+ * func_0033B440). */
+void func_00341DA0(u8 **g)
+{
+    void (*fn[4])(u8 **);
+    u32 v;
+
+    fn[0] = g_004152D0[0];
+    fn[1] = g_004152D0[1];
+    fn[2] = g_004152D0[2];
+    fn[3] = g_004152D0[3];
+    if (g == 0)
+        return;
+    if (func_0033B440(g) == 0)
+        v = func_0033B8D0(g);
+    else
+        v = RANDOM() & 3;
+    if (v < 4)
+        fn[v](g);
+}
+
+/* 0x00341E60, 0x128 bytes. Now and then (more often as the battle goes on and the more it lost
+ * its leader), group `g` makes a request. */
+void func_00341E60(u8 **g)
+{
+    int t;
+    u8 b;
+
+    if (g == 0 || (UNIT_FLAGS(LEADER(g)) & 0x30) != 0)
+        return;
+    if (INFO(g)[0x28] != 0 || func_0036FC90() != 0)
+        return;
+    t = g_00669F9C;
+    b = INFO(g)[0x24];
+    if ((u32)(0xB4 - (t / 500 + b * 0x32)) <= func_0036FD70(LEADER(g)[0x79]))
+        func_00341DA0(g);
 }
