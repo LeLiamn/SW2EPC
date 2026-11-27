@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 128064,
-    "non_matching": 957720
+    "matching": 128128,
+    "non_matching": 962936
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1406
+    "matching": 1407
   },
   "layout": "treemap",
   "areas": [
@@ -189,14 +189,14 @@
         },
         {
           "name": "SceneTitle.c",
-          "description": "Estimated range 0x268448-0x27BF40; 0 function(s) decompiled",
+          "description": "Estimated range 0x268448-0x27BF40; 7 function(s) decompiled",
           "code": {
             "total": 80632,
             "matching": 0,
-            "non_matching": 0
+            "non_matching": 1824
           },
           "decompiled_functions": {
-            "count": 0,
+            "count": 7,
             "matching": 0
           }
         },
@@ -589,15 +589,15 @@
         },
         {
           "name": "ObjAction.c",
-          "description": "Estimated range 0x27BF40-0x2877B8; 64 function(s) decompiled",
+          "description": "Estimated range 0x27BF40-0x2877B8; 84 function(s) decompiled",
           "code": {
             "total": 47224,
-            "matching": 1152,
-            "non_matching": 26312
+            "matching": 1216,
+            "non_matching": 29704
           },
           "decompiled_functions": {
-            "count": 64,
-            "matching": 19
+            "count": 84,
+            "matching": 20
           }
         },
         {
