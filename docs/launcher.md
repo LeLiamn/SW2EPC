@@ -21,7 +21,9 @@ Earlier proposals there (`init(platform, config)`, a `sw2e_` prefix) are superse
 - [ ] **`upp_runtime`**, a library linked into `sw2epc.exe`. It owns `main()`, the main loop,
   the window, the OS events, audio output, pads, disc access and `launch.json`.
 - [ ] **One process per game**, so address-named symbols never meet another game's.
-- [ ] **Dev mode:** `sw2epc.exe --disc <image>` works without the launcher.
+- [ ] **Dev mode:** `sw2epc.exe --disc <image>` works without the launcher. It identifies the
+  disc itself, so `release()` is always filled; an unknown disc stops unless
+  `--force-release <id>` is given.
 - [ ] **Game loading:** calls `upp_game_entry()` and reads its table. In `run()` mode it calls
   `run()` on a game thread it creates.
 - [ ] **PS2 thread model (`UPP_THREADS_PS2`):**
@@ -41,8 +43,9 @@ Earlier proposals there (`init(platform, config)`, a `sw2e_` prefix) are superse
   game is paused on focus loss.
 - [ ] **Video v1:** `video_present(rgba, w, h, pitch)`. It copies into a triple buffer and
   returns at once, so it may be called from a vblank callback.
-- [ ] **Video v2:** `texture_create`, `texture_upload`, `draw_triangles(state, vertices, count)`
-  on SDL_GPU, keeping the GS conventions:
+- [ ] **Video v2 (a sketch, not part of the version 1 contract):** `texture_create`,
+  `texture_upload`, `draw_triangles(state, vertices, count)` on SDL_GPU, keeping the GS
+  conventions. It stays open until render-to-texture, frame-buffer effects and fog are known:
   - blend `(A - B) * C / 128 + D`, alpha test, depth test and write, filtering, clamping;
   - TFX modes and TCC; colours and alpha on the 0x80 = 1.0 scale; s/t/q coordinates;
   - indexed 4-bit and 8-bit textures with separate palettes;
@@ -90,13 +93,19 @@ Earlier proposals there (`init(platform, config)`, a `sw2e_` prefix) are superse
 - [ ] **Movies:** decode the PSS files (MPEG-2 plus ADPCM) in the port.
 - [ ] **Saves:** keep the game's own data, written through the `save_*` calls (memory-card
   style folders).
-- [ ] **QoL options:** read them with `option_*`, always defaulting to the original behaviour.
-  Planned: `qol.skip_intro_movies`, `qol.fast_loading`, `display.widescreen`, `display.refresh`,
-  `display.progressive`.
+- [ ] **Options:** read them with `option_*`, always defaulting to the original behaviour.
+  - Available: `debug.log_level` (the runtime uses it too).
+  - Planned: `qol.skip_intro_movies`, `qol.fast_loading` (default false), `display.widescreen`,
+    `display.refresh`, `display.progressive`.
 - [ ] **No direct OS or SDL calls, no `exit()`, no hard-coded paths, no file access** except
   through the platform.
-- [ ] **No pointers held in 32-bit integers** (needed for 64-bit), and shared prototypes in
-  headers (`src/sw2e_draw.h` started).
+- [ ] **64-bit memory model:**
+  - the game's PS2 memory (the boot executable's data loaded from the disc, the heaps, the
+    LINKDATA buffers) lives in one 32 MB block;
+  - addresses stored inside game data stay 32-bit PS2 addresses, turned into pointers with
+    `PS2_PTR(addr)` and back with `PS2_ADDR(ptr)`;
+  - native pointers only in C locals and parameters;
+  - shared prototypes in headers (`src/sw2e_draw.h` started).
 - [ ] **Report here when known:**
   - is there a 60 Hz mode (the evidence is mixed)?
   - which text languages are on the disc?
@@ -545,6 +554,31 @@ One question, raised by the per-release plan:
 
   Which way does the port plan to go? Only the third one changes anything on the launcher side.
 
+## This project: addresses inside loaded data (2026-11-27)
+
+The launcher's changes are agreed, and the summary above is updated: dev-mode disc
+identification, video v2 marked as a sketch, `debug.log_level` available, `qol.fast_loading`
+defaulting to false, `display.progressive` planned.
+
+On the addresses: **the port takes the first way, a 64-bit build with one PS2 memory block**,
+for these reasons:
+
+- The PS2 code keeps 32-bit addresses in far more places than the tables loaded from the
+  executable: structures in the heaps, linked lists, LINKDATA offset tables, and the save image
+  (which must stay compatible with real memory cards).
+- **One 32 MB block** stands for the EE's memory. The boot executable's data segments are loaded
+  at their PS2 addresses inside it, and the game's heaps and file buffers are allocated inside it.
+- **`PS2_PTR(addr)`** gives `block + addr` (with `addr` masked to the 32 MB RAM range), and
+  **`PS2_ADDR(ptr)`** gives the reverse. Stored addresses keep their 32-bit size, so structure
+  layouts and saves stay byte-for-byte as on the console.
+- Native pointers only appear in C locals and parameters, and are converted when stored.
+- The scratchpad (`0x70000000`, 16 KB) and the hardware registers the game touches get their own
+  small areas or calls.
+
+Nothing changes on the launcher side. A fix-up pass at load time was not chosen, because
+structures built while running would still hold 32-bit addresses. A 32-bit build was not chosen
+because of macOS and Linux.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -574,3 +608,5 @@ One question, raised by the per-release plan:
 - 2026-11-27: launcher side checked the summary: `qol.fast_loading` default fixed to false,
   `display.progressive` added, dev mode identifies the disc; question on PS2 addresses inside
   the loaded tables (64-bit).
+- 2026-11-27: this project agrees with the launcher's changes and chooses a 64-bit build with one
+  PS2 memory block and `PS2_PTR` / `PS2_ADDR` for stored addresses.
