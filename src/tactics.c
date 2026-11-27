@@ -23,7 +23,7 @@ void func_0036EB40(u32 s, u32 k);
 void func_0036FAC0(u32 s, u32 k);
 int func_0036EFA0(u32 v);
 int func_0036D2E0(void);
-void func_0035DBD0(int *t, int a, int b);
+int func_0035DBD0(int *t, int a, int b);
 
 #define TAC() func_0036DCD0()
 
@@ -277,33 +277,32 @@ int func_0036F620(void)
     return *(int *)(g_00669D60 + 0x224) * 4 / 8 + t[g_00669D60[0x21]];
 }
 
-/* 0x0036F810, 0x54 bytes. */
-void func_0036F810(void)
+/* 0x0036F810, 0x54 bytes. A random tactic (Empire battles). */
+int func_0036F810(void)
 {
     int t[30], k;
 
     for (k = 0; k < 30; k++)
         t[k] = g_00415F50[k];
-    func_0035DBD0(t, 10, 100);
+    return func_0035DBD0(t, 10, 100);
 }
 
-/* 0x0036F870, 0x50 bytes. */
-void func_0036F870(void)
+/* 0x0036F870, 0x50 bytes. A random tactic (other battles). */
+int func_0036F870(void)
 {
     int t[27], k;
 
     for (k = 0; k < 27; k++)
         t[k] = g_00415FD0[k];
-    func_0035DBD0(t, 9, 0x5A);
+    return func_0035DBD0(t, 9, 0x5A);
 }
 
 /* 0x0036F8C0, 0x3C bytes. */
-void func_0036F8C0(void)
+int func_0036F8C0(void)
 {
     if (func_0036D2E0() == 0)
-        func_0036F870();
-    else
-        func_0036F810();
+        return func_0036F870();
+    return func_0036F810();
 }
 
 extern u8 g_006A1D58[][0x68];            /* the groups */
@@ -408,4 +407,214 @@ void func_0036EA60(u32 s, u32 k)
             func_0036E8D0(c);
     }
     func_0036DD90(s, k, s == 0 ? 0x3C : 0x78);
+}
+
+/* More tactic effects, the tactic choice rules and the weather state (gp 0x0045D7B8: kind,
+ * a value, a third byte), parts of 0x0036EC10-0x0036FEE8. */
+
+extern u32 g_7000015C;
+extern u8 g_0045D7B8[5];                 /* (small data) */
+
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+#define GROUP_ALIVE(g) ((*(u32 *)((u8 *)(g)[0] + 0x80) & 1) != 0 &&                       \
+                        (*(u32 *)((u8 *)(g)[0] + 0x80) & 0x8C40002) == 0 &&               \
+                        (*(u32 *)((u8 *)(g)[0] + 0x80) & 4) == 0)
+
+void func_0035CDF0(void);
+void func_0035CE30(void);
+u8 *func_002EFB00(int k);
+void func_0036FD30(u32 k, u32 v);
+
+/* 0x0036EC10, 0x144 bytes. Side `s`'s gate groups get strong defence (1000) and morale 120. */
+void func_0036EC10(u32 s)
+{
+    u32 k;
+
+    for (k = 0; k < 0x10; k++) {
+        int *g = func_0033EF80(k);
+
+        if ((g[0x19] & 1) != 0 && GROUP_ALIVE(g) && s == ((u8 *)g[0])[0x79]) {
+            int i = GROUP_INDEX(g);
+
+            if (func_00338410(i)[0x25] == 'G') {
+                g[0x13] = 1000;
+                if (func_00338410(i)[0x23] < 0x78)
+                    func_00338410(i)[0x23] = 0x78;
+            }
+        }
+    }
+}
+
+/* 0x0036ED70, 0x12C bytes. The enemy's gate groups lose their defence. */
+void func_0036ED70(void)
+{
+    u8 s = func_0035D5A0(0);
+    u32 k;
+
+    for (k = 0; k < 0x10; k++) {
+        int *g = func_0033EF80(k);
+
+        if ((g[0x19] & 1) != 0 && GROUP_ALIVE(g) && s == ((u8 *)g[0])[0x79]) {
+            if (func_00338410(GROUP_INDEX(g))[0x25] == 'G') {
+                g[0x13] = 1;
+                func_00338410(GROUP_INDEX(g))[0x23] = 0;
+            }
+        }
+    }
+}
+
+/* 0x0036F090, 0xE4 bytes. Whether tactic `k` can be used here. */
+int func_0036F090(int k)
+{
+    if (k == 0x1D)
+        return func_0036D2E0();
+    if (k == 0x1E || k == 0x17 || k == 0x15 || k == 0x14 || k == 0xC || k == 0xB || k == 10
+        || k == 9 || k == 8 || k == 5 || k == 4 || k == 3 || k == 2 || k == 1 || k == 0)
+        return 1;
+    return 0;
+}
+
+/* 0x0036F6A0, 0x164 bytes. Whether tactic `t` fits slot `slot` next to the others (`mode`: the
+ * battle's kind). */
+int func_0036F6A0(u32 t, u32 slot, u32 *cur, int mode)
+{
+    u32 i;
+
+    if (t > 0xC && t < 0x14) {
+        for (i = 0; i < 2; i++) {
+            if (i != slot && cur[i] > 0xC && cur[i] < 0x14)
+                return 0;
+        }
+    }
+    if (t < 2) {
+        for (i = 0; i < 2; i++) {
+            if (i != slot) {
+                if (cur[i] == 0 && t == 1)
+                    return 0;
+                if (cur[i] == 1 && t == 0)
+                    return 0;
+            }
+        }
+    }
+    if (t == 4 && mode != 2 && mode != 0)
+        return 0;
+    if (func_0036EFC0(t) == 0) {
+        for (i = 0; i < 2; i++) {
+            if (i != slot && cur[i] == t)
+                return 0;
+        }
+    }
+    return 1;
+}
+
+/* 0x0036F900, 0x90 bytes. Gives the first side a random tactic in a free slot (0x1F: none). */
+int func_0036F900(void)
+{
+    u32 k;
+    int v;
+
+    for (k = 0; k < 2; k++) {
+        func_0036DD30(0, k);
+        if (func_0036DD30(0, k) > 0x1E)
+            break;
+    }
+    if (k >= 2)
+        return 0x1F;
+    v = func_0036F8C0();
+    func_0036DCE0(0, k, v);
+    return v;
+}
+
+/* 0x0036F990, 0x3C bytes, matching. */
+void func_0036F990(u32 s, u32 k)
+{
+    func_0035CDF0();
+    func_0036DED0(s, k);
+}
+
+/* 0x0036FAC0, 0x1C bytes, matching. */
+void func_0036FAC0(u32 s, u32 k)
+{
+    func_0035CE30();
+}
+
+/* 0x0036FBD0, 8 bytes, matching. The weather state. */
+u8 *func_0036FBD0(void)
+{
+    return g_0045D7B8;
+}
+
+/* 0x0036FC20, 0x40 bytes. */
+void func_0036FC20(void)
+{
+    func_0036FBD0();
+    func_0036FBD0()[0] = 4;
+    func_0036FBD0()[1] = 0x47;
+    func_0036FBD0()[2] = 0xFF;
+}
+
+/* 0x0036FC60, 0x28 bytes, matching. */
+u8 func_0036FC60(void)
+{
+    func_0036FBD0();
+    return func_0036FBD0()[0];
+}
+
+/* 0x0036FC90, 0x40 bytes. */
+int func_0036FC90(void)
+{
+    func_0036FC60();
+    return func_0036FC60() < 4;
+}
+
+/* 0x0036FCD0, 0x28 bytes, matching. */
+u8 func_0036FCD0(void)
+{
+    func_0036FBD0();
+    return func_0036FBD0()[1];
+}
+
+/* 0x0036FD00, 0x28 bytes, matching. */
+u8 func_0036FD00(void)
+{
+    func_0036FBD0();
+    return func_0036FBD0()[2];
+}
+
+/* 0x0036FDD0, 0x34 bytes. Loads it from the save image. */
+void func_0036FDD0(void)
+{
+    u8 *q = func_002EFB00(9);
+
+    func_0011EB80(func_0036FBD0(), q + 0xB0, 5);
+}
+
+/* 0x0036FE10, 0x6C bytes. */
+void func_0036FE10(void)
+{
+    u32 k;
+
+    func_0036FC20();
+    for (k = 0; k < 2; k++)
+        func_0036FD30(k, RANDOM() % 0x3C);
+}
+
+/* 0x0036FE80, 0x1C bytes, matching. */
+void func_0036FE80(void)
+{
+    func_0036FDD0();
+}
+
+/* 0x0036FEA0, 0x40 bytes, matching. */
+void func_0036FEA0(void)
+{
+    if (*(int *)(g_00669D60 + 0x20C) == 1)
+        func_0036FE80();
+    else
+        func_0036FE10();
+}
+
+/* 0x0036FEE0, 8 bytes, matching. */
+void func_0036FEE0(void)
+{
 }

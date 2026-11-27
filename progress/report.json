@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 178560,
-    "non_matching": 1212576
+    "matching": 178928,
+    "non_matching": 1214272
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2253
+    "matching": 2262
   },
   "layout": "treemap",
   "areas": [
@@ -163,15 +163,15 @@
         },
         {
           "name": "StateEdit.c",
-          "description": "Estimated range 0x36DE68-0x382E28; 259 function(s) decompiled",
+          "description": "Estimated range 0x36DE68-0x382E28; 277 function(s) decompiled",
           "code": {
             "total": 85952,
-            "matching": 3872,
-            "non_matching": 38460
+            "matching": 4240,
+            "non_matching": 40156
           },
           "decompiled_functions": {
-            "count": 259,
-            "matching": 92
+            "count": 277,
+            "matching": 101
           }
         },
         {
