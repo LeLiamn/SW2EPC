@@ -981,8 +981,9 @@ handles their hits and gauges. It is fully decompiled (70 functions, 16 match):
 
 ## Weapons (`src/weapon.c`)
 
-Original source file `Weapon.c` (its name is passed to the file loader at `0x0016CD30`). Done
-so far: `0x0016CD30`-`0x0016EC8C` except `0x0016D780`, 20 functions, 7 match. Unlike most of
+Original source file `Weapon.c` (its name is passed to the file loader at `0x0016CD30`),
+`0x0016CD30`-`0x001708A4`. Done: 27 functions, 7 match. Left: `0x0016D780` (quad against body),
+`0x0016EC90` (3 KB), `0x0016F9B0` and `0x0016FD00` (line packets). Unlike most of
 the game, this file was built with the loop unroller on.
 
 - **Tables** from LINKDATA_BNS: entry 0x56B gives each unit kind two sets of four (motion,
@@ -993,6 +994,8 @@ the game, this file was built with the loop unroller on.
 - **Slots** (`0x0016E300`): a unit's weapon slot takes one or two edges from the record, extra
   edges for some kinds (0x3C-0x3F, 0x64-0x6F) or a shared edge for the two-handed kinds
   (0x14-0x1B, 0x30-0x37), and a model object (a plain one, or a model actor).
+- **Two-handed weapons** (kinds 0x14-0x1B, 0x30-0x37): their edge runs between two hand nodes,
+  to a reach per kind (two tables at `0x00406580` / `0x004065A0`), and is drawn as GS lines.
 - **Hit tests:** a circle against a segment (`0x0016D3F0`) and a segment against a rectangle
   (`0x0016D580`), used by the quad-against-body test `0x0016D780` (not written yet: Ghidra's
   output for it is unreadable, it needs the disassembly).
