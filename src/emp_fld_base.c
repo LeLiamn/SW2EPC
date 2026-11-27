@@ -688,3 +688,218 @@ void func_0034BFE0(int a, int side, int k, u32 j)
 {
     func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BEB0, side, k << 0x10 | j);
 }
+
+void func_00365230(int list);
+int func_00365350(int list, int (*score)(int, int), int a, int b);
+u32 func_0034EEF0(u8 *b);
+u8 *func_0034EF60(u8 *b, u32 k);
+int func_0034EDB0(u8 *b);
+int func_0034EE50(u8 *b);
+int func_0034EE80(u8 *b);
+int func_0033C320(u8 *g);
+int func_0033C3A0(u8 *g);
+int func_0033CB60(u8 *g, u8 *b);
+int func_003521B0(u8 *b, int side);
+int func_003522F0(u8 *b, int side);
+int func_00347800(u8 *g, int b);
+int func_00347820(u8 *g, int h);
+int func_00347840(u8 *g, int b);
+int func_003DCE70(u8 *g, u8 *b);
+u32 func_003DCE30(u8 *g, u8 *h);
+int func_0035F200(int s);
+u32 func_00352B00(u8 *b, int c);
+
+#define BASE(k) ((u8 *)func_0034EC80(k))
+
+/* 0x0034C010, 0xB4 bytes, matching. The bases linked to base `b` not owned by `skip`, into list `l`. */
+void func_0034C010(int l, u8 *b, int skip)
+{
+    u32 n, k;
+
+    func_00365230(l);
+    n = func_0034EEF0(b);
+    for (k = 0; k < n; k++) {
+        u8 *x = func_0034EF60(b, k);
+
+        if (skip != func_0034EDB0(x))
+            func_00364E40(l, func_0034ED40(x));
+    }
+    func_00365050(l);
+}
+
+/* 0x0034C0D0, 0x198 bytes. Side `side`'s bases where one of its groups is (a kind 1 group's own
+ * base, or a flagged unit's func_0033CB60), into list `l`. */
+void func_0034C0D0(int l, int side)
+{
+    int s = func_0035D5A0(side);
+    u32 b, k;
+
+    func_00365230(l);
+    for (b = 0; b < 0x14; b++) {
+        u8 *B = BASE(b);
+
+        if (B == 0 || func_0034EE50(B) == 0 || func_0034EDB0(B) != side)
+            continue;
+        for (k = 0; k < 0x10; k++) {
+            u8 *g = func_0033EF80(k), *u;
+
+            if (g == 0 || (*(int *)(g + 0x64) & 1) == 0)
+                continue;
+            u = GROUP_UNIT(g);
+            if (s != u[0x79])
+                continue;
+            if ((UNIT_FLAGS(u) & 0x30) == 0) {
+                if (GROUP_INFO(g)[2] == 1 && (u8 *)func_0033C320(g) == B) {
+                    func_00364E40(l, b);
+                    break;
+                }
+            } else if (func_0033CB60(g, B) != 0) {
+                func_00364E40(l, b);
+                break;
+            }
+        }
+    }
+    func_00365050(l);
+}
+
+/* 0x0034C270, 0xF0 bytes, matching. The bases side `side` does not own and may take (func_003521B0; only
+ * unowned ones with `free`), into list `l`. */
+void func_0034C270(int l, int side, int free)
+{
+    u32 b;
+
+    func_00365230(l);
+    for (b = 0; b < 0x14; b++) {
+        u8 *B = BASE(b);
+
+        if (B == 0 || func_0034EE50(B) == 0 || func_0034EDB0(B) == side)
+            continue;
+        if (free != 0) {
+            func_0034EDB0(B);
+            if ((u32)func_0034EDB0(B) < 2)
+                continue;
+        }
+        if (func_0034EE80(B) != side && func_003521B0(B, side) != 0)
+            func_00364E40(l, b);
+    }
+    func_00365050(l);
+}
+
+/* 0x0034C360, 0x104 bytes. How much group `g` wants base `B` (0 when it cannot go; kind 1's own
+ * base 10001, plus nearness). */
+int func_0034C360(u8 *g, u8 *B)
+{
+    int v, d;
+
+    if (func_00347800(g, func_0034ED40(B)) == 0)
+        return 0;
+    v = 1;
+    if (GROUP_INFO(g)[2] == 1 && (u8 *)func_0033C320(g) == B)
+        v = 0x2711;
+    d = func_003DCE70(g, B);
+    if (d < 0x14)
+        v += (0x14 - d) * 1000 / 0x14;
+    return v;
+}
+
+/* 0x0034C470, 0x118 bytes. How much group `g` wants to go to group `h` (kind 2's own target
+ * 10001, plus nearness). */
+int func_0034C470(u8 *g, u8 *h)
+{
+    int v;
+    u32 d;
+
+    if (func_00347820(g, GROUP_INDEX(h)) == 0)
+        return 0;
+    if (func_0033B150(g) != 0)
+        return 0;
+    v = 1;
+    if (GROUP_INFO(g)[2] == 2 && (u8 *)func_0033C3A0(g) == h)
+        v = 0x2711;
+    d = func_003DCE30(g, h);
+    if (d < 0x14)
+        v += (20000 - d) / 0x14;
+    return v;
+}
+
+/* 0x0034C590, 0xFC bytes. The same as func_0034C360 for func_00347840 and kind 3. */
+int func_0034C590(u8 *g, u8 *B)
+{
+    int v;
+    u32 d;
+
+    if (func_00347840(g, func_0034ED40(B)) == 0)
+        return 0;
+    v = 1;
+    if (GROUP_INFO(g)[2] == 3 && (u8 *)func_0033C320(g) == B)
+        v = 0x2711;
+    d = func_003DCE70(g, B);
+    if (d < 0x14)
+        v += (u32)((0x14 - d) * 1000) / 0x14;
+    return v;
+}
+
+/* 0x0034C690, 0x58 bytes. func_0034C360 by numbers. */
+int func_0034C690(int gi, int b)
+{
+    return func_0034C360(g_006A1D58[gi], BASE(b));
+}
+
+/* 0x0034C6F0, 0x68 bytes. The group of list `l` that most wants base `B`. */
+u8 *func_0034C6F0(int l, u8 *B)
+{
+    return g_006A1D58[func_00365350(l, func_0034C690, func_0034ED40(B), 0)];
+}
+
+/* 0x0034C760, 0x60 bytes. func_0034C470 by numbers. */
+int func_0034C760(int gi, int hi)
+{
+    return func_0034C470(g_006A1D58[gi], g_006A1D58[hi]);
+}
+
+/* 0x0034C7C0, 0x74 bytes. The group of list `l` that most wants to go to group `h`. */
+u8 *func_0034C7C0(int l, u8 *h)
+{
+    return g_006A1D58[func_00365350(l, func_0034C760, GROUP_INDEX(h), 0)];
+}
+
+/* 0x0034C840, 0x58 bytes. func_0034C590 by numbers. */
+int func_0034C840(int gi, int b)
+{
+    return func_0034C590(g_006A1D58[gi], BASE(b));
+}
+
+/* 0x0034C8A0, 0x68 bytes. The group of list `l` that most wants base `B` (func_0034C590). */
+u8 *func_0034C8A0(int l, u8 *B)
+{
+    return g_006A1D58[func_00365350(l, func_0034C840, func_0034ED40(B), 0)];
+}
+
+/* Side `side`'s distance value (0-100) from base `B` to its own main base. */
+static int near_main(u8 *B, int side)
+{
+    u32 n = func_00352B00(B, func_0034EC80(func_0035F200(func_0035D5A0(side))));
+
+    return n < 3 ? (u32)((3 - n) * 100) / 3 : 0;
+}
+
+/* 0x0034C910, 0xCC bytes. How much side `side` wants enemy base `B` (1000 when it can take it,
+ * plus nearness to its main base). */
+int func_0034C910(u8 *B, int side)
+{
+    if (side == func_0034EDB0(B))
+        return 0;
+    if (func_003521B0(B, side) == 0)
+        return 0;
+    return 1000 + near_main(B, side);
+}
+
+/* 0x0034C9E0, 0xCC bytes. How much side `side` wants to hold its base `B` (func_003522F0). */
+int func_0034C9E0(u8 *B, int side)
+{
+    if (side != func_0034EDB0(B))
+        return 0;
+    if (func_003522F0(B, side) == 0)
+        return 0;
+    return 1000 + near_main(B, side);
+}
