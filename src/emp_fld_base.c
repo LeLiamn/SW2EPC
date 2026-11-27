@@ -915,7 +915,7 @@ int func_0036D300(void);
 int func_0033CEA0(u8 *g, int side);
 int func_00352240(u8 *b, int s);
 int func_003531F0(int k);
-int func_003519E0(void);
+u8 func_003519E0(void);
 int func_0035F0C0(void);
 
 /* 0x0034CAB0, 0x30 bytes, matching. func_0034C910 by number. */
@@ -3005,4 +3005,276 @@ void func_00350EC0(u8 *b)
         return;
     if (func_00352780(b, func_0035D5A0(o)) == 0 && func_003527A0(b, o) > 4 && (t = func_00350AE0(b)) != 0)
         func_00350CE0(b, t);
+}
+
+extern void (*g_00415568[3])(u8 *b);     /* the base steps */
+extern int g_0045D758, g_0045D75C, g_0045D760;   /* (small data) main base timers */
+
+int func_00352850(u8 *b, int side);
+int func_00352BB0(u8 *b);
+void func_0035CF20(int b);
+void func_0035CF70(int b, int side);
+void func_0035D070(int b);
+void func_0035D020(int b);
+void func_0035CFD0(int b);
+void func_0035D150(void);
+void func_0035D190(void);
+void func_0035D1D0(void);
+u32 func_00352690(u8 *b, int side);
+
+/* 0x00350F80, 0x60 bytes. Whether a side's base `b` (side byte `k` at 0) is threatened. */
+int func_00350F80(u8 *b, int k)
+{
+    if (func_0034F3E0(b, k) == 0) {
+        u32 o = func_0034EDB0(b);
+
+        if (o < 2)
+            return func_00352850(b, o) != 0;
+    }
+    return 0;
+}
+
+/* 0x00350FE0, 0x84 bytes, matching. Event: the enemy reached base `b` (once per 60 counts). */
+void func_00350FE0(u8 *b)
+{
+    if (func_00350F80(b, 0) != 0 && func_00352BB0(b) != 0) {
+        if (func_0034F140(b, func_0035D5A0(func_0034EDB0(b))) != 0) {
+            func_0035CF20(func_0034ED40(b));
+            func_0034F3D0(b, 0, 0x3C);
+        }
+    }
+}
+
+/* 0x00351070, 0xBC bytes. Event: base `b` is outnumbered three to one (or nearly empty). */
+void func_00351070(u8 *b)
+{
+    if (func_00350F80(b, 0) != 0) {
+        int o = func_0034EDB0(b);
+        u32 mine = func_0034F140(b, o), en = func_0034F140(b, func_0035D5A0(o));
+
+        if (en != 0 && (mine < 2 || mine * 3 <= en)) {
+            func_0035CF70(func_0034ED40(b), o);
+            func_0034F3D0(b, 0, 0x3C);
+        }
+    }
+}
+
+/* 0x00351130, 0x134 bytes. Event: now and then (1%) a threatened base calls for one of three
+ * kinds of help. */
+void func_00351130(u8 *b)
+{
+    if (func_00350F80(b, 1) != 0 && func_00352BB0(b) != 0 && func_0034EE80(b) == 0 && RANDOM() % 100 == 0) {
+        u32 r = RANDOM() % 5;
+
+        if (r == 4 || r == 3)
+            func_0035D070(func_0034ED40(b));
+        else if (r == 2 || r == 1)
+            func_0035D020(func_0034ED40(b));
+        else if (r == 0)
+            func_0035CFD0(func_0034ED40(b));
+        func_0034F3D0(b, 1, 0xFF);
+    }
+}
+
+/* 0x00351270, 0x98 bytes. Base `b`'s event steps, then its two side bytes count down. */
+void func_00351270(u8 *b)
+{
+    void (*tbl[4])(u8 *);
+    u32 k;
+
+    tbl[0] = g_00415568[0];
+    tbl[1] = g_00415568[1];
+    tbl[2] = g_00415568[2];
+    for (k = 0; k < 3; k++)
+        tbl[k](b);
+    for (k = 0; k < 2; k++)
+        func_0034F3F0(b, k);
+}
+
+/* Sends unit `u` to position code `c`. */
+static void send_to(u8 *u, short c)
+{
+    short cc[2];
+    u8 xy[2];
+
+    cc[0] = c;
+    func_001F1640((u8 *)cc, xy);
+    *(short *)(u + 0x44) = cc[0];
+    *(float *)(u + 0x38) = (float)xy[0] * 1000.0f + 500.0f;
+    *(float *)(u + 0x3C) = (float)xy[1] * 1000.0f + 500.0f;
+    *(u32 *)(u + 0x84) |= 0x10;
+}
+
+/* 0x00351310, 0x170 bytes. Base `b`'s guards (not moving) go back to it. */
+void func_00351310(u8 *b)
+{
+    int o = func_0034EDB0(b);
+    u8 **l;
+    short c[2];
+    u32 k;
+
+    if (o == 3)
+        return;
+    l = (u8 **)func_0033EFD0(o, func_0034ED40(b));
+    if (l == 0)
+        return;
+    func_0034ED90(b, (u8 *)c);
+    for (k = 0; k < 0xD; k++, l++) {
+        u8 *u = *l;
+
+        if (u == 0)
+            continue;
+        if ((UNIT_FLAGS(u) & 1) != 0 && (UNIT_FLAGS(u) & 0x8C40002) == 0 && u[0x7A] != 3) {
+            if (*(short *)(u + 0x44) != c[0])
+                send_to(u, c[0]);
+            u[0x7B] = 0;
+        }
+    }
+}
+
+/* 0x00351480, 0x1E0 bytes. The same for side 1's base with func_0036D310: two guards stay, the
+ * others chase player 0. */
+void func_00351480(u8 *b)
+{
+    u8 **l, *p;
+    short c[2];
+    u32 m = 0, k;
+
+    if (func_0034EDB0(b) != 1)
+        return;
+    l = (u8 **)func_0033EFD0(1, func_0034ED40(b));
+    if (l == 0)
+        return;
+    func_0034ED90(b, (u8 *)c);
+    p = func_0035DCD0(0);
+    for (k = 0; k < 0xD; k++, l++) {
+        u8 *u = *l;
+
+        if (u == 0)
+            continue;
+        if ((UNIT_FLAGS(u) & 1) != 0 && (UNIT_FLAGS(u) & 0x8C40002) == 0 && u[0x7A] != 3) {
+            if (m < 2) {
+                if (*(short *)(u + 0x44) != c[0])
+                    send_to(u, c[0]);
+            } else {
+                *(u16 *)(u + 0x44) = *(u16 *)(p + 0x40);
+                *(float *)(u + 0x38) = 0.0f;
+                *(float *)(u + 0x3C) = 0.0f;
+                *(u32 *)(u + 0x84) |= 0x10;
+                *(u8 **)(u + 0x1C) = p;
+                *(u32 *)(u + 0x84) |= 0x10;
+            }
+            u[0x7B] = 0;
+            m++;
+        }
+    }
+}
+
+/* 0x00351660, 0x44 bytes. */
+void func_00351660(u8 *b)
+{
+    if (func_0036D310() == 0)
+        func_00351310(b);
+    else
+        func_00351480(b);
+}
+
+/* 0x003516B0, 0x18 bytes, matching. Resets the main base timers. */
+void func_003516B0(void)
+{
+    g_0045D760 = 0x5A;
+    g_0045D75C = 0x5A;
+    g_0045D758 = 0x3C;
+}
+
+/* 0x003516D0, 0x98 bytes. Event: side 0's main base nearly empty with enemies on it (after 90
+ * counts). */
+void func_003516D0(void)
+{
+    u8 *m = BASE(func_0035F200(0));
+
+    if (func_00352BB0(m) != 0) {
+        g_0045D760 = 0;
+        return;
+    }
+    if (++g_0045D760 > 0x59 && (u32)func_0034F140(m, 0) < 3 && func_0034F140(m, 1) != 0) {
+        func_0035D150();
+        g_0045D760 = 0;
+    }
+}
+
+/* 0x00351770, 0x80 bytes. Event: side 0's main base threatened by side 1 (after 90 counts). */
+void func_00351770(void)
+{
+    u8 *m = BASE(func_0035F200(0));
+
+    if (func_00352BB0(m) != 0) {
+        g_0045D75C = 0;
+        return;
+    }
+    if (++g_0045D75C > 0x59 && func_00352240(m, 1) != 0) {
+        func_0035D190();
+        g_0045D75C = 0;
+    }
+}
+
+/* 0x003517F0, 0x74 bytes. Event: side 1's main base cut off from side 0 (after 60 counts). */
+void func_003517F0(void)
+{
+    u8 *m = BASE(func_0035F200(1));
+
+    if (++g_0045D758 > 0x3B && func_00352BB0(m) != 0 && func_0034FFE0(m, 0) == 0) {
+        func_0035D1D0();
+        g_0045D758 = 0;
+    }
+}
+
+/* 0x00351870, 0x2C bytes, matching. */
+void func_00351870(void)
+{
+    func_003516D0();
+    func_00351770();
+    func_003517F0();
+}
+
+/* 0x003518A0, 0x68 bytes, matching. Side 1's main base gets a new guard when below five and safe. */
+void func_003518A0(void)
+{
+    u8 *m = BASE(func_0035F200(1));
+
+    if (func_00352690(m, 1) < 5 && func_00352240(m, 0) == 0)
+        func_003519F0(m, 1);
+}
+
+/* 0x00351910, 0x44 bytes, matching. Base `b`'s frame. */
+void func_00351910(u8 *b)
+{
+    func_00350610(b);
+    func_00350900(b);
+    func_00350EC0(b);
+    func_00351270(b);
+    func_00351660(b);
+}
+
+/* 0x00351960, 0x80 bytes. One base per count in turn (of 60), the main base events at 0. */
+void func_00351960(void)
+{
+    u32 k = g_00669F9C % 0x3C;
+
+    if (k < 0x14) {
+        u8 *b = BASE(k);
+
+        if (func_0034EE50(b) != 0)
+            func_00351910(b);
+        if (k == 0) {
+            func_00351870();
+            func_003518A0();
+        }
+    }
+}
+
+/* 0x003519E0, 0xC bytes, matching. The number of bases. */
+u8 func_003519E0(void)
+{
+    return g_0045D2F0[0x5C0];
 }
