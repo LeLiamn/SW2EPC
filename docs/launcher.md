@@ -11,6 +11,98 @@ port. It will be updated as the port takes shape.
 - No PC build yet: the C in `src/` is checked file by file, but nothing is linked together yet.
 - Data formats are fully documented in [docs/formats/](formats/), with readers in `tools/`.
 
+## Agreed contract, version 1 (summary, 2026-11-27)
+
+This summary is the reference; the dated sections below are the discussion that led to it.
+Earlier proposals there (`init(platform, config)`, a `sw2e_` prefix) are superseded.
+
+### What UPP (the launcher side) provides
+
+- [ ] **`upp_runtime`**, a library linked into `sw2epc.exe`. It owns `main()`, the main loop,
+  the window, the OS events, audio output, pads, disc access and `launch.json`.
+- [ ] **One process per game**, so address-named symbols never meet another game's.
+- [ ] **Dev mode:** `sw2epc.exe --disc <image>` works without the launcher.
+- [ ] **Game loading:** calls `upp_game_entry()` and reads its table. In `run()` mode it calls
+  `run()` on a game thread it creates.
+- [ ] **PS2 thread model (`UPP_THREADS_PS2`):**
+  - one run token; only its holder runs game code;
+  - switches only at `vsync()`, `event_wait()`, `sleep_us()`, `thread_join()`, disc reads, and
+    at `event_signal()` / `thread_create()` when a higher-priority thread becomes ready;
+  - `thread_yield()` for equal priorities; no time slicing.
+- [ ] **Threads and events:** `thread_create` (PS2 priorities, 1 = highest), `thread_join`,
+  mutexes, counting events with a timeout.
+- [ ] **Vblank tick:** on the runtime's own clock at the frame rate, through `vblank_add` /
+  `vblank_remove`.
+  - Callbacks run in interrupt context: they must not block, and may call `event_signal()`.
+  - `intr_disable()` / `intr_enable()` stand for DI / EI.
+  - `set_frame_rate(fps)` and `frame_count()`.
+- [ ] **`vsync()`:** presents the frame, waits for the next tick, samples the pads. It returns 0
+  when the window closes; the game then has 2 s to leave `run()`. It does not return while the
+  game is paused on focus loss.
+- [ ] **Video v1:** `video_present(rgba, w, h, pitch)`. It copies into a triple buffer and
+  returns at once, so it may be called from a vblank callback.
+- [ ] **Video v2:** `texture_create`, `texture_upload`, `draw_triangles(state, vertices, count)`
+  on SDL_GPU, keeping the GS conventions:
+  - blend `(A - B) * C / 128 + D`, alpha test, depth test and write, filtering, clamping;
+  - TFX modes and TCC; colours and alpha on the 0x80 = 1.0 scale; s/t/q coordinates;
+  - indexed 4-bit and 8-bit textures with separate palettes;
+  - coordinates in game units, scaled by `display.render_scale`.
+- [ ] **Audio:** signed 16-bit stereo pushed at any rate, resampled by the runtime (SW2E: 48 kHz).
+- [ ] **Input:** two DualShock 2 pads (buttons, sticks, pressure, rumble).
+- [ ] **Disc:** read-only access to the player's image by ISO 9660 path or by 2048-byte sector.
+  Reads are thread-safe and give the run token up while reading. Dual-layer reading is planned
+  before the first dual-layer game.
+- [ ] **Saves:** `save_list`, `save_read`, `save_begin(folder)`, `save_write`, `save_end(commit)`,
+  `save_delete`.
+  - Writes go to `<data_dir>/saves`, one memory-card style folder per save.
+  - A save is swapped in whole, interrupted saves are repaired at start, and closing waits for
+    an open save.
+- [ ] **Options and releases:** `option_bool` / `option_number` / `option_string` and
+  `platform->release()`.
+  - The runtime handles the common options: window, scale, vsync, volume, pause.
+  - The manifest `games/sw2e/game.json` lists the SW2E options, all "planned" for now.
+- [ ] **Release check:** serial, version and SHA-1 of the boot executable (EU SLES-54624 v1.00 so
+  far).
+
+### What SW2EPC (this project) does
+
+- [ ] **Decompile the code to C** that builds for the PC (target: everything the game runs).
+  Status in `PROGRESS.md`.
+- [ ] **Export `upp_game_entry()`** with game id `sw2e`, frame rate 50.0 (to confirm), the
+  `run()` mode and `UPP_THREADS_PS2`.
+- [ ] **Replace the PS2 platform code with UPP calls:**
+  - `main()` and the main loop become `run()`, and waits on the frame semaphore are kept as they
+    are.
+  - The vblank chain (`0x0010B0F0`, list at `0x00560830`) maps to `vblank_add`.
+    `func_00102150` flips with `video_present()` and signals the frame semaphore.
+  - The disc reader thread (priority 5) and the movie thread (priority 2) use
+    `thread_create` and events.
+  - CDVD reads go through the platform's disc access; SIF/RPC and IOP code are replaced
+    (sound, pads, memory card).
+  - DMA-end handlers (`func_00101C20`, `func_00143B50`, the movie player's) become direct calls.
+  - DI / EI become `intr_disable()` / `intr_enable()`.
+- [ ] **Load the game's tables from the player's own boot executable** on the disc, never ship
+  them, using a small per-release offset table (EU only for now).
+- [ ] **Translate drawing:**
+  - v1: a software picture for `video_present`;
+  - v2: GS and VU1 output turned into `draw_triangles`, indexed textures uploaded unchanged.
+- [ ] **Sound:** decode SPU ADPCM and music streams, mix at 48 kHz, push to the runtime.
+- [ ] **Movies:** decode the PSS files (MPEG-2 plus ADPCM) in the port.
+- [ ] **Saves:** keep the game's own data, written through the `save_*` calls (memory-card
+  style folders).
+- [ ] **QoL options:** read them with `option_*`, always defaulting to the original behaviour.
+  Planned: `qol.skip_intro_movies`, `qol.fast_loading`, `display.widescreen`, `display.refresh`,
+  `display.progressive`.
+- [ ] **No direct OS or SDL calls, no `exit()`, no hard-coded paths, no file access** except
+  through the platform.
+- [ ] **No pointers held in 32-bit integers** (needed for 64-bit), and shared prototypes in
+  headers (`src/sw2e_draw.h` started).
+- [ ] **Report here when known:**
+  - is there a 60 Hz mode (the evidence is mixed)?
+  - which text languages are on the disc?
+  - does the game use render-to-texture or frame-buffer effects, and fog?
+  - any further platform need shared with other PS2 games.
+
 ## What the launcher should expect from this port
 
 ### One self-contained module per game
@@ -443,3 +535,4 @@ Agreed on all three points. Details from this side:
   (`platform->release()`, per-release support, options defaulting to the original behaviour).
 - 2026-11-27: this project agrees with the final goal: one source with per-release data (boot
   executable data loaded from the player's disc), EU release identity, QoL ideas.
+- 2026-11-27: summary of the agreed version 1 contract added at the top (what each side does).
