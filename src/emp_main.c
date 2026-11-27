@@ -3818,3 +3818,273 @@ int func_00307550(int f, int r)
         return 1;
     return 0;
 }
+
+extern int g_004149D0[];                 /* by difficulty: the chance (in %) a raid is let through */
+
+int func_0030B240(int r, int a);
+int func_0030B3B0(int *out);
+int func_0030C590(int r);
+int func_0030C320(int r, int t);
+int func_00329220(void);
+void func_00329090(int slot, int from, int to);
+int func_00323BD0(int r);
+void func_00323840(int entry);
+int func_003238D0(int r);
+int func_00328DE0(int f);
+int func_00328FA0(int f);
+int func_0030E1F0(void);
+void func_0030E100(void);
+void func_0030E140(int c, u32 i, int f, int a);
+void func_00328D00(int f, int v);
+void func_0032EA80(int k);
+const char *func_002F8DB0(int f);
+void func_001204B0(char *out, const char *format, ...);   /* sprintf */
+void func_00374EE0(const char *text);
+
+/* The computer attacks' state block: 0 step, 1 force index, 2 forces, 3 event slot, 4 and 5
+ * the player's tied forces involved, 6 force list. */
+#define CPU_ATTACK() ((int *)func_002FC2C0()[0x1AD])
+
+/* 0x00307610, 0x34C bytes. The region force `f` would attack this turn among those near its
+ * home not already in an event: an unowned one, its ally's or its envoy's first, then its plan
+ * target, then the weakest; not the player's ally's regions, nor tied forces'. */
+int func_00307610(int f)
+{
+    int reg[28], ev = func_00307430(), n, ally, env, er = 0x19, best = 0x19, k;
+    u32 top = 0;
+
+    func_0030B540(func_002FB2D0(f));
+    n = func_0030B3B0(reg);
+    func_0030B330();
+    ally = func_00307240(f);
+    env = func_002F9260(f);
+    if ((u32)env < 0x19F)
+        er = func_002F5CC0(env);
+    for (k = 0; k < n; k++) {
+        int r = reg[k], pa, g;
+        u32 v;
+
+        if (func_003074D0(r) != 0 || func_0030B240(r, 3) == 2)
+            continue;
+        pa = func_002FA6B0(func_00327D50());
+        if (pa != 0x19 && !((func_0030C250(r) == 0 || pa == f) && pa != func_0030AFF0(r)))
+            continue;
+        v = 0;
+        g = func_0030AFF0(r);
+        if (IS_FORCE(g)) {
+            if ((ev != 0 && func_002FB2A0(g) != 0 && g != ally) || func_002FAFA0(f, g) != 0)
+                continue;
+        } else {
+            v = 10000;
+        }
+        if (IS_FORCE(ally) && g == ally)
+            v += 50000;
+        if (r == er)
+            v += 20000;
+        if (v == 0 && func_00307550(f, r) != 0)
+            v = 9000;
+        if (!IS_FORCE(best) || top < v) {
+            top = v;
+            best = r;
+        } else if (v == top) {
+            int a = func_0030C590(best), b = func_0030C590(r);
+
+            if (b < a) {
+                best = r;
+            } else if (b == a) {
+                a = func_0030B090(best);
+                b = func_0030B090(r);
+                if (b < a) {
+                    best = r;
+                } else if (b == a) {
+                    a = func_0030C660(best);
+                    b = func_0030C660(r);
+                    if (b < a || (b == a && func_0030CB50(0x32) != 0))
+                        best = r;
+                }
+            }
+        }
+    }
+    return best;
+}
+
+/* 0x00307970, 0x15C bytes. Force `f`'s region to attack region `t` from (bordering it, not in
+ * an event): the highest func_0030C590, then func_0030C660. */
+int func_00307970(int f, int t)
+{
+    int reg[28], n = func_002FB320(f, reg), best = 0x19, top = 0, k;
+
+    for (k = 0; k < n; k++) {
+        int r = reg[k], v;
+
+        if (func_0030C320(r, t) == 0 || func_003074D0(r) != 0 || func_0030B240(r, 3) == 2)
+            continue;
+        v = func_0030C590(r);
+        if (!IS_FORCE(best) || top < v) {
+            top = v;
+            best = r;
+        } else if (v == top) {
+            int a = func_0030C660(best), b = func_0030C660(r);
+
+            if (a < b || (b == a && func_0030CB50(0x32) != 0))
+                best = r;
+        }
+    }
+    return best;
+}
+
+/* 0x00307AD0, 0x17C bytes. Whether force `f` may attack region `to` from region `from`: not a
+ * tied force's; strong enough unless it is its ally's or its envoy's region; two officers of
+ * role 2 or more in `from`. */
+int func_00307AD0(int f, int from, int to)
+{
+    int g = func_0030AFF0(to), env = func_002F9260(f), er = 0x19;
+
+    if ((u32)env < 0x19F)
+        er = func_002F5CC0(env);
+    if (IS_FORCE(g)) {
+        if (func_002FAFA0(f, g) != 0)
+            return 0;
+        g = func_002FA6B0(g);
+    }
+    if (f == g || er == to) {
+        if (func_0030C660(from) == 0)
+            return 0;
+    } else {
+        if (func_0030C660(from) + 1 < func_0030C660(to))
+            return 0;
+        if (func_0030C590(from) < func_0030C590(to))
+            return 0;
+    }
+    if (func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, from, 0, 1) < 2)
+        return 0;
+    return 1;
+}
+
+/* 0x00307C50, 0x1B0 bytes. Whether force `f` starts an attack this turn (computer forces in the
+ * early years only with an ally; a free event slot; by chance from func_00307330): the event is
+ * set up in a slot. */
+int func_00307C50(int f)
+{
+    int *q = CPU_ATTACK(), slot, to, from;
+
+    if (func_002FB2A0(f) == 0 && (u32)func_00327C70() <= (u32)(func_00327C40() < 3 ? 4 : 2)
+        && !IS_FORCE(func_00307240(f)))
+        return 0;
+    slot = func_00329220();
+    if (slot >= 12)
+        return 0;
+    if (func_0030CB50(func_00307330(f)) == 0)
+        return 0;
+    to = func_00307610(f);
+    if (!IS_FORCE(to))
+        return 0;
+    from = func_00307970(f, to);
+    if (!IS_FORCE(from))
+        return 0;
+    if (func_00307AD0(f, from, to) == 0)
+        return 0;
+    func_00329090(slot, from, to);
+    q[3] = slot;
+    return 1;
+}
+
+/* 0x00307E00, 0x100 bytes. Raids on the player's regions by forces other than its ally are
+ * cancelled by chance (by difficulty). */
+void func_00307E00(void)
+{
+    int reg[28], p = func_00327D50(), pct = g_004149D0[func_00327C40()], n, k;
+
+    n = func_002FB320(p, reg);
+    for (k = 0; k < n; k++) {
+        int e = func_00323BD0(reg[k]);
+
+        if (IS_FORCE(e) && func_0030AFF0(e) != func_002FA6B0(p) && func_0030CB50(pct) == 0)
+            func_00323840(e);
+    }
+}
+
+/* 0x00307F00, 0x4C bytes, matching. Attack step 0: the forces listed. */
+void func_00307F00(void)
+{
+    int *q = CPU_ATTACK();
+
+    q[2] = func_002FBAC0((int *)q[6]);
+    q[1] = 0;
+    q[3] = -1;
+    q[4] = 0;
+    q[5] = 0;
+    q[0] = 1;
+}
+
+/* 0x00307F50, 0x100 bytes. Step 1: the next force tries an attack (with its own random seed). */
+void func_00307F50(void)
+{
+    u32 seed = g_7000015C;
+    int *q = CPU_ATTACK(), g = ((int *)q[6])[q[1]];
+
+    if (!IS_FORCE(g) || func_002F8CB0(g) == 0) {
+        q[0] = 2;
+        return;
+    }
+    g_7000015C = (g + func_003276A0()) | 1;
+    if (func_00307C50(g) == 0) {
+        q[3] = -1;
+        q[4] = 0;
+        q[5] = 0;
+        q[0] = 8;
+    } else {
+        q[0] = 3;
+    }
+    g_7000015C = seed | 1;
+}
+
+/* 0x00308050, 0x190 bytes. Step 3: whether the attack involves forces tied to the player
+ * (attacker: step 4, defender: step 6, none: step 8). */
+void func_00308050(void)
+{
+    int *q = CPU_ATTACK(), a, b, ga, gb, p;
+
+    if (q[3] == -1) {
+        q[0] = 8;
+        return;
+    }
+    func_00329160(q[3], &a, &b);
+    ga = func_0030AFF0(a);
+    gb = func_0030AFF0(b);
+    p = func_00327D50();
+    if (func_003238D0(b) == 0) {
+        if (IS_FORCE(ga) && func_002FAFA0(p, ga) != 0 && func_00328DE0(ga) == 0 && IS_FORCE(gb))
+            q[4] = 1;
+        if (IS_FORCE(gb) && func_002FAFA0(p, gb) != 0 && func_00328FA0(gb) == 0)
+            q[5] = 1;
+    }
+    if (q[4] != 0)
+        q[0] = 4;
+    else if (q[5] != 0)
+        q[0] = 6;
+    else
+        q[0] = 8;
+}
+
+/* 0x003081E0, 0xE8 bytes. Step 4: the attacker tied to the player asks for help (command 0x2F
+ * message); once answered "no" (2), message 0x5F with its name. */
+void func_003081E0(void)
+{
+    int *q = CPU_ATTACK(), a, b, ga;
+    char text[1032];
+
+    func_00329160(q[3], &a, &b);
+    ga = func_0030AFF0(a);
+    func_0030AFF0(b);
+    if (func_0030E1F0() == 0) {
+        func_00328D00(ga, 1);
+        func_0032EA80(3);
+        func_0030E140(0x2F, func_002F8F20(ga), ga, -1);
+    } else if (func_0030E1F0() == 2) {
+        func_0030E100();
+        func_001204B0(text, (const char *)func_00390760(0x5F), func_002F8DB0(ga));
+        func_00374EE0(text);
+        q[0] = 5;
+    }
+}
