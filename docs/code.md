@@ -882,6 +882,21 @@ player * 3 + slot) whose fields are mostly unknown and are reached by offset. Th
     running at the weapon's or item's speed multiplier, mounts, jumps;
   - the bodyguards, and the players' camera and path records.
 
+## The battle camera (`src/camera.c`)
+
+The code from 0x00161490 on, after `scene_initialize.c`, is the battle camera. Done so far
+(0x00161490-0x00162244, 8 functions, none matching yet):
+
+- **Placement:** the camera follows a unit from behind. Its eye sits at a set distance (on foot
+  or mounted) behind the unit's facing.
+- **Pitch:** the eye is pitched up by an angle that follows the slope of the ground between the
+  eye and the unit (four ground samples), changing by 0.1 degree a frame. The original also
+  lowers it when the difference is small and positive.
+- **Limits:** the eye is kept above the ground, and lowered when the player looks up.
+
+The next functions pass vectors to each other in VU0 registers. They need a closer reading
+than Ghidra's output gives.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The

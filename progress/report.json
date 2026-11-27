@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 64800,
-    "non_matching": 367276
+    "non_matching": 370796
   },
   "data": {
     "total": 2155890688,
@@ -29,11 +29,11 @@
       "children": [
         {
           "name": "StateInitialize.c",
-          "description": "Estimated range 0x154290-0x166E68; 69 function(s) decompiled",
+          "description": "Estimated range 0x154290-0x166E68; 77 function(s) decompiled",
           "code": {
             "total": 76760,
             "matching": 1872,
-            "non_matching": 48064
+            "non_matching": 51584
           }
         },
         {
