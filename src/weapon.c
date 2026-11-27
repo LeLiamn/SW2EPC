@@ -180,3 +180,123 @@ void func_0016D180(u8 *e, const float *p)
     }
     F32(e, 0x64) = 1.0f;
 }
+
+/* The squared distance between two points, as the original's VU0 code sums it (by the weights
+ * in vf31, taken here as the first two components?). */
+static inline float dist2(const float *a, const float *b)
+{
+    float x = b[0] - a[0], y = b[1] - a[1];
+
+    return x * x + y * y;
+}
+
+/* m (four rows of four) times v, into out. */
+static inline void mat_vec(float *out, const float *m, const float *v)
+{
+    float t[4];
+    int k;
+
+    for (k = 0; k < 4; k++)
+        t[k] = m[k] * v[0] + m[4 + k] * v[1] + m[8 + k] * v[2] + m[12 + k] * v[3];
+    for (k = 0; k < 4; k++)
+        out[k] = t[k];
+}
+
+/* 0x0016D220, 0x1C4 bytes. Moves a weapon edge with matrix `m` (kept at +0x70): the previous
+ * ends (+0x40, +0x50) kept; the base (+0) and its end (along x: the length +0x10 lengthened by
+ * `grow`, times `scale` plus `add`, times `k`) placed into +0x20 / +0x30; `scale` kept at +0x64.
+ * The divide by w of the second point is tested with the first point's w, as in the original. */
+float func_0016D220(float grow, float scale, float add, float k, float *e, const float *m)
+{
+    float len, x, y, z, w = 0.0f;
+    int i;
+
+    for (i = 0; i < 8; i++)
+        e[0x10 + i] = e[8 + i];
+    for (i = 0; i < 16; i++)
+        e[0x1C + i] = m[i];
+    e[0x19] = scale;
+    if (e[3] != 1.0f)
+        e[3] = 1.0f;
+    len = e[4] < 0.0f ? e[4] - grow : e[4] + grow;
+    x = e[0];
+    y = e[1];
+    z = e[2];
+    for (i = 0; i < 4; i++)
+        e[8 + i] = e[i];
+    mat_vec(&e[8], &e[0x1C], &e[8]);
+    if (e[0xB] != 0.0f) {
+        float q = 1.0f / e[0xB];
+
+        for (i = 0; i < 4; i++)
+            e[8 + i] = e[8 + i] * q;
+    }
+    e[0xC] = x + (len * scale + add) * k;
+    e[0xD] = y + e[5];
+    e[0xE] = z + e[6];
+    e[0xF] = 1.0f;
+    mat_vec(&e[0xC], &e[0x1C], &e[0xC]);
+    if (e[0xB] != 0.0f) {
+        float q;
+
+        w = e[0xF];
+        q = 1.0f / w;
+        for (i = 0; i < 4; i++)
+            e[0xC + i] = e[0xC + i] * q;
+    }
+    return w;
+}
+
+/* 0x0016D3F0, 0x18C bytes. Whether a circle of radius `r` at `p` touches the segment a-b. */
+int func_0016D3F0(float r, const float *p, const float *a, const float *b)
+{
+    float r2 = r * r, dx, dy, t, q[4];
+
+    if (!(r2 < dist2(p, a)) || !(r2 < dist2(p, b)))
+        return 1;
+    dy = b[1] - a[1];
+    dx = b[0] - a[0];
+    t = (dx * (p[0] - a[0]) + dy * (p[1] - a[1])) / (dx * dx + dy * dy);
+    if (t < 0.0f)
+        return 0;
+    if (1.0f < t)
+        return 0;
+    q[0] = dx * t + a[0] + 0.0f;
+    q[1] = dy * t + a[1] + 0.0f;
+    if (r2 < dist2(p, q))
+        return 0;
+    return 1;
+}
+
+/* 0x0016D580, 0x200 bytes. Whether the segment a-b crosses the rectangle (x, y, width,
+ * height). */
+int func_0016D580(const float *rc, const float *a, const float *b)
+{
+    float ax = a[0], bx = b[0], ay = a[1], by = b[1];
+    float x0 = rc[0], x1 = rc[0] + rc[2], y0 = rc[1], y1 = rc[1] + rc[3];
+
+    if (!(x0 <= (bx < ax ? ax : bx)))
+        return 0;
+    if (!((bx < ax ? bx : ax) <= x1))
+        return 0;
+    if (!(y0 <= (by < ay ? ay : by)))
+        return 0;
+    if (!((by < ay ? by : ay) <= y1))
+        return 0;
+    if ((x0 <= ax && ax <= x1 && y0 <= ay && ay <= y1)
+        || (x0 <= bx && bx <= x1 && y0 <= by && by <= y1))
+        return 1;
+    if (by - ay == 0.0f)
+        return y0 <= ay && ay <= y1;
+    if (bx - ax == 0.0f)
+        return x0 <= ax && ax <= x1;
+    {
+        float s = (by - ay) / (bx - ax);
+        float c = (ay + 0.0f) - ax * s;
+        float v0 = s * x0 + c + 0.0f, v1 = s * x1 + c + 0.0f;
+
+        if (!(y0 <= (v1 < v0 ? v0 : v1)))
+            return 0;
+        return (v0 <= v1 ? v0 : v1) <= y1;
+    }
+}
