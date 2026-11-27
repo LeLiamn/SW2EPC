@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 186528,
-    "non_matching": 1334536
+    "non_matching": 1339560
   },
   "data": {
     "total": 2155890688,
@@ -202,14 +202,14 @@
         },
         {
           "name": "SceneLoading.c",
-          "description": "Estimated range 0x2EBBF8-0x2F1798; 14 function(s) decompiled",
+          "description": "Estimated range 0x2EBBF8-0x2F1798; 15 function(s) decompiled",
           "code": {
             "total": 23456,
             "matching": 1200,
-            "non_matching": 2832
+            "non_matching": 7856
           },
           "decompiled_functions": {
-            "count": 14,
+            "count": 15,
             "matching": 11
           }
         },
