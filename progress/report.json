@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 174720,
-    "non_matching": 1192920
+    "matching": 175120,
+    "non_matching": 1195368
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2227
+    "matching": 2232
   },
   "layout": "treemap",
   "areas": [
@@ -428,28 +428,28 @@
         },
         {
           "name": "emp_zuroku_bushou.c",
-          "description": "Estimated range 0x392FD0-0x3958A8; 1 function(s) decompiled",
+          "description": "Estimated range 0x392FD0-0x3958A8; 7 function(s) decompiled",
           "code": {
             "total": 10456,
-            "matching": 0,
-            "non_matching": 288
+            "matching": 64,
+            "non_matching": 1504
           },
           "decompiled_functions": {
-            "count": 1,
-            "matching": 0
+            "count": 7,
+            "matching": 1
           }
         },
         {
           "name": "emp_zuroku_graph.c",
-          "description": "Estimated range 0x3958A8-0x39DD30; 43 function(s) decompiled",
+          "description": "Estimated range 0x3958A8-0x39DD30; 52 function(s) decompiled",
           "code": {
             "total": 33928,
-            "matching": 1136,
-            "non_matching": 2368
+            "matching": 1472,
+            "non_matching": 3600
           },
           "decompiled_functions": {
-            "count": 43,
-            "matching": 18
+            "count": 52,
+            "matching": 22
           }
         },
         {

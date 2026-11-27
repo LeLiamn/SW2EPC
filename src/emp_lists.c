@@ -428,3 +428,290 @@ void func_00393560(void)
     func_00392A10();
     func_00392AF0();
 }
+
+/* ---- The lists screen's set-up and the movie gallery grid (5 x 10 entries per page; state
+ * func_00397160: page +0x24, column +0x28, row +0x2C), parts of 0x00395330-0x003964E0. ---- */
+
+typedef unsigned long long u64;
+
+extern char g_00459AE0[], g_00459B08[], g_00459B20[];
+extern short g_007BA850, g_007BA852;
+extern u8 g_007BA85C, g_007BA85D;
+extern u8 *g_0045D0B0;                   /* (small data) */
+extern u8 g_0056CCC8[4];
+
+#define SP_PKT (*(u32 **)0x70000158)
+
+void func_00118850(void *p, int n);
+u8 *func_001026D0(int a, int k, int b, int c, int d, int e, char *name, int line);
+void func_003914C0(void);
+void func_003E8940(void);
+void func_00392FF0(int a);
+void func_003E95D0(void);
+u8 *func_00397160(void);
+void func_001ABE40(u8 *t, int k, int x, int y, int a, int w, int h, int b);
+u8 *func_002EE530(void);
+void func_002C5AE0(u8 *g);
+int func_001204B0(char *buf, const char *fmt, ...);
+int func_003A17A0(int k);
+int func_003A1930(int k);
+void func_002C4F40(float size, char *text, int x, int y, int a, int b, int c);
+void *func_00102DB0(int align, int size);
+void func_0011EB80(void *to, const void *from, int n);
+int func_0011EAE8(const void *a, const void *b, int n);
+u64 *func_00105190(void);
+void func_001052E0(u64 *q, int k);
+void func_00396160(u32 a);
+void func_00143C90(void);
+int func_00102960(int a);
+void func_00143DA0(u32 a, u32 b, int n);
+void func_001037F0(int a);
+
+/* 0x00395330, 0xEC bytes. Opens the lists screen. */
+void func_00395330(void)
+{
+    u8 *p = func_00391250();
+
+    func_00118850(p, 0x1CC);
+    *(u8 **)(p + 0x2C) = func_001026D0(1, 0x84, 0, 1, 0, 0, g_00459AE0, 0x74D);
+    func_003914C0();
+    g_007BA838 = 1.0f;
+    g_007BA83D &= 0xFE;
+    g_007BA818 = 1.0f;
+    g_007BA81D &= 0xFE;
+    g_007BA7F8 = 1.0f;
+    g_007BA7FD &= 0xFE;
+    g_007BA7D8 = 1.0f;
+    g_007BA7DD &= 0xFE;
+}
+
+/* 0x00395420, 0x38 bytes, matching. */
+void func_00395420(void)
+{
+    u8 *p = func_00391250();
+
+    if (*(u8 **)(p + 0x2C) != 0) {
+        func_00102EC0(*(u8 **)(p + 0x2C));
+        *(u8 **)(p + 0x2C) = 0;
+    }
+}
+
+/* 0x00395460, 0xB0 bytes. Draws the lists screen by its step. */
+void func_00395460(void)
+{
+    int s = *(int *)(func_00391250() + 4);
+
+    if (s == 4) {
+        func_00393560();
+        func_003E8940();
+    } else if (s == 2 || s == 3) {
+        func_00392FF0(0);
+        func_003E8940();
+    } else if (s == 1) {
+        func_003E8940();
+        func_00392EB0();
+    } else if (s == 0) {
+        func_00392D80();
+    }
+}
+
+/* 0x00395510, 0x88 bytes. */
+void func_00395510(void)
+{
+    int s = *(int *)(func_00391250() + 4);
+
+    if (s == 4)
+        func_003E95D0();
+    else if (s == 3 || s == 2)
+        func_003E95D0();
+    else if (s == 1)
+        func_003E95D0();
+}
+
+/* 0x003956B0, 0x128 bytes. The selected movie's picture. */
+int func_003956B0(void)
+{
+    int *q = (int *)func_00397160();
+    int v = q[0x28 / 4] + q[0x2C / 4] * 5 + q[0x24 / 4] * 0x32;
+
+    if (v >= 0 && v <= 0x37)
+        return v % 0x1C;
+    if (v >= 0x38 && v <= 0x8B)
+        return v % 0x1C + 0x1C;
+    if (v >= 0x8C && v <= 0xA8)
+        return (v - 0x8C) % 0x1D + 0x38;
+    if (v >= 0xA9 && v <= 0xBF)
+        return 0x55;
+    if (v == 0xC0)
+        return 0x56;
+    if (v >= 0xC1 && v <= 0xC6)
+        return 0x57;
+    return 0x58;
+}
+
+/* 0x003957E0, 0x160 bytes. Draws the grid's cells (the cursor's glows). */
+void func_003957E0(void)
+{
+    u8 *q = func_00397160();
+    int r, c;
+
+    if (q == 0)
+        return;
+    for (r = 0; r < 10; r++) {
+        for (c = 0; c < 5; c++) {
+            u8 a = g_007BA85C;
+
+            func_001ABE40(*(u8 **)(q + 0x14), 0, g_007BA850 + c * 0x28, g_007BA852 + r * 0x18, 0,
+                          0x28, 0x18, g_007BA85C);
+            if (*(int *)(q + 0x28) == c && *(int *)(q + 0x2C) == r) {
+                u8 *g = func_002EE530();
+                u8 b;
+
+                func_002C5AE0(g);
+                b = g[4];
+                if ((g_007BA85D & 1) == 0)
+                    b = a;
+                func_001ABE40(*(u8 **)(q + 0x14), 1, g_007BA850 + c * 0x28, g_007BA852 + r * 0x18,
+                              0, 0x28, 0x18, b);
+            }
+        }
+    }
+}
+
+/* 0x00395940, 0x178 bytes. Draws the grid's numbers (dim: locked, plain: not seen). */
+void func_00395940(void)
+{
+    u8 *q = func_00397160();
+    char buf[4];
+    int r, c;
+
+    if (q == 0)
+        return;
+    for (r = 0; r < 10; r++) {
+        for (c = 0; c < 5; c++) {
+            int k = c + r * 5 + *(int *)(q + 0x24) * 0x32, col;
+            u8 a = g_007BA85C;
+
+            func_001204B0(buf, g_00459B08, k + 1);
+            if (func_003A17A0(k) == 0) {
+                col = 6;
+                a >>= 1;
+            } else {
+                col = func_003A1930(k) == 0 ? 6 : 1;
+            }
+            g_0056CCC8[0] = a;
+            g_0056CCC8[1] = a;
+            g_0056CCC8[2] = a;
+            g_0056CCC8[3] = a;
+            func_002C4F40(12.0f, buf, g_007BA850 + c * 0x28 + 2, g_007BA852 + r * 0x18 + 8, 2, 0,
+                          col);
+        }
+    }
+}
+
+/* 0x00395E20, 0x9C bytes, matching. Loads the gallery's files (`k`: only the save copy). */
+void func_00395E20(u8 *p, int k)
+{
+    u8 *q;
+
+    if (k == 0) {
+        *(u8 **)(p + 0x14) = func_001026D0(1, 0x86, 0, 1, 0, 0, g_00459B20, 0x118);
+        *(void **)(p + 0xC) = func_00102DB0(0x40, 0x24);
+    }
+    q = func_001026D0(1, 0x83, 0, 0, 0, 0, g_00459B20, 0x11C);
+    *(u8 **)(p + 0x10) = q;
+    func_0011EB80(q, g_0045D0B0, 4);
+}
+
+/* A full screen rectangle with GS ALPHA value `a` and TEST `t`. */
+static void full_screen(u64 a, u64 t, int k)
+{
+    u64 *q = func_00105190();
+
+    q[2] = a;
+    q[3] = 0x43;
+    q[4] = t;
+    q[5] = 0x48;
+    q[6] = 0;
+    q[7] = 9;
+    q[8] = 0x8000008001ULL;
+    q[9] = 0x3B;
+    if (k == 4) {
+        u32 *p = SP_PKT;
+
+        p[0] = 0x30000005;
+        p[1] = (u32)q;
+        p[2] = 0x13000000;
+        p[3] = 0x51000005;
+        SP_PKT = p + 4;
+    } else {
+        func_001052E0(q, k);
+    }
+}
+
+/* 0x00395EC0, 0xD4 bytes. */
+void func_00395EC0(int k)
+{
+    full_screen(0x8000000044ULL, 0x5000D, k);
+}
+
+/* 0x00395FA0, 0xD4 bytes. */
+void func_00395FA0(u32 a, int k)
+{
+    full_screen(0x8000000049ULL, 0x43001, k);
+}
+
+/* 0x00396080, 0xD4 bytes. */
+void func_00396080(u32 a, int k)
+{
+    full_screen(0x8000000042ULL, 0x43001, k);
+}
+
+/* 0x003963D0, 0x40 bytes, matching. */
+void func_003963D0(void)
+{
+    u8 *q = func_00397160();
+
+    *(int *)(q + 0x1C) = 0;
+    *(int *)(q + 0x20) = 0x32;
+    *(int *)(q + 0x24) = 0;
+    *(int *)(q + 0x28) = 0;
+    *(int *)(q + 0x2C) = 0;
+    *(int *)(q + 0x30) = 0;
+    *(int *)(q + 0x34) = 5;
+}
+
+/* 0x00396410, 8 bytes, matching. */
+void func_00396410(void)
+{
+}
+
+/* 0x00396420, 0x5C bytes, matching. Draws the movie being played. */
+void func_00396420(u32 *p)
+{
+    if ((p[0] & 0x10) == 0)
+        return;
+    func_00395EC0(4);
+    func_00396160(p[3]);
+    func_00395FA0(p[1], 4);
+    func_00396080(p[1], 4);
+    func_00143C90();
+}
+
+/* 0x00396480, 0xA4 bytes. Waits for the movie file (reloading it when its header is wrong). */
+void func_00396480(u32 *p)
+{
+    if ((p[0] & 0x10) != 0 || func_00102960(0) == 0)
+        return;
+    if (func_0011EAE8((u8 *)p[4], g_0045D0B0, 4) == 0) {
+        if (p[4] != 0) {
+            func_00102EC0((u8 *)p[4]);
+            p[4] = 0;
+        }
+        func_00395E20((u8 *)p, 1);
+    } else {
+        func_00143DA0(p[3], p[4], 0x1300);
+        p[0] |= 0x10;
+        func_001037F0(1);
+    }
+}
