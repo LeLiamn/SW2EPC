@@ -854,10 +854,22 @@ The code at 0x00147780-0x001508E4 handles 3D models: 75 functions, 26 of which m
 ## Battlefield units (`src/unit.c`)
 
 The code from 0x001508F0 on handles the characters on the battlefield. A character is a large
-object whose fields are mostly unknown and are reached by offset. Done so far
-(0x001508F0-0x0015398C): effect slots, the reactions to hits (from the front or behind, knocked
-down, lifted, thrown), guards and guard breaks with their hit stop, weapon clashes (two units
-facing each other within 200 units), grabs, defeat, getting up, and being knocked off a mount.
+object (0x630 bytes, in an array at `0x00574DE0`; the players' bodyguards are units 0x89 +
+player * 3 + slot) whose fields are mostly unknown and are reached by offset. Done so far
+(0x001508F0-0x00158CC4):
+
+- **Hits:** the main hit handler (`func_00153E50`) picks the reaction by the unit's state: on a
+  mount, in the air, knocked down, stunned by a charged attack, or a special officer. The other
+  hit functions cover guards and guard breaks with their hit stop (the animation slowed by the
+  damage), weapon clashes (two units facing each other within 200 units), and being knocked off
+  a mount.
+- **Actions:** `func_00156AF0` starts an action. It records the previous action, adjusts the
+  speeds, makes the turn the action asks for, and starts the pose transition.
+- **Movement:** gravity and landing, the push of a hit, and the motion's root movement.
+- **Holds:** grabs, throws and struggles (button presses counted at +0x159; the first to lead
+  by more than 12 wins).
+- **Other:** the locked target, stored projectiles, spread shots, and calling a player's
+  bodyguards.
 
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 

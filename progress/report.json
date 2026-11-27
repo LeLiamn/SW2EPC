@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 64464,
-    "non_matching": 317292
+    "matching": 64736,
+    "non_matching": 338328
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10623,
-    "matching": 560
+    "matching": 562
   },
   "layout": "treemap",
   "areas": [
@@ -29,11 +29,11 @@
       "children": [
         {
           "name": "StateInitialize.c",
-          "description": "Estimated range 0x154290-0x166E68; 23 function(s) decompiled",
+          "description": "Estimated range 0x154290-0x166E68; 48 function(s) decompiled",
           "code": {
             "total": 76760,
             "matching": 1808,
-            "non_matching": 3872
+            "non_matching": 19116
           }
         },
         {
@@ -603,11 +603,11 @@
         },
         {
           "name": "font.c",
-          "description": "Estimated range 0x124CC8-0x154290; 139 function(s) decompiled",
+          "description": "Estimated range 0x124CC8-0x154290; 145 function(s) decompiled",
           "code": {
             "total": 193992,
-            "matching": 2784,
-            "non_matching": 62636
+            "matching": 3056,
+            "non_matching": 68428
           }
         },
         {

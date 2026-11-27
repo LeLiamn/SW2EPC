@@ -1114,7 +1114,7 @@ int func_00153610(Unit *u, u8 *hit, u32 base, float *dir, u8 *other, int quiet, 
     }
 }
 
-extern u8 g_00574DE0[][0x630];           /* (effect?) objects; the players' from index 0x89 */
+extern u8 g_00574DE0[][0x630];           /* the units (0x630 bytes each); the players' bodyguards from 0x89 */
 extern u8 g_005B7120[];                  /* the description used once a unit's guard is broken */
 
 void func_00245360(Unit *u, u8 *hit);
@@ -1756,7 +1756,7 @@ int func_002A6910(int sound, int a, u8 *pos);
 void func_002A5A60(float a, float b, float c, float d, float e, int sound);
 void func_002A5B10(int sound);
 void func_001489F0(u8 *actor, u8 *model);
-void func_001589B0(Unit *u, int a, u8 k);
+void func_001589B0(Unit *u, u8 kind, u8 slot);
 void func_0029F3C0(Unit *u);
 void func_0016CB60(Unit *u, u8 level, int a, int b, int c);
 void func_0016A1C0(Unit *u);
@@ -2123,4 +2123,407 @@ void func_00156AF0(Unit *u, u16 id)
     func_00150930(u);
     func_0016A1C0(u);
     func_00156720(u);
+}
+
+extern u8 g_005B4BC0[][0x240];           /* per player: the camera (+0 its matrix) */
+extern u8 g_00732644[][0x14];            /* per player: the struggle display */
+extern float g_00424A58[2];              /* two spread angles */
+extern float g_00424A60[4];              /* four spread angles */
+extern float g_00406410[4];              /* the forward vector */
+extern float g_00406420[4];
+extern float g_00424D00[4];              /* the up vector */
+
+void vu0_rot_x(float m[4][4], float a);          /* VU0 micro subroutine 0x60: rotation about X */
+void func_001FAA60(u8 player);
+void func_001AD090(u8 *e);
+void func_001AE1A0(u8 *e);
+void func_001AC980(u32 e, u8 *a, u8 *b, float *dir, Unit *u);
+void func_00166160(Unit *e);
+void func_001656E0(Unit *e, int state, u8 kind, u8 a, u8 b, u8 c, u8 d, int f);
+void func_001660C0(Unit *e, u8 *pos);
+void func_00253CB0(Unit *e, u8 kind);
+
+/* The unit matrix from the scratchpad. */
+static inline void scratch_unit(float m[4][4])
+{
+    int i, k;
+
+    for (i = 0; i < 4; i++)
+        for (k = 0; k < 4; k++)
+            m[i][k] = ((float *)0x70000000)[i * 4 + k];
+}
+
+/* m * v (column vectors). */
+static inline void mat_vec(float out[4], float m[4][4], const float v[4])
+{
+    int k;
+
+    for (k = 0; k < 4; k++)
+        out[k] = m[0][k] * v[0] + m[1][k] * v[1] + m[2][k] * v[2] + m[3][k] * v[3];
+}
+
+/* 0x00157850, 0x74 bytes. Whether the unit is on the right of its player's camera. */
+int func_00157850(Unit *u)
+{
+    float v[4];
+
+    mat_vec(v, (float (*)[4])g_005B4BC0[PLAYER(u)], &F32(u, 0x90));
+    return 0.0f < v[0];
+}
+
+/* 0x001578D0, 0x288 bytes. A struggle between two units (the button presses counted at +0x159):
+ * the players' display, and the outcome (*mine / *theirs: 1-4) once one leads by more than 12
+ * or the struggle's time is up. Whether it is over. */
+int func_001578D0(Unit *u, int *mine, int *theirs)
+{
+    u8 *hit;
+    int end;
+    Unit *o;
+
+    if (PLAYER(u) < 2) {
+        u8 oc = U8(PTR(u, 0x280), 0x159);
+        u8 *e = g_00732644[PLAYER(u)];
+        int diff;
+
+        if (func_00157850(u) == 0) {
+            e[8] = 1;
+            *(u32 *)(e + 0) = oc;
+            *(u32 *)(e + 4) = U8(u, 0x159);
+            e[0xB] = 1;
+            e[0xC] = 0;
+        } else {
+            e[8] = 1;
+            *(u32 *)(e + 0) = U8(u, 0x159);
+            *(u32 *)(e + 4) = oc;
+            e[0xB] = 0;
+            e[0xC] = 1;
+        }
+        diff = U8(u, 0x159) - oc;
+        if (diff > 0xC) {
+            *mine = 2;
+            *theirs = 4;
+            U32(u, 0x270) = U32(u, 0x280);
+            return 1;
+        }
+        if (diff < -0xC) {
+            *mine = 4;
+            *theirs = 1;
+            return 1;
+        }
+    }
+    hit = PTR(ACT(u), 0x14);
+    if (hit == 0 || (U32(hit, 0x28) & 0x800000) == 0)
+        end = S32(unit_motion(u), 8) - 1;
+    else
+        end = hit[6];
+    if ((int)F32(u, 0x21C) < end)
+        return 0;
+    o = PTR(u, 0x280);
+    if (U8(o, 0x159) < U8(u, 0x159)) {
+        *mine = 1;
+        *theirs = 3;
+    } else if (U8(u, 0x159) < U8(o, 0x159)) {
+        *mine = 3;
+        *theirs = 1;
+    } else {
+        *mine = 3;
+        *theirs = 3;
+    }
+    return 1;
+}
+
+/* An officer's life set to 0 (as the original computes it from +0x86, always 0). */
+static inline void officer_ko(u8 *rec)
+{
+    short v = S16(rec, 0x86);
+    short l = v < 0 ? v : 0;
+    short s;
+
+    if (l < 1) {
+        s = 0;
+    } else {
+        s = v;
+        if (s >= 0)
+            s = 0;
+    }
+    S16(rec, 0x88) = s;
+}
+
+/* 0x00157B60, 0x374 bytes. Ends a struggle with results `mine` / `theirs` (3: knocked out; 2: the
+ * winner throws the other 120 units away, facing it), and lets go. */
+void func_00157B60(Unit *u, int mine, int theirs)
+{
+    Unit *o;
+
+    func_00152410(u, mine);
+    if (mine == 3)
+        officer_ko(OFFICER(u));
+    o = PTR(u, 0x280);
+    if (U8(o, 0x198) & 2) {
+        func_00152410(PTR(u, 0x280), theirs);
+        o = PTR(u, 0x280);
+        if (PLAYER(u) < 2 && mine == 2) {
+            float d[4], a, len;
+            int i;
+
+            for (i = 0; i < 4; i++)
+                d[i] = F32(o, 0x40 + i * 4) - F32(u, 0x40 + i * 4);
+            d[1] = 0.0f;
+            len = sqrtf(d[0] * d[0] + d[2] * d[2] + d[3] * d[3]);
+            for (i = 0; i < 4; i++)
+                d[i] = d[i] / len;
+            a = vu0_angle(d[0], d[2]);
+            F32(u, 0x54) = a;
+            F32(u, 0x238) = a;
+            F32(u, 0x230) = 0.0f;
+            U8(u, 0x27C) = (U8(u, 0x27C) & ~1) | 1;
+            a = F32(u, 0x54) + PI;
+            if (PI < a)
+                a -= TWO_PI;
+            F32(PTR(u, 0x280), 0x54) = a;
+            for (i = 0; i < 4; i++)
+                F32(PTR(u, 0x280), 0x40 + i * 4) = F32(u, 0x40 + i * 4) + d[i] * 120.0f;
+            F32(o, 0x238) = F32(PTR(u, 0x280), 0x54);
+            F32(o, 0x230) = 0.0f;
+            U8(o, 0x27C) = (U8(o, 0x27C) & ~1) | 1;
+        }
+        if (theirs == 3)
+            officer_ko(OFFICER(PTR(u, 0x280)));
+        PTR(o, 0x284) = 0;
+        U8(o, 0x275) = 0xFF;
+        U8(o, 0x276) = 0xFF;
+        U8(PTR(u, 0x280), 0x27C) &= ~4;
+    }
+    PTR(u, 0x280) = 0;
+    U8(u, 0x27C) &= ~4;
+    if (PLAYER(u) < 2) {
+        func_0029EE00(g_005B49E0[PLAYER(u)], 0);
+        func_001FAA60(PLAYER(u));
+    }
+}
+
+/* 0x00157EE0, 0x1EC bytes. The locked target (+0x270): the angle to it from the unit's facing,
+ * and in *turn the turning speed (5 or 10 degrees) while it stays within 60 (or 90) degrees;
+ * else the lock is dropped and 0 returned. */
+float func_00157EE0(Unit *u, float *turn)
+{
+    u8 *hit;
+
+    if (PTR(u, 0x270) != 0) {
+        hit = PTR(ACT(u), 0x14);
+        if (hit != 0 && PTR(u, 0x280) == 0) {
+            float lim, speed, a;
+
+            if ((U32(hit, 0x2C) & 4) == 0) {
+                lim = 1.0471976f;
+                speed = 0.08726646f;
+            } else {
+                lim = 1.5707964f;
+                speed = 0.17453292f;
+            }
+            a = wrap_angle(vu0_angle(F32(PTR(u, 0x270), 0x90) - F32(u, 0xB0),
+                                     F32(PTR(u, 0x270), 0x98) - F32(u, 0xB8))
+                           - F32(u, 0x54));
+            if ((U32(ACT(u), 0x1C) & 0x20) || fabsf(a) <= lim) {
+                *turn = speed;
+                return a;
+            }
+        }
+        PTR(u, 0x270) = 0;
+    }
+    U8(u, 0x27C) &= ~0x10;
+    return 0.0f;
+}
+
+/* The hit's number of stored projectiles: 6, 4 or 2 (fired 3, 2 or 1 at a time). */
+#define STORE_COUNT(hit) ((U32(hit, 0x2C) & 0x20) ? 6 : (U32(hit, 0x2C) & 0x10) ? 4 : 2)
+
+/* 0x001580D0, 0x19C bytes. Stores projectile effect `id` (slots +0x260); when they are full the
+ * oldest is dropped. */
+void func_001580D0(Unit *u, short id, u8 *hit)
+{
+    int n = STORE_COUNT(hit), i;
+    short *slot = &S16(u, 0x260);
+
+    for (i = 0; i < n; i++) {
+        if (slot[i] == -1) {
+            slot[i] = id;
+            return;
+        }
+    }
+    U8(g_005ADD80[slot[0]], 0x8C) &= ~2;
+    for (i = 0; i < n - 1; i++)
+        slot[i] = slot[i + 1];
+    slot[i] = id;
+}
+
+/* 0x00158270, 0x1AC bytes. Fires the stored projectiles (1-3 by the hit), with a sound, then
+ * packs the slots. */
+void func_00158270(Unit *u, u8 *b, u8 *hit)
+{
+    short *slot = &S16(u, 0x260);
+    int n = (U32(hit, 0x2C) & 0x20) ? 3 : (U32(hit, 0x2C) & 0x10) ? 2 : 1;
+    int fired = 0, any = 0, i, j;
+
+    for (i = 0; i < 6; i++) {
+        if (slot[i] != -1) {
+            u8 *e = g_005ADD80[slot[i]];
+            float pos[4], dir[4];
+            int k;
+
+            for (k = 0; k < 4; k++) {
+                pos[k] = F32(e, 0x30 + k * 4);
+                dir[k] = F32(e, 0x20 + k * 4);
+            }
+            func_002A6910(0x231, 0, (u8 *)pos);
+            func_001AD090(e);
+            func_001AE1A0(e);
+            func_001ACA70((u32)e, b, pos, (u8 *)dir, (u32)u);
+            fired++;
+            any = 1;
+            slot[i] = -1;
+            if (fired >= n)
+                break;
+        }
+    }
+    if (any) {
+        for (i = 0, j = 0; i < 6; i++) {
+            if (slot[i] != -1) {
+                if (j == i) {
+                    j++;
+                } else {
+                    slot[j++] = slot[i];
+                    slot[i] = -1;
+                }
+            }
+        }
+    }
+}
+
+/* Fires `n` effects spread by `angles` about `dir`. */
+static inline void fire_spread(Unit *u, u8 *a, u8 *b, const float *dir, const float *angles, int n)
+{
+    int i;
+
+    for (i = 0; i < n; i++) {
+        float m[4][4], v[4];
+        u32 e;
+
+        scratch_unit(m);
+        vu0_rot_y(m, angles[i]);
+        mat_vec(v, m, dir);
+        e = func_00177ED0();
+        U8(e, 0x8C) = (U8(e, 0x8C) & ~8) | 8;
+        func_001AC980(e, a, b, v, u);
+    }
+}
+
+/* 0x00158420, 0x114 bytes. Fires two effects spread about `dir`. */
+void func_00158420(Unit *u, u8 *a, u8 *b, const float *dir)
+{
+    fire_spread(u, a, b, dir, g_00424A58, 2);
+}
+
+/* 0x00158540, 0x114 bytes. Fires four. */
+void func_00158540(Unit *u, u8 *a, u8 *b, const float *dir)
+{
+    fire_spread(u, a, b, dir, g_00424A60, 4);
+}
+
+/* 0x00158660, 0x350 bytes. Fires effect `k` from the weapon (kind 0: weapons ',' and 0x1F, from
+ * node 0x13; kind 1: '-' and 0x1E, node 0x14; kind 2: node 0x12; without a model, from the
+ * unit's height), aimed by its pitch (+0x240) and yaw. */
+void func_00158660(Unit *u, int k)
+{
+    u8 c = DESC(u) == 0 ? 'j' : U8(DESC(u), 0x1C);
+    int kind, i;
+    float pos[4], dir[4], m[4][4];
+
+    if (c == ',' || c == 0x1F)
+        kind = 0;
+    else if (c == '-' || c == 0x1E)
+        kind = 1;
+    else
+        kind = 2;
+    if (PTR(u, 0x11C) == 0) {
+        for (i = 0; i < 4; i++)
+            pos[i] = F32(u, 0x40 + i * 4);
+        pos[1] = pos[1] - F32(PTR(u, 0x114), 0x80);
+    } else {
+        float (*n)[4] = (float (*)[4])func_0016A170(u, kind == 0 ? 0x13 : kind == 1 ? 0x14 : 0x12);
+
+        mat_vec(pos, n, kind == 1 ? g_00406420 : (float *)0x70000030);
+        for (i = 0; i < 4; i++)
+            pos[i] = pos[i] / pos[3];
+    }
+    scratch_unit(m);
+    vu0_rot_x(m, F32(u, 0x240));
+    vu0_rot_y(m, F32(u, 0x54));
+    mat_vec(dir, m, g_00406410);
+    func_001ACA70(func_00177ED0(), g_0045D2FC + 0x10 + (k + kind) * 0x48, pos, (u8 *)dir, (u32)u);
+}
+
+
+/* 0x001589B0, 0x318 bytes. Calls bodyguard `slot` of the unit's player (units 0x89 + player * 3
+ * + slot) as `kind` 0-3: placed at the unit, beside it (left, right, behind or ahead by the
+ * slot), with its timer (600, 600, 60 frames copying the unit's action, or 630 at size 1.5). */
+void func_001589B0(Unit *u, u8 kind, u8 slot)
+{
+    Unit *e = g_00574DE0[slot + PLAYER(u) * 3 + 0x89];
+    float side[4], len;
+    int i;
+
+    if (e == 0)
+        return;
+    if (U8(e, 0x198) & 2)
+        func_00166160(e);
+    func_001656E0(e, S32(u, 0x118), U8(DESC(u), 0x1C), U8(u, 0x158), U8(u, 0x156), U8(u, 0x154),
+                  U8(u, 0x14F), 0);
+    func_001660C0(e, u + 0x40);
+    F32(e, 0x238) = F32(u, 0x54);
+    U8(e, 0x27C) &= ~1;
+    for (i = 0; i < 4; i++)
+        U32(e, 0x50 + i * 4) = U32(u, 0x50 + i * 4);
+    U8(e, 0x17C) = slot;
+    U8(e, 0x15B) = PLAYER(u);
+    side[0] = F32(u, 0x74) * g_00424D00[2] - F32(u, 0x78) * g_00424D00[1];
+    side[1] = F32(u, 0x78) * g_00424D00[0] - F32(u, 0x70) * g_00424D00[2];
+    side[2] = F32(u, 0x70) * g_00424D00[1] - F32(u, 0x74) * g_00424D00[0];
+    side[3] = 0.0f;
+    len = sqrtf(side[0] * side[0] + side[1] * side[1] + side[2] * side[2]);
+    if (U8(e, 0x17C) == 0) {
+        for (i = 0; i < 4; i++)
+            F32(e, 0xC0 + i * 4) = side[i] / len;
+    } else if (U8(e, 0x17C) == 1) {
+        for (i = 0; i < 4; i++)
+            F32(e, 0xC0 + i * 4) = side[i] / len * -1.0f;
+    } else if (U8(e, 0x17C) == 2) {
+        for (i = 0; i < 4; i++)
+            U32(e, 0xC0 + i * 4) = U32(u, 0x70 + i * 4);
+    } else {
+        for (i = 0; i < 4; i++)
+            F32(e, 0xC0 + i * 4) = F32(e, 0x70 + i * 4) * -1.0f;
+    }
+    U8(e, 0x19C) = (U8(e, 0x19C) & 0x7F) | 0x80;
+    S16(e, 0x178) = S16(u, 0x178);
+    U8(e, 0x15A) = kind;
+    F32(e, 0x164) = 0.0f;
+    func_00253CB0(e, U8(e, 0x15A));
+    if (U8(e, 0x15A) == 3) {
+        F32(e, 0x160) = 630.0f;
+        F32(e, 0x60) = 1.5f;
+        F32(e, 0x64) = 1.5f;
+        F32(e, 0x68) = 1.5f;
+        F32(e, 0x6C) = 0.0f;
+    } else if (U8(e, 0x15A) == 2) {
+        F32(e, 0x160) = 60.0f;
+        func_00156AF0(e, U16(ACT(u), 0));
+        F32(e, 0x21C) = F32(u, 0x21C);
+        F32(e, 0x234) = 0.0f;
+        U8(e, 0x14D) = 0x80;
+    } else if (U8(e, 0x15A) == 1) {
+        F32(e, 0x160) = 600.0f;
+    } else if (U8(e, 0x15A) == 0) {
+        F32(e, 0x160) = 600.0f;
+    }
 }
