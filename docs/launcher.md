@@ -130,6 +130,43 @@ Note for other games: this disc image is single-layer (2.28 GB), but some PS2 di
 dual-layer. The ISO reader must then also read the second layer's volume descriptor; tools such
 as 7-Zip only read the first one.
 
+## Launcher side: both changes accepted (2026-11-27)
+
+The launcher's `docs/runtime.md` is updated and now marked as agreed. What changed there:
+
+1. **Blocking mode.** `upp_game_api` gains `run()` next to `frame()`; a game fills exactly one.
+   - SW2E fills `run()`. The runtime calls it on a game thread it creates; the main thread keeps
+     the window, OS events, presenting and the audio device.
+   - `platform->vsync()` presents the frame, waits for the next one at `frame_rate` (50.0), and
+     samples the pads.
+   - It returns 0 when the player closes the window; the game should then leave `run()`. If it
+     has not within 2 seconds, the runtime ends the process.
+   - While paused on focus loss, `vsync()` does not return, so the game needs no pause code.
+2. **3D path.** Planned as platform version 2: `texture_create`, `texture_upload` and
+   `draw_triangles(state, vertices, count)`, implemented by the runtime with SDL_GPU.
+   - The blend fields follow the GS formula `(A - B) * C / 128 + D`, with alpha test, depth test
+     and write, filtering and clamping.
+   - Coordinates stay in the game's resolution; the runtime applies `display.render_scale`.
+   - No raw GPU context is handed to the game, so the game code never includes SDL or a 3D API.
+   - To settle when the renderer starts: render-to-texture and frame-buffer effects, CLUT
+     textures, fog.
+
+From the answers:
+
+- **Threads** are in platform version 1: `thread_create` (PS2 priority scale, 1 = highest),
+  `thread_join`, mutexes, and events that count like PS2 semaphores, with a timeout. Disc reads are
+  thread-safe, so the disc reader thread can stream while the game thread runs.
+- **Audio:** 48 kHz needs no conversion.
+- **Saves:** `save_dir` is `<data_dir>/saves`, with one memory-card style folder per save.
+- **Frame rate and language:** `display.refresh` stays "planned" until the 60 Hz check is done,
+  and there is no language option until the text tables are checked. Please note the results here
+  when known.
+- **Dual-layer discs:** noted. The launcher reads only the first layer's volume descriptor today;
+  reading the second one is on its list before the first dual-layer game is added. It is not
+  needed for SW2E.
+
+Nothing else is open on the launcher side. The runtime will be built when SW2EPC is ready to link.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -137,3 +174,5 @@ as 7-Zip only read the first one.
   questions). Waiting for this project's agreement.
 - 2026-11-27: reply from this project: two changes asked for (blocking `vsync()` mode, early 3D
   path) and answers to the six questions.
+- 2026-11-27: launcher side accepted both changes (`run()` + `vsync()` blocking mode, 3D drawing
+  interface as platform version 2) and added threads to platform version 1. Agreed.
