@@ -632,3 +632,115 @@ int func_0023BC20(int k)
 {
     return (k < 0 || k > 0x32 ? 0xCB : k + 0x33) - 0x33;
 }
+
+void func_0023BC50(void);
+void func_0023BA20(void);
+void func_0017DF10(void);
+void func_002A7870(void);
+void func_00114C90(int a);
+void func_002A78B0(void);
+void func_0017DE50(void);
+int func_0032E7B0(void);
+void func_0035DAA0(void);
+void func_00114E30(void);
+void func_00114D30(int a);
+void func_002A7560(void);
+void func_002A77F0(void);
+void func_0017DDE0(void);
+void func_0017E130(void);
+
+/* 0x0023BF10, 0x38 bytes. */
+void func_0023BF10(void)
+{
+    g_0074B810 = 0;
+    g_0074B808 = 0;
+    g_0074B800 = 0;
+    g_0074B7F8 = 0;
+    g_0074B818 = 0;
+    g_0074B820 = 0;
+    g_0074B830 = 0xCB;
+    g_0074B82C = 0xCB;
+    g_0074B828 = 0xCB;
+    g_0074B824 = 0xCB;
+}
+
+/* 0x0023BF50, 0x44 bytes, matching. Loads the battle's banks. */
+void func_0023BF50(void)
+{
+    func_0023ADA0();
+    func_0023BF10();
+    func_0023BC50();
+    func_0023BBE0();
+    func_0023BA20();
+    func_0023B8A0();
+}
+
+/* 0x0023BFA0, 0x4C bytes, matching. Stops the battle's sounds. */
+void func_0023BFA0(void)
+{
+    func_0017DF10();
+    func_0023AC40();
+    func_0023AA40();
+    func_0023ADA0();
+    func_0023B5F0();
+    func_002A7870();
+    func_00114C90(0);
+}
+
+/* 0x0023BFF0, 0x5C bytes. Starts them. */
+void func_0023BFF0(void)
+{
+    func_00114C90(0);
+    func_002A78B0();
+    func_0023BF50();
+    func_0023A3D0();
+    func_0017DE50();
+    if (func_0032E7B0() == 0)
+        func_0035DAA0();
+    func_00114E30();
+}
+
+/* 0x0023C050, 0x7C bytes. The speaker set-up (3 mono .. 0 surround?). */
+void func_0023C050(int k)
+{
+    if (k == 3)
+        func_00114D30(0);
+    else if (k == 2)
+        func_00114D30(1);
+    else if (k == 1)
+        func_00114D30(2);
+    else if (k == 0)
+        func_00114D30(3);
+}
+
+/* 0x0023C0D0, 0x24 bytes, matching. */
+void func_0023C0D0(void)
+{
+    func_002A7560();
+    func_002A77F0();
+}
+
+/* 0x0023C100, 0x1C bytes, matching. */
+void func_0023C100(void)
+{
+    func_0017DDE0();
+}
+
+/* 0x0023C120, 0x24 bytes, matching. */
+void func_0023C120(void)
+{
+    func_0023B580();
+    func_0017E130();
+}
+
+/* 0x0023C150, 8 bytes, matching. */
+void func_0023C150(void)
+{
+}
+
+/* 0x0023C160, 0x24 bytes, matching. */
+void func_0023C160(void)
+{
+    func_0023AC40();
+    func_0023ADA0();
+}
