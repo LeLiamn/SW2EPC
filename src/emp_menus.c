@@ -82,7 +82,7 @@ void func_00398650(int v)
         func_00376100(4, 9, 0x15C);
 }
 
-/* 0x003986A0, 0x3C bytes. Whether `v` is in `list`. */
+/* 0x003986A0, 0x3C bytes, matching. Whether `v` is in `list`. */
 int func_003986A0(int v, int *list, int n)
 {
     int k;
@@ -94,7 +94,7 @@ int func_003986A0(int v, int *list, int n)
     return 0;
 }
 
-/* 0x00398A80, 0x1C bytes. */
+/* 0x00398A80, 0x1C bytes, matching. */
 void func_00398A80(void)
 {
     func_00373B60();
@@ -179,7 +179,7 @@ void func_0039AF70(void)
     func_00397B10(5);
 }
 
-/* 0x0039B6B0, 0x50 bytes. */
+/* 0x0039B6B0, 0x50 bytes, matching. */
 void func_0039B6B0(void)
 {
     int *p = func_003DB900(0xD);
@@ -238,13 +238,13 @@ u8 *func_0039BA50(void)
     return g_0045D7E8;
 }
 
-/* 0x0039BA60, 8 bytes. */
+/* 0x0039BA60, 8 bytes, matching. */
 void func_0039BA60(int *p)
 {
     *p = 0;
 }
 
-/* 0x0039BB00, 0x40 bytes. Leaves the command menu. */
+/* 0x0039BB00, 0x40 bytes, matching. Leaves the command menu. */
 void func_0039BB00(void)
 {
     int *st = func_002FC2C0();
@@ -262,25 +262,25 @@ void func_0039BB40(void)
         func_0039B700();
 }
 
-/* 0x0039BC10, 0xC bytes. */
+/* 0x0039BC10, 0xC bytes, matching. */
 u8 *func_0039BC10(void)
 {
     return g_007BAA70;
 }
 
-/* 0x0039BC80, 0x2C bytes. */
+/* 0x0039BC80, 0x2C bytes, matching. */
 void func_0039BC80(void)
 {
     func_00373970(8, (int)0x80000000, func_00327C00());
 }
 
-/* 0x0039BCB0, 0x2C bytes. */
+/* 0x0039BCB0, 0x2C bytes, matching. */
 void func_0039BCB0(void)
 {
     func_00373970(7, (int)0x80000000, func_00327C00());
 }
 
-/* 0x0039BCE0, 0x58 bytes. Opens the list of the player force's officers. */
+/* 0x0039BCE0, 0x58 bytes, matching. Opens the list of the player force's officers. */
 void func_0039BCE0(void)
 {
     int n = func_002F7D90(0, func_002F8160, func_00327D50(), 0, 1, 0);
@@ -314,13 +314,13 @@ int func_0039BF50(void)
     return 0;
 }
 
-/* 0x0039C3E0, 0x2C bytes. */
+/* 0x0039C3E0, 0x2C bytes, matching. */
 void func_0039C3E0(void)
 {
     func_00373970(9, (int)0x80000000, func_00327C00());
 }
 
-/* 0x0039C630, 0x60 bytes. The item menu's step 0. */
+/* 0x0039C630, 0x60 bytes, matching. The item menu's step 0. */
 void func_0039C630(void)
 {
     int *st = func_002FC2C0();
@@ -347,7 +347,7 @@ int func_0039C690(void)
     return 0;
 }
 
-/* 0x0039C740, 0x34 bytes. */
+/* 0x0039C740, 0x34 bytes, matching. */
 void func_0039C740(void)
 {
     *MENU2() = 0;
@@ -416,7 +416,7 @@ int func_0039C9E0(void)
     return 4;
 }
 
-/* 0x0039D060, 0x1C bytes. */
+/* 0x0039D060, 0x1C bytes, matching. */
 void func_0039D060(void)
 {
     func_0039CE50();
@@ -429,19 +429,19 @@ void func_0039D590(void)
     func_001A7DC0(g_0043C5A8, 0x80, 1);
 }
 
-/* 0x0039D5C0, 0x1C bytes. */
+/* 0x0039D5C0, 0x1C bytes, matching. */
 void func_0039D5C0(void)
 {
     func_00373B60();
 }
 
-/* 0x0039D5E0, 0x24 bytes. */
+/* 0x0039D5E0, 0x24 bytes, matching. */
 void func_0039D5E0(void)
 {
     func_0032D3C0(func_0030D7D0());
 }
 
-/* 0x0039D610, 0x94 bytes. Draws force `f`'s three values. */
+/* 0x0039D610, 0x94 bytes, matching. Draws force `f`'s three values. */
 void func_0039D610(u8 *a, int f, int c)
 {
     int v[8], j;
@@ -453,7 +453,7 @@ void func_0039D610(u8 *a, int f, int c)
     func_0037ED80(a, 0x40, 0x50, f, v, 0, c);
 }
 
-/* 0x0039D6B0, 0x84 bytes. */
+/* 0x0039D6B0, 0x84 bytes, matching. */
 void func_0039D6B0(int f)
 {
     int v[8], j;
@@ -465,7 +465,7 @@ void func_0039D6B0(int f)
     func_0037ED80(func_0030D7D0(), 0x40, 0x50, f, v, 0, 0);
 }
 
-/* 0x0039D740, 0x28 bytes. */
+/* 0x0039D740, 0x28 bytes, matching. */
 void func_0039D740(void)
 {
     func_0039D6B0(MENU2()[2]);
@@ -523,7 +523,7 @@ void func_003E74B0(void)
     }
 }
 
-/* 0x003E75D0, 0x2C bytes. */
+/* 0x003E75D0, 0x2C bytes, matching. */
 void func_003E75D0(int v)
 {
     *(int *)(MENU5() + 0x220) = v;
@@ -614,7 +614,7 @@ void func_003E7770(void)
     }
 }
 
-/* 0x003E79B0, 8 bytes. */
+/* 0x003E79B0, 8 bytes, matching. */
 void func_003E79B0(void)
 {
 }
@@ -642,7 +642,7 @@ void func_003E79C0(void)
     g_007BFB3D &= 0xFE;
 }
 
-/* 0x003E7C00, 8 bytes. */
+/* 0x003E7C00, 8 bytes, matching. */
 void func_003E7C00(void)
 {
 }

@@ -51,7 +51,7 @@ u8 *func_0019FBC0(int k);
 void func_00148070(u8 *m, int v);
 void func_0014F970(u8 *a);
 
-/* 0x002AB820, 0xD4 bytes. Officer `o`'s stat `k`. */
+/* 0x002AB820, 0xD4 bytes, matching. Officer `o`'s stat `k`. */
 int func_002AB820(int o, int k)
 {
     int v = 0;
@@ -154,7 +154,7 @@ void func_002AAC50(u8 *t, int x, int y, int w, int h, int sel, int p6)
     func_001ABE40(t, 0x14, x + w / 2, y + h / 2, 0, -1, -1, 0x80, p6, 1);
 }
 
-/* 0x002AAD40, 0xC4 bytes. */
+/* 0x002AAD40, 0xC4 bytes, matching. */
 void func_002AAD40(u8 *t, int x, int y, int w, int h, int c)
 {
     func_002C7310(x, y, 0, w, h, 0x80, c);
@@ -183,7 +183,7 @@ void func_002AD4C0(void)
     }
 }
 
-/* 0x002AD610, 0x80 bytes. */
+/* 0x002AD610, 0x80 bytes, matching. */
 void func_002AD610(void)
 {
     int k;
@@ -262,7 +262,7 @@ void func_002AD8B0(u8 **l)
     }
 }
 
-/* 0x002AD920, 0x34 bytes. */
+/* 0x002AD920, 0x34 bytes, matching. */
 void func_002AD920(u8 *m, int v)
 {
     func_00148070(m, v);

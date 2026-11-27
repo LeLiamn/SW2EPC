@@ -112,7 +112,7 @@ void func_003821E0(int a, int cursor, int x, int y, u8 *entries, int n);
 int func_0031D690(Picker *picker);
 void func_0037EAA0(int a, int b, int x, int y, int alpha);
 
-/* 0x003F8B30, 0x50 bytes. Loads background `n` (0-4). */
+/* 0x003F8B30, 0x50 bytes, matching. Loads background `n` (0-4). */
 void func_003F8B30(int n)
 {
     if (n < 5) {
@@ -121,7 +121,7 @@ void func_003F8B30(int n)
     }
 }
 
-/* 0x003F8B80, 0x2C bytes. */
+/* 0x003F8B80, 0x2C bytes, matching. */
 void func_003F8B80(void)
 {
     if (g_0045D870 != 0) {
@@ -130,7 +130,7 @@ void func_003F8B80(void)
     }
 }
 
-/* 0x003F8BB0, 0x44 bytes. Draws it full-screen. */
+/* 0x003F8BB0, 0x44 bytes, matching. Draws it full-screen. */
 void func_003F8BB0(void)
 {
     if (g_0045D870 != 0)
@@ -164,7 +164,7 @@ void func_003F8C00(void)
     }
 }
 
-/* 0x003F8E00, 0x2C bytes. */
+/* 0x003F8E00, 0x2C bytes, matching. */
 void func_003F8E00(int visible)
 {
     PICKER()->visible = visible;

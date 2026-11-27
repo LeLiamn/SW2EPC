@@ -735,7 +735,7 @@ void func_002815D0(const MenuLine *lines, u8 n, const u8 *cursors, int arg)
 
 typedef struct { int k[22]; } HelpKinds;
 
-/* 0x00281C40, 0x90 bytes. The help kind of page `page` (3 becomes 6 in an Empire battle or with
+/* 0x00281C40, 0x90 bytes, matching. The help kind of page `page` (3 becomes 6 in an Empire battle or with
  * func_0036D310). */
 int func_00281C40(int page)
 {
@@ -747,7 +747,7 @@ int func_00281C40(int page)
     return kind;
 }
 
-/* 0x00281CD0, 0x48 bytes. */
+/* 0x00281CD0, 0x48 bytes, matching. */
 int func_00281CD0(int page)
 {
     HelpKinds kinds = *(HelpKinds *)g_00410FA0;
@@ -1326,7 +1326,7 @@ void func_00284D40(int player, u8 *grid, u8 *page)
     func_0029B1C0(pos[0] + 0xAC, pos[1] + 0x30, 0, 0, current, entry != now && diff < 0, 1, diff < 0);
 }
 
-/* 0x00284EF0, 0x8 bytes. Page 11's drawer: empty. */
+/* 0x00284EF0, 0x8 bytes, matching. Page 11's drawer: empty. */
 void func_00284EF0(void)
 {
 }
@@ -1353,12 +1353,12 @@ void func_00284F00(int player, u8 cursor)
     func_002966C0(0, 0, pos[0], pos[1], 0, player, func_003DD680(player) + 0x10);
 }
 
-/* 0x00285000, 0x8 bytes. Page 13's drawer: empty. */
+/* 0x00285000, 0x8 bytes, matching. Page 13's drawer: empty. */
 void func_00285000(void)
 {
 }
 
-/* 0x00285010, 0x8 bytes. Page 14's drawer: empty. */
+/* 0x00285010, 0x8 bytes, matching. Page 14's drawer: empty. */
 void func_00285010(void)
 {
 }
@@ -1474,13 +1474,13 @@ void func_00285610(u8 cursor)
 
 void func_002DB9A0(void);
 
-/* 0x00285680, 0x1C bytes. Page 17's drawer. */
+/* 0x00285680, 0x1C bytes, matching. Page 17's drawer. */
 void func_00285680(void)
 {
     func_002DB9A0();
 }
 
-/* 0x002856A0, 0x2C bytes. Page 18's drawer: page 16's lines with line 1 chosen. */
+/* 0x002856A0, 0x2C bytes, matching. Page 18's drawer: page 16's lines with line 1 chosen. */
 void func_002856A0(void)
 {
     func_00281090(g_00410EF0, 2, 1, 0);

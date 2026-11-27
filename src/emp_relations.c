@@ -120,7 +120,7 @@ void func_003E0320(int k)
     }
 }
 
-/* 0x003E0450, 0xA4 bytes. The screen's title and the gold. */
+/* 0x003E0450, 0xA4 bytes, matching. The screen's title and the gold. */
 void func_003E0450(void)
 {
     u8 *p = func_0021A630();

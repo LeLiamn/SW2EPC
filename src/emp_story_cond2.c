@@ -510,7 +510,7 @@ int func_003D31F0(void)
     return k;
 }
 
-/* 0x003D3280, 0x34 bytes. */
+/* 0x003D3280, 0x34 bytes, matching. */
 void func_003D3280(void)
 {
     if (func_003CF030() != 0) {
@@ -636,13 +636,13 @@ void func_00102960(int a);
 void func_001B8F60(int a, int b, int c);
 u8 *func_00376810(void);
 
-/* 0x003D36C0, 8 bytes. */
+/* 0x003D36C0, 8 bytes, matching. */
 u8 **func_003D36C0(void)
 {
     return g_0045D828;
 }
 
-/* 0x003D36D0, 0x50 bytes. Loads file 0x8B (kept). */
+/* 0x003D36D0, 0x50 bytes, matching. Loads file 0x8B (kept). */
 void func_003D36D0(void)
 {
     u8 **p = func_003D36C0();
@@ -650,7 +650,7 @@ void func_003D36D0(void)
     *p = func_001026D0(1, 0x8B, 0, 1, 0, 0, g_0045C3F0, 0x1F);
 }
 
-/* 0x003D3720, 0x50 bytes. */
+/* 0x003D3720, 0x50 bytes, matching. */
 void func_003D3720(void)
 {
     u8 **p = func_003D36C0();
@@ -658,7 +658,7 @@ void func_003D3720(void)
     *p = func_001026D0(1, 0x8B, 0, 0, 0, 0, g_0045C3F0, 0x26);
 }
 
-/* 0x003D3770, 0x38 bytes. */
+/* 0x003D3770, 0x38 bytes, matching. */
 void func_003D3770(void)
 {
     u8 **p = func_003D36C0();
@@ -686,7 +686,7 @@ void func_003D37B0(int k, int x, int y, int w, int h, int alpha, int layer, int 
     }
 }
 
-/* 0x003D38A0, 0xB8 bytes. */
+/* 0x003D38A0, 0xB8 bytes, matching. */
 void func_003D38A0(int k, int a, int b, int c, int d, int e, int f, int p7)
 {
     u8 **p = func_003D36C0();
@@ -695,13 +695,13 @@ void func_003D38A0(int k, int a, int b, int c, int d, int e, int f, int p7)
         func_001ABE40(*p, k, a, b, c, d, e, f, p7, 0);
 }
 
-/* 0x003D3960, 0x20 bytes. */
+/* 0x003D3960, 0x20 bytes, matching. */
 u8 *func_003D3960(void)
 {
     return func_003D36C0()[1];
 }
 
-/* 0x003D3980, 0x70 bytes. Loads file 0x77 (kept). */
+/* 0x003D3980, 0x70 bytes, matching. Loads file 0x77 (kept). */
 void func_003D3980(void)
 {
     u8 *h;
@@ -713,7 +713,7 @@ void func_003D3980(void)
     func_001B8F60(1, 6, 8);
 }
 
-/* 0x003D39F0, 0x50 bytes. */
+/* 0x003D39F0, 0x50 bytes, matching. */
 void func_003D39F0(void)
 {
     u8 *h = func_001026D0(1, 0x77, 0, 0, 0, 0, g_0045C3F0, 0x78);
@@ -721,7 +721,7 @@ void func_003D39F0(void)
     func_003D36C0()[1] = h;
 }
 
-/* 0x003D3A40, 0x38 bytes. */
+/* 0x003D3A40, 0x38 bytes, matching. */
 void func_003D3A40(void)
 {
     u8 **p = func_003D36C0();

@@ -38,7 +38,7 @@ void func_003D3A80(int x, int y, int a, int b, int c, int d, int k);
 
 #define FONT_COLOUR(c) (g_0056CCA4[0] = g_0056CCA4[1] = g_0056CCA4[2] = g_0056CCA4[3] = (c))
 
-/* 0x003D3B50, 0xB8 bytes. Draws the big face of officer record `k` (0..0x42). */
+/* 0x003D3B50, 0xB8 bytes, matching. Draws the big face of officer record `k` (0..0x42). */
 void func_003D3B50(int x, int y, int a, int b, int c, int k, int p6)
 {
     if (k >= 0 && k < 0x43)
@@ -52,7 +52,7 @@ void func_003D3C10(void)
     func_00376100(1, 2, -1);
 }
 
-/* 0x003D3C60, 0x64 bytes. The help line of the screen's page. */
+/* 0x003D3C60, 0x64 bytes, matching. The help line of the screen's page. */
 void func_003D3C60(void)
 {
     u8 *s = func_003766C0();
@@ -125,7 +125,7 @@ void func_003D43D0(int x, int y, int a, int w, int p4, int p5)
     func_001ABEA0(func_00376810(), 0x2C, x + 4 + w - 8, y, a, 4, 4, 0xC, 0, 4, 4, p4, p5, 0);
 }
 
-/* 0x003D4770, 0x30 bytes. */
+/* 0x003D4770, 0x30 bytes, matching. */
 void func_003D4770(u8 *g)
 {
     func_002C5AC0(1.0f, g, 0x80, 0x80, 0x40, 1);
@@ -454,7 +454,7 @@ static void card(u8 *s)
     func_003D47A0(0xF, xy[0], xy[1], al);
 }
 
-/* 0x003D7BE0, 0x5C bytes. Draws the name page. */
+/* 0x003D7BE0, 0x5C bytes, matching. Draws the name page. */
 void func_003D7BE0(void)
 {
     u8 *s = func_003766C0();

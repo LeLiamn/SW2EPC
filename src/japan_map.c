@@ -62,14 +62,14 @@ void func_00380E80(int a, int o, int x, int y);
 void func_003986E0(int a, int b, int *c, int d);
 void func_003AE8E0(int k);
 
-/* 0x003A4E20, 0x28 bytes. */
+/* 0x003A4E20, 0x28 bytes, matching. */
 void func_003A4E20(void)
 {
     func_003A34C0();
     func_003A2810(0, 1);
 }
 
-/* 0x003A4F00, 0x3C bytes. */
+/* 0x003A4F00, 0x3C bytes, matching. */
 void func_003A4F00(void)
 {
     int o;
@@ -78,7 +78,7 @@ void func_003A4F00(void)
         func_003A54A0(o);
 }
 
-/* 0x003A5240, 0x50 bytes. */
+/* 0x003A5240, 0x50 bytes, matching. */
 void func_003A5240(void)
 {
     int o;
@@ -90,19 +90,19 @@ void func_003A5240(void)
         func_003A5650(o);
 }
 
-/* 0x003A5320, 0x38 bytes. Stores officer `o`'s unlock record from `src`. */
+/* 0x003A5320, 0x38 bytes, matching. Stores officer `o`'s unlock record from `src`. */
 void func_003A5320(const u8 *src, int o)
 {
     func_00118AC0(func_0039FB00(o), src, 0x48);
 }
 
-/* 0x003A5360, 0x38 bytes. */
+/* 0x003A5360, 0x38 bytes, matching. */
 void func_003A5360(u8 *dst, int o)
 {
     func_00118AC0(dst, func_0039FB00(o), 0x48);
 }
 
-/* 0x003A5BA0, 0x34 bytes. Keeps the view (before a zoom). */
+/* 0x003A5BA0, 0x34 bytes, matching. Keeps the view (before a zoom). */
 void func_003A5BA0(void)
 {
     M32(0) = M32(0xFC);
@@ -110,14 +110,14 @@ void func_003A5BA0(void)
     M32(0x70) = M32(0x19C);
 }
 
-/* 0x003A5BE0, 0x24 bytes. Gets it back. */
+/* 0x003A5BE0, 0x24 bytes, matching. Gets it back. */
 void func_003A5BE0(void)
 {
     M32(0xFC) = M32(0);
     M32(0x19C) = M32(0x70);
 }
 
-/* 0x003A5C10, 0x2C bytes. */
+/* 0x003A5C10, 0x2C bytes, matching. */
 void func_003A5C10(void)
 {
     M32(0x74) = -1;
@@ -126,7 +126,7 @@ void func_003A5C10(void)
     M32(0x80) = 1;
 }
 
-/* 0x003A60F0, 0x18 bytes. */
+/* 0x003A60F0, 0x18 bytes, matching. */
 u8 func_003A60F0(u32 v)
 {
     return g_0045B3F0[v & 0xFF];
@@ -151,13 +151,13 @@ void func_003A6380(int x, int y)
     func_001ABE40(MAP_TEX, 4, x, y, 0, 0x20, 0x20, M32(0xFC), ARG_UNKNOWN, 0);
 }
 
-/* 0x003A7BF0, 0x14 bytes. */
+/* 0x003A7BF0, 0x14 bytes, matching. */
 void func_003A7BF0(int p, u8 v)
 {
     M8(0x1C9 + p) = v;
 }
 
-/* 0x003A7C10, 0x58 bytes. Clears all province marks. */
+/* 0x003A7C10, 0x58 bytes, matching. Clears all province marks. */
 void func_003A7C10(void)
 {
     int p;
@@ -169,26 +169,26 @@ void func_003A7C10(void)
     }
 }
 
-/* 0x003A7D90, 0xC bytes. */
+/* 0x003A7D90, 0xC bytes, matching. */
 void func_003A7D90(void)
 {
     M32(0x1AC) = 0;
 }
 
-/* 0x003A7FF0, 0xC bytes. */
+/* 0x003A7FF0, 0xC bytes, matching. */
 void func_003A7FF0(int v)
 {
     M32(0x198) = v;
 }
 
-/* 0x003A8000, 0x30 bytes. Province `p` without an owner. */
+/* 0x003A8000, 0x30 bytes, matching. Province `p` without an owner. */
 void func_003A8000(int p)
 {
     M8(0x1B0 + p) = 0x43;
     func_003A6110(p, 0x19);
 }
 
-/* 0x003A8030, 0x64 bytes. Province `p` in its owner's colours. */
+/* 0x003A8030, 0x64 bytes, matching. Province `p` in its owner's colours. */
 void func_003A8030(int p)
 {
     int f = func_0030AFF0(p);
@@ -197,7 +197,7 @@ void func_003A8030(int p)
     func_003A6110(p, func_002F9990(f));
 }
 
-/* 0x003A80A0, 0xC bytes. */
+/* 0x003A80A0, 0xC bytes, matching. */
 void func_003A80A0(int v)
 {
     M32(0x188) = v;
@@ -225,27 +225,27 @@ u8 func_003A89B0(int k)
     return g_0045A940[k + (M32(0x180) / 5) * 8];
 }
 
-/* 0x003A8AD0, 0x28 bytes. */
+/* 0x003A8AD0, 0x28 bytes, matching. */
 int func_003A8AD0(int k)
 {
     return g_00459F80[M32(0x108)][k * 2];
 }
 
-/* 0x003A9010, 0x20 bytes. */
+/* 0x003A9010, 0x20 bytes, matching. */
 void func_003A9010(int v)
 {
     if (M32(0x114) != v)
         M32(0x114) = v;
 }
 
-/* 0x003A9030, 0x28 bytes. */
+/* 0x003A9030, 0x28 bytes, matching. */
 void func_003A9030(int v)
 {
     M32(0x110) = v;
     M32(0xF0) = func_003A8AD0(v);
 }
 
-/* 0x003A9060, 0xC bytes. */
+/* 0x003A9060, 0xC bytes, matching. */
 void func_003A9060(int v)
 {
     M32(0x10C) = v;
@@ -266,7 +266,7 @@ void func_003A9070(int on)
     }
 }
 
-/* 0x003A90D0, 0xC bytes. */
+/* 0x003A90D0, 0xC bytes, matching. */
 void func_003A90D0(int v)
 {
     M32(0x19C) = v;
@@ -279,7 +279,7 @@ void func_003A90E0(int k, int a, int b)
     M32(0x8C + k * 8) = b;
 }
 
-/* 0x003A9110, 0x58 bytes. */
+/* 0x003A9110, 0x58 bytes, matching. */
 void func_003A9110(void)
 {
     int k, a, b;
@@ -290,19 +290,19 @@ void func_003A9110(void)
     }
 }
 
-/* 0x003A93A0, 0xC bytes. */
+/* 0x003A93A0, 0xC bytes, matching. */
 void func_003A93A0(int v)
 {
     M32(0xF8) = v;
 }
 
-/* 0x003A9440, 0x1C bytes. */
+/* 0x003A9440, 0x1C bytes, matching. */
 void func_003A9440(void)
 {
     func_003A5C10();
 }
 
-/* 0x003A9460, 0x14 bytes. */
+/* 0x003A9460, 0x14 bytes, matching. */
 int func_003A9460(void)
 {
     return M32(0x74) != -1;
@@ -320,7 +320,7 @@ int func_003A9480(int v)
     return ch;
 }
 
-/* 0x003A94D0, 0x3C bytes. */
+/* 0x003A94D0, 0x3C bytes, matching. */
 void func_003A94D0(void)
 {
     if (M32(0x1A0) != 0) {
@@ -330,14 +330,14 @@ void func_003A94D0(void)
     }
 }
 
-/* 0x003A9610, 0x24 bytes. */
+/* 0x003A9610, 0x24 bytes, matching. */
 void func_003A9610(void)
 {
     func_003A80A0(0);
     func_003A7D90();
 }
 
-/* 0x003A99B0, 0x28 bytes. */
+/* 0x003A99B0, 0x28 bytes, matching. */
 void func_003A99B0(int v, int x)
 {
     int t = v;
@@ -345,7 +345,7 @@ void func_003A99B0(int v, int x)
     func_003A97C0(&t, 1, x);
 }
 
-/* 0x003A99E0, 0x48 bytes. */
+/* 0x003A99E0, 0x48 bytes, matching. */
 void func_003A99E0(int v)
 {
     func_003A92D0();
@@ -355,7 +355,7 @@ void func_003A99E0(int v)
     M32(0x1AC) = 2;
 }
 
-/* 0x003A9AF0, 0xC bytes. */
+/* 0x003A9AF0, 0xC bytes, matching. */
 void func_003A9AF0(int v)
 {
     M32(0x1A4) = v;
@@ -385,13 +385,13 @@ int func_003AACB0(void)
     return 0;
 }
 
-/* 0x003AB1E0, 0x14 bytes. */
+/* 0x003AB1E0, 0x14 bytes, matching. */
 u8 func_003AB1E0(int k)
 {
     return g_0041BFF0[k];
 }
 
-/* 0x003AC340, 0x34 bytes. */
+/* 0x003AC340, 0x34 bytes, matching. */
 void func_003AC340(void)
 {
     func_003ABC80();
@@ -400,7 +400,7 @@ void func_003AC340(void)
     func_003AAD30();
 }
 
-/* 0x003AE820, 0x1C bytes. */
+/* 0x003AE820, 0x1C bytes, matching. */
 int func_003AE820(void)
 {
     return func_00327A60();
@@ -415,7 +415,7 @@ void func_003AEC60(void)
     func_001A7DC0(g_0043C5EC, 0x80, 1);
 }
 
-/* 0x003AF1B0, 0x1C bytes. */
+/* 0x003AF1B0, 0x1C bytes, matching. */
 void func_003AF1B0(void)
 {
     func_0039B700();
@@ -555,7 +555,7 @@ void func_003A93B0(int a, int b, int c)
     }
 }
 
-/* 0x003A9640, 0xC0 bytes. Whether province `p` is the player's or an ally's (func_0030C250). */
+/* 0x003A9640, 0xC0 bytes, matching. Whether province `p` is the player's or an ally's (func_0030C250). */
 int func_003A9640(int p)
 {
     int k, a, b;

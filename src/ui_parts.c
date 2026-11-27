@@ -660,7 +660,7 @@ void func_001A84A0(float a, float b, float size, int x, int y, int z, const u32 
         func_00105900(p[k], layer);
 }
 
-/* 0x001A85D0, 0x30 bytes. The same with colours `ia` and `ib` of the gauge colours. */
+/* 0x001A85D0, 0x30 bytes, matching. The same with colours `ia` and `ib` of the gauge colours. */
 void func_001A85D0(float a, float b, float size, int x, int y, int z, int ia, int ib, int w,
                    int layer)
 {
@@ -711,7 +711,7 @@ void func_001A8CF0(float a, float b, float c, float size, int x, int y, int z, c
     func_00105230(r, layer);
 }
 
-/* 0x001A8EB0, 0x48 bytes. The same with colours `ia`, `ib` and `ic` of the gauge colours. */
+/* 0x001A8EB0, 0x48 bytes, matching. The same with colours `ia`, `ib` and `ic` of the gauge colours. */
 void func_001A8EB0(float a, float b, float c, float size, int x, int y, int z, int ia, int ib,
                    int ic, int w, int layer, u8 ab, u8 ac)
 {

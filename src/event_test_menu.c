@@ -236,7 +236,7 @@ void func_003B1320(void)
     func_003B10C0();
 }
 
-/* 0x003B1490, 0x48 bytes. */
+/* 0x003B1490, 0x48 bytes, matching. */
 void func_003B1490(u8 *s, int a)
 {
     func_00118850(s, 0x600);
@@ -587,7 +587,7 @@ void func_003B3D50(int k, int x, int y, int a, int b, int lit)
     func_001ABEA0(g_0045D7FC, lit == 0 ? 8 : 9, x, y, a, 0x48, 0x20, 0, ARG_UNKNOWN, 0x48, 0x20, 0x80, b, 0);
 }
 
-/* 0x003B3DD0, 0x98 bytes. Draws the five tabs, `cur` lit. */
+/* 0x003B3DD0, 0x98 bytes, matching. Draws the five tabs, `cur` lit. */
 void func_003B3DD0(int alpha, int cur)
 {
     int k;
@@ -652,7 +652,7 @@ void func_003B5300(int k, int x, int y, int z, int p4)
     func_001ABEA0(g_0045D7FC, s, x, y, z, 0x14, 0x14, 0, 0, 0x14, 0x14, 0x80, p4, 0);
 }
 
-/* 0x003B53C0, 0x44 bytes. */
+/* 0x003B53C0, 0x44 bytes, matching. */
 void func_003B53C0(int x, int y, int z, int a, int b, int k)
 {
     func_001ABE40(g_0045D7FC, k + 0x1F, x, y, z, 0x40, 0x20, a, b, 0);
@@ -970,7 +970,7 @@ void func_003B6620(void)
         func_001AFFB0(1);
 }
 
-/* 0x003B6760, 0x84 bytes. Saving (1 done, 2 failed: asks again). */
+/* 0x003B6760, 0x84 bytes, matching. Saving (1 done, 2 failed: asks again). */
 void func_003B6760(void)
 {
     u8 *s = func_003B5E90();

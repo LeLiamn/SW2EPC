@@ -110,7 +110,7 @@ int func_002F3E30(u32 o);
 int func_002F3E70(u32 o);
 u32 func_002F4DD0(u32 o);
 
-/* 0x00335000, 0x50 bytes. Clears the records. */
+/* 0x00335000, 0x50 bytes, matching. Clears the records. */
 void func_00335000(int *r)
 {
     int k;
@@ -128,7 +128,7 @@ void func_00335000(int *r)
     }
 }
 
-/* 0x00335050, 0xC bytes. */
+/* 0x00335050, 0xC bytes, matching. */
 int *func_00335050(void)
 {
     return &g_007B5E70[0x1E];
@@ -306,7 +306,7 @@ int func_003357D0(void)
     return 2;
 }
 
-/* 0x00335A10, 0x8C bytes. Step 1. */
+/* 0x00335A10, 0x8C bytes, matching. Step 1. */
 void func_00335A10(void)
 {
     PickCmd *c = PICK();
@@ -387,7 +387,7 @@ void func_00335CA0(void)
     }
 }
 
-/* 0x00335D60, 0x38 bytes. Step 4: resets the block and leaves. */
+/* 0x00335D60, 0x38 bytes, matching. Step 4: resets the block and leaves. */
 void func_00335D60(void)
 {
     int *s = (int *)func_002FC2C0();
@@ -434,13 +434,13 @@ void func_00335E90(void)
     }
 }
 
-/* 0x00335EE0, 0xC bytes. */
+/* 0x00335EE0, 0xC bytes, matching. */
 int *func_00335EE0(void)
 {
     return g_007B5F30;
 }
 
-/* 0x00335EF0, 0x24 bytes. */
+/* 0x00335EF0, 0x24 bytes, matching. */
 void func_00335EF0(int *p)
 {
     p[0] = 0;
@@ -931,7 +931,7 @@ int func_002F27D0(int o);
 void func_00335EF0(int *p);
 void func_002FC660(void);
 
-/* 0x003378A0, 0x40 bytes. Step 0: opens the province choice. */
+/* 0x003378A0, 0x40 bytes, matching. Step 0: opens the province choice. */
 void func_003378A0(void)
 {
     int *c = BCMD();
@@ -940,7 +940,7 @@ void func_003378A0(void)
     c[0] = 1;
 }
 
-/* 0x003378E0, 0xC0 bytes. Step 1: the target province. */
+/* 0x003378E0, 0xC0 bytes, matching. Step 1: the target province. */
 void func_003378E0(void)
 {
     u8 *st = func_002FC2C0();
@@ -961,7 +961,7 @@ void func_003378E0(void)
     }
 }
 
-/* 0x003379A0, 0x70 bytes. Step 2: the line-up. */
+/* 0x003379A0, 0x70 bytes, matching. Step 2: the line-up. */
 void func_003379A0(void)
 {
     int *c = BCMD();
@@ -977,7 +977,7 @@ void func_003379A0(void)
     }
 }
 
-/* 0x00337A10, 0x58 bytes. The officer whose text record is `k`. */
+/* 0x00337A10, 0x58 bytes, matching. The officer whose text record is `k`. */
 int func_00337A10(int k)
 {
     int o;
@@ -989,7 +989,7 @@ int func_00337A10(int k)
     return 0x19F;
 }
 
-/* 0x00337A70, 0x38 bytes. Step 4: resets and leaves. */
+/* 0x00337A70, 0x38 bytes, matching. Step 4: resets and leaves. */
 void func_00337A70(void)
 {
     int *s = (int *)func_002FC2C0();
@@ -1071,13 +1071,13 @@ void func_00337AB0(void)
     func_00337A70();
 }
 
-/* 0x00337D30, 0x1C bytes. */
+/* 0x00337D30, 0x1C bytes, matching. */
 void func_00337D30(void)
 {
     func_00388710();
 }
 
-/* 0x00337D50, 0x5C bytes. The text of battle kind `k`. */
+/* 0x00337D50, 0x5C bytes, matching. The text of battle kind `k`. */
 int func_00337D50(int k)
 {
     int v = -1;
@@ -1182,7 +1182,7 @@ int func_00337F30(void)
     return r;
 }
 
-/* 0x00337FF0, 0x40 bytes. Step 0 of the other battle command. */
+/* 0x00337FF0, 0x40 bytes, matching. Step 0 of the other battle command. */
 void func_00337FF0(void)
 {
     int *c = BCMD();

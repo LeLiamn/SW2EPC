@@ -40,13 +40,13 @@ void func_003BD640(int x1, int x2, int y, int k);
 char *func_002F2970(int o);
 void func_00146B40(char *text, int x, int y, int w, int h, int a, int b);
 
-/* 0x00390760, 0x14 bytes. Officer text `k`. */
+/* 0x00390760, 0x14 bytes, matching. Officer text `k`. */
 u8 *func_00390760(int k)
 {
     return ((u8 **)(g_0045D7DC + 4))[k];
 }
 
-/* 0x00390780, 0x2C bytes. */
+/* 0x00390780, 0x2C bytes, matching. */
 void func_00390780(void)
 {
     if (g_0045D7E0 != 0) {
@@ -55,13 +55,13 @@ void func_00390780(void)
     }
 }
 
-/* 0x00391250, 0xC bytes. */
+/* 0x00391250, 0xC bytes, matching. */
 u8 *func_00391250(void)
 {
     return g_007BA600;
 }
 
-/* 0x00391260, 0x128 bytes. A special officer's portrait (0x7F: none). */
+/* 0x00391260, 0x128 bytes, matching. A special officer's portrait (0x7F: none). */
 int func_00391260(int k)
 {
     if (k == 0x22 || k == 0x2D)
@@ -173,7 +173,7 @@ void func_00391B10(int k)
     *(int *)(p + 0x24) = 0;
 }
 
-/* 0x00391C30, 0x2C bytes. */
+/* 0x00391C30, 0x2C bytes, matching. */
 void func_00391C30(void)
 {
     u8 *p = func_00391250();
@@ -190,25 +190,25 @@ int func_00391C60(u32 k)
     return k < 0x22;
 }
 
-/* 0x00391C80, 0xC bytes. */
+/* 0x00391C80, 0xC bytes, matching. */
 u8 *func_00391C80(void)
 {
     return g_007BA830;
 }
 
-/* 0x00391C90, 0xC bytes. */
+/* 0x00391C90, 0xC bytes, matching. */
 u8 *func_00391C90(void)
 {
     return g_007BA810;
 }
 
-/* 0x00391CA0, 0xC bytes. */
+/* 0x00391CA0, 0xC bytes, matching. */
 u8 *func_00391CA0(void)
 {
     return g_007BA7F0;
 }
 
-/* 0x00391CB0, 0xC bytes. */
+/* 0x00391CB0, 0xC bytes, matching. */
 u8 *func_00391CB0(void)
 {
     return g_007BA7D0;
@@ -485,7 +485,7 @@ void func_00395330(void)
     g_007BA7DD &= 0xFE;
 }
 
-/* 0x00395420, 0x38 bytes. */
+/* 0x00395420, 0x38 bytes, matching. */
 void func_00395420(void)
 {
     u8 *p = func_00391250();
@@ -609,7 +609,7 @@ void func_00395940(void)
     }
 }
 
-/* 0x00395E20, 0x9C bytes. Loads the gallery's files (`k`: only the save copy). */
+/* 0x00395E20, 0x9C bytes, matching. Loads the gallery's files (`k`: only the save copy). */
 void func_00395E20(u8 *p, int k)
 {
     u8 *q;
@@ -667,7 +667,7 @@ void func_00396080(u32 a, int k)
     full_screen(0x8000000042ULL, 0x43001, k);
 }
 
-/* 0x003963D0, 0x40 bytes. */
+/* 0x003963D0, 0x40 bytes, matching. */
 void func_003963D0(void)
 {
     u8 *q = func_00397160();
@@ -681,12 +681,12 @@ void func_003963D0(void)
     *(int *)(q + 0x34) = 5;
 }
 
-/* 0x00396410, 8 bytes. */
+/* 0x00396410, 8 bytes, matching. */
 void func_00396410(void)
 {
 }
 
-/* 0x00396420, 0x5C bytes. Draws the movie being played. */
+/* 0x00396420, 0x5C bytes, matching. Draws the movie being played. */
 void func_00396420(u32 *p)
 {
     if ((p[0] & 0x10) == 0)
@@ -739,13 +739,13 @@ void func_0030BBD0(int p, int a);
 int func_0030B2F0(int k);
 void func_0030B330(void);
 
-/* 0x00397160, 0xC bytes. */
+/* 0x00397160, 0xC bytes, matching. */
 u8 *func_00397160(void)
 {
     return g_007BA870;
 }
 
-/* 0x00397170, 0x38 bytes. */
+/* 0x00397170, 0x38 bytes, matching. */
 void func_00397170(void)
 {
     u8 *q = func_00397160();
@@ -901,7 +901,7 @@ void func_00397830(void)
     LW_SPEED(d) = 1.0f;
 }
 
-/* 0x003978F0, 8 bytes. */
+/* 0x003978F0, 8 bytes, matching. */
 void func_003978F0(void)
 {
 }
@@ -939,19 +939,19 @@ void func_00397A10(void)
     }
 }
 
-/* 0x00397AC0, 0x1C bytes. */
+/* 0x00397AC0, 0x1C bytes, matching. */
 void func_00397AC0(void)
 {
     func_00395510();
 }
 
-/* 0x00397AE0, 0x1C bytes. */
+/* 0x00397AE0, 0x1C bytes, matching. */
 void func_00397AE0(void)
 {
     func_003955A0();
 }
 
-/* 0x00397B00, 8 bytes. */
+/* 0x00397B00, 8 bytes, matching. */
 int func_00397B00(int v)
 {
     return v;
@@ -984,7 +984,7 @@ int func_00397E50(void)
     return r;
 }
 
-/* 0x00397F00, 0x40 bytes. Whether a slot is in use. */
+/* 0x00397F00, 0x40 bytes, matching. Whether a slot is in use. */
 int func_00397F00(void)
 {
     int k;

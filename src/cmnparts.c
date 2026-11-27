@@ -166,7 +166,7 @@ void func_001A9350(void)
     func_00118850(g_0068F10C, 0x2C4);
 }
 
-/* 0x001A93A0, 0xAC bytes. A new portrait object. */
+/* 0x001A93A0, 0xAC bytes, matching. A new portrait object. */
 u8 *func_001A93A0(int x, int y, int z, int w, int h, int alpha, int flip, int half)
 {
     u8 *f = func_00104250(0x170);
@@ -236,14 +236,14 @@ void func_001A9CE0(u8 *f, int x, int y, int z, int w, int h, int alpha, int flip
     face_sprite(f, x, y, z, w, h, alpha, flip, half);
 }
 
-/* 0x001AA2B0, 0xC bytes. Hides it. */
+/* 0x001AA2B0, 0xC bytes, matching. Hides it. */
 void func_001AA2B0(u8 *f)
 {
     *(u64 *)(f + 0x150) = 0;
     *(u64 *)(f + 0x160) = 0;
 }
 
-/* 0x001AA2C0, 0x54 bytes. Draws it on layer `layer` (when shown). */
+/* 0x001AA2C0, 0x54 bytes, matching. Draws it on layer `layer` (when shown). */
 void func_001AA2C0(u8 *f, int layer)
 {
     if (*(u64 *)(f + 0x150) != 0) {
@@ -517,7 +517,7 @@ void func_001AB4E0(u8 *img, u8 *pal, int x, int y, int z, int w, int h, int u, i
     func_00105900(p, layer);
 }
 
-/* 0x001AB9A0, 0x60 bytes. The same in grey 0x80 with alpha `alpha`. */
+/* 0x001AB9A0, 0x60 bytes, matching. The same in grey 0x80 with alpha `alpha`. */
 void func_001AB9A0(u8 *img, u8 *pal, int x, int y, int z, int w, int h, int u, int v, int uw,
                    int vh, int alpha, int layer, int centred)
 {
@@ -530,20 +530,20 @@ void func_001AB9A0(u8 *img, u8 *pal, int x, int y, int z, int w, int h, int u, i
     func_001AB4E0(img, pal, x, y, z, w, h, u, v, uw, vh, (const u32 *)c, layer, centred);
 }
 
-/* 0x001ABA00, 0x70 bytes. With its own palette. */
+/* 0x001ABA00, 0x70 bytes, matching. With its own palette. */
 void func_001ABA00(u8 *img, int x, int y, int z, int w, int h, int u, int v, int uw, int vh,
                    int alpha, int layer, int centred)
 {
     func_001AB9A0(img, img, x, y, z, w, h, u, v, uw, vh, alpha, layer, centred);
 }
 
-/* 0x001ABA70, 0x3C bytes. The whole image. */
+/* 0x001ABA70, 0x3C bytes, matching. The whole image. */
 void func_001ABA70(u8 *img, int x, int y, int z, int w, int h, int alpha, int layer, int centred)
 {
     func_001ABA00(img, x, y, z, w, h, 0, 0, -1, -1, alpha, layer, centred);
 }
 
-/* 0x001ABAB0, 0x50 bytes. The size of TIM2 image `img`. */
+/* 0x001ABAB0, 0x50 bytes, matching. The size of TIM2 image `img`. */
 void func_001ABAB0(u8 *img, u32 *w, u32 *h)
 {
     u8 *info = func_00106F10(img);
@@ -700,7 +700,7 @@ void func_001AC3A0(void)
     func_001A8F00();
 }
 
-/* 0x001AC4C0, 0x1C bytes. Frees the portraits. */
+/* 0x001AC4C0, 0x1C bytes, matching. Frees the portraits. */
 void func_001AC4C0(void)
 {
     func_001A9350();

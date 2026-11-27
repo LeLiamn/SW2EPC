@@ -72,13 +72,13 @@ int func_002FC220(int g)
     return s;
 }
 
-/* 0x002FC2B0, 0xC bytes. */
+/* 0x002FC2B0, 0xC bytes, matching. */
 u8 *func_002FC2B0(void)
 {
     return g_007A2CF0;
 }
 
-/* 0x002FC2C0, 0xC bytes. The turn state. */
+/* 0x002FC2C0, 0xC bytes, matching. The turn state. */
 int *func_002FC2C0(void)
 {
     return g_007A2D60;
@@ -190,7 +190,7 @@ void func_002FC560(void)
 
 void func_002FC660(void);
 
-/* 0x002FC630, 0x24 bytes. */
+/* 0x002FC630, 0x24 bytes, matching. */
 void func_002FC630(void)
 {
     func_002FC2D0();
@@ -255,7 +255,7 @@ void func_002FC6F0(void)
     }
 }
 
-/* 0x002FC7D0, 0x30 bytes. Leaves the commands for the reports. */
+/* 0x002FC7D0, 0x30 bytes, matching. Leaves the commands for the reports. */
 int func_002FC7D0(void)
 {
     func_003762C0();
@@ -264,7 +264,7 @@ int func_002FC7D0(void)
     return 0;
 }
 
-/* 0x002FC800, 0x58 bytes. The "end the turn?" question: yes leaves, no goes back. */
+/* 0x002FC800, 0x58 bytes, matching. The "end the turn?" question: yes leaves, no goes back. */
 int func_002FC800(void)
 {
     int r = 5, a = func_00375B90();
@@ -341,7 +341,7 @@ void func_002FC9A0(void)
     }
 }
 
-/* 0x002FCAC0, 0x30 bytes. Leaves the reports for the commands. */
+/* 0x002FCAC0, 0x30 bytes, matching. Leaves the reports for the commands. */
 int func_002FCAC0(void)
 {
     func_003762C0();
@@ -350,7 +350,7 @@ int func_002FCAC0(void)
     return 0;
 }
 
-/* 0x002FCAF0, 0x58 bytes. The "leave the reports?" question. */
+/* 0x002FCAF0, 0x58 bytes, matching. The "leave the reports?" question. */
 int func_002FCAF0(void)
 {
     int r = 5, a = func_00375B90();
@@ -407,7 +407,7 @@ int func_002FCB50(void)
 
 void func_002FD490(void);
 
-/* 0x002FCD20, 0x40 bytes. Resets a page state block. */
+/* 0x002FCD20, 0x40 bytes, matching. Resets a page state block. */
 void func_002FCD20(u32 *s)
 {
     s[0] = 0;
@@ -419,13 +419,13 @@ void func_002FCD20(u32 *s)
     func_002FD490();
 }
 
-/* 0x002FCD60, 0xC bytes. */
+/* 0x002FCD60, 0xC bytes, matching. */
 u32 func_002FCD60(void)
 {
     return (u32)g_007A3AF0;
 }
 
-/* 0x002FCD70, 0xC8 bytes. Sorts officer list `l` of `n` by soldiers, most first. */
+/* 0x002FCD70, 0xC8 bytes, matching. Sorts officer list `l` of `n` by soldiers, most first. */
 void func_002FCD70(u32 *l, int n)
 {
     int x, y;
@@ -475,21 +475,21 @@ void func_002FCF20(void)
         g_0045D688 = (u < g ? g - u : 0) - 500;
 }
 
-/* 0x002FCFB0, 0xC bytes. Empties the two short lists. */
+/* 0x002FCFB0, 0xC bytes, matching. Empties the two short lists. */
 void func_002FCFB0(void)
 {
     g_0045D68C = 0;
     g_0045D690 = 0;
 }
 
-/* 0x002FCFC0, 0x34 bytes. Adds officer `i` to the first list (at most 8). */
+/* 0x002FCFC0, 0x34 bytes, matching. Adds officer `i` to the first list (at most 8). */
 void func_002FCFC0(int i)
 {
     if (g_0045D68C < 8)
         g_007A3AD0[g_0045D68C++] = i;
 }
 
-/* 0x002FD000, 0x44 bytes. Whether officer `i` is in the first list. */
+/* 0x002FD000, 0x44 bytes, matching. Whether officer `i` is in the first list. */
 int func_002FD000(int i)
 {
     int k;
@@ -514,14 +514,14 @@ int func_002FD050(int i)
     return n > 2;
 }
 
-/* 0x002FD0E0, 0x34 bytes. Adds officer `i` to the second list. */
+/* 0x002FD0E0, 0x34 bytes, matching. Adds officer `i` to the second list. */
 void func_002FD0E0(int i)
 {
     if (g_0045D690 < 8)
         g_007A3AB0[g_0045D690++] = i;
 }
 
-/* 0x002FD120, 0x44 bytes. Whether officer `i` is in the second list. */
+/* 0x002FD120, 0x44 bytes, matching. Whether officer `i` is in the second list. */
 int func_002FD120(int i)
 {
     int k;
@@ -533,14 +533,14 @@ int func_002FD120(int i)
     return 0;
 }
 
-/* 0x002FD170, 0x10 bytes. No command cost and no command chosen. */
+/* 0x002FD170, 0x10 bytes, matching. No command cost and no command chosen. */
 void func_002FD170(void)
 {
     g_0045D69C = 0;
     g_0045D6A0 = 100;
 }
 
-/* 0x002FD180, 0x48 bytes. Command `c` (for `a`) is chosen: its cost for the player. */
+/* 0x002FD180, 0x48 bytes, matching. Command `c` (for `a`) is chosen: its cost for the player. */
 void func_002FD180(int c, int a)
 {
     g_0045D6A0 = c;
@@ -638,7 +638,7 @@ int func_002FD460(int c)
     return g_0045D6A4;
 }
 
-/* 0x002FD490, 0x2C bytes. Resets the turn's command bookkeeping. */
+/* 0x002FD490, 0x2C bytes, matching. Resets the turn's command bookkeeping. */
 void func_002FD490(void)
 {
     func_002FCFB0();
@@ -664,7 +664,7 @@ int func_002FD4C0(int f, int *out)
     return n;
 }
 
-/* 0x002FD580, 0x1C bytes. */
+/* 0x002FD580, 0x1C bytes, matching. */
 int func_002FD580(int f)
 {
     int tmp[28];
@@ -872,7 +872,7 @@ int func_002FDE80(int f, int g)
 void func_002F9E10(int f, int k);
 void func_002F9F40(int f, int v);
 
-/* 0x002FDF40, 0x34 bytes. Force `f`'s plan becomes 3 (no target). */
+/* 0x002FDF40, 0x34 bytes, matching. Force `f`'s plan becomes 3 (no target). */
 void func_002FDF40(int f)
 {
     func_002F9E10(f, 3);
@@ -1258,7 +1258,7 @@ void func_002FF000(int f)
     keep_target(f, func_002FDBA0, 0);
 }
 
-/* 0x002FF0E0, 0x4C bytes. Steps force `f`'s plan. */
+/* 0x002FF0E0, 0x4C bytes, matching. Steps force `f`'s plan. */
 void func_002FF0E0(int f)
 {
     int k = func_002FA160(f);
@@ -1370,7 +1370,7 @@ int func_002FF590(int f)
     return m < 3 ? -1 : 0;
 }
 
-/* 0x002FF640, 0x80 bytes. 0 when the player's force can pay a fifth of `a`'s cost, else -1
+/* 0x002FF640, 0x80 bytes, matching. 0 when the player's force can pay a fifth of `a`'s cost, else -1
  * (the computer: -1). */
 int func_002FF640(int f, int a)
 {
@@ -1379,7 +1379,7 @@ int func_002FF640(int f, int a)
     return func_00313DB0(a, f) / 5 < func_002F9190(f) ? 0 : -1;
 }
 
-/* 0x002FF6C0, 0x44 bytes. -1 for command 9 of a computer force, else 0. */
+/* 0x002FF6C0, 0x44 bytes, matching. -1 for command 9 of a computer force, else 0. */
 int func_002FF6C0(int f, int c)
 {
     if (func_002FB2A0(f) == 0 && c == 9)
@@ -1700,19 +1700,19 @@ int func_003003C0(int *fa, int *fb, int *na, int *nb)
     return lim - have;
 }
 
-/* 0x00300560, 0x20 bytes. */
+/* 0x00300560, 0x20 bytes, matching. */
 int func_00300560(int *fa, int *fb)
 {
     return func_003003C0(fa, fb, 0, 0);
 }
 
-/* 0x00300580, 0x40 bytes. 0 when region `r` has officers of rank 1, else -1. */
+/* 0x00300580, 0x40 bytes, matching. 0 when region `r` has officers of rank 1, else -1. */
 int func_00300580(int r)
 {
     return func_002F7D90(0, (int (*)(u32, int, int))func_002F8740, r, 0, 0, 0) == 0 ? -1 : 0;
 }
 
-/* 0x003005C0, 0x40 bytes. 0 when there are officers of rank 1, else -1. */
+/* 0x003005C0, 0x40 bytes, matching. 0 when there are officers of rank 1, else -1. */
 int func_003005C0(int r)
 {
     return func_002F7D90(0, (int (*)(u32, int, int))func_002F8710, r, 0, 0, 0) == 0 ? -1 : 0;
@@ -1894,7 +1894,7 @@ int func_00300EF0(int i, int j)
     return func_0030CB00(2);
 }
 
-/* 0x00300F80, 0x60 bytes. Order: lower level first, else at random. */
+/* 0x00300F80, 0x60 bytes, matching. Order: lower level first, else at random. */
 int func_00300F80(u32 i, u32 j)
 {
     int a = func_002F41E0(i), b = func_002F41E0(j);
@@ -1906,7 +1906,7 @@ int func_00300F80(u32 i, u32 j)
     return func_0030CB00(2);
 }
 
-/* 0x00300FE0, 0x60 bytes. Order: higher level first, else at random. */
+/* 0x00300FE0, 0x60 bytes, matching. Order: higher level first, else at random. */
 int func_00300FE0(u32 i, u32 j)
 {
     int a = func_002F41E0(i), b = func_002F41E0(j);
@@ -1996,7 +1996,7 @@ void func_00301290(int *out, u32 i, int k, int a, int b)
     }
 }
 
-/* 0x003014E0, 0xD0 bytes. Whether computer force `f` is at peace with the player and every
+/* 0x003014E0, 0xD0 bytes, matching. Whether computer force `f` is at peace with the player and every
  * other computer force is not. */
 int func_003014E0(int f)
 {
@@ -2015,7 +2015,7 @@ int func_003014E0(int f)
     return 1;
 }
 
-/* 0x003015B0, 0x80 bytes. Whether force `f` has a relation with every other force. */
+/* 0x003015B0, 0x80 bytes, matching. Whether force `f` has a relation with every other force. */
 int func_003015B0(int f)
 {
     int l[28], n = func_002FD660(f, l), k;
@@ -2258,7 +2258,7 @@ int func_003020C0(int f)
     return f;
 }
 
-/* 0x00302300, 0x60 bytes. 0 when force `f` has three times command 0x32's cost, else -1. */
+/* 0x00302300, 0x60 bytes, matching. 0 when force `f` has three times command 0x32's cost, else -1. */
 int func_00302300(int f)
 {
     return func_00313FC0(0x32, 0, f) / 3 < func_002F9190(f) ? 0 : -1;
@@ -2883,7 +2883,7 @@ void func_003047F0(int *out, u32 i, int k, int a, int b)
 #undef LAST
 }
 
-/* 0x00304980, 0x64 bytes. 1 with `a`% chance, 2 with `b`%, else 3. */
+/* 0x00304980, 0x64 bytes, matching. 1 with `a`% chance, 2 with `b`%, else 3. */
 int func_00304980(int a, int b)
 {
     int r = func_0030CB00(100);
@@ -3601,7 +3601,7 @@ void func_00306CE0(int *l, int n)
     }
 }
 
-/* 0x00306DD0, 0x58 bytes. Computer turn step 0: the forces listed. */
+/* 0x00306DD0, 0x58 bytes, matching. Computer turn step 0: the forces listed. */
 void func_00306DD0(void)
 {
     int *p = CPU_TURN();
@@ -3714,12 +3714,12 @@ int func_00307120(void)
     return r;
 }
 
-/* 0x003071D0, 0x8 bytes. */
+/* 0x003071D0, 0x8 bytes, matching. */
 void func_003071D0(void)
 {
 }
 
-/* 0x003071E0, 0x44 bytes. Resets the computer turn's state block `s`. */
+/* 0x003071E0, 0x44 bytes, matching. Resets the computer turn's state block `s`. */
 void func_003071E0(u32 s)
 {
     int *p = (int *)s;
@@ -3733,7 +3733,7 @@ void func_003071E0(u32 s)
     p[6] = (int)func_002FC2B0();
 }
 
-/* 0x00307230, 0xC bytes. The computer turn's state block. */
+/* 0x00307230, 0xC bytes, matching. The computer turn's state block. */
 u32 func_00307230(void)
 {
     return (u32)g_007A3B10;
@@ -3794,7 +3794,7 @@ int func_00307430(void)
     return 0;
 }
 
-/* 0x003074D0, 0x78 bytes. Whether one of the twelve event slots involves region `r`. */
+/* 0x003074D0, 0x78 bytes, matching. Whether one of the twelve event slots involves region `r`. */
 int func_003074D0(int r)
 {
     int a, b, k;
@@ -3806,7 +3806,7 @@ int func_003074D0(int r)
     return 0;
 }
 
-/* 0x00307550, 0xBC bytes. Whether region `r` is force `f`'s plan target (the region, its kind
+/* 0x00307550, 0xBC bytes, matching. Whether region `r` is force `f`'s plan target (the region, its kind
  * or its force, by the plan kind). */
 int func_00307550(int f, int r)
 {
@@ -4006,7 +4006,7 @@ void func_00307E00(void)
     }
 }
 
-/* 0x00307F00, 0x4C bytes. Attack step 0: the forces listed. */
+/* 0x00307F00, 0x4C bytes, matching. Attack step 0: the forces listed. */
 void func_00307F00(void)
 {
     int *q = CPU_ATTACK();
@@ -4139,7 +4139,7 @@ void func_003083C0(void)
     }
 }
 
-/* 0x00308420, 0x44 bytes. Step 7: once the message is closed, step 8. */
+/* 0x00308420, 0x44 bytes, matching. Step 7: once the message is closed, step 8. */
 void func_00308420(void)
 {
     int *q = CPU_ATTACK();
@@ -4150,7 +4150,7 @@ void func_00308420(void)
     }
 }
 
-/* 0x00308470, 0x30 bytes. Step 2: raids filtered, then the end. */
+/* 0x00308470, 0x30 bytes, matching. Step 2: raids filtered, then the end. */
 void func_00308470(void)
 {
     int *q = CPU_ATTACK();
@@ -4195,7 +4195,7 @@ int func_00308500(void)
     return r;
 }
 
-/* 0x003085F0, 0x8 bytes. */
+/* 0x003085F0, 0x8 bytes, matching. */
 void func_003085F0(void)
 {
 }
@@ -4294,7 +4294,7 @@ int func_00308980(u32 i, int f)
     return v > 100 ? 100 : v;
 }
 
-/* 0x00308B40, 0x24 bytes. Draws func_00308980. */
+/* 0x00308B40, 0x24 bytes, matching. Draws func_00308980. */
 int func_00308B40(u32 i, int f)
 {
     return func_0030CB50(func_00308980(i, f));
@@ -4464,7 +4464,7 @@ int func_003097D0(u32 i)
     return 0;
 }
 
-/* 0x00309A10, 0xB0 bytes. Officer `i` joins the player's force in region `r` (no region unless
+/* 0x00309A10, 0xB0 bytes, matching. Officer `i` joins the player's force in region `r` (no region unless
  * func_002F76B0 gives 1 or 2); whether it got one. */
 int func_00309A10(u32 i, int r)
 {
@@ -4604,7 +4604,7 @@ int func_00308BF0(u32 i, int f)
     return v > 0x5F ? 0x5F : v;
 }
 
-/* 0x00308F50, 0x24 bytes. Draws func_00308BF0. */
+/* 0x00308F50, 0x24 bytes, matching. Draws func_00308BF0. */
 int func_00308F50(u32 i, int f)
 {
     return func_0030CB50(func_00308BF0(i, f));
@@ -4624,7 +4624,7 @@ void func_0030AF20(int r, int f);
 void func_00320F10(void);
 int func_00327A10(void);
 
-/* 0x00309AC0, 0x84 bytes. Officer `i` joins the player's force in region `r` (shown with the
+/* 0x00309AC0, 0x84 bytes, matching. Officer `i` joins the player's force in region `r` (shown with the
  * join message). */
 int func_00309AC0(u32 i, int r)
 {
@@ -4710,7 +4710,7 @@ int func_00309C30(u32 i, int f, int r)
     return 0;
 }
 
-/* 0x00309F90, 0x20 bytes. Sets officer `i` free. */
+/* 0x00309F90, 0x20 bytes, matching. Sets officer `i` free. */
 int func_00309F90(u32 i)
 {
     func_002F7410(i);
@@ -4914,7 +4914,7 @@ void func_0030CF70(void);
 
 #define REGION(r) (&func_0030CCD0()[r])
 
-/* 0x0030A850, 0x1C bytes. */
+/* 0x0030A850, 0x1C bytes, matching. */
 void func_0030A850(int f)
 {
     func_002F9A00(f, 7);
@@ -4968,7 +4968,7 @@ void func_0030A870(int kind, u32 i, int r, u32 *l, int n, int show)
     }
 }
 
-/* 0x0030AAD0, 0x44 bytes. The group of weapon kind `k` (3 for 0x1E and above). */
+/* 0x0030AAD0, 0x44 bytes, matching. The group of weapon kind `k` (3 for 0x1E and above). */
 int func_0030AAD0(int k)
 {
     if (k == 0x1E)
@@ -4978,13 +4978,13 @@ int func_0030AAD0(int k)
     return 3;
 }
 
-/* 0x0030AB20, 0x24 bytes. The group of weapon `w`. */
+/* 0x0030AB20, 0x24 bytes, matching. The group of weapon `w`. */
 int func_0030AB20(u8 w)
 {
     return func_0030AAD0(func_002F57A0(w));
 }
 
-/* 0x0030AB50, 0x38 bytes. 4 for kinds 9, 0x13 and 0x25, else 3. */
+/* 0x0030AB50, 0x38 bytes, matching. 4 for kinds 9, 0x13 and 0x25, else 3. */
 int func_0030AB50(int k)
 {
     if (k == 9 || k == 0x13 || k == 0x25)
@@ -4992,7 +4992,7 @@ int func_0030AB50(int k)
     return 3;
 }
 
-/* 0x0030AB90, 0x30 bytes. The number of regions of the scenario. */
+/* 0x0030AB90, 0x30 bytes, matching. The number of regions of the scenario. */
 int func_0030AB90(void)
 {
     return g_004467C0[func_00327C00()];
@@ -5006,19 +5006,19 @@ void func_0030ABC0(void)
 
 void func_0030AC20(int a, int k);
 
-/* 0x0030ABF0, 0x30 bytes. */
+/* 0x0030ABF0, 0x30 bytes, matching. */
 void func_0030ABF0(int a)
 {
     func_0030AC20(a, func_00327C00());
 }
 
-/* 0x0030AC20, 0x30 bytes. The scenario's set-up `k`. */
+/* 0x0030AC20, 0x30 bytes, matching. The scenario's set-up `k`. */
 void func_0030AC20(int a, int k)
 {
     g_00414AA0[k](a);
 }
 
-/* 0x0030AC50, 0x38 bytes. Region `r`'s kind. */
+/* 0x0030AC50, 0x38 bytes, matching. Region `r`'s kind. */
 int func_0030AC50(int r)
 {
     return REGION(r)->kind;
@@ -5030,7 +5030,7 @@ int func_0030AC90(int r, int k)
     return REGION(r)->extra[k];
 }
 
-/* 0x0030ACE0, 0x38 bytes. Region `r`'s troop capacity. */
+/* 0x0030ACE0, 0x38 bytes, matching. Region `r`'s troop capacity. */
 int func_0030ACE0(int r)
 {
     return REGION(r)->cap;
@@ -5046,7 +5046,7 @@ int func_0030AD20(int r, int k)
     return 0x19;
 }
 
-/* 0x0030AD80, 0x38 bytes. */
+/* 0x0030AD80, 0x38 bytes, matching. */
 int func_0030AD80(int r)
 {
     return REGION(r)->wanted;
@@ -5062,7 +5062,7 @@ void func_0030ADC0(int r, int v)
     REGION(r)->wanted = v;
 }
 
-/* 0x0030AE80, 0x38 bytes. */
+/* 0x0030AE80, 0x38 bytes, matching. */
 int func_0030AE80(int r)
 {
     return REGION(r)->most;
@@ -5075,7 +5075,7 @@ void func_0030AEC0(Region *g, int f)
         g->owner = f;
 }
 
-/* 0x0030AF20, 0x48 bytes. Region `r` goes to force `f`. */
+/* 0x0030AF20, 0x48 bytes, matching. Region `r` goes to force `f`. */
 void func_0030AF20(int r, int f)
 {
     func_0030AEC0(REGION(r), f);
@@ -5093,7 +5093,7 @@ int func_0030AF70(Region *g)
     return 0x19;
 }
 
-/* 0x0030AFF0, 0x38 bytes. Region `r`'s force. */
+/* 0x0030AFF0, 0x38 bytes, matching. Region `r`'s force. */
 int func_0030AFF0(int r)
 {
     return func_0030AF70(REGION(r));
@@ -5106,7 +5106,7 @@ void func_0030B030(int r, int v)
         REGION(r)->troops = v;
 }
 
-/* 0x0030B090, 0x38 bytes. Region `r`'s troops. */
+/* 0x0030B090, 0x38 bytes, matching. Region `r`'s troops. */
 int func_0030B090(int r)
 {
     return REGION(r)->troops;
@@ -5148,13 +5148,13 @@ int func_0030B240(int r, int k)
     return REGION(r)->flags >> ((k & 0xF) << 1) & 3;
 }
 
-/* 0x0030B2B0, 0x40 bytes. Marks region `r`. */
+/* 0x0030B2B0, 0x40 bytes, matching. Marks region `r`. */
 void func_0030B2B0(int r)
 {
     REGION(r)->flags |= 0x8000;
 }
 
-/* 0x0030B2F0, 0x3C bytes. Whether region `r` is marked. */
+/* 0x0030B2F0, 0x3C bytes, matching. Whether region `r` is marked. */
 int func_0030B2F0(int r)
 {
     return REGION(r)->flags & 0x8000;
@@ -5435,7 +5435,7 @@ int func_0030C1C0(int x, int g)
     return x;
 }
 
-/* 0x0030C250, 0x24 bytes. Whether region `r` is the player's. */
+/* 0x0030C250, 0x24 bytes, matching. Whether region `r` is the player's. */
 int func_0030C250(int r)
 {
     return func_002FB2A0(func_0030AFF0(r));
@@ -5469,7 +5469,7 @@ int func_0030C320(int r, int t)
     return 0;
 }
 
-/* 0x0030C3C0, 0x78 bytes. Whether region `t` is reachable from region `r` by `t`'s force. */
+/* 0x0030C3C0, 0x78 bytes, matching. Whether region `t` is reachable from region `r` by `t`'s force. */
 int func_0030C3C0(int t, int r)
 {
     int l[28], n = func_0030B8F0(r, func_0030AFF0(t), l), k;
@@ -5526,13 +5526,13 @@ int func_0030C590(int r)
     return s;
 }
 
-/* 0x0030C660, 0x34 bytes. Region `r`'s officers. */
+/* 0x0030C660, 0x34 bytes, matching. Region `r`'s officers. */
 int func_0030C660(int r)
 {
     return func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, r, 0, 1, 0);
 }
 
-/* 0x0030C6A0, 0x34 bytes. Region `r`'s officers of role 2 or more. */
+/* 0x0030C6A0, 0x34 bytes, matching. Region `r`'s officers of role 2 or more. */
 int func_0030C6A0(int r)
 {
     return func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, r, 0, 1, 0);
@@ -5555,7 +5555,7 @@ int func_0030C6E0(int *out, int a, int b)
     return n;
 }
 
-/* 0x0030C7A0, 0x44 bytes. Whether trait `x` goes with trait `t`. */
+/* 0x0030C7A0, 0x44 bytes, matching. Whether trait `x` goes with trait `t`. */
 int func_0030C7A0(int t, int x)
 {
     int *p = g_00414AD0[t], k;
@@ -5569,13 +5569,13 @@ int func_0030C7A0(int t, int x)
 
 int func_0030C810(int f, int a, int b);
 
-/* 0x0030C7F0, 0x1C bytes. Whether force `f` holds every region of kind `t`. */
+/* 0x0030C7F0, 0x1C bytes, matching. Whether force `f` holds every region of kind `t`. */
 int func_0030C7F0(int f, int t)
 {
     return func_0030C810(f, t, 8);
 }
 
-/* 0x0030C810, 0x80 bytes. Whether force `f` holds every region of kind `a` or `b`. */
+/* 0x0030C810, 0x80 bytes, matching. Whether force `f` holds every region of kind `a` or `b`. */
 int func_0030C810(int f, int a, int b)
 {
     int l[28], n = func_0030C6E0(l, a, b), k;
@@ -5597,7 +5597,7 @@ int func_0030C890(int r, int f)
     return 0;
 }
 
-/* 0x0030C920, 0x94 bytes. Shuffles `l` (`n`). */
+/* 0x0030C920, 0x94 bytes, matching. Shuffles `l` (`n`). */
 void func_0030C920(int *l, int n)
 {
     int k;
@@ -5654,7 +5654,7 @@ int func_0030CB00(int n)
     return (int)(g_7000015C >> 0x10) % n;
 }
 
-/* 0x0030CB50, 0x2C bytes. True with `pct`% chance. */
+/* 0x0030CB50, 0x2C bytes, matching. True with `pct`% chance. */
 int func_0030CB50(int pct)
 {
     return func_0030CB00(100) < pct;
@@ -5687,7 +5687,7 @@ void func_0030CC20(int v)
     g_007B4E50 = v;
 }
 
-/* 0x0030CC80, 0x2C bytes. */
+/* 0x0030CC80, 0x2C bytes, matching. */
 void func_0030CC80(void)
 {
     func_0030CCE0();

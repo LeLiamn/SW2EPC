@@ -30,19 +30,19 @@ void func_0032F640(void);
 int func_003D2F80(int tutorial);
 void func_003302F0(int tutorial);
 
-/* 0x003F2A50, 0x1C bytes. Scene 0x11 enter. */
+/* 0x003F2A50, 0x1C bytes, matching. Scene 0x11 enter. */
 void func_003F2A50(void)
 {
     func_0032F670();
 }
 
-/* 0x003F2A70, 0x1C bytes. Scene 0x11 leave. */
+/* 0x003F2A70, 0x1C bytes, matching. Scene 0x11 leave. */
 void func_003F2A70(void)
 {
     func_0032F640();
 }
 
-/* 0x003F2A90, 0x70 bytes. Scene 0x11 update: starts tutorial 0x0C, 0x0D or 0x0E. */
+/* 0x003F2A90, 0x70 bytes, matching. Scene 0x11 update: starts tutorial 0x0C, 0x0D or 0x0E. */
 int func_003F2A90(void)
 {
     if (func_003D2F80(0x0C) != 0)
@@ -54,12 +54,12 @@ int func_003F2A90(void)
     return 0;
 }
 
-/* 0x003F2B00, 0x8 bytes. Scene 0x11 step: empty. */
+/* 0x003F2B00, 0x8 bytes, matching. Scene 0x11 step: empty. */
 void func_003F2B00(void)
 {
 }
 
-/* 0x003F2B10, 0x8 bytes. Scene 0x11 draw: empty. */
+/* 0x003F2B10, 0x8 bytes, matching. Scene 0x11 draw: empty. */
 void func_003F2B10(void)
 {
 }
@@ -221,7 +221,7 @@ void func_0030E090(int a);
 #define ENTRY_VALID(e) ((e) >= 0 && (e) < func_0030AB90())
 #define SETUP_LIST() (g_0045C9C0[g_0045D860->menu])
 
-/* 0x003F2B20, 0x68 bytes. */
+/* 0x003F2B20, 0x68 bytes, matching. */
 void func_003F2B20(void)
 {
     int value = func_00327C80();
@@ -238,7 +238,7 @@ void func_003F2B20(void)
     g_0045D860->value = func_00327C80();
 }
 
-/* 0x003F2B90, 0x50 bytes. How many entries the list holds. */
+/* 0x003F2B90, 0x50 bytes, matching. How many entries the list holds. */
 int func_003F2B90(void)
 {
     int n = 0, i;
@@ -357,7 +357,7 @@ void func_003F2F60(void)
     *g_0045D850 = g_00669D60;
 }
 
-/* 0x003F3440, 0x2C bytes. */
+/* 0x003F3440, 0x2C bytes, matching. */
 void func_003F3440(void)
 {
     func_0030CE90(g_0045D860->kind);
@@ -427,7 +427,7 @@ int func_003F3690(int officer)
     return 0;
 }
 
-/* 0x003F3700, 0x8C bytes. Whether `officer` is one of the officers moved. */
+/* 0x003F3700, 0x8C bytes, matching. Whether `officer` is one of the officers moved. */
 static int func_003F3700(int officer)
 {
     int i;
@@ -441,7 +441,7 @@ static int func_003F3700(int officer)
     return 0;
 }
 
-/* 0x003F3790, 0xAC bytes. Empties the entries of the rulers among the copied officers that
+/* 0x003F3790, 0xAC bytes, matching. Empties the entries of the rulers among the copied officers that
  * func_002F3C20 accepts (and frees those officers), and of the rulers moved. */
 void func_003F3790(void)
 {
@@ -481,7 +481,7 @@ void func_003F3840(void)
     }
 }
 
-/* 0x003F3970, 0x4C bytes. */
+/* 0x003F3970, 0x4C bytes, matching. */
 void func_003F3970(int officer)
 {
     func_002F32F0(officer, 1);
@@ -500,7 +500,7 @@ void func_003F39C0(int officer)
             func_002F91C0(i, 0x19F);
 }
 
-/* 0x003F3A50, 0xEC bytes. Puts an officer in entry `entry` (see func_00365A80 in
+/* 0x003F3A50, 0xEC bytes, matching. Puts an officer in entry `entry` (see func_00365A80 in
  * scene_start_up.c) and resets its state. */
 void func_003F3A50(int officer, int entry, int place, int kind)
 {
@@ -634,7 +634,7 @@ void func_003F4150(void)
     }
 }
 
-/* 0x003F4240, 0x134 bytes. Resets edited officer `officer` (400-0x19E): free (status 3) when
+/* 0x003F4240, 0x134 bytes, matching. Resets edited officer `officer` (400-0x19E): free (status 3) when
  * func_00327950 is 0 and it has no valid entry, else placed in an entry from func_0039E760. */
 void func_003F4240(int officer)
 {
@@ -704,17 +704,17 @@ void func_003F4380(void)
     func_00327750(n);
 }
 
-/* 0x003F4530, 0x8 bytes. Scene 0x17 draw: empty. */
+/* 0x003F4530, 0x8 bytes, matching. Scene 0x17 draw: empty. */
 void func_003F4530(void)
 {
 }
 
-/* 0x003F4540, 0x8 bytes. Scene 0x17 step: empty. */
+/* 0x003F4540, 0x8 bytes, matching. Scene 0x17 step: empty. */
 void func_003F4540(void)
 {
 }
 
-/* 0x003F4550, 0xD0 bytes. Scene 0x17 update: once the fade is over, goes to the Empire map
+/* 0x003F4550, 0xD0 bytes, matching. Scene 0x17 update: once the fade is over, goes to the Empire map
  * (scene 0x12) unless another scene was asked for. */
 int func_003F4550(void)
 {
@@ -734,7 +734,7 @@ int func_003F4550(void)
     return 1;
 }
 
-/* 0x003F4620, 0x8C bytes. Scene 0x17 leave: frees the buffers. */
+/* 0x003F4620, 0x8C bytes, matching. Scene 0x17 leave: frees the buffers. */
 void func_003F4620(void)
 {
     if (g_0045D860 != 0) {
@@ -759,7 +759,7 @@ void func_003F4620(void)
     }
 }
 
-/* 0x003F46B0, 0x184 bytes. Scene 0x17 enter. */
+/* 0x003F46B0, 0x184 bytes, matching. Scene 0x17 enter. */
 void func_003F46B0(void)
 {
     g_0045D850 = func_00102DB0(0x10, 0x25310);
@@ -877,7 +877,7 @@ void func_001054B0(u64 *packet, int a);
 void func_001A4340(int x, int y, int z, int w, int h, u8 alpha, int a);
 void func_003F4A00(int mode);
 
-/* 0x003F4840, 0x8 bytes. */
+/* 0x003F4840, 0x8 bytes, matching. */
 TutorialWindow *func_003F4840(void)
 {
     return g_0045D864;
@@ -919,7 +919,7 @@ void func_003F4900(int tutorial, u8 page)
     }
 }
 
-/* 0x003F4980, 0x3C bytes. Swaps the buffer shown. */
+/* 0x003F4980, 0x3C bytes, matching. Swaps the buffer shown. */
 void func_003F4980(void)
 {
     TutorialWindow *w = func_003F4840();
@@ -929,7 +929,7 @@ void func_003F4980(void)
         w->shown = 0;
 }
 
-/* 0x003F49C0, 0x3C bytes. Swaps the buffer loaded next. */
+/* 0x003F49C0, 0x3C bytes, matching. Swaps the buffer loaded next. */
 void func_003F49C0(void)
 {
     TutorialWindow *w = func_003F4840();
@@ -1058,13 +1058,13 @@ int func_003F4CB0(void)
     return 0;                                     /* (the original returns an unset register) */
 }
 
-/* 0x003F4D20, 0x1C bytes. Marks a tutorial as seen. */
+/* 0x003F4D20, 0x1C bytes, matching. Marks a tutorial as seen. */
 void func_003F4D20(int tutorial)
 {
     func_003A1CF0(tutorial, 1);
 }
 
-/* 0x003F4D40, 0x1C bytes. */
+/* 0x003F4D40, 0x1C bytes, matching. */
 int func_003F4D40(void)
 {
     return func_003A1DF0();
@@ -1098,7 +1098,7 @@ int func_003F4D60(int tutorial)
     return 1;
 }
 
-/* 0x003F4E70, 0x30 bytes. Whether the next buffer is loading. */
+/* 0x003F4E70, 0x30 bytes, matching. Whether the next buffer is loading. */
 int func_003F4E70(void)
 {
     TutorialWindow *w = func_003F4840();
@@ -1112,7 +1112,7 @@ int func_003F4EA0(u8 i)
     return func_003F4840()->loaded[i] == 2;
 }
 
-/* 0x003F4ED0, 0x2C bytes. */
+/* 0x003F4ED0, 0x2C bytes, matching. */
 void func_003F4ED0(void)
 {
     TutorialWindow *w = func_003F4840();
@@ -1120,7 +1120,7 @@ void func_003F4ED0(void)
     w->loaded[w->loading] = 2;
 }
 
-/* 0x003F4F00, 0x38 bytes. Cancels the load. */
+/* 0x003F4F00, 0x38 bytes, matching. Cancels the load. */
 void func_003F4F00(void)
 {
     TutorialWindow *w = func_003F4840();
@@ -1219,7 +1219,7 @@ int func_003F5120(int port)
     return 1;
 }
 
-/* 0x003F5410, 0x1C bytes. */
+/* 0x003F5410, 0x1C bytes, matching. */
 int func_003F5410(void)
 {
     return func_003F5120(0);
@@ -1236,7 +1236,7 @@ void func_003F5430(void)
     func_003F4A00(0);
 }
 
-/* 0x003F54C0, 0x90 bytes. Frees the window (cancelling a load). */
+/* 0x003F54C0, 0x90 bytes, matching. Frees the window (cancelling a load). */
 void func_003F54C0(void)
 {
     if (g_0045D864 == 0)

@@ -147,14 +147,14 @@ void func_001BEAB0(void)
     g_00669DB0 = (g_00669DB0 & 0xEF) | ((g_0045CCBF != 0) << 4);
 }
 
-/* 0x001BEAE0, 0x4C bytes. Loads the demo picture (LINKDATA entry 8) if not loaded. */
+/* 0x001BEAE0, 0x4C bytes, matching. Loads the demo picture (LINKDATA entry 8) if not loaded. */
 void func_001BEAE0(void)
 {
     if (g_0045CCB8 == 0)
         g_0045CCB8 = func_001026D0(1, 8, 0, 1, 0, 0, g_00425E80, 0x59);
 }
 
-/* 0x001BEB30, 0x2C bytes. Frees the demo picture. */
+/* 0x001BEB30, 0x2C bytes, matching. Frees the demo picture. */
 void func_001BEB30(void)
 {
     if (g_0045CCB8 != 0) {
@@ -163,14 +163,14 @@ void func_001BEB30(void)
     }
 }
 
-/* 0x001BEB60, 0x44 bytes. Draws the demo picture (240 x 136 at 260, 16). */
+/* 0x001BEB60, 0x44 bytes, matching. Draws the demo picture (240 x 136 at 260, 16). */
 void func_001BEB60(void)
 {
     if (g_0045CCB8 != 0)
         func_001ABA70(g_0045CCB8, 0x104, 0x10, 0, 0xF0, 0x88, 0x80, 7, 0);
 }
 
-/* 0x001BEBB0, 0xC bytes. Non-zero for the first 60 demos (fixed pairings, stages in order). */
+/* 0x001BEBB0, 0xC bytes, matching. Non-zero for the first 60 demos (fixed pairings, stages in order). */
 int func_001BEBB0(void)
 {
     return g_0045D320 < 60;
@@ -305,7 +305,7 @@ u32 func_001BF4C0(void)
     return g_006D3350[i];
 }
 
-/* 0x001BF590, 0x50 bytes. Stages 3, 6, 0x0D, 0x14 and 0x1C use the fixed pairing. */
+/* 0x001BF590, 0x50 bytes, matching. Stages 3, 6, 0x0D, 0x14 and 0x1C use the fixed pairing. */
 int func_001BF590(u32 stage)
 {
     switch (stage) {
@@ -474,7 +474,7 @@ void func_001BFDB0(int two_armies)
     g_0045D320++;
 }
 
-/* 0x001BFF50, 0x4C bytes. Plays the first of the movies or cues 0x48, 0x4A and 0x47 that
+/* 0x001BFF50, 0x4C bytes, matching. Plays the first of the movies or cues 0x48, 0x4A and 0x47 that
  * starts (func_0017D8E0 non-zero); returns that result. */
 int func_001BFF50(void)
 {
@@ -487,7 +487,7 @@ int func_001BFF50(void)
     return func_0017D8E0(0x47);
 }
 
-/* 0x001BFFA0, 0x8 bytes. Scene 0x02 enter (not found by Ghidra). */
+/* 0x001BFFA0, 0x8 bytes, matching. Scene 0x02 enter (not found by Ghidra). */
 void func_001BFFA0(void)
 {
     g_0045CCBD = 0;
@@ -551,12 +551,12 @@ int func_001BFFE0(void)
     return 1;
 }
 
-/* 0x001C0230, 0x8 bytes. Scene 0x02 step: empty. */
+/* 0x001C0230, 0x8 bytes, matching. Scene 0x02 step: empty. */
 void func_001C0230(void)
 {
 }
 
-/* 0x001C0240, 0x8 bytes. Scene 0x02 draw: empty. */
+/* 0x001C0240, 0x8 bytes, matching. Scene 0x02 draw: empty. */
 void func_001C0240(void)
 {
 }

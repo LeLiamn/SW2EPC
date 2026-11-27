@@ -60,7 +60,7 @@ float func_002BA6E0(u8 *o)
     return *(float *)(o + 0x128);
 }
 
-/* 0x002BA740, 0x4C bytes. Its matrix (cached). */
+/* 0x002BA740, 0x4C bytes, matching. Its matrix (cached). */
 u8 *func_002BA740(u8 *o)
 {
     if ((*(u32 *)(o + 0x12C) & 2) == 0) {
@@ -135,7 +135,7 @@ int func_002BC2B0(u8 *a, int *b)
     return d <= (v < 0 ? -v : v);
 }
 
-/* 0x002BC660, 0x1C bytes. */
+/* 0x002BC660, 0x1C bytes, matching. */
 void func_002BC660(void *a, const void *b)
 {
     func_00118AC0(a, b, 0x30);
@@ -323,7 +323,7 @@ void func_002BE2C0(u8 *a, u32 *pos)
     }
 }
 
-/* 0x002BE350, 0x50 bytes. Stops it. */
+/* 0x002BE350, 0x50 bytes, matching. Stops it. */
 void func_002BE350(u8 *a)
 {
     u8 *q = func_002BBF40(a[0xB]);

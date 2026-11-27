@@ -113,7 +113,7 @@ void func_00381FF0(int a, int x, int y, int item, int sel)
     func_00381CA0(a, x + 0x2C, y, item, 0, ARG_UNKNOWN);
 }
 
-/* 0x00382310, 0x9C bytes. */
+/* 0x00382310, 0x9C bytes, matching. */
 void func_00382310(int a, int v, int w)
 {
     char buf[16];
@@ -124,7 +124,7 @@ void func_00382310(int a, int v, int w)
     func_003B53C0(0x1AC, 8, 0, 0x80, 1, w);
 }
 
-/* 0x00382590, 0x90 bytes. */
+/* 0x00382590, 0x90 bytes, matching. */
 void func_00382590(u8 *t, int v)
 {
     func_002CD780(v, 0, 0x1E2, 0x23, 0, 0xC, 0xC, 0x80, 1);
@@ -454,7 +454,7 @@ void func_0038BAA0(u8 *m)
         func_0037E9F0(func_0030D7D0(), k, 0xB4, 0x4A, *(int *)(p + 0x10), 1);
 }
 
-/* 0x0038BE00, 0x90 bytes. */
+/* 0x0038BE00, 0x90 bytes, matching. */
 void func_0038BE00(int a, int b, int c)
 {
     int v = *(int *)func_0019FBC0(a);
@@ -526,7 +526,7 @@ int func_0038D180(int a, int b)
     return 10;
 }
 
-/* 0x0038F4B0, 0xA8 bytes. Loads the officer list screen. */
+/* 0x0038F4B0, 0xA8 bytes, matching. Loads the officer list screen. */
 void func_0038F4B0(void)
 {
     g_0045D7D4 = 0;
@@ -555,7 +555,7 @@ void func_0038F9D0(void)
     }
 }
 
-/* 0x003906F0, 0x6C bytes. */
+/* 0x003906F0, 0x6C bytes, matching. */
 void func_003906F0(void)
 {
     u8 *m = func_00390940();
@@ -930,7 +930,7 @@ u8 func_0037DA70(int o)
     return g_005BA6A0[func_002F27D0(o) * 0x2C + 6];
 }
 
-/* 0x0037DAB0, 0x18 bytes. */
+/* 0x0037DAB0, 0x18 bytes, matching. */
 int func_0037DAB0(int k)
 {
     return g_004169D0[k];
