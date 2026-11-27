@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 154368,
-    "non_matching": 1069792
+    "non_matching": 1071716
   },
   "data": {
     "total": 2155890688,
@@ -246,14 +246,14 @@
       "children": [
         {
           "name": "emp_FldBase.c",
-          "description": "Estimated range 0x33F608-0x357160; 553 function(s) decompiled",
+          "description": "Estimated range 0x33F608-0x357160; 555 function(s) decompiled",
           "code": {
             "total": 97112,
             "matching": 13760,
-            "non_matching": 76052
+            "non_matching": 77480
           },
           "decompiled_functions": {
-            "count": 553,
+            "count": 555,
             "matching": 201
           }
         },
@@ -311,14 +311,14 @@
         },
         {
           "name": "emp_ev_predata.c",
-          "description": "Estimated range 0x32D7E0-0x33F608; 170 function(s) decompiled",
+          "description": "Estimated range 0x32D7E0-0x33F608; 171 function(s) decompiled",
           "code": {
             "total": 73256,
             "matching": 3200,
-            "non_matching": 24696
+            "non_matching": 25192
           },
           "decompiled_functions": {
-            "count": 170,
+            "count": 171,
             "matching": 54
           }
         },

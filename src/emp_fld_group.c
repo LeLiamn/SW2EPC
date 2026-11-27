@@ -5085,3 +5085,188 @@ int func_00343360(u8 **g)
     func_003386D0(g, 2, GI(pick));
     return 1;
 }
+
+/* A fallen leader's revival, the roaming move and the troop parameters' set-up (0x0033DAB0,
+ * 0x00345D60, 0x00347AC0). */
+
+extern int g_00415450[5];                /* the troop strength by difficulty (percent) */
+
+void func_001BB5C0(u8 *b, u8 *u, u8 **g);
+int func_0034A710(u8 *u, u8 *t);
+int func_0034AFA0(int *list, int n, u8 e);
+u16 func_0035EA40(u32 k);
+u16 func_0035EA60(u32 k);
+u8 func_0035EA80(u32 k);
+u16 func_0035EAA0(u32 k);
+int func_00362160(u32 s, u32 k);
+int func_00363690(u32 s, u32 k);
+void func_00347A00(void);
+
+/* 0x0033DAB0, 0x1E8 bytes. A leader beaten in a duel (flags 2 and 8, its base +0x18 clear) gets
+ * up with full life; its group's units are given back to it. */
+void func_0033DAB0(u8 **g)
+{
+    u8 *l = LEADER(g), *b, *list[13];
+    u32 f = UNIT_FLAGS(l), n = 0, k;
+
+    if ((f & 2) == 0 || (f & 8) == 0)
+        return;
+    b = *(u8 **)(l + 4);
+    if (b == 0 || b[0x18] != 0)
+        return;
+    UNIT_FLAGS(l) = f & 0xFFFFFFF9;
+    UNIT_FLAGS(l) = f & 0xDFFFFFF9;
+    UNIT_FLAGS(l) = (f & 0xDFFFFFF9) | 0x1000000;
+    l[0x7A] = 0;
+    *(short *)(l + 0x4E) = *(short *)(l + 0x4C) < 1 ? 0 : *(short *)(l + 0x4C);
+    *(short *)(l + 0x52) = *(short *)(l + 0x50) < 1 ? 0 : *(short *)(l + 0x50);
+    *(u16 *)(l + 0x4A) = 0x1AD;
+    *(int *)(l + 0x6C) = g_00669F9C;
+    func_00118850(list, 0x34);
+    for (k = 0; k < 0xD; k++) {
+        u8 *u = g[k];
+
+        if (u != 0 && u != l && ACTIVE(UNIT_FLAGS(u)))
+            list[n++] = u;
+    }
+    func_001BB5C0(b, l, g);
+    for (k = 0; k < n; k++)
+        func_001BB5C0(b, list[k], g);
+    func_001F1A30(l);
+    *(u32 *)(l + 0x84) &= 0xFFFEFFFF;
+}
+
+/* 0x00345D60, 0x1E4 bytes. Second order 5 (move): units without a target (or one out of the
+ * 0x170-0x183 records) take one of up to 10 enemy records at random. */
+void func_00345D60(u8 **g)
+{
+    u8 e;
+    u32 k;
+
+    if (g == 0)
+        return;
+    e = func_0035D5A0(LEADER(g)[0x79]);
+    for (k = 0; k < 0xD; k++) {
+        u8 *u = g[k], *t;
+
+        if (u == 0 || !ACTIVE(UNIT_FLAGS(u)))
+            continue;
+        t = *(u8 **)(u + 0x18);
+        if (t != 0 && func_0034A710(u, t) != 0) {
+            u32 r = (t - g_00693970) / 0x88;
+
+            if (r >= 0x170 && r <= 0x183)
+                continue;
+        }
+        if (t == 0)
+            continue;
+        {
+            int list[12], n = func_0034AFA0(list, 10, e);
+            u8 *b;
+
+            if (n == 0)
+                continue;
+            b = g_00693970 + list[(int)RANDOM() % n] * 0x88;
+            if (b != 0) {
+                u16 c = *(u16 *)(b + 0x40);
+
+                *(u8 **)(u + 0x1C) = b;
+                *(u32 *)(u + 0x84) |= 0x10;
+                *(unsigned long long *)(u + 0x38) = 0;
+                *(u32 *)(u + 0x84) |= 0x10;
+                *(u16 *)(u + 0x44) = c;
+            }
+        }
+    }
+}
+
+/* 0x00347AC0, 0x3A4 bytes. Builds both sides' troop parameters (0x25 kinds) from the set-up
+ * data, the battle's officers for the first 8 kinds, and the difficulty's strength. */
+void func_00347AC0(void)
+{
+    int pct[5], m;
+    u32 s, k;
+
+    for (k = 0; k < 5; k++)
+        pct[k] = g_00415450[k];
+    m = pct[g_00669D60[0x21]];
+    for (s = 0; s < 2; s++) {
+        u16 *p0 = (u16 *)g_007B6270[s];
+
+        for (k = 0; k < 0x25; k++) {
+            u16 *p = p0 + k * 0xF;
+            u8 *d, *d2;
+
+            p[0] = func_0035EA40(k);
+            p[1] = func_0035EA60(k);
+            *(u8 *)(p + 4) = func_0035EA80(k);
+            p[5] = func_0035EAA0(k);
+            d = g_005BA6A0 + p[0] * 0x2C;
+            p[6] = *(u16 *)(d + 0xE);
+            p[7] = *(u16 *)(d + 0x10);
+            p[8] = *(u16 *)(d + 0x12);
+            p[9] = *(u16 *)(d + 0x14);
+            p[10] = *(u16 *)(d + 0x16);
+            p[0xB] = *(u16 *)(d + 0x18);
+            p[0xC] = *(u16 *)(d + 0x1A);
+            p[2] = *(u16 *)(d + 0xC);
+            d2 = g_005BA6A0 + p[1] * 0x2C;
+            p[3] = *(u16 *)(d2 + 0xC);
+            p[0xD] = *(u16 *)(d2 + 0x10);
+            p[0xE] = *(u16 *)(d2 + 0x12);
+            if (k > 8 && k < 0xF) {
+                *(u32 *)(d + 0x28) |= 0x80000000;
+                d[0x1C] = 0;
+                *(u32 *)(d + 0x28) &= 0x7FFFFFFF;
+            }
+        }
+        for (k = 0; k < 8; k++) {
+            u16 *q = (u16 *)func_00347900(s, k);
+
+            if (func_00362160(s, k) == 0x252) {
+                q[0] = 0x252;
+                q[1] = 0x252;
+                q[2] = 0;
+                q[3] = 0;
+                *(u8 *)(q + 4) = 0;
+                q[6] = 0;
+                q[7] = 0;
+                q[8] = 0;
+                q[9] = 0;
+                q[10] = 0;
+                q[0xB] = 0;
+                q[0xC] = 0;
+                q[0xD] = 0;
+                q[0xE] = 0;
+            } else {
+                int v = func_00363690(s, k);
+
+                if (v != 2) {
+                    int o = *(int *)(g_00669D60 + 0x9C + v * 0x48);
+                    u8 *d = g_005BA6A0 + o * 0x2C;
+
+                    q[0] = o;
+                    q[2] = *(u16 *)(d + 0xC);
+                    q[6] = *(u16 *)(d + 0xE);
+                    q[7] = *(u16 *)(d + 0x10);
+                    q[8] = *(u16 *)(d + 0x12);
+                    q[9] = *(u16 *)(d + 0x14);
+                    q[10] = *(u16 *)(d + 0x16);
+                    q[0xB] = *(u16 *)(d + 0x18);
+                    q[0xC] = *(u16 *)(d + 0x1A);
+                }
+            }
+        }
+        for (k = 0; k < 0x25; k++) {
+            u16 *p = p0 + k * 0xF;
+
+            p[3] = p[3] * 0x50u / 100;
+            if (k > 0x1A && k < 0x23) {
+                p[2] = (u32)(p[2] * m) / 100;
+                p[3] = (u32)(p[3] * m) / 100;
+            }
+        }
+    }
+    if (func_0036D310() != 0)
+        func_00347A00();
+}
