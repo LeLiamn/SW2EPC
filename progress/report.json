@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 156784,
-    "non_matching": 1075448
+    "matching": 157744,
+    "non_matching": 1078064
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1944
+    "matching": 1965
   },
   "layout": "treemap",
   "areas": [
@@ -285,28 +285,28 @@
         },
         {
           "name": "emp_ending.c",
-          "description": "Estimated range 0x3B4C30-0x3B9068; 0 function(s) decompiled",
+          "description": "Estimated range 0x3B4C30-0x3B9068; 18 function(s) decompiled",
           "code": {
             "total": 17464,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 80,
+            "non_matching": 1296
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 18,
+            "matching": 2
           }
         },
         {
           "name": "emp_ending_nenpyou.c",
-          "description": "Estimated range 0x3B9068-0x3BCB78; 0 function(s) decompiled",
+          "description": "Estimated range 0x3B9068-0x3BCB78; 8 function(s) decompiled",
           "code": {
             "total": 15120,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 256,
+            "non_matching": 160
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 8,
+            "matching": 6
           }
         },
         {
@@ -415,15 +415,15 @@
         },
         {
           "name": "emp_zuroku.c",
-          "description": "Estimated range 0x3BCB78-0x3C84B8; 162 function(s) decompiled",
+          "description": "Estimated range 0x3BCB78-0x3C84B8; 163 function(s) decompiled",
           "code": {
             "total": 47424,
-            "matching": 848,
+            "matching": 880,
             "non_matching": 29504
           },
           "decompiled_functions": {
-            "count": 162,
-            "matching": 15
+            "count": 163,
+            "matching": 16
           }
         },
         {
@@ -467,15 +467,15 @@
         },
         {
           "name": "StationEmp.c",
-          "description": "Estimated range 0x3ACA98-0x3B4C30; 5 function(s) decompiled",
+          "description": "Estimated range 0x3ACA98-0x3B4C30; 34 function(s) decompiled",
           "code": {
             "total": 33176,
-            "matching": 64,
-            "non_matching": 272
+            "matching": 656,
+            "non_matching": 1432
           },
           "decompiled_functions": {
-            "count": 5,
-            "matching": 2
+            "count": 34,
+            "matching": 14
           }
         }
       ]
