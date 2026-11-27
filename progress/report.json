@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 174720,
-    "non_matching": 1190372
+    "non_matching": 1192920
   },
   "data": {
     "total": 2155890688,
@@ -176,14 +176,14 @@
         },
         {
           "name": "StateSetupEmpMogi.c",
-          "description": "Estimated range 0x390A10-0x392FD0; 28 function(s) decompiled",
+          "description": "Estimated range 0x390A10-0x392FD0; 33 function(s) decompiled",
           "code": {
             "total": 9664,
             "matching": 1488,
-            "non_matching": 3260
+            "non_matching": 5520
           },
           "decompiled_functions": {
-            "count": 28,
+            "count": 33,
             "matching": 11
           }
         },
@@ -428,14 +428,14 @@
         },
         {
           "name": "emp_zuroku_bushou.c",
-          "description": "Estimated range 0x392FD0-0x3958A8; 0 function(s) decompiled",
+          "description": "Estimated range 0x392FD0-0x3958A8; 1 function(s) decompiled",
           "code": {
             "total": 10456,
             "matching": 0,
-            "non_matching": 0
+            "non_matching": 288
           },
           "decompiled_functions": {
-            "count": 0,
+            "count": 1,
             "matching": 0
           }
         },

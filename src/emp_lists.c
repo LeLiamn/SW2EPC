@@ -266,3 +266,165 @@ void func_00392440(int o, int i)
     FONT_SIZE(16.0f);
     FONT_COLOUR(5);
 }
+
+/* The four list windows: x (+0), slide (+4), speed (+8), alpha (+0xC), flags (+0xD: bit 0
+ * still moving), window animation (+0x10). Line `i` slides in two frames after the one above. */
+#define LW_X(b) (*(short *)(b))
+#define LW_D(b) (*(short *)((b) + 4))
+#define LW_SPEED(b) (*(float *)((b) + 8))
+#define LW_FLAGS(b) ((b)[0xD])
+#define LW_WIN(b) (*(u8 **)((b) + 0x10))
+
+static int slide_x(u8 *b, int i)
+{
+    int x = LW_X(b) - LW_D(b) * (i * 2 - (LW_WIN(b)[0x13] - 10)) / 10;
+
+    return x > 0x10 ? 0x10 : x;
+}
+
+/* Steps list window `b` (`last`: the last line's frame count). */
+#define LW_STEP(b, w, last, rest) do {                                  \
+    int r_;                                                             \
+    LW_WIN(b) = (w);                                                    \
+    r_ = func_001AE550(LW_SPEED(b), (w), (short *)(b), (b) + 0xC, 0);   \
+    LW_FLAGS(b) = (LW_FLAGS(b) & 0xFE) | (r_ & 1);                      \
+    if ((r_ & 1) != 0) {                                                \
+        int t_ = func_002ED160();                                       \
+        if (t_ < (last)) {                                              \
+            LW_FLAGS(b) &= 0xFE;                                        \
+            LW_WIN(b)[0x13] = t_;                                       \
+        } else {                                                        \
+            LW_WIN(b)[0x13] = (rest);                                   \
+        }                                                               \
+    }                                                                   \
+} while (0)
+
+void func_002C80A0(int x, int y, int a, int w, int h, int b, int c);
+void func_002C8500(int x, int y, int a, int w, int h, int b, int c);
+void func_00397700(int o, int i);
+void func_001A3460(int x, int y, int a, int b, int h, int c, int n, int m);
+char *func_00372750(int i);
+char *func_003728D0(int mode, short v);
+int func_001AE550(float speed, void *w, short *pos, u8 *alpha, int a);
+int func_002ED160(void);
+u8 *func_002EE560(void);
+u8 *func_002EE570(void);
+u8 *func_002EE580(void);
+u8 *func_002EE5D0(void);
+void func_003923A0(void);
+void func_00392790(int a);
+void func_00392A10(void);
+
+/* 0x00392570, 0x214 bytes. Draws the officer list (`k`: names or the other column). */
+void func_00392570(int k)
+{
+    u8 *p = func_00391250();
+    short n = *(short *)(p + 0x144), m = n;
+    int i;
+
+    if (*(short *)(p + 0x146) < n)
+        m = *(short *)(p + 0x146);
+    for (i = 0; i < *(short *)(p + 0x146); i++) {
+        int x = slide_x(g_007BA830, i), o;
+
+        o = *(int *)(p + (*(short *)(p + 0x14A) + i) * 4 + 0x38);
+        if (o != 0x40) {
+            func_002C80A0(x, i * 0x18 + 0x5C, 0, 0xB8, 0x18, 0x80, 0);
+            if (k == 0)
+                func_00392440(o, i);
+            else
+                func_00397700(o, i);
+            if (i == *(short *)(p + 0x148))
+                func_002C8500(x, i * 0x18 + 0x5C, 0, 0xB8, 0x18, 0x80, 1);
+        }
+    }
+    if ((g_007BA83D & 1) != 0 && *(short *)(p + 0x146) < n)
+        func_001A3460(200, 0x50, 0, 0x10, 0x102, 0x80, n, m);
+}
+
+/* 0x00392850, 0x1B4 bytes. Draws the two choices. */
+void func_00392850(void)
+{
+    int *p = (int *)func_00391250(), sel = p[0], i;
+
+    for (i = 0; i < 2; i++) {
+        int x = slide_x(g_007BA810, i), y = 0x58 + i * 0x18;
+
+        func_002C80A0(x, y, 0, 0x78, 0x18, 0x80, 0);
+        FONT_COLOUR(6);
+        FONT_SIZE(20.0f);
+        func_00146B40(func_00372750(i), x + 0x10, y + 2, 0x58, 0x14, 2, 0);
+        FONT_SIZE(16.0f);
+        FONT_COLOUR(5);
+        if (sel == i)
+            func_002C8500(x, y, 0, 0x78, 0x18, 0x80, 1);
+    }
+}
+
+/* 0x00392AF0, 0x284 bytes. Draws the lines list (nine at most). */
+void func_00392AF0(void)
+{
+    u8 *p = func_00391250();
+    int n = *(short *)(p + 0x144), m = n < 10 ? n : 9, i;
+
+    for (i = 0; i < m; i++) {
+        int x = slide_x(g_007BA7D0, i), y = 0x7A + i * 0x18;
+        short v = *(short *)(p + (*(short *)(p + 0x14E) + i) * 2 + 0x9C);
+
+        func_002C80A0(x, y, 0, 0xE8, 0x18, 0x80, 0);
+        FONT_COLOUR(6);
+        FONT_SIZE(20.0f);
+        func_00146B40(func_003728D0(*(int *)(p + 0xC), v), x + 0xC, y + 2, 0xD0, 0x14, 2, 0);
+        FONT_SIZE(16.0f);
+        FONT_COLOUR(5);
+        if (i == *(short *)(p + 0x14C))
+            func_002C8500(x, *(short *)(p + 0x14C) * 0x18 + 0x7A, 0, 0xE8, 0x18, 0x80, 1);
+    }
+    if ((g_007BA7DD & 1) != 0) {
+        if (n > 9)
+            func_001A3460(0xF8, 0x72, 0, 0x10, 0xE8, 0x80, n < 9 ? 9 : n, 9);
+        func_003BD640(0x28, 0xD0, 0x5C, 0);
+    }
+}
+
+/* 0x00392D80, 0x12C bytes. The officer list window's frame. */
+void func_00392D80(void)
+{
+    u8 *p = func_00391250();
+    short n = *(short *)(p + 0x144);
+
+    if (*(short *)(p + 0x146) < n)
+        n = *(short *)(p + 0x146);
+    LW_STEP(g_007BA830, func_002EE560(), (n - 1) * 2 + 10, n * 2 + 10);
+    func_00392340(1);
+    func_003923A0();
+    func_00392570(0);
+}
+
+/* 0x00392EB0, 0x140 bytes. The choices window's frame. */
+void func_00392EB0(void)
+{
+    int r;
+
+    LW_STEP(g_007BA810, func_002EE570(), 0xC, 0xE);
+    LW_WIN(g_007BA7F0) = func_002EE5D0();
+    r = func_001AE550(LW_SPEED(g_007BA7F0), LW_WIN(g_007BA7F0), (short *)g_007BA7F0,
+                      g_007BA7F0 + 0xC, 0);
+    g_007BA7FD = (g_007BA7FD & 0xFE) | (r & 1);
+    func_00392790(0);
+    func_00392850();
+}
+
+/* 0x00393560, 0x11C bytes. The lines window's frame. */
+void func_00393560(void)
+{
+    u8 *p = func_00391250();
+    int n = *(short *)(p + 0x144);
+
+    if (n > 9)
+        n = 9;
+    LW_STEP(g_007BA7D0, func_002EE580(), (n - 1) * 2 + 10, n * 2 + 10);
+    func_00392790(0);
+    func_00392A10();
+    func_00392AF0();
+}
