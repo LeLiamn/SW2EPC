@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 125504,
-    "non_matching": 935524
+    "matching": 125824,
+    "non_matching": 940260
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1364
+    "matching": 1372
   },
   "layout": "treemap",
   "areas": [
@@ -698,15 +698,15 @@
         },
         {
           "name": "ItemModel.c",
-          "description": "Estimated range 0x245518-0x24FF58; 0 function(s) decompiled",
+          "description": "Estimated range 0x245518-0x24FF58; 6 function(s) decompiled",
           "code": {
             "total": 43584,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 128,
+            "non_matching": 1248
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 6,
+            "matching": 2
           }
         }
       ]
@@ -903,15 +903,15 @@
         },
         {
           "name": "SecretSorts.c",
-          "description": "Estimated range 0x24FF58-0x268448; 0 function(s) decompiled",
+          "description": "Estimated range 0x24FF58-0x268448; 19 function(s) decompiled",
           "code": {
             "total": 99568,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 192,
+            "non_matching": 3488
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 19,
+            "matching": 6
           }
         }
       ]
