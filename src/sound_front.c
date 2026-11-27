@@ -388,3 +388,247 @@ void func_0023ADA0(void)
     g_0074B7E8 = 0;
     g_0074B7D4 = 0;
 }
+
+/* ---- Effects banks loading (rows of g_0040E9E0: SPU address, IOP address, -, body offset,
+ * body size, head offset, head size, group, slot 0xF none), the battle's stage banks and the
+ * stage objects' sounds (parts of 0x0023AE30-0x0023BC48). ---- */
+
+extern int g_0074B7D0, g_0074B7E4;       /* IOP and SPU memory cursors */
+extern int g_0074B7F8, g_0074B800, g_0074B808, g_0074B810, g_0074B818, g_0074B820;
+extern int g_0074B824, g_0074B828, g_0074B82C, g_0074B830;   /* the stage's four banks */
+extern u8 *g_0074B834;
+extern int *g_0074B838;
+extern u8 *g_0074B83C;
+extern int g_0074B840, g_0074B844, g_0074B848, g_0074B84C, g_0074B850;
+extern int g_0074B854, g_0074B858, g_0074B85C, g_0074B860;
+extern u8 g_006A3A30[][0xC0];
+extern u8 *g_005BD724;
+extern int g_0043D080[];
+extern u8 g_0043D0F0[];
+
+#define GAME_FLAGS (*(u32 *)(g_00669D60 + 0x200))
+
+int func_00117B20(int group, int *e);
+void func_0016C9B0(u8 *u);
+void func_00204D20(u8 *o);
+void func_001174F0(int group, int v, int a);
+void func_00117620(int v);
+void func_00114FA0(int a, int b);
+void func_0023B020(void);
+void func_002A7970(void);
+void func_00102EC0(void *p);
+u32 func_002D6B50(void);
+void func_002D6B60(u32 j, u8 *e, int *out);
+void func_002A5D70(u32 idx, u8 *e, int v);
+void *func_00102DB0(int align, int size);
+
+/* 0x0023AE30, 0x11C bytes. Loads bank `k` (head to SPU memory, body to IOP memory). */
+void func_0023AE30(int k, int wait)
+{
+    int *e = g_0040E9E0[k], n = e[4];
+    u32 dst = 0;
+
+    if (n != 0) {
+        e[1] = g_0074B7D4 + 0x2A800;
+        dst = g_0074B7D0 + g_0074B7D4;
+        g_0074B7D4 += e[4] * 0x800;
+    }
+    func_001026D0(1, 0x568, (void *)(e[0] | 2), wait, e[6] << 0xB, e[5] << 0xB, g_0043D070, 0x327);
+    if (n != 0)
+        func_001026D0(1, 0x567, (void *)(dst | 3), wait, e[4] << 0xB, (e[3] + 0x55) * 0x800,
+                      g_0043D070, 0x32B);
+    if (wait != 0)
+        func_0023AD60(k);
+}
+
+/* 0x0023AF50, 0xC4 bytes. Opens bank `k` (once) and loads it while SPU memory lasts. */
+void func_0023AF50(int k, int wait)
+{
+    int *e = g_0040E9E0[k];
+
+    if (e[8] == 0xF) {
+        int r = func_00117B20(e[7], e), base = g_0074B7E4;
+
+        e[8] = r;
+        if (r < 0xF) {
+            e[0] = base + g_0074B7E8;
+            g_0074B7E8 += e[6];
+            if ((u32)(base + g_0074B7E8) < 0x1FE0BF)
+                func_0023AE30(k, wait);
+        }
+    }
+}
+
+/* 0x0023B320, 0x9C bytes. */
+void func_0023B320(void)
+{
+    int k;
+
+    for (k = 0; k < 0x8F; k++) {
+        u8 *u = (u8 *)0x574DE0 + k * 0x630;
+
+        if ((u[0x198] & 2) != 0) {
+            func_0016C9B0(u);
+            if ((u32)(*(int *)(u + 0x118) - 0x3D) < 3)
+                func_00204D20(g_006A3A30[*(short *)(u + 0x178)]);
+        }
+    }
+}
+
+/* 0x0023B3C0, 0x168 bytes. Switches the stage's ambient banks on or off. */
+void func_0023B3C0(int on, int all)
+{
+    int v = on == 0 ? 0 : g_00669D60[0x53] * 0x3FFF / 0xF;
+
+    if (all == 0)
+        func_001174F0(g_0040E9E0[2][7], v, 0);
+    if (g_0074B824 != 0xCB)
+        func_001174F0(g_0040E9E0[g_0074B824][7], v, 0);
+    if (g_0074B828 != 0xCB)
+        func_001174F0(g_0040E9E0[g_0074B828][7], v, 0);
+    if (g_0074B82C != 0xCB)
+        func_001174F0(g_0040E9E0[g_0074B82C][7], v, 0);
+    if (g_0074B830 != 0xCB)
+        func_001174F0(g_0040E9E0[g_0074B830][7], v, 0);
+}
+
+/* 0x0023B530, 0x44 bytes. Sets the effects volume (0-15). */
+void func_0023B530(u32 v)
+{
+    func_00117620((v & 0xFF) * 0x3FFF / 0xF);
+}
+
+/* 0x0023B580, 0x40 bytes, matching. Starts the sound system. */
+void func_0023B580(void)
+{
+    func_00114FA0(0x32000, 0x59800);
+    func_0023B020();
+    func_0023AB20();
+    func_002A7970();
+}
+
+/* 0x0023B5C0, 0x2C bytes. */
+void func_0023B5C0(void)
+{
+    g_0074B820 = 0;
+    g_0074B808 = g_0074B7F8;
+    g_0074B818 = g_0074B7F8;
+    g_0074B810 = g_0074B800;
+    g_0074B800 = 0;
+    g_0074B7F8 = 0;
+}
+
+/* 0x0023B5F0, 0x60 bytes. */
+void func_0023B5F0(void)
+{
+    if (g_0074B834 != 0)
+        func_00102EC0(g_0074B834);
+    if (g_0074B838 != 0)
+        func_00102EC0(g_0074B838);
+    if (g_0074B83C != 0)
+        func_00102EC0(g_0074B83C);
+}
+
+/* 0x0023B650, 0x230 bytes. The stage objects' sounds (their kinds 0-4, banks from the stage's
+ * four). */
+int func_0023B650(void)
+{
+    u8 *kinds = g_0074B83C, *e = g_0074B834;
+    int *out = g_0074B838;
+    u32 idx = 0x8F, n = func_002D6B50(), j;
+
+    for (j = 0; j < n; j++, e += 0x10, out++, kinds++) {
+        int v, b;
+
+        if (idx > 0xF2)
+            return 0;
+        func_002D6B60(j, e, out);
+        func_002A5D70(idx, e, *out);
+        v = *out;
+        if (v == 0x60B)
+            *kinds = 4;
+        else if (v == 0x40F || v == 0x40D || v == 0x409 || v == 0x408 || v == 0x401 || v == 0x400)
+            *kinds = 3;
+        else if (v == 0x40C || v == 0x40B || v == 0x40A)
+            *kinds = 2;
+        else if (v == 0x407 || v == 0x405 || v == 0x404)
+            *kinds = 1;
+        else
+            *kinds = 0;
+        b = *out >> 8;
+        if (b == 7)
+            b = g_0074B830;
+        else if (b == 6)
+            b = g_0074B82C;
+        else if (b == 5)
+            b = g_0074B828;
+        else if (b == 4)
+            b = g_0074B824;
+        idx++;
+        *out = b * 0x100 + (*out & 0xFF);
+    }
+    return 1;
+}
+
+/* 0x0023B8A0, 0x178 bytes. Loads the stage's banks and its objects' sounds. */
+void func_0023B8A0(void)
+{
+    u32 v, n;
+
+    if ((GAME_FLAGS & 4) != 0)
+        v = 0x1C;
+    else if ((GAME_FLAGS & 8) != 0)
+        v = 0x1B;
+    else
+        v = *(u16 *)(g_005BD724 + 2);
+    g_0074B828 = v + 0x7E;
+    g_0074B830 = v + 0xB0;
+    g_0074B824 = g_0043D080[v];
+    g_0074B82C = g_0043D0F0[v];
+    if (g_0074B824 != 0xCB)
+        func_0023AF50(g_0074B824, 1);
+    func_0023AF50(g_0074B828, 1);
+    if (g_0074B82C != 0xCB)
+        func_0023AF50(g_0074B82C, 1);
+    func_0023AF50(g_0074B830, 1);
+    g_0074B850 = 0;
+    g_0074B848 = 0xFF;
+    g_0074B844 = 0xFF;
+    g_0074B84C = 0;
+    g_0074B858 = 0xFF;
+    g_0074B854 = 0xFF;
+    g_0074B860 = 0;
+    g_0074B85C = 0;
+    g_0074B834 = 0;
+    g_0074B838 = 0;
+    g_0074B83C = 0;
+    if ((GAME_FLAGS & 4) != 0)
+        return;
+    n = func_002D6B50();
+    if (n > 100)
+        n = 100;
+    g_0074B840 = n;
+    if (n != 0) {
+        g_0074B834 = func_00102DB0(0x10, n << 4);
+        g_0074B838 = func_00102DB0(0x10, n << 2);
+        g_0074B83C = func_00102DB0(0x10, n);
+        func_0023B650();
+    }
+}
+
+/* 0x0023BBE0, 8 bytes, matching. */
+void func_0023BBE0(void)
+{
+}
+
+/* 0x0023BBF0, 0x28 bytes. Officer kind `k`'s voice bank. */
+int func_0023BBF0(int k)
+{
+    return (k < 0 || k > 0x32 ? 0xCB : k + 0x33) - 0x2A;
+}
+
+/* 0x0023BC20, 0x28 bytes. */
+int func_0023BC20(int k)
+{
+    return (k < 0 || k > 0x32 ? 0xCB : k + 0x33) - 0x33;
+}
