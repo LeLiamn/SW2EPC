@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 90384,
-    "non_matching": 685184
+    "non_matching": 687668
   },
   "data": {
     "total": 2155890688,
@@ -259,14 +259,14 @@
         },
         {
           "name": "emp_cq_main.c",
-          "description": "Estimated range 0x2FF3F0-0x31C840; 72 function(s) decompiled",
+          "description": "Estimated range 0x2FF3F0-0x31C840; 75 function(s) decompiled",
           "code": {
             "total": 119888,
             "matching": 1040,
-            "non_matching": 25224
+            "non_matching": 27708
           },
           "decompiled_functions": {
-            "count": 72,
+            "count": 75,
             "matching": 10
           }
         },

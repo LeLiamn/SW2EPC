@@ -3253,3 +3253,165 @@ int func_00305AC0(u32 *o, int m, u32 *l, int n)
     }
     return 0;
 }
+
+int func_002F3E70(u32 i);
+int func_00309130(u32 i, int f, int r, int a);
+
+#define IS_OFFICER(i) ((int)(i) >= 0 && (int)(i) < 0x19F)
+
+/* 0x00305B60, 0x370 bytes. Sends officers of force `f` from region `from` to region `to` (marks
+ * `mark`) until `to` has the officers it wants: those `from` can spare (all but its wanted ones
+ * kept, sorted first when `from` is the home or at the front), not busy and needed in group
+ * `out` (`cnt`, up to six moved officers recorded there), at random. */
+void func_00305B60(int f, int large, int *mark, int total, int have, u32 *out, int cnt, int to,
+                   int from)
+{
+    u32 l[8], *o, *p, best;
+    int need, keep, n, start, k, at;
+
+    func_002F7B10();
+    l[0] = 0x19F;
+    l[1] = 0x19F;
+    l[2] = 0x19F;
+    l[3] = 0x19F;
+    l[4] = 0x19F;
+    l[5] = 0x19F;
+    need = func_003058F0(mark[to], large, total, have);
+    if (cnt >= need)
+        return;
+    need -= cnt;
+    keep = func_003058F0(mark[from], large, total, have);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, from, 0, 1);
+    o = func_002F7B10();
+    if (keep >= n)
+        return;
+    for (k = 0; k < n; k++)
+        l[k] = o[k];
+    if (n - keep < need)
+        need = n - keep;
+    start = 0;
+    if (func_002FB2D0(f) == from || mark[from] < 2) {
+        func_002FCD70(l, n);
+        start = keep;
+    }
+    p = &out[cnt];
+    for (; need != 0; need--) {
+        best = 0x19F;
+        at = 0;
+        for (k = start; k < n; k++) {
+            if (IS_OFFICER(l[k]) && func_002F3E70(l[k]) == 0 && func_00305970(l[k], out, cnt) != 0
+                && (!IS_OFFICER(best) || func_0030CB50(0x32) != 0)) {
+                best = l[k];
+                at = k;
+            }
+        }
+        if (!IS_OFFICER(best) || func_00309130(best, f, to, 0) == 0)
+            return;
+        if (cnt < 6) {
+            cnt++;
+            *p++ = best;
+        }
+        l[at] = 0x19F;
+    }
+}
+
+/* 0x00305ED0, 0x26C bytes. The index in `r` (`n`) of force `f`'s region that most lacks the
+ * officers it wants (the home first, then the front, then the fewest officers); `n` for none. */
+int func_00305ED0(int f, int large, int *r, int n, int *mark, int total, int have)
+{
+    int home = func_002FB2D0(f), best = 0x19, low = 6, idx = n, k;
+    u32 top = 0;
+
+    for (k = 0; k < n; k++, r++) {
+        int g = *r, want, c;
+        int *p;
+        u32 v;
+
+        if (!IS_FORCE(g) || func_0030AFF0(g) != f)
+            continue;
+        p = &mark[g];
+        want = func_003058F0(*p, large, total, have);
+        c = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, g, 0, 1);
+        if (c >= want)
+            continue;
+        v = g == home ? 10 : 0;
+        if (!IS_FORCE(best) || top < v) {
+            low = c;
+            top = v;
+            idx = k;
+            best = g;
+        } else if (v == top) {
+            u32 a = mark[best] == 0 ? 10 : 0, b = *p == 0 ? 10 : 0;
+
+            if (a < b || (a == b && (c < low || (c == low && func_0030CB50(0x32) != 0)))) {
+                low = c;
+                idx = k;
+                best = g;
+            }
+        }
+    }
+    if (!IS_FORCE(best))
+        idx = n;
+    return idx;
+}
+
+/* 0x00306140, 0x3D8 bytes. Force `f`'s region with officers to spare, one of them needed in
+ * group `l` (`m`): inside regions first, then (large forces) second-line ones, then the most
+ * officers, then the most troops; 0x19 for none. */
+int func_00306140(int f, int large, int *r, int n, int *mark, int total, int have, u32 *l, int m)
+{
+    u32 o8[8], top = 0;
+    int best = 0x19, cnt = 0, k, j;
+
+    func_002F7B10();
+    o8[0] = 0x19F;
+    o8[1] = 0x19F;
+    o8[2] = 0x19F;
+    o8[3] = 0x19F;
+    o8[4] = 0x19F;
+    o8[5] = 0x19F;
+    for (k = 0; k < n; k++, r++) {
+        int g = *r, want, c;
+        int *p;
+        u32 v, *o;
+
+        if (!IS_FORCE(g) || func_0030AFF0(g) != f)
+            continue;
+        p = &mark[g];
+        want = func_003058F0(*p, large, total, have);
+        c = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, g, 0, 1);
+        func_002F7B10();
+        if (want >= c)
+            continue;
+        o = func_002F7B10();
+        for (j = 0; j < c; j++)
+            o8[j] = o[j];
+        if (func_00305AC0(o8, c, l, m) == 0)
+            continue;
+        v = *p == 3 ? 10 : 0;
+        if (!IS_FORCE(best) || top < v) {
+            top = v;
+            best = g;
+            cnt = c;
+        } else if (v == top) {
+            u32 a = large == 0 ? 0 : mark[best] == 2 ? 10 : 0;
+            u32 b = large == 0 ? 0 : *p == 2 ? 10 : 0;
+
+            if (a < b) {
+                best = g;
+                cnt = c;
+            } else if (a == b) {
+                if (cnt < c) {
+                    best = g;
+                    cnt = c;
+                } else if (c == cnt) {
+                    int x = func_0030B090(best), y = func_0030B090(g);
+
+                    if (x < y || (x == y && func_0030CB50(0x32) != 0))
+                        best = g;
+                }
+            }
+        }
+    }
+    return best;
+}
