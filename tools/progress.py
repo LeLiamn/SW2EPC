@@ -177,7 +177,7 @@ def code_areas(start, end):
         where = ", ".join(f"0x{a:06X}-0x{b:06X}" for a, b in spans)
         return {"name": name, "description": f"Estimated range {where}; {len(mine)} function(s) decompiled",
                 "code": {"total": total, **split(mine.values())},
-                "functions": {"decompiled": len(mine), "matching": sum(1 for s, m in mine.values() if m)}}
+                "decompiled_functions": {"count": len(mine), "matching": sum(1 for s, m in mine.values() if m)}}
 
     areas = [leaf("(start-up and main loop)")]
     areas[0]["description"] = "Runtime start-up, scene manager and main loop. " + areas[0]["description"]

@@ -125,8 +125,8 @@ def main():
                 walk(a["children"], name + " / ")
             elif "code" in a and (a["code"].get("matching") or a["code"].get("non_matching")):
                 c = a["code"]
-                f = a.get("functions", {})
-                n, m = f.get("decompiled", 0), f.get("matching", 0)
+                f = a.get("decompiled_functions", {})
+                n, m = f.get("count", 0), f.get("matching", 0)
                 box = YES if n and m == n else NO
                 out.append(f"| {name} | {box} | {m} / {n} | {c.get('matching', 0):,} | "
                            f"{c.get('non_matching', 0):,} | {c['total']:,} |")
