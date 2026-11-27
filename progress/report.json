@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 154992,
-    "non_matching": 1072536
+    "matching": 156592,
+    "non_matching": 1073800
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1909
+    "matching": 1943
   },
   "layout": "treemap",
   "areas": [
@@ -467,15 +467,15 @@
         },
         {
           "name": "StationEmp.c",
-          "description": "Estimated range 0x3ACA98-0x3B4C30; 0 function(s) decompiled",
+          "description": "Estimated range 0x3ACA98-0x3B4C30; 5 function(s) decompiled",
           "code": {
             "total": 33176,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 64,
+            "non_matching": 272
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 5,
+            "matching": 2
           }
         }
       ]
@@ -890,15 +890,15 @@
         },
         {
           "name": "JapanMap.c",
-          "description": "Estimated range 0x39DD30-0x3ACA98; 188 function(s) decompiled",
+          "description": "Estimated range 0x39DD30-0x3ACA98; 231 function(s) decompiled",
           "code": {
             "total": 60776,
-            "matching": 2368,
-            "non_matching": 12560
+            "matching": 3904,
+            "non_matching": 13552
           },
           "decompiled_functions": {
-            "count": 188,
-            "matching": 40
+            "count": 231,
+            "matching": 72
           }
         },
         {
