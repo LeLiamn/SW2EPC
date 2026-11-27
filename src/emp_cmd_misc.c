@@ -1,0 +1,482 @@
+/*
+ * emp_cmd_misc.c - Empire mode: small state machines of the command screens and helpers about
+ * officers, forces and regions. Original file name unknown (0x003C0060-).
+ *
+ * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
+ * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
+ * with a question mark are hypotheses. Officers are 0-0x19E, forces 0-func_0030AB90().
+ */
+
+typedef unsigned char u8;
+typedef unsigned short u16;
+typedef unsigned int u32;
+
+extern u32 g_007BEAD4;
+extern int g_0045D818[2];                /* (small data) a step and a value */
+extern int g_0045D81C;
+extern int g_0045D894, g_0045D898, g_0045D89C, g_0045D8A0;   /* (small data) scene history */
+extern int g_0045D820;
+extern u8 g_0069395E;
+extern u32 g_007BEBB0[6];
+
+u8 *func_002FC2C0(void);
+void func_003A9070(int a);
+void func_002DB570(int a);
+int func_002DB750(void);
+void func_002DB700(void);
+void func_002FC560(void);
+void func_002FC660(void);
+int func_00327E20(void);
+void func_0030E090(int k);
+void func_002FC2D0(void);
+void func_002FC630(void);
+int func_0017DDA0(void);
+void func_0017DF10(void);
+void func_001B8F60(int a, int b, int c);
+int func_002F2840(u32 o);
+int func_002F34E0(u32 o);
+int func_002F33F0(u32 o);
+int func_0030C7F0(int a, int k);
+u8 *func_003B5E90(void);
+u32 func_00337A10(int x);
+void func_0032E8A0(int k, u32 o);
+u32 func_002F9550(void);
+int func_002FB2D0(int a);
+void func_0030BBD0(int a, int b);
+int func_0030B3B0(u8 *out);
+void func_0030B330(void);
+int func_003C1850(void);
+int func_0030AB90(void);
+int func_002F9C90(int f, int g);
+int func_00327820(void);
+int func_00327AE0(int k);
+int func_00327870(void);
+int func_0032EB40(int a, int b, int c);
+int func_0030AFF0(int r);
+int func_002F3BB0(int o);
+int func_002F4080(int o);
+int func_002F5CC0(int o);
+int func_002F3E30(int o);
+int func_002F3770(int o);
+
+int func_003C0830(u32 o);
+int func_003C0C60(int f, int g);
+
+/* 0x003C0060, 0xC bytes. */
+u32 func_003C0060(void)
+{
+    return g_007BEAD4;
+}
+
+/* 0x003C0070, 8 bytes, matching. */
+int *func_003C0070(void)
+{
+    return g_0045D818;
+}
+
+/* 0x003C0080, 0xC bytes, matching. Resets a step pair. */
+void func_003C0080(int *p)
+{
+    p[0] = 0;
+    p[1] = 0;
+}
+
+/* 0x003C0090, 0x3C bytes, matching. Step 0: starts fade 6. */
+void func_003C0090(void)
+{
+    int *st = *(int **)(func_002FC2C0() + 0x6BC);
+
+    func_003A9070(1);
+    func_002DB570(6);
+    *st = 1;
+}
+
+/* 0x003C00D0, 0x38 bytes, matching. Step 1: waits for the fade. */
+void func_003C00D0(void)
+{
+    int *st = *(int **)(func_002FC2C0() + 0x6BC);
+
+    if (func_002DB750() == 0)
+        *st = 2;
+}
+
+/* 0x003C0110, 0x40 bytes, matching. Step 2 (first kind). */
+void func_003C0110(void)
+{
+    int *p = (int *)func_002FC2C0();
+
+    func_003C0080((int *)p[0x1AF]);
+    func_002FC560();
+    func_003A9070(0);
+    *p = 0;
+}
+
+/* 0x003C0150, 0x40 bytes, matching. Step 2 (second kind). */
+void func_003C0150(void)
+{
+    int *p = (int *)func_002FC2C0();
+
+    func_003C0080((int *)p[0x1AF]);
+    func_002FC660();
+    func_003A9070(0);
+    *p = 0;
+}
+
+/* 0x003C0190, 0x40 bytes. */
+void func_003C0190(void)
+{
+    if (**(int **)(func_002FC2C0() + 0x6BC) == 1)
+        func_002DB700();
+}
+
+/* 0x003C01D0, 0x78 bytes. */
+int func_003C01D0(void)
+{
+    int k = **(int **)(func_002FC2C0() + 0x6BC);
+
+    if (k == 2)
+        func_003C0110();
+    else if (k == 1)
+        func_003C00D0();
+    else if (k == 0)
+        func_003C0090();
+    return 5;
+}
+
+/* 0x003C0250, 0x40 bytes. */
+void func_003C0250(void)
+{
+    if (**(int **)(func_002FC2C0() + 0x6BC) == 1)
+        func_002DB700();
+}
+
+/* 0x003C0290, 0x78 bytes. */
+int func_003C0290(void)
+{
+    int k = **(int **)(func_002FC2C0() + 0x6BC);
+
+    if (k == 2)
+        func_003C0150();
+    else if (k == 1)
+        func_003C00D0();
+    else if (k == 0)
+        func_003C0090();
+    return 5;
+}
+
+/* 0x003C0310, 0x24 bytes, matching. */
+void func_003C0310(void)
+{
+    func_002DB570(5);
+    g_0045D818[0] = 1;
+}
+
+/* 0x003C0340, 0x34 bytes. */
+void func_003C0340(void)
+{
+    if (func_002DB750() == 0)
+        g_0045D818[0] = 2;
+}
+
+/* Pushes `next` into the scene history. */
+static void push_scene(void)
+{
+    if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {
+        g_0045D894 = g_0045D898;
+        g_0045D898 = g_0045D8A0;
+        g_0045D89C = 0x18;
+    } else {
+        g_0045D894 = g_0045D898;
+        g_0045D898 = g_0045D89C;
+        g_0045D89C = g_0045D8A0;
+    }
+}
+
+/* 0x003C0380, 0x244 bytes. Leaves for the next scene (by func_00327E20's mode). */
+void func_003C0380(void)
+{
+    int m = func_00327E20();
+
+    if (g_0045D81C == 0) {
+        if (g_0045D89C > 0x17 && g_0045D8A0 > 0x17)
+            g_0045D89C = 1;
+    } else if (m == 0) {
+        func_0030E090(0x10);
+        func_002FC2D0();
+        if (g_0045D89C > 0x17 && g_0045D8A0 > 0x17)
+            g_0045D89C = 0x12;
+    } else if (m == 1) {
+        func_0030E090(0x15);
+        func_002FC630();
+        if (g_0045D89C > 0x17 && g_0045D8A0 > 0x17)
+            g_0045D89C = 0x12;
+    } else if (m == 2) {
+        func_0030E090(0x1F);
+        if (g_0045D89C > 0x17 && g_0045D8A0 > 0x17)
+            g_0045D89C = 0x12;
+    }
+    push_scene();
+    func_003C0080(g_0045D818);
+}
+
+/* 0x003C05D0, 0x34 bytes. */
+void func_003C05D0(void)
+{
+    if (g_0045D818[0] == 1)
+        func_002DB700();
+}
+
+/* 0x003C0610, 0x10C bytes. The leaving steps: fade, wait, then the next scene. */
+int func_003C0610(void)
+{
+    int r = 5;
+
+    if (g_0045D818[0] == 4) {
+        func_003C0380();
+        r = 0;
+    } else if (g_0045D818[0] == 3) {
+        int busy = g_0069395E != 0 && g_0069395E != 0xFF;
+
+        if (!busy && func_0017DDA0() == 0)
+            g_0045D818[0] = 4;
+    } else if (g_0045D818[0] == 2) {
+        func_0017DF10();
+        func_001B8F60(0, 6, 8);
+        g_0045D818[0] = 3;
+    } else if (g_0045D818[0] == 1) {
+        func_003C0340();
+    } else if (g_0045D818[0] == 0) {
+        func_003C0310();
+    }
+    return r;
+}
+
+/* 0x003C0720, 8 bytes, matching. */
+int func_003C0720(void)
+{
+    return g_0045D820;
+}
+
+/* 0x003C0730, 0x38 bytes, matching. */
+void func_003C0730(void)
+{
+    g_007BEBB0[0] = 0x19F;
+    g_007BEBB0[1] = 0x19F;
+    g_007BEBB0[2] = 0x19F;
+    g_007BEBB0[3] = 0x19F;
+    g_007BEBB0[4] = 0x19F;
+    g_007BEBB0[5] = 0x19F;
+}
+
+/* 0x003C0770, 0x1C bytes, matching. */
+void func_003C0770(void)
+{
+    func_003C0730();
+}
+
+/* 0x003C0790, 0x40 bytes. */
+int func_003C0790(u32 o)
+{
+    if (o >= 0x19F)
+        return 0;
+    return func_002F2840(o) != 0;
+}
+
+/* 0x003C07D0, 0x5C bytes. Officer `o`'s rank from its merit (-1 for none). */
+int func_003C07D0(u32 o)
+{
+    if (o >= 0x19F)
+        return -1;
+    return func_002F34E0(o) / 10000 + 2;
+}
+
+/* 0x003C0830, 0x60 bytes. Whether officer `o` may rise. */
+int func_003C0830(u32 o)
+{
+    if (o >= 0x19F)
+        return 0;
+    return func_003C07D0(o) <= func_002F33F0(o);
+}
+
+/* 0x003C0890, 0x6C bytes. */
+int func_003C0890(int a)
+{
+    int n = 0, k;
+
+    for (k = 0; k < 8; k++) {
+        if (func_0030C7F0(a, k) != 0)
+            n++;
+    }
+    return n;
+}
+
+/* 0x003C0900, 0xB0 bytes. The four officers of the screen (defaults 0x28, 0x2E, 0x151, 0x29). */
+void func_003C0900(void)
+{
+    u8 *p = func_003B5E90();
+    u32 t[4], *q = t;
+    int k;
+
+    t[0] = func_00337A10(0x28);
+    t[1] = func_00337A10(0x2E);
+    t[2] = func_00337A10(0x151);
+    t[3] = func_00337A10(0x29);
+    for (k = 0; k < 4; k++, p += 4, q++) {
+        if (*(u32 *)(p + 0x72C) < 0x19F)
+            *q = *(u32 *)(p + 0x72C);
+        func_0032E8A0(k, *q);
+    }
+}
+
+/* 0x003C09B0, 0x2AC bytes. The rank force `f` may take (by its size and holdings). */
+int func_003C09B0(int f)
+{
+    u8 buf[112];
+    u32 v = func_002F9550();
+    int n, r;
+
+    func_0030BBD0(func_002FB2D0(f), 1);
+    n = func_0030B3B0(buf);
+    func_0030B330();
+    if (func_003C1850() == 0 && v > 0x37 && v < 0x40 && func_003C0890(f) > 6)
+        return 0x40;
+    if (func_003C1850() == 0 && v > 0x2F && v < 0x38 && func_003C0890(f) > 5)
+        return 0x38;
+    if (func_003C1850() == 0 && v > 0x27 && v < 0x30 && func_003C0890(f) > 4)
+        return 0x30;
+    if (func_003C1850() == 0 && v > 0x1F && v < 0x28 && func_003C0890(f) > 3)
+        return 0x28;
+    if (func_003C1850() == 0 && v > 0x15 && v < 0x20 && func_003C0890(f) > 2)
+        return 0x20;
+    if (func_003C1850() == 0 && v > 0xB && v < 0x16 && func_003C0890(f) > 1)
+        return 0x16;
+    if (func_003C1850() == 0 && v < 0xC && func_003C0890(f) > 1 && n > 2)
+        return 0xC;
+    if (v != 100)
+        return 0;
+    if (func_003C1850() == 0) {
+        if (func_003C0890(f) > 0)
+            return 0;
+    } else if (n > 2) {
+        return 0;
+    }
+    r = 100;
+    return r;
+}
+
+/* 0x003C0C60, 0xBC bytes. Whether forces `f` and `g` are allied (relation 1-3). */
+int func_003C0C60(int f, int g)
+{
+    int r;
+
+    if (f < 0 || f >= func_0030AB90())
+        return 0;
+    if (g < 0 || g >= func_0030AB90())
+        return 0;
+    r = func_002F9C90(f, g);
+    return r == 3 || r == 2 || r == 1;
+}
+
+/* 0x003C0D20, 0x214 bytes. An officer for the player's ruler: one of the five set ones if
+ * possible, else the one with the most merit who may rise, else the first possible (0x29 for
+ * none). */
+int func_003C0D20(int skip)
+{
+    int me = func_00327820(), best = -1, top = -1, k;
+    int a = func_00327AE0(0), b = func_00327AE0(1), c = func_00327AE0(2), d = func_00327AE0(3);
+    int e = func_00327870();
+
+    for (k = 0; k < 0x19F; k++) {
+        if (k == me || k == skip || func_0032EB40(me, k, 0) == 0)
+            continue;
+        if (k == a || k == b || k == c || k == d || k == e)
+            return k;
+        if (func_003C0830(k) != 0) {
+            int m = func_002F34E0(k);
+
+            if (top < m) {
+                best = k;
+                top = m;
+            }
+        }
+    }
+    if (best == -1) {
+        for (k = 0; k < 0x19F; k++) {
+            if (k != me && k != skip && func_0032EB40(me, k, 0) != 0) {
+                best = k;
+                break;
+            }
+        }
+    }
+    if (best == -1)
+        best = func_00337A10(0x29);
+    return best;
+}
+
+/* 0x003C0F40, 0x9C bytes. Whether regions `a` and `b` have the same owner. */
+int func_003C0F40(int a, int b)
+{
+    if (a < 0 || a >= func_0030AB90() || b < 0 || b >= func_0030AB90())
+        return 0;
+    return func_0030AFF0(a) == func_0030AFF0(b);
+}
+
+/* 0x003C0FE0, 0x9C bytes. Whether force `f` is at war (relation 3) with region `r`'s owner. */
+int func_003C0FE0(int f, int r)
+{
+    if (f < 0 || f >= func_0030AB90() || r < 0 || r >= func_0030AB90())
+        return 0;
+    return func_002F9C90(f, func_0030AFF0(r)) == 3;
+}
+
+/* 0x003C1080, 0xA0 bytes. Whether regions `a` and `b`'s owners are allied. */
+int func_003C1080(int a, int b)
+{
+    if (a < 0 || a >= func_0030AB90() || b < 0 || b >= func_0030AB90())
+        return 0;
+    return func_003C0C60(func_0030AFF0(a), func_0030AFF0(b));
+}
+
+/* 0x003C1120, 0xDC bytes. Whether officer `o` serves a force allied to the player's. */
+int func_003C1120(u32 o)
+{
+    int me, f;
+
+    if (o >= 0x19F || func_002F3BB0(o) == 0 || func_002F3BB0(o) == 3)
+        return 0;
+    if (func_002F4080(o) >= 0x19)
+        return 0;
+    me = func_00327820();
+    f = func_002F4080(me);
+    if (o == (u32)me)
+        return 0;
+    return func_003C0C60(f, func_002F4080(o));
+}
+
+/* Officers of region `r`'s owner placed in `r`, of rank kind `kind`, with at least `v`. */
+static int count_officers(int r, int v, int kind)
+{
+    int n = 0, f, k;
+
+    if (r < 0 || r >= func_0030AB90())
+        return 0;
+    f = func_0030AFF0(r);
+    for (k = 0; k < 0x19F; k++) {
+        if (func_002F3BB0(k) != 0 && func_002F3BB0(k) != 3 && f == func_002F4080(k)
+            && r == func_002F5CC0(k) && func_002F3E30(k) == kind && v <= func_002F3770(k))
+            n++;
+    }
+    return n;
+}
+
+/* 0x003C1200, 0x124 bytes. */
+int func_003C1200(int r, int v)
+{
+    return count_officers(r, v, 2);
+}
+
+/* 0x003C1330, 0x124 bytes. */
+int func_003C1330(int r, int v)
+{
+    return count_officers(r, v, 1);
+}
