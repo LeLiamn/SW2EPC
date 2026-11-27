@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 172144,
-    "non_matching": 1147860
+    "non_matching": 1151556
   },
   "data": {
     "total": 2155890688,
@@ -524,14 +524,14 @@
         },
         {
           "name": "StgTexture.c",
-          "description": "Estimated range 0x1EF238-0x201B40; 64 function(s) decompiled",
+          "description": "Estimated range 0x1EF238-0x201B40; 81 function(s) decompiled",
           "code": {
             "total": 76040,
             "matching": 1520,
-            "non_matching": 8528
+            "non_matching": 12224
           },
           "decompiled_functions": {
-            "count": 64,
+            "count": 81,
             "matching": 20
           }
         },
