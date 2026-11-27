@@ -426,3 +426,148 @@ int func_002BFCC0(u8 *o, int a, u32 k)
     }
     return 0;
 }
+
+/* ---- More stage object switches (parts of 0x002C1540-0x002C4AD4). ---- */
+
+extern int g_00441EB0[];
+extern u8 g_00795690[][0x40], g_00795610[][0x20];
+extern u32 g_0045D5BC;
+extern int *g_00412470[];
+extern u8 g_0073E020[10];
+extern u8 g_004123A5;
+extern u8 g_004123B0[][0x30];
+extern u8 *g_0045D5A0;
+
+int func_0027F0C0(char k);
+int func_0027F140(char k);
+int func_002C33C0(u8 *o, int a);
+void func_002AF120(u32 k);
+void func_002AEE00(u32 k, char s);
+u32 func_00196A10(void);
+
+/* 0x002C1540, 0xB4 bytes. */
+int func_002C1540(u8 *o, int a)
+{
+    short id = *(short *)(o + 0x54);
+    char k = func_001FF100(id, 10);
+    u8 t = func_001FF100(id, 2);
+
+    if (g_00441EB0[t] == 0 && (func_0027F0C0(k) == 0 || func_0027F140(k) != 10))
+        return func_002C33C0(o, a);
+    return 0;
+}
+
+/* 0x002C2240, 0xA4 bytes. */
+int func_002C2240(u8 *o, int a, char c)
+{
+    u8 *r = func_0027E5F0(o, a);
+
+    if (r == 0)
+        return 0;
+    if (!(c == 2 || c == 0) || r[0xB] == 0)
+        func_0027E610(o);
+    return 1;
+}
+
+/* 0x002C2D80, 0xC8 bytes. Loads the map's breakable object records. */
+void func_002C2D80(int *rec, u32 size)
+{
+    u32 n = size >> 6;
+    u8 *d = g_00795690[0];
+
+    g_0045D5BC = 0;
+    while (n != 0) {
+        n--;
+        if ((u32)rec[0] == MAP_ID()) {
+            func_00118AC0(d, rec, 0x40);
+            d += 0x40;
+            g_0045D5BC++;
+        }
+        rec += 0x10;
+    }
+}
+
+/* 0x002C2E50, 0x90 bytes. Drops the models of the objects at the height of `u`. */
+void func_002C2E50(u8 *u)
+{
+    u32 k;
+
+    for (k = 0; k < g_0045D5BC; k++) {
+        u8 *a = g_00795690[k], *b = g_00795610[k];
+        float y = *(float *)(u + 4);
+
+        if (*(float *)(a + 0x10) < y && y <= *(float *)(a + 0x10) + *(float *)(a + 0x14)) {
+            u8 *o = *(u8 **)(b + 8);
+
+            if (o != 0)
+                *(u32 *)(o + 0x38) |= 8;
+            o = *(u8 **)(b + 0xC);
+            if (o != 0)
+                *(u32 *)(o + 0x38) |= 8;
+        }
+    }
+}
+
+/* 0x002C3560, 0xB8 bytes. Sets the state of object `o`'s effects. */
+int func_002C3560(u8 *o, u32 k)
+{
+    u8 *b = func_001FF140(*(short *)(o + 0x54));
+    u8 s = o[0x5A];
+    u32 j;
+
+    if (s >= 0xFF)
+        return 0;
+    for (j = 0; j < *(u16 *)(b + 2); j++) {
+        if ((k & 0xFF) == 3)
+            func_002AF120(s + j);
+        func_002AEE00(s + j, k);
+    }
+    return 1;
+}
+
+/* 0x002C3AD0, 0x8C bytes. Whether all the switches of group `k` are on (2) or not (3). */
+int func_002C3AD0(int k)
+{
+    int *l = g_00412470[k];
+
+    if (l == 0)
+        return 3;
+    for (; *l < 0x1E; l++) {
+        char c = *l < 10 ? g_0073E020[*l] : 0;
+
+        if (c == 0)
+            return 3;
+    }
+    return 2;
+}
+
+/* 0x002C3E20, 0xC4 bytes. Counts the stage objects of kind `*kind` that `fn` accepts. */
+int func_002C3E20(char *kind, int (*fn)(u32, int), int a)
+{
+    u8 *o = *(u8 **)0x700001D0;
+    u32 n = func_00196A10(), k;
+    int c = 0;
+
+    for (k = 0; k < n; k++, o += 0x70) {
+        if (func_001FF100(*(short *)(o + 0x54), 10) == *kind && fn(k, a) != 0)
+            c++;
+    }
+    return c;
+}
+
+/* 0x002C49D0, 0x108 bytes. Whether object `o` is the current target switch (it becomes the
+ * active one going forward). */
+int func_002C49D0(u8 *o, char c)
+{
+    u8 *r = g_004123B0[g_004123A5];
+    u32 v;
+
+    if (r[0x11] != g_004123A5)
+        r = 0;
+    v = func_001FF100(*(short *)(o + 0x54), 7) & 0xFF;
+    v = v == 0 ? 0x28 : v - 1;
+    if (r == 0 || v != r[0x14])
+        return 0;
+    g_0045D5A0 = (c == 2 || c == 0) ? o : 0;
+    return 1;
+}

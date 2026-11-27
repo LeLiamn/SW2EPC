@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 182064,
-    "non_matching": 1235832
+    "non_matching": 1237368
   },
   "data": {
     "total": 2155890688,
@@ -672,14 +672,14 @@
         },
         {
           "name": "HorseModel.c",
-          "description": "Estimated range 0x2AA7D8-0x2C1EA8; 97 function(s) decompiled",
+          "description": "Estimated range 0x2AA7D8-0x2C1EA8; 98 function(s) decompiled",
           "code": {
             "total": 95952,
             "matching": 2112,
-            "non_matching": 9936
+            "non_matching": 10128
           },
           "decompiled_functions": {
-            "count": 97,
+            "count": 98,
             "matching": 38
           }
         },
@@ -820,14 +820,14 @@
         },
         {
           "name": "BriefingCmnParts.c",
-          "description": "Estimated range 0x2C1EA8-0x2DE550; 50 function(s) decompiled",
+          "description": "Estimated range 0x2C1EA8-0x2DE550; 57 function(s) decompiled",
           "code": {
             "total": 116392,
             "matching": 928,
-            "non_matching": 3632
+            "non_matching": 4976
           },
           "decompiled_functions": {
-            "count": 50,
+            "count": 57,
             "matching": 21
           }
         }
