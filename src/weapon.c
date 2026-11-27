@@ -535,3 +535,183 @@ void func_0016EBB0(u8 *slot, void *m, int colour)
     if (PTR(slot, 0x5C) != 0)
         func_0016EB90(PTR(PTR(slot, 0x5C), 0x68), m, colour);
 }
+
+typedef unsigned long long u64;
+
+#define g_70000158 (*(u32 **)0x70000158)         /* the DMA chain's write cursor */
+#define SCRATCH_W ((const float *)0x70000030)   /* (scratchpad) the point (0, 0, 0, 1) */
+
+extern float g_00406580[0x38];           /* per kind: the reach of a two-handed weapon's end */
+extern float g_004065A0[0x38];           /* the same, on the other side */
+
+u8 *func_002087A0(void);
+void func_00208820(u8 *trail, float *a, float *b, int player);
+void func_0014F0E0(u8 *a, u32 alpha);
+void func_0014F970(u8 *o);
+u32 *func_0016F9B0(u32 *d, float *a, float *b, int r, int g, int bl, int al);
+u32 *func_0016FD00(u32 *d, float *a, float *b, int r, int g, int bl, int al);
+
+/* The point (x, 0, 0, 1) placed by matrix m (divided by its w) into out. */
+static inline void place_x(float *out, const float *m, float x)
+{
+    float v[4];
+    int k;
+
+    v[0] = x;
+    v[1] = SCRATCH_W[1];
+    v[2] = SCRATCH_W[2];
+    v[3] = SCRATCH_W[3];
+    mat_vec(out, m, v);
+    v[3] = 1.0f / out[3];
+    for (k = 0; k < 4; k++)
+        out[k] = out[k] * v[3];
+}
+
+/* Keeps an edge's ends as its previous ones (+0x20 / +0x30 into +0x40 / +0x50). */
+static inline void keep_ends(u8 *w)
+{
+    int i, k;
+
+    for (i = 0; i < 2; i++)
+        for (k = 0; k < 4; k++)
+            F32(w, 0x40 + i * 0x10 + k * 4) = F32(w, 0x20 + i * 0x10 + k * 4);
+}
+
+/* 0x0016F8E0, 0xD0 bytes. Starts a trail for an edge: from its end (the length lengthened by
+ * `grow`, times the scale) to its base. Whether it started. */
+int func_0016F8E0(float grow, float *e, int player)
+{
+    float a[4], b[4], len;
+    u8 *t;
+
+    if (e == 0)
+        return 0;
+    a[1] = SCRATCH_W[1];
+    a[2] = SCRATCH_W[2];
+    a[3] = SCRATCH_W[3];
+    b[1] = SCRATCH_W[1];
+    b[2] = SCRATCH_W[2];
+    b[3] = SCRATCH_W[3];
+    len = e[4] < 0.0f ? e[4] - grow : e[4] + grow;
+    b[0] = e[0];
+    a[0] = len * e[0x19] + b[0];
+    t = func_002087A0();
+    *(u8 **)&e[0x1A] = t;
+    if (t == 0)
+        return 0;
+    func_00208820(t, a, b, player);
+    return 1;
+}
+
+/* 0x001700A0, 0x50 bytes. Draws a slot's weapon object (not with flag 0x80): a model actor
+ * (flag 4) or a plain object. */
+void func_001700A0(u8 *slot, u32 alpha)
+{
+    if ((U8(slot, 0x4C) & 0x80) == 0) {
+        if (U8(slot, 0x4C) & 4)
+            func_0014F0E0(PTR(slot, 0x44), alpha);
+        else
+            func_0014F970(PTR(slot, 0x44));
+    }
+}
+
+/* 0x001700F0, 0x20C bytes. Places the edge (+0x58) of a two-handed weapon held between two
+ * nodes (`on`): from node `ma` to the kind's reach along node `mb` (the table by `side`); on
+ * the first frame (flag 0x40 of +0x4C) the previous ends too. */
+void func_001700F0(u8 *slot, int on, float *ma, float *mb, int side)
+{
+    u8 *w = PTR(slot, 0x58);
+
+    U8(w, 0x60) = (U8(w, 0x60) & ~2) | (on & 1) << 1;
+    if (on == 0)
+        return;
+    keep_ends(w);
+    place_x(&F32(w, 0x20), ma, SCRATCH_W[0]);
+    if (side == 0)
+        place_x(&F32(w, 0x30), mb, g_00406580[U8(slot, 0x48)]);
+    else
+        place_x(&F32(w, 0x30), mb, g_004065A0[U8(slot, 0x48)]);
+    if (U8(slot, 0x4C) & 0x40)
+        keep_ends(w);
+    U8(slot, 0x4C) &= ~0x40;
+}
+
+/* 0x00170300, 0x204 bytes. Draws a two-handed weapon's two lines (from node `ma` to the reaches
+ * along `mb` and `mc`) as a GS packet. */
+void func_00170300(u8 *slot, float *ma, float *mb, float *mc)
+{
+    float a[4], b[4], c[4];
+    u32 *d;
+    u64 *q;
+
+    place_x(a, ma, SCRATCH_W[0]);
+    place_x(b, mb, g_00406580[U8(slot, 0x48)]);
+    place_x(c, mc, g_004065A0[U8(slot, 0x48)]);
+    d = g_70000158;
+    d[0] = 0x10000002;
+    d[1] = 0;
+    d[2] = 0x11000000;
+    d[3] = 0x50000002;
+    q = (u64 *)(d + 4);
+    q[0] = 0x1000000000008001ULL;
+    q[1] = 0xE;
+    q[2] = 0;
+    q[3] = 8;
+    d = func_0016FD00((u32 *)(q + 4), a, b, 0x80, 0x80, 0x80, 0x80);
+    g_70000158 = d;
+    g_70000158 = func_0016FD00(d, a, c, 0x80, 0x80, 0x80, 0x80);
+}
+
+/* 0x00170510, 0x18C bytes. The edge of the kinds held at both ends (0x14-0x1B): from 16 along
+ * node `ma` to 14 along `mb`. */
+void func_00170510(u8 *slot, int on, float *ma, float *mb)
+{
+    u8 *w = PTR(slot, 0x58);
+
+    U8(w, 0x60) = (U8(w, 0x60) & ~2) | (on & 1) << 1;
+    if (on == 0)
+        return;
+    keep_ends(w);
+    place_x(&F32(w, 0x20), ma, 16.0f);
+    place_x(&F32(w, 0x30), mb, 14.0f);
+    if (U8(slot, 0x4C) & 0x40)
+        keep_ends(w);
+    U8(slot, 0x4C) &= ~0x40;
+}
+
+/* 0x001706A0, 0x100 bytes. Draws that weapon's line (16 along `ma` to 14 along `mb`). */
+void func_001706A0(u8 *slot, float *ma, float *mb)
+{
+    float a[4], b[4];
+
+    place_x(a, ma, 16.0f);
+    place_x(b, mb, 14.0f);
+    g_70000158 = func_0016F9B0(g_70000158, a, b, 0xBE, 0x80, 0x80, 0x42);
+}
+
+/* 0x001707A0, 0x104 bytes. The entry for weapon kind `k` in a table at `base` (kinds 0-0x19
+ * 4 bytes each; the groups 0x3E-0x48, 0x49-0x53, 0x54-0x5C, 0x5D-0x67 at +0x68 / +0x6C /
+ * +0x70 / +0x70); 0x6A for the others, as in the original. */
+int func_001707A0(int k, int base)
+{
+    if (k > 0x19) {
+        if (k >= 0x3E && k <= 0x48)
+            k = 0x26;
+        else if (k >= 0x49 && k <= 0x53)
+            k = 0x2A;
+        else if (k >= 0x54 && k <= 0x5C)
+            k = 0x20;
+        else if (k > 0x5C && k < 0x68)
+            k = 0x21;
+    }
+    if (k < 0 || k > 0x19) {
+        if (k == 0x21 || k == 0x20)
+            return base + 0x70;
+        if (k == 0x2A)
+            return base + 0x6C;
+        if (k == 0x26)
+            return base + 0x68;
+        return 0x6A;
+    }
+    return base + k * 4;
+}
