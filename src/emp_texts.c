@@ -864,3 +864,29 @@ char *func_00372A30(int k, int o)
         return g_00454E60[k];
     return g_00456080[k];
 }
+
+int func_002F3BB0(int o);
+int func_0039E650(int k);
+int func_00327950(void);
+void func_002F3B30(int o, int v);
+void func_002F3CF0(int o, int v);
+void func_002F3F70(int o, int v);
+
+/* 0x003703A0, 0x118 bytes. Officers without a force (and not states 3 or 4) become free (state
+ * 2), except unused custom officers (state 3). */
+void func_003703A0(void)
+{
+    int o;
+
+    for (o = 0; o < 0x19F; o++) {
+        if (is_force(func_002F4080(o)) || func_002F3BB0(o) == 3 || func_002F3BB0(o) == 4)
+            continue;
+        if (o < 400 || o > 0x19E || (func_0039E650(o - 400) != 0 && func_00327950() != 0)) {
+            func_002F3B30(o, 2);
+            func_002F3CF0(o, 0);
+            func_002F3F70(o, 0x19);
+        } else {
+            func_002F3B30(o, 3);
+        }
+    }
+}

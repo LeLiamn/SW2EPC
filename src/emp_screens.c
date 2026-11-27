@@ -480,3 +480,55 @@ u8 *func_003BD210(void)
 {
     return func_00390940();
 }
+
+int func_003F7780(int s, int k);
+int func_003A1C60(int k);
+char *func_00372470(void);
+char *func_00372990(int k);
+
+/* 0x003AFBD0, 0x80 bytes. Whether side `s` has tactic 1, 2, 3 or 9. */
+int func_003AFBD0(int s)
+{
+    if (func_003F7780(s, 1) != 0 || func_003F7780(s, 2) != 0 || func_003F7780(s, 3) != 0)
+        return 1;
+    return func_003F7780(s, 9) != 0;
+}
+
+/* 0x003AFC50, 0x80 bytes. Tactic 4, 5, 6 or 9. */
+int func_003AFC50(int s)
+{
+    if (func_003F7780(s, 4) != 0 || func_003F7780(s, 5) != 0 || func_003F7780(s, 6) != 0)
+        return 1;
+    return func_003F7780(s, 9) != 0;
+}
+
+/* 0x003AFCD0, 0x64 bytes. Tactic 7, 8 or 9. */
+int func_003AFCD0(int s)
+{
+    if (func_003F7780(s, 7) != 0 || func_003F7780(s, 8) != 0)
+        return 1;
+    return func_003F7780(s, 9) != 0;
+}
+
+/* 0x003B0430, 0x40 bytes, matching. Battle officer `o`'s side (3: none). */
+u8 func_003B0430(u8 *o)
+{
+    u8 *u;
+
+    if (o == 0 || (*(u32 *)(o + 0xB8) & 1) == 0)
+        return 3;
+    u = *(u8 **)(o + 0x10);
+    if (u == 0)
+        return 3;
+    return u[0x79];
+}
+
+/* 0x003B0C10, 0x5C bytes. An encyclopedia entry's title (hidden until seen). */
+char *func_003B0C10(int k)
+{
+    if (k >= 0x177)
+        return 0;
+    if (func_003A1C60(k - 0x87) == 0)
+        return func_00372470();
+    return func_00372990(k - 0x1B);
+}

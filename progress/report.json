@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 165472,
-    "non_matching": 1099368
+    "matching": 165536,
+    "non_matching": 1100112
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2115
+    "matching": 2116
   },
   "layout": "treemap",
   "areas": [
@@ -163,14 +163,14 @@
         },
         {
           "name": "StateEdit.c",
-          "description": "Estimated range 0x36DE68-0x382E28; 227 function(s) decompiled",
+          "description": "Estimated range 0x36DE68-0x382E28; 228 function(s) decompiled",
           "code": {
             "total": 85952,
             "matching": 3632,
-            "non_matching": 34312
+            "non_matching": 34592
           },
           "decompiled_functions": {
-            "count": 227,
+            "count": 228,
             "matching": 87
           }
         },
@@ -467,15 +467,15 @@
         },
         {
           "name": "StationEmp.c",
-          "description": "Estimated range 0x3ACA98-0x3B4C30; 34 function(s) decompiled",
+          "description": "Estimated range 0x3ACA98-0x3B4C30; 39 function(s) decompiled",
           "code": {
             "total": 33176,
-            "matching": 656,
-            "non_matching": 1432
+            "matching": 720,
+            "non_matching": 1896
           },
           "decompiled_functions": {
-            "count": 34,
-            "matching": 14
+            "count": 39,
+            "matching": 15
           }
         }
       ]
