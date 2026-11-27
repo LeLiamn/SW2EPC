@@ -2463,3 +2463,450 @@ void func_00312980(void)
         break;
     }
 }
+
+/* A command record (0x20 bytes, 100 of them at 0x00446AD0). */
+typedef struct {
+    int group;               /* +0x00 */
+    int unknown_04;          /* +0x04 */
+    int unknown_08;          /* +0x08 */
+    int unknown_0C;          /* +0x0C */
+    int unknown_10;          /* +0x10 */
+    int unknown_14;          /* +0x14 */
+    int unknown_18;          /* +0x18 */
+    short cost;              /* +0x1C */
+    short unknown_1E;        /* +0x1E */
+} Command;
+
+extern Command g_00446AD0[100];
+extern int g_00447608[];
+
+const char *func_00372250(int k);
+u32 func_00328330(int k);
+u32 func_00328640(int k);
+void func_003DC090(int k, int *pos);
+void func_003DC0E0(int k, int a, int b);
+int func_003DC2D0(int k);
+void func_00328440(int r);
+void func_00328360(int a);
+void func_00328750(int r);
+void func_00328670(int a);
+int func_0030AC50(int r);
+int func_0017E0A0(void);
+void func_0017E010(int k);
+int func_003F4D60(int k);
+int func_003F1070(int k);
+int func_00314030(int k, int f);
+int func_002FBC90(int f, int t);
+int func_002F8CB0(int f);
+
+#define pad1_held() ((unsigned short)(pad1_ready() ? g_00500700[0].held : 0))
+
+/* 0x00312E70, 0x160 bytes. Notice: message 0x118 for each listed value in turn (window 8). */
+void func_00312E70(void)
+{
+    Notice *n = func_0030E2C0();
+    int pos[5];
+
+    switch (n->step) {
+    case 3:
+        func_0030E4E0(0);
+        break;
+    case 2:
+        if (++n->c > 5) {
+            if (++n->a < n->count)
+                n->step = 0;
+            else
+                n->step = 3;
+        }
+        break;
+    case 1:
+        if (CLOSED_OK()) {
+            func_003DB480(8, 5);
+            n->c = 0;
+            n->step = 2;
+        }
+        break;
+    case 0:
+        pos[4] = 0x80;
+        func_003DB220(8, pos);
+        func_003DB460(8, 5);
+        func_001204B0(g_007B4E60, func_00390760(0x118), func_00372250(n->list[n->a]));
+        SHOW();
+        n->step = 1;
+        break;
+    }
+}
+
+/* Opens the two windows of a choice list. */
+static void open_choice(void)
+{
+    int pos[5];
+
+    pos[1] = 0x60;
+    pos[2] = 0x96;
+    pos[3] = 0x18;
+    pos[4] = 0x80;
+    pos[0] = 0;
+    func_003DC090(0x10, pos);
+    func_003DC0E0(0x10, 1, 1);
+    pos[0] = 0x154;
+    pos[1] = 0x68;
+    pos[2] = 0x98;
+    pos[3] = 0xD8;
+    pos[4] = 0x80;
+    func_003DC090(0x11, pos);
+    func_003DC0E0(0x11, 2, 1);
+}
+
+/* 0x00312FD0, 0x12C bytes. The choice list of func_00328330's values (up to five), then `a`. */
+void func_00312FD0(void)
+{
+    Notice *n = func_0030E2C0();
+    int cnt = 0, k;
+
+    for (k = 0; k < 5; k++) {
+        u32 v = func_00328330(k);
+
+        if (v < 100)
+            n->list[cnt++] = v;
+    }
+    n->list[cnt] = n->a;
+    n->count = cnt + 1;
+    n->b = 0;
+    open_choice();
+}
+
+/* 0x00313100, 0x12C bytes. The same with func_00328640's values. */
+void func_00313100(void)
+{
+    Notice *n = func_0030E2C0();
+    int cnt = 0, k;
+
+    for (k = 0; k < 5; k++) {
+        u32 v = func_00328640(k);
+
+        if (v < 100)
+            n->list[cnt++] = v;
+    }
+    n->list[cnt] = n->a;
+    n->count = cnt + 1;
+    n->b = 0;
+    open_choice();
+}
+
+/* 0x00313230, 0x1F4 bytes. Runs the choice list: Up / Down move (wrapping on a press), OK picks
+ * (returns the row), else -1. */
+int func_00313230(void)
+{
+    Notice *n = func_0030E2C0();
+    int cnt = n->count;
+    u32 pressed, held;
+
+    if (func_003DC2D0(0x10) != 0 || func_003DC2D0(0x11) != 0)
+        return -1;
+    pressed = pad1_pressed();
+    held = pad1_held();
+    if (pressed & 0x40) {
+        func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+        return n->b;
+    }
+    if (held & 0x4000) {
+        if (n->b < cnt - 1) {
+            func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+            n->b++;
+        } else if (pressed & 0x4000) {
+            func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+            n->b = 0;
+        }
+    } else if (held & 0x1000) {
+        if (n->b < 1) {
+            if (pressed & 0x1000) {
+                func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+                n->b = (cnt - 1) & 0xFF;
+            }
+        } else {
+            func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+            n->b--;
+        }
+    }
+    return -1;
+}
+
+/* 0x00313430, 0x1C bytes, matching. */
+int func_00313430(void)
+{
+    return func_00313230();
+}
+
+/* 0x00313450, 0x158 bytes. Notice: a choice between commands (0x3B-0x59 from func_00328330,
+ * else from func_00328640); the chosen one (unless 5) is applied. */
+void func_00313450(void)
+{
+    Notice *n = func_0030E2C0();
+    int s = n->step, a = n->a, r;
+
+    if (s == 2) {
+        func_0030E4E0(0);
+    } else if (s == 1) {
+        if (a > 0x3A && a < 0x5A) {
+            r = func_00313230();
+            if (r != -1) {
+                if (r != 5) {
+                    func_00328440(r);
+                    func_00328360(a);
+                }
+                n->step++;
+            }
+        } else {
+            r = func_00313430();
+            if (r != -1) {
+                if (r != 5) {
+                    func_00328750(r);
+                    func_00328670(a);
+                }
+                n->step++;
+            }
+        }
+    } else if (s == 0) {
+        if (a > 0x3A && a < 0x5A)
+            func_00312FD0();
+        else
+            func_00313100();
+        n->step++;
+    }
+}
+
+/* 0x003135B0, 0x210 bytes, matching. Runs the notice by its kind. */
+void func_003135B0(void)
+{
+    switch (func_0030E2C0()->kind) {
+    case 0: func_0030EFF0(); break;
+    case 1: func_0030F170(); break;
+    case 2: func_0030F240(); break;
+    case 3: func_0030FBA0(); break;
+    case 4: func_0030FC10(); break;
+    case 5: func_0030FC60(); break;
+    case 6: func_0030FD00(); break;
+    case 7: func_0030FF70(); break;
+    case 8: func_003100E0(); break;
+    case 9: func_003104D0(); break;
+    case 10: func_00310C80(); break;
+    case 0xD: func_00310D90(); break;
+    case 0xC: func_00311170(); break;
+    case 0xE: func_00311260(); break;
+    case 0xF: func_00311380(); break;
+    case 0x10: func_00311490(); break;
+    case 0x11: func_00312090(); break;
+    case 0x12: func_00312400(); break;
+    case 0x13: func_00312590(); break;
+    case 0x14: func_00312660(); break;
+    case 0x15: func_003127F0(); break;
+    case 0x16: func_00312980(); break;
+    case 0x17: func_00312E70(); break;
+    case 0x18: func_00313450(); break;
+    case 0x19: func_0030F150(); break;
+    case 0x1A: func_0030F150(); break;
+    case 0x1B: func_0030F150(); break;
+    case 0x1C: func_0030F150(); break;
+    case 0x1D: func_0030F150(); break;
+    case 0xB: break;
+    }
+}
+
+/* 0x003137C0, 0x108 bytes. The map music: by scenario (0-5), or by the player's leader's
+ * region kind (scenarios 6-10). */
+void func_003137C0(void)
+{
+    int s = func_00327C00(), m = 0x33;
+    int kind = func_0030AC50(func_002F5CC0(func_00327820()));
+
+    switch (s) {
+    case 0: break;
+    case 1: m = 0x34; break;
+    case 2: m = 0x35; break;
+    case 3: m = 0x36; break;
+    case 4: m = 0x37; break;
+    case 5: m = 0x38; break;
+    case 6: case 7: case 8: case 9: case 10:
+        switch (kind) {
+        case 0: break;
+        case 1: m = 0x34; break;
+        case 2: case 3: m = 0x35; break;
+        case 4: m = 0x36; break;
+        case 5: case 6: m = 0x37; break;
+        case 7: m = 0x38; break;
+        }
+        break;
+    }
+    if (m != func_0017E0A0())
+        func_0017E010(m);
+}
+
+/* 0x003138D0, 0x1B4 bytes. The map tutorials (5 while one shows): 0x14, then for the player's
+ * force from year 2 on those of commands 0x31 (9), 0x32 / 0x33 (10), 0x30 (0xB), 2 (0xF) and
+ * 0x11 (0x10). */
+int func_003138D0(void)
+{
+    if (func_003F4D60(0x14) != 0)
+        return 5;
+    if (func_00314030(0x31, func_00327D50()) != 0 && func_00327C70() > 1 && func_003F1070(9) != 0)
+        return 5;
+    if (func_00314030(0x32, func_00327D50()) != 0 || func_00314030(0x33, func_00327D50()) != 0) {
+        if (func_00327C70() > 1 && func_003F1070(10) != 0)
+            return 5;
+    }
+    if (func_00314030(0x30, func_00327D50()) != 0 && func_00327C70() >= 2 && func_003F1070(0xB) != 0)
+        return 5;
+    if (func_00314030(2, func_00327D50()) != 0 && func_00327C70() >= 2 && func_003F1070(0xF) != 0)
+        return 5;
+    if (func_00314030(0x11, func_00327D50()) != 0 && func_00327C70() >= 2 && func_003F1070(0x10) != 0)
+        return 5;
+    return 0;
+}
+
+/* 0x00313A90, 0x30 bytes, matching. Tutorial 0x15. */
+int func_00313A90(void)
+{
+    return func_003F4D60(0x15) != 0 ? 5 : 0;
+}
+
+/* 0x00313AC0, 0x64 bytes, matching. The sound for result `k` (1: 0xD, 2: 0xE) of the player's force. */
+void func_00313AC0(int f, int k)
+{
+    int s = 0xD;
+
+    if (k == 0)
+        return;
+    if (k == 2)
+        s = 0xE;
+    if (func_002FB2A0(f) != 0 && func_0023A760(s) != 0) {
+        func_00102960(1);
+        func_0023A7D0(s);
+    }
+}
+
+/* 0x00313B30-0x00313D50. Command `c`'s record fields (0x65 and others past 100 have fixed
+ * values). */
+int func_00313B30(u32 c)
+{
+    if (c == 0x65)
+        return 0xF;
+    if (c < 100)
+        return g_00446AD0[c].unknown_10;
+    return 0x12;
+}
+
+int func_00313B90(u32 c)
+{
+    if (c == 0x65)
+        return 0x23;
+    if (c < 100)
+        return g_00446AD0[c].unknown_14;
+    return 0x18;
+}
+
+int func_00313BF0(u32 c)
+{
+    if (c < 100)
+        return g_00446AD0[c].unknown_04;
+    return 5;
+}
+
+int func_00313C30(u32 c)
+{
+    if (c < 100)
+        return g_00446AD0[c].unknown_0C;
+    return 0;
+}
+
+int func_00313C70(u32 c)
+{
+    if (c < 100)
+        return g_00446AD0[c].unknown_18;
+    return 0xF;
+}
+
+int func_00313CB0(u32 c)
+{
+    if (c == 0x65)
+        return 0xB;
+    if (c < 100)
+        return g_00446AD0[c].group;
+    return 0xD;
+}
+
+short func_00313D10(u32 c)
+{
+    if (c < 100)
+        return g_00446AD0[c].unknown_1E;
+    return 0;
+}
+
+int func_00313D50(u32 c)
+{
+    if (c == 0x65)
+        return 0xB;
+    if (c < 100)
+        return g_00446AD0[c].unknown_08;
+    return 0;
+}
+
+/* 0x00313DB0, 0x168 bytes. Command `c`'s cost for force `f` (-1 for 0x65): commands 0x48-0x4E
+ * cost half with the matching trait (5, 2, 4, else 3). */
+int func_00313DB0(u32 c, int f)
+{
+    int v, t;
+
+    if (c == 0x65)
+        return -1;
+    if (c >= 100)
+        return 0;
+    v = g_00446AD0[c].cost;
+    if (func_002F8CB0(f) == 0 || c - 0x48 >= 7)
+        return v;
+    switch (c) {
+    case 0x48: t = 5; break;
+    case 0x49: t = 2; break;
+    case 0x4A: t = 4; break;
+    default: t = 3; break;
+    }
+    if (func_002FBC90(f, t) != 0)
+        v = v / 2;
+    return v;
+}
+
+/* 0x00313F20, 0x18 bytes, matching. */
+int func_00313F20(int k)
+{
+    return g_00447608[k];
+}
+
+/* 0x00313F40, 0x38 bytes. Whether command `c` is 6, 8 or 0x1B. */
+int func_00313F40(int c)
+{
+    if ((u32)(c - 6) < 0x16 && ((1 << (c - 6)) & 0x200005) != 0)
+        return 1;
+    return 0;
+}
+
+/* 0x00313F80, 0x38 bytes. Whether command `c` is 7, 9 or 0x1C. */
+int func_00313F80(int c)
+{
+    if ((u32)(c - 7) < 0x16 && ((1 << (c - 7)) & 0x200005) != 0)
+        return 1;
+    return 0;
+}
+
+/* 0x00313FC0, 0x34 bytes. Command `c`'s cost for force `f` (0 instead of -1). */
+int func_00313FC0(u32 c, int a, int f)
+{
+    int v = func_00313DB0(c, f);
+
+    return v == -1 ? 0 : v;
+}
+
+/* 0x00314000, 0x28 bytes, matching. The cost of command record `p` (+0 force, +4 command, +8 value). */
+int func_00314000(int *p)
+{
+    return func_00313FC0(p[1], p[2], p[0]);
+}
