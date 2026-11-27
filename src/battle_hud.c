@@ -902,13 +902,12 @@ int func_003E58C0(void)
     return 0x4AF;
 }
 
-/* 0x003E5930, 0x3C bytes. */
-void func_003E5930(void)
+/* 0x003E5930, 0x3C bytes. The stage's music. */
+int func_003E5930(void)
 {
     if (func_0036D310() == 0)
-        func_003E5830();
-    else
-        func_003E58C0();
+        return func_003E5830();
+    return func_003E58C0();
 }
 
 /* 0x003E5D80, 0x60 bytes. Loads the battle message file. */
@@ -1420,4 +1419,224 @@ void func_003E4B30(void)
     g_0056CCC8[3] = 0x80;
     func_002C7310(x + 0x32, 0x46, 0, 0xA4, 0x18, 0x80, 0);
     func_002C4C50(20.0f, s, x + 0x46, 0x48, 0x7C, 1, 0, 6);
+}
+
+/* The gallery viewer's frame, battle start lists, the stage's script file and the battle time
+ * (parts of 0x003E4DA0-0x003E5EC4). */
+
+extern short g_007BF740[2];
+extern u8 g_007BF74C, g_007BF76C;
+extern u8 *g_007BF750;
+extern int g_0041D360[0x30][2];
+extern u32 *g_005BA7CC;                  /* the stage's script file */
+extern u32 g_005BA7D0, g_005BA7D4, g_005BA7D8;
+extern u8 **g_005BA7DC, **g_005BA7E0;
+
+int func_001AE550(float speed, void *window, short *pos, u8 *alpha, int a);
+u8 *func_002EE590(void);
+u8 *func_002EE5A0(void);
+int func_002ED160(void);
+void func_003E4AD0(void);
+void *func_00102DB0(int align, int size);
+void func_003DCDC0(void);
+void func_00339760(void);
+void func_0036FEA0(void);
+void func_0036E130(void);
+void func_003F7E20(void);
+void func_003F65F0(void);
+void func_003E30D0(void);
+void func_0020FC40(void);
+void func_003DCD90(void);
+void func_003AFD90(void);
+int func_0032E7B0(void);
+void func_0035E010(void);
+void func_003554D0(void);
+void func_0035D0C0(void);
+void func_0035D0F0(void);
+void func_0035D120(void);
+void func_003F8100(void);
+void func_003F6630(void);
+void func_00254310(void);
+void func_002582B0(void);
+int func_0018F800(u8 *c, int k);
+void func_0018F890(u8 *c, int k, int v);
+int func_001902A0(void);
+void func_001902B0(void);
+u32 func_003635F0(void);
+int func_00363B30(int k);
+int func_00361E90(void);
+
+/* 0x003E4DA0, 0x1A0 bytes. The gallery viewer's frame. */
+void func_003E4DA0(void)
+{
+    u8 *p = func_003E46F0();
+    int b, k;
+
+    if (p == 0)
+        return;
+    if (*(int *)(p + 0x10) == 5) {
+        u8 *w = func_002EE590();
+
+        g_007BF770 = w;
+        b = func_001AE550(g_007BF768, w, &g_007BF760, &g_007BF76C, 0);
+        g_007BF76D = (g_007BF76D & 0xFE) | (b & 1);
+        if ((b & 1) != 0) {
+            k = func_002ED160();
+            if (k < 0x14) {
+                g_007BF76D &= 0xFE;
+                g_007BF770[0x13] = k;
+            } else {
+                g_007BF770[0x13] = 0x16;
+            }
+        }
+    }
+    func_003E4AD0();
+    func_003E48A0();
+    func_003E4B30();
+    g_007BF750 = func_002EE5A0();
+    b = func_001AE550(g_007BF748, g_007BF750, g_007BF740, &g_007BF74C, 0);
+    g_007BF74D = (g_007BF74D & 0xFE) | (b & 1);
+    k = *(short *)(p + 0xE) + *(short *)(p + 0xC);
+    if (*(int *)p == 1)
+        k += 0xE;
+    func_003E47D0(k, g_007BF740[0], 0x6C, 1);
+}
+
+/* 0x003E5570, 0x78 bytes, matching. Saves the battle's results into the game. */
+void func_003E5570(void)
+{
+    func_003DCDC0();
+    func_00339760();
+    func_0036FEA0();
+    func_0036E130();
+    func_003F7E20();
+    func_003F65F0();
+    func_003E30D0();
+    func_0020FC40();
+    if (*(int *)(g_00669D60 + 0x20C) == 1) {
+        func_003DCD90();
+        func_003AFD90();
+    }
+}
+
+/* 0x003E5610, 0x80 bytes. */
+void func_003E5610(void)
+{
+    if (func_0032E7B0() == 0) {
+        func_0035E010();
+        if (*(int *)(g_00669D60 + 0x20C) != 1) {
+            func_003554D0();
+            func_0035D0C0();
+            func_0035D0F0();
+            func_0035D120();
+        }
+    }
+    func_003F8100();
+    func_003F6630();
+    func_00254310();
+    func_002582B0();
+}
+
+/* 0x003E5690, 0x134 bytes. Closes every cell's open sides (two fixed on stage 0xC). */
+void func_003E5690(void)
+{
+    u8 c[2];
+    int x, y, s;
+
+    for (y = 0; y < 0x20; y++) {
+        for (x = 0; x < 0x20; x++) {
+            for (s = 0; s < 4; s++) {
+                c[0] = x;
+                c[1] = y;
+                if (func_0018F800(c, s * 2) != 0)
+                    func_0018F890(c, s * 2, 2);
+            }
+        }
+    }
+    if (func_003623B0() == 0xC) {
+        c[0] = 10;
+        c[1] = 4;
+        func_0018F890(c, 0, 3);
+        c[0] = 0xB;
+        c[1] = 4;
+        func_0018F890(c, 4, 3);
+    }
+    while (func_001902A0() != 0)
+        func_001902B0();
+}
+
+/* 0x003E5830, 0x90 bytes. The stage's music (Empire battles, by side). */
+int func_003E5830(void)
+{
+    int t[0x30][2], k;
+    u32 a, b;
+
+    for (k = 0; k < 0x30; k++) {
+        t[k][0] = g_0041D360[k][0];
+        t[k][1] = g_0041D360[k][1];
+    }
+    a = func_003623B0();
+    b = func_003635F0();
+    if (a < 0x30 && b < 2)
+        return t[a][b];
+    return 0x4AD;
+}
+
+/* 0x003E5970, 0x3B0 bytes. Loads the stage's script file and indexes its events (each: flags,
+ * condition count at +4, conditions from +6 then commands, 0x12 bytes each). */
+void func_003E5970(void)
+{
+    u32 n, k;
+
+    g_005BA7CC = (u32 *)func_001026D0(1, func_003E5930(), 0, 1, 0, 0, g_0045C628, 0x121);
+    n = g_005BA7CC[0];
+    g_005BA7D4 = g_005BA7CC[1];
+    g_005BA7D8 = g_005BA7CC[2];
+    g_005BA7D0 = n;
+    if (n == 0) {
+        g_005BA7E0 = 0;
+        g_005BA7DC = 0;
+        return;
+    }
+    if (n * 4 != 0) {
+        g_005BA7DC = func_00102DB0(0x10, n * 4);
+        g_005BA7E0 = func_00102DB0(0x10, n * 4);
+    }
+    for (k = 0; k < n; k++) {
+        u8 *b = (u8 *)g_005BA7CC + g_005BA7CC[3 + k];
+
+        b[0] &= 0xFC;
+        g_005BA7DC[k] = b + 6;
+        g_005BA7E0[k] = b + 6 + b[4] * 0x12;
+    }
+}
+
+/* 0x003E5D20, 0x54 bytes. */
+void func_003E5D20(void)
+{
+    if (g_005BA7DC != 0)
+        func_00102EC0((u8 *)g_005BA7DC);
+    if (g_005BA7E0 != 0)
+        func_00102EC0((u8 *)g_005BA7E0);
+    func_00102EC0((u8 *)g_005BA7CC);
+}
+
+/* 0x003E5E00, 0xC4 bytes. The battle's time limit (in 50 Hz frames). */
+void func_003E5E00(void)
+{
+    int v;
+
+    if ((*(u32 *)(g_00669D60 + 0x200) & 0x10) != 0) {
+        *(int *)(g_00669D60 + 0x240) = 3000;
+        return;
+    }
+    if (func_0036D310() == 0) {
+        v = func_003635F0() == 0 ? 90000 : 45000;
+        v += func_00363B30(2) * 30000 - func_00363B30(3) * 15000;
+    } else {
+        v = func_00361E90() * 3000;
+    }
+    if (v < 0x1771)
+        v = 6000;
+    *(int *)(g_00669D60 + 0x240) = v;
 }

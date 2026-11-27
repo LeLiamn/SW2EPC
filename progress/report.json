@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 172144,
-    "non_matching": 1160860
+    "matching": 172272,
+    "non_matching": 1163116
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2196
+    "matching": 2197
   },
   "layout": "treemap",
   "areas": [
@@ -363,15 +363,15 @@
         },
         {
           "name": "emp_sc.c",
-          "description": "Estimated range 0x3E5320-0x3E6768; 6 function(s) decompiled",
+          "description": "Estimated range 0x3E5320-0x3E6768; 13 function(s) decompiled",
           "code": {
             "total": 5192,
-            "matching": 64,
-            "non_matching": 368
+            "matching": 192,
+            "non_matching": 2208
           },
           "decompiled_functions": {
-            "count": 6,
-            "matching": 2
+            "count": 13,
+            "matching": 3
           }
         },
         {
@@ -454,14 +454,14 @@
         },
         {
           "name": "emp_zuroku_movie.c",
-          "description": "Estimated range 0x3E48A8-0x3E5320; 3 function(s) decompiled",
+          "description": "Estimated range 0x3E48A8-0x3E5320; 4 function(s) decompiled",
           "code": {
             "total": 2680,
             "matching": 32,
-            "non_matching": 352
+            "non_matching": 768
           },
           "decompiled_functions": {
-            "count": 3,
+            "count": 4,
             "matching": 1
           }
         },
