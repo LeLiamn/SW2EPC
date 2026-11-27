@@ -711,18 +711,19 @@ void func_00366160(int entry, int offered)
 
 /* 0x003661B0, 0x148 bytes. Sets up the main menu: the entries offered, the cursor on entry 6,
  * the four shown around it. */
+#pragma opt_unroll_loops on
 void func_003661B0(void)
 {
+    int i;
+    int n;
     StartMenu *menu = (StartMenu *)func_00365450();
-    int i, n;
 
     menu->index = 0;
     menu->unknown_14 = 0;
     func_00366030();
     for (i = 0; i < 11; i++)
         menu->entries[i] = -1;
-    n = 0;
-    for (i = 0; i < 11; i++) {
+    for (i = 0, n = 0; i < 11; i++) {
         if (i < 7)
             menu->entries[i] = i;
         else if (func_00366120(i) != 0)
@@ -735,13 +736,14 @@ void func_003661B0(void)
     }
     menu->count = n;
     for (i = 0; i < 4; i++)
-        menu->shown[i] = menu->entries[func_003654A0(menu->index + i - 1)];
+        menu->shown[i] = menu->entries[func_003654A0(menu->index + (i - 1))];
     menu->turn = 3;
     func_003853A0();
     menu->unknown_17B = 0;
     func_003849F0();
     func_00384E30();
 }
+#pragma opt_unroll_loops off
 
 /* 0x00366300, 0x78 bytes, matching. */
 #pragma opt_unroll_loops on
@@ -1268,30 +1270,32 @@ void func_003673E0(void)
     }
 }
 
-/* 0x00367B10, 0xB4 bytes. Makes an officer choosable or not, keeping the counts. */
+/* 0x00367B10, 0xB4 bytes, matching. Makes an officer choosable or not, keeping the counts. */
 static void func_00367B10(int officer, int available)
 {
-    int delta;
+    u8 *st = &g_007B7104;
+    int delta, edited;
 
     if (officer >= 0x19F)
         return;
     if (available != 0) {
         delta = 1;
-        if (g_007B7107[officer] == 1)
+        if (st[officer + 3] == 1)
             return;
-        g_007B7107[officer] = 1;
+        st[officer + 3] = 1;
     } else {
-        if (g_007B7107[officer] == 0)
+        if (st[officer + 3] == 0)
             return;
-        g_007B7107[officer] = 0;
+        st[officer + 3] = 0;
         delta = -1;
     }
-    if (officer < 400 || officer > 0x19E) {
-        g_007B8CA4 += delta;
-        if (officer > 0x1B && officer < 400)
-            g_007B8CA8 += delta;
+    edited = officer >= 400 && officer < 0x19F;
+    if (edited) {
+        *(int *)(st + 0x1BA0) += delta;
     } else {
-        g_007B8CA4 += delta;
+        *(int *)(st + 0x1BA0) += delta;
+        if (officer >= 0x1C && officer < 400)
+            *(int *)(st + 0x1BA4) += delta;
     }
 }
 
