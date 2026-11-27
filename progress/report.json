@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 81344,
-    "non_matching": 601040
+    "matching": 81920,
+    "non_matching": 609140
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 772
+    "matching": 790
   },
   "layout": "treemap",
   "areas": [
@@ -59,15 +59,15 @@
         },
         {
           "name": "StateDemo.c",
-          "description": "Estimated range 0x1BE248-0x1C3080; 25 function(s) decompiled",
+          "description": "Estimated range 0x1BE248-0x1C3080; 53 function(s) decompiled",
           "code": {
             "total": 20024,
-            "matching": 352,
-            "non_matching": 5688
+            "matching": 928,
+            "non_matching": 6584
           },
           "decompiled_functions": {
-            "count": 25,
-            "matching": 8
+            "count": 53,
+            "matching": 26
           }
         },
         {
@@ -646,14 +646,14 @@
       "children": [
         {
           "name": "ModelManager.c",
-          "description": "Estimated range 0x1B56D8-0x1BE248; 42 function(s) decompiled",
+          "description": "Estimated range 0x1B56D8-0x1BE248; 59 function(s) decompiled",
           "code": {
             "total": 35696,
             "matching": 864,
-            "non_matching": 18452
+            "non_matching": 25656
           },
           "decompiled_functions": {
-            "count": 42,
+            "count": 59,
             "matching": 8
           }
         },
