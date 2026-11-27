@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 186528,
-    "non_matching": 1322856
+    "non_matching": 1334536
   },
   "data": {
     "total": 2155890688,
@@ -215,14 +215,14 @@
         },
         {
           "name": "ScenePreBattle.c",
-          "description": "Estimated range 0x2877B8-0x299DB8; 0 function(s) decompiled",
+          "description": "Estimated range 0x2877B8-0x299DB8; 4 function(s) decompiled",
           "code": {
             "total": 75264,
             "matching": 0,
-            "non_matching": 0
+            "non_matching": 9472
           },
           "decompiled_functions": {
-            "count": 0,
+            "count": 4,
             "matching": 0
           }
         },
@@ -589,14 +589,14 @@
         },
         {
           "name": "ObjAction.c",
-          "description": "Estimated range 0x27BF40-0x2877B8; 84 function(s) decompiled",
+          "description": "Estimated range 0x27BF40-0x2877B8; 87 function(s) decompiled",
           "code": {
             "total": 47224,
             "matching": 1216,
-            "non_matching": 29704
+            "non_matching": 31912
           },
           "decompiled_functions": {
-            "count": 84,
+            "count": 87,
             "matching": 20
           }
         },

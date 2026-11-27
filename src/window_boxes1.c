@@ -1,21 +1,12 @@
 /*
-
  * window_boxes1.c - window box set-ups between 0x00276B30 and 0x002784EC: each function fills
-
  * the boxes (records of 0x14 bytes: from x, y, w, h, to x, y, w, h, two alphas, the step count and
-
  * the step) and gauges of one screen. Generated from Ghidra's output, with every access width taken
-
  * from the disassembly. Original file name unknown.
-
  *
-
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
-
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
-
  * with a question mark are hypotheses.
-
  */
 
 typedef unsigned char u8;
