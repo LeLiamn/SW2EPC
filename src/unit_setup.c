@@ -844,3 +844,286 @@ void func_00166510(float dt, Unit *u)
     U8(u, 0x19C) = (U8(u, 0x19C) & ~1) | 1;
     U8(u, 0x19F) &= ~0x20;
 }
+
+extern u32 *g_005B5040;                  /* (small data) the face motion: header +4 tracks, +0xC the tracks */
+extern u8 g_005B5078[][0xD0];            /* weapon kinds (+0: the kind's motions, +0x50 the mounted ones) */
+extern u8 *g_005BA688;                   /* (small data) the shared motions */
+extern int g_0045D2C8;                   /* (small data) the side in the duel view */
+
+void func_00118850(void *to, int size);  /* clear */
+void func_0014D9A0(float t, Actor *a, u8 *motion);
+void func_0014D7E0(float t, Actor *a, u8 *motion, u32 first, u32 last);
+void func_0014DFC0(float t, Actor *a, u8 *rec, u8 *expr, int part);
+void func_0014E380(Actor *a);
+void func_0014D6C0(Actor *a);
+float *func_0016A170(Unit *u, int node);
+
+/* A track's value at time 0 (`p` on its first key; keys are (end frame, a, b, c, d)). */
+static inline float track_at_zero(const float *p, u32 size)
+{
+    const float *k = p;
+    float prev = 0.0f, s;
+
+    if (size == 0)
+        return 0.0f;
+    if (size == 1)
+        return *p;
+    while (!(0.0f < *k)) {
+        prev = *k;
+        k += size;
+    }
+    s = (0.0f - prev) / (*k - prev);
+    return k[4] + s * k[3] + k[1] * s * s * s + k[2] * s * s + 0.0f + 0.0f;
+}
+
+/* The motion record of action `act` (its weapon kind's, the mounted set's, or the shared one). */
+static inline u8 *act_motion(Unit *u, u8 *act)
+{
+    u8 *d = PTR(u, 0x110);
+    u8 *a = PTR(d, 8) + U16(act, 0) * 0x20;
+
+    if (U32(a, 0x1C) & 0x40000000)
+        return g_005BA688 + U16(a, 2) * 0x20;
+    if ((U32(a, 0x1C) & 0x80000000) == 0)
+        return PTR(g_005B5078[U8(d, 0x1C)], 0) + U16(a, 2) * 0x20;
+    return PTR(g_005B5078[U8(d, 0x1C)], 0x50) + U16(a, 2) * 0x20;
+}
+
+/* Whether the unit's motion is played this frame: not for the duel view's resting side. */
+static inline int plays_motion(Unit *u)
+{
+    if (S32(u, 0x118) == 0x3C)
+        return 1;
+    if ((U8(u, 0x14E) & 1) == (g_0045D2C8 & 1) && U8(u, 0x181) > 1
+        && (U32(PTR(u, 0x210), 0x18) & 0x20101))
+        return 0;
+    return 1;
+}
+
+/* The actor's root node (the variant's when it has one). */
+static inline float *root_node(u8 *a)
+{
+    if ((U8(a, 0x20C) & 2) && PTR(a, 0x1F4) != 0)
+        return (float *)PTR(a, 0x1F4);
+    return (float *)PTR(a, 0x1F0);
+}
+
+/* The rotation matrix of the unit's rotation +0x50 (VU0 micro subroutine 0x40) into m. */
+#define ROT_MATRIX(m, rot)                                              \
+    __asm__ volatile("lqc2 $vf1, 0(%1)\n"                               \
+                     "vcallms 0x40\n"                                   \
+                     "qmfc2.i $9, $vf1\n"                               \
+                     "sqc2 $vf16, 0x00(%0)\n"                           \
+                     "sqc2 $vf17, 0x10(%0)\n"                           \
+                     "sqc2 $vf18, 0x20(%0)\n"                           \
+                     "sqc2 $vf19, 0x30(%0)\n"                           \
+                     : : "r"(m), "r"(rot) : "$9", "memory")
+
+/* The motion's root offset turned with the unit (by the scratchpad matrix at 0x70000080). */
+static inline void root_offset(Unit *u)
+{
+    float r[4][4], m[4][4], *n = (float *)PTR(PTR(u, 0x11C), 0x208), *s = (float *)0x70000080;
+    int i, k;
+
+    ROT_MATRIX(r, &F32(u, 0x50));
+    for (i = 0; i < 4; i++)
+        for (k = 0; k < 4; k++)
+            m[i][k] = r[0][k] * s[i * 4] + r[1][k] * s[i * 4 + 1] + r[2][k] * s[i * 4 + 2]
+                      + r[3][k] * s[i * 4 + 3];
+    for (k = 0; k < 4; k++)
+        F32(u, 0x80 + k * 4) = m[0][k] * n[0] + m[1][k] * n[1] + m[2][k] * n[2] + m[3][k] * n[3];
+    F32(u, 0x8C) = 0.0f;
+    for (k = 0; k < 4; k++)
+        F32(u, 0x90 + k * 4) = F32(u, 0x40 + k * 4) + F32(u, 0x80 + k * 4);
+}
+
+/* 0x00166A00, 0xD2C bytes. Poses a unit's model this frame: the face (nodes 0x1A-0x2E from the
+ * face motion at time 0, for models with more than 0x1A nodes); the action's motion and the
+ * extra one (+0x250); the expression (+0x1B4, three parts); the root held in place (flag 0x80
+ * of +0x19C with +0x15A = 3, flag 0x80 of +0x19F, modes 2 and 4); the root's height scaled to
+ * the state's height (+0x114 +0x80) against the height the motion was made for; a turn of the
+ * head node (+0x240); the transition and the matrices; the root offset turned with the unit,
+ * or, for a rider, taken from its mount's node +0x274. */
+void func_00166A00(Unit *u)
+{
+    u32 *fm = g_005B5040;
+    int still = (U8(u, 0x19C) & 0x80) && U8(u, 0x15A) == 3;
+    u8 *a, *act;
+    float *r, h;
+
+    if (U8(PTR(PTR(u, 0x11C), 0x1E8), 0x29) > 0x1A) {
+        u8 *nodes = PTR(PTR(u, 0x11C), 0x1F0);
+        const float *p = (const float *)(fm + 3);
+        u32 i;
+
+        for (i = 0; i < fm[1]; i++) {
+            u32 w = *(const u32 *)p++;
+            u32 node = w & 0xFF, size = w >> 13 & 7;
+
+            if (node > 0x19 && node < 0x2F) {
+                float v = track_at_zero(p, size);
+                float *n = (float *)(nodes + node * 0x70);
+
+                U8(n, 0x68) = 1;
+                switch (w >> 8 & 0x1F) {
+                case 0:
+                    n[4] = v;
+                    break;
+                case 1:
+                    n[5] = v;
+                    break;
+                case 2:
+                    n[6] = v;
+                    break;
+                case 3:
+                    n[0] = v;
+                    break;
+                case 4:
+                    n[1] = v;
+                    break;
+                case 5:
+                    n[2] = v;
+                    break;
+                }
+            }
+            p += size * (w >> 18);
+        }
+    }
+    if (plays_motion(u))
+        func_0014D9A0(F32(u, 0x21C), PTR(u, 0x11C), act_motion(u, PTR(u, 0x210)));
+    if (PTR(u, 0x250) != 0) {
+        u8 *m = act_motion(u, PTR(u, 0x250));
+        u8 *b = PTR(u, 0x11C);
+        u8 *mdl = (U8(b, 0x20C) & 2) ? PTR(b, 0x1EC) : PTR(b, 0x1E8);
+
+        func_0014D7E0(F32(u, 0x254), PTR(u, 0x11C), m, 8, U16(mdl, 0x24));
+    }
+    if (PTR(u, 0x1B4) != 0) {
+        u8 *rec = g_006CDF60[S32(u, 0x118)] + 0x100;
+
+        func_0014DFC0(0.0f, PTR(u, 0x11C), rec, PTR(u, 0x1B4), 0);
+        func_0014DFC0(0.0f, PTR(u, 0x11C), rec, PTR(u, 0x1B4), 1);
+        func_0014DFC0(0.0f, PTR(u, 0x11C), rec, PTR(u, 0x1B4), 2);
+        PTR(u, 0x1B4) = 0;
+    }
+    if (still) {
+        r = root_node(PTR(u, 0x11C));
+        r[0] = 0.0f;
+        r[1] = 0.0f;
+        r[2] = 0.0f;
+        r[3] = 1.0f;
+    } else if (U8(u, 0x19F) & 0x80) {
+        r = root_node(PTR(u, 0x11C));
+        r[0] = 0.0f;
+        r[2] = 0.0f;
+    }
+    if (g_00669DB8 == 4 || g_00669DB8 == 2) {
+        r = root_node(PTR(u, 0x11C));
+        r[0] = 0.0f;
+        r[2] = 0.0f;
+        r[3] = 1.0f;
+    }
+    a = PTR(u, 0x11C);
+    act = PTR(u, 0x210);
+    if (a != 0) {
+        r = root_node(a);
+        h = F32(PTR(u, 0x114), 0x80);
+        if ((U32(act, 0x1C) & 0x40000000) == 0) {
+            int s = S32(u, 0x118);
+
+            if (s == 0x30 || s == 0x38 || s == 0x37 || s == 0x36 || s == 0x35 || s == 0x34
+                || s == 0x33 || s == 0x21 || s == 0x20 || s == 0x1F || s == 0x1E || s == 0x1D
+                || s == 0x1C) {
+                u8 k = U8(PTR(u, 0x110), 0x1C);
+
+                if (k < 0x1A)
+                    r[1] = r[1] * (h / F32(g_0045D300 + k * 0xA0, 0x80));
+                else if ((k >= 0x3E && k <= 0x48) || (k >= 0x49 && k <= 0x53)
+                         || (k >= 0x54 && k <= 0x5C))
+                    r[1] = r[1] * (h / 114.2966f);
+                else if (k > 0x5C && k < 0x68)
+                    r[1] = r[1] * (h / 107.5364f);
+            } else if (s == 0x1A) {
+                u32 f = U32(act, 0x1C);
+                int d;
+
+                if (f & 0x80)
+                    d = 3;
+                else if (f & 0x100)
+                    d = 0x12;
+                else if (f & 0x200)
+                    d = 9;
+                else if (f & 0x800)
+                    d = 0x13;
+                else if (f & 0x4000)
+                    d = 0xC;
+                else if (f & 0x10000)
+                    d = 2;
+                else if (f & 0x20000000)
+                    d = 1;
+                else
+                    d = 4;
+                r[1] = r[1] * (h / F32(g_0045D300 + d * 0xA0, 0x80));
+            } else if (s == 0x1B) {
+                u32 f = U32(act, 0x1C);
+                int d = (f & 4) ? 0 : (f & 0x100000) ? 0x14 : 1;
+
+                r[1] = r[1] * (h / F32(g_0045D300 + d * 0xA0, 0x80));
+            }
+        } else {
+            r[1] = r[1] * (h / 117.468f);
+        }
+        if ((U32(act, 0x18) & 0x40020) == 0 && r[1] < h * -1.0f)
+            r[1] = h * -1.0f;
+    }
+    if (U32(PTR(u, 0x210), 0x18) & 0x80000000) {
+        u8 *n = PTR(PTR(u, 0x11C), 0x208);
+        float y = F32(n, 0x398) + F32(u, 0x240);
+
+        if (3.1415927f < y)
+            y -= 6.2831855f;
+        else if (y <= -3.1415927f)
+            y += 6.2831855f;
+        F32(n, 0x398) = y;
+    }
+    if (0.0f < F32(PTR(u, 0x11C), 0x214))
+        func_0014E380(PTR(u, 0x11C));
+    if (plays_motion(u))
+        func_0014D6C0(PTR(u, 0x11C));
+    if (still) {
+        u8 *n = PTR(PTR(u, 0x11C), 0x208);
+
+        func_00118850(n + 0x170, 0x40);
+        F32(n, 0x1AC) = 1.0f;
+        n = PTR(PTR(u, 0x11C), 0x208);
+        func_00118850(n + 0x100, 0x40);
+        F32(n, 0x13C) = 1.0f;
+    }
+    {
+        u8 *m = PTR(u, 0x288);
+        int k;
+
+        if ((U32(PTR(u, 0x210), 0x18) & 0x8000000) == 0 || m == 0 || PTR(m, 0x11C) == 0) {
+            root_offset(u);
+        } else {
+            float *n = (float *)PTR(PTR(u, 0x11C), 0x208);
+
+            for (k = 0; k < 4; k++)
+                F32(u, 0x80 + k * 4) = n[k];
+            F32(u, 0x8C) = 0.0f;
+            if (U32(PTR(m, 0x11C), 0x204) < 3) {
+                root_offset(u);
+                F32(u, 0x94) = F32(u, 0x94) - F32(PTR(m, 0x114), 0x80);
+            } else {
+                float *mm = func_0016A170(m, U8(u, 0x274)), v[4];
+
+                F32(u, 0x8C) = 1.0f;
+                for (k = 0; k < 4; k++)
+                    v[k] = F32(u, 0x80 + k * 4);
+                for (k = 0; k < 4; k++)
+                    F32(u, 0x90 + k * 4) = mm[k] * v[0] + mm[4 + k] * v[1] + mm[8 + k] * v[2]
+                                           + mm[12 + k] * v[3];
+            }
+        }
+    }
+}
