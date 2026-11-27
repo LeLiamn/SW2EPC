@@ -3,14 +3,14 @@
   "code": {
     "total": 3166376,
     "matching": 66304,
-    "non_matching": 420316
+    "non_matching": 422596
   },
   "data": {
     "total": 2155890688,
     "done": 2155890688
   },
   "functions": {
-    "total": 10623,
+    "total": 10624,
     "matching": 587
   },
   "layout": "treemap",
@@ -408,11 +408,11 @@
         },
         {
           "name": "Weapon.c",
-          "description": "Estimated range 0x166E68-0x1748E8; 80 function(s) decompiled",
+          "description": "Estimated range 0x166E68-0x1748E8; 85 function(s) decompiled",
           "code": {
             "total": 55936,
             "matching": 1136,
-            "non_matching": 28192
+            "non_matching": 29496
           }
         },
         {
@@ -467,11 +467,11 @@
         },
         {
           "name": "MotionManager.c",
-          "description": "Estimated range 0x1748E8-0x1814A8; 0 function(s) decompiled",
+          "description": "Estimated range 0x1748E8-0x1814A8; 6 function(s) decompiled",
           "code": {
             "total": 52160,
             "matching": 0,
-            "non_matching": 0
+            "non_matching": 976
           }
         },
         {

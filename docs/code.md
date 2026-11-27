@@ -1000,6 +1000,26 @@ the game, this file was built with the loop unroller on.
   (`0x0016D580`), used by the quad-against-body test `0x0016D780` (not written yet: Ghidra's
   output for it is unreadable, it needs the disassembly).
 
+## Units running into each other (`src/unit_touch.c`)
+
+Game code resumes at `0x00171FA8`, right after Sony's pad library (0x001708A8-0x00171FA4,
+left out: a PC port replaces it with its own pad layer). Done: `0x00171FA8`-`0x001724B0`, 5
+functions:
+
+- a unit pushes units of its own side it runs into, and touches enemies (a horse's rider takes
+  the touch);
+- a charging horse knocks over its own side's units and weaker enemies (level up to the
+  horse's), and is stopped by stronger ones;
+- a horse's reach is an ellipse 45 wide and 140 long.
+
+## Camera shake and motion sets (`src/motion_misc.c`)
+
+Just before `MotionManager.c`: `0x0017C0D0`-`0x0017C49C`, 6 functions. A shake holds a timer
+and two (velocity, offset) pairs (eye and target): each frame the offsets move by the velocity
+times 10 and the strength (time left over the length), are damped by it, and get a new velocity
+past 5 away. A weapon kind's motion pack opens into one motion state per motion; freeing a kind
+releases its motion sets.
+
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
 Original source file `StateEdit.c`: its name is passed to the file loader at `0x003767A0`. The
