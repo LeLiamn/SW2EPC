@@ -290,7 +290,7 @@ int func_003DD680();
 int func_003EF0D0();
 int func_00285CD0(int param_1, int param_2);
 void func_00285D50(int param_1, int param_2, int param_3, int param_4);
-void func_002863E0(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6);
+int func_002863E0();
 void func_002868B0(int param_1, int param_2, u16 *param_3, int param_4, int param_5, int param_6);
 void func_002872E0(int param_1, int param_2);
 void func_002885A0(void);
@@ -321,7 +321,7 @@ void func_0029DEF0(int param_1, int param_2);
 int func_0029E370(int param_1);
 void func_002A5BE0(void);
 void func_002A6340(void);
-void func_002A6430(void);
+int func_002A6430();
 int func_002A64C0(int param_1);
 void func_002A6770(int param_1, int param_2);
 int func_002A72B0(int param_1, int param_2, int param_3);
@@ -336,7 +336,7 @@ void func_002A7CE0(void);
 void func_002A7D90(void);
 int func_002A7E30(int param_1);
 void func_002A7EC0(void);
-void func_002A9610(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6);
+int func_002A9610();
 void func_002AB450(int param_1, int param_2, int param_3, int param_4);
 void func_002AFB80(int param_1);
 void func_002B5990(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7, int param_8);
@@ -358,9 +358,9 @@ void func_002CAD60(u8 *param_1);
 void func_002CAD90(u8 *param_1);
 void func_002CB4B0(int param_1);
 void func_002CB500(int param_1);
-void func_002CD5E0(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7, int param_8);
-void func_002CD780(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7, int param_8);
-void func_002CE160(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6);
+int func_002CD5E0();
+int func_002CD780();
+int func_002CE160();
 int func_002D07A0(int param_1);
 void func_002D0DC0(int param_1);
 void func_002D67E0(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6);
@@ -406,7 +406,7 @@ void func_002E5ED0(void);
 void func_002E6210(void);
 void func_002E67B0(void);
 void func_002EA950(u32 *param_1);
-void func_002EF080(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6);
+int func_002EF080();
 int func_002EFB00(int param_1);
 void func_002EFB70(int param_1);
 void func_002EFC40(int param_1);
@@ -482,13 +482,6 @@ void func_00285D50(int param_1, int param_2, int param_3, int param_4)
     uVar2 = func_00285CD0(*(u32 *)(iVar4 + 0x1c),param_2);
     func_00383330(*(u32 *)(iVar4 + 0x38),uVar2,0xc0,0x12,0,param_4);
   }
-  return;
-}
-
-/* 0x002863E0, 0x3C bytes. */
-void func_002863E0(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6)
-{
-  func_002CC190(param_2,param_1,param_3,param_4,0,param_5,param_6,0x80);
   return;
 }
 
@@ -1268,25 +1261,6 @@ void func_002A6340(void)
   return;
 }
 
-/* 0x002A6430, 0x38 bytes. */
-void func_002A6430(void)
-{
-    int iVar1;
-    int iVar2;
-
-  
-  iVar1 = 0;
-  iVar2 = (int)g_0077BE70;
-  do {
-    if (*(int *)(iVar2 + 0x18) < 1) {
-      return;
-    }
-    iVar1 = iVar1 + 1;
-    iVar2 = iVar2 + 0x20;
-  } while (iVar1 < 4);
-  return;
-}
-
 /* 0x002A64C0, 0x90 bytes. */
 int func_002A64C0(int param_1)
 {
@@ -1665,13 +1639,6 @@ void func_002A7EC0(void)
     uVar2 = uVar2 + 1;
     puVar1 = puVar1 + 0x44;
   } while (uVar2 < 0x30);
-  return;
-}
-
-/* 0x002A9610, 0x44 bytes. */
-void func_002A9610(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6)
-{
-  func_001ABE40(param_1,1,param_2,param_3,0,param_4,param_5,param_6);
   return;
 }
 
@@ -2471,107 +2438,6 @@ void func_002CB500(int param_1)
   func_001055E0(uVar1);
   func_002CAE90(uVar1,param_1);
   func_00105770(uVar1);
-  return;
-}
-
-/* 0x002CD5E0, 0x1A0 bytes. */
-void func_002CD5E0(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7, int param_8)
-{
-    int bVar1;
-    int iVar2;
-    int iVar5;
-    int iVar6;
-    int iVar7;
-    int uVar3;
-    int uVar4;
-
-  
-  iVar2 = func_001A2970();
-  for (iVar7 = iVar2; 0 < iVar7; iVar7 = iVar7 + -1) {
-    uVar3 = func_00125450(iVar7 + -1);
-    uVar3 = func_00136DE8(0x4024000000000000,uVar3);
-    uVar4 = func_00125450(param_1);
-    uVar3 = func_001251A0(uVar4,uVar3);
-    uVar3 = func_00125508(uVar3);
-    func_002CCE60(uVar3,param_2,param_3 + (int)param_6 * (iVar2 - iVar7),param_4,param_5,param_6,
-                 param_7,param_8);
-    iVar6 = iVar7 + -1;
-    iVar5 = 1;
-    if (0 < iVar6) {
-      if (8 < iVar6) {
-        bVar1 = false;
-        if ((-1 < iVar6) && (-0x80000000 < iVar6)) {
-          bVar1 = true;
-        }
-        if (bVar1) {
-          do {
-            iVar6 = iVar6 + -8;
-            iVar5 = iVar5 * 100000000;
-          } while (8 < iVar6);
-        }
-      }
-      for (; 0 < iVar6; iVar6 = iVar6 + -1) {
-        iVar5 = iVar5 * 10;
-      }
-    }
-    param_1 = param_1 % iVar5;
-  }
-  return;
-}
-
-/* 0x002CD780, 0x1A0 bytes. */
-void func_002CD780(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7, int param_8)
-{
-    int bVar1;
-    int iVar2;
-    int iVar5;
-    int iVar6;
-    int iVar7;
-    int uVar3;
-    int uVar4;
-
-  
-  iVar2 = func_001A2970();
-  if (0 < iVar2) {
-    iVar7 = iVar2 * (int)param_6;
-    do {
-      uVar3 = func_00125450(iVar2 + -1);
-      uVar3 = func_00136DE8(0x4024000000000000,uVar3);
-      uVar4 = func_00125450(param_1);
-      uVar3 = func_001251A0(uVar4,uVar3);
-      uVar3 = func_00125508(uVar3);
-      func_002CCE60(uVar3,param_2,param_3 - iVar7,param_4,param_5,param_6,param_7,param_8);
-      iVar6 = iVar2 + -1;
-      iVar5 = 1;
-      if (0 < iVar6) {
-        if (8 < iVar6) {
-          bVar1 = false;
-          if ((-1 < iVar6) && (-0x80000000 < iVar6)) {
-            bVar1 = true;
-          }
-          if (bVar1) {
-            do {
-              iVar6 = iVar6 + -8;
-              iVar5 = iVar5 * 100000000;
-            } while (8 < iVar6);
-          }
-        }
-        for (; 0 < iVar6; iVar6 = iVar6 + -1) {
-          iVar5 = iVar5 * 10;
-        }
-      }
-      iVar2 = iVar2 + -1;
-      param_1 = param_1 % iVar5;
-      iVar7 = iVar7 - (int)param_6;
-    } while (0 < iVar2);
-  }
-  return;
-}
-
-/* 0x002CE160, 0x44 bytes. */
-void func_002CE160(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6)
-{
-  func_001ABE40(param_1,0x28,param_2,param_3,0,param_4,param_5,param_6);
   return;
 }
 
@@ -3467,27 +3333,6 @@ void func_002EA950(u32 *param_1)
     puVar1 = puVar1 + 1;
   } while (uVar2 < 4);
   *param_1 = 0;
-  return;
-}
-
-/* 0x002EF080, 0xCC bytes. */
-void func_002EF080(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6)
-{
-    int iVar1;
-    int iVar2;
-
-  
-  func_002C7310(param_2,param_3,0,param_4,param_5,0x80);
-  iVar1 = (int)param_4;
-  if (param_4 < 0) {
-    iVar1 = iVar1 + 1;
-  }
-  iVar2 = (int)param_5;
-  if (param_5 < 0) {
-    iVar2 = iVar2 + 1;
-  }
-  func_001ABE40(param_1,0x3c,(int)param_2 + (iVar1 >> 1),(int)param_3 + (iVar2 >> 1),0,
-               0xffffffffffffffff,0xffffffffffffffff,param_6);
   return;
 }
 
