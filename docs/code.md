@@ -1063,6 +1063,38 @@ player 1, bit 1 player 2, 3 both, 0 not met).
   older numbering of the codes to this one.
 - Operators (`func_00197A70`): 0 `<`, 1 `<=`, 2 `==`, 3 `>=`, 4 `>`.
 
+## Scenario units and bases (`src/sc_ubase.c`)
+
+Original source file `sc_ubase.c` (its name is passed to the file loader at `0x0019A7B0`, which
+loads LINKDATA entry 0x33, the officer table). Done: `0x0019A7B0`-`0x001A2968` except the
+horses' growth (`0x001A09F0`, `0x001A11F0`): 115 functions, 44 match.
+
+- **Officer table** (0x2C bytes each from the file's +4): +0 / +2 name and title ids, +9 the
+  weapon, +0xC-+0x1A the stats, +0x22 / +0x25 three skills and their levels, +0x28 flags.
+  Records 0x1B3-0x1B6 are the four horses, 0x24E-0x251 the players' officers. Names: below
+  0x2D3 the named officers (table `0x0042C730`), 0x2D3-0x2F0 the created officers, 0x2F1-0x2F8
+  the horses; 0x2D2 is the player's title.
+- **Players' stats** (`0x0019B4F0`): life, musou, attack, defence, two speeds and more from the
+  officer's base stats, skill levels (skill 9 raises them all) and weapon bonuses, kept within
+  fixed ranges; skills give the battle officer its values (`0x0019BD90`).
+- **Levels** (`0x0019CD70`): experience per level at `0x00428348` (20 levels); a level raises the
+  eight stats (`0x0019C170`), may teach a skill on odd levels, refills the four gauges.
+- **Study:** a player can study a beaten officer for 9000 frames (settings +0xBC); afterwards it
+  may learn one of its skills (`0x0019D480`) with a chance from the time, the points, skill 0x23
+  and a stat (at most 100%).
+- **Weapons found** (`0x0019E1E0`): rank by difficulty (raised by skill 0x24 and the officer's
+  luck), up to eight attributes (id 0-9, value up to 20), sorted (`0x0019DDC0`); the story stages
+  give fixed ones (`0x0019E820`).
+- **Horses** (four stable slots of 0x24 bytes at settings +0x5A0, +4 the state, 4 for none):
+  16 special horses (names at `0x0042DF00`), random ones (`0x001A03A0`), tricks (`0x001A0760`).
+- **Settings** (`0x00669D60`, 0x25310 bytes): +8 the options (0x50 bytes; +0x2C two 0x12-byte pad
+  maps, +0x50-+0x56 display, volumes, screen offset), +0x58 the mode, +0x88 the two players (0x48
+  bytes each: officer, counts, experience, boosts at +0xA4/+0xA8, study at +0xBC), +0x118 the
+  weapons found, +0x1C0 the skills learnt, +0x200 the battle flags (set/clear at +0x204/+0x208),
+  +0x630 a 0x8220-byte block.
+- **Save image** (`0x005D30D0`, 0x96C90 bytes): the settings' head and options, three slots (state,
+  records, stable, two large parts), the settings block; a 12-byte header (`0x0019F850`).
+
 ## The strategic map (`src/field.c`)
 
 Original source file `Field.c` (its name is passed to the file loader at `0x0018C490`). Done

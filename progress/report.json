@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 76464,
-    "non_matching": 475584
+    "matching": 79552,
+    "non_matching": 502000
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 707
+    "matching": 751
   },
   "layout": "treemap",
   "areas": [
@@ -553,11 +553,11 @@
         },
         {
           "name": "sc_ubase.c",
-          "description": "Estimated range 0x197470-0x1A1BF0; 57 function(s) decompiled",
+          "description": "Estimated range 0x197470-0x1A1BF0; 148 function(s) decompiled",
           "code": {
             "total": 42880,
-            "matching": 960,
-            "non_matching": 11896
+            "matching": 3616,
+            "non_matching": 35512
           }
         },
         {
@@ -594,11 +594,11 @@
       "children": [
         {
           "name": "cmnparts.c",
-          "description": "Estimated range 0x1A1BF0-0x1AD448; 0 function(s) decompiled",
+          "description": "Estimated range 0x1A1BF0-0x1AD448; 24 function(s) decompiled",
           "code": {
             "total": 47192,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 432,
+            "non_matching": 2800
           }
         },
         {

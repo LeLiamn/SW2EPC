@@ -1,7 +1,9 @@
 /*
  * sc_ubase.c - scenario units and bases (original source file sc_ubase.c: its name is passed to
  * the file loader at 0x0019A7B0, where it opens LINKDATA entry 0x33, the officer table).
- * Written so far: functions from 0x0019A7B0.
+ * Written so far: 0x0019A7B0-0x001A2968 except the horses' growth (0x001A09F0, 0x001A11F0). The file
+ * holds the officer table, the players' stats, levels, skills learnt in battle, weapons found,
+ * the horses, the settings (0x00669D60, 0x25310 bytes) and the save image (0x005D30D0).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -1975,4 +1977,201 @@ void func_001A1FA0(u8 *dst)
 void func_001A2040(void)
 {
     func_0011EB80(g_00669D60 + 0x254, g_005D30D0 + 0x58, 0x348);
+}
+
+extern u8 g_004281BF, g_004281CF, g_004281D7, g_004281DF, g_004281E7, g_004281EF, g_004281F7;
+
+void func_0023C050(int a);
+void func_0017E0C0(int v, int a);
+void func_0023B530(void);
+void func_0023AB70(void);
+void func_00100F90(u8 *x, u8 *y);
+
+/* Officer `id`'s stat `k`: its base, skill 9 (x `all`) and skill `k` (x `per`) and its weapon
+ * bonuses. */
+#define STAT_TOTAL(id, base, k, all, per)                                   \
+    do {                                                                    \
+        v = base;                                                           \
+        if (func_0036DC80(id, 9) != 0)                                      \
+            v += func_0036DBA0(id, 9) * (all);                              \
+        if (func_0036DC80(id, k) != 0)                                      \
+            v += func_0036DBA0(id, k) * (per);                              \
+        return v + func_0019B410(id, k);                                    \
+    } while (0)
+
+/* 0x001A2070, 0xA8 bytes. Officer `id`'s total life. */
+short func_001A2070(u32 id)
+{
+    int v = func_002F39F0(id);
+
+    if (func_0036DC80(id, 9) != 0)
+        v += func_0036DBA0(id, 9) * g_00428207;
+    if (func_0036DC80(id, 0) != 0)
+        v += func_0036DBA0(id, 0) * g_004281BF;
+    return v + func_0019B410(id, 0);
+}
+
+/* 0x001A2120, 0xA8 bytes. Its total musou. */
+short func_001A2120(u32 id)
+{
+    int v = func_002F4C40(id);
+
+    if (func_0036DC80(id, 1) != 0)
+        v += func_0036DBA0(id, 1) * g_004281C7;
+    if (func_0036DC80(id, 9) != 0)
+        v += func_0036DBA0(id, 9) * g_00428207;
+    return v + func_0019B410(id, 1);
+}
+
+/* 0x001A21D0, 0xA0 bytes. Its total attack. */
+short func_001A21D0(u32 id)
+{
+    int v;
+
+    STAT_TOTAL(id, func_002F4DD0(id), 2, 4, g_004281CF);
+}
+
+/* 0x001A2270, 0xA0 bytes. Its total defence. */
+short func_001A2270(u32 id)
+{
+    int v;
+
+    STAT_TOTAL(id, func_002F4F60(id), 3, 4, g_004281D7);
+}
+
+/* 0x001A2310, 0xA0 bytes. Stat 4. */
+short func_001A2310(u32 id)
+{
+    int v;
+
+    STAT_TOTAL(id, func_002F50F0(id), 4, 4, g_004281DF);
+}
+
+/* 0x001A23B0, 0xA0 bytes. Stat 5 (a speed). */
+short func_001A23B0(u32 id)
+{
+    int v;
+
+    STAT_TOTAL(id, func_002F5280(id), 5, 4, g_004281E7);
+}
+
+/* 0x001A2450, 0xA0 bytes. Stat 6 (a speed). */
+short func_001A2450(u32 id)
+{
+    int v;
+
+    STAT_TOTAL(id, func_002F5410(id), 6, 4, g_004281EF);
+}
+
+/* 0x001A24F0, 0xA0 bytes. Stat 7. */
+short func_001A24F0(u32 id)
+{
+    int v;
+
+    STAT_TOTAL(id, func_002F55A0(id), 7, 4, g_004281F7);
+}
+
+/* 0x001A2590, 0x8 bytes, matching. Nothing. */
+void func_001A2590(void)
+{
+}
+
+/* 0x001A25A0, 0x38 bytes. An empty loop of 0x69 turns (its body was removed). */
+void func_001A25A0(void)
+{
+    int k;
+
+    for (k = 0; k < 0x69; k++) {
+    }
+}
+
+/* 0x001A25E0, 0x24 bytes. */
+void func_001A25E0(void)
+{
+    g_00669D81[0] = 2;
+    func_001A25A0();
+}
+
+/* 0x001A2610, 0xA4 bytes. Pad `p`'s default button map (0x12 bytes each from settings +0x2C:
+ * 16 entries 10 by default, then the actions' buttons). */
+void func_001A2610(int p)
+{
+    u8 *m = g_00669D60 + p * 0x12;
+    int k;
+
+    for (k = 0; k < 0x10; k++)
+        m[0x2C + k] = 10;
+    m[0x33] = 0;
+    m[0x30] = 1;
+    m[0x31] = 2;
+    m[0x2F] = 3;
+    m[0x2E] = 4;
+    m[0x32] = 5;
+    m[0x2D] = 6;
+    m[0x2C] = 7;
+    m[0x37] = 8;
+    m[0x35] = 9;
+}
+
+/* 0x001A26C0, 0xA0 bytes. Pad `p`'s default map and options (+0x3C, +0x3D bits 0-3). */
+void func_001A26C0(int p)
+{
+    u8 *m;
+
+    func_001A2610(p);
+    m = g_00669D60 + p * 0x12;
+    m[0x3C] = 0;
+    m[0x3D] &= 0xFE;
+    m[0x3D] = (m[0x3D] & 0xFD) | 2;
+    m[0x3D] &= 0xFB;
+    m[0x3D] = (m[0x3D] & 0xF7) | 8;
+}
+
+/* 0x001A2760, 0x18C bytes. The default options: both pads, display flags, the volumes (15
+ * each, applied) and the screen offset. */
+void func_001A2760(void)
+{
+    u8 x, y;
+
+    func_001A26C0(0);
+    func_001A26C0(1);
+    SET8(0x51) = (SET8(0x51) & 0xF0) | 9;
+    SET8(0x50) = 0x50;
+    func_0023C050(2);
+    SET8(0x52) = 0xF;
+    func_0017E0C0(0xF, 0);
+    SET8(0x53) = 0xF;
+    func_0023B530();
+    SET8(0x54) = 0xF;
+    func_0023AB70();
+    SET8(0x51) &= 0xEF;
+    func_00100F90(&x, &y);
+    SET8(0x55) = x;
+    SET8(0x56) = y;
+}
+
+/* 0x001A28F0, 0x44 bytes, matching. The default options block (0x50 bytes at +8, its first word
+ * 0x846). */
+void func_001A28F0(void)
+{
+    func_00118850(g_00669D60 + 8, 0x50);
+    SET32(8) = 0x846;
+    func_001A2590();
+    func_001A25E0();
+    func_001A2760();
+}
+
+/* 0x001A2940, 0x8 bytes, matching. Nothing. */
+void func_001A2940(void)
+{
+}
+
+/* 0x001A2950, 0x8 bytes, matching. Nothing. */
+void func_001A2950(void)
+{
+}
+
+/* 0x001A2960, 0x8 bytes, matching. Nothing. */
+void func_001A2960(void)
+{
 }
