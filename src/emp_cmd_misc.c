@@ -2389,3 +2389,192 @@ int func_003C9990(void)
         return 0;
     return trio_tail();
 }
+
+int func_0032EAC0(void);
+
+/* 0x003C9B00, 0x13C bytes. */
+int func_003C9B00(void)
+{
+    int v;
+
+    if (func_00329540(0xF1) != 0 || func_00327C70() < 0x10)
+        return 0;
+    if (!KNOWS(0xD, 0) || !KNOWS(5, 1) || KNOWS(0x12, 1))
+        return 0;
+    if (func_002F33F0(0xD) < 10 || func_002F33F0(5) < 5)
+        return 0;
+    v = func_00328270();
+    return v == 0 || func_00328270() == 2 || func_00328270() == 4;
+}
+
+/* 0x003C9C40, 0x64 bytes. */
+int func_003C9C40(void)
+{
+    if (func_00329540(0xF2) != 0 || func_00327820() != 0xD)
+        return 0;
+    return KNOWS(9, 0);
+}
+
+/* 0x003C9CB0, 0x78 bytes. */
+int func_003C9CB0(void)
+{
+    if (func_00329540(0xF3) != 0 || func_00327820() != 0xD)
+        return 0;
+    return KNOWS(func_00337A10(0x158), 0);
+}
+
+/* 0x003C9D30, 0xA4 bytes. */
+int func_003C9D30(void)
+{
+    int me = func_00327820(), f = func_00327D50();
+
+    if (func_003C1850() != 0 || func_00329540(0xF4) != 0 || me != 0xD)
+        return 0;
+    if (func_0032EB40(0xD, 0x10, 0) == 0)
+        return 0;
+    return func_003C2090(f, 0xF) != 0;
+}
+
+/* 0x003C9DE0, 0xFC bytes. */
+int func_003C9DE0(void)
+{
+    if (func_00329540(0xF5) != 0 || func_00327C70() < 0x1F || func_00327820() != 0xD)
+        return 0;
+    return bond_event(0xF5, 0x1F, 0x11, func_00337A10(0xBB), 0, 0xF);
+}
+
+/* 0x003C9EE0, 0x80 bytes. */
+int func_003C9EE0(void)
+{
+    if (func_00329540(0xF6) != 0 || func_00327C70() < 0x15 || func_00327820() != 0xD)
+        return 0;
+    return KNOWS(0x11, 0);
+}
+
+/* 0x003C9F60, 0x78 bytes. */
+int func_003C9F60(void)
+{
+    return pair_event(0xF7, 0xD, 0x17);
+}
+
+/* 0x003C9FE0, 0x80 bytes. */
+int func_003C9FE0(void)
+{
+    return func_00329540(0xF8) == 0 && face(0xD, 0x16);
+}
+
+/* 0x003CA060, 0x80 bytes. */
+int func_003CA060(void)
+{
+    return func_00329540(0xF9) == 0 && face(0xD, 0x18);
+}
+
+/* Event `ev` (once): player `p` with officer `x`. */
+static int with_event(int ev, int p, int x)
+{
+    if (func_00329540(ev) != 0 || func_00327820() != p)
+        return 0;
+    return func_00337A10(x) == func_0032E950();
+}
+
+/* 0x003CA0E0, 0x68 bytes. */
+int func_003CA0E0(void)
+{
+    return with_event(0xFA, 0x12, 0xD7);
+}
+
+/* 0x003CA150, 0x68 bytes. */
+int func_003CA150(void)
+{
+    return with_event(0xFB, 0xD, 0xD7);
+}
+
+/* 0x003CA1C0, 0x68 bytes. */
+int func_003CA1C0(void)
+{
+    return with_event(0xFC, 0xD, 0xAB);
+}
+
+/* Whether officer value `v` (or func_0032EAC0) is high enough (always in mode 10 when
+ * func_0032EAC0 is 0x29 or more). */
+static int late_enough(int v)
+{
+    if (func_00327C00() != 10 && v <= 0x27 && func_0032EAC0() <= 0x28)
+        return 0;
+    if (func_00327C00() == 10 && func_0032EAC0() < 0x29)
+        return 0;
+    return func_00337A10(0xAB) == func_0032E950();
+}
+
+/* 0x003CA230, 0x160 bytes. */
+int func_003CA230(void)
+{
+    int v = func_002F7550(0x12), k;
+
+    if (func_00329540(0xFD) != 0 || func_00327820() != 0x12 || late_enough(v) == 0)
+        return 0;
+    if (func_002F3BB0(5) == 0 || func_002F3BB0(0xD) == 0)
+        return 0;
+    k = func_00328270();
+    return k == 1 || func_00328270() == 2 || func_00328270() == 4;
+}
+
+/* 0x003CA390, 0x194 bytes. */
+int func_003CA390(void)
+{
+    int v = func_002F7550(5), k;
+
+    if (func_00329540(0xFE) != 0 || !KNOWS(5, 1) || late_enough(v) == 0)
+        return 0;
+    if (func_002F3BB0(0x12) == 0 || KNOWS(0x12, 1) || func_002F3BB0(0xD) == 0)
+        return 0;
+    k = func_00328270();
+    return k == 2 || func_00328270() == 3 || func_00328270() == 4;
+}
+
+/* 0x003CA530, 0x78 bytes. */
+int func_003CA530(void)
+{
+    return pair_event(0xFF, 0xE, 0);
+}
+
+/* 0x003CA5B0, 0x80 bytes. */
+int func_003CA5B0(void)
+{
+    return func_00329540(0x100) == 0 && face(0xE, 1);
+}
+
+/* 0x003CA630, 0x70 bytes. */
+int func_003CA630(void)
+{
+    if (func_00329540(0x101) != 0 || !KNOWS(0xE, 0))
+        return 0;
+    return KNOWS(4, 0);
+}
+
+/* Event `ev` (once): player `p` with officer 0xE (with `o`) alone at side 0's front, 0xE being
+ * side 0's best. */
+static int lead_event(int ev, int o, int p)
+{
+    if (func_00329540(ev) != 0 || func_003C23A0() == 0)
+        return 0;
+    if (func_0032EC50(func_00327820(), 0xE, o, 1) == 0)
+        return 0;
+    if (func_003C27A0(0, 0xE, 0x19F, 0x19F, 0x19F) != 1 || func_00327820() != p)
+        return 0;
+    if (func_0036B260() == 0)
+        return 0;
+    return func_003C2E90(0xE, 1) != 0;
+}
+
+/* 0x003CA6A0, 0xE0 bytes. */
+int func_003CA6A0(void)
+{
+    return lead_event(0x102, 2, 2);
+}
+
+/* 0x003CA780, 0xE0 bytes. */
+int func_003CA780(void)
+{
+    return lead_event(0x103, 0xD, 0xD);
+}
