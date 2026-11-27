@@ -375,6 +375,7 @@ int func_003EA0E0(void);
 int func_003EA100(void);
 int func_003EA120(void);
 int func_003EA140(void);
+int func_003EA160(void);
 void func_0030E140(int a, int b, int c, int d);
 int func_00375BF0(void);
 int func_00375B90(void);
@@ -795,4 +796,115 @@ void func_003EC800(void)
         func_002FAF30(a, e);
     }
     p[0] = 3;
+}
+
+void func_003EDD00(void);
+int func_003EE420(int i, int j);
+int func_003A02F0(int v);
+u8 *func_002EE550(void);
+int func_001AE550(float speed, void *w, short *pos, u8 *alpha, int a);
+int func_002ED160(void);
+void func_002ED170(void);
+void func_003EE4E0(void);
+int *func_002FC2C0(void);
+
+extern int g_007BFB60[0x1E], g_007BFBE0[0x1E][4];
+extern float g_007BFDC8;
+extern u8 g_007BFDCC, g_007BFDCD;
+extern short g_007BFDC0[2];
+extern u8 *g_007BFDD0;
+
+/* 0x003EDC00, 0x68 bytes. */
+void func_003EDC00(void)
+{
+    u32 *p = (u32 *)func_003EA000();
+
+    if (func_0036B260() == 0)
+        func_0030E140(0x174, 0x10, -1, -1);
+    else
+        func_0030E140(0x173, 0x10, -1, -1);
+    p[0] = 1;
+}
+
+/* 0x003EDE40, 0x8C bytes. */
+void func_003EDE40(void)
+{
+    u32 *p = (u32 *)func_003EA000();
+
+    if (func_00375BF0() == 0 || func_00375B90() != 1)
+        return;
+    if (func_0036B260() == 0) {
+        func_003EA310(func_003EA160());
+        func_003EA1C0(func_003EA160());
+    } else {
+        func_003EDD00();
+    }
+    p[0] = 3;
+}
+
+/* 0x003EEE50, 0x100 bytes. The gallery's officer outfits seen (up to four per officer). */
+void func_003EEE50(void)
+{
+    int i, j;
+
+    g_007BFDC8 = 1.0f;
+    g_007BFDCD &= 0xFE;
+    for (i = 0; i < 0x1E; i++) {
+        int n = 0;
+
+        for (j = 0; j < 4; j++) {
+            if (func_003A02F0(func_003EE420(i, j)) != 0)
+                g_007BFBE0[i][n++] = j;
+        }
+        g_007BFB60[i] = n;
+        if (n < 4)
+            g_007BFBE0[i][n] = -1;
+    }
+}
+
+/* 0x003EEF60, 0x104 bytes. Its window's frame. */
+int func_003EEF60(void)
+{
+    int *m = func_002FC2C0();
+
+    if (*(int *)m[0x1AB] != 0) {
+        int r;
+
+        g_007BFDD0 = func_002EE550();
+        r = func_001AE550(g_007BFDC8, g_007BFDD0, g_007BFDC0, &g_007BFDCC, 0);
+        g_007BFDCD = (g_007BFDCD & 0xFE) | (r & 1);
+        if ((r & 1) != 0) {
+            int t = func_002ED160();
+
+            if (t < 0x14) {
+                g_007BFDCD &= 0xFE;
+                g_007BFDD0[0x13] = t + 10;
+                func_002ED170();
+            } else {
+                g_007BFDD0[0x13] = 0x1E;
+            }
+        }
+        func_003EE4E0();
+    }
+    return 0;
+}
+
+/* 0x003EF1D0, 0xA8 bytes. Copies a name, turning the font's accented letters into plain ones
+ * (no terminator). */
+void func_003EF1D0(char *d, char *s)
+{
+    for (; *s != 0; s++, d++) {
+        char c = *s;
+
+        if (c == '~')
+            *d = 'u';
+        else if (c == '}')
+            *d = 'U';
+        else if (c == '|')
+            *d = 'o';
+        else if (c == '{')
+            *d = 'O';
+        else
+            *d = c;
+    }
 }

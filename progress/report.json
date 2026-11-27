@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 178016,
-    "non_matching": 1207512
+    "non_matching": 1208464
   },
   "data": {
     "total": 2155890688,
@@ -228,14 +228,14 @@
         },
         {
           "name": "SceneTutorial.c",
-          "description": "Estimated range 0x3EDD28-0x3F6A18; 139 function(s) decompiled",
+          "description": "Estimated range 0x3EDD28-0x3F6A18; 143 function(s) decompiled",
           "code": {
             "total": 36080,
             "matching": 5248,
-            "non_matching": 13512
+            "non_matching": 14352
           },
           "decompiled_functions": {
-            "count": 139,
+            "count": 143,
             "matching": 85
           }
         }
@@ -402,14 +402,14 @@
         },
         {
           "name": "emp_war_wllt.c",
-          "description": "Estimated range 0x3E6768-0x3EDD28; 144 function(s) decompiled",
+          "description": "Estimated range 0x3E6768-0x3EDD28; 145 function(s) decompiled",
           "code": {
             "total": 30144,
             "matching": 4464,
-            "non_matching": 18576
+            "non_matching": 18688
           },
           "decompiled_functions": {
-            "count": 144,
+            "count": 145,
             "matching": 55
           }
         },
