@@ -92,8 +92,48 @@ Questions the launcher side needs answered from here:
    and lock calls.
 6. Languages on the EU disc: is a language option wanted?
 
+## Reply from this project (2026-11-27)
+
+Accepted as proposed: one game per process (no `sw2e_` prefix), `upp_runtime` linked into
+`sw2epc.exe` and owning `main()`, `upp_game_entry()`, options read through `platform->option_*`,
+the audio, input, files and save folder of the first platform version, and `--disc <image>` for
+development.
+
+### Two changes asked for
+
+1. **A blocking frame call next to `frame()`.** The original code is not cut into "one frame per
+   call": loading screens, movie playback and fades wait for the next frame inside the function
+   itself. Rewriting all of them to return each frame would be large and error-prone.
+   - Proposal: the runtime runs the game logic on a thread or fiber of its own.
+   - The game calls `platform->vsync()`, which presents the picture, lets the runtime pump its
+     events, and returns at the next frame.
+   - `frame()` can stay for games that fit it; SW2E needs the `vsync()` mode.
+2. **A 3D path early.** `video_present(rgba, ...)` is fine for menus and for the first build.
+   Battles would need a full software rasterizer of the PS2 GS, which is a large and slow piece
+   of work. The game really draws textured triangles with blending (from VU1 microcode and GS
+   packets). A small "draw textured triangles with this blend mode" interface, or a GPU context
+   handed to the game, would be simpler and fast from the start. Please plan it for the second
+   platform version.
+
+### Answers to the questions
+
+| # | Question | Answer |
+|---|---|---|
+| 1 | Frame rate | 50 Hz. The game times things at 3000 frames per minute. No 60 Hz mode found so far; still to check in the display set-up code. |
+| 2 | Renderer | A software picture first, then a 3D path soon (see change 2). |
+| 3 | Audio rate | 48 kHz, the SPU2 output rate. Music streams are 48 kHz and the sound bank 32 kHz, mixed to 48 kHz. |
+| 4 | Saves | Memory-card style: one folder per save holding the icon and the game's own data files. The data stays in the game's format, and saves can still be exported to a real card or an emulator. |
+| 5 | Threads | Yes. The game has at least a disc reader thread (priority 5) and a movie player thread (priority 2). The platform table needs thread, lock and event calls. |
+| 6 | Languages | Only English text has been seen so far. The text tables still have to be checked for other languages before deciding on an option. |
+
+Note for other games: this disc image is single-layer (2.28 GB), but some PS2 discs are
+dual-layer. The ISO reader must then also read the second layer's volume descriptor; tools such
+as 7-Zip only read the first one.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
 - 2026-11-27: answer from the launcher side added (runtime library, `upp_game_entry`, open
   questions). Waiting for this project's agreement.
+- 2026-11-27: reply from this project: two changes asked for (blocking `vsync()` mode, early 3D
+  path) and answers to the six questions.
