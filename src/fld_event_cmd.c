@@ -1372,3 +1372,454 @@ void func_003599E0(EvCmd *c)
         func_00357170(0x60, i);
     }
 }
+
+/* The battle officers (0x8F records of 0xC0 bytes at 0x00693970 + 0x100C0): +0x10 its unit,
+ * +0x14 its model, +0x80 / +0x82 / +0x84 most life, life, highest life, +0xB8 flags. */
+#define OFFICER(k) (g_00693970 + 0x100C0 + (k) * 0xC0)
+
+extern void (*g_00415720[10])(int side, u32 g);   /* order replies, by order 0x15-0x1E */
+extern void (*g_00415750[10])(int won);           /* side order replies */
+extern u32 g_00415780[4], g_00415790[3];
+
+u8 *func_00338410(u32 g);
+u32 func_0036DD30(u32 side, u32 order);
+void func_0036DF30(u32 side, u32 order);
+int func_0034EDB0(u8 *b);
+u8 *func_00352850(u8 *b, int side);
+int func_003B0370(u8 *o, u8 *b);
+void func_0024D3A0(int kind, int model, int first);
+u32 func_00362570(void);
+u32 func_00361F50(void);
+u32 func_00361E90(void);
+int func_0036D310(void);
+u32 func_003615C0(int side);
+u8 **func_0033F020(u32 side, u32 k);
+
+/* 0x00359A90, 0x98 bytes. The same with order 2 (lines 0x54, 0x61). */
+void func_00359A90(EvCmd *c)
+{
+    u16 i = c->a;
+
+    if (func_00359820(GROUP(i), 0) != 0) {
+        func_003701E0(i, 2, 1, 0xFF);
+        func_00357420(0x54, i, 0, 2, 0);
+        func_00357000(i);
+        func_00357170(0x61, i);
+    }
+}
+
+/* 0x00359B30, 0x1D8 bytes. Command: group `a` ordered to deal with group `b` (`c`: 0 attack, else
+ * help) when `b`'s strength is above 70. */
+void func_00359B30(EvCmd *c)
+{
+    u16 ai = c->a, bi = c->b;
+    short how = c->c;
+    u8 **h = GROUP(bi);
+
+    if (func_00359820(GROUP(ai), h) == 0 || func_00338410(bi)[0x2A] <= 0x46)
+        return;
+    func_003701E0(ai, 3, how, bi);
+    func_00357420(0x56, ai, 0, 2, 0);
+    if (how == 0)
+        func_00357420(0x58, bi, 0, 2, 0);
+    else
+        func_00357420(0x57, bi, 2, 2, 0);
+    func_00357000(ai);
+    func_00357170(0x62, ai);
+    if (how == 0) {
+        if ((*h)[0x79] == 1)
+            func_003571A0(100, ai, bi);
+        else
+            func_003571A0(0x87, ai, bi);
+    } else if ((*h)[0x79] == 1) {
+        func_00357170(99, bi);
+    } else {
+        func_00357170(0x86, bi);
+    }
+}
+
+/* 0x00359D10-0x0035A060: the order replies (by side 0 / 1). */
+/* 0x00359D10, 0x5C bytes. */
+void func_00359D10(int side, u32 g)
+{
+    func_00357000(g);
+    func_00357170(side == 0 ? 0x26 : 0x27, g & 0xFFFF);
+}
+
+/* 0x00359D70, 0x5C bytes. */
+void func_00359D70(int side, u32 g)
+{
+    func_00357000(g);
+    func_00357170(side == 0 ? 0x28 : 0x29, g & 0xFFFF);
+}
+
+/* 0x00359DD0, 0x5C bytes. */
+void func_00359DD0(int side, u32 g)
+{
+    func_00357000(g);
+    func_00357170(side == 0 ? 0x2A : 0x2B, g & 0xFFFF);
+}
+
+/* 0x00359E30, 0x5C bytes. */
+void func_00359E30(int side, u32 g)
+{
+    func_00357000(g);
+    func_00357170(side == 0 ? 0x2C : 0x84, g & 0xFFFF);
+}
+
+/* 0x00359E90, 0x5C bytes. */
+void func_00359E90(int side, u32 g)
+{
+    func_00357000(g);
+    func_00357170(side == 0 ? 0x2D : 0x85, g & 0xFFFF);
+}
+
+/* 0x00359EF0, 0x5C bytes. */
+void func_00359EF0(int side, u32 g)
+{
+    func_00357000(g);
+    func_00357170(side == 0 ? 0x2E : 0x2F, g & 0xFFFF);
+}
+
+/* 0x00359F50, 0x5C bytes. */
+void func_00359F50(int side, u32 g)
+{
+    func_00357000(g);
+    func_00357170(side == 0 ? 0x32 : 0x33, g & 0xFFFF);
+}
+
+/* 0x00359FB0, 0x5C bytes. */
+void func_00359FB0(int side, u32 g)
+{
+    func_00357000(g);
+    func_00357170(side == 0 ? 0x30 : 0x31, g & 0xFFFF);
+}
+
+/* 0x0035A010, 0x48 bytes, matching. */
+void func_0035A010(int side, u32 g)
+{
+    func_00357000(g);
+    if (side == 0)
+        func_00357110(0x34);
+    else
+        func_00357110(0x7D);
+}
+
+/* 0x0035A060, 0x5C bytes. */
+void func_0035A060(int side, u32 g)
+{
+    func_00357000(g);
+    func_00357170(side == 0 ? 0x7F : 0x80, g & 0xFFFF);
+}
+
+/* 0x0035A0C0, 0x1D0 bytes. Command: side `a` gives order `b` to its group `c` (refused when the
+ * group is not active or not of that side). */
+void func_0035A0C0(EvCmd *c)
+{
+    void (*t[10])(int, u32);
+    u32 s = c->a, o = c->b, gi = c->c, k;
+    u8 *u;
+
+    for (k = 0; k < 10; k++)
+        t[k] = g_00415720[k];
+    u = *GROUP(gi);
+    if (!UNIT_ACTIVE(u) || s != u[0x79]) {
+        func_0036DF30(s, o);
+        return;
+    }
+    func_003570A0(0, s | o << 4 | gi << 8, 0);
+    func_00357420(0x52, gi, 0, 2, 0);
+    t[func_0036DD30(s, o) - 0x15](s, gi);
+}
+
+/* 0x0035A290, 0x30 bytes. The side order replies. */
+void func_0035A290(int won)
+{
+    func_00357110(won == 0 ? 0x48 : 0x47);
+}
+
+/* 0x0035A2C0, 8 bytes, matching. */
+void func_0035A2C0(int won)
+{
+}
+
+/* 0x0035A2D0, 8 bytes, matching. */
+void func_0035A2D0(int won)
+{
+}
+
+/* 0x0035A2E0, 8 bytes, matching. */
+void func_0035A2E0(int won)
+{
+}
+
+/* 0x0035A2F0, 8 bytes, matching. */
+void func_0035A2F0(int won)
+{
+}
+
+/* 0x0035A300, 8 bytes, matching. */
+void func_0035A300(int won)
+{
+}
+
+/* 0x0035A310, 8 bytes, matching. */
+void func_0035A310(int won)
+{
+}
+
+/* 0x0035A320, 0x30 bytes. */
+void func_0035A320(int won)
+{
+    func_00357110(won == 0 ? 0x4A : 0x49);
+}
+
+/* 0x0035A350, 0x30 bytes. */
+void func_0035A350(int won)
+{
+    func_00357110(won == 0 ? 0x4B : 0x7E);
+}
+
+/* 0x0035A380, 0x30 bytes. */
+void func_0035A380(int won)
+{
+    func_00357110(won == 0 ? 0x81 : 0x82);
+}
+
+/* 0x0035A3B0, 0xFC bytes. Command: side `a` gives order `b` to the whole side. */
+void func_0035A3B0(EvCmd *c)
+{
+    void (*t[10])(int);
+    short o = c->b;
+    u16 s = c->a;
+    u32 k;
+
+    for (k = 0; k < 10; k++)
+        t[k] = g_00415750[k];
+    func_0036DD30(s, o);
+    func_003570A0(1, s | o << 4, 0);
+    t[func_0036DD30(s, o) - 0x15](s);
+}
+
+/* 0x0035A4B0, 0x168 bytes. Command: group `a` reached situation `b` (1-5; lines 0x43-0x47,
+ * messages 0x6D / 0x6E). */
+void func_0035A4B0(EvCmd *c)
+{
+    u16 i = c->a;
+    short v = c->b;
+    u32 msg = 0xC3, m = 0x5C;
+
+    if (!UNIT_ACTIVE(*GROUP(i)))
+        return;
+    if (v == 5) {
+        m = 0x47;
+    } else if (v == 4) {
+        m = 0x46;
+    } else if (v == 2) {
+        m = 0x44;
+        msg = 0x6E;
+    } else if (v == 3) {
+        m = 0x45;
+    } else if (v == 1) {
+        m = 0x43;
+        msg = 0x6D;
+    }
+    if (m < 0x5C) {
+        func_00357420(m, i, 0, 2, 0);
+        func_00357000(i);
+        if (msg < 0xC3)
+            func_00357170(msg, i);
+    }
+}
+
+/* 0x0035A620, 0x138 bytes. The same for situations 6-7 (lines 0x48-0x49, messages 0x6F / 0x88). */
+void func_0035A620(EvCmd *c)
+{
+    u16 i = c->a;
+    u8 *u = *GROUP(i);
+    u32 msg = 0xC3, m = 0x5C;
+
+    if (!UNIT_ACTIVE(u))
+        return;
+    if ((short)c->b == 6) {
+        m = 0x49;
+        msg = u[0x79] == 0 ? 0x6F : 0x88;
+    } else if ((short)c->b == 7) {
+        m = 0x48;
+    }
+    if (m < 0x5C) {
+        func_00357420(m, i, 0, 2, 0);
+        func_00357000(i);
+        if (msg < 0xC3)
+            func_00357170(msg, i);
+    }
+}
+
+/* 0x0035A760, 0xE4 bytes. Command: a guard of base `a` speaks (one of four lines). */
+void func_0035A760(EvCmd *c)
+{
+    u32 t[4];
+    u8 *b, *u;
+    u32 o;
+
+    t[0] = g_00415780[0];
+    t[1] = g_00415780[1];
+    t[2] = g_00415780[2];
+    t[3] = g_00415780[3];
+    b = (u8 *)func_0034EC80(c->a);
+    o = func_0034EDB0(b);
+    if (o < 2 && (u = func_00352850(b, o)) != 0)
+        func_003574E0(t[RANDOM() & 3], UNIT_INDEX(u), 2, 0);
+}
+
+/* 0x0035A850, 0xB4 bytes. Command: a guard of side `b`'s base `a` calls for help (line 4). */
+void func_0035A850(EvCmd *c)
+{
+    u16 k = c->a;
+    u8 *b = (u8 *)func_0034EC80(k), *u;
+    u32 o = func_0034EDB0(b);
+
+    if (o < 2 && o == c->b && (u = func_00352850(b, o)) != 0) {
+        func_00357070(k);
+        func_003574E0(4, UNIT_INDEX(u), 2, 0);
+    }
+}
+
+/* 0x0035A910, 0x200 bytes. Command: base `a`'s guard heals its side's officers at the base by
+ * half their most life (line 5). */
+void func_0035A910(EvCmd *c)
+{
+    u8 *b = (u8 *)func_0034EC80(c->a), *u;
+    u32 o = func_0034EDB0(b), k;
+
+    if (o >= 2 || (u = func_00352850(b, o)) == 0)
+        return;
+    func_003574E0(5, UNIT_INDEX(u), 2, 0);
+    for (k = 0; k < 0x8F; k++) {
+        u8 *r = OFFICER(k);
+        u32 f = *(u32 *)(r + 0xB8);
+
+        if ((f & 1) != 0 && (f & 2) == 0 && *(u8 **)(r + 0x10) != 0
+            && o == (*(u8 **)(r + 0x10))[0x79] && func_003B0370(r, b) != 0) {
+            short most = *(short *)(r + 0x80);
+            int n = most * 0x32 / 100 + *(short *)(r + 0x82);
+
+            if (n < 2)
+                n = 1;
+            if (n > most)
+                n = most;
+            if (n < 1)
+                n = 0;
+            *(short *)(r + 0x82) = n;
+            if (*(short *)(r + 0x84) < n)
+                *(short *)(r + 0x84) = n;
+        }
+    }
+}
+
+/* Shows effect `kind` on base `b`'s officers of side `o` (the first with sound). */
+static void base_effect(u8 *b, u32 o, int kind)
+{
+    u32 k;
+    int first = 1;
+
+    for (k = 0; k < 0x8F; k++) {
+        u8 *r = OFFICER(k);
+        u32 f = *(u32 *)(r + 0xB8);
+
+        if ((f & 1) != 0 && (f & 2) == 0 && *(u8 **)(r + 0x10) != 0
+            && o == (*(u8 **)(r + 0x10))[0x79] && func_003B0370(r, b) != 0
+            && *(int *)(r + 0x14) != 0) {
+            func_0024D3A0(kind, *(int *)(r + 0x14), first);
+            first = 0;
+        }
+    }
+}
+
+/* 0x0035AB10, 0x14C bytes. Command: base `a`'s guard boosts its side's officers (line 6, effect
+ * 8). */
+void func_0035AB10(EvCmd *c)
+{
+    u8 *b = (u8 *)func_0034EC80(c->a), *u;
+    u32 o = func_0034EDB0(b);
+
+    if (o < 2 && (u = func_00352850(b, o)) != 0) {
+        func_003574E0(6, UNIT_INDEX(u), 2, 0);
+        base_effect(b, o, 8);
+    }
+}
+
+/* 0x0035AC60, 0x14C bytes. The same with line 7, effect 9. */
+void func_0035AC60(EvCmd *c)
+{
+    u8 *b = (u8 *)func_0034EC80(c->a), *u;
+    u32 o = func_0034EDB0(b);
+
+    if (o < 2 && (u = func_00352850(b, o)) != 0) {
+        func_003574E0(7, UNIT_INDEX(u), 2, 0);
+        base_effect(b, o, 9);
+    }
+}
+
+/* 0x0035ADB0, 0xA4 bytes. The battle's opening message (by battle kind) at the main base. */
+void func_0035ADB0(void)
+{
+    u32 m, b;
+
+    switch (func_00362570()) {
+    case 0:
+    case 1:
+        m = 0x65;
+        b = func_0035F200(1);
+        break;
+    case 2:
+    case 3:
+        m = 0x66;
+        b = func_0035F200(1);
+        break;
+    case 4:
+    case 5:
+        m = 0x67;
+        b = func_0035F200(0);
+        break;
+    default:
+        m = 0x66;
+        b = func_0035F200(1);
+        break;
+    }
+    func_00357070(b);
+    func_00357110(m);
+}
+
+/* 0x0035AE60, 0x38 bytes, matching. The opening message with func_0036D310. */
+void func_0035AE60(void)
+{
+    func_00357260(0x92, func_00361F50(), func_00361E90());
+}
+
+/* 0x0035AEA0, 0x3C bytes. */
+void func_0035AEA0(void)
+{
+    if (func_0036D310() == 0)
+        func_0035ADB0();
+    else
+        func_0035AE60();
+}
+
+/* 0x0035AEE0, 0x84 bytes. The player's opening line by side 0's strength. */
+void func_0035AEE0(void)
+{
+    u32 v = func_003615C0(0), m, how;
+
+    if (v >= 0x42) {
+        m = 0x1A;
+        how = 1;
+    } else if (v >= 0x24) {
+        m = 0x1B;
+        how = 0;
+    } else {
+        m = 0x1C;
+        how = 3;
+    }
+    func_00357420(m, func_0035DCB0(0), how, 2, 0);
+}

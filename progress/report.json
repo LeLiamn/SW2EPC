@@ -2,16 +2,16 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 115712,
-    "non_matching": 829808
+    "matching": 115952,
+    "non_matching": 834912
   },
   "data": {
     "total": 2155890688,
     "done": 2155890688
   },
   "functions": {
-    "total": 10624,
-    "matching": 1206
+    "total": 10630,
+    "matching": 1214
   },
   "layout": "treemap",
   "areas": [
@@ -376,15 +376,15 @@
         },
         {
           "name": "emp_war_fix.c",
-          "description": "Estimated range 0x357160-0x362128; 58 function(s) decompiled",
+          "description": "Estimated range 0x357160-0x362128; 93 function(s) decompiled",
           "code": {
             "total": 45000,
-            "matching": 1056,
-            "non_matching": 9464
+            "matching": 1296,
+            "non_matching": 14568
           },
           "decompiled_functions": {
-            "count": 58,
-            "matching": 17
+            "count": 93,
+            "matching": 25
           }
         },
         {
