@@ -1215,7 +1215,7 @@ int func_00328190(int k);
 int func_002F9060(u32 f);
 int func_002F9480(int f, int k);
 u32 func_002F5890(u32 i);
-int func_0030AAD0(u32 g);
+int func_0030AAD0(int g);
 int func_002F2EA0(u32 i);
 int func_002FD000(int i);
 int func_002FD3C0(int c);
@@ -4606,4 +4606,1089 @@ int func_00308BF0(u32 i, int f)
 int func_00308F50(u32 i, int f)
 {
     return func_0030CB50(func_00308BF0(i, f));
+}
+
+extern struct { int step, most; } g_004149F0[];   /* by level: officers per region, at most */
+
+void func_003986E0(int r, int a, u32 *l, int n);
+void func_0030E390(int k, int a, int b, int c, int d, int e);
+int func_002F3070(u32 i);
+void func_002FAFC0(int f);
+void func_002FB7C0(int f);
+void func_002F8D20(int f);
+void func_002F8E80(int f, u32 i);
+void func_003A7D90(void);
+void func_0030AF20(int r, int f);
+void func_00320F10(void);
+int func_00327A10(void);
+
+/* 0x00309AC0, 0x84 bytes, matching. Officer `i` joins the player's force in region `r` (shown with the
+ * join message). */
+int func_00309AC0(u32 i, int r)
+{
+    u32 v = i;
+    int p = func_00327D50();
+
+    func_003986E0(r, -1, &v, 1);
+    func_002F7300(v, p, r, func_002F3DC0(v));
+    func_0030E390(1, -1, -1, -1, 0, 0);
+    return 0;
+}
+
+/* 0x00309B50, 0xD4 bytes. Officer `i` joins the player's force: placed in a region connected to
+ * `r` (nearest first), else in `r` with the message. */
+int func_00309B50(u32 i, int r)
+{
+    int l[28], p = func_00327D50(), n, k;
+
+    func_0030BBD0(r, 1);
+    n = func_0030B3B0(l);
+    func_0030B330();
+    func_0030C920(l, n);
+    for (k = 0; k < n; k++) {
+        if (func_00309130(i, p, l[k], 1) != 0)
+            break;
+    }
+    if (k < n)
+        return 0;
+    return func_00309AC0(i, r);
+}
+
+/* 0x00309C30, 0x358 bytes. Officer `i` joins force `f`, in region `r` if possible: given a role
+ * (2 named, 1 generic) and a region (its home when it had none); the player's full force sends it
+ * to a region of its own with the message; else region `r`, its own region, the force's home, any
+ * of its regions, or it is set free. */
+int func_00309C30(u32 i, int f, int r)
+{
+    u32 v = i;
+    int l[28], role, cur, n, k, home;
+
+    role = func_002F3F20(v) == 0 ? 1 : 2;
+    func_002F3CF0(v, role);
+    cur = func_002F5CC0(v);
+    if (!IS_FORCE(cur)) {
+        int h = func_002F3070(v);
+
+        if (IS_FORCE(h))
+            func_002F5BE0(v, h);
+    }
+    if (func_002FB2A0(f) != 0 && func_00327E50() <= func_002FB430(f)) {
+        if (!IS_FORCE(r) || f != func_0030AFF0(r)) {
+            r = func_002F5CC0(v);
+            if (!IS_FORCE(r) || f != func_0030AFF0(r))
+                r = func_002FB2D0(f);
+        }
+        func_003986E0(r, -1, &v, 1);
+        func_002F7300(v, f, r, role);
+        func_0030E390(1, -1, -1, -1, 0, 0);
+        return 0;
+    }
+    if (IS_FORCE(r) && func_00309130(v, f, r, 1) != 0)
+        return 0;
+    cur = func_002F5CC0(v);
+    if (IS_FORCE(cur)) {
+        if (func_00309130(v, f, cur, 1) != 0)
+            return 0;
+        if (func_002FB2A0(f) != 0 && func_0030AFF0(cur) == f)
+            return func_00309B50(v, cur);
+    }
+    home = func_002FB2D0(f);
+    if (func_00309130(v, f, home, 1) != 0)
+        return 0;
+    if (func_002FB2A0(f) != 0)
+        return func_00309B50(v, home);
+    n = func_002FB320(f, l);
+    func_0030C920(l, n);
+    for (k = 0; k < n; k++) {
+        if (func_00309130(v, f, l[k], 1) != 0)
+            break;
+    }
+    if (k == n)
+        func_002F7410(v);
+    return 0;
+}
+
+/* 0x00309F90, 0x20 bytes, matching. Sets officer `i` free. */
+int func_00309F90(u32 i)
+{
+    func_002F7410(i);
+    return 0;
+}
+
+/* 0x00309FB0, 0x78 bytes. How many officers the player's force may have (by level and size). */
+int func_00309FB0(void)
+{
+    int p = func_00327D50(), lv = func_00327A10();
+    int n = g_004149F0[lv].step * (func_002FB3B0(p) - 1) + 6;
+
+    if (n >= g_004149F0[lv].most)
+        n = g_004149F0[lv].most;
+    return n;
+}
+
+/* 0x0030A030, 0x288 bytes. Force `f` is destroyed: its officers set free, its regions given to
+ * force `to` (when it still exists) or to a random neighbouring force (any force when none), its
+ * leader cleared. */
+int func_0030A030(int f, int to)
+{
+    int reg[28], nb[28], cand[28], n, k, j, m, c;
+    u32 *o = func_002F7B10();
+
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1);
+    for (k = 0; k < n; k++, o++)
+        func_002F7410(*o);
+    func_002FAFC0(f);
+    func_002FB7C0(f);
+    n = func_002FB320(f, reg);
+    for (k = 0; k < n; k++) {
+        if (IS_FORCE(to) && func_002F8CB0(to) != 0) {
+            func_0030AF20(reg[k], to);
+        } else {
+            m = func_0030C4E0(reg[k], nb);
+            c = 0;
+            for (j = 0; j < m; j++) {
+                int g = func_0030AFF0(nb[j]);
+
+                if (IS_FORCE(g) && func_002F8CB0(g) != 0 && g != f)
+                    cand[c++] = g;
+            }
+            if (c == 0) {
+                for (j = 0; j < 0x19; j++) {
+                    if (func_002F8CB0(j) != 0 && j != f)
+                        cand[c++] = j;
+                }
+            }
+            to = cand[func_0030CB00(c)];
+            func_0030AF20(reg[k], to);
+        }
+        func_00323840(reg[k]);
+    }
+    func_002F8D20(f);
+    if (func_002FB2A0(f) == 0)
+        func_002F8E80(f, 0x19F);
+    func_003A7D90();
+    return 0;
+}
+
+/* The order value of officer `i` for func_0030A2C0: leaders, then named ones, then level. */
+static inline int officer_rank(u32 i)
+{
+    return (func_002F3DC0(i) == 3 ? 100000 : 0) + ((int)i < 0x2B ? 10000 : 0) + func_002F41E0(i) * 10;
+}
+
+/* 0x0030A2C0, 0x1A0 bytes. Sorts officers `l` (`n`) by rank, highest first (ties at random). */
+void func_0030A2C0(u32 *l, int n)
+{
+    int x, y;
+
+    for (x = 0; x < n; x++) {
+        u32 a = l[x];
+        int va = officer_rank(a);
+
+        for (y = x + 1; y < n; y++) {
+            u32 b = l[y];
+            int vb = officer_rank(b);
+
+            if (va < vb || (va == vb && func_0030CB50(0x32) != 0)) {
+                l[x] = b;
+                l[y] = a;
+                va = vb;
+                a = b;
+            }
+        }
+    }
+}
+
+/* 0x0030A470, 0x3D8 bytes. Force `a` takes force `b`: `b`'s regions go to `a`; a computer `a`
+ * keeps `b`'s officers; the player keeps its best six (asked through the join list) when there
+ * is room, the others set free; otherwise `b` is destroyed in `a`'s favour. */
+int func_0030A470(int a, int b)
+{
+    u32 l[8], *o;
+    int reg[28], home, n, m, k, r = 0, bad;
+
+    o = func_002F7B10();
+    home = func_002FB2D0(b);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, b, 0, 1);
+    m = func_002FB320(b, reg);
+    for (k = 0; k < m; k++) {
+        func_0030AF20(reg[k], a);
+        func_00323840(reg[k]);
+    }
+    if (func_002FB2A0(a) == 0) {
+        o = func_002F7B10();
+        for (k = 0; k < n; k++, o++) {
+            u32 x = *o;
+
+            func_002F7300(x, a, func_002F5CC0(x), func_002F3DC0(x) < 2 ? 1 : 2);
+        }
+        func_003A7D90();
+    } else {
+        func_00320F10();
+        func_0030A2C0(o, n);
+        if (n > 6) {
+            o = func_002F7B10() + 6;
+            for (k = 6; k < n; k++, o++) {
+                r = func_00309F90(*o);
+                if (r != 0)
+                    break;
+            }
+        }
+        if (r == 0) {
+            bad = 0;
+            if (n > 6)
+                n = 6;
+            o = func_002F7B10();
+            for (k = 0; k < n; k++) {
+                l[k] = -1;
+                l[k] = o[k];
+            }
+            for (k = 0; k < n; k++) {
+                if (func_00309A10(l[k], func_002F5CC0(l[k])) == 0)
+                    bad = 1;
+            }
+            func_003A7D90();
+            if (bad || func_002FB430(a) > func_00327E50()) {
+                for (k = 0; k < n; k++)
+                    func_002F5BE0(l[k], 0x19);
+                func_003986E0(home, -1, l, n);
+                func_0030E390(2, b, a, -1, 0, 0);
+                return 0;
+            }
+        }
+    }
+    if (r == 0)
+        r = func_0030A030(b, a);
+    return r;
+}
+
+/* A region record (0x14 bytes, the table returned by func_0030CCD0; record 0x19 = none). */
+typedef struct {
+    u8 kind;                 /* +0x00 region kind (traits) */
+    u8 unknown_1;
+    u8 extra[2];             /* +0x02 */
+    u8 next[6];              /* +0x04 neighbouring regions (0x19 = none) */
+    u8 most;                 /* +0x0A troops wanted at most */
+    u8 cap;                  /* +0x0B troop capacity */
+    u32 flags;               /* +0x0C 2-bit fields 0-4, bit 15 = mark */
+    short owner;             /* +0x10 force */
+    u8 wanted;               /* +0x12 */
+    u8 troops;               /* +0x13 */
+} Region;
+
+extern int g_00414A20[];                 /* by weapon kind: its group */
+extern int g_004467C0[];                 /* by scenario: number of regions */
+extern void (*g_00414AA0[])(int a);      /* by scenario */
+extern int g_00414AD0[][4];              /* per region kind: the traits that go with it */
+extern char g_004467F0[];                /* number format */
+extern char g_007A3B30[10][10];          /* ten number strings, used in turn */
+extern int g_0045D6AC;                   /* (small data) the next one */
+extern int g_007B4E48, g_007B4E4C, g_007B4E50;
+
+Region *func_0030CCD0(void);
+void func_002F8F90(int f, int v);
+void func_002FA500(int f, int v);
+void func_002FA610(int f, int v);
+void func_002F92D0(int f, int k, int v);
+void func_0030B030(int r, int v);
+int func_002F57A0(u32 w);
+int func_002FB8B0(void);
+int func_002FB910(void);
+void func_002F94C0(int f, int v);
+void func_002F9900(int f, int v);
+void func_002F9A00(int f, int v);
+void func_002FA400(int f, int v);
+void func_002FA720(int f, int v);
+void func_002FA800(int f, int v);
+void func_002FA8E0(int f, int v);
+void func_003A7DA0(int r, int a);
+void func_0011ED38(void *to, int value, int size);
+int func_002F8250(u32 i, int f);
+void func_001B8F60(int a, int b, int c);
+void func_0017DF10(void);
+int func_0017DDA0(void);
+void func_0030CCE0(void);
+void func_0030CF70(void);
+
+#define REGION(r) (&func_0030CCD0()[r])
+
+/* 0x0030A850, 0x1C bytes, matching. */
+void func_0030A850(int f)
+{
+    func_002F9A00(f, 7);
+}
+
+/* 0x0030A870, 0x258 bytes. A new force led by officer `i` rises in region `r` (kind 1: with a
+ * policy from func_002FB910; kinds 1-2 halve the region's troops), with officers `l` (`n`);
+ * shown when `show`. */
+void func_0030A870(int kind, u32 i, int r, u32 *l, int n, int show)
+{
+    int g, k;
+
+    func_0030AFF0(r);
+    g = func_002FB8B0();
+    func_002F8E80(g, i);
+    func_0030AF20(r, g);
+    func_002F7300(i, g, r, 3);
+    func_002F94C0(g, 100);
+    func_002F8F90(g, 1000);
+    if (kind == 1)
+        func_002F9900(g, func_002FB910());
+    func_0030A850(g);
+    func_002FAFC0(g);
+    func_002F9E10(g, 3);
+    func_002F9F40(g, 0xFF);
+    func_002FA0D0(g, 0);
+    func_002FA220(g, func_002FB2D0(g));
+    func_002FA400(g, 1);
+    func_002FA500(g, 0x19);
+    func_002FA610(g, 0x19);
+    func_002FA720(g, 0);
+    func_002FA800(g, 0);
+    func_002F91C0(g, 0x19F);
+    func_002FA8E0(g, 1);
+    for (k = 0; k < 3; k++)
+        func_002F92D0(g, k, 0);
+    if (l != 0) {
+        for (k = 0; k < n; k++, l++) {
+            if (*l < 0x19F)
+                func_002F7300(*l, g, r, func_002F3DC0(*l));
+        }
+    }
+    func_00323840(r);
+    if (kind != 0)
+        func_0030B030(r, func_0030ACE0(r) / 2);
+    if (show != 0) {
+        if (kind == 2)
+            func_003A7DA0(r, 0);
+        else
+            func_003A7D90();
+    }
+}
+
+/* 0x0030AAD0, 0x44 bytes, matching. The group of weapon kind `k` (3 for 0x1E and above). */
+int func_0030AAD0(int k)
+{
+    if (k == 0x1E)
+        return 3;
+    if (k < 0x1E)
+        return g_00414A20[k];
+    return 3;
+}
+
+/* 0x0030AB20, 0x24 bytes, matching. The group of weapon `w`. */
+int func_0030AB20(u8 w)
+{
+    return func_0030AAD0(func_002F57A0(w));
+}
+
+/* 0x0030AB50, 0x38 bytes, matching. 4 for kinds 9, 0x13 and 0x25, else 3. */
+int func_0030AB50(int k)
+{
+    if (k == 9 || k == 0x13 || k == 0x25)
+        return 4;
+    return 3;
+}
+
+/* 0x0030AB90, 0x30 bytes, matching. The number of regions of the scenario. */
+int func_0030AB90(void)
+{
+    return g_004467C0[func_00327C00()];
+}
+
+/* 0x0030ABC0, 0x24 bytes. Region 0x19 (none) belongs to no force. */
+void func_0030ABC0(void)
+{
+    func_0030CCD0()[0x19].owner = 0x19;
+}
+
+void func_0030AC20(int a, int k);
+
+/* 0x0030ABF0, 0x30 bytes, matching. */
+void func_0030ABF0(int a)
+{
+    func_0030AC20(a, func_00327C00());
+}
+
+/* 0x0030AC20, 0x30 bytes, matching. The scenario's set-up `k`. */
+void func_0030AC20(int a, int k)
+{
+    g_00414AA0[k](a);
+}
+
+/* 0x0030AC50, 0x38 bytes, matching. Region `r`'s kind. */
+int func_0030AC50(int r)
+{
+    return REGION(r)->kind;
+}
+
+/* 0x0030AC90, 0x4C bytes. */
+int func_0030AC90(int r, int k)
+{
+    return REGION(r)->extra[k];
+}
+
+/* 0x0030ACE0, 0x38 bytes, matching. Region `r`'s troop capacity. */
+int func_0030ACE0(int r)
+{
+    return REGION(r)->cap;
+}
+
+/* 0x0030AD20, 0x58 bytes. Region `r`'s neighbour `k` (0x19 past six). */
+int func_0030AD20(int r, int k)
+{
+    Region *g = func_0030CCD0();
+
+    if (k < 6)
+        return g[r].next[k];
+    return 0x19;
+}
+
+/* 0x0030AD80, 0x38 bytes, matching. */
+int func_0030AD80(int r)
+{
+    return REGION(r)->wanted;
+}
+
+/* 0x0030ADC0, 0x80 bytes. Sets region `r`'s +0x12 value (0 to its most). */
+void func_0030ADC0(int r, int v)
+{
+    if (func_0030AE80(r) < v)
+        v = func_0030AE80(r);
+    if (v < 1)
+        v = 0;
+    REGION(r)->wanted = v;
+}
+
+/* 0x0030AE80, 0x38 bytes, matching. */
+int func_0030AE80(int r)
+{
+    return REGION(r)->most;
+}
+
+/* 0x0030AEC0, 0x60 bytes. Sets the owner of region record `g` (a force or 0x19). */
+void func_0030AEC0(Region *g, int f)
+{
+    if (IS_FORCE(f) || f == 0x19)
+        g->owner = f;
+}
+
+/* 0x0030AF20, 0x48 bytes, matching. Region `r` goes to force `f`. */
+void func_0030AF20(int r, int f)
+{
+    func_0030AEC0(REGION(r), f);
+}
+
+/* 0x0030AF70, 0x7C bytes. The owner of region record `g` (0x19 for none). */
+int func_0030AF70(Region *g)
+{
+    int r = g - func_0030CCD0();
+
+    if (r < 0)
+        return 0x19;
+    if (r < func_0030AB90())
+        return (u16)g->owner;
+    return 0x19;
+}
+
+/* 0x0030AFF0, 0x38 bytes, matching. Region `r`'s force. */
+int func_0030AFF0(int r)
+{
+    return func_0030AF70(REGION(r));
+}
+
+/* 0x0030B030, 0x60 bytes. Sets region `r`'s troops (0-5). */
+void func_0030B030(int r, int v)
+{
+    if (v >= 0 && v < 6)
+        REGION(r)->troops = v;
+}
+
+/* 0x0030B090, 0x38 bytes, matching. Region `r`'s troops. */
+int func_0030B090(int r)
+{
+    return REGION(r)->troops;
+}
+
+/* 0x0030B0D0, 0x78 bytes. Adds `d` troops (up to the capacity). */
+void func_0030B0D0(int r, int d)
+{
+    if (d + func_0030B090(r) < func_0030ACE0(r))
+        d = d + func_0030B090(r);
+    else
+        d = func_0030ACE0(r);
+    func_0030B030(r, d);
+}
+
+/* 0x0030B150, 0x5C bytes. Takes `d` troops away (down to 0). */
+void func_0030B150(int r, int d)
+{
+    func_0030B030(r, d < func_0030B090(r) ? func_0030B090(r) - d : 0);
+}
+
+/* 0x0030B1B0, 0x90 bytes. Sets 2-bit field `k` (0-4) of region `r`'s flags. */
+void func_0030B1B0(int r, int k, int v)
+{
+    if (k >= 0 && k < 5) {
+        Region *g = REGION(r);
+        u32 s = k << 1, f = g->flags & ~(3 << s);
+
+        g->flags = f;
+        g->flags = f | v << s;
+    }
+}
+
+/* 0x0030B240, 0x6C bytes. 2-bit field `k` of region `r`'s flags (0 out of range). */
+int func_0030B240(int r, int k)
+{
+    if (k < 0 || k > 4)
+        return 0;
+    return REGION(r)->flags >> ((k & 0xF) << 1) & 3;
+}
+
+/* 0x0030B2B0, 0x40 bytes, matching. Marks region `r`. */
+void func_0030B2B0(int r)
+{
+    REGION(r)->flags |= 0x8000;
+}
+
+/* 0x0030B2F0, 0x3C bytes, matching. Whether region `r` is marked. */
+int func_0030B2F0(int r)
+{
+    return REGION(r)->flags & 0x8000;
+}
+
+/* 0x0030B330, 0x78 bytes. Clears every region's mark. */
+void func_0030B330(void)
+{
+    Region *g = func_0030CCD0();
+    int k;
+
+    for (k = 0; k < 0x19; k++, g++)
+        g->flags &= 0xFFFF7FFF;
+}
+
+/* 0x0030B3B0, 0x84 bytes. The marked regions into `out`; their count. */
+int func_0030B3B0(int *out)
+{
+    int n = 0, r;
+
+    for (r = 0; r < func_0030AB90(); r++) {
+        if (func_0030B2F0(r) != 0) {
+            *out++ = r;
+            n++;
+        }
+    }
+    return n;
+}
+
+/* 0x0030B440, 0xF4 bytes. Marks the regions of region `r`'s force and their neighbours. */
+void func_0030B440(int r)
+{
+    int g, x, k;
+
+    func_0030B330();
+    g = func_0030AFF0(r);
+    for (x = 0; x < func_0030AB90(); x++) {
+        x = func_0030C1C0(x, g);
+        if (x >= func_0030AB90())
+            return;
+        func_0030B2B0(x);
+        for (k = 0; k < 6; k++) {
+            int n = func_0030AD20(x, k);
+
+            if (IS_FORCE(n))
+                func_0030B2B0(n);
+        }
+    }
+}
+
+/* 0x0030B540, 0xFC bytes. Marks the regions bordering region `r`'s force. */
+void func_0030B540(int r)
+{
+    int g, x, k;
+
+    func_0030B330();
+    g = func_0030AFF0(r);
+    for (x = 0; x < func_0030AB90(); x++) {
+        x = func_0030C1C0(x, g);
+        if (x >= func_0030AB90())
+            return;
+        for (k = 0; k < 6; k++) {
+            int n = func_0030AD20(x, k);
+
+            if (IS_FORCE(n) && g != func_0030AFF0(n))
+                func_0030B2B0(n);
+        }
+    }
+}
+
+/* Whether region `x` is already in `q` (`n`). */
+static inline int in_list(int x, int *q, int n)
+{
+    int k, found = 0;
+
+    for (k = 0; k < n; k++) {
+        if (x == q[k])
+            found = 1;
+    }
+    return found;
+}
+
+/* 0x0030B640, 0x2AC bytes. Spreads from region `r` over its force's regions and those of forces
+ * at war with it (the original tests the same condition twice, leaving its other branch dead),
+ * then marks the regions bordering the force. */
+void func_0030B640(int r)
+{
+    int q[28], g, head = 0, cnt = 1, x, k;
+
+    func_0030B330();
+    g = func_0030AFF0(r);
+    q[0] = r;
+    do {
+        int cur = q[head++];
+
+        for (k = 0; k < 6; k++) {
+            int n = func_0030AD20(cur, k), o;
+
+            if (!IS_FORCE(n))
+                continue;
+            o = func_0030AFF0(n);
+            if (!IS_FORCE(o) || n == r)
+                continue;
+            if (o == g || func_002F9C90(g, o) == 3) {
+                if (!in_list(n, q, cnt))
+                    q[cnt++] = n;
+            }
+        }
+    } while (head != cnt);
+    g = func_0030AFF0(r);
+    for (x = 0; x < func_0030AB90(); x++) {
+        x = func_0030C1C0(x, g);
+        if (x >= func_0030AB90())
+            return;
+        for (k = 0; k < 6; k++) {
+            int n = func_0030AD20(x, k);
+
+            if (IS_FORCE(n) && g != func_0030AFF0(n))
+                func_0030B2B0(n);
+        }
+    }
+}
+
+/* 0x0030B8F0, 0x2DC bytes. Force `f`'s regions reachable from region `r` through regions of `f`
+ * or of forces at war with it (not those with flag field 3 = 2), into `out`; their count. */
+int func_0030B8F0(int r, int f, int *out)
+{
+    int q[28], cnt = 1, head = 0, n = 0, found = 0, k;
+
+    for (k = 0; k < 0x19; k++)
+        q[k] = 0x19;
+    q[0] = r;
+    do {
+        int cur = q[head++];
+
+        if (!IS_FORCE(cur))
+            return n;
+        for (k = 0; k < 6; k++) {
+            int x = func_0030AD20(cur, k), o;
+
+            if (!IS_FORCE(x))
+                continue;
+            o = func_0030AFF0(x);
+            if (!IS_FORCE(o) || x == r || func_0030B240(x, 3) == 2)
+                continue;
+            if (o != f && func_002F9C90(f, o) != 3)
+                continue;
+            if (o != f && !in_list(x, q, cnt))
+                q[cnt++] = x;
+            if (o == f) {
+                if (!in_list(x, out, n))
+                    out[n++] = x;
+                found = 1;
+            }
+        }
+    } while (head != cnt || !found);
+    return n;
+}
+
+/* 0x0030BBD0, 0x1D8 bytes. Marks the regions of region `r`'s force connected to `r` (through
+ * its own regions and those of forces at war with it); `r` itself when `self`. */
+void func_0030BBD0(int r, int self)
+{
+    int q[28], g, head = 0, cnt = 1, k;
+
+    func_0030B330();
+    g = func_0030AFF0(r);
+    q[0] = r;
+    if (self != 0)
+        func_0030B2B0(r);
+    do {
+        int cur = q[head++];
+
+        for (k = 0; k < 6; k++) {
+            int n = func_0030AD20(cur, k), o;
+
+            if (!IS_FORCE(n))
+                continue;
+            o = func_0030AFF0(n);
+            if (!IS_FORCE(o) || !(o == g || func_002F9C90(g, o) == 3) || n == r || func_0030B2F0(n) != 0)
+                continue;
+            if (o == g)
+                func_0030B2B0(n);
+            if (!in_list(n, q, cnt))
+                q[cnt++] = n;
+        }
+    } while (head != cnt);
+}
+
+/* 0x0030BDB0, 0x124 bytes. Marks the regions of the forces bordering region `r`'s force without a
+ * tie to it; whether any. */
+int func_0030BDB0(int r)
+{
+    int l[28], g, n, x, k, any = 0;
+
+    func_0030B330();
+    g = func_0030AFF0(r);
+    n = func_002FB5A0(g, l);
+    for (x = 0; x < func_0030AB90(); x++) {
+        int o = func_0030AFF0(x);
+
+        if (!IS_FORCE(o))
+            continue;
+        for (k = 0; k < n; k++) {
+            if (o == l[k])
+                break;
+        }
+        if (k < n && func_002FAFA0(g, o) == 0) {
+            func_0030B2B0(x);
+            any = 1;
+        }
+    }
+    return any;
+}
+
+/* 0x0030BEE0, 0x140 bytes. Marks the other forces' regions with officers that are not a home;
+ * whether any. */
+int func_0030BEE0(int r)
+{
+    int home[25], g, f, x, any = 0;
+
+    func_0030B330();
+    g = func_0030AFF0(r);
+    func_0011ED38(home, 0, 100);
+    for (f = 0; f < 0x19; f++) {
+        if (func_002F8CB0(f) != 0)
+            home[func_002FB2D0(f)] = 1;
+    }
+    for (x = 0; x < func_0030AB90(); x++) {
+        if (home[x] == 0) {
+            int o = func_0030AFF0(x);
+
+            if (IS_FORCE(o) && g != o && func_0030C660(x) != 0) {
+                func_0030B2B0(x);
+                any = 1;
+            }
+        }
+    }
+    return any;
+}
+
+/* 0x0030C020, 0x19C bytes. Marks the other forces' regions with officers (two or more at a home)
+ * of forces having func_002F8250 officers; whether any. */
+int func_0030C020(int r)
+{
+    int has[25], g, f, x, any = 0;
+
+    func_0011ED38(has, 0, 100);
+    for (f = 0; f < 0x19; f++) {
+        if (func_002F8CB0(f) != 0 && func_002F7D90(0, (int (*)(u32, int, int))func_002F8250, f, 0, 1) != 0)
+            has[f] = 1;
+    }
+    func_0030B330();
+    g = func_0030AFF0(r);
+    for (x = 0; x < func_0030AB90(); x++) {
+        int o = func_0030AFF0(x), c;
+
+        if (!IS_FORCE(o) || g == o)
+            continue;
+        c = func_0030C660(x);
+        if (((x == func_002FB2D0(o) && c > 1) || (x != func_002FB2D0(o) && c > 0)) && has[o] != 0) {
+            func_0030B2B0(x);
+            any = 1;
+        }
+    }
+    return any;
+}
+
+/* 0x0030C1C0, 0x84 bytes. The first region from `x` on owned by force `g` (the count when none). */
+int func_0030C1C0(int x, int g)
+{
+    Region *p = REGION(x);
+
+    for (; x < func_0030AB90(); x++, p++) {
+        if (g == func_0030AF70(p))
+            return x;
+    }
+    return x;
+}
+
+/* 0x0030C250, 0x24 bytes, matching. Whether region `r` is the player's. */
+int func_0030C250(int r)
+{
+    return func_002FB2A0(func_0030AFF0(r));
+}
+
+/* 0x0030C280, 0x98 bytes. Whether region `t` borders region `r`. */
+int func_0030C280(int r, int t)
+{
+    int k;
+
+    for (k = 0; k < 6; k++) {
+        int n = func_0030AD20(r, k);
+
+        if (IS_FORCE(n) && n == t)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x0030C320, 0x98 bytes. The same. */
+int func_0030C320(int r, int t)
+{
+    int k;
+
+    for (k = 0; k < 6; k++) {
+        int n = func_0030AD20(r, k);
+
+        if (IS_FORCE(n) && n == t)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x0030C3C0, 0x78 bytes, matching. Whether region `t` is reachable from region `r` by `t`'s force. */
+int func_0030C3C0(int t, int r)
+{
+    int l[28], n = func_0030B8F0(r, func_0030AFF0(t), l), k;
+
+    for (k = 0; k < n; k++) {
+        if (t == l[k])
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x0030C440, 0xA0 bytes. Whether region `r` borders a region of force `f`. */
+int func_0030C440(int r, int f)
+{
+    int k;
+
+    for (k = 0; k < 6; k++) {
+        int n = func_0030AD20(r, k);
+
+        if (IS_FORCE(n) && f == func_0030AFF0(n))
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x0030C4E0, 0xA4 bytes. Region `r`'s neighbours into `out`; their count. */
+int func_0030C4E0(int r, int *out)
+{
+    int n = 0, k;
+
+    for (k = 0; k < 6; k++) {
+        int x = func_0030AD20(r, k);
+
+        if (IS_FORCE(x)) {
+            *out++ = x;
+            n++;
+        }
+    }
+    return n;
+}
+
+/* 0x0030C590, 0xC8 bytes. The soldiers of region `r`'s officers (0 when unowned). */
+int func_0030C590(int r)
+{
+    int g = func_0030AFF0(r), n, s = 0, k;
+    u32 *o;
+
+    if (!IS_FORCE(g))
+        return 0;
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, r, 0, 1);
+    o = func_002F7B10();
+    for (k = 0; k < n; k++, o++)
+        s += func_002F3770(*o);
+    return s;
+}
+
+/* 0x0030C660, 0x34 bytes. Region `r`'s officers. */
+int func_0030C660(int r)
+{
+    return func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, r, 0, 1);
+}
+
+/* 0x0030C6A0, 0x34 bytes. Region `r`'s officers of role 2 or more. */
+int func_0030C6A0(int r)
+{
+    return func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, r, 0, 1);
+}
+
+/* 0x0030C6E0, 0xB8 bytes. The regions of kind `a` or `b` (into `out` when given); their count. */
+int func_0030C6E0(int *out, int a, int b)
+{
+    int n = 0, r, *p = out;
+
+    for (r = 0; r < func_0030AB90(); r++) {
+        int k = func_0030AC50(r);
+
+        if (k == a || k == b) {
+            if (out != 0)
+                *p++ = r;
+            n++;
+        }
+    }
+    return n;
+}
+
+/* 0x0030C7A0, 0x44 bytes, matching. Whether trait `x` goes with trait `t`. */
+int func_0030C7A0(int t, int x)
+{
+    int *p = g_00414AD0[t], k;
+
+    for (k = 0; k < 4; k++, p++) {
+        if (x == *p)
+            return 1;
+    }
+    return 0;
+}
+
+int func_0030C810(int f, int a, int b);
+
+/* 0x0030C7F0, 0x1C bytes, matching. Whether force `f` holds every region of kind `t`. */
+int func_0030C7F0(int f, int t)
+{
+    return func_0030C810(f, t, 8);
+}
+
+/* 0x0030C810, 0x80 bytes, matching. Whether force `f` holds every region of kind `a` or `b`. */
+int func_0030C810(int f, int a, int b)
+{
+    int l[28], n = func_0030C6E0(l, a, b), k;
+
+    for (k = 0; k < n; k++) {
+        if (f != func_0030AFF0(l[k]))
+            return 0;
+    }
+    return 1;
+}
+
+/* 0x0030C890, 0x90 bytes. Whether region `r` is force `f`'s and short of troops. */
+int func_0030C890(int r, int f)
+{
+    int g = func_0030AFF0(r);
+
+    if (IS_FORCE(f) && f == g)
+        return func_0030B090(r) < func_0030ACE0(r);
+    return 0;
+}
+
+/* 0x0030C920, 0x94 bytes, matching. Shuffles `l` (`n`). */
+void func_0030C920(int *l, int n)
+{
+    int k;
+
+    for (k = 0; k < n; k++) {
+        int a = func_0030CB00(n), b = func_0030CB00(n);
+
+        if (a != b) {
+            int t = l[a];
+
+            l[a] = l[b];
+            l[b] = t;
+        }
+    }
+}
+
+/* 0x0030C9C0, 0x90 bytes. Whether region `r` is where its force's leader is. */
+int func_0030C9C0(int r)
+{
+    int g;
+
+    if (r >= func_0030AB90())
+        return 0;
+    g = func_0030AFF0(r);
+    if (!IS_FORCE(g))
+        return 0;
+    return r == func_002F5CC0(func_002F8F20(g));
+}
+
+/* 0x0030CA50, 0xAC bytes. The number of distinct region owners. */
+int func_0030CA50(void)
+{
+    int l[28], n = 0, r, k;
+
+    for (r = 0; r < func_0030AB90(); r++) {
+        int o = func_0030AFF0(r);
+
+        for (k = 0; k < n; k++) {
+            if (o == l[k])
+                break;
+        }
+        if (k >= n)
+            l[n++] = o;
+    }
+    return n;
+}
+
+/* 0x0030CB00, 0x48 bytes. A random number below `n` (the game's generator). */
+int func_0030CB00(int n)
+{
+    if (n == 0)
+        return 0;
+    g_7000015C = g_7000015C * 0x41C64E6D + 0x3039;
+    return (int)(g_7000015C >> 0x10) % n;
+}
+
+/* 0x0030CB50, 0x2C bytes, matching. True with `pct`% chance. */
+int func_0030CB50(int pct)
+{
+    return func_0030CB00(100) < pct;
+}
+
+/* 0x0030CB80, 0x7C bytes. `v` as text, in the next of ten buffers. */
+char *func_0030CB80(int v)
+{
+    if (++g_0045D6AC > 9)
+        g_0045D6AC = 0;
+    func_001204B0(g_007A3B30[g_0045D6AC], g_004467F0, v);
+    return g_007A3B30[g_0045D6AC];
+}
+
+/* 0x0030CC00, 0x20 bytes. */
+void func_0030CC00(void)
+{
+    g_007B4E4C = 0;
+    g_007B4E48 = 0;
+    g_007B4E50 = 0x12;
+}
+
+/* 0x0030CC20, 0x5C bytes. */
+void func_0030CC20(int v)
+{
+    func_001B8F60(0, 6, 8);
+    if (func_0017DDA0() != 0)
+        func_0017DF10();
+    g_007B4E48 = 2;
+    g_007B4E50 = v;
+}
+
+/* 0x0030CC80, 0x2C bytes, matching. */
+void func_0030CC80(void)
+{
+    func_0030CCE0();
+    func_0030CF70();
+    func_0030CC00();
 }
