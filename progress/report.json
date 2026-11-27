@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 127232,
-    "non_matching": 952484
+    "matching": 127264,
+    "non_matching": 954004
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1393
+    "matching": 1394
   },
   "layout": "treemap",
   "areas": [
@@ -698,15 +698,15 @@
         },
         {
           "name": "ItemModel.c",
-          "description": "Estimated range 0x245518-0x24FF58; 15 function(s) decompiled",
+          "description": "Estimated range 0x245518-0x24FF58; 25 function(s) decompiled",
           "code": {
             "total": 43584,
-            "matching": 128,
-            "non_matching": 2576
+            "matching": 160,
+            "non_matching": 4096
           },
           "decompiled_functions": {
-            "count": 15,
-            "matching": 2
+            "count": 25,
+            "matching": 3
           }
         }
       ]

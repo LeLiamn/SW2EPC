@@ -3,7 +3,7 @@
  * 0x00755060, 0x40 position slots of 0x10 bytes at 0x00755860 (used flags at 0x00755C60), and
  * the saved item drops (16 of 0x20 bytes at 0x00752F90) of the 16 items at 0x00753190 (0x1A0
  * bytes each). Probably part of ItemModel.c (whose name is used at 0x0024BCA0). Written so far:
- * parts of 0x0024E3C0-0x0024F89C.
+ * parts of 0x0024BC60-0x0024F89C.
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -213,4 +213,178 @@ void func_0024F850(u32 k)
             g_0045D510 = k;
         g_0045D50C++;
     }
+}
+
+extern u8 g_006A3A30[][0xC0];            /* the battle officers */
+extern u8 *g_00754FE0[0x10];             /* the items' glow effects */
+extern u8 g_00754B90[][0x30];            /* the item models */
+extern int g_0045D4F8;                   /* (small data) their number */
+extern u8 *g_0045D4FC;                   /* (small data) the item model data */
+extern u8 g_00669D60[];
+extern int g_00669F6C;
+
+void func_0014F950(u8 *it);
+void func_001483B0(u8 *m);
+void func_00102EC0(void *p);
+u8 *func_002EFB00(int k);
+int func_0034EE50(u8 *b);
+u8 *func_0034ECA0(u8 *c);
+int func_00352CA0(u8 *c);
+void func_00191200(float *out, u8 *pos);
+void func_002A6910(int a, int b, u32 *pos);
+short func_00271210(u8 *a);
+void func_002A6D20(u8 who, int k);
+void func_0024D3A0(u8 *a, u8 *b, int c);
+
+/* 0x0024BC60, 0x38 bytes. Whether item kind `k` is one of 0x11-0x16. */
+int func_0024BC60(int k)
+{
+    switch (k) {
+    case 0x11:
+    case 0x12:
+    case 0x13:
+    case 0x14:
+    case 0x15:
+    case 0x16:
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x0024BE90, 0x90 bytes. Frees the items and their models. */
+void func_0024BE90(void)
+{
+    int k;
+
+    func_0024E440();
+    for (k = 0; k < 0x10; k++)
+        func_0014F950(g_00753190[k]);
+    for (k = 0; k < g_0045D4F8; k++)
+        func_001483B0(g_00754B90[k]);
+    func_00102EC0(g_0045D4FC);
+    g_0045D4FC = 0;
+}
+
+/* 0x0024BF20, 0x34 bytes. When resuming, drops the saved items again. */
+void func_0024BF20(void)
+{
+    if (g_00669F6C != 0)
+        func_0024E550(func_002EFB00(3));
+}
+
+/* 0x0024C070, 0x54 bytes. Removes item `k` (`it`). */
+void func_0024C070(u8 *it, int k)
+{
+    *(u32 *)(it + 0x198) = 0;
+    it[0x19F] &= 0xFE;
+    it[0x19D] = 0x17;
+    if (g_00754FE0[k] != 0) {
+        *(u32 *)(g_00754FE0[k] + 0x34) |= 0x800;
+        g_00754FE0[k] = 0;
+    }
+}
+
+/* 0x0024C0D0, 0x168 bytes. Removes the items lying on base `b`'s centre. */
+void func_0024C0D0(u8 *b)
+{
+    int k;
+
+    if (b == 0 || func_0034EE50(b) == 0)
+        return;
+    for (k = 0; k < 0x10; k++) {
+        u8 *it = g_00753190[k];
+
+        if ((it[0x19F] & 1) != 0) {
+            float xy[2];
+            u8 c[2], s[2];
+
+            func_00191200(xy, it + 0x170);
+            c[0] = (int)xy[0] / 5000;
+            c[1] = (int)xy[1] / 5000;
+            if (func_0034ECA0(c) == b) {
+                s[0] = (int)xy[0] / 1000;
+                s[1] = (int)xy[1] / 1000;
+                if (func_00352CA0(s) != 0)
+                    func_0024C070(it, k);
+            }
+        }
+    }
+}
+
+/* 0x0024D070, 0x94 bytes. Drops item `kind` on the ground at `pos` (not kinds 0x11-0x16, nor in
+ * the flagged modes), with a sound. */
+void func_0024D070(int kind, u32 *pos)
+{
+    u32 p[4];
+    GroundQuery q;
+    u8 out[16];
+
+    if (func_0024BC60(kind) != 0 || (*(u32 *)(g_00669D60 + 0x200) & 0x4000010) != 0)
+        return;
+    q.pos = p;
+    p[0] = pos[0];
+    p[1] = pos[1];
+    p[2] = pos[2];
+    p[3] = pos[3];
+    func_001F2BF0(&q);
+    *(float *)&p[1] = q.ground - 50.0f;
+    func_0024CE50(kind, p, out);
+    func_002A6910(8, 0, p);
+}
+
+/* 0x0024D110, 0xEC bytes. Heals battle officer `k + 2` by `v` (up to its most life). */
+void func_0024D110(float v, int k)
+{
+    u8 *o = g_006A3A30[k + 2];
+
+    if ((*(u32 *)(o + 0xB8) & 1) != 0) {
+        short most = *(short *)(o + 0x80);
+        int n = (int)v + *(short *)(o + 0x82);
+
+        if (n > most)
+            n = most;
+        if (n < 1)
+            n = 0;
+        *(short *)(o + 0x82) = n;
+        if (*(short *)(o + 0x84) < n)
+            *(short *)(o + 0x84) = n;
+    }
+}
+
+/* 0x0024D200, 0xD0 bytes. Fills its musou gauge by `v` (up to its most). */
+void func_0024D200(float v, int k)
+{
+    u8 *o = g_006A3A30[k + 2];
+
+    if ((*(u32 *)(o + 0xB8) & 1) != 0) {
+        short most = *(short *)(o + 0x86);
+        int n = (int)v + *(short *)(o + 0x88);
+
+        if (n > most)
+            n = most;
+        if (n < 1)
+            n = 0;
+        *(short *)(o + 0x88) = n;
+    }
+}
+
+/* 0x0024D2D0, 0xA4 bytes. The gauge sound when actor `a`'s musou crosses a step (0x23B when it
+ * reaches the top, else 0x248). */
+void func_0024D2D0(short now, short before, short most, u8 *a)
+{
+    short step;
+    int s;
+
+    if (now == before)
+        return;
+    step = func_00271210(a);
+    s = before / step;
+    if (s != now / step)
+        func_002A6D20(a[0x14E], s == most / step ? 0x23B : 0x248);
+}
+
+/* 0x0024D380, 0x1C bytes, matching. */
+void func_0024D380(u8 *a, u8 *b)
+{
+    func_0024D3A0(a, b, 1);
 }
