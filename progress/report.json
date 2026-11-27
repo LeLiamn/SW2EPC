@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 128272,
-    "non_matching": 966776
+    "matching": 128640,
+    "non_matching": 968072
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1410
+    "matching": 1416
   },
   "layout": "treemap",
   "areas": [
@@ -729,15 +729,15 @@
         },
         {
           "name": "ev_config.c",
-          "description": "Estimated range 0x201B40-0x20F408; 0 function(s) decompiled",
+          "description": "Estimated range 0x201B40-0x20F408; 13 function(s) decompiled",
           "code": {
             "total": 55496,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 368,
+            "non_matching": 1296
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 13,
+            "matching": 6
           }
         },
         {

@@ -531,3 +531,179 @@ void func_0027B2D0(u8 *s)
     else if (st == 0)
         func_0027B1B0(s);
 }
+
+/* The soldiers' basic orders (0x00204BB0-0x002054B8): soldiers here are battle officer records
+ * (0xC0 bytes at 0x006A3A30) of foot soldiers; +0x04 the next in the group, +0x10 the unit,
+ * +0x68 its officer table entry. */
+
+extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each) */
+extern u8 g_00669D60[];
+
+void func_001505B0(u8 *a);
+void func_00150290(u8 *a, void *pos, u32 f);
+void func_00150910(u8 *a, u32 f);
+void func_001508F0(u8 *a, u32 f);
+void func_002A6770(int k, int snd);
+void func_002A6D20(int k, int snd);
+u32 func_001F0520(u8 *u);
+int func_003E6D90(void);
+
+/* 0x00204BB0, 0x40 bytes. Soldier `s` stops. */
+void func_00204BB0(u8 *s)
+{
+    func_001505B0(*(u8 **)(s + 0x14));
+}
+
+/* 0x00204C50, 0x40 bytes. */
+void func_00204C50(u8 *s)
+{
+    func_001505B0(*(u8 **)(s + 0x14));
+}
+
+/* 0x00204C90, 0x1C bytes, matching. */
+void func_00204C90(u8 *s, void *pos, u32 f)
+{
+    func_00150290(*(u8 **)(s + 0x14), pos, f);
+}
+
+/* 0x00204CB0, 0x1C bytes, matching. */
+void func_00204CB0(u8 *s)
+{
+    func_001505B0(*(u8 **)(s + 0x14));
+}
+
+/* 0x00204CD0, 0x28 bytes, matching. Soldier `s`'s attack flags. */
+void func_00204CD0(u8 *s, u32 f)
+{
+    func_00150910(*(u8 **)(s + 0x14), f & 0x3FFF8000);
+}
+
+/* 0x00204D00, 0x20 bytes, matching. Its charge. */
+void func_00204D00(u8 *s, int f)
+{
+    func_001508F0(*(u8 **)(s + 0x14), f & 0x7FFF);
+}
+
+/* 0x00204D20, 0x90 bytes, matching. Stops soldier `s`'s marching sounds. */
+void func_00204D20(u8 *s)
+{
+    if ((*(u32 *)(s + 0xBC) & 0x40000000) != 0) {
+        int k = (s - g_006A3A30[0]) / 0xC0;
+
+        func_002A6770(k, 0x717);
+        func_002A6770(k, 0x719);
+        *(u32 *)(s + 0xBC) &= ~0x40000000;
+    }
+}
+
+/* 0x00204DB0, 0xF0 bytes. Starts them (for the drum and horn soldiers, kinds 0x239-0x23B). */
+void func_00204DB0(u8 *s, int alt)
+{
+    int k, o;
+
+    if ((*(u32 *)(s + 0xBC) & 0x40000000) != 0)
+        return;
+    k = (s - g_006A3A30[0]) / 0xC0;
+    o = (*(u8 **)(s + 0x68) - g_005BA6A0) / 0x2C;
+    if (o == 0x23B || o == 0x23A)
+        func_002A6D20(k, 0x717);
+    else if (o == 0x239)
+        func_002A6D20(k, alt == 0 ? 0x717 : 0x719);
+    *(u32 *)(s + 0xBC) |= 0x40000000;
+}
+
+/* 0x00204EA0, 0xC8 bytes. Soldier `s`'s whole group stops and forgets its target. */
+void func_00204EA0(u8 *s)
+{
+    u8 *p;
+
+    if ((*(u32 *)(s + 0xB8) & 0x180) != 0)
+        return;
+    for (p = g_006A3A30[*(int *)(*(u8 **)(s + 0x10) + 0x14)]; p != 0; p = *(u8 **)(p + 4)) {
+        u8 *a;
+
+        *(u32 *)(p + 0xB8) &= 0xFFFF9FFF;
+        *(u32 *)(p + 0xBC) &= 0xFFDEFFFF;
+        func_00206080(p);
+        a = *(u8 **)(p + 0x14);
+        *(u32 *)(a + 0x13C) = 0;
+        *(u32 *)(a + 0x1D0) = *(u32 *)0x700000C0;
+        *(u32 *)(a + 0x1D4) = *(u32 *)0x700000C4;
+        *(u32 *)(a + 0x1D8) = *(u32 *)0x700000C8;
+        *(u32 *)(a + 0x1DC) = *(u32 *)0x700000CC;
+    }
+}
+
+/* 0x002051A0, 0x4C bytes, matching. Soldier `s`'s formation slot (0x17 for none). */
+u32 func_002051A0(u8 *s)
+{
+    if ((*(u32 *)(s + 0xB8) & 0x80) == 0 || (*(u32 *)(g_00669D60 + 0x200) & 0x4000000) != 0)
+        return 0x17;
+    return func_001F0520(*(u8 **)(s + 0x10));
+}
+
+/* 0x002051F0, 0x16C bytes. Soldier `s`'s guard chance (`hit`: when struck), less when hurt for
+ * kind 0x10, a third for kinds below 8. */
+int func_002051F0(u8 *s, int hit)
+{
+    u8 kind = (*(u8 **)(s + 0x68))[0x1C];
+    u32 c;
+    int v;
+
+    if (kind == 2) {
+        c = (hit != 0 ? 3 : 2) * (s[0x7B] + 2);
+    } else {
+        u8 *t = func_001F14E0();
+
+        c = hit == 0 ? t[0xB] : t[0xC];
+        if (kind == 0x10) {
+            float life = (float)*(short *)(s + 0x82), most = (float)*(short *)(s + 0x80);
+
+            if (life < most * 0.5f) {
+                c -= (int)((float)c * ((50.0f - life / most * 100.0f) / 100.0f));
+                if ((int)c < 1)
+                    c = 0;
+            }
+        }
+    }
+    v = (int)(c * func_003E6D90()) / 100;
+    if (kind < 8)
+        v /= 3;
+    return v;
+}
+
+/* 0x00205360, 0x120 bytes. Whether a hit of kind `k` (power `p`) on soldier `t` knocks it down
+ * (`*down` set). */
+int func_00205360(int a, int k, int p, u8 *o, u8 *t, int *down)
+{
+    u32 n;
+    int lim;
+
+    if ((*(u32 *)(t + 0xB8) & 0x846C) != 0)
+        return 0;
+    if ((*(u32 *)(t + 0xB8) & 0x80) != 0 && (*(u32 *)(*(u8 **)(t + 0x10) + 0x80) & 0x800) != 0)
+        return 0;
+    if (a == 2)
+        return 1;
+    if (k != 5 || p <= 0)
+        return 0;
+    n = g_00669D60[0x21] + 4;
+    lim = *(short *)(o + 0x80) / 4;
+    if (lim > 0x31)
+        lim = 0x32;
+    if (lim <= *(short *)(o + 0x82))
+        n *= 2;
+    n = n == 0 ? 0 : RANDOM() % n;
+    if (n > (u32)(p - 1))
+        return 0;
+    *down = 1;
+    return 1;
+}
+
+/* 0x00205480, 0x38 bytes. Whether soldier `s` is in a formation that holds. */
+int func_00205480(u8 *s)
+{
+    if ((*(u32 *)(s + 0xB8) & 0x80) == 0)
+        return 0;
+    return (*(u32 *)(*(u8 **)(s + 0x10) + 0x84) & 0x800) != 0;
+}
