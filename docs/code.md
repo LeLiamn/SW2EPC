@@ -1025,6 +1025,22 @@ so far (13 functions, 5 match):
 - the perspective and screen matrices, and a camera object's defaults (a 15-degree view angle,
   depth 64 to 50000).
 
+## The battlefield stage (`src/stage.c`)
+
+Original source file `Stage.c` (its name is passed to the file loader at `0x00193B90` and
+`0x00194130`). Done so far: `0x00193450`-`0x001949B4` (47 functions, 22 match). The stage keeps
+its state in the scratchpad (`0x70000700`-`0x70000BA0`).
+
+- **Files:** the stage table (LINKDATA entry 0x34, one 0x10-byte record per map) and, per
+  battle, two stage files (entries 0x8FC / 0x9B6 + map, or 0x917 / 0x9D1 + n for an event).
+- **Height layers:** up to five, the stage's base height and every 1000 above (Y points
+  down); a point's layer is the highest one with ground under it.
+- **Ground grid:** 500-unit cells of 0x14 bytes (a value, flags at +0x13, a kind at +0xC, a
+  direction at +0xE), plus one 50 x 50 grid of 12-byte cells per layer. Ground types 0x15-0x26
+  map to terrain kinds.
+- **Each frame:** the step is 50 x dt (a quarter in slow motion); two banks of matrices and
+  vectors are kept for the two players' views.
+
 ## The strategic map (`src/field.c`)
 
 Original source file `Field.c` (its name is passed to the file loader at `0x0018C490`). Done
