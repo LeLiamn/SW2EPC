@@ -1288,3 +1288,164 @@ u32 func_00361430(u32 s, u16 *out, u32 max)
     }
     return n;
 }
+
+extern int g_00415D20[3], g_00415D30[5];
+
+u8 **func_0033F0C0(u32 s, u32 k);
+void func_0033DDC0(u8 **g, u8 *cell);
+int func_0033B140(u8 **g);
+void func_003385E0(u8 **g, int a, int b);
+
+/* 0x00361540, 0x80 bytes, matching. Sends side `s`'s three reinforcement groups to contested cells; whether
+ * there were any. */
+int func_00361540(u32 s)
+{
+    u16 c[4];
+    u32 n = func_00361430(s, c, 3), k;
+
+    for (k = 0; k < n; k++)
+        func_0033DDC0(func_0033F0C0(s, k), (u8 *)&c[k]);
+    return n != 0;
+}
+
+/* 0x003615C0, 0x80 bytes. Side `s`'s share of both sides' counts (percent). */
+int func_003615C0(u32 s)
+{
+    int a, b;
+
+    if (s >= 2)
+        return 0;
+    a = func_0035F2D0(s);
+    b = func_0035F2D0(func_0035D5A0(s));
+    if (a + b == 0)
+        return 0;
+    return a * 100 / (a + b);
+}
+
+/* Keeps `g` in `*best` at random, or when `*best` is down and `g` is not. */
+static void keep_group(u8 ***best, u8 **g)
+{
+    if (*best == 0 || RANDOM() % 100 < 0x32)
+        *best = g;
+    else if (!UNIT_ACTIVE(**best) && UNIT_ACTIVE(*g))
+        *best = g;
+}
+
+/* 0x00361640, 0x5F0 bytes. In kind 6-0xF battles, picks side 1's target group (a generic officer
+ * first, then the kinds 400-0x19E, then the named officers, else any active one). */
+void func_00361640(void)
+{
+    u8 **gen = 0, **spec = 0, **named = 0, **any = 0, **g = 0, **pick;
+    u32 k;
+
+    if (func_0035F840() < 0x47)
+        return;
+    if (func_00362570() <= 5 || func_00362570() >= 0x10)
+        return;
+    for (k = 0; k < 0x10; k++) {
+        u16 id;
+
+        g = func_0033EF80(k);
+        if ((((u32 *)g)[0x19] & 1) == 0 || func_0033B140(g) != 0 || (*g)[0x79] != 1)
+            continue;
+        id = *(u16 *)func_00338410(GROUP_INDEX(g));
+        if (id < 0x1C)
+            keep_group(&gen, g);
+        if (id > 399 && id < 0x19F)
+            keep_group(&spec, g);
+        if (id > 0x1B && id < 400)
+            keep_group(&named, g);
+        if (any == 0 && UNIT_ACTIVE(*g))
+            any = g;
+    }
+    if (gen != 0)
+        pick = gen;
+    else if (spec != 0)
+        pick = spec;
+    else
+        pick = named;
+    if (pick == 0 || !UNIT_ACTIVE(*pick)) {
+        if (any != 0)
+            pick = any;
+    }
+    if (pick != 0) {
+        func_0035F820(GROUP_INDEX(pick));
+        func_0033EDC0(pick);
+        func_003385E0(g, 4, 0xFF);
+    }
+}
+
+/* 0x00361C30, 0xB0 bytes, matching. The total strength (+0x1E) of side `s`'s groups. */
+int func_00361C30(int s)
+{
+    int list[16], n = 0;
+    u32 c = func_0033F430(s, 1, list, 0x10), k;
+
+    for (k = 0; k < c; k++)
+        n += *(u16 *)(func_00338410(list[k] * 0x68 / 0x68) + 0x1E);
+    return n;
+}
+
+/* 0x00361CE0, 0x5C bytes. Side `s`'s count against its groups' strength (percent). */
+int func_00361CE0(int s)
+{
+    int a = func_0035F2D0(s), b = func_00361C30(s);
+
+    if (b == 0)
+        return 0;
+    return a * 100 / b;
+}
+
+/* 0x00361D40, 0xD4 bytes. The average +0x4C value of side `s`'s groups (350 / 650 in the
+ * flagged modes). */
+int func_00361D40(int s)
+{
+    int list[16], n = 0;
+    u32 c = func_0033F430(s, 1, list, 0x10), k;
+
+    for (k = 0; k < c; k++) {
+        int v;
+
+        if ((*(u32 *)(g_00669D60 + 0x200) & 0xC) == 0)
+            v = *(int *)(g_006A1D58[list[k]] + 0x4C);
+        else if ((*(u8 **)g_006A1D58[list[k]])[0x79] == 0)
+            v = 0x15E;
+        else
+            v = 0x28A;
+        n += v;
+    }
+    if (c != 0)
+        n /= (int)c;
+    return n;
+}
+
+/* 0x00361E20, 0x6C bytes. The players' total score. */
+int func_00361E20(void)
+{
+    int n = 0, p;
+
+    for (p = 0; p < 2; p++) {
+        if (PLAYER_ON(p) != 0)
+            n += func_0035F780(p);
+    }
+    return n;
+}
+
+/* 0x00361E90, 0xB4 bytes. With func_0036D310: the score to reach (by battle kind 0x10-0x12 and
+ * difficulty). */
+int func_00361E90(void)
+{
+    int a[3], b[5];
+
+    a[0] = g_00415D20[0];
+    a[1] = g_00415D20[1];
+    a[2] = g_00415D20[2];
+    b[0] = g_00415D30[0];
+    b[1] = g_00415D30[1];
+    b[2] = g_00415D30[2];
+    b[3] = g_00415D30[3];
+    b[4] = g_00415D30[4];
+    if (func_0036D310() == 0)
+        return 0;
+    return a[func_00362570() - 0x10] + b[g_00669D60[0x21]];
+}
