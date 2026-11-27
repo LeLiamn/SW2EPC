@@ -1216,8 +1216,8 @@ u32 func_002EFB00(int k);
 void func_002EFB70(u8 *p);
 void func_0030D6B0(u8 *p);
 void func_0011EB80(void *d, const void *s, u32 n);
-u32 func_001A1840(int k);
-int func_003270F0(u32 a);
+u8 *func_001A1840(int k);
+int func_003270F0(u8 *slot);
 
 /* Resets player `p`'s boosts and study. */
 static inline void clear_boosts(int p)
@@ -1721,4 +1721,258 @@ int func_001A0700(void)
             return 1;
     }
     return 0;
+}
+
+/* 0x001A0760, 0x284 bytes. Officer `id`'s horse `k` may learn a trick (bits 0-3 of +0xD; at
+ * most two): the chance is (skill 0x12 + its +8 + its +7) x 5%; the trick is drawn by its
+ * temper (+7 = 4: 0-3, else 0-1), never 2 with bit 3 nor 3 with bit 2. */
+void func_001A0760(u32 id, int k)
+{
+    int n = 0, t;
+    u32 bit, j, roll;
+    u8 temper;
+
+    for (j = 0; j < 4; j++) {
+        if ((1 << j) & func_0019FBC0(k)[0xD])
+            n++;
+    }
+    roll = RANDOM();
+    t = func_0036DBA0(id, 0x12);
+    temper = func_0019FBC0(k)[7];
+    if ((int)(roll % 100) > (t + func_0019FBC0(k)[8] + temper) * 5 || n >= 2)
+        return;
+    do {
+        u32 r = RANDOM() % 10;
+
+        if (func_0019FBC0(k)[7] == 4)
+            t = r < 3 ? 0 : r < 6 ? 1 : r < 8 ? 2 : 3;
+        else
+            t = r < 5 ? 0 : 1;
+        bit = 1 << t;
+    } while ((bit & func_0019FBC0(k)[0xD]) || ((func_0019FBC0(k)[0xD] & 8) && t == 2)
+             || ((func_0019FBC0(k)[0xD] & 4) && t == 3));
+    if ((bit & func_0019FBC0(k)[0xD]) == 0)
+        func_0019FBC0(k)[0xD] |= (u8)bit;
+}
+
+/* The save image (0x96C90 bytes): +0 the settings' first 8 bytes and +8 their next 0x50, +0x58
+ * the 0x348-byte records, +0x3A0 three slots of the 0x1280-byte state, +0x3B20 their records,
+ * +0x44F8 their stables, +0x46A8 the 0x8220-byte settings copy, +0xC8D0, +0x28100 three
+ * 0x1B830-byte parts, +0x7A990 three 0x94AC-byte parts, +0x96C80 16 bytes. */
+extern u8 g_005D30D0[0x96C90];
+extern u8 g_0068F060[16];
+extern u8 g_00669D50[16];                /* the 16 bytes just before the settings */
+
+void func_001A1E00(u8 *img, int full);
+void func_001A1EB0(u8 *dst);
+void func_001A1FA0(u8 *dst);
+void func_001A1AC0(void);
+void func_0030D580(u8 *p);
+void func_003A4D70(void);
+void func_003A4D10(u32 a);
+u32 func_0036B310(void);
+void func_003A4BC0(void);
+void func_003A4C50(int a);
+void func_003A4BA0(void);
+void func_0039EB00(void);
+void func_003273E0(void);
+void func_0039E820(void);
+void func_003EA010(void);
+void func_003A3260(void);
+
+/* 0x001A1840, 0x28 bytes, matching. Save slot `k`'s state. */
+u8 *func_001A1840(int k)
+{
+    return g_005D30D0 + 0x3A0 + k * 0x1280;
+}
+
+/* 0x001A1870, 0x38 bytes, matching. Save slot `k`'s record `i`. */
+u8 *func_001A1870(int k, int i)
+{
+    return g_005D30D0 + 0x3B20 + k * 0x348 + i * 0x38;
+}
+
+/* 0x001A18B0, 0x30 bytes, matching. Save slot `k`'s horse `i`. */
+u8 *func_001A18B0(int k, int i)
+{
+    return g_005D30D0 + 0x44F8 + k * 0x90 + i * 0x24;
+}
+
+/* 0x001A18E0, 0x24 bytes, matching. */
+u8 *func_001A18E0(int k)
+{
+    return g_005D30D0 + 0x7A990 + k * 0x94AC;
+}
+
+/* 0x001A1910, 0x40 bytes, matching. */
+u8 *func_001A1910(int k)
+{
+    return g_005D30D0 + 0x28100 + k * 0x1B830;
+}
+
+/* 0x001A1950, 0xC bytes, matching. */
+u8 *func_001A1950(void)
+{
+    return g_005D30D0 + 0xC8D0;
+}
+
+/* 0x001A1960, 0x15C bytes. Prepares save image `img` for memory card operation `op` (slot
+ * `k`), with its settings copy in use meanwhile. */
+void func_001A1960(int op, u8 *img, int k)
+{
+    func_001A1E00(img, (u32)(op - 6) > 3);
+    func_0019F940(img + 0x46A8);
+    if (op == 4) {
+        func_003A4D70();
+        func_0019F990(img);
+    } else if (op == 3) {
+        func_003A4D10(func_0036B310());
+        func_0019F960(img);
+    } else if (op == 6) {
+        func_003A4BC0();
+        func_0019F9B0(img, k);
+    } else if (op == 7) {
+        func_003A4D70();
+        func_0019FA90(img, k);
+    } else if (op == 8) {
+        func_003A4C50(1);
+    } else if (op == 9) {
+        func_003A4C50(0);
+    } else if (op == 2) {
+        func_0019F950();
+        func_003A4BA0();
+    }
+    func_0019F940(0);
+}
+
+/* 0x001A1AC0, 0x1C bytes, matching. */
+void func_001A1AC0(void)
+{
+    func_0039EB00();
+}
+
+/* 0x001A1AE0, 0x40 bytes, matching. Takes a loaded save image (into the settings, with the records at
+ * +0x58). */
+void func_001A1AE0(u8 *src)
+{
+    func_0011EB80(g_005D30D0, src, 0x96C90);
+    func_001A1FA0(g_00669D60);
+    func_001A1AC0();
+}
+
+/* 0x001A1B20, 0x78 bytes, matching. Takes only the options and the settings copy of image `src`. */
+void func_001A1B20(u8 *src)
+{
+    func_0011EB80(g_005D30D0 + 8, src + 8, 0x50);
+    func_0011EB80(g_00669D60 + 8, g_005D30D0 + 8, 0x50);
+    func_0011EB80(g_005D30D0 + 0x46A8, src + 0x46A8, 0x8220);
+    func_0011EB80(g_00669D60 + 0x630, g_005D30D0 + 0x46A8, 0x8220);
+}
+
+/* 0x001A1BA0, 0x40 bytes, matching. Takes a loaded save image (with the current slot's records). */
+void func_001A1BA0(u8 *src)
+{
+    func_0011EB80(g_005D30D0, src, 0x96C90);
+    func_001A1EB0(g_00669D60);
+    func_001A1AC0();
+}
+
+/* 0x001A1BE0, 0xF0 bytes. Loads save slot `k` into the game: its part, state, records, the
+ * 0x1B830-byte part and its four horses. */
+void func_001A1BE0(int k)
+{
+    int i;
+
+    SET16(6) = (u16)k;
+    func_0030D580(func_001A18E0(k));
+    func_0011EB80(func_0019FBE0(), func_001A1840(k), 0x1280);
+    func_0011EB80(func_0019FBA0(0), func_001A1870(k, 0), 0x348);
+    func_0011EB80(&g_006725B0, func_001A1910(k), 0x1B830);
+    for (i = 0; i < 4; i++)
+        func_0011EB80(g_00669D60 + 0x5A0 + i * 0x24, func_001A18B0(k, i), 0x24);
+    func_001A1AC0();
+}
+
+/* 0x001A1CD0, 0x34 bytes. */
+void func_001A1CD0(void)
+{
+    func_0011EB80(&g_006725B0, func_001A1950(), 0x1B830);
+}
+
+/* 0x001A1D10, 0xEC bytes, matching. A new save: clears the settings (version 0x67, slot 0) and the
+ * image, then fills the image and its three slots. */
+void func_001A1D10(void)
+{
+    int k;
+
+    func_0011ED38(g_00669D60, 0, 0x25310);
+    SET16(4) = 0x67;
+    SET16(6) = 0;
+    func_001A28F0();
+    func_003273E0();
+    func_0039E820();
+    func_0019FC30();
+    func_003EA010();
+    func_0011ED38(g_005D30D0, 0, 0x96C90);
+    func_001A1E00(g_005D30D0, 1);
+    for (k = 0; k < 3; k++) {
+        func_0011EB80(func_001A1840(k), g_0068DDE0, 0x1280);
+        func_0011EB80(func_001A1870(k, 0), g_00669D60 + 0x254, 0x348);
+    }
+    func_003A3260();
+}
+
+/* 0x001A1E00, 0xAC bytes. Writes the settings into save image `img` (the records with
+ * `full`). */
+void func_001A1E00(u8 *img, int full)
+{
+    *(u32 *)img = SET32(0);
+    *(u16 *)(img + 4) = SET16(4);
+    *(u16 *)(img + 6) = SET16(6);
+    func_0011EB80(img + 8, g_00669D60 + 8, 0x50);
+    if (full != 0)
+        func_0011EB80(img + 0x58, g_00669D60 + 0x254, 0x348);
+    func_0011EB80(img + 0x46A8, g_00669D60 + 0x630, 0x8220);
+    ((u32 *)(img + 0x96C80))[0] = ((u32 *)g_0068F060)[0];
+    ((u32 *)(img + 0x96C80))[1] = ((u32 *)g_0068F060)[1];
+    ((u32 *)(img + 0x96C80))[2] = ((u32 *)g_0068F060)[2];
+    ((u32 *)(img + 0x96C80))[3] = ((u32 *)g_0068F060)[3];
+}
+
+/* 0x001A1EB0, 0xE4 bytes. Reads the saved settings into `dst` (with the current slot's records
+ * and horses). */
+void func_001A1EB0(u8 *dst)
+{
+    *(u32 *)dst = *(u32 *)g_005D30D0;
+    *(u16 *)(dst + 4) = *(u16 *)(g_005D30D0 + 4);
+    *(u16 *)(dst + 6) = *(u16 *)(g_005D30D0 + 6);
+    func_0011EB80(dst + 8, g_005D30D0 + 8, 0x50);
+    func_0011EB80(dst + 0x254, g_005D30D0 + 0x3B20 + *(u16 *)(dst + 6) * 0x348, 0x348);
+    func_0011EB80(dst + 0x5A0, g_005D30D0 + 0x44F8 + *(u16 *)(dst + 6) * 0x90, 0x90);
+    func_0011EB80(dst + 0x630, g_005D30D0 + 0x46A8, 0x8220);
+    ((u32 *)(dst + 0x25300))[0] = ((u32 *)g_00669D50)[0];
+    ((u32 *)(dst + 0x25300))[1] = ((u32 *)g_00669D50)[1];
+    ((u32 *)(dst + 0x25300))[2] = ((u32 *)g_00669D50)[2];
+    ((u32 *)(dst + 0x25300))[3] = ((u32 *)g_00669D50)[3];
+}
+
+/* 0x001A1FA0, 0x98 bytes. The same with the records at +0x58. */
+void func_001A1FA0(u8 *dst)
+{
+    *(u32 *)dst = *(u32 *)g_005D30D0;
+    *(u16 *)(dst + 4) = *(u16 *)(g_005D30D0 + 4);
+    *(u16 *)(dst + 6) = *(u16 *)(g_005D30D0 + 6);
+    func_0011EB80(dst + 8, g_005D30D0 + 8, 0x50);
+    func_0011EB80(dst + 0x254, g_005D30D0 + 0x58, 0x348);
+    func_0011EB80(dst + 0x630, g_005D30D0 + 0x46A8, 0x8220);
+    ((u32 *)(dst + 0x25300))[0] = ((u32 *)g_00669D50)[0];
+    ((u32 *)(dst + 0x25300))[1] = ((u32 *)g_00669D50)[1];
+    ((u32 *)(dst + 0x25300))[2] = ((u32 *)g_00669D50)[2];
+    ((u32 *)(dst + 0x25300))[3] = ((u32 *)g_00669D50)[3];
+}
+
+/* 0x001A2040, 0x2C bytes, matching. Takes the saved records. */
+void func_001A2040(void)
+{
+    func_0011EB80(g_00669D60 + 0x254, g_005D30D0 + 0x58, 0x348);
 }
