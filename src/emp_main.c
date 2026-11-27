@@ -4312,3 +4312,229 @@ int func_00308B70(int v)
         return v / 2;
     return v;
 }
+
+void func_002F7C40(void);
+int func_002F34E0(u32 i);
+void func_002F7410(u32 i);
+void func_002F7300(u32 i, int f, int r, int k);
+int func_002F76B0(u32 i, int r);
+int func_0030C280(int r, int home);
+void func_0030C920(int *l, int n);
+
+/* 0x00308F80, 0x19C bytes. The officer of list `l` (`n`, not busy; generic ones only unless
+ * `any`) with the lowest func_002F33F0, then func_002F34E0, then soldiers, then the highest
+ * number. */
+u32 func_00308F80(u32 *l, int n, int any)
+{
+    int a = 0xFFFF, b = 99999, c = 0, k;
+    u32 best = 0x19F;
+
+    func_002F7C40();
+    for (k = 0; k < n; k++, l++) {
+        u32 x = *l;
+        int v1, v2, v3;
+
+        if (func_002F3E70(x) != 0)
+            continue;
+        if (any == 0 && func_002F3F20(x) != 0)
+            continue;
+        v1 = func_002F33F0(x);
+        v2 = func_002F34E0(x);
+        v3 = func_002F3770(x);
+        if (v1 < a || best > 0x19E) {
+            c = v3;
+            b = v2;
+            a = v1;
+            best = x;
+        } else if (v1 == a) {
+            if (v2 < b) {
+                c = v3;
+                b = v2;
+                best = x;
+            } else if (v2 == b) {
+                if (v3 < c) {
+                    c = v3;
+                    best = x;
+                }
+                if (v3 == c && (int)best < (int)x)
+                    best = x;
+            }
+        }
+    }
+    return best;
+}
+
+/* 0x00309540, 0x1E8 bytes. Splits regions `l` (`n`) into connected groups: `st[2 + r]` is
+ * region `r`'s group (-1 for none), `st[1]` the number of groups and `st[0]` the one chosen. */
+void func_00309540(int *st, int *l, int n)
+{
+    int cnt[28], grp = 0, best, x, y;
+
+    for (x = 0; x < 0x19; x++) {
+        st[x + 2] = -1;
+        cnt[x] = 0;
+    }
+    for (x = 0; x < n; x++) {
+        if (st[l[x] + 2] != -1)
+            continue;
+        func_0030BBD0(l[x], 1);
+        for (y = 0; y < n; y++) {
+            if (st[l[y] + 2] == -1 && func_0030B2F0(l[y]) != 0) {
+                st[l[y] + 2] = grp;
+                cnt[grp]++;
+            }
+        }
+        func_0030B330();
+        grp++;
+    }
+    best = grp == 1 ? 0 : -1;
+    for (x = 0; x < grp; x++) {
+        if (best == -1 || cnt[x] > 0 || (cnt[x] == 0 && func_0030CB00(2) != 0))
+            best = x;
+    }
+    st[0] = best;
+    st[1] = grp;
+}
+
+/* 0x00309730, 0x48 bytes. The regions of group `grp` of `st` into `out`; their count. */
+int func_00309730(int *st, int grp, int *out)
+{
+    int n = 0, r;
+
+    for (r = 0; r < 0x19; r++) {
+        if (st[r + 2] == grp)
+            out[n++] = r;
+    }
+    return n;
+}
+
+/* 0x00309780, 0x48 bytes. Whether force `f`'s regions are split. */
+int func_00309780(int f)
+{
+    int st[28], l[28], n = func_002FB320(f, l);
+
+    if (n == 0)
+        return 0;
+    func_00309540(st, l, n);
+    return st[1] > 1;
+}
+
+/* 0x003097D0, 0x23C bytes. Officer `i` leaves its region (when that region keeps enough
+ * officers of its role): to its home (when connected), else to a region of the chosen group
+ * (player's force), else it is set free; 1 when done. */
+int func_003097D0(u32 i)
+{
+    int st[28], l[28], f = func_002F4080(i), r = func_002F5CC0(i), home, n, k;
+
+    if (f == func_0030AFF0(r)) {
+        if (func_002F3F20(i) != 0) {
+            if (func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, r, 0, 1) < 4)
+                return 1;
+        } else {
+            if (func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, r, 0, 0) < 4)
+                return 1;
+        }
+        if (func_002FB2A0(f) != 0)
+            return 0;
+    }
+    home = func_002FB2D0(f);
+    if (IS_FORCE(home) && f == func_0030AFF0(home) && func_0030C280(r, home) != 0
+        && func_00309130(i, f, home, 0) != 0)
+        return 1;
+    n = func_002FB320(f, l);
+    if (n == 0) {
+        func_002F7410(i);
+        return 1;
+    }
+    if (func_002FB2A0(f) != 0) {
+        func_00309540(st, l, n);
+        n = func_00309730(st, st[0], l);
+        func_0030C920(l, n);
+        for (k = 0; k < n; k++) {
+            if (func_00309130(i, f, l[k], 0) != 0)
+                return 1;
+        }
+    }
+    if (func_002FB2A0(f) == 0) {
+        func_002F7410(i);
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00309A10, 0xB0 bytes, matching. Officer `i` joins the player's force in region `r` (no region unless
+ * func_002F76B0 gives 1 or 2); whether it got one. */
+int func_00309A10(u32 i, int r)
+{
+    int k;
+
+    if (func_002F3E70(i) != 0)
+        func_002F3CF0(i, 2);
+    k = func_002F76B0(i, r);
+    if (k != 2 && k != 1)
+        r = 0x19;
+    func_002F7300(i, func_00327D50(), r, k);
+    return IS_FORCE(r);
+}
+
+int func_002F3DC0(u32 i);
+
+/* 0x00309130, 0x410 bytes. Places officer `i` of force `f` in its region `r` with a role (its
+ * own, else 2 for named and 1 for generic ones) where there is room (three per role; a named
+ * officer may push a generic one down, a busy computer officer may push one out); with `msg`
+ * only the order is given. 1 when placed. */
+int func_00309130(u32 i, int f, int r, int msg)
+{
+    u32 l[16], *o;
+    int res = 0, role, a, b, cnt, k;
+    u32 x;
+
+    func_002F7B10();
+    if (f != func_0030AFF0(r))
+        return 0;
+    role = func_002F3DC0(i);
+    if (role == 0)
+        role = func_002F3F20(i) == 0 ? 1 : 2;
+    a = func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, r, 0, 0);
+    o = func_002F7B10();
+    for (k = 0; k < a; k++)
+        l[k] = o[k];
+    b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, r, 0, 0);
+    o = func_002F7B10();
+    for (k = 0; k < b; k++)
+        l[k + 3] = o[k];
+    cnt = role > 1 ? a : b;
+    if (cnt < 3) {
+        res = 1;
+    } else if (role == 1) {
+        if (a < 3) {
+            res = 1;
+            role = 2;
+        }
+    } else if (role > 1 && b < 3) {
+        if (func_002F3F20(i) == 0) {
+            res = 1;
+            role = 1;
+        } else {
+            x = func_00308F80(l, a, 0);
+            if (x < 0x19F) {
+                func_002F3CF0(x, 1);
+                res = 1;
+            }
+        }
+    }
+    if (res == 0 && func_002F3E70(i) != 0 && func_002FB2A0(f) == 0) {
+        func_002F7410(func_00308F80(l, a, 1));
+        res = 1;
+    }
+    if (res != 0) {
+        if (msg != 0) {
+            func_002F7300(i, f, r, role);
+            return res;
+        }
+        func_002F5BE0(i, r);
+        if (func_002F3E70(i) == 0 && func_002F3DC0(i) != role)
+            func_002F3CF0(i, role);
+    }
+    return res;
+}
