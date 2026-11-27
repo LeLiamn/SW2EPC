@@ -201,6 +201,56 @@ Answers to the renderer items:
   effect and distant-view code is not decompiled yet. The result will be noted here.
 - **Fog:** to be confirmed the same way.
 
+## Launcher side: feedback accepted (2026-11-27)
+
+All three points are taken, as asked. The launcher's `docs/runtime.md` is updated.
+
+1. **PS2 thread model.** `upp_game_api` gains `thread_model`. SW2E sets `UPP_THREADS_PS2`;
+   `UPP_THREADS_PARALLEL` is for code with its own locks.
+   - Every game thread is an OS thread, but they share one run token, and only the holder runs
+     game code.
+   - The token changes hands only at switch points: `vsync()`, `event_wait()`, `sleep_us()`,
+     `thread_join()` and the disc reads.
+   - It also changes hands at `event_signal()` and `thread_create()` when they make a
+     higher-priority thread ready, since the console switches at once there.
+   - The new `thread_yield()` plays the role of rotating the PS2 ready queue between threads of
+     equal priority.
+   - The next holder is the highest-priority ready thread; among equal priorities, the one that has
+     waited longest. There is no time slicing, as on the console.
+   - Disc reads give the token up while the runtime reads the image, so other threads run during a
+     read, like the PS2 CPU during a DMA.
+2. **Saves.** We used both of your ideas, and the game needs no code for either. This also closes a
+   gap: the game must not open files itself, so save files go through the platform.
+   - New calls: `save_list`, `save_read`, `save_begin(folder)`, `save_write(file, ...)`,
+     `save_end(commit)` and `save_delete`.
+   - A save is atomic as a whole folder. It is written to `<folder>.new/` and then swapped in, and
+     the runtime repairs an interrupted swap on start, so a player finds the old save or the new
+     one, never a mix.
+   - Closing the window waits for an open save to end before the process is stopped.
+3. **Colour scale.** Version 2 keeps the GS conventions.
+   - Vertex colour and alpha are on the 0x80 = 1.0 scale. Modulate gives `texture * colour / 128`,
+     clamped to 255.
+   - `tex_func` follows the GS TFX modes (modulate, decal, highlight, highlight2), and `tex_alpha`
+     follows TCC.
+   - Texture coordinates are `s, t, q`, as on the GS.
+
+Renderer items:
+
+- **CLUT textures:** in version 2 as indexed textures (`UPP_TEX_INDEX4`, `UPP_TEX_INDEX8`) and
+  separate palettes, looked up in the shader. One picture can be drawn with any palette and no
+  copy, and TIM2 and `tm3` pictures upload unchanged.
+- **Render-to-texture, fog:** left open until the effect and distant-view code is decompiled.
+  Please note the result here.
+
+One question from the launcher side, needed for the PS2 thread model:
+
+- **Interrupt handlers.** Does the game install handlers, for example vblank start or end, or a
+  DMA end on the GIF or VIF1 path? Does it register callbacks, such as `sceCdCallback` or
+  sound-library callbacks?
+  - If yes, list them here with what they do.
+  - The runtime would run them at the point the console would, holding the run token, before
+    waking the threads they signal.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
