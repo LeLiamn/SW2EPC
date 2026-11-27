@@ -4538,3 +4538,72 @@ int func_00309130(u32 i, int f, int r, int msg)
     }
     return res;
 }
+
+/* 0x00308BF0, 0x35C bytes. The chance (0-95%) force `f` wins over officer `i` of another force:
+ * 0 when `i` is tied to an officer of its own force; drawn from 80 / 60 when tied to one of
+ * `f`'s; else from its liking (by `f`'s infamy grade), `f`'s size, its values (doubled for the
+ * player with an envoy), less a quarter of func_002F33F0, over its loyalty grade + 1 (cut by
+ * the player's fame when `i` serves the player). The original keeps walking the officer list
+ * of the first loop in the second one (kept). */
+int func_00308BF0(u32 i, int f)
+{
+    u32 *o = func_002F7B10();
+    int g, n, v = 0, m, k, x, s, a, b, y, e, mul;
+
+    if (i >= 0x19F)
+        return 0;
+    g = func_002F4080(i);
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, g, 0, 1);
+    for (k = 0; k < n; k++, o++) {
+        u32 j = *o;
+
+        if (i != j && TIED(j, i))
+            return 0;
+    }
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1);
+    for (k = 0; k < n; k++, o++) {
+        u32 j = *o;
+
+        if (func_002F77A0(j, i) != 0) {
+            v = 0x50;
+            break;
+        }
+        if (func_002F78C0(j, i) != 0) {
+            v = 0x3C;
+            break;
+        }
+        if (func_002F7900(j, i) != 0) {
+            v = 0x50;
+            break;
+        }
+    }
+    if (v != 0)
+        return func_0030CB50(v);
+    m = func_002FB2A0(f) != 0 ? func_00327E90() : 0;
+    k = 0;
+    if (m >= -10 && m < 0)
+        k = 1;
+    else if (m >= -15 && m < -10)
+        k = 2;
+    x = func_002F6FE0(i, k);
+    s = func_002FB3B0(f);
+    a = func_002F4450(i);
+    b = func_002F45A0(i);
+    y = func_002F33F0(i);
+    mul = 1;
+    if (func_002FB2A0(f) != 0 && (u32)func_00327870() < 0x19F)
+        mul = 2;
+    e = func_002F4A70(i);
+    v = (x / 3 + s / 2 + mul * a * b - y / 4) / (e + 1);
+    if (func_002FB2A0(g) != 0)
+        v = func_00308B70(v);
+    if (v <= 0)
+        v = 0;
+    return v > 0x5F ? 0x5F : v;
+}
+
+/* 0x00308F50, 0x24 bytes, matching. Draws func_00308BF0. */
+int func_00308F50(u32 i, int f)
+{
+    return func_0030CB50(func_00308BF0(i, f));
+}

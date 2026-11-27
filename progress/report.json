@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 91360,
-    "non_matching": 699460
+    "matching": 91408,
+    "non_matching": 700324
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 915
+    "matching": 916
   },
   "layout": "treemap",
   "areas": [
@@ -259,15 +259,15 @@
         },
         {
           "name": "emp_cq_main.c",
-          "description": "Estimated range 0x2FF3F0-0x31C840; 123 function(s) decompiled",
+          "description": "Estimated range 0x2FF3F0-0x31C840; 125 function(s) decompiled",
           "code": {
             "total": 119888,
-            "matching": 2016,
-            "non_matching": 39500
+            "matching": 2064,
+            "non_matching": 40364
           },
           "decompiled_functions": {
-            "count": 123,
-            "matching": 22
+            "count": 125,
+            "matching": 23
           }
         },
         {
