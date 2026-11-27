@@ -3467,3 +3467,239 @@ int func_00315DD0(CmdRecord *p)
 {
     return raise_region(p, 10);
 }
+
+int func_00329540(int k);
+int func_00319C50(int *out, int f, int k);
+void func_001A0020(int k);
+u8 *func_0019FBC0(int k);
+void func_0038BE90(u8 *h);
+void func_0038BE00(int h, int a, int b);
+int func_002FBDA0(int f);
+int func_002FBD80(int f);
+int func_002F9480(int f, int k);
+const char *func_00372630(int k);
+
+/* Raise of force `f`'s value `k` (0-2, at most 400): by 20 at most. */
+static int raise_by_20(int f, int k)
+{
+    int t = 400 - func_002F9390(f, k) < 0x15 ? 400 - func_002F9390(f, k) : 0x14;
+
+    return t < 0 ? 0 : t;
+}
+
+/* 0x00315F30, 0x9C bytes. Command result: kind 0xC with the force's value / 200 + 5
+ * (message 0x57). */
+int func_00315F30(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28];
+
+    r->kind = 0xC;
+    r->v[1] = func_002FAD20(p->f) / 200 + 5;
+    func_001204B0(r->text, func_00390760(0x57));
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* 0x00315FD0, 0xE0 bytes. Command result: kind 0xC (message 0x58), with a success by chance from
+ * the player's fame (100% below 3, 30% below 6, 10% below 9). */
+int func_00315FD0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28], pct = 0;
+
+    if (func_002FB2A0(p->f) != 0) {
+        int e = func_00327E90();
+
+        if (e < 3)
+            pct = 100;
+        else if (e < 6)
+            pct = 0x1E;
+        else if (e < 9)
+            pct = 10;
+    }
+    r->v[0xE] = 0;
+    if (pct != 0 && func_0030CB50(pct) != 0)
+        r->v[0xE] = 1;
+    r->kind = 0xC;
+    func_00120928(r->text, func_00390760(0x58));
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* 0x003160B0, 0x74 bytes. Command result: 500 gold (message 4). */
+int func_003160B0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28];
+
+    r->kind = 0;
+    r->v[0] = 500;
+    func_00120928(r->text, func_00390760(4));
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* 0x00316130, 0xE8 bytes. Whether a famous horse can be found (fame 15 or more, unlocked);
+ * the horse into `out`. */
+int func_00316130(int *out)
+{
+    if (func_00327E90() < 0xF)
+        return 0;
+    if (func_00329540(0x35) == 0)
+        return 0;
+    if (func_00329540(0x34) != 0)
+        return 0;
+    if (func_00319C50(out, func_00327D50(), 8) == 0)
+        return 0;
+    if (func_002F4080(1) == func_00327D50() || (u32)func_00327870() < 0x19F
+        || func_00327B70(func_00327D50()) != 0)
+        return 1;
+    return 0;
+}
+
+/* 0x00316220, 0x1F4 bytes. Command result: kind 0x12 (message 0x59) with a success by chance
+ * (fame and force value), and maybe a famous horse found (kind 0x13, message 0x15). */
+int func_00316220(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[27], h, e = func_00327E90(), pct;
+
+    if (func_002FABC0(p->f) < 0x1F5)
+        pct = e < 9 ? 100 : e == 9 ? 0x1E : 5;
+    else
+        pct = e <= 9 ? 100 : 0x32;
+    r->v[0xE] = 0;
+    if (pct != 0 && func_0030CB50(pct) != 0)
+        r->v[0xE] = 1;
+    r->kind = 0x12;
+    func_001204B0(r->text, func_00390760(0x59));
+    if (func_00316130(&h) != 0) {
+        r = func_003155A0(p, 1);
+        r->kind = 0x13;
+        r->v[1] = h;
+        func_001A0020(0xC);
+        func_001204B0(r->text, func_00390760(0x15), func_0019FBC0(h) + 0x13);
+        func_0038BE90(func_0019FBC0(h));
+        func_0038BE00(h, 0, 0);
+        func_003BA8F0(0x17, -1, -1, -1, -1);
+    }
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* 0x00316420, 0x2F0 bytes. Command result: gold (1000 + 50 per region + 0-200, message 5), with
+ * the trait func_002FBA40 a kind 0xC result (message 0xF), and the three values raised by up to
+ * 20 each (message 0xC). */
+int func_00316420(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28], v, t, a, b, c, m;
+
+    v = func_0030CB00(5) * 0x32 + func_002FB3B0(p->f) * 0x32 + 1000;
+    r->kind = 0;
+    r->v[0] = v / 10 * 10;
+    func_001204B0(r->text, func_00390760(5), func_0030CB80(v));
+    t = func_002FBA40(p->f);
+    if (t != 0) {
+        r = func_003155A0(p, 1);
+        r->kind = 0xC;
+        func_001204B0(r->text, func_00390760(0xF));
+    }
+    if (func_002F9390(p->f, 0) < 400 || func_002F9390(p->f, 1) < 400 || func_002F9390(p->f, 2) < 400) {
+        a = raise_by_20(p->f, 0);
+        b = raise_by_20(p->f, 1);
+        c = raise_by_20(p->f, 2);
+        r = func_003155A0(p, (t != 0) + 1);
+        r->kind = 1;
+        r->v[0] = a;
+        r->v[1] = b;
+        r->v[2] = c;
+        m = b < a ? a : b;
+        if (m <= c)
+            m = c;
+        func_001204B0(r->text, func_00390760(0xC), func_0030CB80(m));
+        func_003BA8F0(0x18, -1, -1, -1, -1);
+    }
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* Command result: force value `k` raised by its trait * 10 + 20 (message 0xB), and its grade
+ * change (kind 0x15, message 0xD). */
+static int raise_value(CmdRecord *p, int k, int trait)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int t = trait * 10 + 0x14, old, now, home;
+
+    if (400 - func_002F9390(p->f, k) <= t)
+        t = 400 - func_002F9390(p->f, k);
+    if (t < 0)
+        t = 0;
+    r->kind = 1;
+    r->v[0] = k == 0 ? t : 0;
+    r->v[1] = k == 1 ? t : 0;
+    r->v[2] = k == 2 ? t : 0;
+    func_001204B0(r->text, func_00390760(0xB), func_00372630(k), func_0030CB80(t));
+    old = func_002F9480(p->f, k);
+    now = (t + func_002F9390(p->f, k) < 400 ? t + func_002F9390(p->f, k) : 400) / 100 + 1;
+    if (old != now) {
+        r = func_003155A0(p, 1);
+        r->kind = 0x15;
+        func_001204B0(r->text, func_00390760(0xD), func_00372250(k + 10), func_0030CB80(now));
+    }
+    home = func_002FB2D0(p->f);
+    func_003155C0(p, &home, 1);
+    return 0;
+}
+
+/* 0x00316710, 0x1CC bytes. The same for value 0 (trait func_002FBDA0). */
+int func_00316710(CmdRecord *p)
+{
+    return raise_value(p, 0, func_002FBDA0(p->f));
+}
+
+/* 0x003168E0, 0x1CC bytes. The same for value 1 (trait func_002FBDA0). */
+int func_003168E0(CmdRecord *p)
+{
+    return raise_value(p, 1, func_002FBDA0(p->f));
+}
+
+/* 0x00316AB0, 0x1CC bytes. The same for value 2 (trait func_002FBD80). */
+int func_00316AB0(CmdRecord *p)
+{
+    return raise_value(p, 2, func_002FBD80(p->f));
+}
+
+/* 0x00316C80, 0x2C8 bytes. Command result: all three values raised by up to 20 (message 0xC),
+ * then each grade change (kind 0x15, message 0xD). */
+int func_00316C80(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int a = raise_by_20(p->f, 0), b = raise_by_20(p->f, 1), c = raise_by_20(p->f, 2);
+    int m, k, slot = 1, home;
+
+    r->kind = 1;
+    r->v[0] = a;
+    r->v[1] = b;
+    r->v[2] = c;
+    m = b < a ? a : b;
+    if (c >= m)
+        m = c;
+    func_001204B0(r->text, func_00390760(0xC), func_0030CB80(m));
+    for (k = 0; k < 3; k++) {
+        int t = k == 1 ? b : k == 2 ? c : a, old, now;
+
+        old = func_002F9480(p->f, k);
+        now = (t + func_002F9390(p->f, k) < 400 ? t + func_002F9390(p->f, k) : 400) / 100 + 1;
+        if (old != now) {
+            r = func_003155A0(p, slot);
+            r->kind = 0x15;
+            func_001204B0(r->text, func_00390760(0xD), func_00372250(k + 10), func_0030CB80(now));
+            slot++;
+        }
+    }
+    home = func_002FB2D0(p->f);
+    func_003155C0(p, &home, 1);
+    return 0;
+}
