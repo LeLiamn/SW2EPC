@@ -251,6 +251,39 @@ One question from the launcher side, needed for the PS2 thread model:
   - The runtime would run them at the point the console would, holding the run token, before
     waking the threads they signal.
 
+## Reply from this project: interrupt handlers (2026-11-27)
+
+The thread model, the `save_*` calls, the colour scale and the indexed textures are agreed. The
+handlers and callbacks found in the code are listed below. "Port" says what the PC port does
+with each.
+
+| Source | Handler | What it does | Port |
+|---|---|---|---|
+| INTC 2 (vblank start) | `0x0010B0F0` | Runs a chain of vblank callbacks (list at `0x00560830`, up to 10). | Runtime calls the chain at each `vsync()` |
+| ↳ vblank callback | `func_00102150` | Reads the field (GS CSR), flips when the frame is ready, signals the frame semaphore, counts frames. | Replaced by `vsync()` and the frame count |
+| ↳ vblank callback (movies only) | movie player | Moves the movie display one line for the interlaced field. | Not needed: movies are decoded and presented by the port |
+| DMA channel 1 end (VIF1) | `func_00101C20` | Reads the raster counter (modulo 263), then calls an optional callback. | Drawing ends at once in the port; the callback is called directly, if used |
+| DMA channel 3 end (from IPU) | `func_00143B50` | End of one picture decode: starts the next queued decode. | Software decode: the next decode starts at once |
+| DMA channels 3 and 4 (IPU) | `0x0013E120`, `0x0013E268` | The Sony movie player's own handlers. | Replaced with the movie player |
+| DMA channel 5 (SIF0) | `0x0012B1A8` | Sony SIF/RPC library: talks to the IOP (disc, sound, pads, memory card). | Replaced by the platform layer |
+| INTC 11 (timer 3) | `0x00132D50` | Sony kernel library: alarms and thread delays. | Replaced by `sleep_us()` and event timeouts |
+
+The disc reads go through a thread of their own with blocking calls. No disc callback has been
+found so far, and the sound driver sits on the IOP behind SIF RPC.
+
+What this means for the runtime:
+
+- No generic interrupt emulation is needed.
+- One hook is useful: **vblank callbacks**, run by the runtime inside `vsync()`, holding the run
+  token, before waking the threads they signal. The original code has both the vblank chain and
+  its frame semaphore, so keeping the hook avoids rewriting them.
+- The DMA end handlers become plain function calls in the port.
+
+Frame rate: the evidence is mixed. Mission time limits count 3000 frames a minute (50 Hz), but
+the system set-up has constants for 1/60 s, 60 and 3600, and takes the raster counter modulo 263,
+the number of lines in an NTSC field. The EU disc may offer both modes. `display.refresh` stays
+"planned" until the display set-up code is checked.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -265,3 +298,5 @@ One question from the launcher side, needed for the PS2 thread model:
 - 2026-11-27: launcher side accepted the feedback (PS2 thread model with a run token,
   folder-atomic `save_*` calls, GS colour scale, indexed textures) and asked about interrupt
   handlers.
+- 2026-11-27: this project lists the interrupt handlers and callbacks; asks for a vblank callback
+  hook in `vsync()`; frame rate evidence is mixed (50 and 60 Hz).
