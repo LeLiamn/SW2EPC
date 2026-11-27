@@ -47,8 +47,8 @@ void func_001FC800(void);
 void func_003BF820(void);
 void func_0027E470(void);
 void func_00247250(void);
-void func_00197130(void);
-void func_00197230(u8 *a);
+u8 *func_00197130(u8 *p);
+u8 *func_00197230(u8 *p);
 void func_00193A70(void);
 u32 func_001934D0(void);
 u8 *func_002EFB00(int a);
@@ -216,10 +216,10 @@ void func_00193980(float dt)
     func_00247250();
 }
 
-/* 0x00193A50, 0x1C bytes, matching. func_00197130. */
-void func_00193A50(void)
+/* 0x00193A50, 0x1C bytes, matching. Saves the stage models' states (func_00197130). */
+u8 *func_00193A50(u8 *p)
 {
-    func_00197130();
+    return func_00197130(p);
 }
 
 /* 0x00193A70, 0x24 bytes, matching. func_00197230 with func_002EFB00(5). */
@@ -1133,4 +1133,200 @@ void func_00196E80(void)
 {
     g_005D30C8 = 0;
     g_005D30CC = 0;
+}
+
+extern u8 *g_005D3020[4];                /* four stage parts drawn */
+extern u8 *g_005D3030[0x20];             /* 32 animated stage parts */
+extern u32 g_005D25F4;
+extern void (*g_00412490[])(float k, u8 *m);   /* model updates by kind (+0x68) */
+extern u8 g_00574DE0[][0x630];           /* the units */
+
+void func_001F4FB0(u32 i, u32 bank);
+void func_001FBE60(float k, u8 *m);
+void func_001FF8F0(u8 *m);
+void func_0020FFB0(u8 *a);
+void func_00247410(void);
+void func_002474A0(void);
+int func_001FF160(u16 id);
+void func_001F70A0(u32 a, u32 b, u32 c);
+void func_001F6FF0(void);
+void func_001FF0C0(void);
+void func_00247970(void);
+void func_0027F430(void);
+void func_001FFF00(void);
+void func_002080E0(void);
+void func_001FFF10(u32 a, u32 b);
+void func_00208140(u32 a, u32 b);
+void func_0027F5D0(void);
+void func_002479C0(void);
+void func_001FF0D0(void);
+void func_00197300(u32 *f);
+void func_001972F0(void);
+
+/* 0x00196EA0, 0x16C bytes. Updates the four slotted models (those of a unit with flag 8 of
+ * +0x198 in its own way, the others by their kind), or (battle flag 0x100000) the followed one. */
+void func_00196EA0(void)
+{
+    u32 k;
+
+    if (g_00669F60[0] & 0x100000) {
+        if (g_005D30C8 != 0)
+            func_001FF8F0(g_005D30CC);
+        return;
+    }
+    for (k = 0; k < 4; k++) {
+        u8 *m = (u8 *)g_005D3010[k];
+
+        if (m == 0)
+            continue;
+        if (m[0x6B] < 0x8F && (g_00574DE0[m[0x6B]][0x198] & 8)) {
+            func_001F4FB0((u32)((m - SPP(0x1D0)) / 0x70) / 0x70, SP32(0x88C));
+            func_001FBE60(0.15f, m);
+        } else {
+            g_00412490[m[0x68]](1.0f, m);
+        }
+    }
+}
+
+/* 0x00197010, 0x40 bytes. Puts `p` in every free slot of the four drawn parts (as in the
+ * original: it does not stop at the first). */
+void func_00197010(u8 *p)
+{
+    int k;
+
+    for (k = 0; k < 4; k++) {
+        if (g_005D3020[k] == 0)
+            g_005D3020[k] = p;
+    }
+}
+
+/* 0x00197050, 0x30 bytes. Drawn part `k`'s +0x40 (0 for none). */
+u8 *func_00197050(int k)
+{
+    u8 *p = g_005D3020[k];
+
+    if (p == 0)
+        return 0;
+    return p + 0x40;
+}
+
+/* 0x00197080, 0x40 bytes. Puts `p` in every free slot of the 32 animated parts. */
+void func_00197080(u8 *p)
+{
+    int k;
+
+    for (k = 0; k < 0x20; k++) {
+        if (g_005D3030[k] == 0)
+            g_005D3030[k] = p;
+    }
+}
+
+/* 0x001970C0, 0x6C bytes. Animates the animated parts (those of state 0 in +0x69) up to the
+ * first empty slot. */
+void func_001970C0(void)
+{
+    int k;
+
+    for (k = 0; k < 0x20; k++) {
+        u8 *p = g_005D3030[k];
+
+        if (p == 0)
+            return;
+        if ((p[0x69] & 7) == 0)
+            func_0020FFB0(p + 0x40);
+    }
+}
+
+/* 0x00197130, 0x100 bytes. Saves the stage models' states (+0x69, a byte each, 0x2800 in all);
+ * returns the end. */
+u8 *func_00197130(u8 *p)
+{
+    u32 n = func_00196A10(), k;
+    u8 *m = SPP(0x1D0);
+
+    func_00247410();
+    for (k = 0; k < n; k++, m += 0x70)
+        *p++ = m[0x69];
+    for (; k < 0x2800; k++)
+        *p++ = 0;
+    func_002474A0();
+    return p;
+}
+
+/* 0x00197230, 0xB4 bytes. Restores them (not for models func_001FF160 keeps); returns the
+ * end. */
+u8 *func_00197230(u8 *p)
+{
+    u32 n = func_00196A10(), k;
+    u8 *m = SPP(0x1D0);
+
+    for (k = 0; k < n; k++, m += 0x70, p++) {
+        if (func_001FF160(*(u16 *)(m + 0x54)) == 0)
+            m[0x69] = *p;
+    }
+    for (; k < 0x2800; k++)
+        p++;
+    return p;
+}
+
+/* 0x001972F0, 0x8 bytes. Nothing. */
+void func_001972F0(void)
+{
+}
+
+/* 0x00197300, 0x114 bytes. Opens the stage objects' file (its offsets made into addresses):
+ * count, ids, points, words, bytes; places them (counting as the flag says) and sets up the
+ * model pools (mode 2: fixed sizes). */
+void func_00197300(u32 *f)
+{
+    u32 k;
+
+    func_00118850(&g_005D25E0, 0xAF0);
+    for (k = 0; k < f[0]; k++)
+        f[1 + k] = f[1 + k] + (u32)f;
+    g_005D25E0 = *(u32 *)f[1];
+    g_005D25E4 = (u16 *)f[2];
+    g_005D25E8 = (u8 *)f[3];
+    g_005D25EC = (u32 *)f[4];
+    g_005D25F0 = (u8 *)f[5];
+    g_005D25F4 = g_005D25E0;
+    if (g_00669DB8[0] == 2) {
+        g_005D25F8 = 40000;
+        g_005D25FC = 5000;
+        func_001F70A0(0x4B0, g_005D25F8, g_005D25FC);
+    } else {
+        g_005D260C = 1;
+        func_00196980();
+        g_005D260C = 0;
+        func_001F70A0(g_005D25F4, g_005D25F8, g_005D25FC);
+    }
+}
+
+/* 0x00197420, 0x4C bytes. Shuts the stage's model parts down. */
+void func_00197420(void)
+{
+    func_001F6FF0();
+    func_001FF0C0();
+    func_00247970();
+    func_0027F430();
+    func_001972F0();
+    func_001FFF00();
+    func_002080E0();
+}
+
+/* 0x00197470, 0x9C bytes. Opens the second stage file (its offsets made into addresses): two
+ * pairs of tables, the objects (not in mode 2), the rest. */
+void func_00197470(u8 *file)
+{
+    u32 *f = (u32 *)file, k;
+
+    for (k = 0; k < f[0]; k++)
+        f[1 + k] = f[1 + k] + (u32)f;
+    func_001FFF10(f[1], f[3]);
+    func_00208140(f[2], f[4]);
+    if (g_00669DB8[0] != 2)
+        func_00197300((u32 *)f[5]);
+    func_0027F5D0();
+    func_002479C0();
+    func_001FF0D0();
 }
