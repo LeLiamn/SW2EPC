@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 183456,
-    "non_matching": 1239888
+    "non_matching": 1241440
   },
   "data": {
     "total": 2155890688,
@@ -337,14 +337,14 @@
         },
         {
           "name": "emp_ev_still.c",
-          "description": "Estimated range 0x31C840-0x32D7E0; 276 function(s) decompiled",
+          "description": "Estimated range 0x31C840-0x32D7E0; 287 function(s) decompiled",
           "code": {
             "total": 69536,
             "matching": 6352,
-            "non_matching": 20488
+            "non_matching": 22040
           },
           "decompiled_functions": {
-            "count": 276,
+            "count": 287,
             "matching": 116
           }
         },
