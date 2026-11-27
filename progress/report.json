@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 159344,
-    "non_matching": 1089732
+    "matching": 160352,
+    "non_matching": 1090468
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1991
+    "matching": 2006
   },
   "layout": "treemap",
   "areas": [
@@ -628,15 +628,15 @@
         },
         {
           "name": "effect.c",
-          "description": "Estimated range 0x1C3080-0x1CDFC8; 0 function(s) decompiled",
+          "description": "Estimated range 0x1C3080-0x1CDFC8; 22 function(s) decompiled",
           "code": {
             "total": 44872,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 1008,
+            "non_matching": 736
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 22,
+            "matching": 15
           }
         }
       ]
