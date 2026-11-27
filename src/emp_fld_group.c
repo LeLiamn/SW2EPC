@@ -3875,3 +3875,642 @@ int func_00343FA0(u8 **g)
         return 0;
     return 1;
 }
+
+/* Order checks, second orders and their moves (parts of 0x00344060-0x003460AC). Second
+ * orders: 1 attack place, 5 move, 6 fall back, 7 hold, 8 link, 9 guard, 10 fight in place,
+ * 0xC none. */
+
+extern int (*g_00415360[7])(u8 **g);     /* order keepers by order */
+extern int (*g_00415380[8])(u8 **g);
+extern int (*g_0045D054[1])(u8 **g);     /* (small data) */
+extern int (*g_004153A0[7])(u8 **g);     /* second order choosers */
+extern int (*g_004153C0[13])(u8 **g);    /* second order keepers */
+extern int (*g_0045D058)(u8 **g);        /* (small data) */
+extern void (*g_00415400[13])(u8 **g);   /* second order movers */
+extern int g_00415438[3];
+
+int func_0033D3E0(u8 **g);
+void func_0035CE60(u32 k, u32 v);
+void func_0035CEA0(u32 k, u32 v);
+int func_0034EF60(int c, u32 j);
+void func_001D4F00(u8 **g, float *v, u8 *cell);
+void func_001D4F60(u8 **g, u8 *u);
+void func_0034A250(u8 *u, u8 *pos, float *v);
+
+/* 0x00344060, 0xB4 bytes, matching. Whether group `g`'s chase still holds. */
+int func_00344060(u8 **g)
+{
+    u8 t;
+
+    if (g == 0)
+        return 0;
+    t = INFO(g)[3];
+    if (func_0033FA70(g, t) == 0)
+        return 0;
+    if (func_0033C6A0(g) == 0 && func_00340360(g, t) == 0)
+        return 0;
+    return 1;
+}
+
+/* 0x00344120, 0xB4 bytes, matching. Whether its defence still holds. */
+int func_00344120(u8 **g)
+{
+    u8 t;
+
+    if (g == 0)
+        return 0;
+    t = INFO(g)[3];
+    if (func_0033FBA0(g, t) == 0)
+        return 0;
+    if (func_0033C6A0(g) == 0 && func_003403A0(g, t) == 0)
+        return 0;
+    return 1;
+}
+
+/* 0x003441E0, 0xB4 bytes, matching. Whether going after a friendly group still holds. */
+int func_003441E0(u8 **g)
+{
+    u8 t;
+
+    if (g == 0)
+        return 0;
+    t = INFO(g)[3];
+    if (func_0033FC30(g, t) == 0)
+        return 0;
+    if (func_0033C6A0(g) == 0 && func_00340550(g, t) == 0)
+        return 0;
+    return 1;
+}
+
+/* 0x003442A0, 0x7C bytes. Whether roaming still holds (ends 1 time in 20 on its own side's
+ * ground). */
+int func_003442A0(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    if (func_0033CBC0(g, LEADER(g)[0x79]) == 0 || (int)RANDOM() % 100 > 4)
+        return 1;
+    return 0;
+}
+
+/* 0x00344330, 0xDC bytes. Drops group `g`'s order (to idle) when it no longer holds. */
+void func_00344330(u8 **g)
+{
+    int (*fn[7])(u8 **);
+    int k;
+
+    for (k = 0; k < 7; k++)
+        fn[k] = g_00415360[k];
+    if (g == 0)
+        return;
+    if (fn[INFO(g)[2]] != 0 && fn[INFO(g)[2]](g) == 0)
+        func_003386D0(g, 6, 0xFF);
+}
+
+/* 0x00344410, 0xDC bytes. */
+int func_00344410(u8 **g)
+{
+    int (*fn[8])(u8 **);
+    u32 k;
+
+    for (k = 0; k < 8; k++)
+        fn[k] = g_00415380[k];
+    if (g == 0)
+        return 0;
+    for (k = 0; k < 8; k++) {
+        if (fn[k](g) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x003444F0, 0x108 bytes. Reports a new order of a first-side group (orders 1-5). */
+void func_003444F0(u8 **g, u32 old)
+{
+    u32 k;
+    u8 v;
+
+    if (g == 0)
+        return;
+    k = GI(g);
+    v = func_00338410(k)[2];
+    if (v != old && LEADER(g)[0x79] == 0 && (v != 1 || func_0033D3E0(g) != 0)
+        && func_00344410(g) == 0 && (v == 5 || v == 4 || v == 2 || v == 3 || v == 1))
+        func_0035CE60(k, v);
+}
+
+/* 0x00344600, 0x84 bytes. Group `g`'s order update. */
+void func_00344600(u8 **g)
+{
+    u8 old;
+
+    if (g == 0)
+        return;
+    old = INFO(g)[2];
+    func_003430E0(g);
+    func_00343EA0(g);
+    func_00344330(g);
+    func_003444F0(g, old);
+}
+
+/* 0x00344690, 0x19C bytes. Sets group `g`'s second order from its order (attacks go through a
+ * holding place on the way when one fits). */
+int func_00344690(u8 **g)
+{
+    u32 k, o = 0xD, t = 0;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    switch (func_00338410(k)[2]) {
+    case 0:
+        o = 0;
+        t = 0xFF;
+        break;
+    case 1:
+        if (func_0033D3E0(g) == 0) {
+            int c = func_003410C0(g, func_0033C320(g));
+
+            if (c == 0) {
+                o = 1;
+                t = func_00338410(k)[3];
+            } else {
+                o = 7;
+                t = func_0034ED40(c);
+            }
+        } else {
+            o = 1;
+            t = func_00338410(k)[3];
+        }
+        break;
+    case 2:
+        o = 2;
+        t = func_00338410(k)[3];
+        break;
+    case 3:
+        o = 3;
+        t = func_00338410(k)[3];
+        break;
+    case 4:
+        o = 4;
+        t = func_00338410(k)[3];
+        break;
+    case 5: {
+        int c = func_00340F00(g);
+
+        if (c != 0) {
+            o = 5;
+            t = func_0034ED40(c);
+        }
+        break;
+    }
+    }
+    if (o < 0xD) {
+        func_003387C0(g, o, t);
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x00344830, 0xB0 bytes. A group without a second order gets one. */
+void func_00344830(u8 **g)
+{
+    int (*fn[1])(u8 **);
+    int k;
+
+    fn[0] = g_0045D054[0];
+    if (g == 0 || INFO(g)[5] != 0xC)
+        return;
+    for (k = 0; k < 1; k++) {
+        if (fn[k] != 0 && fn[k](g) != 0)
+            return;
+    }
+}
+
+/* 0x00344AC0, 0xD8 bytes, matching. A group falling back to a place it can no longer use picks another. */
+int func_00344AC0(u8 **g)
+{
+    u32 k;
+    int c;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_00338410(k)[5] != 6)
+        return 0;
+    if (func_0033FE20(g, func_00338410(k)[6]) != 0)
+        return 0;
+    c = func_00340F90(g);
+    if (c == 0)
+        return 0;
+    func_003387C0(g, 6, func_0034ED40(c));
+    return 1;
+}
+
+/* 0x00344BA0, 0x104 bytes. A group holding on the way to an attack goes on (when ready or after
+ * 120 frames). */
+int func_00344BA0(u8 **g)
+{
+    u32 k;
+    int ready;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_00338410(k)[5] != 7 || func_00338410(k)[2] != 1)
+        return 0;
+    ready = func_0033D3E0(g);
+    if (func_00338410(k)[7] < 0x78 && ready == 0)
+        return 0;
+    func_003387C0(g, 1, func_00338410(k)[3]);
+    return 1;
+}
+
+/* 0x00344CB0, 0x220 bytes. A moving group that reached a quiet place moves on now and then (to a
+ * neighbour at random). */
+int func_00344CB0(u8 **g)
+{
+    int c, best = 0;
+    u32 n, j;
+
+    if (g == 0 || INFO(g)[5] != 5)
+        return 0;
+    c = func_0033C160(g);
+    if (c == 0 || func_0033CB60(g, c) == 0)
+        return 0;
+    if (func_00352780(c, func_0035D5A0(LEADER(g)[0x79])) != 0)
+        return 0;
+    if ((int)RANDOM() % 100 >= 5)
+        return 0;
+    n = func_0034EEF0(c);
+    for (j = 0; j < n; j++) {
+        int cc = func_0034EF60(c, j);
+
+        if (cc != 0 && func_0034EE50(cc) != 0 && func_0033FD60(g, func_0034ED40(cc)) != 0
+            && (best == 0 || (int)RANDOM() % 100 < 0x32))
+            best = cc;
+    }
+    if (best == 0)
+        return 0;
+    func_003387C0(g, 5, func_0034ED40(best));
+    return 1;
+}
+
+/* 0x00344ED0, 0xE0 bytes. A group linked with kind 3 follows its link. */
+int func_00344ED0(u8 **g)
+{
+    u8 **h;
+
+    if (g == 0)
+        return 0;
+    if (INFO(g)[5] == 8)
+        return 1;
+    if (func_00338C20(g) != 3)
+        return 0;
+    h = func_00338BA0(g);
+    if (h == 0)
+        return 0;
+    func_003387C0(g, 8, GI(h));
+    return 1;
+}
+
+/* 0x00344FB0, 0xD4 bytes, matching. A group of link kind 3 guards a place. */
+int func_00344FB0(u8 **g)
+{
+    u32 k;
+    int c;
+
+    if (g == 0)
+        return 0;
+    k = GI(g);
+    if (func_00338410(k)[5] == 9)
+        return 1;
+    if (func_00338410(k)[0x27] != 3)
+        return 0;
+    c = func_00341270(g);
+    if (c == 0)
+        return 0;
+    func_003387C0(g, 9, func_0034ED40(c));
+    return 1;
+}
+
+/* 0x00345090, 0xA0 bytes, matching. A group with enemies on its cell fights in place. */
+int func_00345090(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    if (INFO(g)[5] == 10)
+        return 1;
+    if (func_0033CED0(g) == 0)
+        return 0;
+    func_003387C0(g, 10, 0xFF);
+    return 1;
+}
+
+/* 0x00345130, 0xD8 bytes. Runs the second order choosers (until one takes). */
+void func_00345130(u8 **g)
+{
+    int (*fn[7])(u8 **);
+    u32 f, k;
+
+    for (k = 0; k < 7; k++)
+        fn[k] = g_004153A0[k];
+    if (g == 0)
+        return;
+    f = UNIT_FLAGS(LEADER(g));
+    if ((f & 0x30) != 0 && (f & 0x40) == 0)
+        return;
+    for (k = 0; k < 7; k++) {
+        if (fn[k](g) != 0)
+            return;
+    }
+}
+
+/* 0x00345210, 0x2C bytes, matching. */
+int func_00345210(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_0033F9D0(g) != 0;
+}
+
+/* 0x00345240, 0x6C bytes, matching. Whether the place of its second order is an enemy one. */
+int func_00345240(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_0033F9E0(g, INFO(g)[6]) != 0;
+}
+
+/* 0x003452B0, 0x6C bytes, matching. */
+int func_003452B0(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_0033FBA0(g, INFO(g)[6]) != 0;
+}
+
+/* 0x00345320, 0x6C bytes, matching. */
+int func_00345320(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_0033FA70(g, INFO(g)[6]) != 0;
+}
+
+/* 0x00345390, 0x6C bytes, matching. */
+int func_00345390(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_0033FC30(g, INFO(g)[6]) != 0;
+}
+
+/* 0x00345400, 0x6C bytes, matching. */
+int func_00345400(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_0033FD60(g, INFO(g)[6]) != 0;
+}
+
+/* 0x00345470, 0x9C bytes, matching. Whether falling back still holds (the place still fits and the group
+ * stays back or is under 80% life). */
+int func_00345470(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    if (func_0033FE20(g, INFO(g)[6]) == 0)
+        return 0;
+    if (func_0033D2C0(g) != 0)
+        return 1;
+    return (u32)func_0033B7B0(g) < 0x50;
+}
+
+/* 0x00345510, 0x6C bytes, matching. */
+int func_00345510(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_0033FF50(g, INFO(g)[6]) != 0;
+}
+
+/* 0x00345580, 0x30 bytes. */
+int func_00345580(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_00338C20(g) == 3;
+}
+
+/* 0x003455B0, 0x58 bytes, matching. */
+int func_003455B0(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return INFO(g)[0x27] == 3;
+}
+
+/* 0x00345610, 0x80 bytes. Whether fighting in place still holds (30 frames at least). */
+int func_00345610(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    if (INFO(g)[7] < 0x1E)
+        return 1;
+    return func_0033CED0(g) != 0;
+}
+
+/* 0x00345690, 0x4C bytes. Whether a move has not arrived yet. */
+int func_00345690(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return func_0033CB60(g, func_0033C160(g)) == 0;
+}
+
+/* 0x003456F0, 0xB8 bytes. Drops group `g`'s second order when it no longer holds. */
+void func_003456F0(u8 **g)
+{
+    int (*fn[13])(u8 **);
+    int k;
+
+    for (k = 0; k < 13; k++)
+        fn[k] = g_004153C0[k];
+    if (g == 0)
+        return;
+    if (fn[INFO(g)[5]] != 0 && fn[INFO(g)[5]](g) == 0)
+        func_003387C0(g, 0xC, 0xFF);
+}
+
+/* 0x003457B0, 0x80 bytes. */
+int func_003457B0(u8 **g)
+{
+    if (g == 0)
+        return 0;
+    return g_0045D058(g) != 0;
+}
+
+/* 0x00345830, 0xC8 bytes. Reports a new second order 6 or 7 of a first-side group. */
+void func_00345830(u8 **g, u32 old)
+{
+    u32 k;
+    u8 v;
+
+    if (g == 0)
+        return;
+    k = GI(g);
+    v = func_00338410(k)[5];
+    if (v != old && LEADER(g)[0x79] == 0 && func_003457B0(g) == 0 && (v == 6 || v == 7))
+        func_0035CEA0(k, v);
+}
+
+/* 0x00345900, 0x84 bytes. Group `g`'s second order update. */
+void func_00345900(u8 **g)
+{
+    u8 old;
+
+    if (g == 0)
+        return;
+    old = INFO(g)[5];
+    func_00344830(g);
+    func_00345130(g);
+    func_003456F0(g);
+    func_00345830(g, old);
+}
+
+/* 0x00345990, 0x88 bytes. Sends group `g` to place `c`. */
+void func_00345990(u8 **g, int c)
+{
+    u8 *l;
+    u8 pos[4];
+    float v[2];
+
+    if (g == 0)
+        return;
+    l = LEADER(g);
+    func_0034ED90(c, pos);
+    v[0] = 0.0f;
+    v[1] = 0.0f;
+    func_001D4F00(g, v, pos);
+    func_0034A250(l, pos, v);
+    l = LEADER(g);
+    *(float *)(l + 0x38) = v[0];
+    *(float *)(l + 0x3C) = v[1];
+    *(u32 *)(l + 0x84) |= 0x10;
+    func_001D4F60(g, 0);
+}
+
+/* 0x00345A20, 0xE4 bytes. Sends group `g` after group `h`'s leader. */
+void func_00345A20(u8 **g, u8 **h)
+{
+    u8 *u;
+    float *p, v[2];
+    u8 cell[2];
+
+    if (g == 0)
+        return;
+    u = LEADER(h);
+    p = (UNIT_FLAGS(u) & 0x20000) == 0 ? (float *)(u + 0x28) : (float *)(u + 0x30);
+    v[0] = 0.0f;
+    v[1] = 0.0f;
+    cell[0] = (int)p[0] / 5000;
+    cell[1] = (int)p[1] / 5000;
+    func_001D4F00(g, v, cell);
+    func_001D4F60(g, u);
+}
+
+/* 0x00345B20, 0x3C bytes, matching. Second order 1: to its place. */
+void func_00345B20(u8 **g)
+{
+    if (g != 0)
+        func_00345990(g, func_0033C160(g));
+}
+
+/* 0x00345B60, 0x3C bytes, matching. Second order 2: after its group. */
+void func_00345B60(u8 **g)
+{
+    if (g != 0)
+        func_00345A20(g, func_0033C1E0(g));
+}
+
+/* 0x00345BA0, 0x3C bytes, matching. */
+void func_00345BA0(u8 **g)
+{
+    if (g != 0)
+        func_00345990(g, func_0033C160(g));
+}
+
+/* 0x00345BE0, 0x3C bytes, matching. */
+void func_00345BE0(u8 **g)
+{
+    if (g != 0)
+        func_00345A20(g, func_0033C1E0(g));
+}
+
+/* 0x00345C20, 0x3C bytes, matching. */
+void func_00345C20(u8 **g)
+{
+    if (g != 0)
+        func_00345990(g, func_0033C160(g));
+}
+
+/* 0x00345C60, 0x3C bytes, matching. */
+void func_00345C60(u8 **g)
+{
+    if (g != 0)
+        func_00345990(g, func_0033C160(g));
+}
+
+/* 0x00345CA0, 0x3C bytes, matching. */
+void func_00345CA0(u8 **g)
+{
+    if (g != 0)
+        func_00345990(g, func_0033C160(g));
+}
+
+/* 0x00345CE0, 0x3C bytes, matching. */
+void func_00345CE0(u8 **g)
+{
+    if (g != 0)
+        func_00345A20(g, func_0033C1E0(g));
+}
+
+/* 0x00345D20, 0x3C bytes, matching. */
+void func_00345D20(u8 **g)
+{
+    if (g != 0)
+        func_00345990(g, func_0033C160(g));
+}
+
+/* 0x00345F50, 0x3C bytes, matching. */
+void func_00345F50(u8 **g)
+{
+    if (g != 0)
+        func_00345990(g, func_0033C160(g));
+}
+
+/* 0x00345FA0, 0xA0 bytes. Moves group `g` by its second order. */
+void func_00345FA0(u8 **g)
+{
+    void (*fn[13])(u8 **);
+    int k;
+
+    for (k = 0; k < 13; k++)
+        fn[k] = g_00415400[k];
+    if (g == 0)
+        return;
+    if (fn[INFO(g)[5]] != 0)
+        fn[INFO(g)[5]](g);
+}
+
+/* 0x00346040, 0x6C bytes. One of three effect kinds at random. */
+int func_00346040(void)
+{
+    int t[3];
+
+    t[0] = g_00415438[0];
+    t[1] = g_00415438[1];
+    t[2] = g_00415438[2];
+    return t[RANDOM() % 3];
+}
