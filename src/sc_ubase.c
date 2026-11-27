@@ -182,7 +182,7 @@ int func_0019AF10(float size, u32 t, u32 n)
     return w + 1;
 }
 
-/* 0x0019AFD0, 0xE8 bytes. Officer `id`'s name ("" for created officers and wearers when
+/* 0x0019AFD0, 0xE8 bytes. Officer `id`'s name ("" for created officers and horses when
  * `blank`). */
 const char *func_0019AFD0(u32 id, int blank)
 {
@@ -196,11 +196,11 @@ const char *func_0019AFD0(u32 id, int blank)
         return func_0039E6A0((id - 0x2D3) >> 1);
     }
     if (id < 0x2F9) {
-        u8 *it = func_0019FBC0(((int)id - 0x2F1) / 2);
+        u8 *h = func_0019FBC0(((int)id - 0x2F1) / 2);
 
         if (blank != 0)
             return g_00425740;
-        return (const char *)(it + 0x13);
+        return (const char *)(h + 0x13);
     }
     return g_00425740;
 }
@@ -1408,7 +1408,7 @@ u8 *func_0019FBA0(int k);
 u8 *func_0019FBE0(void);
 
 /* 0x0019F9B0, 0xD4 bytes, matching. Fills slot `k` of save image `s` (+6 the slot): its part, the
- * 0x1280-byte state at 0x0068DDE0, the 0x348-byte records and the 0x90-byte items. */
+ * 0x1280-byte state at 0x0068DDE0, the 0x348-byte records and the 0x90-byte stable. */
 void func_0019F9B0(u8 *s, int k)
 {
     *(short *)(s + 6) = (short)k;
@@ -1489,7 +1489,7 @@ u32 *func_0019FC20(void)
     return &g_006725B0;
 }
 
-/* 0x0019FC30, 0x120 bytes, matching. Clears the four items (state 4, no name). */
+/* 0x0019FC30, 0x120 bytes, matching. Empties the four stable slots (state 4, no name). */
 void func_0019FC30(void)
 {
     int i, k;
@@ -1512,7 +1512,7 @@ void func_0019FC30(void)
     }
 }
 
-/* 0x0019FD50, 0x7C bytes. Item `k` becomes `src` (with `k` in +4). */
+/* 0x0019FD50, 0x7C bytes. Stable slot `k` gets horse `src` (with `k` in +4). */
 void func_0019FD50(u8 k, u32 *src)
 {
     u32 *d = (u32 *)func_0019FBC0(k);
@@ -1521,4 +1521,204 @@ void func_0019FD50(u8 k, u32 *src)
     for (i = 0; i < 9; i++)
         d[i] = src[i];
     *(u8 *)(d + 1) = k;
+}
+
+extern const u32 g_00406A00[6], g_00406A20[6];   /* per horse kind: two unit values */
+extern const u8 g_00406A40[16], g_00406A50[16], g_00406A60[16], g_00406A70[16], g_00406A80[16];
+extern const u8 g_00406A90[16][5];       /* the special horses' five values */
+extern const char *g_0042DF00[16];       /* the special horses' names */
+extern const u8 g_00425750[][8];         /* per horse kind: +0, +1, +3 its base values */
+extern const u8 g_00425770[4];           /* per coat */
+
+void func_0011ED38(void *p, int c, u32 n);
+void func_00372E60(const char **name, int k);
+int func_001A0670(void);
+int func_001A06D0(void);
+
+/* 0x0019FDD0, 0x208 bytes. Horse `k`'s unit record in the officer table (0x1B3 + k): its ids
+ * (0x2F1 + 2k, 0x2F2 + 2k), fixed values and those from the horse (+6 kind, +8, +10, +12). */
+void func_0019FDD0(int k)
+{
+    u32 a[6], b[6];
+    short *r = (short *)(g_005BA6A0 + (k + 0x1B3) * 0x2C);
+    u8 kind;
+    int i;
+
+    for (i = 0; i < 6; i++) {
+        a[i] = g_00406A00[i];
+        b[i] = g_00406A20[i];
+    }
+    kind = func_0019FBC0(k)[6];
+    r[0] = k * 2 + 0x2F1;
+    r[1] = k * 2 + 0x2F2;
+    ((u8 *)r)[4] = 0;
+    ((u8 *)r)[5] = 0xFA;
+    ((u8 *)r)[6] = 0x3C;
+    ((u8 *)r)[7] = 0x36;
+    ((u8 *)r)[8] = 0;
+    ((u8 *)r)[9] = 200;
+    ((u8 *)r)[10] = 0;
+    r[6] = func_0019FBC0(k)[10];
+    r[7] = 0x50;
+    r[8] = 0;
+    r[9] = 0x19;
+    r[10] = (short)a[kind];
+    r[11] = func_0019FBC0(k)[12];
+    r[12] = (short)b[kind];
+    r[13] = 4 - (func_0019FBC0(k)[8] >> 1);
+    ((u8 *)r)[0x1C] = 0;
+    ((u8 *)r)[0x1D] = 0;
+    ((u8 *)r)[0x1E] = 0;
+    ((u8 *)r)[0x1F] = 5;
+    r[0x10] = 0xE9;
+    ((u8 *)r)[0x22] = 0xFF;
+    ((u8 *)r)[0x25] = 0;
+    ((u8 *)r)[0x23] = 0xFF;
+    ((u8 *)r)[0x26] = 0;
+    ((u8 *)r)[0x24] = 0xFF;
+    ((u8 *)r)[0x27] = 0;
+    r[0x14] = 0;
+    r[0x15] = 0;
+}
+
+/* 0x0019FFE0, 0x3C bytes, matching. The four horses' unit records. */
+void func_0019FFE0(void)
+{
+    int k;
+
+    for (k = 0; k < 4; k++)
+        func_0019FDD0(k);
+}
+
+/* 0x001A0020, 0x37C bytes. Gives special horse `k` (below 16) into a free stable slot, with its
+ * name and fixed values. */
+void func_001A0020(u32 k)
+{
+    u8 t0[16], t1[16], t2[16], t3[16], t4[16], t5[16][5];
+    u8 lv = (u8)k;
+    int s, i;
+    u32 j;
+
+    for (i = 0; i < 16; i++) {
+        t0[i] = g_00406A40[i];
+        t1[i] = g_00406A50[i];
+        t2[i] = g_00406A60[i];
+        t3[i] = g_00406A70[i];
+        t4[i] = g_00406A80[i];
+    }
+    for (i = 0; i < 16 * 5; i++)
+        t5[0][i] = g_00406A90[0][i];
+    if ((k & 0xFF) > 0xE)
+        lv = 0xE;
+    if ((int)k >= 0x10 || func_001A06D0() == 0)
+        return;
+    s = func_001A0670();
+    func_0019FBC0(s)[4] = (u8)s;
+    func_00120928((char *)func_0019FBC0(s) + 0x13, g_0042DF00[k]);
+    func_0019FBC0(s)[5] = lv;
+    func_0019FBC0(s)[6] = (u8)((int)k / 4);
+    func_0019FBC0(s)[7] = t0[k];
+    *(u32 *)func_0019FBC0(s) = 99999;
+    func_0019FBC0(s)[8] = 9;
+    func_0019FBC0(s)[9] = t1[k];
+    for (i = 0; i < 5; i++)
+        func_0019FBC0(s)[i + 0xE] = t5[k][i];
+    func_0019FBC0(s)[0x12] = 0xE;
+    func_0019FBC0(s)[10] = t2[k];
+    func_0019FBC0(s)[11] = t3[k];
+    func_0019FBC0(s)[12] = t4[k];
+    for (j = 0; j < 4; j++) {
+        int on = 0;
+
+        if (k == 0xD && j == 3)
+            on = 1;
+        if (k == 0xF && j == 2)
+            on = 1;
+        if (on)
+            func_0019FBC0(s)[0xD] |= 1 << j;
+        else
+            func_0019FBC0(s)[0xD] &= ~(1 << j);
+    }
+}
+
+/* 0x001A03A0, 0x284 bytes. A random horse in `h` (kind `kind` when below 4, else 3 at 10% or
+ * one of 0-2): its temper, values from its kind, coat, a random name; state 4. */
+void func_001A03A0(u8 *h, u8 kind)
+{
+    const char *name;
+    u32 k;
+
+    func_0011ED38(h, 0, 0x24);
+    if (RANDOM() % 100 < 10)
+        h[6] = 3;
+    else
+        h[6] = RANDOM() % 3;
+    if (kind < 4)
+        h[6] = kind;
+    if (RANDOM() % 100 < 50)
+        h[7] = 2;
+    else if (RANDOM() % 100 < 30)
+        h[7] = 0;
+    else if (RANDOM() % 100 < 20)
+        h[7] = 3;
+    else if (RANDOM() % 100 < 10)
+        h[7] = 4;
+    else
+        h[7] = 1;
+    *(u32 *)h = 0;
+    h[8] = 0;
+    h[10] = g_00425750[h[6]][0];
+    h[11] = g_00425750[h[6]][1];
+    h[12] = g_00425750[h[6]][3];
+    h[13] = 0;
+    h[9] = RANDOM() & 3;
+    h[5] = g_00425770[h[9]];
+    for (k = 0; k < 5; k++)
+        h[k + 0xE] = 0xFF;
+    h[0x12] = 0xE;
+    func_00372E60(&name, 1);
+    func_00120928((char *)h + 0x13, name);
+    h[4] = 4;
+}
+
+/* 0x001A0630, 0x1C bytes, matching. */
+void func_001A0630(u8 *h, u8 kind)
+{
+    func_001A03A0(h, kind);
+}
+
+/* 0x001A0650, 0x1C bytes, matching. A random horse of any kind. */
+void func_001A0650(u8 *h)
+{
+    func_001A03A0(h, 0xFF);
+}
+
+/* 0x001A0670, 0x54 bytes, matching. The first free stable slot (-1 for none). */
+int func_001A0670(void)
+{
+    int k;
+
+    for (k = 0; k < 4; k++) {
+        if (func_0019FBC0(k)[4] == 4)
+            return k;
+    }
+    return -1;
+}
+
+/* 0x001A06D0, 0x24 bytes, matching. Whether a stable slot is free. */
+int func_001A06D0(void)
+{
+    return func_001A0670() != -1;
+}
+
+/* 0x001A0700, 0x54 bytes, matching. Whether the stable holds a horse. */
+int func_001A0700(void)
+{
+    int k;
+
+    for (k = 0; k < 4; k++) {
+        if (func_0019FBC0(k)[4] != 4)
+            return 1;
+    }
+    return 0;
 }
