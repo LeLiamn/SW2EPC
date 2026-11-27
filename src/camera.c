@@ -1039,3 +1039,67 @@ void func_00164270(float unused, float dt, int *cam)
         F32(obj, 0x220) = g_004064B0[cam[9] % 3][1];
     }
 }
+
+extern int g_0045D2A8;                   /* (small data) non-zero: slow motion (the duel view) */
+extern int g_0045CC80;                   /* (small data) */
+extern int g_0045D2C8;                   /* (small data) */
+
+int func_0016C070(Unit *u);
+void func_0029EE00(int *cam, int a);
+void func_001FAA60(u8 player);
+void func_00254030(void);
+void func_0017C230(int *shake);
+
+/* 0x00164440, 0x240 bytes. The battle camera's update: the shake (+0x40, offsets +0x60 eye,
+ * +0x80 target) taken out, the view for the situation (looking down at a beaten unit; between two
+ * units +0x2C; a motion; the slow-motion duel view; else the usual dispatcher), then the shake
+ * advanced and put back. Byte +0x230 of the camera object gets flag 2 for the special views. */
+void func_00164440(float step, float dt, int *cam)
+{
+    int k;
+
+#define CAM_OBJ ((u8 *)cam[0])
+    if (cam[0x10] != 0) {
+        for (k = 0; k < 4; k++) {
+            F32(CAM_OBJ, 0x1C0 + k * 4) = F32(CAM_OBJ, 0x1C0 + k * 4) - F32(cam, 0x60 + k * 4);
+            F32(CAM_OBJ, 0x1D0 + k * 4) = F32(CAM_OBJ, 0x1D0 + k * 4) - F32(cam, 0x80 + k * 4);
+        }
+    }
+    if (func_0016C070((Unit *)cam[1]) != 0) {
+        g_0045D2A8 = 0;
+        func_00254030();
+        func_00163A20(dt, cam);
+        U8(CAM_OBJ, 0x230) = (U8(CAM_OBJ, 0x230) & ~2) | 2;
+    } else if (cam[0xB] != 0) {
+        g_0045CC80 = 8;
+        g_0045D2C8 = 0;
+        func_00163BA0(dt, cam);
+        U8(CAM_OBJ, 0x230) = (U8(CAM_OBJ, 0x230) & ~2) | 2;
+        if ((U8(cam[0xB], 0x27C) & 4) == 0) {
+            func_0029EE00(cam, 0);
+            if (cam[1] != 0)
+                func_001FAA60(U8(cam[1], 0x14E));
+        }
+    } else if (cam[0xA] != 0) {
+        g_0045CC80 = 8;
+        g_0045D2C8 = 0;
+        func_00163F00(step, cam);
+        U8(CAM_OBJ, 0x230) = (U8(CAM_OBJ, 0x230) & ~2) | 2;
+    } else if (g_0045D2A8 != 0) {
+        g_0045CC80 = 8;
+        g_0045D2C8 = 0;
+        func_00164270(step, dt, cam);
+        U8(CAM_OBJ, 0x230) = (U8(CAM_OBJ, 0x230) & ~2) | 2;
+    } else {
+        func_001637B0(dt, cam);
+        U8(CAM_OBJ, 0x230) &= ~2;
+    }
+    if (cam[0x10] != 0) {
+        func_0017C230(&cam[0x10]);
+        for (k = 0; k < 4; k++) {
+            F32(CAM_OBJ, 0x1C0 + k * 4) = F32(CAM_OBJ, 0x1C0 + k * 4) + F32(cam, 0x60 + k * 4);
+            F32(CAM_OBJ, 0x1D0 + k * 4) = F32(CAM_OBJ, 0x1D0 + k * 4) + F32(cam, 0x80 + k * 4);
+        }
+    }
+#undef CAM_OBJ
+}
