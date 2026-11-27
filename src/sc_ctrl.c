@@ -1754,3 +1754,236 @@ void func_0018AEB0(u8 id, int kind, int e, char *text)
         g_005BBEE8 = n + 1;
     func_0018AB50(g_005BA7E8, n);
 }
+
+/* Two officer lists shown in messages (0x005BC068 and 0x005BC104, 0x9C bytes): six ids, +0x18
+ * a byte, +0x19 the list's number, +0x1C its text. */
+extern u8 g_005BC068[2][0x9C];
+extern u8 g_0045CC98[3];                 /* (small data) the sides' text colours */
+extern const char g_00424EA0[];          /* "%c%s"-like: a colour and a name */
+extern const char g_00424EB0[];          /* "" */
+
+extern u32 g_005BBF0C, g_005BBF10;       /* (objectives +0x1724, +0x1728) */
+extern int g_005BBEEC[8];                /* (objectives +0x1704) the markers in use */
+
+void func_00118AC0(void *to, const void *from, u32 n);  /* memcpy */
+void func_001911A0(void *a, float *p);
+void func_003DD710(char *to, u32 id);
+const char *func_00372C40(void);
+const char *func_00372C00(u32 k);
+
+/* 0x0018B810, 0x38 bytes. Restores the objectives from a save; returns the end. */
+u8 *func_0018B810(u8 *p)
+{
+    func_00118AC0(g_005BA7E8, p, 0x1730);
+    return p + 0x1730;
+}
+
+/* 0x0018B850, 0x34 bytes. Saves the objectives; returns the end. */
+u8 *func_0018B850(u8 *p)
+{
+    func_00118AC0(p, g_005BA7E8, 0x1730);
+    return p + 0x1730;
+}
+
+/* 0x0018B890, 0x8 bytes. Nothing. */
+void func_0018B890(void)
+{
+}
+
+/* 0x0018B8A0, 0x15C bytes. Clears the objectives (all of result 3, none current, no
+ * markers). */
+void func_0018B8A0(void)
+{
+    u8 *r = OBJ(0);
+    u32 k;
+
+    g_005BBF0C = 0x10;
+    g_005BBEE8 = 0;
+    g_005BBF10 = 0;
+    for (k = 0; k < 8; k++)
+        g_005BBEEC[k] = -1;
+    for (k = 0; k < 0x10; k++, r += 0x170) {
+        r[0] = 0;
+        r[1] = 0;
+        r[2] = 0;
+        r[3] = 3;
+        S32(r, 4) = 0;
+        S32(r, 8) = 0;
+        r[0xD] = 0;
+        r[0xC] = 0;
+    }
+}
+
+/* 0x0018BA00, 0x114 bytes. The `i`-th officer of list `l` (*id) and its point for
+ * func_001911A0 (for officer kind 0x215 the centre of its 5000-unit cell). */
+void func_0018BA00(u8 *l, u32 i, int *id, void *x)
+{
+    float p[2];
+    u8 *o;
+
+    if (i >= U8(l, 0x18))
+        return;
+    *id = S32(l, i * 4);
+    o = REC88(*id);
+    if ((PTR(o, 8) - g_005BA6A0) / 0x2C == 0x215) {
+        p[0] = (float)U8(o, 0x40) * 5000.0f + 2500.0f;
+        p[1] = (float)U8(o, 0x41) * 5000.0f + 2500.0f;
+    } else {
+        float *q = (U32(o, 0x80) & 0x20000) ? (float *)(o + 0x30) : (float *)(o + 0x28);
+
+        p[0] = q[0];
+        p[1] = q[1];
+    }
+    func_001911A0(x, p);
+}
+
+/* 0x0018BB20, 0x198 bytes. Fills officer list `k` (0-0xF the first, 0x10-0x1F the second)
+ * with six officers and its text (each name in its side's colour, by text func_00372C00(k)). */
+void func_0018BB20(u32 k, u32 *ids, u8 b)
+{
+    char names[6][0x80], name[0x80];
+    u8 col[3], *l;
+    u32 j;
+
+    col[0] = g_0045CC98[0];
+    col[1] = g_0045CC98[1];
+    col[2] = g_0045CC98[2];
+    if (k < 0x10)
+        l = g_005BC068[0];
+    else if (k < 0x20)
+        l = g_005BC068[1];
+    else
+        return;
+    l[0x19] = (u8)k;
+    for (j = 0; j < 6; j++) {
+        u32 id = ids[j];
+
+        if (id < 0x1AD) {
+            u8 c;
+
+            S32(l, j * 4) = id;
+            c = col[U8(REC88(id), 0x79)];
+            if ((U32(REC88(id), 0x80) & 0x8000000) == 0)
+                func_003DD710(name, id);
+            else
+                func_00120928(name, func_00372C40());
+            func_001204B0(names[j], g_00424EA0, c, name);
+        }
+    }
+    l[0x18] = b;
+    func_001204B0((char *)(l + 0x1C), func_00372C00(k), names[0], names[1], names[2], names[3],
+                  names[4], names[5]);
+}
+
+/* 0x0018BCC0, 0x38 bytes. Restores the officer lists; returns the end. */
+u8 *func_0018BCC0(u8 *p)
+{
+    func_00118AC0(g_005BC068, p, 0x138);
+    return p + 0x138;
+}
+
+/* 0x0018BD00, 0x34 bytes. Saves the officer lists; returns the end. */
+u8 *func_0018BD00(u8 *p)
+{
+    func_00118AC0(p, g_005BC068, 0x138);
+    return p + 0x138;
+}
+
+/* 0x0018BD40, 0x8 bytes. Nothing. */
+void func_0018BD40(void)
+{
+}
+
+/* 0x0018BD50, 0x4C bytes. Empties an officer list. */
+void func_0018BD50(u8 *l)
+{
+    int k;
+
+    for (k = 0; k < 6; k++)
+        S32(l, k * 4) = 0x1AD;
+    l[0x18] = 0;
+    l[0x19] = 0x20;
+    func_00120928((char *)(l + 0x1C), g_00424EB0);
+}
+
+/* 0x0018BDA0, 0x34 bytes. Empties both officer lists. */
+void func_0018BDA0(void)
+{
+    func_0018BD50(g_005BC068[0]);
+    func_0018BD50(g_005BC068[1]);
+}
+
+/* 0x0018BDE0, 0x50 bytes. Each frame, the 24 running timers (pairs at 0x005BC1A0) count up. */
+void func_0018BDE0(void)
+{
+    u32 *t = g_005BC1A0[0];
+    u32 k;
+
+    for (k = 0; k < 0x18; k++, t += 2) {
+        if (t[0] != 0 && t[1] != 0x7FFFFFFF)
+            t[1] = t[1] + 1;
+    }
+}
+
+/* 0x0018BE30, 0x64 bytes. Restores the timers; returns the end. */
+u8 *func_0018BE30(u8 *p)
+{
+    u32 k;
+
+    for (k = 0; k < 0x18; k++, p += 8)
+        func_00118AC0(g_005BC1A0[k], p, 8);
+    return p;
+}
+
+/* 0x0018BEA0, 0x64 bytes. Saves the timers; returns the end. */
+u8 *func_0018BEA0(u8 *p)
+{
+    u32 k;
+
+    for (k = 0; k < 0x18; k++, p += 8)
+        func_00118AC0(p, g_005BC1A0[k], 8);
+    return p;
+}
+
+/* 0x0018BF10, 0x8 bytes. Nothing. */
+void func_0018BF10(void)
+{
+}
+
+/* 0x0018BF20, 0x78 bytes. Resets the timers (the first one running). */
+void func_0018BF20(void)
+{
+    u32 k;
+
+    g_005BC1A0[0][1] = 0;
+    g_005BC1A0[0][0] = 1;
+    for (k = 1; k < 0x18; k++) {
+        g_005BC1A0[k][0] = 0;
+        g_005BC1A0[k][1] = 0;
+    }
+}
+
+/* 0x0018BFA0, 0x64 bytes. Restores the 16 variables; returns the end. */
+u8 *func_0018BFA0(u8 *p)
+{
+    u32 k;
+
+    for (k = 0; k < 0x10; k++, p += 4)
+        func_00118AC0(&SC_VAR(k), p, 4);
+    return p;
+}
+
+/* 0x0018C010, 0x64 bytes. Saves the 16 variables; returns the end. */
+u8 *func_0018C010(u8 *p)
+{
+    u32 k;
+
+    for (k = 0; k < 0x10; k++, p += 4)
+        func_00118AC0(p, &SC_VAR(k), 4);
+    return p;
+}
+
+/* 0x0018C080, 0x8 bytes. Nothing. */
+void func_0018C080(void)
+{
+}
