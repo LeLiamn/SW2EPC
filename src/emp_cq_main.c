@@ -5935,3 +5935,293 @@ void func_0031DF40(int k)
         func_002FB320(func_00327D50(), reg);
     CMD_MENU()->unknown_220 = k;
 }
+
+/* A list window (0x007B5900). */
+typedef struct {
+    u8 unknown_000[0x120];
+    int flag[8];             /* +0x120 */
+    int count;               /* +0x140 */
+    int sel;                 /* +0x144 */
+} ListWindow;
+
+extern ListWindow g_007B5900;
+extern const char *g_0043C578, *g_0043C730, *g_0043C560;
+
+int func_003890A0(void);
+void func_0037EB40(void *pic, int a, int sel);
+void func_00383050(void *pic, int x, int y, int a, int b, int v);
+void func_003F0EC0(void *a, void *b, ListWindow *w);
+void func_00373B60(void);
+void func_003890C0(void);
+void func_003F0A00(ListWindow *w);
+void *func_0030D800(void);
+void *func_0030D810(void);
+
+/* 0x0031DF90, 0x50 bytes, matching. Draws the main menu (window 5 closed). */
+void func_0031DF90(void)
+{
+    func_00388710();
+    if (func_003DC2D0(5) == 0)
+        func_0037EB40(func_0030D7D0(), func_003890A0(), -1);
+}
+
+/* 0x0031DFE0, 0x890 bytes. Why force `f` may not give command `c`: the help message (0x42-0x5E,
+ * 0x5E when it cannot pay, 0x5D for a used free command), or -1 when it may. */
+int func_0031DFE0(int c, int f)
+{
+    int cost, g, a, b;
+
+    func_002FB2A0(f);
+    cost = func_00313DB0(c, f);
+    if (cost != -1 && cost > func_002F9190(f))
+        return 0x5E;
+    if (c > 0x3A && c < 0x5A && func_003285D0(c) != 0)
+        return 0x5D;
+    if (c == 0x35) {
+        for (g = 0; g < 0x19; g++) {
+            if (func_002F8CB0(g) != 0 && f != g)
+                break;
+        }
+        return IS_FORCE(g) ? -1 : 0x58;
+    }
+    if (c == 0x2E) {
+        int m = -1;
+
+        if (func_002FB120(f) != 0)
+            m = 0x5F;
+        for (g = 0; g < 0x19; g++) {
+            if (func_002F8CB0(g) != 0 && f != g && func_002FB220(g) == 0) {
+                int t = func_002FB1A0(g);
+
+                if (t == f || t > 0x18)
+                    break;
+            }
+        }
+        return IS_FORCE(g) ? m : 0x52;
+    }
+    if (c == 0x2C || c == 0x2B) {
+        int m = -1;
+
+        if (func_002FB120(f) != 0)
+            m = 0x4F;
+        for (g = 0; g < 0x19; g++) {
+            if (func_002F8CB0(g) != 0 && f != g && func_002FB120(g) == 0)
+                break;
+        }
+        return IS_FORCE(g) ? m : 0x50;
+    }
+    if (c == 0x2A || c == 0x29 || c == 0x28) {
+        int m = -1;
+
+        if (func_002FABC0(f) < 300)
+            m = 0x4D;
+        if (func_002FB430(f) < 8)
+            m = 0x4E;
+        return m;
+    }
+    if (c == 0x27 || c == 0x26 || c == 0x25 || c == 0x24) {
+        int m = -1;
+
+        if (func_002FABC0(f) < 100)
+            m = 0x4D;
+        if (func_002FB430(f) < 2)
+            m = 0x4C;
+        return m;
+    }
+    if (c == 0x10 || c == 0xF || c == 0xE)
+        return func_002FBA40(f) == 0 ? 0x48 : -1;
+    if (c == 0x3A) {
+        for (g = 0; g < 0x19; g++) {
+            if (func_002F8CB0(g) != 0 && f != g && func_002FC0C0(f, g) != 0x19)
+                break;
+        }
+        return IS_FORCE(g) ? -1 : 0x5C;
+    }
+    if (c == 0x38)
+        return func_002FA790(f) != 0 ? 0x5B : -1;
+    if (c == 0x37) {
+        int m = func_0030BDB0(func_002FB2D0(f)) == 0 ? 0x5A : -1;
+
+        func_0030B330();
+        return m;
+    }
+    if (c == 0x36) {
+        int m = func_0030BEE0(func_002FB2D0(f)) == 0 ? 0x59 : -1;
+
+        func_0030B330();
+        return m;
+    }
+    if (c == 0x39 || c == 0x34) {
+        int m = func_0030C020(func_002FB2D0(f)) == 0 ? 0x57 : -1;
+
+        func_0030B330();
+        return m;
+    }
+    if (c == 0x33)
+        return func_002FBC90(f, 8) == 0 ? 0x56 : -1;
+    if (c == 0x32)
+        return func_002FBC90(f, 7) == 0 ? 0x55 : -1;
+    if (c == 0x31)
+        return func_002FBE00(f) == 0 ? 0x54 : -1;
+    if (c == 0x30)
+        return func_002FBDE0(f) == 0 ? 0x53 : -1;
+    if (c == 0x2F || c == 0x2D)
+        return func_002FB100(f) == 0 ? 0x51 : -1;
+    if (c == 0x22) {
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0);
+        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8430, f, 0, 1);
+        return a == 0 && b == 0 ? 0x4B : -1;
+    }
+    if (c == 0x20) {
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F85E0, 0, 0, 0);
+        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8430, f, 0, 1);
+        return a == 0 && b == 0 ? 0x4B : -1;
+    }
+    if (c == 0x1F) {
+        a = func_002F7D90(0, (int (*)(u32, int, int))func_002F8630, f, 0, 0);
+        func_0030B540(func_002FB2D0(f));
+        b = func_002F7D90(0, (int (*)(u32, int, int))func_002F8480, 0, 0, 1);
+        func_0030B330();
+        return a == 0 && b == 0 ? 0x4B : -1;
+    }
+    if (c == 0x12)
+        return func_001A0700() == 0 ? 0x4A : -1;
+    if (c == 0x11) {
+        func_002FBE40(f);
+        return func_001A06D0() == 0 ? 0x49 : -1;
+    }
+    if (c == 0xD) {
+        if (func_002F9390(f, 0) > 399 && func_002F9390(f, 1) > 399 && func_002F9390(f, 2) > 399)
+            return 0x47;
+        return -1;
+    }
+    if (c == 0xC)
+        return func_002F9390(f, 2) > 399 ? 0x46 : -1;
+    if (c == 0xB)
+        return func_002F9390(f, 1) > 399 ? 0x45 : -1;
+    if (c == 10)
+        return func_002F9390(f, 0) > 399 ? 0x44 : -1;
+    if (c == 5 || c == 4 || c == 3)
+        return func_002FC000(f) == 0 ? 0x43 : -1;
+    if (c != 2)
+        return -1;
+    return func_002FBDC0(f) == 0 ? 0x42 : -1;
+}
+
+/* 0x0031E870, 0x124 bytes. Draws the command page: the list (cursor on `index`), the command's
+ * picture (greyed when not allowed), its cost and the reason it is not allowed. */
+void func_0031E870(void)
+{
+    CmdMenu *m = CMD_MENU();
+    int why = func_0031DFE0(func_0031D690(m), func_00327D50()), cost;
+
+    func_00388710();
+    func_0037EB40(func_0030D7D0(), func_003890A0(), m->index);
+    func_0037E9F0(func_0030D7D0(), func_0031D690(m), 0x154, 0x68, 0x80, why < 0);
+    cost = func_00313DB0(func_0031D690(m), func_00327D50());
+    if (cost < 0)
+        cost = 0;
+    func_00383050(func_0030D7D0(), 0x141, 0x34, 0, 1, cost);
+    if (why >= 0)
+        func_003838B0(func_003725A0(why), 1);
+}
+
+/* 0x0031E9A0, 0x64 bytes. Draws the list window (message 0x3C). */
+void func_0031E9A0(void)
+{
+    func_003F0EC0(func_0030D800(), func_0030D810(), &g_007B5900);
+    func_003838B0(func_003725A0(0x3C), 1);
+    func_001A7DC0(g_0043C578, 0x80, 1);
+}
+
+/* 0x0031EA10, 0x110 bytes. Draws the command menu by its state. */
+void func_0031EA10(void)
+{
+    CmdMenu *m = CMD_MENU();
+
+    switch (m->unknown_220) {
+    case 0:
+        func_0031DF90();
+        func_001A7DC0(g_0043C730, 0x80, 2);
+        break;
+    case 1:
+        func_0031E870();
+        if (m->count[m->unknown_218] == 1)
+            func_001A7DC0(g_0043C560, 0x80, 2);
+        else
+            func_001A7DC0(g_0043C730, 0x80, 2);
+        break;
+    case 3:
+        func_0032D3C0(func_0030D7D0());
+        break;
+    case 4:
+        func_00373B60();
+        break;
+    case 5:
+        func_00373B60();
+        break;
+    case 6:
+        func_0031E9A0();
+        break;
+    }
+}
+
+/* 0x0031EB20, 0xA0 bytes. The group menu: a group with commands opens its page (state 1);
+ * Back returns to the turn menu. */
+void func_0031EB20(void)
+{
+    int *st = func_002FC2C0(), r;
+    CmdMenu *m = (CmdMenu *)st[0x1A5];
+
+    r = func_00389050();
+    if (r == 1) {
+        int g;
+
+        func_003890C0();
+        g = func_00389090();
+        if (m->count[g] != 0) {
+            m->index = 0;
+            m->group = g;
+            m->unknown_218 = g;
+            m->unknown_21C = -1;
+            func_0031DF40(1);
+        }
+    } else if (r == 0) {
+        func_002FC560();
+        st[0] = 0;
+        m->group = 0;
+    }
+}
+
+/* 0x0031EBC0, 0x9C bytes. Whether the menu's +0x224 flags hold a single one of bits 0-2 (or
+ * none, without bit 3). */
+int func_0031EBC0(void)
+{
+    u32 v = CMD_MENU()->unknown_224;
+
+    if (v & 1)
+        return v == 1;
+    if (v & 2)
+        return v == 2;
+    if (v & 4)
+        return v == 4;
+    if (v & 8)
+        return 0;
+    return 1;
+}
+
+/* 0x0031EC60, 0x74 bytes. Resets the list window (its count cut at its last flagged row). */
+void func_0031EC60(void)
+{
+    ListWindow *w = &g_007B5900;
+    int k;
+
+    func_003F0A00(w);
+    for (k = 0; k < g_007B5900.count; k++) {
+        if (w->flag[k] != 0) {
+            g_007B5900.count = k;
+            g_007B5900.sel = 0;
+        }
+    }
+    g_007B5900.sel = 0;
+}
