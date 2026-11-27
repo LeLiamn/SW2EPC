@@ -30,6 +30,11 @@ float sqrtf(float x);
 #define g_70000158 (*(u32 **)0x70000158)         /* the DMA chain's write cursor */
 
 /* A motion being played (camera). */
+/* A flag byte: the original tests its bits as signed one-bit fields (LSB first). */
+typedef struct {
+    signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} Bits8;
+
 typedef struct {
     u32 *motion;             /* header: +4 tracks, +8 frames, +0xC the tracks */
 } MotionState;
@@ -643,7 +648,10 @@ typedef struct {
     u8 c;
     u32 d;                   /* +0x204 */
     Node *e;                 /* +0x208 */
-    u8 flags;                /* +0x20C */
+    union {
+        u8 all;
+        Bits8 b;             /* the original tests the bits as signed one-bit fields */
+    } flags;                 /* +0x20C */
     u8 pad2[3];
     u8 transforms[0x10];     /* +0x210 */
 } Actor;
@@ -911,7 +919,7 @@ void func_00149620(Actor *a, Model *m, Model *m2)
         rebuild = 1;
     if (m != 0) {
         if (m2 == 0)
-            a->flags &= ~2;
+            a->flags.b.f1 = 0;
         if (rebuild)
             func_00148790(a, m, m2);
         else if (m2 == 0)
@@ -919,7 +927,7 @@ void func_00149620(Actor *a, Model *m, Model *m2)
         a->e = a->nodes;
     }
     a->d = 0;
-    a->flags &= ~8;
+    a->flags.b.f3 = 0;
 }
 
 /* 0x00149720, 0x8 bytes, matching. */
@@ -996,8 +1004,8 @@ static const u8 nodes_mode1[] = { 8, 10, 11, 9, 14, 17, 1, 2 };
  * mode 2 nothing. */
 void func_00149730(Actor *a, char mode, int frame)
 {
-    Model *m = (a->flags & 2) ? a->model2 : a->model;
-    Node *list = (a->flags & 2) ? a->nodes2 : a->nodes;
+    Model *m = a->flags.b.f1 ? a->model2 : a->model;
+    Node *list = a->flags.b.f1 ? a->nodes2 : a->nodes;
     float (*attached)[4] = 0;
     float base[4][4];
     Node *n;
@@ -1024,7 +1032,7 @@ void func_00149730(Actor *a, char mode, int frame)
     if (mode == 0) {
         for (i = 0; i < sizeof(nodes_mode0_a); i++)
             node_world(&list[nodes_mode0_a[i]], base, frame);
-        if ((a->flags & 2) == 0) {
+        if (a->flags.b.f1 == 0) {
             for (i = 0; i < sizeof(nodes_mode0_b); i++)
                 node_world(&list[nodes_mode0_b[i]], base, frame);
             if (m->range[1] > 0x1A) {
@@ -1039,7 +1047,7 @@ void func_00149730(Actor *a, char mode, int frame)
                 node_world(n, base, frame);
         }
         if (m->range[3] != 0) {
-            if ((a->flags & 4) && (a->flags & 2) == 0 && a->d > 1) {
+            if (a->flags.b.f2 && a->flags.b.f1 == 0 && a->d > 1) {
                 if (attached == 0) {
                     func_0014E6F0(a, base, a->world, frame);
                 } else {
@@ -1079,7 +1087,7 @@ void vu0_sincos(float a, float *s, float *c);    /* VU0 micro subroutine 0x20 */
 void func_001436C8(float *to, const float *from);   /* copies x, y, z */
 
 /* The node list and model in use (the second ones when flag 2 is set and they exist). */
-#define ACTOR_MODEL(a) (((a)->flags & 2) ? (a)->model2 : (a)->model)
+#define ACTOR_MODEL(a) ((a)->flags.b.f1 ? (a)->model2 : (a)->model)
 
 /* 0x0014D390, 0x20 bytes, matching. Brings the matrices up to date for this frame. */
 void func_0014D390(Actor *a, char mode)
@@ -1110,7 +1118,7 @@ void func_0014D3B0(Actor *a)
 
     keep_matrices(&a->e[m->range[0]], m->range[1], frame);
     keep_matrices(&a->e[m->range[4]], m->range[5], frame);
-    if ((a->flags & 2) == 0)
+    if (a->flags.b.f1 == 0)
         keep_matrices(&a->e[m->range[2]], m->range[3], frame);
 }
 
@@ -1122,22 +1130,22 @@ void func_0014D6C0(Actor *a);
 void func_0014D560(Actor *a, char mode, int n)
 {
     int frame = g_70000150;
-    u8 saved = a->flags;
+    u8 saved = a->flags.all;
     int i;
 
     if (a->nodes2 == 0) {
-        a->flags &= ~2;
+        a->flags.b.f1 = 0;
         func_0014D6C0(a);
         a->d = 0;
         func_00149730(a, mode, frame ^ 1);
         a->d = 0;
         func_00149730(a, mode, frame);
-        a->flags |= 4;
+        a->flags.b.f2 = 1;
         for (i = 0; i < n; i++) {
             frame ^= 1;
             func_00149730(a, mode, frame);
         }
-        a->flags = (a->flags & ~6) | (saved & 6);
+        a->flags.all = (a->flags.all & ~6) | (saved & 6);
     }
 }
 
@@ -1149,7 +1157,7 @@ void func_0014D6C0(Actor *a)
     Node *n;
     int i;
 
-    a->e = ((a->flags & 2) && a->nodes2 != 0) ? a->nodes2 : a->nodes;
+    a->e = (a->flags.b.f1 && a->nodes2 != 0) ? a->nodes2 : a->nodes;
     for (i = 0, n = a->e; i < m->range[1]; i++, n++) {
         if (n->dirty) {
             n->dirty = 0;
@@ -1188,7 +1196,7 @@ void func_0014D7E0(float t, Actor *a, MotionState *s, u32 first, u32 last)
 
     if (s == 0)
         return;
-    list = ((a->flags & 2) && a->nodes2 != 0) ? a->nodes2 : a->nodes;
+    list = (a->flags.b.f1 && a->nodes2 != 0) ? a->nodes2 : a->nodes;
     m = s->motion;
     p = (const float *)(m + 3);
     for (i = 0; i < m[1]; i++) {
@@ -1333,7 +1341,7 @@ void func_0014E380(Actor *a)
     Model *m = ACTOR_MODEL(a);
     u8 *t = a->transforms;
     float k = 1.0f - *(float *)(t + 0) / *(float *)(t + 4);
-    Node *n = ((a->flags & 2) && a->nodes2 != 0) ? a->nodes2 : a->nodes;
+    Node *n = (a->flags.b.f1 && a->nodes2 != 0) ? a->nodes2 : a->nodes;
     float *saved = *(float **)(t + 8);
     int i;
 
