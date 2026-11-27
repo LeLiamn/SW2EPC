@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 129168,
-    "non_matching": 969000
+    "non_matching": 970376
   },
   "data": {
     "total": 2155890688,
@@ -524,14 +524,14 @@
         },
         {
           "name": "StgTexture.c",
-          "description": "Estimated range 0x1EF238-0x201B40; 0 function(s) decompiled",
+          "description": "Estimated range 0x1EF238-0x201B40; 3 function(s) decompiled",
           "code": {
             "total": 76040,
             "matching": 0,
-            "non_matching": 0
+            "non_matching": 528
           },
           "decompiled_functions": {
-            "count": 0,
+            "count": 3,
             "matching": 0
           }
         },
@@ -729,14 +729,14 @@
         },
         {
           "name": "ev_config.c",
-          "description": "Estimated range 0x201B40-0x20F408; 28 function(s) decompiled",
+          "description": "Estimated range 0x201B40-0x20F408; 32 function(s) decompiled",
           "code": {
             "total": 55496,
             "matching": 896,
-            "non_matching": 2224
+            "non_matching": 3072
           },
           "decompiled_functions": {
-            "count": 28,
+            "count": 32,
             "matching": 16
           }
         },

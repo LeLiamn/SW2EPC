@@ -707,3 +707,141 @@ int func_00205480(u8 *s)
         return 0;
     return (*(u32 *)(*(u8 **)(s + 0x10) + 0x84) & 0x800) != 0;
 }
+
+/* The soldiers' running orders (0x002018B0-0x00201F7C). */
+
+int func_00271E70(u8 *s);
+void func_00253690(u32 kind, u8 *a);
+void func_00237B70(u8 *s);
+void func_002015A0(u8 *s);
+void func_00201990(u8 *s);
+
+/* Soldier `s`'s actor forgets its move target. */
+static void stop_target(u8 *a)
+{
+    *(u32 *)(a + 0x13C) = 0;
+    *(u32 *)(a + 0x1D0) = *(u32 *)0x700000C0;
+    *(u32 *)(a + 0x1D4) = *(u32 *)0x700000C4;
+    *(u32 *)(a + 0x1D8) = *(u32 *)0x700000C8;
+    *(u32 *)(a + 0x1DC) = *(u32 *)0x700000CC;
+}
+
+/* 0x002018B0, 0x60 bytes. Order 0x10000 (wait): ends with its timer. */
+void func_002018B0(u8 *s)
+{
+    if (*(short *)(s + 0x78) == 0) {
+        *(u32 *)(s + 0xBC) &= ~0x10000;
+        stop_target(*(u8 **)(s + 0x14));
+    } else {
+        func_00204C50(s);
+    }
+}
+
+/* 0x00201910, 0x78 bytes. Order 0x4000 (follow): ends with its timer or its target. */
+void func_00201910(u8 *s)
+{
+    u8 *a = *(u8 **)(s + 0x14);
+
+    if (*(short *)(s + 0x78) == 0 || func_00271E70(s) == 0) {
+        *(u32 *)(s + 0xBC) &= ~0x4000;
+        *(u32 *)(s + 0x6C) = 0;
+        *(int *)(s + 0x74) = -1;
+        stop_target(a);
+    }
+}
+
+/* 0x00201780, 0x124 bytes. Order 0x20000 (rest): a healing item at its end; called off when
+ * struck. */
+void func_00201780(u8 *s)
+{
+    u8 *a = *(u8 **)(s + 0x14);
+
+    if ((*(u32 *)(*(u8 **)(a + 0x210) + 0x18) & 0x800) != 0) {
+        *(u32 *)(s + 0xBC) &= ~0x20000;
+        func_00253690(0xB, a);
+        stop_target(a);
+        order2(s);
+        s[0x7D] = 0;
+    } else if (*(short *)(s + 0x78) == 0 || *(short *)(s + 0x86) <= *(short *)(s + 0x88)) {
+        *(u32 *)(s + 0xBC) &= ~0x20000;
+        func_00253690(0xB, a);
+        stop_target(a);
+        func_0024D380((RANDOM() & 1) == 0 ? 8 : 9, a);
+    }
+}
+
+/* 0x00201C30, 0x70 bytes. Order 0x100: keeps pushing. */
+void func_00201C30(u8 *s)
+{
+    func_00204B60(s, 0x20004);
+    if (((*(u8 **)(s + 0x14))[0x19C] & 2) == 0) {
+        *(u32 *)(s + 0xBC) &= ~0x100;
+        stop_target(*(u8 **)(s + 0x14));
+    }
+}
+
+/* 0x00201CA0, 0x88 bytes. Order 0x80: at its end (when the actor holds) fills its gauge and
+ * pushes. */
+void func_00201CA0(u8 *s)
+{
+    if (*(short *)(s + 0x78) != 0)
+        return;
+    if ((*(u32 *)(*(u8 **)(*(u8 **)(s + 0x14) + 0x210) + 0x18) & 0x400000) == 0) {
+        *(u32 *)(s + 0xBC) &= ~0x80;
+    } else {
+        *(u32 *)(s + 0xBC) &= ~0x80;
+        *(short *)(s + 0x88) = *(short *)(s + 0x86);
+        func_00204B60(s, 0x20004);
+        *(u32 *)(s + 0xBC) |= 0x100;
+    }
+}
+
+/* 0x00201D30, 0xF4 bytes. Order 0x40 (charge up): turns into order 0x80 at its end; called off
+ * when struck. */
+void func_00201D30(u8 *s)
+{
+    u8 *a = *(u8 **)(s + 0x14);
+
+    if ((*(u32 *)(*(u8 **)(a + 0x210) + 0x18) & 0x800) != 0) {
+        *(u32 *)(s + 0xBC) &= ~0x40;
+        func_00253690(0xB, a);
+        stop_target(a);
+        order2(s);
+        s[0x7D] = 0;
+    } else if (*(short *)(s + 0x78) == 0 || *(short *)(s + 0x86) <= *(short *)(s + 0x88)) {
+        *(u32 *)(s + 0xBC) &= ~0x40;
+        func_00253690(0xB, a);
+        stop_target(a);
+        *(u32 *)(s + 0xBC) |= 0x80;
+        *(short *)(s + 0x78) = 1;
+    }
+}
+
+/* 0x00201E30, 0x150 bytes. Steps soldier `s`'s running order (or waits without a target). */
+void func_00201E30(u8 *s)
+{
+    u32 f = *(u32 *)(s + 0xBC);
+
+    if ((f & 0x7FFC0) == 0) {
+        if (*(int *)(*(u8 **)(*(u8 **)(s + 0x14) + 0x210) + 0x14) == 0)
+            func_00206080(s);
+    } else if ((f & 0x200) != 0) {
+        func_00201990(s);
+    } else if ((f & 0x4000) != 0) {
+        func_00201910(s);
+    } else if ((f & 0x10000) != 0) {
+        func_002018B0(s);
+    } else if ((f & 0x40) != 0) {
+        func_00201D30(s);
+    } else if ((f & 0x80) != 0) {
+        func_00201CA0(s);
+    } else if ((f & 0x100) != 0) {
+        func_00201C30(s);
+    } else if ((f & 0x8000) != 0) {
+        func_00237B70(s);
+    } else if ((f & 0x20000) != 0) {
+        func_00201780(s);
+    } else if ((f & 0x40000) != 0) {
+        func_002015A0(s);
+    }
+}
