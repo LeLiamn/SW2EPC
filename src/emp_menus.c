@@ -469,3 +469,179 @@ void func_0039D740(void)
 {
     func_0039D6B0(MENU2()[2]);
 }
+
+/* ---- The officer list by group (FC2C0()[0x1A5]: 12 groups of up to 10 officers from +0,
+ * counts at +0x1E0, the counts' flags at +0x1FC, group +0x210, line +0x214, the group chosen
+ * +0x218, its step +0x220) and a voice player (parts of 0x003E74B0-0x003E7C08). ---- */
+
+extern u8 g_007BFB3D;
+extern float g_007BFB38;
+extern int g_0041D680[], g_0041D710[], g_0041D740[];
+extern u16 g_0050074E;
+
+#define PAD1_REPEAT() ((g_00500764 & 1) == 0 || (g_00500765 & 1) != 1 ? 0 : g_0050074E)
+#define MENU5() ((u8 *)func_002FC2C0()[0x1A5])
+
+u8 *func_00391250(void);
+void func_0023AA40(void);
+void func_0023AC40(void);
+void func_0023AB00(int v, int a);
+void func_0023A180(int v, int a, int b);
+void func_00388200(int a, int k);
+void func_003882C0(u32 *t);
+int func_00388DA0(void);
+void func_0011ED38(void *p, int v, int n);
+int func_003A01A0(int o);
+int func_00313CB0(int o);
+
+/* 0x003E74B0, 0x118 bytes. Plays the current line's voice. */
+void func_003E74B0(void)
+{
+    u8 *p = func_00391250();
+    int s = -1, i = *(int *)(p + 0x94);
+    int j = *(short *)(p + 0x14C) + *(short *)(p + 0x14E), v = g_0041D680[i];
+
+    switch (*(int *)(p + 0xC)) {
+    case 0:
+        func_0023AA40();
+        func_0023AC40();
+        func_0023AD10(v * 0x100 + g_0041D710[j], 0, 0x2CDC, 0x2CDC, 0x1000);
+        break;
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+        s = *(short *)(p + 0xF0 + j * 2) + g_0041D740[i];
+        if (s != -1) {
+            func_0023AC40();
+            func_0023AB00(s, 1);
+            func_0023A180(s, 0, 0);
+        }
+        break;
+    }
+}
+
+/* 0x003E75D0, 0x2C bytes, matching. */
+void func_003E75D0(int v)
+{
+    *(int *)(MENU5() + 0x220) = v;
+}
+
+/* 0x003E7600, 0xB4 bytes. Opens the group list on group `k` (or the next one with
+ * officers). */
+void func_003E7600(int k)
+{
+    u8 *m = MENU5();
+    u32 t[4];
+    int r = k, i;
+
+    t[0] = *(int *)(m + 0x1FC) > 0;
+    t[1] = *(int *)(m + 0x200) > 0;
+    t[2] = *(int *)(m + 0x204) > 0;
+    t[3] = *(int *)(m + 0x208) > 0;
+    if (k < 4) {
+        for (i = k; i < 4; i++) {
+            if (t[i] != 0) {
+                r = i;
+                break;
+            }
+        }
+    }
+    func_00388200(2, r);
+    func_003882C0(t);
+}
+
+/* 0x003E76C0, 0xA8 bytes. The group list's frame; whether it closed. */
+int func_003E76C0(void)
+{
+    u8 *m = MENU5();
+    int v;
+
+    if ((g_007BFB3D & 1) == 0)
+        return 0;
+    v = func_00388DA0();
+    if (v == 1) {
+        int s = func_00389090();
+
+        *(int *)(m + 0x214) = 0;
+        *(int *)(m + 0x210) = s + 7;
+        *(int *)(m + 0x218) = s + 7;
+        *(int *)(m + 0x21C) = -1;
+        func_003E75D0(1);
+        return 0;
+    }
+    if (v == 0) {
+        func_003E75D0(9);
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x003E7770, 0x23C bytes. The officer list's frame (up/down, wrapping with the pad). */
+void func_003E7770(void)
+{
+    u8 *m = MENU5();
+    int n = *(int *)(m + *(int *)(m + 0x210) * 4 + 0x1E0);
+    u16 a = PAD1_PRESSED(), b = PAD1_REPEAT();
+    int *line = (int *)(m + 0x214);
+
+    if ((a & 0x10) != 0) {
+        func_0023AD10(2, 0, 0x2CDC, 0x2CDC, 0x1000);
+        func_003E7600(*(int *)(m + 0x218) - 7);
+        *line = *(int *)(m + 0x210);
+        *(int *)(m + 0x218) = -1;
+        func_003E75D0(0);
+    } else if ((a & 0x4000) != 0) {
+        if (n > 1) {
+            func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+            *line = *line == n - 1 ? 0 : *line + 1;
+        }
+    } else if ((a & 0x1000) != 0) {
+        if (n > 1) {
+            func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+            *line = *line == 0 ? n - 1 : *line - 1;
+        }
+    } else if ((b & 0x4000) != 0) {
+        if (*line < n - 1) {
+            func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+            (*line)++;
+        }
+    } else if ((b & 0x1000) != 0 && *line > 0) {
+        func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+        (*line)--;
+    }
+}
+
+/* 0x003E79B0, 8 bytes, matching. */
+void func_003E79B0(void)
+{
+}
+
+/* 0x003E79C0, 0x23C bytes. Sorts the officers into the 12 groups (100: none). */
+void func_003E79C0(void)
+{
+    u8 *m = MENU5();
+    int *cnt = (int *)(m + 0x1E0), o, c, j;
+
+    func_0011ED38(m + 0x1E0, 0, 0x30);
+    for (o = 0; o < 100; o++) {
+        if (o != 0x13 && func_003A01A0(o) != 0 && (c = func_00313CB0(o)) < 0xC) {
+            *(int *)(m + c * 0x28 + cnt[c] * 4) = o;
+            cnt[c]++;
+        }
+    }
+    for (c = 0; c < 0xC; c++) {
+        for (j = cnt[c]; j < 10; j++)
+            *(int *)(m + c * 0x28 + j * 4) = 100;
+    }
+    func_003E7600(0);
+    func_003E75D0(0);
+    g_007BFB38 = 1.0f;
+    g_007BFB3D &= 0xFE;
+}
+
+/* 0x003E7C00, 8 bytes, matching. */
+void func_003E7C00(void)
+{
+}

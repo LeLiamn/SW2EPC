@@ -1640,3 +1640,243 @@ void func_003E5E00(void)
         v = 6000;
     *(int *)(g_00669D60 + 0x240) = v;
 }
+
+/* The enemy's level by the player's progress, battle multipliers and the player's horse model
+ * (parts of 0x003E6940-0x003E74AC). */
+
+extern float g_0041D620[6];
+extern int g_0041D640[6], g_0041D660[6], g_0041D680[];
+extern u8 *g_0045D848[2];                /* (small data) the horse model files */
+extern u8 *g_007BFB00[6];
+extern u32 g_007BF7D8;
+extern u8 *g_0072C860, *g_0072C868;
+extern u8 g_007BF8C0[], g_007BF7A0[], g_007BFA80[];
+extern u8 g_00693703, g_0069382B, g_00693953;
+extern char g_0045C6E0[];
+extern u8 *g_0045D2C0;
+extern int g_0045D378;
+
+int func_0036D6D0(void);
+int func_0036D5A0(u32 s);
+u8 **func_003B0340(u8 *o);
+u32 func_003B0430(u8 *o);
+int func_0036D620(int s);
+int func_0036B330(void);
+void func_0017A920(u8 *cam);
+void func_001CB810(u8 *p, int k);
+void func_001C8620(u8 *o, int k, u8 *m, int a, u32 f);
+void func_001CAF50(u8 *o);
+void func_0023C160(void);
+void func_0023AF50(int v, int a);
+
+/* 0x003E6940, 0x270 bytes. The enemy level by the player's provinces and turn (0-7, halved on
+ * the lowest difficulty). */
+int func_003E6940(void)
+{
+    int a, b;
+    u32 v;
+
+    if (func_0032E7B0() != 0)
+        return 0;
+    a = func_0036D6D0();
+    b = func_0036D5A0(1);
+    v = b > 1;
+    if (b > 2)
+        v++;
+    if (b > 3)
+        v++;
+    if (b > 4)
+        v += 2;
+    if (b > 5)
+        v += 2;
+    if (b > 6)
+        v += 2;
+    if (b > 7)
+        v += 2;
+    if (a > 1)
+        v += 2;
+    if (a > 3)
+        v += 2;
+    if (a > 5)
+        v += 2;
+    if (a > 7)
+        v += 2;
+    if (a > 9)
+        v += 2;
+    if (a > 0xC)
+        v += 2;
+    if (a > 0xF)
+        v += 2;
+    if (a > 0x12)
+        v += 2;
+    if (a > 0x14)
+        v += 2;
+    if (a > 0x17)
+        v += 2;
+    if (v < 3)
+        v = 0;
+    else if (v < 5)
+        v = 1;
+    else if (v < 7)
+        v = 2;
+    else if (v < 10)
+        v = 3;
+    else if (v < 0xD)
+        v = 4;
+    else if (v < 0x10)
+        v = 5;
+    else if (v < 0x13)
+        v = 6;
+    else
+        v = 7;
+    if (a < 10) {
+        if (v > 4)
+            v = 4;
+    } else if (a < 0xF) {
+        if (v > 5)
+            v = 5;
+    } else if (a < 0x14 && v > 6) {
+        v = 6;
+    }
+    if (g_00669D60[0x21] == 0)
+        v = (int)v >> 1;
+    return v;
+}
+
+/* 0x003E6DF0, 0xC8 bytes. Officer `o`'s damage factor (half for the troop kind 1). */
+float func_003E6DF0(u8 *o)
+{
+    int *g;
+    int v;
+
+    if (o == 0 || (*(u32 *)(o + 0xB8) & 1) == 0)
+        return 1.0f;
+    g = (int *)func_003B0340(o);
+    if (g == 0 || (g[0x19] & 1) == 0)
+        return 1.0f;
+    if ((*(u32 *)(g_00669D60 + 0x200) & 0xC) == 0)
+        v = g[0x13];
+    else if (((u8 *)g[0])[0x79] == 0)
+        v = 0x15E;
+    else
+        v = 0x28A;
+    return v == 1 ? 0.5f : 1.0f;
+}
+
+/* 0x003E6EC0, 0xCC bytes. */
+float func_003E6EC0(u8 *o)
+{
+    float t[6];
+    int k;
+    u32 s;
+
+    for (k = 0; k < 6; k++)
+        t[k] = g_0041D620[k];
+    if (o == 0 || (*(u32 *)(o + 0xB8) & 1) == 0)
+        return 0.125f;
+    s = func_003B0430(o);
+    if (s < 2)
+        return t[func_0036D620(s)] * 0.125f;
+    return 0.125f;
+}
+
+/* 0x003E6F90, 0xBC bytes. */
+int func_003E6F90(u8 *o)
+{
+    int t[6], k;
+    u32 s;
+
+    for (k = 0; k < 6; k++)
+        t[k] = g_0041D640[k];
+    if (o == 0 || (*(u32 *)(o + 0xB8) & 1) == 0)
+        return 0;
+    s = func_003B0430(o);
+    if (s < 2 && s == 1)
+        return t[func_0036D620(1)];
+    return 0;
+}
+
+/* 0x003E7050, 0xFC bytes. The second side's strength against the first's (0.7 to 2). */
+float func_003E7050(void)
+{
+    u32 a = func_0035F2D0(0), b;
+    float f;
+
+    if (a < 2)
+        a = 1;
+    b = func_0035F2D0(1);
+    f = (float)b / (float)a;
+    if (f <= 0.7f)
+        f = 0.7f;
+    return f <= 2.0f ? f : 2.0f;
+}
+
+/* 0x003E7150, 0x110 bytes. Loads the horse models. */
+void func_003E7150(void)
+{
+    int t[6], k;
+
+    for (k = 0; k < 6; k++)
+        t[k] = g_0041D660[k];
+    for (k = 0; k < 2; k++)
+        g_0045D848[k] = func_001026D0(1, k + 0x8DB, 0, 1, 0, 0, g_0045C6E0, 0x19);
+    for (k = 0; k < 6; k++)
+        g_007BFB00[k] = func_001026D0(1, t[k], 0, 1, 0, 0, g_0045C6E0, 0x1E);
+    func_00102960(1);
+}
+
+/* 0x003E7260, 0xB0 bytes. */
+void func_003E7260(void)
+{
+    int k;
+
+    for (k = 0; k < 2; k++) {
+        if (g_0045D848[k] != 0) {
+            func_00102EC0(g_0045D848[k]);
+            g_0045D848[k] = 0;
+        }
+    }
+    for (k = 0; k < 6; k++) {
+        if (g_007BFB00[k] != 0) {
+            func_00102EC0(g_007BFB00[k]);
+            g_007BFB00[k] = 0;
+        }
+    }
+    g_007BF7D8 |= 8;
+}
+
+/* 0x003E7310, 0x120 bytes. Sets up the horse model for list `k`. */
+void func_003E7310(int k)
+{
+    int s = func_0036B330();
+
+    g_0072C860 = g_0045D848[s >= 3];
+    g_0072C868 = g_007BFB00[s];
+    *(int *)0x70000D60 = k == 0 ? 5 : 0xC;
+    func_0017A920(g_007BF8C0);
+    func_001CB810(g_007BF7A0, 0x30);
+    func_001C8620(g_007BF7A0, s < 3 ? 0xF5 : 0xF6, g_007BFA80, 0, 0x80024);
+    g_00693703 |= 0x80;
+    g_0069382B |= 0x80;
+    g_00693953 |= 0x80;
+}
+
+/* 0x003E7430, 0x40 bytes, matching. Draws it with its own camera. */
+void func_003E7430(void)
+{
+    u8 *keep = g_0045D2C0;
+
+    g_0045D378 = 0;
+    g_0045D2C0 = g_007BF8C0;
+    func_001CAF50(g_007BF7A0);
+    g_0045D2C0 = keep;
+}
+
+/* 0x003E7470, 0x40 bytes, matching. */
+void func_003E7470(int k)
+{
+    int v = g_0041D680[k];
+
+    func_0023C160();
+    func_0023AF50(v, 1);
+}
