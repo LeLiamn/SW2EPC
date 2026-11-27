@@ -130,3 +130,45 @@ void func_0024A400(int k, u8 v)
     g_00732508.b54[k + 0x12] = 100;
     g_00732508.busy = 1;
 }
+
+extern u8 *g_0068F0F0;
+extern u8 g_006A3A30[][0xC0];            /* the battle officers */
+
+u64 func_00106C90(u8 *pack, int k);
+void func_0024B330(int a, int k);
+
+/* 0x00249670, 0x198 bytes. Gauge `k`'s second bar (texture 0x3F0A; `alt`: its other half). */
+void func_00249670(int k, u8 v, int alt)
+{
+    u64 t;
+    int s;
+
+    g_00732508.b54[k + 4] = v;
+    g_00732508.b54[k + 6] = 10;
+    t = func_00106C90(g_0068F0F0, 0x3F0A);
+    for (s = 0; s < 2; s++) {
+        u8 *b = g_00732500[s] + k * 0x250;
+
+        *(u64 *)(b + 0x186B8) = t;
+        if (alt == 0) {
+            *(u64 *)(b + 0x186C8) = 0x3F61000000000000ULL;
+            *(u64 *)(b + 0x186D8) = 0x3F7F00003D800000ULL;
+        } else {
+            *(u64 *)(b + 0x186C8) = 0x3F6100003D800000ULL;
+            *(u64 *)(b + 0x186D8) = 0x3F7F00003E000000ULL;
+        }
+    }
+}
+
+/* 0x0024BA10, 0x94 bytes. Draws the markers of the battle officers in play. */
+void func_0024BA10(int a)
+{
+    int k;
+
+    for (k = 0; k < 0x8F; k++) {
+        u32 f = *(u32 *)(g_006A3A30[k] + 0xB8);
+
+        if ((f & 0xC) == 0 && (f & 1) != 0 && (f & 0x8400) == 0)
+            func_0024B330(a, k);
+    }
+}
