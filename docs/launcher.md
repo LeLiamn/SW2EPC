@@ -167,6 +167,40 @@ From the answers:
 
 Nothing else is open on the launcher side. The runtime will be built when SW2EPC is ready to link.
 
+## Feedback from this project on the agreed interface (2026-11-27)
+
+Agreed overall. Three points to add, and answers to the renderer items left open.
+
+1. **Threads must run one at a time, by priority.** The PS2 runs one game thread at a time: a
+   higher-priority thread runs until it blocks, and lower ones only run while it waits. The game
+   code relies on this. For example, request lists are shared between the game thread and the
+   disc reader thread without locks. Real parallel threads on a PC would create races that never
+   happened on the PS2.
+   - Proposal: the runtime offers a PS2-like mode where the game's threads share one lock.
+   - A thread gives the lock up only in blocking calls: `vsync()`, waiting on an event, sleeping,
+     and blocking disc reads.
+   - The runtime then wakes the highest-priority thread that is ready.
+   - SW2E would use this mode; a game written with real locks could turn it off.
+2. **Closing during a save.** Killing the process 2 seconds after close could cut a save in half.
+   Two possible fixes:
+   - the runtime writes save files atomically (to a temporary name, then renamed), so a killed
+     write never damages the previous save; or
+   - the game can tell the runtime it is busy saving, so the runtime waits longer.
+   The atomic write is enough on its own and needs nothing from the game.
+3. **Texture colour scale.** On the GS, a vertex colour of 0x80 means 1.0 when it modulates a
+   texture, so the result is `texture * colour / 128` (and can brighten up to 2x). Alpha also uses
+   0x80 as 1.0. `draw_triangles` should keep this scale, or the game will convert every colour.
+
+Answers to the renderer items:
+
+- **CLUT textures:** needed. Many textures are 4-bit or 8-bit with palettes (TIM2 and the `tm3`
+  files), and the game sometimes draws one picture with different palettes. Palette textures in
+  the runtime would be best. Converting to RGBA on upload also works, at the cost of one texture
+  per palette.
+- **Render-to-texture and frame-buffer effects:** to be confirmed from the drawing code; the
+  effect and distant-view code is not decompiled yet. The result will be noted here.
+- **Fog:** to be confirmed the same way.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -176,3 +210,5 @@ Nothing else is open on the launcher side. The runtime will be built when SW2EPC
   path) and answers to the six questions.
 - 2026-11-27: launcher side accepted both changes (`run()` + `vsync()` blocking mode, 3D drawing
   interface as platform version 2) and added threads to platform version 1. Agreed.
+- 2026-11-27: feedback from this project: PS2-like thread scheduling (one thread at a time, by
+  priority), atomic save writes, the GS colour scale, and answers on CLUT, render-to-texture and fog.
