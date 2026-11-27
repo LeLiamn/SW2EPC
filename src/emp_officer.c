@@ -521,3 +521,513 @@ int func_002F41E0(u32 i)
 {
     return func_002F41D0(ofc(i));
 }
+
+/* GENERATED */
+int func_002F4250(u32 i, int v);
+int func_002F42E0(u8 *p);
+int func_002F42F0(u32 i);
+void func_002F4360(u32 i, int n);
+int func_002F43C0(u32 i, int v);
+int func_002F4450(u32 i);
+void func_002F44C0(u32 i);
+int func_002F4510(u32 i, int v);
+int func_002F45A0(u32 i);
+void func_002F4610(u32 i);
+int func_002F4660(u32 i);
+void func_002F46D0(u32 i, int v);
+void func_002F4760(u32 i, int n);
+int func_002F4A70(u32 i);
+void func_002F4AE0(u32 i, int v);
+void func_002F4B70(u32 i, int n);
+int func_002F4BB0(u32 i, int v);
+int func_002F4C40(u32 i);
+void func_002F4CB0(u32 i, int n);
+int func_002F4D40(u32 i, int v);
+int func_002F4DD0(u32 i);
+void func_002F4E40(u32 i, int n);
+int func_002F4ED0(u32 i, int v);
+int func_002F4F60(u32 i);
+void func_002F4FD0(u32 i, int n);
+int func_002F5060(u32 i, int v);
+int func_002F50F0(u32 i);
+void func_002F5160(u32 i, int n);
+int func_002F51F0(u32 i, int v);
+int func_002F5280(u32 i);
+void func_002F52F0(u32 i, int n);
+int func_002F5380(u32 i, int v);
+int func_002F5410(u32 i);
+void func_002F5480(u32 i, int n);
+int func_002F5510(u32 i, int v);
+int func_002F55A0(u32 i);
+void func_002F5610(u32 i, int n);
+int func_002F5730(u32 i);
+void func_002F5BE0(u32 i, int v);
+int func_002F5CC0(u32 i);
+int func_002F5E10(u32 i);
+int func_002F5E80(u32 i);
+int func_002F5F60(u32 i);
+int func_002F5FD0(u32 i);
+int func_002F60B0(u32 i);
+int func_002F6120(u32 i);
+int func_002F6200(u32 i);
+int func_002F6270(u32 i);
+int func_002F6350(u32 i);
+int func_002F63C0(u32 i);
+int func_002F64A0(u32 i);
+int func_002F6510(u32 i);
+int func_002F65F0(u32 i);
+int func_002F6660(u32 i);
+int func_002F6740(u32 i);
+int func_002F6980(u32 i);
+int func_002F6A60(u32 i);
+int func_002F6B40(u32 i);
+void func_002F90D0(u32 i, int n);
+void func_0030AE40(u32 i, int n);
+int func_002F5B30();
+int func_002F5C50();
+int func_002F8F90();
+int func_002F9060();
+int func_0030AD80();
+int func_0030ADC0();
+
+/* 0x002F4250, 0x90 bytes. */
+int func_002F4250(u32 i, int v)
+{
+    if (v < 0 || v > 0xFF)
+        return 0;
+    *(u8 *)(ofc(i) + 0x55) = (u8)v;
+    return v;
+}
+
+/* 0x002F42E0, 0x8 bytes, matching. */
+int func_002F42E0(u8 *p)
+{
+    return *(u8 *)(p + 0x55);
+}
+
+/* 0x002F42F0, 0x64 bytes. */
+int func_002F42F0(u32 i)
+{
+    return func_002F42E0(ofc(i));
+}
+
+/* 0x002F4360, 0x5C bytes, matching. */
+void func_002F4360(u32 i, int n)
+{
+    func_002F4250(i, n + func_002F42F0(i) < 0xFF ? n + func_002F42F0(i) : 0xFF);
+}
+
+/* 0x002F43C0, 0x90 bytes. */
+int func_002F43C0(u32 i, int v)
+{
+    if (v < 0 || v > 0x5)
+        return 0;
+    *(u8 *)(ofc(i) + 0x56) = (u8)v;
+    return v;
+}
+
+/* 0x002F4450, 0x64 bytes. */
+int func_002F4450(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x56);
+}
+
+/* 0x002F44C0, 0x50 bytes. */
+void func_002F44C0(u32 i)
+{
+    int v = func_002F4450(i);
+
+    func_002F43C0(i, v < 0x5 ? v + 1 : 0x1);
+}
+
+/* 0x002F4510, 0x90 bytes. */
+int func_002F4510(u32 i, int v)
+{
+    if (v < 0 || v > 0x5)
+        return 0;
+    *(u8 *)(ofc(i) + 0x57) = (u8)v;
+    return v;
+}
+
+/* 0x002F45A0, 0x64 bytes. */
+int func_002F45A0(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x57);
+}
+
+/* 0x002F4610, 0x50 bytes. */
+void func_002F4610(u32 i)
+{
+    int v = func_002F45A0(i);
+
+    func_002F4510(i, v < 0x5 ? v + 1 : 0x1);
+}
+
+/* 0x002F4660, 0x64 bytes. */
+int func_002F4660(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x58);
+}
+
+/* 0x002F46D0, 0x88 bytes. */
+void func_002F46D0(u32 i, int v)
+{
+    if (v > 0x64)
+        v = 0x64;
+    if (v < 1)
+        v = 0;
+    *(u8 *)(ofc(i) + 0x58) = (u8)v;
+}
+
+/* 0x002F4760, 0x3C bytes, matching. */
+void func_002F4760(u32 i, int n)
+{
+    func_002F46D0(i, n + func_002F4660(i));
+}
+
+/* 0x002F4A70, 0x64 bytes. */
+int func_002F4A70(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x97);
+}
+
+/* 0x002F4AE0, 0x88 bytes. */
+void func_002F4AE0(u32 i, int v)
+{
+    if (v > 0x7)
+        v = 0x7;
+    if (v < 1)
+        v = 0;
+    *(u8 *)(ofc(i) + 0x97) = (u8)v;
+}
+
+/* 0x002F4B70, 0x3C bytes, matching. */
+void func_002F4B70(u32 i, int n)
+{
+    func_002F4AE0(i, n + func_002F4A70(i));
+}
+
+/* 0x002F4BB0, 0x90 bytes. */
+int func_002F4BB0(u32 i, int v)
+{
+    if (v < 0 || v > 0x15E)
+        return 0;
+    *(short *)(ofc(i) + 0x4E) = (short)v;
+    return v;
+}
+
+/* 0x002F4C40, 0x64 bytes. */
+int func_002F4C40(u32 i)
+{
+    return *(u16 *)(ofc(i) + 0x4E);
+}
+
+/* 0x002F4CB0, 0x8C bytes. */
+void func_002F4CB0(u32 i, int n)
+{
+    int m = func_002F59A0(i) == 0 ? func_002F5E80(i) : 0x15E;
+
+    if (n + func_002F4C40(i) <= m)
+        m = n + func_002F4C40(i);
+    func_002F4BB0(i, m);
+}
+
+/* 0x002F4D40, 0x90 bytes. */
+int func_002F4D40(u32 i, int v)
+{
+    if (v < 0 || v > 0xFA)
+        return 0;
+    *(u8 *)(ofc(i) + 0x59) = (u8)v;
+    return v;
+}
+
+/* 0x002F4DD0, 0x64 bytes. */
+int func_002F4DD0(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x59);
+}
+
+/* 0x002F4E40, 0x8C bytes. */
+void func_002F4E40(u32 i, int n)
+{
+    int m = func_002F59A0(i) == 0 ? func_002F5FD0(i) : 0xFA;
+
+    if (n + func_002F4DD0(i) <= m)
+        m = n + func_002F4DD0(i);
+    func_002F4D40(i, m);
+}
+
+/* 0x002F4ED0, 0x90 bytes. */
+int func_002F4ED0(u32 i, int v)
+{
+    if (v < 0 || v > 0xFA)
+        return 0;
+    *(u8 *)(ofc(i) + 0x5A) = (u8)v;
+    return v;
+}
+
+/* 0x002F4F60, 0x64 bytes. */
+int func_002F4F60(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x5A);
+}
+
+/* 0x002F4FD0, 0x8C bytes. */
+void func_002F4FD0(u32 i, int n)
+{
+    int m = func_002F59A0(i) == 0 ? func_002F6120(i) : 0xFA;
+
+    if (n + func_002F4F60(i) <= m)
+        m = n + func_002F4F60(i);
+    func_002F4ED0(i, m);
+}
+
+/* 0x002F5060, 0x90 bytes. */
+int func_002F5060(u32 i, int v)
+{
+    if (v < 0 || v > 0xFA)
+        return 0;
+    *(u8 *)(ofc(i) + 0x5B) = (u8)v;
+    return v;
+}
+
+/* 0x002F50F0, 0x64 bytes. */
+int func_002F50F0(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x5B);
+}
+
+/* 0x002F5160, 0x8C bytes. */
+void func_002F5160(u32 i, int n)
+{
+    int m = func_002F59A0(i) == 0 ? func_002F6270(i) : 0xFA;
+
+    if (n + func_002F50F0(i) <= m)
+        m = n + func_002F50F0(i);
+    func_002F5060(i, m);
+}
+
+/* 0x002F51F0, 0x90 bytes. */
+int func_002F51F0(u32 i, int v)
+{
+    if (v < 0 || v > 0xFA)
+        return 0;
+    *(u8 *)(ofc(i) + 0x5C) = (u8)v;
+    return v;
+}
+
+/* 0x002F5280, 0x64 bytes. */
+int func_002F5280(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x5C);
+}
+
+/* 0x002F52F0, 0x8C bytes. */
+void func_002F52F0(u32 i, int n)
+{
+    int m = func_002F59A0(i) == 0 ? func_002F63C0(i) : 0xFA;
+
+    if (n + func_002F5280(i) <= m)
+        m = n + func_002F5280(i);
+    func_002F51F0(i, m);
+}
+
+/* 0x002F5380, 0x90 bytes. */
+int func_002F5380(u32 i, int v)
+{
+    if (v < 0 || v > 0xFA)
+        return 0;
+    *(u8 *)(ofc(i) + 0x5D) = (u8)v;
+    return v;
+}
+
+/* 0x002F5410, 0x64 bytes. */
+int func_002F5410(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x5D);
+}
+
+/* 0x002F5480, 0x8C bytes. */
+void func_002F5480(u32 i, int n)
+{
+    int m = func_002F59A0(i) == 0 ? func_002F6510(i) : 0xFA;
+
+    if (n + func_002F5410(i) <= m)
+        m = n + func_002F5410(i);
+    func_002F5380(i, m);
+}
+
+/* 0x002F5510, 0x90 bytes. */
+int func_002F5510(u32 i, int v)
+{
+    if (v < 0 || v > 0xFA)
+        return 0;
+    *(u8 *)(ofc(i) + 0x5E) = (u8)v;
+    return v;
+}
+
+/* 0x002F55A0, 0x64 bytes. */
+int func_002F55A0(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x5E);
+}
+
+/* 0x002F5610, 0x8C bytes. */
+void func_002F5610(u32 i, int n)
+{
+    int m = func_002F59A0(i) == 0 ? func_002F6660(i) : 0xFA;
+
+    if (n + func_002F55A0(i) <= m)
+        m = n + func_002F55A0(i);
+    func_002F5510(i, m);
+}
+
+/* 0x002F5730, 0x64 bytes. */
+int func_002F5730(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x94);
+}
+
+/* 0x002F59A0, 0x64 bytes. */
+int func_002F59A0(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x95);
+}
+
+/* 0x002F5BE0, 0x70 bytes. */
+void func_002F5BE0(u32 i, int v)
+{
+    func_002F5B30(ofc(i), v);
+}
+
+/* 0x002F5CC0, 0x64 bytes. */
+int func_002F5CC0(u32 i)
+{
+    return func_002F5C50(ofc(i));
+}
+
+/* 0x002F5D30, 0x64 bytes. */
+int func_002F5D30(u32 i)
+{
+    return *(u16 *)(ofc(i) + 0x2);
+}
+
+/* 0x002F5E10, 0x64 bytes. */
+int func_002F5E10(u32 i)
+{
+    return *(u16 *)(ofc(i) + 0x4);
+}
+
+/* 0x002F5E80, 0x64 bytes. */
+int func_002F5E80(u32 i)
+{
+    return *(u16 *)(ofc(i) + 0x6);
+}
+
+/* 0x002F5F60, 0x64 bytes. */
+int func_002F5F60(u32 i)
+{
+    return *(u16 *)(ofc(i) + 0x8);
+}
+
+/* 0x002F5FD0, 0x64 bytes. */
+int func_002F5FD0(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x17);
+}
+
+/* 0x002F60B0, 0x64 bytes. */
+int func_002F60B0(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x18);
+}
+
+/* 0x002F6120, 0x64 bytes. */
+int func_002F6120(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x19);
+}
+
+/* 0x002F6200, 0x64 bytes. */
+int func_002F6200(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x1A);
+}
+
+/* 0x002F6270, 0x64 bytes. */
+int func_002F6270(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x1B);
+}
+
+/* 0x002F6350, 0x64 bytes. */
+int func_002F6350(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x1C);
+}
+
+/* 0x002F63C0, 0x64 bytes. */
+int func_002F63C0(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x1D);
+}
+
+/* 0x002F64A0, 0x64 bytes. */
+int func_002F64A0(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x1E);
+}
+
+/* 0x002F6510, 0x64 bytes. */
+int func_002F6510(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x1F);
+}
+
+/* 0x002F65F0, 0x64 bytes. */
+int func_002F65F0(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x20);
+}
+
+/* 0x002F6660, 0x64 bytes. */
+int func_002F6660(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x21);
+}
+
+/* 0x002F6740, 0x64 bytes. */
+int func_002F6740(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x22);
+}
+
+/* 0x002F6980, 0x64 bytes. */
+int func_002F6980(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x16);
+}
+
+/* 0x002F6A60, 0x64 bytes. */
+int func_002F6A60(u32 i)
+{
+    return *(u8 *)(ofc(i) + 0x3F);
+}
+
+/* 0x002F6B40, 0x64 bytes. */
+int func_002F6B40(u32 i)
+{
+    return *(u16 *)(ofc(i) + 0x40);
+}
+
+/* 0x002F90D0, 0x60 bytes, matching. */
+void func_002F90D0(u32 i, int n)
+{
+    func_002F8F90(i, n + func_002F9060(i) < 0xEA60 ? n + func_002F9060(i) : 0xEA60);
+}
+
+/* 0x0030AE40, 0x3C bytes, matching. */
+void func_0030AE40(u32 i, int n)
+{
+    func_0030ADC0(i, n + func_0030AD80(i));
+}

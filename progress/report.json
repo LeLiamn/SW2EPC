@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 82480,
-    "non_matching": 621308
+    "matching": 82880,
+    "non_matching": 628124
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 803
+    "matching": 809
   },
   "layout": "treemap",
   "areas": [
@@ -150,15 +150,15 @@
         },
         {
           "name": "StateConquest.c",
-          "description": "Estimated range 0x2F1798-0x2FF3F0; 76 function(s) decompiled",
+          "description": "Estimated range 0x2F1798-0x2FF3F0; 137 function(s) decompiled",
           "code": {
             "total": 56408,
-            "matching": 1248,
-            "non_matching": 9632
+            "matching": 1584,
+            "non_matching": 16448
           },
           "decompiled_functions": {
-            "count": 76,
-            "matching": 23
+            "count": 137,
+            "matching": 28
           }
         },
         {
@@ -259,15 +259,15 @@
         },
         {
           "name": "emp_cq_main.c",
-          "description": "Estimated range 0x2FF3F0-0x31C840; 0 function(s) decompiled",
+          "description": "Estimated range 0x2FF3F0-0x31C840; 1 function(s) decompiled",
           "code": {
             "total": 119888,
-            "matching": 0,
+            "matching": 64,
             "non_matching": 0
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 1,
+            "matching": 1
           }
         },
         {
