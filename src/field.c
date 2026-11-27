@@ -45,7 +45,7 @@ void func_00118AC0(void *to, const void *from, u32 n);  /* memcpy */
 void func_0018CAB0(u8 *map, u32 *data, u32 size);
 void func_00102EC0(void *data);          /* free */
 void func_0018CDA0(u8 *map);
-void func_0018E210(u8 *map, u32 a);
+void func_0018E210(u8 *map, int m);
 void func_0018E870(void);
 int func_0032E7B0(void);
 u32 func_0032F780(void);
@@ -371,5 +371,253 @@ void func_0018D9B0(u8 *map)
 
         for (s = 0; s < 2; s++)
             func_0018DA60(map, PTR(map, 0x50) + i * 0x88, s);
+    }
+}
+
+extern short g_004251E0[];               /* the route cost added per link kind */
+extern u32 g_0042A2C0[];                 /* the first step per link kind */
+extern u8 g_00446310[0x14];              /* mode 2: the maps that have gates */
+extern u8 g_00446330[0x14];              /* their gate counts */
+extern u8 *g_00414180[0x14];             /* their gate tables (12 bytes each) */
+extern u8 g_00445AA0[0x27];              /* the other maps' gate counts */
+extern u8 *g_004140B0[0x27];             /* their gate tables */
+
+/* 0x0018E060, 0x1A8 bytes. Relaxes both sides' route tables (+8, +0xC: n x n entries of a
+ * 12-bit cost, 0xFFF none, and a 4-bit first step) through the link from province `from` to
+ * `via` of kind `kind` (its cost g_004251E0, its first step g_0042A2C0). */
+void func_0018E060(u8 *map, u32 from, u32 via, int kind)
+{
+    short add = g_004251E0[kind];
+    u32 step0 = g_0042A2C0[kind];
+    int side;
+
+    for (side = 0; side < 2; side++) {
+        u32 n = U8(map, 0x54), i;
+        u16 *row = (u16 *)PTR(map, 8 + side * 4);
+        u16 *rv = row + (via & 0xFF) * U8(map, 0x54);
+
+        for (i = 0; i < n; i = (i + 1) & 0xFF) {
+            u16 *e = row + (from & 0xFF);
+            u32 step = (from & 0xFF) == i ? step0 : (u32)(((u8 *)e)[1] >> 4);
+            u32 c = *e & 0xFFF;
+
+            if (c != 0xFFF) {
+                u32 j;
+
+                for (j = 0; j < n; j = (j + 1) & 0xFF) {
+                    u16 *t = row + j;
+                    u32 d = rv[j] & 0xFFF;
+
+                    if (d != 0xFFF) {
+                        d = d + c + add;
+                        if (d < (*t & 0xFFF)) {
+                            *t = (*t & 0xF000) | (d & 0xFFF);
+                            ((u8 *)t)[1] = (((u8 *)t)[1] & 0xF) | (u8)((step & 0xF) << 4);
+                        }
+                    }
+                    n = U8(map, 0x54);
+                }
+            }
+            row += n;
+        }
+    }
+}
+
+/* 0x0018E210, 0x13C bytes. The map's gates (+0x10A their count, +0x10C their table) for map
+ * `m` (in mode 2 found by (m - 0x20) % 0x46). */
+void func_0018E210(u8 *map, int m)
+{
+    if (g_00669DB8[0] == 2) {
+        int k;
+
+        for (k = 0; k < 0x14; k++) {
+            if ((u32)((m - 0x20) % 0x46) == g_00446310[k])
+                break;
+        }
+        if (k < 0 || k > 0x13) {
+            U8(map, 0x10A) = 0;
+            PTR(map, 0x10C) = 0;
+        } else {
+            U8(map, 0x10A) = g_00446330[k];
+            PTR(map, 0x10C) = g_00414180[k];
+        }
+    } else if (m < 0 || m > 0x26) {
+        U8(map, 0x10A) = 0;
+        PTR(map, 0x10C) = 0;
+    } else {
+        U8(map, 0x10A) = g_00445AA0[m];
+        PTR(map, 0x10C) = g_004140B0[m];
+    }
+}
+
+/* The map's gates (+0x10C, +0x10A of them): 12 bytes each, +8 / +9 their cell, +10 flags (1 the
+ * direction, 0x20 shown, 0x40 a door, 0x80 open when blocked), +0xB their owner (-1 none).
+ * Their open states are kept as bits in both players' records. */
+extern u8 g_0073DC98[], g_0073DF28[];
+extern char g_00424EF0[], g_00424F10[];  /* cell steps by direction (x, z) */
+
+int func_0018F730(u8 *map, u8 *cell, int dir, int a);
+void func_0027DC90(u8 *cell);
+int func_0018EC60(u8 *g);
+int func_0018ED40(u8 *g);
+int func_0018ECA0(u8 *g);
+
+/* The map's province entry at `cell` (0 outside the map). */
+static inline u8 *province_at(u8 *map, u8 *cell)
+{
+    if (cell == 0 || cell[0] > 0x1F || cell[1] > 0x1F)
+        return 0;
+    return ((u8 **)PTR(map, 4))[cell[0] + cell[1] * 0x20];
+}
+
+/* Sets (or clears) gate `k`'s open bit for both players. */
+static inline void gate_bit(u32 k, int on)
+{
+    u8 b = 1 << (k & 7);
+
+    if (on) {
+        g_0073DC98[k >> 3] |= b;
+        g_0073DF28[k >> 3] |= b;
+    } else {
+        g_0073DC98[k >> 3] &= ~b;
+        g_0073DF28[k >> 3] &= ~b;
+    }
+}
+
+/* 0x0018E6C0, 0x1B0 bytes. Opens (`open`) or closes the free doors (flags 0x60): their
+ * province blocked (0x1000000) or back to its file state; their bits. */
+void func_0018E6C0(int open)
+{
+    u8 *m = g_0045D2F0;
+    u32 n = U8(g_0045D2F0, 0x10A), k;
+
+    for (k = 0; k < n; k++) {
+        u8 *g = PTR(m, 0x10C) + k * 0xC;
+
+        if ((char)U8(g, 0xB) == -1 && (U8(g, 10) & 0x60) == 0x60) {
+            u8 *e = province_at(m, g + 8);
+
+            if (e != 0) {
+                if (open == 0)
+                    U32(e, 0x10) = (U32(e, 0x10) & ~0x1000000) | U32(PTR(e, 0), 0);
+                else
+                    U32(e, 0x10) |= 0x1000000;
+            }
+            gate_bit(k, open);
+        }
+    }
+}
+
+/* Updates the free gates whose test (`test`) changed (shown ones open the doors). */
+static inline void gates_update(int doors_too)
+{
+    u8 *m = g_0045D2F0;
+    u32 n = U8(g_0045D2F0, 0x10A), k;
+
+    for (k = 0; k < n; k++) {
+        u8 *g = PTR(m, 0x10C) + k * 0xC;
+        int r, t;
+
+        if ((char)U8(g, 0xB) != -1 || U8(g, 8) >= 0x20 || U8(g, 9) >= 0x20)
+            continue;
+        if (!doors_too && (U8(g, 10) & 0x40))
+            continue;
+        r = doors_too ? func_0018EC60(g) : func_0018ED40(g);
+        if ((U8(PTR(g_0045D2F0, 0x10C) + k * 0xC, 10) & 0x20) == 0) {
+            gate_bit(k, r);
+        } else {
+            t = (g_0073DC98[k >> 3] & 1 << (k & 7)) ? (r != 0) ^ 1 : r;
+            if (t)
+                func_0018E6C0(r);
+        }
+    }
+}
+
+/* 0x0018E870, 0x1DC bytes. Updates all the free gates. */
+void func_0018E870(void)
+{
+    gates_update(1);
+}
+
+/* 0x0018EA60, 0x1EC bytes. Updates the free gates that are not doors. */
+void func_0018EA60(void)
+{
+    gates_update(0);
+}
+
+/* 0x0018EC60, 0x3C bytes. A gate's state: a door's (func_0018ECA0) or a passage's. */
+int func_0018EC60(u8 *g)
+{
+    if ((U8(g, 10) & 0x40) == 0)
+        return func_0018ED40(g);
+    return func_0018ECA0(g);
+}
+
+/* 0x0018ECA0, 0x98 bytes. Whether a door's province is blocked. */
+int func_0018ECA0(u8 *g)
+{
+    u8 *e = province_at(g_0045D2F0, g + 8);
+
+    if (e == 0)
+        return 0;
+    return (U32(e, 0x10) & 0x1000000) != 0;
+}
+
+/* 0x0018ED40, 0x1C8 bytes. Whether a passage gate is open: both provinces on its two sides
+ * exist, neither cut off (0x2000000), not two blocked towns (0x40 without 0x1000000), and the
+ * route across (func_0018F730) agrees with flag 0x80. */
+int func_0018ED40(u8 *g)
+{
+    u8 f = U8(g, 10), c[2], d[2];
+    int dir = (f & 1) ? 2 : 0;
+    u8 *a, *b;
+    u32 o;
+    int r;
+
+    c[0] = U8(g, 8);
+    c[1] = U8(g, 9);
+    d[0] = c[0] + g_00424EF0[dir];
+    d[1] = c[1] + g_00424F10[dir];
+    a = province_at(g_0045D2F0, c);
+    b = province_at(g_0045D2F0, d);
+    if (a == 0 || b == 0)
+        return 0;
+    o = U32(a, 0x10) | U32(b, 0x10);
+    if (o & 0x2000000)
+        return 0;
+    if ((U32(a, 0x10) & U32(b, 0x10) & 0x40) && (o & 0x1000000) == 0)
+        return 0;
+    r = func_0018F730(g_0045D2F0, c, dir, 0);
+    if ((f & 0x80) == 0)
+        r = (r != 0) ^ 1;
+    return r;
+}
+
+/* 0x0018EF10, 0xB0 bytes. Cuts the province at `cell` off (0x2000000), or (`back`) puts it
+ * back to its file state. */
+void func_0018EF10(u8 *cell, int back)
+{
+    u8 *e = province_at(g_0045D2F0, cell);
+
+    if (e == 0)
+        return;
+    if (back == 0)
+        U32(e, 0x10) |= 0x2000000;
+    else
+        U32(e, 0x10) = (U32(e, 0x10) & ~0x2000000) | U32(PTR(e, 0), 0);
+}
+
+/* 0x0018EFC0, 0xC0 bytes. Blocks the province at `cell` (0x1000000); for a town (0x40) the gates
+ * are updated and the map told (func_0027DC90). */
+void func_0018EFC0(u8 *cell)
+{
+    u8 *e = province_at(g_0045D2F0, cell);
+
+    if (e != 0 && (U32(e, 0x10) & 0x1000000) == 0) {
+        U32(e, 0x10) |= 0x1000000;
+        if (U32(e, 0x10) & 0x40) {
+            func_0018E870();
+            func_0027DC90(cell);
+        }
     }
 }
