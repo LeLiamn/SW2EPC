@@ -480,3 +480,209 @@ int func_003C1330(int r, int v)
 {
     return count_officers(r, v, 1);
 }
+
+extern int g_007BEBD0[0x19];             /* a force's connected regions (0x19 ends the list) */
+
+int func_00327C00(void);
+int func_00329160(int k, int *a, int *b);
+int func_002F8F20(int f);
+int func_0030AD20(int r, int k);
+int func_0030B240(int r, int k);
+int func_0030C280(int a, int b);
+int func_002FA790(int f);
+
+/* 0x003C1460, 0x114 bytes. Force `f`'s officers of rank kind `kind` with at least `v`. */
+int func_003C1460(int kind, int f, int v)
+{
+    int n = 0;
+    u32 k;
+
+    if (f < 0 || f >= func_0030AB90())
+        return 0;
+    for (k = 0; (int)k < 0x19F; k++) {
+        if (k < 0x19F && func_002F3BB0(k) != 0 && func_002F3BB0(k) != 3 && f == func_002F4080(k)
+            && kind == func_002F3E30(k) && v <= func_002F3770(k))
+            n++;
+    }
+    return n;
+}
+
+/* 0x003C1580, 0x164 bytes. The same leaving out four officers. */
+int func_003C1580(int kind, int f, int v, u32 x1, u32 x2, u32 x3, u32 x4)
+{
+    int n = 0;
+    u32 k;
+
+    if (f < 0 || f >= func_0030AB90())
+        return 0;
+    for (k = 0; (int)k < 0x19F; k++) {
+        if (k < 0x19F && func_002F3BB0(k) != 0 && func_002F3BB0(k) != 3 && f == func_002F4080(k)
+            && kind == func_002F3E30(k) && v <= func_002F3770(k) && k != x1 && k != x2 && k != x3
+            && k != x4)
+            n++;
+    }
+    return n;
+}
+
+/* 0x003C16F0, 0x158 bytes. The same for `f` and its allies. */
+int func_003C16F0(int kind, int f, int v)
+{
+    int n = 0;
+    u32 k;
+
+    if (f < 0 || f >= func_0030AB90())
+        return 0;
+    for (k = 0; (int)k < 0x19F; k++) {
+        int g = func_002F4080(k);
+
+        if (g >= 0 && g < func_0030AB90() && k < 0x19F && func_002F3BB0(k) != 0
+            && func_002F3BB0(k) != 3 && (func_003C0C60(f, g) != 0 || f == g)
+            && kind == func_002F3E30(k) && v <= func_002F3770(k))
+            n++;
+    }
+    return n;
+}
+
+/* 0x003C1850, 0x50 bytes, matching. Whether the game mode is 0-5. */
+int func_003C1850(void)
+{
+    switch (func_00327C00()) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+/* 0x003C18A0, 0xE4 bytes. Whether one of the 12 pending moves goes from region `a` to `b`. */
+int func_003C18A0(int a, int b)
+{
+    int x = 0x19, y = 0x19, k;
+
+    if (a < 0 || a >= func_0030AB90() || b < 0 || b >= func_0030AB90())
+        return 0;
+    for (k = 0; k < 0xC; k++) {
+        if (func_00329160(k, &x, &y) != 0 && a == x && b == y)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x003C1990, 0x3C bytes. */
+void func_003C1990(void)
+{
+    int k;
+
+    for (k = 0; k < 0x19; k++)
+        g_007BEBD0[k] = 0x19;
+}
+
+/* 0x003C19D0, 0x1A0 bytes. Force `f`'s regions linked to its ruler's region. */
+void func_003C19D0(int f)
+{
+    int home = func_002F5CC0(func_002F8F20(f)), n = 1, i = 0;
+
+    func_003C1990();
+    g_007BEBD0[0] = home;
+    do {
+        int r = g_007BEBD0[i++], j;
+
+        for (j = 0; j < 6; j++) {
+            int x = func_0030AD20(r, j), o, seen = 0, k;
+
+            if (x < 0 || x >= func_0030AB90())
+                continue;
+            o = func_0030AFF0(x);
+            if (o < 0 || o >= func_0030AB90() || x == home || o != f)
+                continue;
+            for (k = 0; k < n; k++) {
+                if (x == g_007BEBD0[k])
+                    seen = 1;
+            }
+            if (!seen)
+                g_007BEBD0[n++] = x;
+        }
+    } while (i != n);
+}
+
+/* 0x003C1B70, 0x4C bytes. Whether region `r` is in that list. */
+int func_003C1B70(int r)
+{
+    int *p = g_007BEBD0;
+
+    if (*p == 0x19)
+        return 0;
+    do {
+        if (r == *p)
+            return 1;
+        p++;
+    } while (*p != 0x19);
+    return 0;
+}
+
+/* 0x003C1BC0, 0x304 bytes. Whether force `f` reaches region `b` from region `a` through regions
+ * of forces it is at war with. */
+int func_003C1BC0(int f, int a, int b)
+{
+    int t[28], n = 1, i = 0, k;
+
+    if (f < 0 || f >= func_0030AB90() || a < 0 || a >= func_0030AB90() || b < 0
+        || b >= func_0030AB90() || a == b)
+        return 0;
+    {
+        int o = func_0030AFF0(b);
+
+        if (f == o || func_003C0C60(f, o) != 0 || func_0030B240(a, 3) == 2 || func_0030B240(b, 3) == 2)
+            return 0;
+    }
+    for (k = 0; k < 0x19; k++)
+        t[k] = 0x19;
+    t[0] = a;
+    do {
+        int r = t[i++], j;
+
+        for (j = 0; j < 6; j++) {
+            int x = func_0030AD20(r, j), seen = 0;
+
+            if (x < 0 || x >= func_0030AB90() || x == a || func_0030B240(x, 3) == 2
+                || func_003C0FE0(f, x) == 0)
+                continue;
+            for (k = 0; k < n; k++) {
+                if (x == t[k])
+                    seen = 1;
+            }
+            if (!seen)
+                t[n++] = x;
+        }
+    } while (i != n);
+    for (k = 1; k < n; k++) {
+        if (func_0030C280(t[k], b) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x003C1ED0, 0x1B8 bytes. Whether region `a`'s owner may attack region `b` from it. */
+int func_003C1ED0(int a, int b)
+{
+    int f = func_0030AFF0(a), reach;
+
+    func_003C19D0(f);
+    reach = func_003C1B70(a) != 0 ? func_003C1BC0(f, a, b) : 0;
+    if (a < 0 || a >= func_0030AB90() || b < 0 || b >= func_0030AB90())
+        return 0;
+    if (func_0030B240(a, 3) == 2 || func_0030B240(b, 3) == 2)
+        return 0;
+    if (func_003C0F40(a, b) != 0 || func_003C1200(a, 0) == 0)
+        return 0;
+    if (func_003C18A0(b, a) != 0 || func_003C1080(a, b) != 0)
+        return 0;
+    if (func_002FA790(f) == 0 && func_0030C280(a, b) == 0 && reach == 0)
+        return 0;
+    return 1;
+}
