@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 80848,
-    "non_matching": 597716
+    "matching": 81344,
+    "non_matching": 601040
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 768
+    "matching": 772
   },
   "layout": "treemap",
   "areas": [
@@ -646,15 +646,15 @@
       "children": [
         {
           "name": "ModelManager.c",
-          "description": "Estimated range 0x1B56D8-0x1BE248; 29 function(s) decompiled",
+          "description": "Estimated range 0x1B56D8-0x1BE248; 42 function(s) decompiled",
           "code": {
             "total": 35696,
-            "matching": 368,
-            "non_matching": 15128
+            "matching": 864,
+            "non_matching": 18452
           },
           "decompiled_functions": {
-            "count": 29,
-            "matching": 4
+            "count": 42,
+            "matching": 8
           }
         },
         {

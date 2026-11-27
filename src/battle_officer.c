@@ -1,6 +1,7 @@
 /*
- * battle_officer.c - officers joining a battle (0x001B92B0-..., before ModelManager.c; the
- * original file's name is unknown). Written so far: from 0x001B92B0.
+ * battle_officer.c - officers joining a battle (0x001B92B0-0x001BC8B4, before ModelManager.c; the
+ * original file's name is unknown). Written: all but the battle state save / load (0x001BB7F0,
+ * 0x001BBEA0).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -542,4 +543,370 @@ void func_001BA480(u8 *o, u8 *b, u8 *t, short max, short cur, int troop)
             }
         }
     }
+}
+
+int func_0034A5F0(u8 *o);
+u8 *func_001828C0(void);
+void func_003E1880(u8 *b);
+
+/* 0x001BAF20, 0x5BC bytes. Brings record `o`'s group into the battle: its leader (the record's
+ * officer table entry +8, with its life +0x4C / +0x4E and flags for players, bases and Empire
+ * officers) and its followers (+0x74, of troop kind +0xC, sharing the rest of the life +0x50 /
+ * +0x52), linked in a list; all freed again when one cannot be had. A lone reinforcement
+ * (flag 0x4000) comes through func_001B9430. */
+void func_001BAF20(u8 *o)
+{
+    u8 *g[10], *lead, *troop;
+    u32 n, i, parts;
+    short life, cur, max0, max1;
+    int many = 0, k;
+
+    if (U32(o, 0x80) & 0x4000) {
+        func_001B9430(o, 0);
+        return;
+    }
+    if ((U32(o, 0x80) & 0x80000) && func_001B92F0() == 0)
+        return;
+    lead = *(u8 **)(o + 8);
+    if ((U32(lead, 0x28) & 4) && func_001B92B0() < (u32)o[0x74] + 2)
+        return;
+    troop = *(u8 **)(o + 0xC);
+    life = S16(o, 0x52);
+    cur = S16(o, 0x4E);
+    max0 = S16(o, 0x4C);
+    max1 = S16(o, 0x50);
+    k = func_0034A5F0(o);
+    n = o[0x74] + 1;
+    parts = cur == 0 ? n : o[0x74];
+    if (n > 10)
+        n = 10;
+    for (i = 0; i < n; i++) {
+        u8 *b = func_001828C0();
+
+        if (b == 0) {
+            u32 j;
+
+            for (j = 0; j < i; j++) {
+                U32(g[j], 0xBC) = 0;
+                U32(g[j], 0xB8) = 0;
+            }
+            return;
+        }
+        g[i] = b;
+    }
+    for (; i < 10; i++)
+        g[i] = 0;
+    for (i = 0; i < n && g[i] != 0; i++) {
+        u8 *b = g[i], *t = troop;
+        u32 f = 0;
+        short m, c;
+
+        if (i == 0) {
+            if (cur < 1) {
+                c = (short)(life / (int)parts);
+                m = k < 1 ? c : (short)((max1 - max0) / k);
+                if (m < 1 && (m = max0) > 99)
+                    m = 100;
+                f = 0x100;
+            } else {
+                u32 of = U32(o, 0x80);
+
+                f = (of & 0x400) ? 0x280 : 0x80;
+                if (of & 0x800)
+                    f |= 0x100000;
+                if (o[0x79] != 0 && ((of & 0x200)
+                                     || ((of & 0x400) && (u32)((lead - g_005BA6A0) / 0x2C) < 0x28)))
+                    f |= 0x80000;
+                t = lead;
+                m = max0;
+                c = cur;
+                if ((U32(lead, 0x28) & 0xFC) && (u32)((k << 2) / 5) <= n)
+                    many = 1;
+            }
+        } else {
+            c = (short)((life - cur) / (int)parts);
+            m = k < 1 ? c : (short)((max1 - max0) / k);
+        }
+        if (U32(o, 0x80) & 0x8000)
+            f |= 0x8000;
+        if (U32(o, 0x80) & 0x200000)
+            f |= 0x10000;
+        if (U32(t, 0x28) & 0xFC) {
+            if (many)
+                f |= 0x2000;
+            if (U32(t, 0x28) & 4)
+                f |= 0x800;
+        }
+        U32(b, 0xB8) |= f;
+        func_001BA480(o, b, t, m, c, i);
+        if (i == 0) {
+            *(u8 **)(b + 4) = g[1];
+        } else if (i == n - 1) {
+            *(u8 **)b = g[i - 1];
+        } else {
+            *(u8 **)b = g[i - 1];
+            *(u8 **)(b + 4) = g[i + 1];
+        }
+    }
+    for (i = 0; i < 10; i++) {
+        if (g[i] != 0)
+            func_003E1880(g[i]);
+    }
+}
+
+#define g_70000164 (*(int *)0x70000164)    /* (scratchpad) how many units can be in battle */
+#define g_7000016C (*(float *)0x7000016C)  /* (scratchpad) the drawing distance */
+#define g_70000170 (*(float *)0x70000170)  /* (scratchpad) its square */
+
+extern u32 g_006AA5A0, g_006AA5A4, g_006AA5A8, g_006AA5AC, g_006AA5B0, g_006AA5B4, g_006AA5B8;
+extern int g_006AA5D8;
+extern float g_006AA5DC;                 /* a difficulty factor */
+extern u32 g_006AA5E0;
+extern u32 g_00669F84;
+extern int g_00669F98[4];
+
+/* A slot keyed by an id (0xFFFF: free). */
+typedef struct {
+    u32 id;
+    u32 pad;
+    u32 a, b;
+} Slot;
+
+extern Slot g_006AAAE0[0xD6];
+extern Slot g_006AA9B0[0x12];
+extern Slot g_006AA630[0x38];
+extern u8 g_006AAAD0[0x10];
+
+void func_00180EC0(u8 *o, int b);
+void func_001D5AC0(int *base);
+void func_001817E0(void); void func_00204920(void); void func_001EC790(void);
+void func_00347790(void); void func_0034EBE0(void); void func_001827F0(void);
+void func_00180BF0(void); void func_001D58C0(void); void func_0033AFB0(void);
+void func_0034B9A0(void); void func_0033E820(void); int func_001902A0(void);
+void func_001902B0(void); void func_00182C20(void); void func_001D5DA0(void);
+void func_00182340(void); void func_0034B980(void); void func_00182350(void);
+void func_001D5DC0(void); void func_00182C30(void); void func_0034B8B0(void);
+void func_00118850(void *p, u32 n);
+
+/* 0x001BB4F0, 0xD0 bytes. Brings record `o` (a player's officer) in as battle officer `b`: flag
+ * 4 or 8 by its side (+0x80 bit 4), a player, in use, linked to the record. */
+void func_001BB4F0(u8 *o, u8 *b)
+{
+    u32 f = (U32(o, 0x80) & 0x10) ? 4 : 8;
+
+    f = (U32(o, 0x80) & 0x40) ? f | 0x290 : f | 0x280;
+    U32(b, 0xB8) |= f | 0x100000;
+    func_001BA480(o, b, *(u8 **)(o + 8), S16(o, 0x4C), S16(o, 0x4E), 0);
+    U32(b, 0xB8) |= 1;
+    func_00180EC0(o, (b - (g_00693970[0] + 0x100C0)) / 0xC0);
+    func_003E1880(b);
+}
+
+/* 0x001BB5C0, 0x114 bytes. Puts record `o` into the first free of the 13 places of base `base`
+ * (a base's commander, flags 0x1800, also sets its strength from `t`, 500 without, within
+ * 1-1000). */
+void func_001BB5C0(u8 *t, u8 *o, int *base)
+{
+    u32 k;
+
+    if (U32(o, 0x80) & 0x1800) {
+        u32 v;
+
+        func_001D5AC0(base);
+        v = t == 0 ? 500 : *(u16 *)(t + 6);
+        base[0x12] = v > 1000 ? 1000 : v < 2 ? 1 : v;
+        base[0x19] |= 1;
+    }
+    for (k = 0; k < 0xD; k++) {
+        if (base[k] == 0) {
+            base[k] = (int)o;
+            break;
+        }
+    }
+    U32(o, 0x10) = ((u8 *)base - (g_00693970[0] + 0xE3E8)) / 0x68;
+}
+
+/* 0x001BB6E0, 0x6C bytes. Sets the drawing distance (by at most 50 a call when `smooth`). */
+void func_001BB6E0(float d, int smooth)
+{
+    if (smooth != 0) {
+        if (d < g_7000016C) {
+            float m = g_7000016C - 50.0f;
+
+            d = m < d ? d : m;
+        } else if (g_7000016C < d) {
+            float m = g_7000016C + 50.0f;
+
+            d = d < m ? d : m;
+        }
+    }
+    g_7000016C = d;
+    g_70000170 = d * d;
+}
+
+/* 0x001BB760, 0x84 bytes, matching. Each frame's battle steps. */
+void func_001BB760(void)
+{
+    func_001817E0();
+    func_00204920();
+    func_001EC790();
+    func_00347790();
+    func_0034EBE0();
+    func_001827F0();
+    func_00180BF0();
+    func_001D58C0();
+    func_0033AFB0();
+    func_0034B9A0();
+    func_0033E820();
+    if (func_001902A0() != 0)
+        func_001902B0();
+}
+
+/* 0x001BC280, 0x34 bytes, matching. */
+void func_001BC280(void)
+{
+    func_00182C20();
+    func_001D5DA0();
+    func_00182340();
+    func_0034B980();
+}
+
+/* 0x001BC2C0, 0x274 bytes. Resets the battle's officers: the drawing distance (7500), the
+ * pickable records, reinforcements and helpers, and by the game mode the number of units in
+ * battle and a difficulty factor (Empire stages: more with the stage, at most 5). */
+void func_001BC2C0(void)
+{
+    func_00182350();
+    func_001D5DC0();
+    func_00182C30();
+    func_0034B8B0();
+    func_001BB6E0(7500.0f, 0);
+    g_006AA598 = 0;
+    g_006AA59C[0] = 0;
+    g_006AA5C8[0] = 0;
+    g_006AA5D0[0] = 0x1AD;
+    g_006AA5A0 = 0;
+    g_006AA5C8[1] = 0;
+    g_006AA5D0[1] = 0x1AD;
+    g_006AA5D8 = 0x1AD;
+    g_006AA5A4 = 0;
+    g_006AA5B0 = 0;
+    g_006AA5A8 = 0;
+    g_006AA5B4 = 0;
+    g_006AA5AC = 0;
+    g_006AA5B8 = 0;
+    if (g_00669F60[0] & 4) {
+        float s = (float)(g_00669F98[0] - 0x3C);
+
+        g_70000164 = 0x8F;
+        s = (float)(int)(s >= 0.0f ? s : 0.0f) * 0.01f + 1.0f;
+        g_006AA5DC = s > 5.0f ? 5.0f : s;
+    } else if (g_00669F60[0] & 8) {
+        g_70000164 = 0x8F;
+        g_006AA5DC = 1.0f;
+    } else if (g_00669D81[0] == 4) {
+        float s = (float)g_00669F84 * 0.5f + 1.0f;
+
+        g_70000164 = 0x8F;
+        g_006AA5DC = s < 1.0f ? 1.0f : s;
+    } else if (g_00669D81[0] == 3) {
+        g_70000164 = 0x47;
+        g_006AA5DC = 1.0f;
+    } else if (g_00669D81[0] == 2) {
+        g_70000164 = 0x2F;
+        g_006AA5DC = 1.0f;
+    } else if (g_00669D81[0] == 1) {
+        g_70000164 = 0x23;
+        g_006AA5DC = 0.5f;
+    } else if (g_00669D81[0] == 0) {
+        g_70000164 = 0x23;
+        g_006AA5DC = 0.3f;
+    } else {
+        g_70000164 = 0x8F;
+        g_006AA5DC = 1.0f;
+    }
+    g_006AA5E0 = 1;
+}
+
+/* 0x001BC540, 0x104 bytes. Frees the 0xD6 slots at 0x006AAAE0. */
+void func_001BC540(void)
+{
+    int k;
+
+    for (k = 0; k < 0xD6; k++) {
+        g_006AAAE0[k].id = 0;
+        g_006AAAE0[k].a = 0;
+        g_006AAAE0[k].pad = 0xFFFF;
+        g_006AAAE0[k].b = 0xFFFF;
+    }
+}
+
+/* 0x001BC650, 0x3C bytes. The slot whose +4 is `id` (0 for none). */
+Slot *func_001BC650(u32 id)
+{
+    int k;
+
+    for (k = 0; k < 0xD6; k++) {
+        if (g_006AAAE0[k].pad == id)
+            return &g_006AAAE0[k];
+    }
+    return 0;
+}
+
+/* 0x001BC690, 0x74 bytes. Frees the 0x12 slots at 0x006AA9B0. */
+void func_001BC690(void)
+{
+    int k;
+
+    func_00118850(g_006AAAD0, 0x10);
+    for (k = 0; k < 0x12; k++) {
+        g_006AA9B0[k].id = 0xFFFF;
+        g_006AA9B0[k].a = 0;
+        g_006AA9B0[k].b = 0;
+    }
+}
+
+/* 0x001BC710, 0x84 bytes. Frees the 0x38 slots at 0x006AA630. */
+void func_001BC710(void)
+{
+    int k;
+
+    func_00118850(g_006AAAD0, 0x10);
+    for (k = 0; k < 0x38; k++) {
+        g_006AA630[k].id = 0xFFFF;
+        g_006AA630[k].a = 0;
+        g_006AA630[k].b = 0;
+    }
+}
+
+/* 0x001BC7A0, 0x88 bytes, matching. The slot of id `id` among the 0x12, else a free one (0 for none). */
+Slot *func_001BC7A0(u32 id)
+{
+    int k;
+
+    for (k = 0; k < 0x12; k++) {
+        if (id == g_006AA9B0[k].id)
+            return &g_006AA9B0[k];
+    }
+    for (k = 0; k < 0x12; k++) {
+        if (g_006AA9B0[k].id == 0xFFFF)
+            return &g_006AA9B0[k];
+    }
+    return 0;
+}
+
+/* 0x001BC830, 0x88 bytes, matching. The same among the 0x38. */
+Slot *func_001BC830(u32 id)
+{
+    int k;
+
+    for (k = 0; k < 0x38; k++) {
+        if (id == g_006AA630[k].id)
+            return &g_006AA630[k];
+    }
+    for (k = 0; k < 0x38; k++) {
+        if (g_006AA630[k].id == 0xFFFF)
+            return &g_006AA630[k];
+    }
+    return 0;
 }
