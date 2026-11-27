@@ -3969,3 +3969,493 @@ int func_00317BB0(CmdRecord *p)
 {
     return all_soldiers(p, 0x1B, 2000);
 }
+
+extern u32 g_00428348[];                 /* experience needed per level */
+extern const char g_00447840[];          /* an empty text */
+
+void func_002F7C40(u32 *l, int n);       /* shuffles a list */
+int func_002F8740(u32 i, int f);
+int func_002F8710(u32 i, int f);
+void func_002F7290(u32 i);
+int func_00308890(u32 i, int f);
+int func_00308B40(u32 i, int f);
+int func_003086C0(u32 i, int f);
+int func_002F4A70(u32 i);
+u32 func_002FB6F0(int f);
+int func_002F41E0(u32 i);
+int func_003276C0(void);
+int func_002F3F20(u32 i);
+int func_0030B3B0(int *out);
+
+/* 0x00317C30, 0x104 bytes. Command result: kind 0xC, (the square root of the player's fame
+ * value + 2 + 0-root) hundreds (message 0x1C). */
+int func_00317C30(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28], v = 0, s, x;
+
+    if (func_002FB2A0(p->f) != 0)
+        v = func_0011B740(func_00327E90());
+    s = (int)sqrtf((float)v);
+    x = func_0030CB00(s + 1);
+    r->kind = 0xC;
+    v = (s + 2 + x) * 100;
+    r->v[1] = v;
+    func_001204B0(r->text, func_00390760(0x1C), func_0030CB80(v));
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* 0x00317D40, 0xCC bytes. Command result: kind 0xC (message 0x1D), a success by chance from the
+ * player's fame (100%, 30% at 9, 5% above). */
+int func_00317D40(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28], pct = 0;
+
+    if (func_002FB2A0(p->f) != 0) {
+        int e = func_00327E90();
+
+        pct = 100;
+        if (e == 9)
+            pct = 0x1E;
+        else if (e > 9)
+            pct = 5;
+    }
+    r->v[0xE] = 0;
+    if (pct != 0 && func_0030CB50(pct) != 0)
+        r->v[0xE] = 1;
+    r->kind = 0xC;
+    func_001204B0(r->text, func_00390760(0x1D));
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* 0x00317E10, 0x70 bytes. Command result: kind 0xC (message 0x1E). */
+int func_00317E10(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28];
+
+    r->kind = 0xC;
+    func_001204B0(r->text, func_00390760(0x1E));
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* The second result: officer `i` joins force `f` (kind 0x15, message 0x72). */
+static void joined(CmdRecord *p, u32 i)
+{
+    CmdResult *r = func_003155A0(p, 1);
+    char a[32], b[32];
+
+    r->kind = 0x15;
+    func_00120928(a, func_002F2890(i));
+    func_00120928(b, func_002F8DB0(p->f));
+    func_001204B0(r->text, func_00390760(0x72), a, b);
+    r->v[0x1E] = 1;
+}
+
+/* 0x00317E80, 0x340 bytes. Command result: searching for an officer (0x1D in the force's
+ * regions, else anywhere): one found by chance (40% / 60% named, plus the force's value and
+ * bonuses) is met (0x20 refuses, 0x21 joins), else none (0x1F). */
+int func_00317E80(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    u32 *o = func_002F7B10(), i = 0x19F;
+    int reg[27], n, found = 0, fv, a = 0, b = 0, k, at;
+
+    if (p->cmd == 0x1D)
+        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8740, p->f, 0, 0);
+    else
+        n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8710, 0, 0, 0);
+    if (n != 0) {
+        func_002F7C40(o, n);
+        fv = func_002FABC0(p->f);
+        if (func_002FB2A0(p->f) != 0 && (u32)func_00327870() < 0x19F)
+            a = 0x14;
+        if (func_002FB2A0(p->f) != 0 && func_00327B70(p->f) != 0)
+            b = 10;
+        for (k = 0; k < n; k++, o++) {
+            i = *o;
+            if (func_0030CB50((func_002F3F20(i) == 0 ? 0x28 : 0x3C) + b + fv + a) != 0) {
+                found = 1;
+                break;
+            }
+        }
+    }
+    if (found) {
+        func_002F7290(i);
+        at = func_002F5CC0(i);
+        if (func_00308890(i, p->f) == 0) {
+            r->kind = 0x15;
+            r->v[0] = 0x19F;
+            func_001204B0(r->text, func_00390760(0x20), func_0030ABF0(at), func_002F2890(i));
+            r->v[0x1E] = 2;
+        } else {
+            r->kind = 2;
+            r->v[0] = i;
+            func_001204B0(r->text, func_00390760(0x21), func_0030ABF0(at), func_002F2890(i));
+            joined(p, i);
+        }
+        func_003155C0(p, &at, 1);
+    } else {
+        r->v[0x1E] = 2;
+        r->kind = 0x15;
+        r->v[0] = 0x19F;
+        func_001204B0(r->text, func_00390760(0x1F));
+        func_003155C0(p, reg, func_002FB320(p->f, reg));
+    }
+    return 0;
+}
+
+/* Persuading officer `target` (by `test`): refused (`no`) or joins (`yes` from a force,
+ * 0x24 when free). */
+static int persuade(CmdRecord *p, int (*test)(u32, int), int no, int yes)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    u32 i = p->target;
+    int at;
+    char a[28], b[32];
+
+    if (test(i, p->f) == 0) {
+        r->kind = 0x15;
+        r->v[0] = 0x19F;
+        func_001204B0(r->text, func_00390760(no), func_002F2890(i));
+        r->v[0x1E] = 2;
+    } else {
+        int g;
+
+        r->kind = 2;
+        r->v[0] = i;
+        g = func_002F4080(i);
+        if (IS_FORCE(g)) {
+            func_00120928(a, func_002F8DB0(g));
+            func_00120928(b, func_002F2890(i));
+            func_001204B0(r->text, func_00390760(yes), b, a);
+        } else {
+            func_001204B0(r->text, func_00390760(0x24), func_002F2890(i));
+        }
+        joined(p, i);
+    }
+    at = func_002F5CC0(i);
+    func_003155C0(p, &at, 1);
+    return 0;
+}
+
+/* 0x003181C0, 0x1DC bytes. Command result: persuading an officer (func_00308B40; 0x22 / 0x23). */
+int func_003181C0(CmdRecord *p)
+{
+    return persuade(p, func_00308B40, 0x22, 0x23);
+}
+
+/* 0x003183A0, 0x1C0 bytes. Command result: an officer joins at once (kind 2, message 0x72; the
+ * list of five joined, most recent first), or none (kind 0x15, message 0x25). */
+int func_003183A0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[27], k, empty = 1, at;
+    u32 i;
+    char a[32], b[32];
+
+    for (k = 0; k < 5; k++) {
+        if (r->v[k] != 0) {
+            empty = 0;
+            break;
+        }
+    }
+    if (empty) {
+        r->v[0] = 0x19F;
+        r->v[1] = 0x19F;
+        r->v[2] = 0x19F;
+        r->v[3] = 0x19F;
+        r->v[4] = 0x19F;
+    }
+    i = p->target;
+    if (i < 0x19F) {
+        r->kind = 2;
+        for (k = 0; k < 5; k++) {
+            if ((u32)r->v[k] < 0x19F && (u32)r->v[k] == i) {
+                r->v[k] = r->v[0];
+                break;
+            }
+        }
+        r->v[0] = i;
+        func_00120928(a, func_002F2890(i));
+        func_00120928(b, func_002F8DB0(p->f));
+        func_001204B0(r->text, func_00390760(0x72), a, b);
+        at = func_002F5CC0(i);
+        func_003155C0(p, &at, 1);
+        r->v[0x1E] = 1;
+    } else {
+        r->kind = 0x15;
+        func_001204B0(r->text, func_00390760(0x25));
+        func_003155C0(p, reg, func_0030B3B0(reg));
+        r->v[0x1E] = 2;
+    }
+    func_0030B330();
+    return 0;
+}
+
+/* 0x00318560, 0xA4 bytes. Whether officer `i` accepts force `f` (always without a role; else
+ * when tied, or when its loyalty grade is below the player's fame). */
+int func_00318560(u32 i, int f)
+{
+    int v;
+
+    if (func_002F3DC0(i) == 0)
+        return 1;
+    v = func_003086C0(i, f);
+    if (v == -1) {
+        int m = func_002FB2A0(f) == 0 ? 0 : func_00327E90();
+
+        v = func_002F4A70(i) < m ? 100 : 0;
+    }
+    return v == 100;
+}
+
+/* 0x00318610, 0x1DC bytes. Command result: inviting an officer (func_00318560; 0x26 / 0x27). */
+int func_00318610(CmdRecord *p)
+{
+    return persuade(p, (int (*)(u32, int))func_00318560, 0x26, 0x27);
+}
+
+/* 0x003187F0, 0x298 bytes. Command result: officer `target` trains with the force's best officer
+ * (kind 8, message 0x29): experience 1000-2000 by their level gap, plus the force's value and
+ * bonuses; its new level (at most 0x13). */
+int func_003187F0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    u32 i = p->target, tot;
+    int a = func_002F41E0(func_002FB6F0(p->f)), b = func_002F41E0(i), base = 1000, fv, k = 2, x, y, gain, lv;
+    int at;
+
+    if (a < 0x12 || a - b < 2) {
+        if (a - b > 1)
+            base = 0x5DC;
+    } else {
+        base = 2000;
+    }
+    fv = func_002FABC0(p->f);
+    if (func_002FB2A0(p->f) != 0 && (u32)func_00327870() < 0x19F)
+        k = 6;
+    if (func_002FB2A0(p->f) != 0 && func_00327B70(p->f) != 0)
+        k = 6;
+    x = func_0030CB00(k);
+    y = func_0030CB00(2);
+    r->kind = 8;
+    r->v[0] = i;
+    gain = base + fv + x * 100 + y * 100;
+    r->v[1] = gain;
+    tot = gain + func_002F34E0(i) < 99999 ? gain + func_002F34E0(i) : 99999;
+    func_001204B0(r->text, func_00390760(0x29), func_002F2890(i), func_0030CB80(gain), func_0030CB80(tot));
+    func_002F41E0(i);
+    for (lv = 0; lv <= 0x12; lv++) {
+        if (g_00428348[lv] <= tot && tot < g_00428348[lv + 1])
+            break;
+    }
+    r->v[2] = lv > 0x12 ? 0x13 : lv;
+    at = func_002F5CC0(i);
+    func_003155C0(p, &at, 1);
+    return 0;
+}
+
+/* 0x00318A90, 0x108 bytes. A duel roll between officers `i` and `j` on the stat of training
+ * command `c`: half the stat plus 0-99 each; whether `i` wins. */
+int func_00318A90(u32 i, u32 j, int c, int *pa, int *pb)
+{
+    int si = 0, sj = 0;
+
+    switch (c) {
+    case 0x24: case 0x28:
+        si = func_002F5410(i);
+        sj = func_002F5410(j);
+        break;
+    case 0x25: case 0x29:
+        si = func_002F4F60(i);
+        sj = func_002F4F60(j);
+        break;
+    case 0x26: case 0x2A:
+        si = func_002F4DD0(i);
+        sj = func_002F4DD0(j);
+        break;
+    }
+    *pa = si / 2 + func_0030CB00(100);
+    *pb = sj / 2 + func_0030CB00(100);
+    return *pb <= *pa;
+}
+
+/* 0x00318BA0, 0x148 bytes. Command result: a duel between officers `d` and `target` (kind 0xF,
+ * message 0x10C): the winner first, a random order next, and whether it was close. */
+void func_00318BA0(CmdRecord *p)
+{
+    int c = p->cmd, sa, sb, lo;
+    CmdResult *r = func_003155A0(p, 0);
+    u32 i = p->d, j = p->target;
+    char a[40], b[32];
+
+    r->kind = 0xF;
+    r->v[0] = i;
+    r->v[1] = j;
+    func_00120928(a, func_002F2890(i));
+    func_00120928(b, func_002F2890(j));
+    func_001204B0(r->text, func_00390760(0x10C), a, b);
+    if (c == 0x27)
+        c = r->v[6];
+    if (func_00318A90(i, j, c, &sa, &sb) == 0) {
+        r->v[2] = j;
+        r->v[3] = i;
+    } else {
+        r->v[2] = i;
+        r->v[3] = j;
+    }
+    if (func_0030CB00(2) == 0) {
+        r->v[4] = j;
+        r->v[5] = i;
+    } else {
+        r->v[4] = i;
+        r->v[5] = j;
+    }
+    lo = sb;
+    if (sa < sb) {
+        lo = sa;
+        sa = sb;
+    }
+    r->v[0x1D] = sa < lo * 2;
+}
+
+/* 0x00318CF0, 0x00318D40, 0x00318D90, 0x44 bytes each. The duel, at the home region. */
+int func_00318CF0(CmdRecord *p)
+{
+    int home;
+
+    func_00318BA0(p);
+    home = func_002FB2D0(p->f);
+    func_003155C0(p, &home, 1);
+    return 0;
+}
+
+int func_00318D40(CmdRecord *p)
+{
+    int home;
+
+    func_00318BA0(p);
+    home = func_002FB2D0(p->f);
+    func_003155C0(p, &home, 1);
+    return 0;
+}
+
+int func_00318D90(CmdRecord *p)
+{
+    int home;
+
+    func_00318BA0(p);
+    home = func_002FB2D0(p->f);
+    func_003155C0(p, &home, 1);
+    return 0;
+}
+
+/* 0x00318DE0, 0x74 bytes. The same on a random stat (commands 0x24-0x26). */
+int func_00318DE0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int home;
+
+    r->v[6] = func_003276C0() % 3 + 0x24;
+    func_00318BA0(p);
+    home = func_002FB2D0(p->f);
+    func_003155C0(p, &home, 1);
+    return 0;
+}
+
+/* 0x00318E60, 0x110 bytes. Command result kind 0x10: eight of the force's officers at random,
+ * the other slots empty. */
+void func_00318E60(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int n, k;
+    u32 *o;
+
+    r->kind = 0x10;
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, p->f, 0, 0);
+    o = func_002F7B10();
+    func_002F7C40(o, n);
+    for (k = 0; k < 8; k++)
+        r->v[6 + k] = o[k];
+    r->v[2] = 0x19F;
+    r->v[3] = 0x19F;
+    r->v[0xE] = 0;
+    for (k = 0xF; k < 0x1D; k++)
+        r->v[k] = 0x19F;
+    func_001204B0(r->text, g_00447840);
+}
+
+/* 0x00318F70, 0x00318FC0, 0x00319010, 0x44 bytes each. The same, over all regions. */
+int func_00318F70(CmdRecord *p)
+{
+    int reg[28];
+
+    func_00318E60(p);
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+int func_00318FC0(CmdRecord *p)
+{
+    int reg[28];
+
+    func_00318E60(p);
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+int func_00319010(CmdRecord *p)
+{
+    int reg[28];
+
+    func_00318E60(p);
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* A tie with force `target` (kind 3, tie `k`, message `m`), both homes shown. */
+static int tie_result(CmdRecord *p, int k, int m)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int g = p->target, homes[2];
+
+    r->kind = 3;
+    r->v[0] = g;
+    r->v[1] = k;
+    r->v[2] = 1;
+    func_001204B0(r->text, func_00390760(m), func_002F8DB0(func_002FB2A0(p->f) == 0 ? p->f : g));
+    homes[0] = func_002FB2D0(p->f);
+    homes[1] = func_002FB2D0(g);
+    func_003155C0(p, homes, 2);
+    return 0;
+}
+
+/* 0x00319060, 0xD0 bytes. Command result: an alliance (tie 4, message 0x3C). */
+int func_00319060(CmdRecord *p)
+{
+    return tie_result(p, 4, 0x3C);
+}
+
+/* 0x00319130, 0xD0 bytes. Command result: a truce (tie 0xC, message 0x3D). */
+int func_00319130(CmdRecord *p)
+{
+    return tie_result(p, 0xC, 0x3D);
+}
+
+/* 0x00319200, 0x98 bytes, matching. Command result: kind 0xC about force `target` (message 0x3E). */
+int func_00319200(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int g = p->target, reg[28];
+
+    r->kind = 0xC;
+    r->v[0] = g;
+    func_001204B0(r->text, func_00390760(0x3E), func_002F8DB0(g));
+    func_003155C0(p, reg, func_002FB320(g, reg));
+    return 0;
+}
