@@ -44,7 +44,7 @@ int func_0030C7F0(int a, int k);
 u8 *func_003B5E90(void);
 u32 func_00337A10(int x);
 void func_0032E8A0(int k, u32 o);
-u32 func_002F9550(void);
+int func_002F9550(int f);
 int func_002FB2D0(int a);
 void func_0030BBD0(int a, int b);
 int func_0030B3B0(u8 *out);
@@ -336,7 +336,7 @@ void func_003C0900(void)
 int func_003C09B0(int f)
 {
     u8 buf[112];
-    u32 v = func_002F9550();
+    u32 v = func_002F9550(f);
     int n, r;
 
     func_0030BBD0(func_002FB2D0(f), 1);
@@ -1217,4 +1217,167 @@ int func_003C3980(void)
 int func_003C3A20(void)
 {
     return regions_event(0x16, 0x14);
+}
+
+u32 func_0030D170(int s);
+double func_00125450(u32 v);             /* soft-float: int to double */
+double func_00124F18(double a, double b);   /* soft-float: multiply */
+int func_00143920(double a, double b);   /* soft-float compares */
+int func_001438D0(double a, double b);
+int func_001438F0(double a, double b);
+int func_00143940(double a, double b);
+u32 func_0032E950(void);
+u32 func_00327C70(void);
+int func_00327E90(void);
+void func_002F94C0(int f);
+int func_0030D150(void);
+
+/* 0x003C4000, 0x50 bytes. Event 0x18 (once). */
+int func_003C4000(void)
+{
+    if (func_003C1850() != 0 || func_00329540(0x18) != 0)
+        return 0;
+    func_003C0900();
+    return 1;
+}
+
+/* 0x003C40E0, 0x154 bytes. Now and then (30%) when side 0 has fewer officers and its strength
+ * times 1.5 is not below side 1's. */
+int func_003C40E0(void)
+{
+    int a = func_003C28F0(0, 0), b = func_003C28F0(1, 0);
+    u32 sa = func_0030D170(0), sb = func_0030D170(1), r = RANDOM();
+
+    if (a < 1 || b < 1 || func_003C23A0() == 0 || a >= b)
+        return 0;
+    if (func_00143920(func_00124F18(1.5, func_00125450(sa)), func_00125450(sb)) != 0)
+        return 0;
+    if (r % 100 >= 0x1E)
+        return 0;
+    func_003C3170();
+    return 1;
+}
+
+/* 0x003C4240, 0x164 bytes. The same when side 0 has more officers (side 1's strength times
+ * 1.2). */
+int func_003C4240(void)
+{
+    int a = func_003C28F0(0, 0), b = func_003C28F0(1, 0);
+    u32 sa = func_0030D170(0), sb = func_0030D170(1), r = RANDOM();
+
+    if (a < 1 || b < 1 || func_003C23A0() == 0 || b >= a)
+        return 0;
+    if (func_001438D0(func_00125450(sa), func_00124F18(1.2, func_00125450(sb))) != 0)
+        return 0;
+    if (r % 100 >= 0x1E)
+        return 0;
+    func_003C3170();
+    return 1;
+}
+
+/* 0x003C43B0, 0x1B4 bytes. The same when the strengths are even for the numbers. */
+int func_003C43B0(void)
+{
+    int a = func_003C28F0(0, 0), b = func_003C28F0(1, 0);
+    u32 sa = func_0030D170(0), sb = func_0030D170(1), r = RANDOM();
+
+    if (a < 1 || b < 1 || func_003C23A0() == 0)
+        return 0;
+    if (a < b && func_001438F0(func_00124F18(1.5, func_00125450(sa)), func_00125450(sb)) != 0)
+        return 0;
+    if (b < a && func_00143940(func_00125450(sa), func_00124F18(1.2, func_00125450(sb))) != 0)
+        return 0;
+    if (r % 100 >= 0x1E)
+        return 0;
+    func_003C3170();
+    return 1;
+}
+
+/* 0x003C4570, 0x38 bytes. */
+int func_003C4570(void)
+{
+    int r = func_0030D370();
+
+    if (r != 0)
+        func_003C31C0();
+    return r != 0;
+}
+
+/* 0x003C45D0, 0x50 bytes. */
+int func_003C45D0(void)
+{
+    u32 o = func_0032E950();
+
+    if (o < 0x19F)
+        func_0032E8A0(0, o);
+    return o < 0x19F;
+}
+
+/* 0x003C46D0, 0x6C bytes. Event 0x34 (once, after 0x78): late in the game and a low fame. */
+int func_003C46D0(void)
+{
+    if (func_00329540(0x34) != 0 || func_00329540(0x78) == 0)
+        return 0;
+    if (func_00327C70() < 0x15)
+        return 0;
+    return func_00327E90() < -9;
+}
+
+/* 0x003C4740, 0x70 bytes. Event 0x35 (once, after 0x77): late in the game and a high fame. */
+int func_003C4740(void)
+{
+    if (func_00329540(0x35) != 0 || func_00329540(0x77) == 0)
+        return 0;
+    if (func_00327C70() < 0x15)
+        return 0;
+    return func_00327E90() > 9;
+}
+
+/* 0x003C47B0, 0xBC bytes. The player's force takes its new rank (when not already at the top
+ * ones). */
+int func_003C47B0(void)
+{
+    int f = func_00327D50();
+    short v;
+
+    if (f < 0 || f >= func_0030AB90())
+        return 0;
+    v = func_002F9550(f);
+    if (v == 99 || v == 0x62 || v == 0x61)
+        return 0;
+    if ((short)func_003C09B0(f) == 100)
+        return 0;
+    func_002F94C0(f);
+    return 1;
+}
+
+/* 0x003C48A0, 0x6C bytes. Event 0x3A (once) in mode 0xE. */
+int func_003C48A0(void)
+{
+    if (func_003C1850() != 0 || func_00329540(0x3A) != 0 || func_003C2360() == 0)
+        return 0;
+    return func_0030D150() == 0xE;
+}
+
+/* 0x003C4910, 0x78 bytes. */
+int func_003C4910(void)
+{
+    if (func_003C23A0() == 0 || func_0036B260() == 0)
+        return 0;
+    return RANDOM() % 100 < 0x1E;
+}
+
+/* 0x003C4990, 0x100 bytes. Now and then (30%) without func_0036B260 when the player knows side
+ * 0's commander. */
+int func_003C4990(void)
+{
+    int me = func_00327820();
+    u32 c = func_003620E0(0, 0);
+
+    if (c >= 0x19F || func_003C23A0() == 0 || func_0036B260() != 0)
+        return 0;
+    if (func_0032EB40(me, c, 1) == 0 || RANDOM() % 100 >= 0x1E)
+        return 0;
+    func_003C3170();
+    return 1;
 }
