@@ -69,7 +69,7 @@ void func_003B9ED0(void);
 void func_003B9FD0(void);
 int func_002F27D0(int o);
 u8 *func_00329850(void);
-void func_003BB8E0(u8 k, int a);
+int func_003BB8E0(u8 k, int a);
 
 /* 0x003AF920, 0x38 bytes, matching. */
 void func_003AF920(void)
@@ -531,4 +531,402 @@ char *func_003B0C10(int k)
     if (func_003A1C60(k - 0x87) == 0)
         return func_00372470();
     return func_00372990(k - 0x1B);
+}
+
+/* Turn report messages, officer counts, report pages and the battle screen glue (parts of
+ * 0x003B8090-0x003BD890). */
+
+extern u32 g_7000015C;
+extern u8 g_00669D60[];
+extern int g_0041C220[5], g_0041C240[5], g_0041C260[6], g_0041C280[0x17], g_0041C2E0[3];
+extern int g_0041C2F0[6], g_0041C310[6], g_0041C340[0x2D];
+extern u8 g_007BC1A0[];
+
+#define RAND16() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+
+int func_003297D0(void);
+int func_00329810(void);
+char func_003B7CF0(void);
+int func_00327D50(void);
+int func_002F4080(int o);
+u32 func_002F2E20(int o);
+int func_002F4A70(int o);
+int func_002F4660(int o);
+u8 *func_00329860(void);
+int func_003C1850(void);
+void func_003BB520(int k);
+void func_001B8F60(int a, int b, int c);
+void func_003BBFD0(void);
+void func_001B9000(void);
+void func_0023AA40(void);
+void func_003BD2A0(u8 *p);
+void func_00395330(void);
+void func_00397830(void);
+void func_0039F330(void);
+void func_003E79B0(void);
+void func_003EEE40(void);
+void func_003B2010(void);
+void func_00397170(void);
+void func_003E4CD0(void);
+void func_002FC2D0(void);
+void func_003E96B0(void);
+void func_0030DB30(int a);
+void func_0030DC10(int a);
+void func_0030DB50(void);
+int func_00327820(void);
+int func_00327C00(void);
+int func_00328230(void);
+void func_003BA8F0(int a, int b, int c, int d, int e);
+
+static u8 pick(int *t, int n)
+{
+    return t[RAND16() % n];
+}
+
+/* 0x003B8090, 0x84 bytes. */
+u8 func_003B8090(void)
+{
+    return pick(g_0041C220, 5);
+}
+
+/* 0x003B8120, 0x84 bytes. */
+u8 func_003B8120(void)
+{
+    return pick(g_0041C240, 5);
+}
+
+/* 0x003B81B0, 0x80 bytes. */
+int func_003B81B0(u8 k)
+{
+    switch (k) {
+    case 0x16:
+        return 0x2A;
+    case 0x17:
+    case 0x18:
+    case 0x19:
+    case 0x1A:
+    case 0x1B:
+        return 0x29;
+    default:
+        return func_00329810() < func_003297D0() ? 0x2B : 0x2C;
+    }
+}
+
+/* 0x003B8230, 0x90 bytes. */
+u8 func_003B8230(void)
+{
+    return pick(g_0041C260, 6);
+}
+
+/* 0x003B82C0, 0x88 bytes. */
+int func_003B82C0(void)
+{
+    char c = func_003B7CF0();
+
+    if (c == 0x11)
+        return 0x37;
+    if (c == 0x10)
+        return 0x36;
+    if (c == 0xF)
+        return 0x35;
+    if (c == 0xE)
+        return 0x34;
+    if (c == 0xD)
+        return 0x33;
+    return 0x38;
+}
+
+/* 0x003B8350, 0x74 bytes. */
+u8 func_003B8350(void)
+{
+    return pick(g_0041C280, 0x17);
+}
+
+/* 0x003B83D0, 0x6C bytes. */
+u8 func_003B83D0(void)
+{
+    return pick(g_0041C2E0, 3);
+}
+
+/* 0x003B8530, 0x90 bytes. */
+u8 func_003B8530(void)
+{
+    return pick(g_0041C2F0, 6);
+}
+
+/* 0x003B87C0, 0x90 bytes. */
+u8 func_003B87C0(void)
+{
+    return pick(g_0041C310, 6);
+}
+
+/* 0x003B8850, 0xAC bytes. Another player-force officer sharing the report officer's tie. */
+u32 func_003B8850(void)
+{
+    u32 r = *(u32 *)(func_003B5E90() + 0x724), o;
+    int f = func_00327D50();
+
+    for (o = 0; (int)o <= 0x19E; o++) {
+        if (f == func_002F4080(o) && r != o && func_002F2E20(o) == r)
+            return o;
+    }
+    return 0x19F;
+}
+
+/* 0x003B8900, 0xBC bytes. */
+int func_003B8900(int f, int v)
+{
+    u32 r = *(u32 *)(func_003B5E90() + 0x724), o;
+    int n = 0;
+
+    for (o = 0; (int)o < 0x19F; o++) {
+        if (o < 0x19F && f == func_002F4080(o) && r != o && v == func_002F4A70(o))
+            n++;
+    }
+    return n;
+}
+
+/* 0x003B89C0, 0xB0 bytes. */
+int func_003B89C0(int f)
+{
+    u32 r = *(u32 *)(func_003B5E90() + 0x724), o;
+    int n = 0;
+
+    for (o = 0; (int)o < 0x19F; o++) {
+        if (o < 0x19F && f == func_002F4080(o) && r != o && func_002F4660(o) == 0)
+            n++;
+    }
+    return n;
+}
+
+/* 0x003B8CD0, 0x98 bytes. */
+int func_003B8CD0(int v)
+{
+    char d = g_00669D60[0x21];
+    int k;
+
+    func_003B5E90();
+    if (d == 4)
+        k = 0x14;
+    else if (d == 3 || d == 2)
+        k = 0x12;
+    else
+        k = 0x10;
+    return v / k;
+}
+
+/* 0x003B9D80, 0x7C bytes. */
+void func_003B9D80(void)
+{
+    u8 *p = func_003B5E90();
+    int k;
+
+    for (k = 0; k < 2; k++)
+        func_001ABE40(*(u8 **)(p + 8), 0x41, 0, k * 0x170, 0, 0x200, 0x10, 0x80);
+}
+
+/* 0x003BA4A0, 0x7C bytes. */
+void func_003BA4A0(int k, int on)
+{
+    u8 *q = func_00329860();
+    u32 m;
+
+    if (k >= 8)
+        return;
+    m = 1 << ((k % 32) & 0x1F);
+    if (on == 0)
+        *(u32 *)(q + 0x30) &= ~m;
+    else
+        *(u32 *)(q + 0x30) |= m;
+}
+
+/* 0x003BACA0, 0x80 bytes, matching. */
+void func_003BACA0(void)
+{
+    int r = func_00327820();
+
+    if (func_003BAB40(8) == 0 && func_00327C00() != 9 && func_003BA790(r) != 0
+        && func_00328230() != 0)
+        func_003BA8F0(8, r, -1, -1, -1);
+}
+
+/* 0x003BAE30, 0x58 bytes. */
+int func_003BAE30(int k)
+{
+    int t[0x2D], j;
+
+    for (j = 0; j < 0x2D; j++)
+        t[j] = g_0041C340[j];
+    if (k < 0x2D)
+        return t[k];
+    return 3;
+}
+
+/* 0x003BAE90, 0xAC bytes. Draws the report's banner. */
+void func_003BAE90(void)
+{
+    u8 *p = func_003B5E90();
+    int v = 0;
+
+    if (p == 0)
+        return;
+    if (*(int *)(p + 0x75C) == 6) {
+        if (func_003C1850() != 0)
+            v = 2;
+    } else {
+        v = func_003C1850() == 0 ? 1 : 3;
+    }
+    func_001ABE40(*(u8 **)(p + 8), v, 0, 0, 0, 0x200, 0x48, 0x80);
+}
+
+/* 0x003BB5F0, 0x64 bytes. The next report page (closing after the fifth). */
+void func_003BB5F0(void)
+{
+    u8 *p = func_003B5E90();
+
+    p[0x763]++;
+    if (p[0x763] < 5) {
+        func_003BB520(p[0x763]);
+    } else {
+        func_001B8F60(0, 6, 1);
+        *(int *)(p + 4) = 8;
+    }
+}
+
+/* 0x003BB660, 0x8C bytes. */
+int func_003BB660(u32 a, u32 b)
+{
+    u8 *q = func_00329850();
+    u32 *x = (u32 *)(q + (b & 0xFF) * 0x20), *y = (u32 *)(q + (a & 0xFF) * 0x20);
+
+    if (x[0] < y[0])
+        return 1;
+    if (y[0] == x[0] && (u8)x[1] < (u8)y[1])
+        return 1;
+    return 0;
+}
+
+/* 0x003BBEC0, 0x68 bytes. The next page with something to show (0xFF: none). */
+u8 func_003BBEC0(u8 v)
+{
+    do {
+        v++;
+        if (v > 4)
+            return 0xFF;
+    } while (func_003BB8E0(v, 0) < 1);
+    return v;
+}
+
+/* 0x003BBF30, 0x64 bytes. The previous one. */
+u32 func_003BBF30(u32 v)
+{
+    int k;
+
+    for (k = (int)(v & 0xFF) - 1; k >= 0; k--) {
+        if (func_003BB8E0(k & 0xFF, 0) > 0)
+            return k & 0xFF;
+    }
+    return 0xFF;
+}
+
+/* 0x003BC660, 0x48 bytes, matching. */
+void func_003BC660(void)
+{
+    u8 *p = func_003B5E90();
+
+    if (*(int *)(p + 0x710) != 0) {
+        func_003BAE90();
+        func_003BBFD0();
+        func_003BBFA0();
+        func_001B9000();
+    }
+}
+
+/* 0x003BD290, 0xC bytes, matching. */
+u8 *func_003BD290(void)
+{
+    return g_007BC1A0;
+}
+
+/* 0x003BD3F0, 0x3C bytes, matching. */
+void func_003BD3F0(u8 *p)
+{
+    func_0023AA40();
+    if (*(u8 **)(p + 0x30) != 0) {
+        func_00102EC0(*(u8 **)(p + 0x30));
+        *(u8 **)(p + 0x30) = 0;
+    }
+}
+
+/* 0x003BD430, 0x70 bytes, matching. Sets up the Empire screens. */
+void func_003BD430(void)
+{
+    func_003BD2A0(g_007BC1A0);
+    func_00395330();
+    func_00397830();
+    func_0039F330();
+    func_003E79B0();
+    func_003EEE40();
+    func_003B2010();
+    func_00397170();
+    func_003E4CD0();
+    func_002FC2D0();
+    func_003E96B0();
+}
+
+/* 0x003BD540, 0x40 bytes, matching. */
+void func_003BD540(void)
+{
+    if (*(int *)(func_003BD290() + 0x28) == 0) {
+        func_0030DB30(1);
+        *(int *)(func_003BD290() + 0x28) = 1;
+    }
+}
+
+/* 0x003BD580, 0x3C bytes, matching. */
+void func_003BD580(void)
+{
+    if (*(int *)(func_003BD290() + 0x28) != 0) {
+        func_0030DC10(1);
+        *(int *)(func_003BD290() + 0x28) = 0;
+    }
+}
+
+/* 0x003BD5C0, 0x40 bytes, matching. */
+void func_003BD5C0(void)
+{
+    if (*(int *)(func_003BD290() + 0x2C) == 0) {
+        func_0030DB50();
+        *(int *)(func_003BD290() + 0x2C) = 1;
+    }
+}
+
+/* 0x003BD600, 0x3C bytes, matching. */
+void func_003BD600(void)
+{
+    if (*(int *)(func_003BD290() + 0x2C) != 0) {
+        func_0030DC10(1);
+        *(int *)(func_003BD290() + 0x2C) = 0;
+    }
+}
+
+/* 0x003BD640, 0xAC bytes. Draws a pair of arrows. */
+void func_003BD640(int x1, int x2, int y, int k)
+{
+    u8 *t = *(u8 **)(func_003BD290() + 0x30);
+
+    func_001ABE40(t, k, x1, y, 0, 0x10, 0x10, 0x80);
+    func_001ABE40(t, k + 2, x2, y, 0, 0x10, 0x10, 0x80);
+}
+
+/* 0x003BD6F0, 0x20 bytes, matching. */
+u8 *func_003BD6F0(void)
+{
+    return func_00390940() + 0x2C04;
+}
+
+/* 0x003BD870, 0x20 bytes, matching. */
+u8 *func_003BD870(void)
+{
+    return func_00390940() + 0x2C34;
 }
