@@ -2024,3 +2024,240 @@ int func_003015B0(int f)
     }
     return 1;
 }
+
+int func_002FB120(int f);
+int func_002FB100(int f);
+int func_002FB5A0(int f, int *out);
+int func_002FB6D0(int f);
+int func_002FD120(int i);
+int func_002FB040(int f, int *out);
+int func_002FB220(int f);
+int func_002FB1A0(int f);
+int func_002F9C90(int f, int g);
+int func_002F9D50(int f, int g);
+u16 func_002F95C0(int f);
+int func_002F9550(u32 f);
+int func_002FC220(int g);
+u16 func_002F9690(short kind, int *out);
+int func_002F9730(int f, int k, short gold);
+int func_00327C70(void);
+int func_002FA210(int plan);
+int func_002FA5A0(int f);
+
+/* The value of force `g` by random rule `rule` (2: a leader with a low number, 1: +0x75,
+ * 0: its regions). */
+static inline int force_value(int g, int rule)
+{
+    if (rule == 2)
+        return 0x19F - func_002F8F20(g);
+    if (rule == 1)
+        return func_002FA490(g);
+    if (rule == 0)
+        return func_002FB3B0(g);
+    return 0;
+}
+
+/* 0x00301630, 0x358 bytes. The force computer force `f` would ally with (diplomacy): only while
+ * it has no kind 2 relation and fewer than three, at least two other forces, most neighbours not
+ * yet allied, from year 188 on scaled by the player's size, and two or more regions bordered;
+ * then the best by a random rule among the free neighbours (not its plan's target, not the
+ * second list). -1 for none. */
+int func_00301630(int f)
+{
+    int l[28], n, m = 0, k, plan = func_002FA160(f), cpu = func_002FB2A0(f) == 0;
+    int best = 0x19, top = 0, rule, tgt = 0x19, y;
+
+    if (cpu && (u32)(plan - 1) < 2)
+        return -1;
+    if (func_002FB120(f) != 0 || func_002FB100(f) >= 3 || func_002FD660(f, l) < 2)
+        return -1;
+    n = func_002FB5A0(f, l);
+    if (n == 0)
+        return -1;
+    for (k = 0; k < n; k++) {
+        if (func_002FAFA0(f, l[k]) != 0)
+            m++;
+    }
+    if (m * 10 / n >= 6)
+        return -1;
+    y = (u32)func_00327C70() < 0xBC ? 0xBC : func_00327C70();
+    if ((u32)(y - func_00327C70()) < (u32)(0x19 - func_002FB3B0(func_00327D50())))
+        return -1;
+    if (func_002FB6D0(f) < 2 || n - m == 1)
+        return -1;
+    if (cpu && func_002FA210(plan) != 0)
+        tgt = func_002FA390(f);
+    rule = func_0030CB00(3);
+    for (k = 0; k < n; k++) {
+        int g = l[k], v;
+
+        if (func_002FB120(g) != 0 || func_002FAFA0(f, g) != 0 || tgt == g || func_002FD120(g) != 0)
+            continue;
+        v = force_value(g, rule);
+        if (!IS_FORCE(best) || top < v || (v == top && func_0030CB50(0x32) != 0)) {
+            best = g;
+            top = v;
+        }
+    }
+    return IS_FORCE(best) ? best : -1;
+}
+
+/* 0x00301990, 0x1DC bytes. The force computer force `f` (without an ally) would make its ally,
+ * among the computer forces it has a relation with (when it has an attackable neighbour). */
+int func_00301990(int f)
+{
+    int l[28], n, best = 0x19, top = 0, rule, k;
+
+    if (IS_FORCE(func_002FA5A0(f)))
+        return -1;
+    if (func_002FD660(f, l) < 2 || func_002FD730(f, l) == 0)
+        return -1;
+    n = func_002FB040(f, l);
+    rule = func_0030CB00(3);
+    for (k = 0; k < n; k++) {
+        int v;
+
+        if (func_002FB2A0(l[k]) != 0)
+            continue;
+        v = force_value(l[k], rule);
+        if (!IS_FORCE(best) || top < v || (v == top && func_0030CB50(0x32) != 0)) {
+            best = l[k];
+            top = v;
+        }
+    }
+    return IS_FORCE(best) ? best : -1;
+}
+
+/* 0x00301B70, 0x220 bytes. The small computer force (a seventh of `f`'s regions or less, a
+ * neighbour without a kind 3 relation and free or tied to the player) large force `f` (eight
+ * regions or more, four forces or more, one of them small) would swallow, 30% of the time. */
+int func_00301B70(int f)
+{
+    int l[28], n = func_002FD660(f, l), mine, best = 0x19, top = 0, k;
+
+    if (n + 1 < 4 || func_002FB120(f) != 0)
+        return -1;
+    for (k = 0; k < n; k++) {
+        if (func_002FB3B0(l[k]) < 4)
+            break;
+    }
+    if (k == n)
+        return -1;
+    mine = func_002FB3B0(f);
+    if (mine < 8)
+        return -1;
+    for (k = 0; k < n; k++) {
+        int g = l[k], s, a;
+
+        if (func_002FB2A0(g) != 0)
+            continue;
+        s = func_002FB3B0(g);
+        if (s * 7 >= mine || func_002FB500(f, g) == 0 || func_002FB220(g) != 0)
+            continue;
+        a = func_002FB1A0(g);
+        if (a != 0x19 && func_002FB2A0(a) == 0)
+            continue;
+        if (!IS_FORCE(best) || top < s || (s == top && func_0030CB50(0x32) != 0)) {
+            best = g;
+            top = s;
+        }
+    }
+    if (!IS_FORCE(best))
+        return -1;
+    return func_0030CB50(0x1E) != 0 ? best : -1;
+}
+
+/* 0x00301D90, 0x32C bytes. The force computer force `f` would break with: the player when only
+ * tied by kind 2 and the player cannot attack; otherwise, when all its borders are tied, the
+ * largest tied force it borders (by chance from its policy and sizes). -1 for none. */
+int func_00301D90(int f)
+{
+    int l[28], p = func_00327D50(), plan, n, k, best, top, pct, pol;
+
+    if (func_002F9C90(p, f) == 2 && func_002FD730(p, l) == 0)
+        return p;
+    plan = func_002FA160(f);
+    if (func_002FB2A0(f) == 0) {
+        if (plan == 0 || plan == 3)
+            return -1;
+        if (func_002F9C90(f, p) != 2)
+            return -1;
+    }
+    n = func_002FB5A0(f, l);
+    for (k = 0; k < n; k++) {
+        if (func_002FAFA0(f, l[k]) == 0)
+            return -1;
+    }
+    if (func_002FB2A0(f) == 0 && func_002FB3B0(f) <= func_002FB3B0(p)
+        && (short)func_002F95C0(f) <= (short)func_002F95C0(p)) {
+        pol = (short)func_002F95C0(f);
+        if (pol > 0xD || pol < 2)
+            pol = 0;
+        pct = (100 - pol * 7) / 2;
+        if (pct < 4)
+            pct = 4;
+        if (func_0030CB50(pct) == 0)
+            return -1;
+    }
+    n = func_002FB040(f, l);
+    if (n == 0)
+        return -1;
+    best = 0x19;
+    top = 0;
+    for (k = 0; k < n; k++) {
+        int g = l[k];
+
+        if ((func_002F9C90(f, g) == 2 || func_002F9D50(f, g) > 1 || func_002FB500(f, g) != 0)
+            && func_002FD120(g) == 0) {
+            int s = func_002FB3B0(g);
+
+            if (!IS_FORCE(best) || top < s || (s == top && func_0030CB50(0x32) != 0)) {
+                best = g;
+                top = s;
+            }
+        }
+    }
+    return IS_FORCE(best) ? best : -1;
+}
+
+int func_00313DB0(int a, int f);
+
+/* 0x003020C0, 0x230 bytes. Whether force `f` can buy a better policy (it can pay command 0x30,
+ * the next policy kind is free and affordable, and for the computer a tied ally of similar
+ * policy and size); returns `f` or -1. */
+int func_003020C0(int f)
+{
+    int pol = (short)func_002F95C0(f), gold, ok[27], n = 0, g, tmp;
+
+    if (func_002F9060(f) <= func_00313DB0(0x30, f))
+        return -1;
+    if ((short)func_002F9550(f) == 100)
+        return -1;
+    if (pol >= 0xE)
+        return -1;
+    gold = func_002FC220(f);
+    for (g = 0; g < 0x19; g++) {
+        if (func_002F8CB0(g) != 0 && g != f && g != func_00327D50() && func_002FAFA0(f, g) != 0) {
+            int p2 = (short)func_002F95C0(g);
+
+            if ((short)func_002F9690(p2 + 1, &tmp) <= func_002FC220(g) && pol - p2 < 4
+                && func_002FB3B0(f) / 3 <= func_002FB3B0(g))
+                ok[n++] = g;
+        }
+    }
+    if (func_002F9730(f, func_002F9550(f), gold) == 100)
+        return -1;
+    if (func_002FB2A0(f) != 0)
+        return -1;
+    if (n == 0)
+        return -1;
+    if (gold < (short)func_002F9690(pol + 1, &tmp) && func_0030CB50(0x32) != 0)
+        return -1;
+    return f;
+}
+
+/* 0x00302300, 0x60 bytes, matching. 0 when force `f` has three times command 0x32's cost, else -1. */
+int func_00302300(int f)
+{
+    return func_00313FC0(0x32, 0, f) / 3 < func_002F9190(f) ? 0 : -1;
+}
