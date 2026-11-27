@@ -4,7 +4,7 @@
  * event, +8 result, +0xC, +0x10 the officers (0x1D), +0x84 the events of the chosen officer,
  * +0x5F4/+0x5F6 cursor and first line of the officer list, +0x5F8/+0x5FA of the event list,
  * +0x5FC/+0x5FE their counts). Sliding windows at 0x007BAEF0 and 0x007BAED0. Original file name
- * unknown.
+ * unknown. From 0x003B24F0: the event scene's choice windows and tabs.
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -406,4 +406,192 @@ void func_003B21A0(void)
         func_0032E870();
         ST_INT(func_003B2000(), 0xC) = 0;
     }
+}
+
+/* ---- The event scene's choice windows (state 0x003B2340: +0x98 mode, +4 the four choices, boxes
+ * at +0x9C and +0xEC, 0x14 bytes each: from (x, y, w, h), to (x, y, w, h), alphas, steps, step). */
+
+extern u32 g_0045D7FC;                   /* (small data) the sprite bank */
+extern short g_0045B6A0[5][2];
+extern u8 *g_0043C5A8;
+
+u8 *func_003B2340(void);
+void func_003B2360(short *xy, int k);
+void func_003B2390(short *xy, int k);
+int func_003B23C0(int k);
+u8 *func_00390940(void);
+void func_001ABE40(u32 h, int k, int a, int b, int c, int d, int e, int f);
+void func_001ABEA0(u32 h, int k, int a, int b, int c, int d, int e, int f);
+void func_00383D80(u8 *p);
+void func_00384870(u8 *p, int a);
+void func_003B5480(int x, int y, int a, int w, int b, int c);
+void func_003B34A0(int a);
+void func_001A3C20(int x, int y, int a, int w, int h, int b, int c);
+
+static void box_from(u8 *r, short *xy, short w, short h, u8 a0, u8 a1)
+{
+    ST_SHORT(r, 0) = xy[0];
+    ST_SHORT(r, 2) = xy[1];
+    ST_SHORT(r, 4) = w;
+    ST_SHORT(r, 6) = h;
+    ST_SHORT(r, 8) = xy[0];
+    ST_SHORT(r, 0xA) = xy[1];
+    ST_SHORT(r, 0xC) = w;
+    ST_SHORT(r, 0xE) = h;
+    r[0x12] = 0;
+    r[0x13] = 0;
+    r[0x10] = a0;
+    r[0x11] = a1;
+}
+
+static void box_to(u8 *r, short x, short y, short w, short h, u8 a1, u8 steps)
+{
+    ST_SHORT(r, 8) = x;
+    ST_SHORT(r, 0xA) = y;
+    ST_SHORT(r, 0xC) = w;
+    ST_SHORT(r, 0xE) = h;
+    r[0x11] = a1;
+    r[0x12] = steps;
+}
+
+/* The choice windows' sizes and alphas by place (0 and 2 middle, 3 far, 1 front). */
+static int place_alpha(int i)
+{
+    return i == 3 ? 0x4C : i == 2 ? 0x60 : i == 1 ? 0x80 : i == 0 ? 0x60 : 0x80;
+}
+#define W1(i) ((i) == 3 ? 0x5B : (i) == 2 || (i) == 0 ? 0x72 : 0x98)
+#define H1(i) ((i) == 3 ? 0x1C : (i) == 2 || (i) == 0 ? 0x24 : 0x30)
+#define W2(i) ((i) == 3 ? 0x78 : (i) == 2 || (i) == 0 ? 0x96 : 200)
+#define H2(i) ((i) == 3 ? 0x18 : (i) == 2 || (i) == 0 ? 0x1E : 0x28)
+
+/* 0x003B24F0, 0x2E4 bytes. Draws the choices and the chosen one's arrows. */
+void func_003B24F0(void)
+{
+    u8 *g = func_00390940(), *s = func_003B2340();
+    int i, lit = 0, v;
+    short b[4];
+    u8 al;
+
+    if (ST_INT(g, 0x8E6C) != 2)
+        return;
+    for (i = 0; i < 4; i++) {
+        int k = ST_INT(s, 4 + i * 4);
+
+        if (k == -1)
+            continue;
+        func_001AE550(1.0f, s + 0xEC + i * 0x14, (Slide *)b, &al, 0);
+        if (ST_INT(s, 0x98) == 4 && i != 1)
+            al = 0;
+        func_001ABE40(ST_INT(g, 0x8EBC), func_003B23C0(k), b[0], b[1], 0, b[2], b[3], al);
+        if (i == 1)
+            lit = func_001AE550(1.0f, s + 0x9C + i * 0x14, (Slide *)b, &al, 0);
+        else
+            func_001AE550(1.0f, s + 0x9C + i * 0x14, (Slide *)b, &al, 0);
+        if (ST_INT(s, 0x98) == 4 && i != 1)
+            al = 0;
+        func_001ABE40(ST_INT(g, 0x8EBC), k + 0xE, b[0], b[1], 0, b[2], b[3], al);
+    }
+    al = ST_INT(s, 0x98) == 4 ? 0 : 0x80;
+    if (lit == 0) {
+        ST_INT(s, 0x154) = 0;
+    } else {
+        v = ST_INT(s, 0x154) + 1;
+        if (v > 8)
+            v = 8;
+        ST_INT(s, 0x154) = v & 0xFF;
+        if ((v & 0xFF) == 8) {
+            func_00383D80(g + 0x8E84);
+            func_00384870(g + 0x8E84, 1);
+        }
+        func_003B5480(ST_INT(s, 0x154) * 0x110 / 8 - 0x130, 0x52, 0, 0x110, al, 1);
+        func_003B5480(ST_INT(s, 0x154) * 0x18A / 8 - 0x1AA, 0x86, 0, 0x18A, al, 1);
+    }
+    func_003B34A0(1);
+    if (ST_INT(g, 0x8E6C) == 2)
+        func_001A7DC0(g_0043C5A8, 0x80, 2);
+}
+
+/* 0x003B27E0, 0xC48 bytes. Sets the windows' moves for mode +0x98: 4 open, 2 / 1 turn one way or
+ * the other, 3 show. */
+void func_003B27E0(void)
+{
+    u8 *s = func_003B2340(), *r;
+    int m = ST_INT(s, 0x98), i, j;
+    short p[2];
+    u8 a, b;
+
+    if (m == 4) {
+        func_003B2390(p, 1);
+        box_from(s + 0x100, p, 0x98, 0x30, 0x80, 0x80);
+        box_to(s + 0x100, p[0], 0x30, 0x98, 0x30, 0x80, 0xF);
+        func_003B2360(p, 1);
+        box_from(s + 0xB0, p, 200, 0x28, 0x80, 0x80);
+        box_to(s + 0xB0, p[0], 0x30, 200, 0x28, 0x80, 0xF);
+    } else if (m == 2) {
+        for (i = 0, r = s; i < 4; i++, r += 0x14) {
+            j = i == 0 ? 0 : i - 1;
+            a = place_alpha(j);
+            b = place_alpha(i);
+            func_003B2390(p, j);
+            box_from(r + 0xEC, p, W1(j), H1(j), i == 0 ? 0 : a, i == 0 ? 0 : a);
+            func_003B2390(p, i);
+            box_to(r + 0xEC, p[0], p[1], W1(i), H1(i), b, 0xF);
+            func_003B2360(p, j);
+            box_from(r + 0x9C, p, W2(j), H2(j), i == 0 ? 0 : a, i == 0 ? 0 : a);
+            func_003B2360(p, i);
+            box_to(r + 0x9C, p[0], p[1], W2(i), H2(i), b, 0xF);
+        }
+    } else if (m == 1) {
+        for (i = 0, r = s; i < 4; i++, r += 0x14) {
+            j = i != 3 ? i + 1 : 3;
+            a = place_alpha(j);
+            b = place_alpha(i);
+            func_003B2390(p, j);
+            box_from(r + 0xEC, p, W1(j), H1(j), i == 3 ? 0 : a, i == 3 ? 0 : a);
+            func_003B2390(p, i);
+            box_to(r + 0xEC, p[0], p[1], W1(i), H1(i), b, 0xF);
+            func_003B2360(p, j);
+            box_from(r + 0x9C, p, W2(j), H2(j), a, a);
+            func_003B2360(p, i);
+            box_to(r + 0x9C, p[0], p[1], W2(i), H2(i), b, 0xF);
+        }
+    } else if (m == 3) {
+        for (i = 0, r = s; i < 4; i++, r += 0x14) {
+            a = place_alpha(i);
+            func_003B2390(p, i);
+            box_from(r + 0xEC, p, W1(i), H1(i), 0, 0);
+            box_to(r + 0xEC, p[0], p[1], W1(i), H1(i), a, 0);
+            func_003B2360(p, i);
+            box_from(r + 0x9C, p, W2(i), H2(i), 0, 0);
+            box_to(r + 0x9C, p[0], p[1], W2(i), H2(i), a, 0);
+        }
+    }
+}
+
+/* 0x003B39A0, 0xC0 bytes. Draws face `k` (0..0x43; 0x43 is face 0) from the face sheet. */
+void func_003B39A0(int x, int y, int a, int w, int h, int k)
+{
+    if (k >= 0 && k < 0x44) {
+        if (k == 0x43)
+            k = 0;
+        else
+            k++;
+        func_001ABEA0(g_0045D7FC, 0, x, y, 0, w, h, (k % 0x15) * 0x18);
+    }
+}
+
+/* 0x003B3D50, 0x78 bytes. Draws tab `k` (lit or not). */
+void func_003B3D50(int k, int x, int y, int a, int b, int lit)
+{
+    func_001ABEA0(g_0045D7FC, lit == 0 ? 8 : 9, x, y, a, 0x48, 0x20, 0);
+}
+
+/* 0x003B3DD0, 0x98 bytes, matching. Draws the five tabs, `cur` lit. */
+void func_003B3DD0(int alpha, int cur)
+{
+    int k;
+
+    func_001A3C20(0, 0xA0, 0, 0x200, 0x40, 0x80, alpha);
+    for (k = 0; k < 5; k++)
+        func_003B3D50(k, g_0045B6A0[k][0], g_0045B6A0[k][1], 0, alpha + 1, cur == k);
 }
