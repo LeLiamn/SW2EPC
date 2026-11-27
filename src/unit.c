@@ -2747,3 +2747,179 @@ void func_00159650(float t, Unit *u, u8 *hit)
         U16(u, 0x14A) &= 0xFFC0;
     }
 }
+
+extern u32 g_00406470[12][4];            /* the body nodes the hits come from (+0) */
+
+void func_001AE1D0(u32 e, u8 *eff);
+float (*func_0014F810(u8 *actor, u32 node))[4];
+
+/* Emits attack effect `eff` from node matrix `m` (its offset along the axis the effect names,
+ * +0x30 / +0x44), facing along that axis (or the unit's facing), with its spreads, storing and
+ * musou gain. */
+static inline void attack_effect(Unit *u, u8 *hit, u8 *eff, float (*m)[4])
+{
+    float off[4], pos[4], dir[4];
+    u32 f = U32(eff, 0x30), e;
+    int i;
+
+    off[0] = ((float *)0x70000030)[0];
+    off[1] = ((float *)0x70000030)[1];
+    off[2] = ((float *)0x70000030)[2];
+    off[3] = 1.0f;
+    if (f & 0x200000)
+        off[0] = (float)eff[0x44];
+    else if (f & 0x800000)
+        off[1] = (float)eff[0x44];
+    else if (f & 0x1000000)
+        off[2] = (float)eff[0x44];
+    else
+        off[0] = (float)eff[0x44];
+    mat_vec(pos, m, off);
+    for (i = 0; i < 4; i++)
+        pos[i] = pos[i] / pos[3];
+    if (f & 0x200000) {
+        float v[4] = { 1.0f, off[1], off[2], 0.0f };
+
+        mat_vec(dir, m, v);
+    } else if (f & 0x800000) {
+        float v[4] = { off[0], 1.0f, off[2], 0.0f };
+
+        mat_vec(dir, m, v);
+    } else if (f & 0x1000000) {
+        float v[4] = { off[0], off[1], 1.0f, 0.0f };
+
+        mat_vec(dir, m, v);
+    } else {
+        for (i = 0; i < 4; i++)
+            dir[i] = F32(u, 0x70 + i * 4);
+    }
+    e = func_00177ED0();
+    func_001AC980(e, eff, (u8 *)pos, dir, u);
+    if ((s8)U8(u, 0x19C) >= 0)
+        func_001AE1D0(e, eff);
+    if (U32(eff, 0x30) & 0x20000)
+        func_00158420(u, eff, (u8 *)pos, dir);
+    else if (U32(eff, 0x30) & 0x800)
+        func_00158540(u, eff, (u8 *)pos, dir);
+    if ((U32(eff, 0x30) & 8) == 0) {
+        if (U32(hit, 0x28) & 0x40000) {
+            if (S16(u, 0x258) != -1) {
+                func_001AE090(g_005ADD80[S16(u, 0x258)]);
+                S16(u, 0x258) = -1;
+            }
+            S16(u, 0x258) = S16(e, 0x94);
+            U32(e, 0x84) = 0;
+            U8(e, 0x8C) = (U8(e, 0x8C) & ~2) | 2;
+        }
+    } else {
+        func_001580D0(u, S16(e, 0x94), hit);
+    }
+    if (PLAYER(u) < 2 && (U32(eff, 0x30) & 0x2000))
+        func_001595B0(u);
+}
+
+/* The attack effects of hit `hit` at frame `t` (+`dt`): once at its frame +0x16 (or each frame
+ * of +0x16 to +0x17), from each body node (bits 0-11 of +0x12) and weapon (bits 12-15) it names,
+ * or the stored projectiles. Without a frame (or in mode 4), as `force` says. */
+static inline void attack_effects(Unit *u, u8 *hit, float t, float dt, int force)
+{
+    int fire = force;
+
+    func_00159650(t, u, hit);
+    if (g_00669DB8 != 4 && (hit[0x16] != 0xFF || hit[0x17] != 0xFF)) {
+        float a = (float)hit[0x16];
+
+        if (hit[0x16] == hit[0x17])
+            fire = !(a < t || t + dt <= a);
+        else
+            fire = (int)(t - dt) != (int)t && a <= t && !((float)hit[0x17] < t);
+    }
+    if (fire) {
+        u8 *eff = g_0045D2FC + 0x10 + hit[0x18] * 0x48;
+
+        if ((U32(hit, 0x2C) & 0x100) == 0) {
+            u32 k;
+
+            for (k = 0; (int)k < 0x10; k++) {
+                if ((U16(hit, 0x12) & (1 << k)) == 0)
+                    continue;
+                if ((int)k < 0xC) {
+                    attack_effect(u, hit, eff,
+                                  (float (*)[4])func_0016A170(u, g_00406470[k][0]));
+                } else {
+                    int s;
+
+                    for (s = 0; s < 4; s++) {
+                        u8 *slot = u + 0x290 + s * 0x70;
+
+                        if ((U8(slot, 0x4C) & 1) && (U8(slot, 0x4C) & 4))
+                            attack_effect(u, hit, eff,
+                                          func_0014F810(PTR(slot, 0x44), (k - 0xC) & 0xFF));
+                    }
+                }
+            }
+        } else {
+            func_00158270(u, eff, hit);
+        }
+    }
+}
+
+/* 0x001596F0, 0x14A4 bytes. The attack effects of the unit's actions this frame (the main action
+ * and the extra one at +0x250), unless the model is in a transition; the two shots of actions
+ * 0x4E / 0x4F at frame 1; the held effect dropped when the hit ends; stored projectiles more
+ * than 10000 units away dropped. */
+void func_001596F0(float dt, Unit *u, int unused, int force)
+{
+    u8 *hit = PTR(ACT(u), 0x14);
+    u8 *a = PTR(u, 0x11C);
+    short *slot = &S16(u, 0x260);
+    int any = 0, i, j;
+
+    U16(u, 0x148) = 0;
+    U16(u, 0x14A) = 0;
+    if (a != 0 && U32(a, 0x204) > 1 && !(F32(a, 0x214) > 0.0f)) {
+        if (hit != 0)
+            attack_effects(u, hit, F32(u, 0x21C), dt, force);
+        if (PTR(u, 0x250) != 0)
+            attack_effects(u, PTR(PTR(u, 0x250), 0x14), F32(u, 0x254), dt, force);
+    }
+    if (PTR(u, 0x11C) == 0 || F32(PTR(u, 0x11C), 0x214) <= 0.0f) {
+        float t = F32(u, 0x21C);
+
+        if (S16(ACT(u), 0) == 0x4E) {
+            if (!(1.0f < t || t + dt <= 1.0f))
+                func_00158660(u, 0);
+        } else if (S16(ACT(u), 0) == 0x4F) {
+            if (!(1.0f < t || t + dt <= 1.0f))
+                func_00158660(u, 7);
+        }
+    }
+    if (S16(u, 0x258) != -1 && (hit == 0 || (U32(hit, 0x28) & 0x40000) == 0)) {
+        func_001AE090(g_005ADD80[S16(u, 0x258)]);
+        S16(u, 0x258) = -1;
+    }
+    for (i = 0; i < 6; i++) {
+        if (slot[i] != -1) {
+            float x = F32(g_005ADD80[slot[i]], 0x30) - F32(u, 0x40);
+            float z = F32(g_005ADD80[slot[i]], 0x38) - F32(u, 0x48);
+
+            if (1e+08f < x * x + z * z) {
+                func_001AE090(g_005ADD80[slot[i]]);
+                any = 1;
+                slot[i] = -1;
+            }
+        }
+    }
+    if (any) {
+        for (i = 0, j = 0; i < 6; i++) {
+            if (slot[i] != -1) {
+                if (j == i) {
+                    j++;
+                } else {
+                    slot[j++] = slot[i];
+                    slot[i] = -1;
+                }
+            }
+        }
+    }
+}
