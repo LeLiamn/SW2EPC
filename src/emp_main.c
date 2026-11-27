@@ -568,3 +568,311 @@ int func_002FD280(int f, int c)
         return 1;
     return func_00328570() < 4;
 }
+
+extern int g_00446500[4][2];             /* pairs of commands that cannot follow each other */
+extern int g_0045D6A4, g_0045D6A8;       /* (small data) two command counts */
+
+int func_00313CB0(int c);
+int func_002FB2D0(int f);
+void func_0030B540(int f);
+void func_0030B330(void);
+int func_0030B2F0(int f);
+int func_0030AFF0(int f);
+int func_0030C7F0(int f, int k);
+int func_002F8CB0(int f);
+int func_002FAFA0(int f, int g);
+int func_002FB500(int f, int r);
+int func_002FB320(int r, int *out);
+int func_0030AC50(int k);
+int func_002FB3B0(int r);
+int func_002FA490(u32 f);
+u16 func_002F8F20(int f);
+int func_0030CB50(int pct);
+int func_0011B740(int v);
+int func_002FB430(int f);
+int func_0030C6E0(int *out, int f, int n);
+
+/* Whether `f` is a force in play. */
+#define IS_FORCE(f) ((f) >= 0 && (f) < func_0030AB90())
+
+/* 0x002FD310, 0xA8 bytes. Whether the player may give command `c` after the one chosen (not
+ * one of four forbidden pairs). */
+int func_002FD310(int f, int c)
+{
+    int k;
+
+    if (func_002FB2A0(f) == 0 || g_0045D6A0 == 100)
+        return 1;
+    for (k = 0; k < 4; k++) {
+        if (g_0045D6A0 == g_00446500[k][0] && c == g_00446500[k][1])
+            return 0;
+        if (g_0045D6A0 == g_00446500[k][1] && c == g_00446500[k][0])
+            return 0;
+    }
+    return 1;
+}
+
+/* 0x002FD3C0, 0x6C bytes. Whether command `c` is of the same group as the one chosen. */
+int func_002FD3C0(int c)
+{
+    if ((u32)g_0045D6A0 < 100 && func_00313CB0(g_0045D6A0) == func_00313CB0(c))
+        return 1;
+    return 0;
+}
+
+/* 0x002FD430, 0x2C bytes. The count of commands 0x2B-0x2F (0 for others). */
+int func_002FD430(int c)
+{
+    if (c < 0x2B || c > 0x2F)
+        return 0;
+    return g_0045D6A8;
+}
+
+/* 0x002FD460, 0x2C bytes. The count of commands 0x34-0x3A. */
+int func_002FD460(int c)
+{
+    if (c < 0x34 || c > 0x3A)
+        return 0;
+    return g_0045D6A4;
+}
+
+/* 0x002FD490, 0x2C bytes, matching. Resets the turn's command bookkeeping. */
+void func_002FD490(void)
+{
+    func_002FCFB0();
+    func_002FD170();
+    g_0045D6A8 = 0;
+    g_0045D6A4 = 0;
+}
+
+/* 0x002FD4C0, 0xC0 bytes. The bordering forces of force `f` that belong to no region (into
+ * `out`); returns how many. */
+int func_002FD4C0(int f, int *out)
+{
+    int n = 0, g;
+
+    func_0030B540(func_002FB2D0(f));
+    for (g = 0; g < 0x19; g++) {
+        if (func_0030B2F0(g) != 0 && !IS_FORCE(func_0030AFF0(g))) {
+            *out++ = g;
+            n++;
+        }
+    }
+    func_0030B330();
+    return n;
+}
+
+/* 0x002FD580, 0x1C bytes, matching. */
+int func_002FD580(int f)
+{
+    int tmp[28];
+
+    return func_002FD4C0(f, tmp);
+}
+
+/* 0x002FD5A0, 0xBC bytes. Splits force `f`'s eight traits into those it has (`yes`, count in
+ * `ny`) and those it lacks (`no`, `nn`). */
+void func_002FD5A0(int f, int *yes, int *no, int *ny, int *nn)
+{
+    int k;
+
+    *nn = 0;
+    *ny = 0;
+    for (k = 0; k < 8; k++) {
+        if (func_0030C7F0(f, k) == 0)
+            no[(*nn)++] = k;
+        else
+            yes[(*ny)++] = k;
+    }
+}
+
+/* 0x002FD660, 0x80 bytes. The other forces in play (into `out`); returns how many. */
+int func_002FD660(int f, int *out)
+{
+    int g, n = 0;
+
+    for (g = 0; g < 0x19; g++) {
+        if (func_002F8CB0(g) != 0 && f != g) {
+            *out++ = g;
+            n++;
+        }
+    }
+    return n;
+}
+
+/* 0x002FD6E0, 0x50 bytes. Whether force `f` can attack force `g` (no relation, a border). */
+int func_002FD6E0(int f, int g)
+{
+    if (func_002FAFA0(f, g) != 0)
+        return 0;
+    return func_002FB500(f, g) != 0;
+}
+
+/* 0x002FD730, 0x90 bytes. The forces `f` can attack (into `out`); returns how many. */
+int func_002FD730(int f, int *out)
+{
+    int g, n = 0;
+
+    for (g = 0; g < 0x19; g++) {
+        if (func_002F8CB0(g) != 0 && f != g && func_002FD6E0(f, g) != 0) {
+            *out++ = g;
+            n++;
+        }
+    }
+    return n;
+}
+
+/* 0x002FD7C0, 0xEC bytes. The forces `f` can attack that hold a region of kind `kind`. */
+int func_002FD7C0(int f, int kind, int *out)
+{
+    int g, n = 0, r[28];
+
+    for (g = 0; g <= 0x18; g++) {
+        if (func_002F8CB0(g) != 0 && f != g && func_002FD6E0(f, g) != 0) {
+            int m = func_002FB320(g, r), k;
+
+            for (k = 0; k < m; k++) {
+                if (kind == func_0030AC50(k)) {
+                    *out++ = g;
+                    n++;
+                    break;
+                }
+            }
+        }
+    }
+    return n;
+}
+
+/* 0x002FD8B0, 0x13C bytes. Of forces `l` (`n`), the one with the most regions, then the
+ * lowest +0x75, then a named leader, then at random (0x19 for none). */
+int func_002FD8B0(int *l, int n)
+{
+    int best = 0x19, most = 0x19, k;
+
+    for (k = 0; k < n; k++, l++) {
+        int m = func_002FB3B0(*l);
+
+        if (IS_FORCE(best) && most > m)
+            continue;
+        if (IS_FORCE(best) && m == most) {
+            int a = func_002FA490(best), b = func_002FA490(*l);
+
+            if (b < a) {
+                best = *l;
+            } else if (a == b) {
+                int la = func_002F8F20(best) < 0x1C, lb = func_002F8F20(*l) > 0x1C;
+
+                if (lb < la || (la == lb && func_0030CB50(0x32) != 0))
+                    best = *l;
+            }
+        } else {
+            best = *l;
+            most = m;
+        }
+    }
+    return best;
+}
+
+/* 0x002FD9F0, 0x1A8 bytes. Of forces `l` (`n`), the one closest in size to force `f`, then the
+ * larger, then the closest in +0x75, then the lower +0x75, then at random. */
+int func_002FD9F0(int f, int *l, int n)
+{
+    int best = 0x19, gap = 0, mine = func_002FB3B0(f), my75 = func_002FA490(f), k;
+
+    for (k = 0; k < n; k++, l++) {
+        int d = func_0011B740(mine - func_002FB3B0(*l));
+
+        if (IS_FORCE(best) && gap > d)
+            continue;
+        if (IS_FORCE(best) && d == gap) {
+            int a = func_002FB3B0(best), b = func_002FB3B0(*l);
+
+            if (a < b) {
+                best = *l;
+            } else if (a == b) {
+                int x = func_002FA490(best), y = func_002FA490(*l);
+                int dx = func_0011B740(my75 - x), dy = func_0011B740(my75 - y);
+
+                if (dy < dx || (dx == dy && (y < x || (x == y && func_0030CB50(0x32) != 0))))
+                    best = *l;
+            }
+        } else {
+            best = *l;
+        }
+        gap = d;
+    }
+    return best;
+}
+
+/* 0x002FDBA0, 0x104 bytes. Of forces `l` (`n`), the one with the fewest active officers, then
+ * the most regions, then at random. */
+int func_002FDBA0(int *l, int n)
+{
+    int best = 0x19, low = 0, k;
+
+    for (k = 0; k < n; k++, l++) {
+        int m = func_002FB430(*l);
+
+        if (!IS_FORCE(best) || m < low) {
+            best = *l;
+            low = m;
+        } else if (m == low) {
+            int a = func_002FB3B0(best), b = func_002FB3B0(*l);
+
+            if (a < b || (a == b && func_0030CB50(0x32) != 0))
+                best = *l;
+        }
+    }
+    return best;
+}
+
+/* 0x002FDCB0, 0xE0 bytes. Of forces `l`, those `f` can attack with less than half its
+ * regions: the best by func_002FD8B0 (0x19 for none). */
+int func_002FDCB0(int f, int *l, int n)
+{
+    int c[28], m = 0, mine = func_002FB3B0(f), k;
+
+    for (k = 0; k < n; k++, l++) {
+        if (func_002FD6E0(f, *l) != 0 && func_002FB3B0(*l) * 2 < mine)
+            c[m++] = *l;
+    }
+    return m == 0 ? 0x19 : func_002FD8B0(c, m);
+}
+
+/* 0x002FDD90, 0xE4 bytes. Of forces `l`, those `f` can attack within two regions of its
+ * size: the best by func_002FD9F0. */
+int func_002FDD90(int f, int *l, int n)
+{
+    int c[28], m = 0, mine = func_002FB3B0(f), k;
+
+    for (k = 0; k < n; k++, l++) {
+        if (func_002FD6E0(f, *l) != 0 && func_0011B740(mine - func_002FB3B0(*l)) < 3)
+            c[m++] = *l;
+    }
+    return m == 0 ? 0x19 : func_002FD9F0(f, c, m);
+}
+
+/* 0x002FDE80, 0xBC bytes. Whether one of force `g`'s eight neighbours is free or attackable by
+ * force `f`. */
+int func_002FDE80(int f, int g)
+{
+    int l[28], n = func_0030C6E0(l, g, 8), k;
+
+    for (k = 0; k < n; k++) {
+        int r = func_0030AFF0(l[k]);
+
+        if (!IS_FORCE(r) || func_002FD6E0(f, r) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+void func_002F9E10(int f, int k);
+void func_002F9F40(int f, int v);
+
+/* 0x002FDF40, 0x34 bytes, matching. Force `f`'s plan becomes 3 (no target). */
+void func_002FDF40(int f)
+{
+    func_002F9E10(f, 3);
+    func_002F9F40(f, 0xFF);
+}
