@@ -640,3 +640,159 @@ int func_003EBD10(void)
         func_002FAF30(func_003EA0C0(), func_003EA140());
     return 0;
 }
+
+/* ---- More special battle set-ups and their results (parts of 0x003EC000-0x003EC8E4). ---- */
+
+extern int g_0041D800[5];
+extern u8 g_007B4E60[];
+
+int func_0030E1F0(void);
+void func_0030E100(void);
+int func_002F4080(int o);
+u8 *func_00390760(int k);
+int func_001204B0(void *buf, const void *fmt, ...);
+void func_00374EE0(u8 *s);
+void func_002F7610(int o);
+void func_0030E390(int a, int b, int c, int d, int *l, int e);
+void func_003EBE60(void);
+void func_003EC130(int o);
+
+/* 0x003EC000, 0xB0 bytes. */
+void func_003EC000(void)
+{
+    u32 *p = (u32 *)func_003EA000();
+
+    if (func_00375BF0() == 0 || func_00375B90() != 1)
+        return;
+    if (func_0036B260() == 0) {
+        func_003EA310(func_003EA0C0());
+        func_003EA1C0(func_003EA0C0());
+        func_002FAF30(func_003EA140(), func_003EA0C0());
+    } else {
+        func_003EBE60();
+    }
+    p[0] = 3;
+}
+
+/* 0x003EC220, 0x1DC bytes, matching. */
+void func_003EC220(void)
+{
+    u8 *p = func_003EA000();
+    int a, e;
+
+    func_00327D50();
+    a = func_003EA0C0();
+    e = func_003EA140();
+    func_0030CF90(0, 0, *(int *)(p + 8));
+    func_003EAA20(0, 1, a, 1000, g_0041D800, 5);
+    func_003EAA20(0, 2, a, 1000, g_0041D800, 5);
+    func_003EAA20(0, 3, a, 1000, g_0041D800, 5);
+    func_003EAA20(0, 4, a, 1000, g_0041D800, 5);
+    func_003EA820(0, 5, a, 500);
+    func_003EAA20(0, 6, a, 1000, g_0041D800, 5);
+    func_0030CF90(1, 0, 3);
+    func_003EA820(1, 1, e, 1000);
+    func_003EA820(1, 2, e, 1000);
+    func_003EA820(1, 3, e, 500);
+    func_003EA820(1, 4, e, 500);
+    func_003EA820(1, 5, e, 500);
+    func_003EA820(1, 6, e, 1000);
+    func_003EA820(1, 7, e, 500);
+    func_00362990(0, func_002F8E50(a));
+    func_00362990(1, func_002F8E50(e));
+    func_003EAA50(0xB);
+}
+
+/* 0x003EC400, 0x60 bytes, matching. */
+int func_003EC400(void)
+{
+    if (func_002F8CB0(func_003EA140()) != 0) {
+        func_003EA1C0(func_003EA140());
+        func_002FAF30(func_003EA0C0(), func_003EA140());
+    }
+    return 0;
+}
+
+/* 0x003EC4C0, 0xB4 bytes. The battle's closing message. */
+void func_003EC4C0(void)
+{
+    u32 *p = (u32 *)func_003EA000();
+    int a = func_003EA0C0(), t;
+
+    if (func_0030E1F0() != 2)
+        return;
+    func_0030E100();
+    if (func_0036B260() == 0)
+        t = a == func_002F4080(0xD) ? 0x10E : 0xF1;
+    else
+        t = 0xF0;
+    func_001204B0(g_007B4E60, func_00390760(t));
+    func_00374EE0(g_007B4E60);
+    p[0] = 2;
+}
+
+/* Frees officers 10, 12 and 0xC2 of the force. */
+static int *free_three(int a)
+{
+    int n = func_002F7D90(0, func_002F8160, a, 0, 0, 0), k;
+    int *l = (int *)func_002F7B10();
+
+    for (k = 0; k < n; k++) {
+        int o = l[k];
+
+        if (o == 10)
+            func_002F7610(o);
+        else if (o == 0xC)
+            func_002F7610(o);
+        else if (o == 0xC2)
+            func_002F7610(o);
+    }
+    return l;
+}
+
+/* 0x003EC580, 0x130 bytes. */
+void func_003EC580(void)
+{
+    int a = func_003EA0C0(), e = func_003EA140();
+    int *l = free_three(a);
+
+    func_002FAF30(a, e);
+    func_003EA310(e);
+    func_003EA1C0(e);
+    l[0] = 2;
+    func_0030E390(3, -1, -1, -1, l, 1);
+}
+
+/* 0x003EC6C0, 0x12C bytes. */
+void func_003EC6C0(void)
+{
+    int a = func_003EA0C0(), e = func_003EA140();
+    int *l = free_three(a);
+
+    func_003EA310(e);
+    func_003EA1C0(e);
+    func_003EC130(0xD);
+    func_003EC130(0x1B);
+    l[0] = 2;
+    func_0030E390(3, -1, -1, -1, l, 1);
+}
+
+/* 0x003EC800, 0xE4 bytes. */
+void func_003EC800(void)
+{
+    u32 *p = (u32 *)func_003EA000();
+    int a = func_003EA0C0(), e = func_003EA140();
+
+    if (func_00375BF0() == 0 || func_00375B90() != 1)
+        return;
+    if (func_0036B260() == 0) {
+        if (a == func_002F4080(0xD))
+            func_003EC6C0();
+        else
+            func_003EC580();
+    } else if (e >= 0 && e < func_0030AB90()) {
+        func_003EA330(e);
+        func_002FAF30(a, e);
+    }
+    p[0] = 3;
+}

@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 177440,
-    "non_matching": 1206300
+    "matching": 178016,
+    "non_matching": 1207512
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2249
+    "matching": 2251
   },
   "layout": "treemap",
   "areas": [
@@ -402,15 +402,15 @@
         },
         {
           "name": "emp_war_wllt.c",
-          "description": "Estimated range 0x3E6768-0x3EDD28; 137 function(s) decompiled",
+          "description": "Estimated range 0x3E6768-0x3EDD28; 144 function(s) decompiled",
           "code": {
             "total": 30144,
-            "matching": 3888,
-            "non_matching": 17364
+            "matching": 4464,
+            "non_matching": 18576
           },
           "decompiled_functions": {
-            "count": 137,
-            "matching": 53
+            "count": 144,
+            "matching": 55
           }
         },
         {
