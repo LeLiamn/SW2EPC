@@ -267,6 +267,7 @@ void *func_001026D0(int which, int entry, void *dest, int now, u32 size, u32 off
 u32 func_0032F780(void);
 int func_0032F090(u32 a);
 void func_00118850(void *to, int size);  /* clear */
+void func_00118AC0(void *to, const void *from, u32 n);  /* memcpy */
 void func_00195EF0(void);
 void func_00197420(void);
 void func_00195D20(void);
@@ -670,4 +671,145 @@ u32 func_00194950(int x, int z)
 u8 func_00194990(int x, int z)
 {
     return func_00194450(x, z)[0xC] & 0x7F;
+}
+
+void func_00191240(u32 k);
+void func_002011B0(void);
+void func_00200CE0(int a);
+void func_002003D0(void);
+void func_002013E0(void);
+void func_00201030(void);
+void func_00201470(void);
+void func_00200EF0(void);
+void func_00200AB0(void);
+void func_001949C0(void);
+
+
+/* The larger / smaller of two ints. */
+#define IMAX(a, b) ((int)(a) < (int)(b) ? (int)(b) : (int)(a))
+#define IMIN(a, b) ((int)(b) < (int)(a) ? (int)(b) : (int)(a))
+
+/* 0x00194B30, 0x1D8 bytes. Marks in the row bits `rows` (one u32 per row of rectangle `r`) the
+ * 2 x 2 cells around the camera's eye and the 2 x 2 cells about three cells ahead of it (along
+ * its view +0x1E0), kept inside the rectangle. */
+void func_00194B30(u8 *cam, u8 *r, u32 *rows)
+{
+    int x0 = r[0], z0 = r[1];
+    int ex = (int)(*(float *)(cam + 0x1C0) * 0.002f - 0.5f);
+    int ez = (int)(*(float *)(cam + 0x1C8) * 0.002f - 0.5f);
+    int ax, az;
+    u32 m1, m2, *p1, *p2;
+
+    ex = IMAX(x0, ex);
+    ez = IMAX(z0, ez);
+    ex = IMIN(ex, r[2] - 2);
+    ez = IMIN(ez, r[3] - 2);
+    ax = ex + (int)(*(float *)(cam + 0x1E0) * 2.9f);
+    az = ez + (int)(*(float *)(cam + 0x1E8) * 2.9f);
+    ax = IMAX(x0, ax);
+    az = IMAX(z0, az);
+    ax = IMIN(ax, r[2] - 2);
+    az = IMIN(az, r[3] - 2);
+    p1 = rows + (ez - z0);
+    p2 = rows + (az - z0);
+    m1 = 3 << (ex - x0);
+    m2 = 3 << (ax - x0);
+    p1[0] |= m1;
+    p1[1] |= m1;
+    p2[0] |= m1;
+    p2[1] |= m1;
+    p1[0] |= m2;
+    p1[1] |= m2;
+    p2[0] |= m2;
+    p2[1] |= m2;
+}
+
+/* 0x00195C20, 0x3C bytes, matching. Draws layer 5 of the stage. */
+void func_00195C20(void)
+{
+    func_00191240(5);
+    func_002011B0();
+    func_00200CE0(1);
+    func_002003D0();
+    func_002013E0();
+}
+
+/* 0x00195C60, 0x74 bytes. Draws the stage's extra pass (flag 0x80 of the bank's layer bits),
+ * not for layers 2, 3 and 4. */
+void func_00195C60(void)
+{
+    if ((*(u8 *)SPAD(0xB98 + SP32(0x88C)) & 0x80) && (0xC >> (SP32(0x888) & 0x1F) & 1) == 0
+        && SP32(0x888) != 4) {
+        func_00201030();
+        func_00200CE0(0);
+        func_002003D0();
+        func_00201470();
+    }
+}
+
+/* 0x00195CE0, 0x38 bytes, matching. Draws the stage's ground. */
+void func_00195CE0(void)
+{
+    SP32(0x768) = 0;
+    func_00200EF0();
+    func_00200AB0();
+    func_001949C0();
+    func_002013E0();
+}
+
+/* 0x00195D20, 0x84 bytes. Frees the stage's two pairs of buffers (+0x7E0). */
+void func_00195D20(void)
+{
+    int k;
+
+    for (k = 0; k < 2; k++) {
+        if (SPP(0x7E0 + k * 8) != 0) {
+            func_00102EC0(SPP(0x7E0 + k * 8));
+            SPP(0x7E0 + k * 8) = 0;
+        }
+        if (SPP(0x7E4 + k * 8) != 0) {
+            func_00102EC0(SPP(0x7E4 + k * 8));
+            SPP(0x7E4 + k * 8) = 0;
+        }
+    }
+}
+
+/* 0x00195DB0, 0x8 bytes, matching. Nothing. */
+void func_00195DB0(void)
+{
+}
+
+/* 0x00195DC0, 0x68 bytes. Fills `n` 0x70-byte records with the template at +0x770. */
+void func_00195DC0(u8 *p, u32 n)
+{
+    u32 k;
+
+    for (k = 0; k < n; k++, p += 0x70)
+        func_00118AC0(p, SPAD(0x770), 0x70);
+}
+
+/* 0x00195E30, 0xBC bytes. The draw slot of layer `k` (2-5: 1-4, with `alt` 5-8; 0 / 9 for the
+ * others). */
+int func_00195E30(int k, int alt)
+{
+    if (alt == 0) {
+        if (k == 5)
+            return 4;
+        if (k == 4)
+            return 3;
+        if (k == 3)
+            return 2;
+        if (k == 2)
+            return 1;
+        return 0;
+    }
+    if (k == 5)
+        return 8;
+    if (k == 4)
+        return 7;
+    if (k == 3)
+        return 6;
+    if (k == 2)
+        return 5;
+    return 9;
 }
