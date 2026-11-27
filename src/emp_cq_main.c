@@ -3703,3 +3703,269 @@ int func_00316C80(CmdRecord *p)
     func_003155C0(p, &home, 1);
     return 0;
 }
+
+int func_002FBE20(int f);
+u32 func_001A0670(void);
+void func_001A0650(u8 *buf);
+int func_002F6C20(u32 i, int k);
+int func_002F6D10(u32 i, int k);
+int func_002F6E00(u32 i, int k);
+int func_002F6EF0(u32 i, int k);
+void func_002CAD90(u8 *out);
+void func_002F87D0(u32 *l, int n, int (*less)(u32, u32, int, int), int a, int b);
+
+/* 0x00316F50, 0x94 bytes. Command result: region `target` gets kind 0xB value 1 (message 0xE). */
+int func_00316F50(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg = p->target;
+
+    r->kind = 0xB;
+    r->v[0] = reg;
+    r->v[1] = 1;
+    func_001204B0(r->text, func_00390760(0xE), func_0030ABF0(reg));
+    func_003155C0(p, &reg, 1);
+    return 0;
+}
+
+/* 0x00316FF0, 0x94 bytes. The same with value 2 (message 0x10D). */
+int func_00316FF0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg = p->target;
+
+    r->kind = 0xB;
+    r->v[0] = reg;
+    r->v[1] = 2;
+    func_001204B0(r->text, func_00390760(0x10D), func_0030ABF0(reg));
+    func_003155C0(p, &reg, 1);
+    return 0;
+}
+
+/* 0x00317090, 0x70 bytes. Command result: kind 0xC (message 0xF). */
+int func_00317090(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28];
+
+    r->kind = 0xC;
+    func_001204B0(r->text, func_00390760(0xF));
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* The player's bonus (6 when `on`, else 2). */
+#define PLAYER_BONUS(f, on) (func_002FB2A0(f) != 0 && (on) ? 6 : 2)
+
+/* 0x00317100, 0x280 bytes. Command result: looking for a horse; found by chance (the best
+ * func_002F50F0 / 4 + trait * 40 + bonuses, 58-100%) when the stable has room: a new horse
+ * (kind 0xE, message 0x10), else nothing (kind 0x15, message 0x11). */
+int func_00317100(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    u32 *o = func_002F7B10();
+    int reg[28], n, t, best = 0, k, a, b, v;
+    char name[32];
+    u8 buf[0x24];
+
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, p->f, 0, 1);
+    t = func_002FBE20(p->f);
+    for (k = 0; k < n; k++, o++) {
+        int s = func_002F50F0(*o);
+
+        if (best < s)
+            best = s;
+    }
+    a = PLAYER_BONUS(p->f, (u32)func_00327870() < 0x19F);
+    b = PLAYER_BONUS(p->f, func_00327B70(p->f) != 0);
+    v = best / 4 + t * 0x28 + a * b;
+    v = v < 0x3B ? 0x3A : v;
+    v = v > 100 ? 100 : v;
+    if (func_0030CB50(v) == 0 || func_001A06D0() == 0) {
+        r->kind = 0x15;
+        func_001204B0(r->text, func_00390760(0x11));
+        r->v[0x1E] = 2;
+    } else {
+        u32 h = func_001A0670();
+        u8 *rec;
+
+        r->v[1] = h;
+        func_001A0650(buf);
+        buf[4] = h;
+        rec = func_0019FBC0(h);
+        func_0011EB80(rec, buf, 0x24);
+        r->kind = 0xE;
+        func_00120928(name, (char *)func_0019FBC0(h) + 0x13);
+        func_001204B0(r->text, func_00390760(0x10), name);
+        func_0038BE90(rec);
+        r->v[0x1E] = 1;
+        func_0038BE00(h, 0, 0);
+    }
+    func_003155C0(p, reg, func_002FBF20(p->f, 2, reg));
+    func_003F4D20(0x10);
+    return 0;
+}
+
+/* Officer `i`'s riding skills (kinds 4 and 0xE in both skill lists). */
+static int riding(u32 i)
+{
+    int s = 0, k;
+
+    for (k = 0; k < 4; k++) {
+        int c = func_002F6C20(i, k);
+
+        if (c == 4 || c == 0xE)
+            s += func_002F6D10(i, k);
+    }
+    for (k = 0; k < 10; k++) {
+        int c = func_002F6E00(i, k);
+
+        if (c == 4 || c == 0xE)
+            s += func_002F6EF0(i, k);
+    }
+    return s;
+}
+
+/* 0x00317380, 0x1B8 bytes, matching. Order: the better rider first, then the higher func_002F34E0, then
+ * the lower number. */
+int func_00317380(int i, int j)
+{
+    int a = 0, b = 0, k, x, y;
+
+    for (k = 0; k < 4; k++) {
+        int c = func_002F6C20(i, k);
+
+        if (c == 4 || c == 0xE)
+            a += func_002F6D10(i, k);
+        c = func_002F6C20(j, k);
+        if (c == 4 || c == 0xE)
+            b += func_002F6D10(j, k);
+    }
+    for (k = 0; k < 10; k++) {
+        int c = func_002F6E00(i, k);
+
+        if (c == 4 || c == 0xE)
+            a += func_002F6EF0(i, k);
+        c = func_002F6E00(j, k);
+        if (c == 4 || c == 0xE)
+            b += func_002F6EF0(j, k);
+    }
+    if (b < a)
+        return 1;
+    if (a < b)
+        return 0;
+    x = func_002F34E0(i);
+    y = func_002F34E0(j);
+    if (y < x)
+        return 1;
+    if (x < y)
+        return 0;
+    return i < j;
+}
+
+/* 0x00317540, 0x364 bytes. Command result: training the stable's horse `target` with the best
+ * rider (kind 0xE, message 0x12): experience from the rider, the force's value and bonuses,
+ * at most 99999 in all. */
+int func_00317540(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    u8 st[12], *hr;
+    u32 *o, best;
+    int h, n, s, base, fv, a, b, t, gain, tot, home;
+
+    func_002F7B10();
+    func_002CAD90(st);
+    h = st[p->target];
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, p->f, 0, 0);
+    o = func_002F7B10();
+    func_002F87D0(o, n, (int (*)(u32, u32, int, int))func_00317380, -1, -1);
+    best = o[0];
+    s = riding(best);
+    hr = func_0019FBC0(h);
+    if (s < 8 || s - (int)hr[8] < 2)
+        base = s - (int)hr[8] < 2 ? 1000 : 0x5DC;
+    else
+        base = 2000;
+    fv = func_002FABC0(p->f);
+    a = PLAYER_BONUS(p->f, (u32)func_00327870() < 0x19F);
+    b = PLAYER_BONUS(p->f, func_00327B70(p->f) != 0);
+    t = func_002FBE20(p->f);
+    gain = (t * 500 + base + fv / 2 + func_0030CB00(a) * 100 + func_0030CB00(b) * 100) * 2;
+    r->v[4] = *(int *)func_0019FBC0(h);
+    r->v[3] = gain;
+    tot = gain + *(int *)func_0019FBC0(h) < 99999 ? gain + *(int *)func_0019FBC0(h) : 99999;
+    func_0038BE00(h, best, gain);
+    r->kind = 0xE;
+    r->v[1] = h;
+    r->v[2] = best;
+    func_001204B0(r->text, func_00390760(0x12), (char *)func_0019FBC0(h) + 0x13, func_0030CB80(r->v[3]),
+                  func_0030CB80(tot));
+    home = func_002FB2D0(p->f);
+    func_003155C0(p, &home, 1);
+    return 0;
+}
+
+/* Command result: officer `target` gets `v` soldiers (kind 10, message `m`). */
+static int give_soldiers(CmdRecord *p, int m, int v)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    u32 i = p->target;
+    int reg;
+
+    r->kind = 10;
+    r->v[0] = i;
+    r->v[1] = v;
+    func_001204B0(r->text, func_00390760(m), func_002F2890(i));
+    reg = func_002F5CC0(i);
+    func_003155C0(p, &reg, 1);
+    return 0;
+}
+
+/* 0x003178C0, 0xA0 bytes. 1000 soldiers (message 0x16). */
+int func_003178C0(CmdRecord *p)
+{
+    return give_soldiers(p, 0x16, 1000);
+}
+
+/* 0x00317960, 0xA0 bytes. 2000 soldiers (message 0x17). */
+int func_00317960(CmdRecord *p)
+{
+    return give_soldiers(p, 0x17, 2000);
+}
+
+/* 0x00317A00, 0xA4 bytes. Back to its most (message 0x18). */
+int func_00317A00(CmdRecord *p)
+{
+    return give_soldiers(p, 0x18, func_002F38F0(p->target));
+}
+
+/* Command result: every officer gets `v` soldiers (kind 0xC, message `m`). */
+static int all_soldiers(CmdRecord *p, int m, int v)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg[28];
+
+    r->kind = 0xC;
+    r->v[1] = v;
+    func_001204B0(r->text, func_00390760(m));
+    func_003155C0(p, reg, func_002FB320(p->f, reg));
+    return 0;
+}
+
+/* 0x00317AB0, 0x78 bytes. 500 soldiers each (message 0x19). */
+int func_00317AB0(CmdRecord *p)
+{
+    return all_soldiers(p, 0x19, 500);
+}
+
+/* 0x00317B30, 0x78 bytes. 1000 each (message 0x1A). */
+int func_00317B30(CmdRecord *p)
+{
+    return all_soldiers(p, 0x1A, 1000);
+}
+
+/* 0x00317BB0, 0x78 bytes. 2000 each (message 0x1B). */
+int func_00317BB0(CmdRecord *p)
+{
+    return all_soldiers(p, 0x1B, 2000);
+}
