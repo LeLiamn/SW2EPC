@@ -930,3 +930,308 @@ void func_001B25A0(TextWindow *w, int k)
     g_0056CCA4 = c0;
     g_0056CCB8 = layer;
 }
+
+/* A screen point in half lines (y scaled first) at the font's depth. */
+static inline u64 half_xyz(int x, int y)
+{
+    return (u64)(long long)(0xFFFE - g_0056CCBC) << 32 | (u64)(long long)(x * 0x10 + 0x7000)
+           | (u64)(long long)(scale_y(y) * 8 + 0x7900) << 16;
+}
+
+/* Fills a strip packet's colours and texels for glyph `g`. */
+static inline u8 *glyph_strip(Glyph *g)
+{
+    u32 u, v;
+    u64 t = glyph_texels(g, &u, &v);
+    u8 *p = func_00105B40(t, 0);
+    u32 du = *(u16 *)(g->font + 0x20) - 1, dv = *(u16 *)(g->font + 0x22) - 1;
+    u64 rgba = (u64)g->rgba | 0x3F80000000000000ULL;
+    int k;
+
+    for (k = 0; k < 4; k++)
+        *(u64 *)(p + 0x20 + k * 0x18) = rgba;
+    *(u64 *)(p + 0x28) = (u64)(u << 4 | 8) | (u64)(v << 4 | 8) << 16;
+    *(u64 *)(p + 0x40) = (u64)((du + u) * 0x10 | 8) | (u64)(v << 4 | 8) << 16;
+    *(u64 *)(p + 0x58) = (u64)(u << 4 | 8) | (u64)((dv + v) * 0x10 | 8) << 16;
+    *(u64 *)(p + 0x70) = (u64)((du + u) * 0x10 | 8) | (u64)((dv + v) * 0x10 | 8) << 16;
+    return p;
+}
+
+/* 0x001B3070, 0xA1C bytes. Draws glyph `g` of the list window (`g->pad` points at the window):
+ * its top edge slides in from the right while the window opens (state 2, by its timer / 10), the
+ * glyph slides out to the left while it closes (state 7, timer / 5), still when waiting
+ * (state 4); nothing otherwise. */
+void func_001B3070(Glyph *g)
+{
+    TextWindow *w = (TextWindow *)(u32)g->pad;
+    u8 *p = glyph_strip(g);
+    int x = g->x, y = g->y, gw = g->w, gh = g->h;
+
+    if (w->state == 2) {
+        int x1 = x + (int)((float)w->b[2] / 10.0f * 640.0f);
+
+        *(u64 *)(p + 0x30) = half_xyz(x1, y);
+        *(u64 *)(p + 0x48) = half_xyz(x1 + gw, y);
+        *(u64 *)(p + 0x60) = half_xyz(x, y + gh);
+        *(u64 *)(p + 0x78) = half_xyz(x + gw, y + gh);
+    } else if (w->state == 7) {
+        float f = 1.0f - (float)w->b[2] / 5.0f;
+        int x0 = x - (int)(f * 640.0f);
+
+        if (x0 < -gw)
+            x0 = -gw;
+        *(u64 *)(p + 0x30) = half_xyz(x0, y + (int)((float)(u32)gh * f));
+        *(u64 *)(p + 0x48) = half_xyz(x0 + gw, y + (int)((float)(u32)gh * f));
+        *(u64 *)(p + 0x60) = half_xyz(x, y + gh);
+        *(u64 *)(p + 0x78) = half_xyz(x + gw, y + gh);
+    } else if (w->state == 4) {
+        *(u64 *)(p + 0x30) = half_xyz(x, y);
+        *(u64 *)(p + 0x48) = half_xyz(x + gw, y);
+        *(u64 *)(p + 0x60) = half_xyz(x, y + gh);
+        *(u64 *)(p + 0x78) = half_xyz(x + gw, y + gh);
+    } else {
+        return;
+    }
+    func_00105BE0(p, g->layer);
+}
+
+/* Glyph `g`'s sprite growing to `w2` x `h2` around its place (as in the original, the vertical
+ * offset uses the width), with alpha `a`. */
+static inline void zoom_glyph(u8 *p, Glyph *g, int w2, int h2, int a)
+{
+    int x0 = g->x - (w2 - g->w) / 2, y0 = g->y - (h2 - g->w) / 2;
+
+    *(u64 *)(p + 0x20) = (u64)(long long)(int)((u32)a << 24 | (g->rgba & 0xFFFFFF))
+                         | 0x3F80000000000000ULL;
+    *(u64 *)(p + 0x30) = half_xyz(x0, y0);
+    *(u64 *)(p + 0x40) = (u64)(long long)(0xFFFE - g_0056CCBC) << 32
+                         | (u64)(long long)((w2 + x0) * 0x10 + 0x7000)
+                         | (u64)(long long)((scale_y(h2) + scale_y(y0)) * 8 + 0x7900) << 16;
+}
+
+/* 0x001B3A90, 0x9C4 bytes. Draws glyph `g` of the portrait windows (`g->pad` points at the
+ * window): it shrinks into place and fades in while the window opens (timer / 20), grows and
+ * fades out while it closes (timer / 10), half transparent when waiting. */
+void func_001B3A90(Glyph *g)
+{
+    TextWindow *w = (TextWindow *)(u32)g->pad;
+    u32 u, v;
+    u64 t = glyph_texels(g, &u, &v);
+    u8 *p = func_00105860(t, 0);
+
+    *(u64 *)(p + 0x28) = (u64)(u << 4) | 8 | ((u64)(v << 4) | 8) << 16;
+    *(u64 *)(p + 0x38) = (u64)((*(u16 *)(g->font + 0x20) + u) * 0x10) | 8
+                         | ((u64)((*(u16 *)(g->font + 0x22) + v) * 0x10) | 8) << 16;
+    if (w->state == 2) {
+        float f = (float)w->b[2] / 20.0f;
+
+        zoom_glyph(p, g, g->w + (int)(f * (float)(u32)g->w * f), g->h + (int)((float)(u32)g->h * f),
+                   (int)((1.0f - f) * 128.0f));
+    } else if (w->state == 7) {
+        float f = (float)w->b[2] / 10.0f;
+
+        zoom_glyph(p, g, g->w + (int)((float)(u32)g->w * (1.0f - f * f)),
+                   (int)((float)(u32)g->h * f), (int)(f * 128.0f));
+    } else if (w->state == 4) {
+        int sy = scale_y(g->y);
+
+        *(u64 *)(p + 0x20) = (u64)(g->rgba & 0xFFFFFF) | 0x3F80000080000000ULL;
+        *(u64 *)(p + 0x30) = (u64)(long long)(0xFFFE - g_0056CCBC) << 32
+                             | (u64)(long long)(g->x * 0x10 + 0x7000)
+                             | (u64)(long long)(sy * 8 + 0x7900) << 16;
+        *(u64 *)(p + 0x40) = (u64)(long long)(0xFFFE - g_0056CCBC) << 32
+                             | (u64)(long long)((g->w + g->x) * 0x10 + 0x7000)
+                             | (u64)(long long)((scale_y(g->h) + sy) * 8 + 0x7900) << 16;
+    } else {
+        return;
+    }
+    func_00105900(p, g->layer);
+}
+
+void func_001A4440(u8 *p, int x, int y, int z, int w, int h, int style);
+void func_001A5060(u8 *p, int x, int y, int z, int w, int h, int alpha);
+
+/* Window `k`'s state bytes and this frame's packets. */
+static inline u8 *window_state(int k)
+{
+    return k == 4 ? g_00692DC0[0] : k == 2 ? g_00693390 : k == 3 ? g_00692AC0[0] : 0;
+}
+
+static inline u8 *window_packets(int k)
+{
+    if (k == 4)
+        return g_00691260[g_70000150];
+    if (k == 2)
+        return g_00690AA0[g_70000150];
+    if (k == 3)
+        return g_0068FAC0[g_70000150];
+    if (k == 1 || k == 0)
+        return g_0068F3E0[g_70000150];
+    return 0;
+}
+
+/* Draws window `w`'s text with glyph drawer `draw` (states 2, 7 and 4). */
+static inline void window_text(TextWindow *w, void (*draw)(Glyph *g))
+{
+    u32 layer = g_0056CCB8, c0 = g_0056CCA4;
+
+    if (w->state == 2 || w->state == 7 || w->state == 4) {
+        g_0056CCA0 = draw;
+        g_0056CCB8 = 5;
+        g_0056CCA4 = w->b[4];
+        g_0056CCAC = w->b[4];
+        g_0056CCA8 = g_0056CCA4;
+        g_0056CCB0 = g_0056CCAC;
+        func_00146270(w->text, w->x + w->pad[2], w->y + w->pad[0], w->b[1], (int)w);
+        g_0056CCA8 = c0;
+        g_0056CCAC = c0;
+        g_0056CCB0 = c0;
+    }
+    g_0056CCA4 = c0;
+    g_0056CCB8 = layer;
+}
+
+/* 0x001B4460, 0x340 bytes. Draws the list window: its gradient (of the window's style) growing
+ * up from the bottom while it opens (timer / 10) and shrinking when closed, no bar ends or
+ * marks, and its text. */
+void func_001B4460(TextWindow *w, int k)
+{
+    u8 *st = window_state(k), *p = window_packets(k);
+    int h = w->h;
+    int off;
+
+    if ((u32)(w->state - 1) < 2)
+        h = w->h * (10 - w->b[2]) / 10;
+    else if (w->state == 8)
+        h = w->h * w->b[2] / 10;
+    func_001A4440(p, w->x, w->y + (w->h - h), w->z, w->w, h, st[0]);
+    for (off = 0x150; off <= 0x240; off += 0x50) {
+        *(u64 *)(p + off) = 0;
+        *(u64 *)(p + off + 0x10) = 0;
+        *(u64 *)(p + off + 0x160) = 0;
+        *(u64 *)(p + off + 0x170) = 0;
+    }
+    func_00104F60(p, 0x3E0, w->b[1]);
+    window_text(w, func_001B3070);
+}
+
+/* 0x001B47A0, 0x564 bytes. Draws a portrait window's plate: shrinking into place and fading in
+ * while it opens (timer / 20), growing and fading out when it closes (timer / 10), and once
+ * shown a wider plate fading out over 20 frames; then its text. */
+void func_001B47A0(TextWindow *w, int k)
+{
+    u8 *st = window_state(k), *p = window_packets(k);
+    int ww, hh, a;
+    int off;
+
+    if ((u32)(w->state - 1) < 2) {
+        float f = (float)w->b[2] / 20.0f;
+
+        st[2] = 0;
+        a = (int)((1.0f - f) * 96.0f);
+        ww = w->w + (int)(f * (float)w->w * f);
+        hh = w->h + (int)((float)w->h * f);
+    } else if ((u32)(w->state - 7) < 2) {
+        float f = (float)w->b[2] / 10.0f;
+
+        a = (int)(f * 96.0f);
+        hh = (int)((float)w->h * f);
+        ww = w->w + (int)((float)w->w * (1.0f - f * f));
+    } else {
+        ww = w->w;
+        a = 0x60;
+        hh = w->h;
+    }
+    func_001A5060(p + 0x120, w->x - (ww - w->w) / 2, w->y - (hh - w->h) / 2, w->z, ww, hh, a);
+    if (w->state == 4 && st[2] < 0x14) {
+        float f;
+        int w2;
+
+        st[2]++;
+        f = (float)st[2] / 20.0f;
+        w2 = w->w + (int)((float)w->w * 0.5f * f);
+        func_001A5060(p + 0x280, w->x - (w2 - w->w) / 2, w->y, w->z, w2, w->h,
+                      (int)((1.0f - f) * 64.0f));
+        *(u64 *)(p + 0x240) = 0;
+    } else {
+        for (off = 0x2B0; off <= 0x350; off += 0x50) {
+            *(u64 *)(p + off) = 0;
+            *(u64 *)(p + off + 0x10) = 0;
+        }
+        *(u64 *)(p + 0x240) = 0;
+    }
+    *(u64 *)(p + 0x250) = 0;
+    *(u64 *)(p + 0x3A0) = 0;
+    *(u64 *)(p + 0x3B0) = 0;
+    for (off = 0x20; off <= 0xE0; off += 0x60) {
+        *(u64 *)(p + off) = 0;
+        *(u64 *)(p + off + 0x10) = 0;
+        *(u64 *)(p + off + 0x20) = 0;
+        *(u64 *)(p + off + 0x30) = 0;
+    }
+    func_00104F60(p, 0x3E0, w->b[1]);
+    window_text(w, func_001B3A90);
+}
+
+/* 0x001B4D10, 0x6EC bytes. Draws the portrait window with its title frame (0xA4 x 0x14 at
+ * (0x18, 0xF0), 0xB4 in the half-screen layout, 20 higher for two-line texts) growing and fading
+ * like the plate, and once shown a wider frame fading out. */
+void func_001B4D10(TextWindow *w, int k)
+{
+    u8 *st, *p;
+    int two = 0, i, fw, fh, a, x, y;
+
+    for (i = 0; w->text[i] != 0; i++) {
+        if (w->text[i] == '\n') {
+            two = 1;
+            break;
+        }
+    }
+    func_001B47A0(w, k);
+    st = window_state(k);
+    p = window_packets(k);
+    if ((u32)(w->state - 1) < 2) {
+        float f = (float)w->b[2] / 20.0f;
+
+        fw = (int)(f * 164.0f * f) + 0xA4;
+        a = (int)((1.0f - f) * 128.0f);
+        fh = (int)(f * 20.0f) + 0x14;
+    } else if ((u32)(w->state - 7) < 2) {
+        float f = (float)w->b[2] / 10.0f;
+
+        fh = (int)(f * 20.0f);
+        a = (int)(f * 128.0f);
+        fw = (int)((1.0f - f * f) * 164.0f) + 0xA4;
+    } else {
+        fw = 0xA4;
+        fh = 0x14;
+        a = 0x60;
+    }
+    x = 0x18 - (fw - 0xA4) / 2;
+    y = (g_00693968 == 1 ? 0xB4 : 0xF0) - (fh - 0x14) / 2;
+    if (two)
+        y -= 0x14;
+    *(u64 *)(p + 0x230) = (u64)(long long)a << 24 | 0x3F80000000808080ULL;
+    *(u64 *)(p + 0x240) = (u64)(long long)(0xFFFE - w->z) << 32 | (u64)(long long)(x * 0x10 + 0x7000)
+                          | (u64)(long long)(scale_y(y) * 8 + 0x7900) << 16;
+    *(u64 *)(p + 0x250) = (u64)(long long)(0xFFFE - w->z) << 32
+                          | (u64)(long long)((fw + x) * 0x10 + 0x7000)
+                          | (u64)(long long)((scale_y(fh) + scale_y(y)) * 8 + 0x7900) << 16;
+    if (w->state == 4 && st[2] < 0x14) {
+        float f = (float)st[2] / 20.0f;
+        int d = (int)(f * 82.0f), x2 = 0x18 - d / 2, y2 = g_00693968 == 1 ? 0xB4 : 0xF0;
+
+        if (two)
+            y2 -= 0x14;
+        *(u64 *)(p + 0x390) = (u64)(long long)(int)((1.0f - f) * 64.0f) << 24 | 0x3F80000000808080ULL;
+        *(u64 *)(p + 0x3A0) = (u64)(long long)(0xFFFE - w->z) << 32
+                              | (u64)(long long)(x2 * 0x10 + 0x7000)
+                              | (u64)(long long)(scale_y(y2) * 8 + 0x7900) << 16;
+        *(u64 *)(p + 0x3B0) = (u64)(long long)(0xFFFE - w->z) << 32
+                              | (u64)(long long)((d + 0xA4 + x2) * 0x10 + 0x7000)
+                              | (u64)(long long)((scale_y(y2) + 0x16) * 8 + 0x7900) << 16;
+    } else {
+        *(u64 *)(p + 0x3A0) = 0;
+        *(u64 *)(p + 0x3B0) = 0;
+    }
+}
