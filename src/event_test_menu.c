@@ -4,7 +4,8 @@
  * event, +8 result, +0xC, +0x10 the officers (0x1D), +0x84 the events of the chosen officer,
  * +0x5F4/+0x5F6 cursor and first line of the officer list, +0x5F8/+0x5FA of the event list,
  * +0x5FC/+0x5FE their counts). Sliding windows at 0x007BAEF0 and 0x007BAED0. Original file name
- * unknown. From 0x003B24F0: the event scene's choice windows and tabs.
+ * unknown. From 0x003B24F0: the event scene's choice windows and tabs, sprites of the bank gp
+ * 0x0045D7FC, and the Empire ending (0x003B5EA0-0x003B7084).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -594,4 +595,515 @@ void func_003B3DD0(int alpha, int cur)
     func_001A3C20(0, 0xA0, 0, 0x200, 0x40, 0x80, alpha);
     for (k = 0; k < 5; k++)
         func_003B3D50(k, g_0045B6A0[k][0], g_0045B6A0[k][1], 0, alpha + 1, cur == k);
+}
+
+/* ---- Sprites of the bank gp 0x0045D7FC: digits, marks, icons. ---- */
+
+int func_00313B30(int k);
+void func_001AB4E0(u8 *a, u8 *b, int x, int y, int z, int w, int h, int u);
+
+#define BANK_SPR(k) ((u8 *)g_0045D7FC + *(int *)((u8 *)g_0045D7FC + 8) * *(int *)((u8 *)g_0045D7FC + 0x10 + (k) * 8))
+
+/* 0x003B4FE0, 0x90 bytes. */
+void func_003B4FE0(int k, int x, int y, int z)
+{
+    int s;
+
+    if (k == 2)
+        s = 0x1E;
+    else if (k == 1)
+        s = 0x1D;
+    else if (k == 0)
+        s = 0x1C;
+    else
+        s = x;
+    func_001ABEA0(g_0045D7FC, s, x, y, z, 0x14, 0x14, 0);
+}
+
+/* 0x003B5070, 0x16C bytes. A level mark by value (< 20, < 50, < 80, more). */
+void func_003B5070(int v, int x, int y, int z)
+{
+    if (v < 0x14)
+        func_001ABEA0(g_0045D7FC, 0x17, x, y, z, 0x14, 0x14, 0);
+    else if (v < 0x32)
+        func_001ABEA0(g_0045D7FC, 0x18, x, y, z, 0x14, 0x14, 0);
+    else if (v < 0x50)
+        func_001ABEA0(g_0045D7FC, 0x19, x, y, z, 0x14, 0x14, 0);
+    else
+        func_001ABEA0(g_0045D7FC, 0x1A, x, y, z, 0x14, 0x14, 0);
+}
+
+/* 0x003B5300, 0xB4 bytes. */
+void func_003B5300(int k, int x, int y, int z)
+{
+    int s;
+
+    if (k == 3)
+        s = 0x14;
+    else if (k == 2)
+        s = 0x13;
+    else if (k == 1)
+        s = 0x12;
+    else if (k == 0)
+        s = 0x11;
+    else
+        return;
+    func_001ABEA0(g_0045D7FC, s, x, y, z, 0x14, 0x14, 0);
+}
+
+/* 0x003B53C0, 0x44 bytes. */
+void func_003B53C0(int x, int y, int z, int a, int b, int k)
+{
+    func_001ABE40(g_0045D7FC, k + 0x1F, x, y, z, 0x40, 0x20, a);
+}
+
+/* 0x003B5480, 0x114 bytes. A bar of width `w` (two caps and a middle). */
+void func_003B5480(int x, int y, int z, int w, int b, int c)
+{
+    func_001ABEA0(g_0045D7FC, 3, x, y, z, 0x18, 8, 0);
+    func_001ABEA0(g_0045D7FC, 3, x + 0x18, y, z, w - 0x30, 8, 0x18);
+    func_001ABEA0(g_0045D7FC, 3, x + 0x18 + w - 0x30, y, z, 0x18, 8, 0x20);
+}
+
+/* 0x003B5820, 0x80 bytes. The icon of kind `k`. */
+void func_003B5820(int k, int x, int y, int z, int a, int b)
+{
+    func_001ABE40(g_0045D7FC, func_00313B30(k) + 0x2F, x, y, z, 0x20, 0x18, a);
+}
+
+/* 0x003B5970, 0x124 bytes. A frame of width `w` (at least 0x20). */
+void func_003B5970(int x, int y, int z, int w)
+{
+    if (w < 0x20)
+        w = 0x20;
+    func_001ABEA0(g_0045D7FC, 0x49, x, y, z, 0x10, 0x18, 0);
+    func_001ABEA0(g_0045D7FC, 0x49, x + 0x10, y, z, w - 0x20, 0x18, 0x10);
+    func_001ABEA0(g_0045D7FC, 0x49, x + 0x10 + w - 0x20, y, z, 0x10, 0x18, 0x18);
+}
+
+/* 0x003B5AA0, 0x8C bytes. Digit sprite `d` (0..9 = 1..9, 0). */
+void func_003B5AA0(int d, int x, int y, int z)
+{
+    u8 *p = BANK_SPR(0x4A);
+
+    func_001AB4E0(p, p, x, y, z, 0x10, 0x10, d << 4);
+}
+
+/* 0x003B5B30, 0x168 bytes. A number up to 999. */
+void func_003B5B30(int v, int x, int y, int z)
+{
+    int r = v, d;
+
+    if (v > 99) {
+        d = v / 100 - 1;
+        if (v / 100 == 0)
+            d = 9;
+        func_003B5AA0(d, x, y, z);
+        r = v % 100;
+    }
+    if (v > 9) {
+        d = r / 10 - 1;
+        if (r / 10 == 0)
+            d = 9;
+        func_003B5AA0(d, x + 0xC, y, z);
+        r = r % 10;
+    }
+    d = r - 1;
+    if (r == 0)
+        d = 9;
+    func_003B5AA0(d, x + 0x18, y, z);
+}
+
+/* 0x003B5D50, 0x98 bytes. */
+void func_003B5D50(int k, int x, int y, int z)
+{
+    u8 *p = BANK_SPR(0x4B + k);
+
+    func_001AB4E0(p, p, x, y, z, 0x20, 0x14, 0);
+}
+
+/* 0x003B5E10, 0x78 bytes. */
+void func_003B5E10(int k, int x, int y, int z)
+{
+    if (k >= 0 && k < 3)
+        func_001ABEA0(g_0045D7FC, 0x54, x, y, z, 0x38, 0x10, 0);
+}
+
+/* ---- The Empire ending (state 0x003B5E90: +4 step, +0x20.. loaded files, +0x514 the cleared
+ * player officers (8 x 0x24), +0x634 their marks, +0x654 count, +0x658 cursor, +0x760 timer). ---- */
+
+extern char g_0045B6E8[];                /* this source file's name */
+extern char *g_0043C31C;
+extern char g_006935DB, g_006935DC;
+extern u8 g_0056CCC8[4];
+
+u8 *func_003B5E90(void);
+void func_003A5FA0(int a, int b, int c, int d);
+void func_001B8F60(int a, int b, int c);
+void func_001ABA70(u32 h, int a, int x, int y, int w, int hh, int al, int b);
+u32 func_001026D0(int a, int k, int b, int c, int d, int e, const char *file, int line);
+void func_0017E010(int m);
+void func_0019FC30(void);
+u8 *func_0019FBC0(int k);
+char *func_00120928(char *to, const char *from);
+int func_003294A0(int k);
+void func_00329450(int k, int v);
+void func_001AE9F0(int a, char *t, int b);
+void func_001AFC50(int a);
+void func_001037F0(int a);
+void func_002DBAC0(int a);
+void func_002D8060(int a);
+void func_001AFFB0(int a);
+int func_002DAC30(void);
+void func_002D8160(void);
+void func_00118AC0(void *to, const void *from, u32 n);
+int func_003F0A00(u8 *p);
+void func_003F0800(u8 *p);
+int func_003C1850(void);
+int func_00327C00(void);
+void func_0039FCA0(int a, int b);
+int func_00327820(void);
+void func_0011ED38(void *p, int v, int n);
+void func_003B69A0(void);
+int func_0032EEB0(void);
+void func_003BA8F0(int k, int a, int b, int c, int d);
+int func_0023A9B0(int a, int b);
+void func_0023A960(int a);
+void func_003BC5E0(void);
+void func_003B9760(void);
+void func_00102EC0(u32 h);
+int func_0030DFA0(void);
+char *func_00390760(int k);
+char *func_002F2890(int o);
+char *func_00372410(int k);
+void func_001AEDB0(int a, int b, int c, int d);
+void func_001AFEC0(int a);
+int func_001204B0(char *to, const char *f, ...);
+extern u32 g_7000015C;
+
+/* 0x003B5EA0, 0xCC bytes. Draws the ending picture, fading out over the last 160 frames. */
+void func_003B5EA0(void)
+{
+    u8 *s = func_003B5E90();
+    int al = 0x80, t;
+
+    if (ST_INT(s, 0x718) == 0)
+        return;
+    t = 600 - ST_SHORT(s, 0x760);
+    if (t < 0xA0)
+        al = (t * 0x80) / 0xA0 & 0xFF;
+    if (ST_SHORT(s, 0x760) == 200) {
+        func_003A5FA0(0, 0, 0, 0);
+        func_001B8F60(0, 6, 1);
+    }
+    func_001ABA70(ST_INT(s, 0x20), 0, 0, 0, 0x200, 0x180, al, 2);
+}
+
+/* 0x003B5F70, 0x104 bytes. Its step: loads it, counts down (start skips to the end). */
+int func_003B5F70(void)
+{
+    u8 *s = func_003B5E90();
+    short t;
+
+    if (ST_INT(s, 0x718) == 0) {
+        ST_INT(s, 0x20) = func_001026D0(1, 0xD84, 0, 1, 0, 0, g_0045B6E8, 0x44);
+        ST_INT(s, 0x718) = 1;
+        func_0017E010(0x22);
+    }
+    t = --ST_SHORT(s, 0x760);
+    if (t < 1)
+        ST_INT(s, 4) = 0x12;
+    if ((PAD1_REPEAT() & 0x800) && ST_SHORT(s, 0x760) > 200)
+        ST_SHORT(s, 0x760) = 200;
+    return 0;
+}
+
+/* 0x003B6080, 0x184 bytes. Copies the marked officers (up to 4) into the four player slots. */
+void func_003B6080(void)
+{
+    u8 *s = func_003B5E90(), *r, *o;
+    int n = 0, k, i;
+
+    func_0019FC30();
+    for (k = 0; k < 8; k++) {
+        if (ST_INT(s, 0x634 + k * 4) == 0)
+            continue;
+        r = s + k * 0x24;
+        func_0019FBC0(n)[4] = r[0x518];
+        func_00120928((char *)func_0019FBC0(n) + 0x13, (char *)r + 0x527);
+        func_0019FBC0(n)[5] = r[0x519];
+        func_0019FBC0(n)[6] = r[0x51A];
+        func_0019FBC0(n)[7] = r[0x51B];
+        *(int *)func_0019FBC0(n) = ST_INT(r, 0x514);
+        func_0019FBC0(n)[8] = r[0x51C];
+        func_0019FBC0(n)[9] = r[0x51D];
+        for (i = 0; i < 5; i++) {
+            o = func_0019FBC0(n);
+            o[i + 0xE] = r[i + 0x522];
+        }
+        func_0019FBC0(n)[10] = r[0x51E];
+        func_0019FBC0(n)[0xB] = r[0x51F];
+        func_0019FBC0(n)[0xC] = r[0x520];
+        o = func_0019FBC0(n);
+        n++;
+        o[0xD] = r[0x521];
+        if (n > 3)
+            return;
+    }
+}
+
+/* 0x003B6210, 0x50 bytes. The number of marked officers. */
+int func_003B6210(void)
+{
+    u8 *s = func_003B5E90();
+    int n = 0, k;
+
+    for (k = 0; k < ST_INT(s, 0x654); k++) {
+        if (ST_INT(s, 0x634 + k * 4) != 0)
+            n++;
+    }
+    return n;
+}
+
+/* 0x003B6260, 0x3BC bytes. Marking the officers to keep (up to 4; the last line is OK). */
+void func_003B6260(void)
+{
+    u8 *s = func_003B5E90();
+    int n = 0, k, mv;
+
+    if (ST_INT(s, 0x750) < 1)
+        ST_INT(s, 4) = 0xC;
+    if (PAD1_REPEAT() & 0x1000) {
+        mv = 1;
+        if (ST_INT(s, 0x658) == 0) {
+            mv = 0;
+            if (PAD1_PRESSED() & 0x1000)
+                mv = 1;
+        }
+        if (mv) {
+            func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+            if (--ST_INT(s, 0x658) < 0)
+                ST_INT(s, 0x658) = ST_INT(s, 0x654);
+        }
+    } else if (PAD1_REPEAT() & 0x4000) {
+        mv = 1;
+        if (ST_INT(s, 0x654) == ST_INT(s, 0x658)) {
+            mv = 0;
+            if (PAD1_PRESSED() & 0x4000)
+                mv = 1;
+        }
+        if (mv) {
+            func_0023AD10(0, 0, 0x2CDC, 0x2CDC, 0x1000);
+            if (ST_INT(s, 0x654) < ++ST_INT(s, 0x658))
+                ST_INT(s, 0x658) = 0;
+        }
+    } else if (PAD1_PRESSED() & 0x40) {
+        if (ST_INT(s, 0x654) == ST_INT(s, 0x658)) {
+            func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+            func_003B6080();
+            for (k = 0; k < 8; k++) {
+                if (ST_INT(s, 0x634 + k * 4) != 0)
+                    n++;
+            }
+            for (k = 0; k < 2; k++) {
+                if (func_003294A0(k) != 4 && n <= func_003294A0(k))
+                    func_00329450(k, 4);
+            }
+            ST_INT(s, 4) = 0xC;
+        } else {
+            int *m = (int *)(s + 0x634 + ST_INT(s, 0x658) * 4);
+
+            if (*m == 0) {
+                if (func_003B6210() < 4) {
+                    func_0023AD10(1, 0, 0x2CDC, 0x2CDC, 0x1000);
+                    *(int *)(s + 0x634 + ST_INT(s, 0x658) * 4) = 1;
+                } else {
+                    func_0023AD10(4, 0, 0x2CDC, 0x2CDC, 0x1000);
+                }
+            } else {
+                *m = 0;
+                func_0023AD10(2, 0, 0x2CDC, 0x2CDC, 0x1000);
+            }
+        }
+    }
+}
+
+/* 0x003B6620, 0x138 bytes. Asks whether to save the cleared data. */
+void func_003B6620(void)
+{
+    u8 *s = func_003B5E90();
+    char t[0x100];
+
+    if (ST_INT(s, 0x71C) == 0) {
+        g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = 0x80;
+        func_001204B0(t, g_0043C31C);
+        func_001AE9F0(1, t, 1);
+        func_001AFC50(1);
+        g_006935DB = 5;
+        ST_INT(s, 0x71C) = 1;
+    }
+    if (g_006935DC == 4) {
+        func_001037F0(0);
+        if (ST_INT(s, 0x75C) == 6) {
+            func_002DBAC0(0);
+        } else if (ST_INT(s, 0x75C) == 7) {
+            func_002DBAC0(1);
+        } else {
+            ST_INT(s, 4) = 0xE;
+            return;
+        }
+        func_002D8060(0);
+        ST_INT(s, 0x740) = 0;
+        ST_INT(s, 4) = 0xD;
+    } else if (g_006935DC == 5) {
+        ST_INT(s, 4) = 0xE;
+    }
+    if (ST_INT(s, 4) != 0xC)
+        func_001AFFB0(1);
+}
+
+/* 0x003B6760, 0x84 bytes, matching. Saving (1 done, 2 failed: asks again). */
+void func_003B6760(void)
+{
+    u8 *s = func_003B5E90();
+
+    if (ST_INT(s, 0x740) == 0)
+        ST_INT(s, 0x740) = func_002DAC30();
+    if (ST_INT(s, 0x740) == 1) {
+        ST_INT(s, 4) = 0xE;
+        func_002D8160();
+        func_001037F0(1);
+    }
+    if (ST_INT(s, 0x740) == 2) {
+        ST_INT(s, 0x71C) = 0;
+        ST_INT(s, 4) = 0xC;
+        func_002D8160();
+        func_001037F0(1);
+    }
+}
+
+/* 0x003B67F0, 0x130 bytes. Loads the screen's files and keeps a copy of the player slots. */
+void func_003B67F0(void)
+{
+    u8 *s = func_003B5E90();
+    int k;
+
+    ST_INT(s, 0x24) = func_001026D0(1, 0x36, 0, 1, 0, 0, g_0045B6E8, 0x132);
+    ST_INT(s, 0x28) = func_001026D0(1, 0x37, 0, 1, 0, 0, g_0045B6E8, 0x133);
+    for (k = 0; k < 4; k++)
+        func_00118AC0(s + 0x65C + k * 0x24, func_0019FBC0(k), 0x24);
+    ST_INT(s, 0x750) = func_003F0A00(s + 0x514);
+    func_003F0800(s + 0x514);
+    for (k = 0; k < 8; k++)
+        ST_INT(s, 0x6EC + k * 4) = ST_INT(s, 0x634 + k * 4);
+    for (k = 0; k < 2; k++)
+        ST_INT(s, 0x754 + k * 4) = func_003294A0(k);
+}
+
+/* 0x003B6920, 0x80 bytes. Unlocks the ending's gallery item. */
+void func_003B6920(void)
+{
+    if (func_003C1850() == 0) {
+        if (func_00327C00() == 6)
+            func_0039FCA0(8, 1);
+        else if (func_00327C00() == 8)
+            func_0039FCA0(9, 1);
+    } else {
+        func_0039FCA0(7, 1);
+    }
+}
+
+/* 0x003B6D10, 0x168 bytes. Starts the ending. */
+void func_003B6D10(void)
+{
+    int *s = (int *)func_003B5E90();
+    int k;
+
+    s[0x1C9] = func_00327820();
+    s[0x1C6] = 0;
+    s[2] = 0;
+    *(short *)(s + 0x1D8) = 600;
+    s[0x1D2] = 0;
+    s[0x1CF] = 1;
+    *(u8 *)(s + 0x1D9) = 0;
+    s[0x1D0] = -1;
+    g_7000015C = g_7000015C * 0x41C64E6D + 0x3039;
+    ((u8 *)s)[0x765] = (g_7000015C >> 0x10) % 3;
+    s[0] = 1;
+    s[0x1C8] = 0;
+    s[0x1D4] = 0;
+    func_0011ED38(s + 0x145, 0, 0x148);
+    func_003B69A0();
+    if (s[0x1D7] == 6) {
+        k = 0x22;
+        switch (func_00327C00()) {
+        case 0:
+            k = 0x23;
+            break;
+        case 1:
+            k = 0x25;
+            break;
+        case 2:
+            k = 0x24;
+            break;
+        case 3:
+            k = 0x26;
+            break;
+        case 4:
+            k = 0x27;
+            break;
+        case 5:
+            k = 0x28;
+            break;
+        }
+        func_003BA8F0(k, func_0032EEB0(), -1, -1, -1);
+    }
+    if (s[0x1D7] == 6 && func_0023A9B0(6, 1) != 0)
+        func_0023A960(6);
+}
+
+/* 0x003B6E80, 0x9C bytes. Ends it: frees the files. */
+void func_003B6E80(void)
+{
+    u8 *s = func_003B5E90();
+
+    func_003BC5E0();
+    func_003B9760();
+    if (ST_INT(s, 0x20) != 0) {
+        func_00102EC0(ST_INT(s, 0x20));
+        ST_INT(s, 0x20) = 0;
+    }
+    if (ST_INT(s, 0x24) != 0) {
+        func_00102EC0(ST_INT(s, 0x24));
+        ST_INT(s, 0x24) = 0;
+    }
+    if (ST_INT(s, 0x28) != 0) {
+        func_00102EC0(ST_INT(s, 0x28));
+        ST_INT(s, 0x28) = 0;
+    }
+    g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = 0x80;
+}
+
+/* 0x003B6F20, 0x164 bytes. The ending's message (by how the game was won). */
+void func_003B6F20(void)
+{
+    int o = func_00327820(), k = func_0030DFA0();
+    char t[0x100];
+
+    if (k == 10) {
+        func_001204B0(t, func_00390760(0x7D), func_002F2890(o));
+    } else if (k == 7) {
+        func_001204B0(t, func_00390760(0x7E), func_002F2890(o));
+    } else {
+        if (k != 6)
+            return;
+        if (func_003C1850() == 0)
+            func_001204B0(t, func_00390760(0x7B), func_002F2890(o));
+        else
+            func_001204B0(t, func_00390760(0x7C), func_002F2890(o),
+                          func_00372410(func_00327C00()));
+    }
+    func_001AEDB0(0, -1, 0x116, 0);
+    func_001AE9F0(0, t, 1);
+    func_001AFEC0(0);
 }

@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 186272,
-    "non_matching": 1295832
+    "matching": 186416,
+    "non_matching": 1301704
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2388
+    "matching": 2389
   },
   "layout": "treemap",
   "areas": [
@@ -285,15 +285,15 @@
         },
         {
           "name": "emp_ending.c",
-          "description": "Estimated range 0x3B4C30-0x3B9068; 35 function(s) decompiled",
+          "description": "Estimated range 0x3B4C30-0x3B9068; 58 function(s) decompiled",
           "code": {
             "total": 17464,
-            "matching": 80,
-            "non_matching": 4592
+            "matching": 224,
+            "non_matching": 10464
           },
           "decompiled_functions": {
-            "count": 35,
-            "matching": 2
+            "count": 58,
+            "matching": 3
           }
         },
         {
