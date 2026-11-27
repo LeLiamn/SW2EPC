@@ -523,21 +523,18 @@ int func_002F41E0(u32 i)
 }
 
 /* GENERATED */
-int func_002F4250(u32 i, int v);
+/* PROTOS */
 int func_002F42E0(u8 *p);
 int func_002F42F0(u32 i);
 void func_002F4360(u32 i, int n);
-int func_002F43C0(u32 i, int v);
 int func_002F4450(u32 i);
 void func_002F44C0(u32 i);
-int func_002F4510(u32 i, int v);
 int func_002F45A0(u32 i);
 void func_002F4610(u32 i);
 int func_002F4660(u32 i);
 void func_002F46D0(u32 i, int v);
 void func_002F4760(u32 i, int n);
 int func_002F4A70(u32 i);
-void func_002F4AE0(u32 i, int v);
 void func_002F4B70(u32 i, int n);
 int func_002F4BB0(u32 i, int v);
 int func_002F4C40(u32 i);
@@ -560,13 +557,10 @@ void func_002F5480(u32 i, int n);
 int func_002F5510(u32 i, int v);
 int func_002F55A0(u32 i);
 void func_002F5610(u32 i, int n);
-void func_002F56A0(u32 i, int v);
 int func_002F5730(u32 i);
 void func_002F5930(u32 i, int v);
 void func_002F5A10(u32 i, int v);
 int func_002F5AA0(u32 i);
-void func_002F5BE0(u32 i, int v);
-int func_002F5CC0(u32 i);
 void func_002F5DA0(u32 i, int v);
 int func_002F5E10(u32 i);
 int func_002F5E80(u32 i);
@@ -597,13 +591,60 @@ void func_002F6AD0(u32 i, int v);
 int func_002F6B40(u32 i);
 void func_002F90D0(u32 i, int n);
 void func_0030AE40(u32 i, int n);
-int func_002F5B30();
-int func_002F5C50();
+int func_002F47A0(u32 i, int k);
+void func_002F4820(u32 i, int k, u8 lv);
+int func_002F4900(u32 i, int k);
+void func_002F4980(u32 i, int k, int on);
+int func_002F57A0(u32 w);
+int func_002F57F0(u8 w);
+int func_002F5840(int g);
+int func_002F5890(u32 i);
+void func_002F5B30(u8 *p, int f);
+int func_002F5C50(u8 *p);
+int func_002F67B0(u32 i);
+int func_002F6850(u32 i);
+int func_002F68E0(u32 i);
+void func_002F6BB0(u32 i, u16 v);
+int func_002F6FE0(u32 i, int k);
+int func_002F7040(u32 i, int k);
+void func_002F70A0(u32 i, int to, int from);
+int func_002F7160(u32 i);
+void func_002F7200(u32 i);
+void func_002F7270(u32 i);
+void func_002F7290(u32 i);
+int func_002F72E0(u32 lv);
+void func_002F7300(u32 i, int f, int f2, int role);
+void func_002F7410(u32 i);
+int func_002F7550(u32 i);
+int func_002F75C0(u32 i);
+void func_002F7610(u32 i);
+int func_002F76B0(u32 i, u32 j);
+int func_002F77A0(u32 i, u32 j);
+int func_002F77F0(u32 i, u32 j);
+int func_002F78C0(u32 i, u32 j);
+int func_0016CC80(u8 w);
+int func_0039E7A0(int k);
+u8 *func_0019FBA0(int k);
+int func_0019C170(u32 id, u32 level, int learn);
+int func_002FB2A0(u32 f);
+void func_00328A00(u32 i, int a);
+int func_00327C40(void);
+void func_00308600(u32 i);
+int func_0030AD20(int f, int k);
+int func_0030CB00(int n);
+int func_00327C80(void);
+int func_00327A60(void);
+int func_00328270(void);
+void func_00328240(int v);
+int func_002F7D90(int a, void *f, u32 b, int c, int d, int e);
+void func_002F80C0(void);
+void func_002F8110(void);
+int func_002F7AD0(u32 i, u32 j, u32 a, u32 b);
 int func_002F8F90();
 int func_002F9060();
 int func_0030AD80();
 int func_0030ADC0();
-int func_0039E7A0();
+/* END PROTOS */
 
 /* 0x002F4250, 0x90 bytes. */
 int func_002F4250(u32 i, int v)
@@ -1135,3 +1176,401 @@ void func_0030AE40(u32 i, int n)
     func_0030ADC0(i, n + func_0030AD80(i));
 }
 
+
+extern u32 g_00446450[];
+extern u32 g_00414230[][3], g_004142F0[][8];
+extern u32 g_00428348[0x14];             /* the experience needed per level */
+extern int g_004144F0[];
+extern u32 g_00414510[0xE][2];           /* pairs of related groups */
+
+/* 0x002F47A0, 0x74 bytes. Officer `i`'s level of skill `k` (+0x5F + k, bits 0-6). */
+int func_002F47A0(u32 i, int k)
+{
+    return ofc(i)[0x5F + k] & 0x7F;
+}
+
+/* 0x002F4820, 0xE0 bytes. Sets it (keeping bit 7). */
+void func_002F4820(u32 i, int k, u8 lv)
+{
+    u8 b = ofc(i)[0x5F + k];
+
+    ofc(i)[0x5F + k] = (b & 0x80) | lv;
+}
+
+/* 0x002F4900, 0x74 bytes. Skill `k`'s bit 7 (learnt in battle?). */
+int func_002F4900(u32 i, int k)
+{
+    return ofc(i)[0x5F + k] & 0x80;
+}
+
+/* 0x002F4980, 0xE4 bytes. Sets or clears skill `k`'s bit 7. */
+void func_002F4980(u32 i, int k, int on)
+{
+    u8 b = ofc(i)[0x5F + k];
+
+    ofc(i)[0x5F + k] = on == 0 ? b & 0x7F : b | 0x80;
+}
+
+/* 0x002F57A0, 0x4C bytes. A weapon's group (below 0x74: weapon / 4; 0x74-0x77: 0x1E; 0x78:
+ * 0x1D; else 0x28). */
+int func_002F57A0(u32 w)
+{
+    w &= 0xFF;
+    if (w < 0x74)
+        return w >> 2;
+    if (w < 0x78)
+        return 0x1E;
+    if (w == 0x78)
+        return 0x1D;
+    return 0x28;
+}
+
+/* 0x002F57F0, 0x4C bytes. A weapon's grade (0-3). */
+int func_002F57F0(u8 w)
+{
+    if (w < 0x78)
+        return w & 3;
+    return w == 0x78 ? 3 : 0;
+}
+
+/* 0x002F5840, 0x50 bytes. The number of attributes a weapon grade allows. */
+int func_002F5840(int g)
+{
+    if (g == 3)
+        return 8;
+    if (g == 2)
+        return 6;
+    if (g == 1)
+        return 4;
+    if (g == 0)
+        return 2;
+    return 8;
+}
+
+int func_0016CC80(u8 w);
+
+/* 0x002F5890, 0x94 bytes. Officer `i`'s weapon group. */
+int func_002F5890(u32 i)
+{
+    return func_002F57A0(func_0016CC80(g_005BA6A0[*(u16 *)ofc(i) * 0x2C + 9]));
+}
+
+/* 0x002F5B30, 0xB0 bytes. Sets record `p`'s second force (+0x53; a force or 0x19). */
+void func_002F5B30(u8 *p, int f)
+{
+    if ((u32)OFC_NUM(p) < 0x19F) {
+        int ok = 0;
+
+        if (f >= 0)
+            ok = f < func_0030AB90();
+        if (!ok)
+            ok = f == 0x19;
+        if (ok)
+            p[0x53] = (u8)f;
+    }
+}
+
+/* 0x002F5C50, 0x70 bytes. Record `p`'s second force (0x19 for none). */
+int func_002F5C50(u8 *p)
+{
+    int k = OFC_NUM(p);
+
+    if (k < 0 || k >= 0x19F)
+        return 0x19;
+    return p[0x53];
+}
+
+int func_0039E7A0(int k);
+u8 *func_0019FBA0(int k);
+
+/* 0x002F67B0, 0x98 bytes. Officer `i`'s +0x13 (created: from their look). */
+int func_002F67B0(u32 i)
+{
+    if (CREATED(i))
+        return g_00446450[func_0039E7C0(i - 400)];
+    return ofc(i)[0x13];
+}
+
+/* 0x002F6850, 0x84 bytes. Officer `i`'s +0x14 (created: their record's +0x2E). */
+int func_002F6850(u32 i)
+{
+    if (CREATED(i))
+        return func_0019FBA0(i - 400)[0x2E];
+    return ofc(i)[0x14];
+}
+
+/* 0x002F68E0, 0x98 bytes. Officer `i`'s +0x15 (created: their look's low two bits). */
+int func_002F68E0(u32 i)
+{
+    if (CREATED(i))
+        return func_0039E760(i - 400) % 4;
+    return ofc(i)[0x15];
+}
+
+/* 0x002F6BB0, 0x70 bytes. */
+void func_002F6BB0(u32 i, u16 v)
+{
+    *(u16 *)(ofc(i) + 0x40) = v & 0xFF;
+}
+
+/* Officer `i`'s byte `k` of a small array at `off`. */
+#define ARR_GET(name, off) int name(u32 i, int k) { return ofc(i)[(off) + k]; }
+#define ARR_SET(name, off) void name(u32 i, int k, u8 v) { ofc(i)[(off) + k] = v; }
+
+/* 0x002F6C20, 0x70 bytes. */
+ARR_GET(func_002F6C20, 0x23)
+
+/* 0x002F6C90, 0x7C bytes. */
+ARR_SET(func_002F6C90, 0x23)
+
+/* 0x002F6D10, 0x70 bytes. */
+ARR_GET(func_002F6D10, 0x27)
+
+/* 0x002F6D80, 0x7C bytes. */
+ARR_SET(func_002F6D80, 0x27)
+
+/* 0x002F6E00, 0x70 bytes. */
+ARR_GET(func_002F6E00, 0x2B)
+
+/* 0x002F6E70, 0x7C bytes. */
+ARR_SET(func_002F6E70, 0x2B)
+
+/* 0x002F6EF0, 0x70 bytes. */
+ARR_GET(func_002F6EF0, 0x35)
+
+/* 0x002F6F60, 0x7C bytes. */
+ARR_SET(func_002F6F60, 0x35)
+
+/* 0x002F6FE0, 0x60 bytes, matching. Officer `i`'s kind's value `k` of three. */
+int func_002F6FE0(u32 i, int k)
+{
+    if (k >= 3)
+        return 0;
+    return g_00414230[func_002F2EA0(i)][k];
+}
+
+/* 0x002F7040, 0x58 bytes, matching. Officer `i`'s kind's stat growth `k` of eight. */
+int func_002F7040(u32 i, int k)
+{
+    if (k >= 8)
+        return 0;
+    return g_004142F0[func_002F2EA0(i)][k];
+}
+
+int func_0019C170(u32 id, u32 level, int learn);
+int func_002FB2A0(u32 f);
+void func_00328A00(u32 i, int a);
+
+/* 0x002F70A0, 0xB8 bytes. Officer `i` goes from level `from` to `to` (each level's growth); a
+ * named officer past level 9 of a force that allows it gets flag 1 (func_00328A00). */
+void func_002F70A0(u32 i, int to, int from)
+{
+    int k;
+
+    for (k = 0; k < to - from; k++)
+        func_0019C170(i, (from + k + 1) & 0xFF, 1);
+    if ((int)i < 0x1C && func_002F41E0(i) > 9 && func_002FB2A0(func_002F4080(i)) != 0)
+        func_00328A00(i, 1);
+}
+
+int func_00327C40(void);
+
+/* 0x002F7160, 0x98 bytes. Officer `i`'s pay (rounded to 10): 500 + 150 x (level / 4 + the
+ * year's) for named officers below 0x2C, 400 + 100 x for the others. */
+int func_002F7160(u32 i)
+{
+    int base = 400, step = 100;
+
+    if ((int)i < 0x2C) {
+        base = 500;
+        step = 0x96;
+    }
+    return (base + step * ((func_002F41E0(i) >> 2) + g_004144F0[func_00327C40()])) / 10 * 10;
+}
+
+int func_002F4250(u32 i, int v);
+int func_002F43C0(u32 i, int v);
+int func_002F4510(u32 i, int v);
+void func_002F56A0(u32 i, int v);
+void func_002F4AE0(u32 i, int v);
+
+/* 0x002F7200, 0x6C bytes, matching. Clears officer `i`'s counters (+0x48 to now). */
+void func_002F7200(u32 i)
+{
+    func_002F32F0(i, func_00327C70());
+    func_002F4250(i, 0);
+    func_002F43C0(i, 0);
+    func_002F4510(i, 0);
+    func_002F56A0(i, 0);
+    func_002F4AE0(i, 0);
+}
+
+/* 0x002F7270, 0x1C bytes, matching. Officer `i` loses its soldiers. */
+void func_002F7270(u32 i)
+{
+    func_002F3660(i, 0);
+}
+
+/* 0x002F7290, 0x48 bytes, matching. Officer `i` becomes free (rank 2, role 0, no force). */
+void func_002F7290(u32 i)
+{
+    func_002F3B30(i, 2);
+    func_002F3CF0(i, 0);
+    func_002F3F70(i, 0x19);
+    func_002F7200(i);
+}
+
+/* 0x002F72E0, 0x1C bytes. The experience of level `lv`. */
+int func_002F72E0(u32 lv)
+{
+    return g_00428348[lv & 0xFF];
+}
+
+void func_002F5BE0(u32 i, int f);
+void func_00308600(u32 i);
+
+/* 0x002F7300, 0x108 bytes. Officer `i` joins force `f` (second force `f2`, role `role`): rank
+ * 2, experience of its level. */
+void func_002F7300(u32 i, int f, int f2, int role)
+{
+    int ok;
+
+    func_002F3B30(i, 2);
+    func_002F3440(i, func_002F72E0(func_002F41E0(i)));
+    if (role >= 0 && role < 6)
+        func_002F3CF0(i, role);
+    ok = 0;
+    if (f >= 0)
+        ok = f < func_0030AB90();
+    if (ok)
+        func_002F3F70(i, f);
+    ok = 0;
+    if (f2 >= 0)
+        ok = f2 < func_0030AB90();
+    if (!ok)
+        ok = f2 == 0x19;
+    if (ok)
+        func_002F5BE0(i, f2);
+    func_002F7200(i);
+    func_00308600(i);
+}
+
+int func_002F5CC0(u32 i);
+int func_0030AD20(int f, int k);
+int func_0030CB00(int n);
+
+/* 0x002F7410, 0x138 bytes. Officer `i` leaves its force: free, its second force becomes one of
+ * its old force's neighbours (or any force) at random. */
+void func_002F7410(u32 i)
+{
+    int near[8], n = 0, k, f;
+    int old;
+
+    func_002F3CF0(i, 0);
+    func_002F3F70(i, 0x19);
+    old = func_002F5CC0(i);
+    if (old >= 0 && old < func_0030AB90()) {
+        for (k = 0; k < 6; k++) {
+            int g = func_0030AD20(old, k);
+
+            if (g >= 0 && g < func_0030AB90())
+                near[n++] = g;
+        }
+        f = near[func_0030CB00(n)];
+    } else {
+        f = func_0030CB00(func_0030AB90());
+    }
+    func_002F5BE0(i, f);
+    func_002F7200(i);
+    func_002F7270(i);
+    func_00308600(i);
+}
+
+int func_00327C80(void);
+int func_00327A60(void);
+
+/* 0x002F7550, 0x68 bytes, matching. Officer `i`'s age (at most 100). */
+int func_002F7550(u32 i)
+{
+    if ((u32)(func_00327C80() - func_002F2FE0(i)) < 100)
+        return func_00327C80() - func_002F2FE0(i);
+    return 100;
+}
+
+/* 0x002F75C0, 0x44 bytes. Whether officer `i` is old enough to die (ages on, 100). */
+int func_002F75C0(u32 i)
+{
+    if (func_00327A60() == 0)
+        return 0;
+    return func_002F7550(i) > 99;
+}
+
+int func_00328270(void);
+void func_00328240(int v);
+
+/* 0x002F7610, 0xA0 bytes, matching. Officer `i` dies (rank 3, no force; officers 0x12 and 0x1B move the
+ * story on). */
+void func_002F7610(u32 i)
+{
+    func_002F3B30(i, 3);
+    func_002F3F70(i, 0x19);
+    func_002F5BE0(i, 0x19);
+    func_00308600(i);
+    if (i == 0x12 && func_00328270() == 1)
+        func_00328240(2);
+    if (i == 0x1B && func_00328270() == 3)
+        func_00328240(4);
+    func_002F3C30(i);
+}
+
+int func_002F7D90(int a, void *f, u32 b, int c, int d, int e);
+void func_002F80C0(void);
+void func_002F8110(void);
+
+/* 0x002F76B0, 0xEC bytes. The kind of officer `i`'s next post for officer `j` (2 or 6), from
+ * two counts. */
+int func_002F76B0(u32 i, u32 j)
+{
+    int named = func_002F3F20(i) == 0 ? 1 : 2, ok = 0;
+    int a = func_002F7D90(0, (void *)func_002F80C0, j, 0, 0, 0);
+    int b = func_002F7D90(0, (void *)func_002F8110, j, 0, 0, 0);
+
+    if (named == 2) {
+        b = a;
+        if (b < 3)
+            ok = 1;
+    } else if (named == 1 && a < 3) {
+        ok = 1;
+    }
+    return ok ? 2 : 6;
+}
+
+/* 0x002F77A0, 0x50 bytes. Whether officers `i` and `j` are each other's +0xC. */
+int func_002F77A0(u32 i, u32 j)
+{
+    return j == func_002F2E20(i) || i == func_002F2E20(j);
+}
+
+int func_002F7AD0(u32 i, u32 j, u32 a, u32 b);
+
+/* 0x002F77F0, 0xC4 bytes. Whether officers `i` and `j` are related (the same +0xC, or one of 14
+ * pairs). */
+int func_002F77F0(u32 i, u32 j)
+{
+    u32 a = func_002F2E20(i);
+    int k;
+
+    if (a < 0x19F && a == func_002F2E20(j))
+        return 1;
+    for (k = 0; k < 0xE; k++) {
+        if (func_002F7AD0(i, j, g_00414510[k][0], g_00414510[k][1]) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x002F78C0, 0x38 bytes, matching. Whether officers `i` and `j` have the same +0xA. */
+int func_002F78C0(u32 i, u32 j)
+{
+    return func_002F2DA0(i) == func_002F2DA0(j);
+}
