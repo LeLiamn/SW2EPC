@@ -796,7 +796,7 @@ int func_00272ED0(Unit *u, Unit *v);
 int func_0016C040(Unit *u);
 void func_001C7FC0(int a, u8 *pos, float *dir, u32 f);
 int func_00273770(Unit *u, short damage, float *out);
-void func_0016C180(float amount, Unit *u);
+int func_0016C180(float amount, Unit *u);
 void func_001CCFA0(Unit *u);
 
 /* Wraps an angle into (-pi, pi]. */

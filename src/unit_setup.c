@@ -670,7 +670,7 @@ void func_001AE090(u8 *rec);
 void func_00253800(Unit *u);
 void func_002A5B10(void);
 void func_0016C620(Unit *u);
-void func_0016C470(float amount, Unit *u);
+int func_0016C470(float amount, Unit *u);
 void func_0029F930(float dt, Unit *u);
 void func_001CEBC0(Unit *u);
 
@@ -2255,7 +2255,7 @@ int func_0036DBA0(u32 list, int item);
 void func_00247FA0(u8 player, int message, int a);
 void func_002F00F0(u8 player, int kind);
 u8 func_002F41E0(u32 list);
-void func_0016C180(float amount, Unit *u);
+int func_0016C180(float amount, Unit *u);
 int func_0016D780(float a, float b, float *part, float *point, float *out);
 
 /* An officer's life raised by `n`, at most its maximum (+0x80) and at least 0; the highest
@@ -2662,5 +2662,136 @@ void func_0016C0B0(Unit *u)
     } else {
         F32(v, 0x224) = 5.0f;
         F32(v, 0x22C) = 5.0f;
+    }
+}
+
+extern int g_00669F9C;                   /* the battle's frame counter */
+
+int func_0019B410(u32 list, int item);
+short func_00271210(Unit *u);
+void func_002539F0(Unit *u);
+void func_002A6D20(u8 player, int sound);
+void func_00253A60(Unit *u);
+int func_003E2DC0(void);
+int func_002715C0(Unit *u);
+int func_00271610(u8 *a, Unit *u);
+void func_00151C60(Unit *u);
+
+/* 0x0016C180, 0x2F0 bytes. Adds `amount` to the officer's musou gauge (+0x88, at most +0x86),
+ * times 1 + its +0xA8 / 10 (and the players' item 8 percent); fractions in sixteenths kept at
+ * +0x1BC. A player hears a sound when a bar fills (another one for the last); full bars start
+ * func_002539F0. Whether the gauge is full. */
+int func_0016C180(float amount, Unit *u)
+{
+    u8 *o;
+    short max, cur, n, v, w;
+    float k;
+
+    if (U8(u, 0x19C) & 0x80)
+        return 0;
+    o = g_006A3A30[S16(u, 0x178)];
+    if (U32(o, 0xB8) & 2)
+        return 0;
+    max = S16(o, 0x86);
+    cur = S16(o, 0x88);
+    k = (float)U8(o, 0xA8) * 0.1f + 1.0f;
+    if (U8(u, 0x14E) < 2)
+        k = k * ((float)func_0019B410(g_00669DE8[U8(u, 0x14E)][0], 8) * 0.01f + 1.0f);
+    n = (short)(int)(amount * k);
+    v = cur + n;
+    U8(u, 0x1BC) = U8(u, 0x1BC) + (char)(int)((amount * k - (float)(int)n) * 16.0f);
+    if (U8(u, 0x1BC) > 0xF) {
+        v = v + 1;
+        U8(u, 0x1BC) &= 0xF;
+    }
+    if (max < v)
+        v = max;
+    w = v < 1 ? 0 : v;
+    S16(o, 0x88) = w;
+    if (U8(u, 0x14E) < 2) {
+        short bar = func_00271210(u);
+
+        if (bar <= v)
+            func_002539F0(u);
+        if (v / bar != cur / bar)
+            func_002A6D20(U8(u, 0x14E), v / bar == max / bar ? 0x23B : 0x248);
+    }
+    return v == max;
+}
+
+/* 0x0016C470, 0x44 bytes, matching. func_0016C180, then func_00253A60 when the gauge is full. */
+int func_0016C470(float amount, Unit *u)
+{
+    int r = func_0016C180(amount, u);
+
+    if (r != 0)
+        func_00253A60(u);
+    return r;
+}
+
+/* 0x0016C4C0, 0x15C bytes. Spends `n` of the musou gauge (not during hits with flag 0x200 or
+ * the slow-motion duel). Whether it ran out (then 0). */
+int func_0016C4C0(Unit *u, short n)
+{
+    u8 *h, *o;
+    short v;
+
+    if (U8(u, 0x19C) & 0x80)
+        return 0;
+    h = PTR(PTR(u, 0x210), 0x14);
+    if ((h == 0 ? 0 : U32(h, 0x28) & 0x200) != 0)
+        return 0;
+    if (g_0045D2A8 != 0)
+        return 0;
+    o = g_006A3A30[S16(u, 0x178)];
+    v = S16(o, 0x88) - n;
+    if (v < 1) {
+        S16(o, 0x88) = 0;
+        return 1;
+    }
+    if (S16(o, 0x86) < v)
+        v = S16(o, 0x86);
+    S16(o, 0x88) = v < 1 ? 0 : v;
+    return 0;
+}
+
+/* 0x0016C620, 0x174 bytes. The musou gauge each frame: while the musou attack runs (flag 2 of
+ * +0x19C) it drains by 1 (every other frame with func_003E2DC0) and the attack ends when empty
+ * (on foot after func_00271610, mounted for actions with flag 0x400000); func_002715C0 ends it at
+ * once. Otherwise some hits (+0x28 flags 0x1C) cost 1. */
+void func_0016C620(Unit *u)
+{
+    if ((U8(u, 0x19C) & 2) == 0) {
+        u8 *h = PTR(PTR(u, 0x210), 0x14);
+
+        if ((h == 0 ? 0 : U32(h, 0x28) & 0x1C) != 0)
+            func_0016C4C0(u, 1);
+        return;
+    }
+    if (func_003E2DC0() != 0 && g_00669F9C % 2 != 0)
+        return;
+    if (func_002715C0(u) != 0) {
+        func_00151A90(u, 0);
+        U8(u, 0x19C) &= ~2;
+    } else if ((U32(PTR(u, 0x210), 0x18) & 0x8000000) == 0) {
+        if (func_0016C4C0(u, 1) != 0 && func_00271610(PTR(u, 0x248), u) != 0)
+            func_00151C60(u);
+    } else if (func_0016C4C0(u, 1) != 0 && (U32(PTR(u, 0x210), 0x18) & 0x400000)
+               && (U32(u, 0x13C) & 0x20000) == 0) {
+        func_00151C60(u);
+    }
+}
+
+/* 0x0016C7A0, 0x64 bytes. Clears the 30 records (0x40 bytes) of player `p`'s list at
+ * 0x56CCE0 (+0x2C: none). */
+void func_0016C7A0(int p)
+{
+    u8 *r = (u8 *)0x56CCE0 + p * 0x780;
+    int k;
+
+    for (k = 0; k < 0x1E; k++) {
+        func_00118850(r, 0x40);
+        S16(r, 0x2C) = -1;
+        r += 0x40;
     }
 }
