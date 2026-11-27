@@ -5,7 +5,7 @@
  * +0x5F4/+0x5F6 cursor and first line of the officer list, +0x5F8/+0x5FA of the event list,
  * +0x5FC/+0x5FE their counts). Sliding windows at 0x007BAEF0 and 0x007BAED0. Original file name
  * unknown. From 0x003B24F0: the event scene's choice windows and tabs, sprites of the bank gp
- * 0x0045D7FC, and the Empire ending (0x003B5EA0-0x003B7084).
+ * 0x0045D7FC, and the Empire ending (0x003B5EA0-0x003B808C).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -1106,4 +1106,384 @@ void func_003B6F20(void)
     func_001AEDB0(0, -1, 0x116, 0);
     func_001AE9F0(0, t, 1);
     func_001AFEC0(0);
+}
+
+extern u8 *g_0043C5F0;
+extern char g_0069395E;
+extern int g_0045D894, g_0045D898, g_0045D89C, g_0045D8A0;
+extern u8 g_00669FC7[][0x38];            /* custom officers' records (+0x267 in the settings) */
+typedef struct { u8 v[0x9D]; } Bytes157;
+extern Bytes157 g_0041C180;
+
+void func_003F0EC0(u32 a, u32 b, u8 *p);
+void func_003B4720(int x, int y, int a, int b);
+char *func_003725A0(int k);
+void func_003838B0(char *t, int a);
+void func_003BA160(void);
+void func_003BC660(void);
+void func_001B9000(void);
+u32 func_00327C80(void);
+void func_0017DEA0(int a);
+int func_002F3BB0(int o);
+void func_0030E140(int k, int a, int b, int c);
+int func_0017DDA0(void);
+int func_00331250(int ph);
+int func_0030E1F0(void);
+void func_0030E100(void);
+void func_003BC890(void);
+void func_003BA310(void);
+void func_0017D8E0(int k);
+void func_0017DF10(void);
+void *func_00329850(void);
+int func_0030AB90(void);
+int func_0030AD80(int p);
+int func_0030AE80(int p);
+int func_0030B090(int p);
+int func_0030ACE0(int p);
+int func_002F68E0(int o);
+int func_00337A10(int k);
+int func_00327D50(void);
+int func_002F5890(int o);
+int func_0030AAD0(int a);
+u8 *func_00329860(void);
+int func_002F9390(int f, int k);
+int func_002FAD90(int f);
+int func_002FABC0(int f);
+
+/* 0x003B7090, 0xC4 bytes. Draws the officer marking page. */
+void func_003B7090(void)
+{
+    u8 *s = func_003B5E90();
+    int n = ST_INT(s, 0x654), cur = ST_INT(s, 0x658);
+
+    g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = 0x80;
+    func_003F0EC0(ST_INT(s, 0x24), ST_INT(s, 0x28), s + 0x514);
+    func_003B4720(0x10, 0x11C, 0, 1);
+    if (n == cur)
+        func_002C6040(-0x3C, 0x118, 0x100, 0x20, 0, 0x80);
+    func_003838B0(func_003725A0(0x38), 0);
+    func_001A7DC0(g_0043C5F0, 0x80, 1);
+}
+
+/* 0x003B7160, 0xB0 bytes. Draw. */
+void func_003B7160(void)
+{
+    int k = ST_INT(func_003B5E90(), 4);
+
+    if (k == 0xF)
+        func_003B5EA0();
+    else if (k == 0xB)
+        func_003B7090();
+    else if (k == 9)
+        func_003BA160();
+    else if (k == 7)
+        func_003BC660();
+    else if (k == 0)
+        func_003B6F20();
+    func_001B9000();
+}
+
+/* 0x003B7210, 0x134 bytes. Asks whether to go on playing (before date 0x640). */
+void func_003B7210(void)
+{
+    int *s = (int *)func_003B5E90();
+    char t[0x100];
+
+    if (func_00327C80() < 0x640) {
+        if (s[0x1C8] == 0) {
+            g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = 0x80;
+            func_001204B0(t, func_00390760(0x7F));
+            func_001AE9F0(1, t, 1);
+            func_001AFC50(1);
+            s[0x1C8] = 1;
+        }
+        if (g_006935DC == 4) {
+            s[0] = 0x17;
+            func_001B8F60(0, 6, 1);
+            s[1] = 0x11;
+        } else if (g_006935DC == 5) {
+            s[0] = 1;
+            func_001B8F60(0, 6, 1);
+            s[1] = 0x11;
+        }
+        if (s[1] != 0x10)
+            func_001AFFB0(1);
+    } else {
+        s[0] = 1;
+        func_001B8F60(0, 6, 1);
+        s[1] = 0x11;
+    }
+}
+
+#define FADING() (g_0069395E != 0 && g_0069395E != -1)
+
+/* 0x003B7350, 0x67C bytes. The ending's steps. */
+int func_003B7350(void)
+{
+    int r = 5, k;
+    int *s = (int *)func_003B5E90();
+
+    if (s[0x1C3] == 0) {
+        func_003B6D10();
+        s[0x1C3] = 1;
+    }
+    switch (s[1]) {
+    case 0:
+        if (PAD1_REPEAT() & 0x40) {
+            func_001AFFB0(0);
+            func_0017DEA0(0x3C);
+            s[1] = 1;
+        }
+        break;
+    case 1:
+        k = func_0030DFA0();
+        if (k == 10) {
+            if (func_002F3BB0(func_00327820()) == 3) {
+                s[1] = 0xF;
+            } else {
+                func_0030E140(0x27, func_00327820(), -1, -1);
+                s[1] = 5;
+            }
+        } else if (k == 7) {
+            func_0030E140(0x27, func_00327820(), -1, -1);
+            s[1] = 5;
+        } else {
+            if (k != 6)
+                return 5;
+            func_003B6920();
+            s[1] = 2;
+            func_001B8F60(0, 6, 1);
+        }
+        break;
+    case 2:
+        if (!FADING() && func_0017DDA0() == 0)
+            s[1] = 3;
+        break;
+    case 3:
+        r = func_00331250(0xE);
+        s[1] = 4;
+        break;
+    case 4:
+        func_001B8F60(0, 6, 1);
+        s[1] = 6;
+        break;
+    case 5:
+        if (func_0030E1F0() == 2) {
+            func_0030E100();
+            if (func_0030DFA0() == 10) {
+                s[1] = 0xF;
+            } else {
+                func_001B8F60(0, 6, 1);
+                s[1] = 6;
+            }
+        }
+        break;
+    case 6:
+        if (!FADING()) {
+            func_003B67F0();
+            s[1] = 7;
+        }
+        break;
+    case 7:
+        func_003BC890();
+        break;
+    case 8:
+        if (!FADING()) {
+            func_003A5FA0(0, 0, 0, 0);
+            k = func_0030DFA0();
+            if (k == 7) {
+                func_0017DEA0(0x3C);
+                s[1] = 0xB;
+            } else if (k == 6) {
+                if (func_003C1850() == 0) {
+                    s[1] = 9;
+                } else {
+                    func_0017DEA0(0x3C);
+                    s[1] = 0xB;
+                }
+            } else {
+                s[1] = 0x12;
+            }
+        }
+        break;
+    case 9:
+        func_003BA310();
+        break;
+    case 10:
+        if (!FADING()) {
+            func_0017D8E0(0x4B);
+            s[1] = 0xB;
+        }
+        break;
+    case 0xB:
+        func_001B8F60(1, 6, 1);
+        func_003B6260();
+        break;
+    case 0xC:
+        func_001B8F60(1, 6, 1);
+        func_003B6620();
+        break;
+    case 0xD:
+        func_003B6760();
+        break;
+    case 0xE:
+        if (s[0x1D7] == 6 && func_003C1850() != 0) {
+            for (k = 0; k < 4; k++)
+                func_00118AC0(func_0019FBC0(k), s + 0x197 + k * 9, 0x24);
+            for (k = 0; k < 2; k++)
+                func_00329450(k, s[0x1D5 + k]);
+            s[1] = 0x10;
+        } else {
+            func_001B8F60(0, 6, 1);
+            s[1] = 0x11;
+        }
+        break;
+    case 0xF:
+        func_003B5F70();
+        break;
+    case 0x10:
+        func_001B8F60(1, 6, 1);
+        func_003B7210();
+        break;
+    case 0x11:
+        if (!FADING())
+            s[1] = 0x12;
+        break;
+    case 0x12:
+        func_003B6E80();
+        func_0017DF10();
+        func_0011ED38(func_00329850(), 0, 0x618);
+        func_001B8F60(1, 6, 10);
+        g_0045D894 = g_0045D898;
+        if (g_0045D89C > 0x17 && g_0045D8A0 > 0x17)
+            g_0045D89C = s[0];
+        if (g_0045D8A0 < 0x18 && g_0045D898 != g_0045D8A0) {
+            g_0045D898 = g_0045D8A0;
+            g_0045D89C = 0x18;
+        } else {
+            g_0045D898 = g_0045D89C;
+            g_0045D89C = g_0045D8A0;
+        }
+        g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = 0x80;
+        if (s[0] != 0x17)
+            func_0017E010(0x30);
+        break;
+    }
+    return r;
+}
+
+/* 0x003B79D0, 0x58 bytes. */
+u8 func_003B79D0(u32 k)
+{
+    Bytes157 t = g_0041C180;
+
+    if ((k & 0xFF) < 0x9D)
+        return t.v[k & 0xFF];
+    return 0;
+}
+
+/* 0x003B7A30, 0x94 bytes. */
+int func_003B7A30(int p)
+{
+    if (!(p >= 0 && p < func_0030AB90()))
+        return 0;
+    if (func_0030AD80(p) < func_0030AE80(p))
+        return 0;
+    return func_0030ACE0(p) <= func_0030B090(p);
+}
+
+/* 0x003B7AD0, 0x21C bytes. The ending's picture set by the player's officer and his kind. */
+int func_003B7AD0(void)
+{
+    int o = ST_INT(func_003B5E90(), 0x724);
+    int k = func_002F68E0(o), custom = 0;
+
+    if (o > 399 && o < 0x19F && g_00669FC7[o - 400][0] == 1)
+        custom = 1;
+    if (k == 3) {
+        if (o == func_00337A10(6) || o == func_00337A10(0x1A) || o == func_00337A10(7) || custom)
+            return 5;
+        if (o == func_00337A10(0xF) || o == func_00337A10(0xAB) || o == func_00337A10(0xAE)
+            || o == func_00337A10(0xAF))
+            return 8;
+        return 9;
+    }
+    if (k == 1) {
+        if (o == func_00337A10(6) || o == func_00337A10(0x1A) || o == func_00337A10(7) || custom)
+            return 5;
+        if (o == func_00337A10(2))
+            return 6;
+        return 7;
+    }
+    if (k == 2) {
+        if (o == func_00337A10(0xC) || o == func_00337A10(0x12) || custom)
+            return 3;
+        return 4;
+    }
+    if (k == 0) {
+        if (o == func_00337A10(0x14C) || o == func_00337A10(0x14D))
+            return 0;
+        if (custom)
+            return 1;
+        return 2;
+    }
+    return 0;
+}
+
+/* 0x003B7CF0, 0x1B4 bytes. The ending's title (0xD-0x15) by the player's posts and kin. */
+int func_003B7CF0(void)
+{
+    int o = ST_INT(func_003B5E90(), 0x724);
+    int f = func_00327D50(), kin = func_0030AAD0(func_002F5890(o));
+    u8 *st = func_00329860();
+    int p[3], k;
+
+    for (k = 0; k < 3; k++)
+        p[k] = func_002F9390(f, k);
+    if (p[1] >= 400 && kin == 1)
+        return 0xD;
+    if (p[0] >= 400 && kin == 0)
+        return 0xE;
+    if (p[2] >= 400 && (o == 0xB || o == 0x18))
+        return 0xF;
+    if (p[2] >= 400 && o == 7)
+        return 0x10;
+    if (p[2] >= 400 && o == 0xF)
+        return 0x11;
+    if (p[2] >= 400 && o == 8)
+        return 0x12;
+    if (*(short *)(st + 4) >= 0x1E)
+        return 0x13;
+    if (p[0] < 400 || p[1] < 400 || p[2] < 400)
+        return 0x15;
+    return 0x14;
+}
+
+/* 0x003B7EB0, 0x1E0 bytes. The ending's comment (0x16-0x1C) by the force's stats. */
+int func_003B7EB0(void)
+{
+    int f, a, b;
+    u8 *st;
+
+    func_003B5E90();
+    f = func_00327D50();
+    st = func_00329860();
+    a = func_002FAD90(f);
+    b = func_002FABC0(f);
+    if (func_003B7AD0() == 6
+        || (b > 0x351 && func_003B7A30(0x16) && func_003B7A30(0x15) && func_003B7A30(0xF)))
+        return 0x16;
+    if (b > 0x351 && *(short *)(st + 8) >= 0x1E)
+        return 0x17;
+    if (a > 0x351 && *(short *)(st + 10) >= 0x1E)
+        return 0x18;
+    if (a > 0x351 && *(short *)(st + 0xC) >= 0x1E)
+        return 0x19;
+    if (b > 0x351 && *(short *)(st + 0xE) >= 0x1E)
+        return 0x1A;
+    if (func_00327C00() < 6 || a < 0x352 || !func_003B7A30(0) || !func_003B7A30(4)
+        || !func_003B7A30(7) || !func_003B7A30(0xE) || !func_003B7A30(0x12)
+        || !func_003B7A30(0x14) || !func_003B7A30(0x18))
+        return 0x1C;
+    return 0x1B;
 }

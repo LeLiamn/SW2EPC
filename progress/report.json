@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 186416,
-    "non_matching": 1301704
+    "non_matching": 1305800
   },
   "data": {
     "total": 2155890688,
@@ -285,14 +285,14 @@
         },
         {
           "name": "emp_ending.c",
-          "description": "Estimated range 0x3B4C30-0x3B9068; 58 function(s) decompiled",
+          "description": "Estimated range 0x3B4C30-0x3B9068; 67 function(s) decompiled",
           "code": {
             "total": 17464,
             "matching": 224,
-            "non_matching": 10464
+            "non_matching": 14560
           },
           "decompiled_functions": {
-            "count": 58,
+            "count": 67,
             "matching": 3
           }
         },
