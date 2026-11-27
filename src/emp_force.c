@@ -370,13 +370,11 @@ int func_002FA210(int k)
 /* PROTOS */
 int func_002F9260(u32 i);
 void func_002F9900(u32 i, int v);
-int func_002F9990(u32 i);
 void func_002F9A00(u32 i, int v);
 int func_002F9A90(u32 i);
 void func_002F9E10(u32 i, int v);
 int func_002FA060(u32 i);
 void func_002FA0D0(u32 i, int v);
-int func_002FA390(u32 i);
 void func_002FA400(u32 i, int v);
 int func_002FA490(u32 i);
 void func_002FA720(u32 i, int v);
@@ -404,6 +402,22 @@ int func_002FB2A0(int f);
 int func_002FB2D0(int f);
 int func_002FB320(int r, int *out);
 int func_002FB3B0(int r);
+int func_002FB430(int f);
+int func_002FB470(int f);
+int func_002FB500(int f, int r);
+int func_002FB5A0(int f, int *out);
+int func_002FB6D0(int f);
+int func_002FB6F0(int f);
+void func_002FB7C0(int f);
+int func_002FB8B0(void);
+int func_002FB910(void);
+int func_002FB9D0(int r);
+int func_002FBA40(int g);
+int func_002FBAC0(int *out);
+int func_002FBC90(int r, int kind);
+int func_002FBF20(int r, int kind, int *out);
+int func_002FC000(int r);
+int func_002FC0C0(int f, int g);
 int func_00327D50(void);
 int func_00329790(void);
 int func_003297D0(void);
@@ -412,6 +426,31 @@ int func_002FBD80(int f);
 int func_002FBDA0(int f);
 int func_002F5CC0(u32 i);
 int func_0030AFF0(int f);
+int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort);
+int func_002F8160(u32 i, int f);
+u32 *func_002F7B10(void);
+int func_002F34E0(u32 i);
+void func_0030B540(int f);
+void func_0030B330(void);
+int func_0030B2F0(int f);
+void func_0011ED38(void *p, int c, u32 n);
+int func_0030C890(int f, int g);
+int func_0030CB50(int pct);
+int func_0030AC90(int f, int k);
+int func_0030AD80(int f);
+int func_0030AE80(int f);
+int func_002FBD60();
+int func_002FBDC0();
+int func_002FBDE0();
+int func_002FBE00();
+int func_002FBE20();
+int func_002FBE40();
+int func_002FBE60();
+int func_002FBE80();
+int func_002FBEA0();
+int func_002FBEC0();
+int func_002FBEE0();
+int func_002FBF00();
 /* END PROTOS */
 
 /* 0x002F9060, 0x64 bytes, matching. */
@@ -813,4 +852,309 @@ int func_002FB3B0(int r)
             n++;
     }
     return n;
+}
+
+int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort);
+int func_002F8160(u32 i, int f);
+u32 *func_002F7B10(void);
+int func_002F34E0(u32 i);
+void func_0030B540(int f);
+void func_0030B330(void);
+int func_0030B2F0(int f);
+void func_0011ED38(void *p, int c, u32 n);
+int func_002FA390(u32 f);
+int func_002FA6B0(u32 f);
+int func_002F9990(u32 f);
+int func_0030C890(int f, int g);
+int func_0030CB50(int pct);
+int func_0030AC90(int f, int k);
+int func_0030AD80(int f);
+int func_0030AE80(int f);
+int func_002F9EA0(u32 f);
+
+/* 0x002FB430, 0x34 bytes. Lists force `f`'s active officers (sorted); returns how many. */
+int func_002FB430(int f)
+{
+    return func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1);
+}
+
+/* 0x002FB470, 0x90 bytes. Force `f`'s soldiers. */
+int func_002FB470(int f)
+{
+    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1), s = 0, k;
+    u32 *l = func_002F7B10();
+
+    for (k = 0; k < n; k++)
+        s += func_002F3770(l[k]);
+    return s;
+}
+
+/* 0x002FB500, 0x9C bytes. Whether force `f` borders region `r` (through its leader's second
+ * force's neighbours). */
+int func_002FB500(int f, int r)
+{
+    int yes = 0, g;
+
+    func_0030B540(func_002FB2D0(f));
+    for (g = 0; g < func_0030AB90(); g++) {
+        if (func_0030B2F0(g) != 0 && r == func_0030AFF0(g)) {
+            yes = 1;
+            break;
+        }
+    }
+    func_0030B330();
+    return yes;
+}
+
+/* 0x002FB5A0, 0x128 bytes. The regions force `f` borders (other than its own, into `out` when
+ * given); returns how many. */
+int func_002FB5A0(int f, int *out)
+{
+    int seen[25], n = 0, g;
+
+    func_0011ED38(seen, 0, 100);
+    func_0030B540(func_002FB2D0(f));
+    for (g = 0; g < func_0030AB90(); g++) {
+        if (func_0030B2F0(g) != 0) {
+            int r = func_0030AFF0(g);
+
+            if (r >= 0 && r < func_0030AB90() && f != r && seen[r] == 0) {
+                seen[r] = 1;
+                if (out != 0)
+                    *out++ = r;
+                n++;
+            }
+        }
+    }
+    func_0030B330();
+    return n;
+}
+
+/* 0x002FB6D0, 0x1C bytes, matching. */
+int func_002FB6D0(int f)
+{
+    return func_002FB5A0(f, 0);
+}
+
+/* 0x002FB6F0, 0xCC bytes. Force `f`'s most experienced active officer (0x19F for none). */
+int func_002FB6F0(int f)
+{
+    u32 *l = func_002F7B10(), best = 0x19F;
+    int n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8160, f, 0, 1), e = 0, k;
+
+    for (k = 0; k < n; k++) {
+        int x = func_002F34E0(l[k]);
+
+        if (e < x || best > 0x19E) {
+            best = l[k];
+            e = x;
+        }
+    }
+    return best;
+}
+
+/* 0x002FB7C0, 0xE4 bytes. Force `f` disappears from the others' targets and alliances. */
+void func_002FB7C0(int f)
+{
+    int g;
+
+    for (g = 0; g < func_0030AB90(); g++) {
+        if (f == g || func_002F8CB0(g) == 0)
+            continue;
+        if (func_002FA210(func_002FA160(g)) != 0 && f == func_002FA390(g))
+            func_002FA220(g, 0x19);
+        if (f == func_002FA5A0(g))
+            func_002FA500(g, 0x19);
+        if (f == func_002FA6B0(g))
+            func_002FA610(g, 0x19);
+    }
+}
+
+/* 0x002FB8B0, 0x5C bytes. The first free force number (0x19 for none). */
+int func_002FB8B0(void)
+{
+    int f;
+
+    for (f = 0; f < 0x19; f++) {
+        if (func_002F8CB0(f) == 0)
+            return f;
+    }
+    return 0x19;
+}
+
+/* 0x002FB910, 0xB8 bytes. The highest number (from 0x18 down) no force in play has as its
+ * +0x12 (0x19 for none). */
+int func_002FB910(void)
+{
+    int k, f;
+
+    for (k = 0; k <= 0x18; k++) {
+        for (f = 0; f < 0x19; f++) {
+            if (func_002F8CB0(f) != 0 && 0x18 - k == func_002F9990(f))
+                break;
+        }
+        if (!is_force(f))
+            return 0x18 - k;
+    }
+    return 0x19;
+}
+
+/* 0x002FB9D0, 0x6C bytes. A region's size class by its number of forces (1-5). */
+int func_002FB9D0(int r)
+{
+    int n = func_002FB3B0(r);
+
+    if (n < 2)
+        return 1;
+    if (n < 4)
+        return 2;
+    if (n < 10)
+        return 3;
+    if (n < 0x10)
+        return 4;
+    return 5;
+}
+
+/* 0x002FBA40, 0x78 bytes. Whether some force has func_0030C890 with `g`. */
+int func_002FBA40(int g)
+{
+    int f;
+
+    for (f = 0; f < func_0030AB90(); f++) {
+        if (func_0030C890(f, g) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x002FBAC0, 0x1C4 bytes. Lists the computer's forces in play into `out`, sorted by kind,
+ * regions and number (ties broken at random); returns how many. */
+int func_002FBAC0(int *out)
+{
+    int n = 0, f, x, y;
+
+    for (f = 0; f < func_0030AB90(); f++) {
+        if (func_002F8CB0(f) != 0 && func_002FB2A0(f) == 0)
+            out[n++] = f;
+    }
+    for (x = 0; x < n; x++) {
+        int a = out[x];
+        int ka = func_002F9EA0(a) * 10000 + func_002FB3B0(a) * 100 + (0x19 - a);
+
+        for (y = x + 1; y < n; y++) {
+            int b = out[y];
+            int kb = func_002F9EA0(b) * 10000 + func_002FB3B0(b) * 100 + (0x19 - b);
+
+            if (ka < kb || (ka == kb && func_0030CB50(0x32) != 0)) {
+                out[x] = b;
+                out[y] = a;
+                ka = kb;
+                a = b;
+            }
+        }
+    }
+    return n;
+}
+
+/* 0x002FBC90, 0xC4 bytes. How many forces of region `r` have `kind` as their first trait. */
+int func_002FBC90(int r, int kind)
+{
+    int f, n = 0;
+
+    for (f = 0; f < func_0030AB90(); f++) {
+        if (is_force(f) && r == func_0030AFF0(f) && kind == func_0030AC90(f, 1))
+            n++;
+    }
+    return n;
+}
+
+/* 0x002FBD60, 0x1C bytes, matching. */
+int func_002FBD60(int r) { return func_002FBC90(r, 1); }
+
+/* 0x002FBD80, 0x1C bytes, matching. */
+int func_002FBD80(int r) { return func_002FBC90(r, 4); }
+
+/* 0x002FBDA0, 0x1C bytes, matching. */
+int func_002FBDA0(int r) { return func_002FBC90(r, 5); }
+
+/* 0x002FBDC0, 0x20 bytes, matching. */
+int func_002FBDC0(int r) { return func_002FBD60(r) != 0; }
+
+/* 0x002FBDE0, 0x20 bytes, matching. */
+int func_002FBDE0(int r) { return func_002FBC90(r, 9) != 0; }
+
+/* 0x002FBE00, 0x20 bytes, matching. */
+int func_002FBE00(int r) { return func_002FBC90(r, 6) != 0; }
+
+/* 0x002FBE20, 0x1C bytes, matching. */
+int func_002FBE20(int r) { return func_002FBC90(r, 2); }
+
+/* 0x002FBE40, 0x20 bytes, matching. */
+int func_002FBE40(int r) { return func_002FBE20(r) != 0; }
+
+/* 0x002FBE60, 0x1C bytes, matching. */
+int func_002FBE60(int r) { return func_002FBC90(r, 3); }
+
+/* 0x002FBE80, 0x20 bytes, matching. */
+int func_002FBE80(int r) { return func_002FBE60(r) != 0; }
+
+/* 0x002FBEA0, 0x1C bytes, matching. */
+int func_002FBEA0(int r) { return func_002FBC90(r, 7); }
+
+/* 0x002FBEC0, 0x20 bytes, matching. */
+int func_002FBEC0(int r) { return func_002FBEA0(r) != 0; }
+
+/* 0x002FBEE0, 0x1C bytes, matching. */
+int func_002FBEE0(int r) { return func_002FBC90(r, 8); }
+
+/* 0x002FBF00, 0x20 bytes, matching. */
+int func_002FBF00(int r) { return func_002FBEE0(r) != 0; }
+
+/* 0x002FBF20, 0xD8 bytes. The forces of region `r` with first trait `kind` (into `out`);
+ * returns how many. */
+int func_002FBF20(int r, int kind, int *out)
+{
+    int f, n = 0;
+
+    for (f = 0; f < func_0030AB90(); f++) {
+        if (is_force(f) && r == func_0030AFF0(f) && kind == func_0030AC90(f, 1)) {
+            *out++ = f;
+            n++;
+        }
+    }
+    return n;
+}
+
+/* 0x002FC000, 0xBC bytes. Whether a force of region `r` has its +0x.. below its maximum. */
+int func_002FC000(int r)
+{
+    int f;
+
+    for (f = 0; f < func_0030AB90(); f++) {
+        if (is_force(f) && r == func_0030AFF0(f) && func_0030AD80(f) < func_0030AE80(f))
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x002FC0C0, 0x158 bytes. The weakest force (by regions, officers, soldiers and strength)
+ * force `g` has a relation with, other than `f` and `g` (0x19 for none). */
+int func_002FC0C0(int f, int g)
+{
+    int best = 0x19, low = 0x7FFFFFFF, h;
+
+    if (f == g)
+        return 0x19;
+    for (h = 0; h < 0x19; h++) {
+        if (func_002F8CB0(h) != 0 && h != g && h != f && func_002F9C90(g, h) != 0) {
+            int v = (func_002FB3B0(h) + func_002FB430(h)) * 100 + func_002FB470(h) / 100
+                    + func_002FABC0(h) / 10;
+
+            if (v < low) {
+                low = v;
+                best = h;
+            }
+        }
+    }
+    return best;
 }
