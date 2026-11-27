@@ -1823,3 +1823,643 @@ void func_00311170(void)
         func_00310E60();
     }
 }
+
+extern int g_00414B50[3][3];             /* by training command: the three stats it may raise */
+extern int g_00414B80[];                 /* by stat: the skill that helps it */
+extern int g_00446900[3][12];            /* by training command: the skills it cannot teach */
+extern const char *g_0042D3E0[];         /* skill names ("Vitality", ...) */
+extern char *g_0045CFE8;                 /* (small data) a text buffer */
+
+void func_002F3A60(u32 i, int v);
+void func_002F4CB0(u32 i, int v);
+void func_002F5480(u32 i, int v);
+void func_002F4FD0(u32 i, int v);
+void func_002F52F0(u32 i, int v);
+void func_002F5610(u32 i, int v);
+void func_002F4E40(u32 i, int v);
+void func_002F5160(u32 i, int v);
+int func_002F39F0(u32 i);
+int func_002F4C40(u32 i);
+int func_002F5410(u32 i);
+int func_002F4F60(u32 i);
+int func_002F5280(u32 i);
+int func_002F55A0(u32 i);
+int func_002F4DD0(u32 i);
+int func_002F50F0(u32 i);
+int func_002F59A0(u32 i);
+int func_002F5D30(u32 i);
+int func_002F5E80(u32 i);
+int func_002F6510(u32 i);
+int func_002F6120(u32 i);
+int func_002F63C0(u32 i);
+int func_002F6660(u32 i);
+int func_002F5FD0(u32 i);
+int func_002F6270(u32 i);
+int func_002F47A0(u32 i, int k);
+void func_002F4820(u32 i, int k, int v);
+int func_002FABC0(int f);
+int func_002FA9E0(int f, int k);
+int func_002FBE80(int f);
+int func_0030AB50(int k);
+const char *func_00372FF0(int stat);
+int func_0030CB00(int n);
+int func_0030CB50(int pct);
+
+/* 0x00311260, 0x118 bytes. Notice: the command's help message (0xAB for commands 0x3B-0x59,
+ * 0x12F for 0x5A-0x62 and 0x65, else 0xAA) in the window. */
+void func_00311260(void)
+{
+    Notice *n = func_0030E2C0();
+    int pos[5], a, m;
+
+    if (n->step == 1) {
+        if (CLOSED_OK()) {
+            func_003DB480(0xF, 5);
+            func_0030E4E0(0);
+        }
+    } else if (n->step == 0) {
+        a = n->a;
+        if (a < 0x3B || a > 0x59)
+            m = ((a < 0x5A || a > 0x62) && a != 0x65) ? 0xAA : 0x12F;
+        else
+            m = 0xAB;
+        func_00374EE0(func_00390760(m));
+        pos[4] = 0x80;
+        func_003DB220(0xF, pos);
+        func_003DB460(0xF, 5);
+        n->step++;
+    }
+}
+
+/* 0x00311380, 0x104 bytes. Notice: the officers' limit (message 0x78). */
+void func_00311380(void)
+{
+    Notice *n = func_0030E2C0();
+
+    if (n->step == 2) {
+        func_0030E4E0(0);
+    } else if (n->step == 1) {
+        if (CLOSED_OK())
+            n->step++;
+    } else if (n->step == 0) {
+        int lim = func_00327E50();
+
+        func_001204B0(g_007B4E60, func_00390760(0x78), func_002F8DB0(func_00327D50()), func_0030CB80(lim));
+        SHOW();
+        n->step++;
+    }
+}
+
+/* 0x00311490, 0x1D4 bytes. Notice: officer `a`'s two messages (0x73, then 0x75 for `b` 4, else
+ * 0x74 with `b` / 4). */
+void func_00311490(void)
+{
+    Notice *n = func_0030E2C0();
+    u32 i = n->a;
+    int b = n->b;
+
+    switch (n->step) {
+    case 4:
+        func_0030E4E0(0);
+        break;
+    case 3:
+        if (CLOSED_OK())
+            n->step++;
+        break;
+    case 2:
+        if (b == 4)
+            func_001204B0(g_007B4E60, func_00390760(0x75), func_002F2890(i));
+        else
+            func_001204B0(g_007B4E60, func_00390760(0x74), func_002F2890(i), func_0030CB80(b / 4));
+        SHOW();
+        n->step++;
+        break;
+    case 1:
+        if (CLOSED_OK())
+            n->step++;
+        break;
+    case 0:
+        func_001204B0(g_007B4E60, func_00390760(0x73), func_002F2890(i));
+        SHOW();
+        n->step++;
+        break;
+    }
+}
+
+/* 0x00311670, 0x98 bytes. Runs event command `c` (0x28-0x2A become their success / failure
+ * forms). */
+void func_00311670(int c, int ok)
+{
+    if (c > 0x27 && c < 0x2B) {
+        if (c == 0x2A)
+            c = ok == 0 ? 0x62 : 0x61;
+        else if (c == 0x29)
+            c = ok == 0 ? 0x73 : 0x72;
+        else if (c == 0x28)
+            c = ok == 0 ? 0x6A : 0x69;
+    }
+    func_0030E140(c, -1, -1, -1);
+}
+
+/* 0x00311710, 0xB0 bytes, matching. Raises officer `i`'s stat `s` (0-7) by `v`. */
+void func_00311710(u32 i, int s, int v)
+{
+    switch (s) {
+    case 0: func_002F3A60(i, v); break;
+    case 1: func_002F4CB0(i, v); break;
+    case 2: func_002F5480(i, v); break;
+    case 3: func_002F4FD0(i, v); break;
+    case 4: func_002F52F0(i, v); break;
+    case 5: func_002F5610(i, v); break;
+    case 6: func_002F4E40(i, v); break;
+    case 7: func_002F5160(i, v); break;
+    }
+}
+
+/* Officer `i`'s stat `s` and its limit (0x15E / 0xFA when func_002F59A0). */
+static void stat_and_limit(u32 i, int s, int *v, int *lim)
+{
+    int full = 0;
+
+    switch (s) {
+    case 0: *v = func_002F39F0(i); full = func_002F59A0(i); *lim = full ? 0x15E : func_002F5D30(i); break;
+    case 1: *v = func_002F4C40(i); full = func_002F59A0(i); *lim = full ? 0x15E : func_002F5E80(i); break;
+    case 2: *v = func_002F5410(i); full = func_002F59A0(i); *lim = full ? 0xFA : func_002F6510(i); break;
+    case 3: *v = func_002F4F60(i); full = func_002F59A0(i); *lim = full ? 0xFA : func_002F6120(i); break;
+    case 4: *v = func_002F5280(i); full = func_002F59A0(i); *lim = full ? 0xFA : func_002F63C0(i); break;
+    case 5: *v = func_002F55A0(i); full = func_002F59A0(i); *lim = full ? 0xFA : func_002F6660(i); break;
+    case 6: *v = func_002F4DD0(i); full = func_002F59A0(i); *lim = full ? 0xFA : func_002F5FD0(i); break;
+    case 7: *v = func_002F50F0(i); full = func_002F59A0(i); *lim = full ? 0xFA : func_002F6270(i); break;
+    }
+}
+
+/* 0x003117C0, 0x454 bytes. Training command `c` (0x24-0x2A; 0x27 picks a row at random) for
+ * officer `i` with `bonus`: one of the row's stats below its limit, raised by 1 + `bonus` +
+ * chance (its helping skill) + the force's value / 300 + 0-1 (message 0x2C). 0 when none. */
+int func_003117C0(u32 i, int c, int bonus)
+{
+    int row[3][3], ok[4], n = 0, k, s, v = 0, lim = 0, *r;
+
+    for (k = 0; k < 9; k++)
+        (&row[0][0])[k] = (&g_00414B50[0][0])[k];
+    switch (c) {
+    case 0x24: case 0x28: k = 0; break;
+    case 0x25: case 0x29: k = 1; break;
+    case 0x26: case 0x2A: k = 2; break;
+    case 0x27: k = func_0030CB00(3); break;
+    default: k = 0; break;
+    }
+    r = row[k];
+    for (s = 0; s < 3; s++) {
+        stat_and_limit(i, r[s], &v, &lim);
+        if (v < lim)
+            ok[n++] = s;
+    }
+    if (n == 0)
+        return 0;
+    s = r[ok[func_0030CB00(n)]];
+    {
+        int lv = func_002F47A0(i, g_00414B80[s]);
+        int fv = func_002FABC0(func_002F4080(i));
+        int luck = func_0030CB50((lv + 1) * 0x14);
+        int gain = (luck != 0) + bonus + 1 + fv / 300 + func_0030CB00(2);
+
+        if (gain == 0)
+            return 0;
+        func_001204B0(g_0045CFE8, func_00390760(0x2C), func_002F2890(i), func_00372FF0(s), func_0030CB80(gain));
+        func_00374EE0(g_0045CFE8);
+        func_00311710(i, s, gain);
+    }
+    return 1;
+}
+
+/* 0x00311C30, 0x8C bytes, matching. Whether training command `c` cannot teach skill `k`. */
+int func_00311C30(int c, int k)
+{
+    int row = 0, j;
+
+    switch (c) {
+    case 0x24: case 0x28: row = 0; break;
+    case 0x25: case 0x29: row = 1; break;
+    case 0x26: case 0x2A: row = 2; break;
+    }
+    for (j = 0; j < 12; j++) {
+        if (k == g_00446900[row][j])
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x00311CC0, 0x2AC bytes. Skill training: officer `i` learns a skill (level + 1) that teacher
+ * `t` or its force knows better (command 0x27 any, others not their excluded skills nor
+ * level 4; skill 0x27 needs func_002FBE80), by chance (90% at least); message 0x2B. */
+int func_00311CC0(u32 i, u32 t, int c)
+{
+    int cand[40], n = 0, k, pct, lv;
+
+    for (k = 0; k < 0x28; k++) {
+        int a, b, my;
+
+        if (c != 0x27 && func_00311C30(c, k) != 0)
+            continue;
+        a = func_002F47A0(t, k);
+        b = func_002FA9E0(func_002F4080(i), k);
+        if (a == 0 && b == 0)
+            continue;
+        if (b < a)
+            b = a;
+        my = func_002F47A0(i, k);
+        if (my >= b || (c != 0x27 && my == 4))
+            continue;
+        if (k == 0x27 && (func_002FBE80(func_002F4080(i)) == 0 || my != 0))
+            continue;
+        if (my < func_0030AB50(k) && b != 0)
+            cand[n++] = k;
+    }
+    if (n == 0)
+        return 0;
+    k = cand[func_0030CB00(n)];
+    pct = (func_002F47A0(i, 0x23) + 2) * 10 + func_002FABC0(func_002F4080(i)) / 0x14;
+    if (pct < 0x5A)
+        pct = 0x5A;
+    if (func_0030CB50(pct) == 0)
+        return 0;
+    lv = func_002F47A0(i, k);
+    func_001204B0(g_007B4E60, func_00390760(0x2B), func_002F2890(i), g_0042D3E0[k], func_0030CB80(lv + 1));
+    SHOW();
+    func_002F4820(i, k, lv + 1);
+    return 1;
+}
+
+const char *func_002F2A30(u32 i);
+int func_002FB320(int f, int *out);
+int func_002FB2D0(int f);
+void func_003986E0(int r, int a, int *l, int n);
+void func_0030A870(int kind, u32 i, int r, int *l, int n, int show);
+int func_002F7EC0(u32 i, int f);
+
+/* 0x00311F70, 0x11C bytes. The training's closing message: 0x32 for commands outside
+ * 0x24-0x27, else when nothing was learned 0x2D-0x30 with both officers. 0 when there is none. */
+int func_00311F70(u32 i, u32 j, int any, int c)
+{
+    char a[32], b[32];
+    int m = -1;
+
+    if (c < 0x24 || c > 0x27) {
+        func_00374EE0(func_00390760(0x32));
+        return 1;
+    }
+    if (any != 0)
+        return 0;
+    if (c == 0x27)
+        m = 0x30;
+    else if (c == 0x26)
+        m = 0x2F;
+    else if (c == 0x25)
+        m = 0x2E;
+    else if (c == 0x24)
+        m = 0x2D;
+    func_00120928(a, func_002F2890(i));
+    func_00120928(b, func_002F2890(j));
+    func_001204B0(g_007B4E60, func_00390760(m), a, b);
+    SHOW();
+    return 1;
+}
+
+/* 0x00312090, 0x370 bytes. Notice: a training command `a` (succeeded `b`) for the listed
+ * officers: its event, then each officer's stat training (the two teachers list[4] / list[5]
+ * get a bonus), then skill training between list[4] and list[5], then the closing message.
+ * Uses list[6]-list[10] as counters. */
+void func_00312090(void)
+{
+    Notice *n = func_0030E2C0();
+    int ok = n->b, c = n->a, *idx = &n->list[6], *idx2 = &n->list[7];
+    int cnt = n->list[8], cnt2 = n->list[9], bonus = 0;
+
+    switch (n->step) {
+    case 0:
+        func_00311670(c, ok);
+        n->list[8] = 4;
+        if (c < 0x28 || c > 0x2A)
+            n->list[8] = 1;
+        n->list[9] = 2;
+        if (c < 0x28 || c > 0x2A)
+            n->list[9] = 1;
+        else if (ok == 0)
+            n->list[9] = 1;
+        n->list[10] = 0;
+        *idx = 0;
+        *idx2 = 0;
+        n->step++;
+        break;
+    case 1:
+        if (func_0030E1F0() == 2) {
+            u32 i;
+
+            func_0030E100();
+            i = n->list[*idx];
+            if (c > 0x27 && c < 0x2B) {
+                if (i == (u32)n->list[4])
+                    bonus = 2;
+                else if (i == (u32)n->list[5])
+                    bonus = 1;
+            }
+            if (func_003117C0(i, c, bonus) == 0) {
+                if (++*idx >= cnt)
+                    n->step += 2;
+            } else {
+                n->list[10] = 1;
+                n->step++;
+            }
+        }
+        break;
+    case 2:
+        if (CLOSED_OK()) {
+            if (++*idx < cnt)
+                n->step = 1;
+            else
+                n->step++;
+        }
+        break;
+    case 3: {
+        u32 i, t;
+
+        if (*idx2 == 0) {
+            t = n->list[5];
+            i = n->list[4];
+        } else {
+            i = n->list[5];
+            t = n->list[4];
+        }
+        if (func_00311CC0(i, t, c) == 0) {
+            if (++*idx2 >= cnt2)
+                n->step += 2;
+        } else {
+            n->list[10] = 1;
+            n->step++;
+        }
+        break;
+    }
+    case 4:
+        if (CLOSED_OK()) {
+            if (++*idx2 < cnt2)
+                n->step = 3;
+            else
+                n->step++;
+        }
+        break;
+    case 5:
+        if (func_00311F70(n->list[4], n->list[5], n->list[10], c) == 0)
+            n->step += 2;
+        else
+            n->step++;
+        break;
+    case 6:
+        if (CLOSED_OK())
+            n->step++;
+        break;
+    case 7:
+        func_0030E4E0(0);
+        break;
+    }
+}
+
+/* 0x00312400, 0x190 bytes. Notice: force `b`'s leader event (command 0x2B), then its regions on
+ * the map with message 0x5E. */
+void func_00312400(void)
+{
+    Notice *n = func_0030E2C0();
+    int f = n->b, reg[28];
+    u32 lead;
+
+    if (!IS_FORCE(f))
+        return;
+    lead = func_002F8F20(f);
+    if (lead >= 0x19F)
+        return;
+    switch (n->step) {
+    case 3:
+        func_0030E4E0(0);
+        break;
+    case 2:
+        if (CLOSED_OK()) {
+            func_003A9610();
+            n->step++;
+        }
+        break;
+    case 1:
+        func_0030E100();
+        func_003A9510(reg, func_002FB320(f, reg), 0);
+        func_001204B0(g_007B4E60, func_00390760(0x5E), func_002F2A30(lead));
+        SHOW();
+        n->step++;
+        break;
+    case 0:
+        func_0030E140(0x2B, lead, -1, -1);
+        n->step++;
+        break;
+    }
+}
+
+/* 0x00312590, 0xC4 bytes. Notice: event command 0x68 / 0x71 / 0x60 (by `a` 0x28 / 0x29 /
+ * other), closed once answered. */
+void func_00312590(void)
+{
+    Notice *n = func_0030E2C0();
+
+    if (n->step == 1) {
+        if (func_0030E1F0() == 2) {
+            func_0030E100();
+            func_0030E4E0(0);
+        }
+    } else if (n->step == 0 && func_0030E1F0() == 0) {
+        int c;
+
+        if (n->a == 0x28)
+            c = 0x68;
+        else if (n->a == 0x29)
+            c = 0x71;
+        else
+            c = 0x60;
+        func_0030E140(c, -1, -1, -1);
+        n->step++;
+    }
+}
+
+/* 0x00312660, 0x18C bytes. Notice: region `a` rises (event 0x2C, or 0x3D with `b`), message 0x49
+ * with the region shown. */
+void func_00312660(void)
+{
+    Notice *n = func_0030E2C0();
+    int r = n->a, b = n->b;
+
+    if (n->step == 3) {
+        func_0030E4E0(0);
+    } else if (n->step == 2) {
+        if (CLOSED_OK()) {
+            func_0023AA40();
+            func_003A9610();
+            n->step++;
+        }
+    } else if (n->step == 1) {
+        if (func_0030E1F0() == 2) {
+            func_0030E100();
+            func_001204B0(g_007B4E60, func_00390760(0x49), func_0030ABF0(r));
+            SHOW();
+            if (func_0023A760(5) != 0) {
+                func_00102960(1);
+                func_0023A7D0(5);
+            }
+            n->step++;
+        }
+    } else if (n->step == 0) {
+        if (func_0030E1F0() == 0) {
+            func_0030E140(b != 0 ? 0x3D : 0x2C, -1, -1, -1);
+            func_003A9510(&n->a, 1, 0);
+            n->step++;
+        }
+    }
+}
+
+/* 0x003127F0, 0x184 bytes. Notice: officer `a` in region `b` (event 0x2B, message 0x52). */
+void func_003127F0(void)
+{
+    Notice *n = func_0030E2C0();
+    u32 i = n->a;
+
+    if (n->step == 3) {
+        func_0030E4E0(0);
+    } else if (n->step == 2) {
+        if (CLOSED_OK()) {
+            func_0023AA40();
+            func_003A9610();
+            n->step++;
+        }
+    } else if (n->step == 1) {
+        if (func_0030E1F0() == 2) {
+            func_0030E100();
+            func_001204B0(g_007B4E60, func_00390760(0x52), func_002F2890(i));
+            SHOW();
+            if (func_0023A760(0xE) != 0) {
+                func_00102960(1);
+                func_0023A7D0(0xE);
+            }
+            n->step++;
+        }
+    } else if (n->step == 0) {
+        if (func_0030E1F0() == 0) {
+            func_0030E140(0x2B, i, -1, -1);
+            func_003A9510(&n->b, 1, 0);
+            n->step++;
+        }
+    }
+}
+
+/* 0x00312980, 0x4EC bytes. Notice: officer `a` rebels in region `b` (events 0x2B and 0x2D,
+ * messages 0x4B and 0x4C); a new force rises with the listed officers, the region's other
+ * officers flee to the player's home (message 0xC7). */
+void func_00312980(void)
+{
+    Notice *n = func_0030E2C0();
+    u32 i = n->a;
+    int r = n->b, p = func_00327D50(), rest[7], m, k, j, cnt;
+    char a[32], b[32];
+    u32 *o;
+
+    switch (n->step) {
+    case 0:
+        if (func_0030E1F0() == 0) {
+            func_0030E140(0x2B, i, -1, -1);
+            func_003A9510(&n->b, 1, 0);
+            n->step++;
+        }
+        break;
+    case 1:
+        if (func_0030E1F0() == 2) {
+            func_0030E100();
+            func_00120928(b, func_0030ABF0(r));
+            func_00120928(a, func_002F2890(i));
+            func_001204B0(g_007B4E60, func_00390760(0x4B), a, b);
+            SHOW();
+            if (func_0023A760(5) != 0) {
+                func_00102960(1);
+                func_0023A7D0(5);
+            }
+            n->step++;
+        }
+        break;
+    case 2:
+        if (CLOSED_OK()) {
+            func_0023AA40();
+            if (func_0030E1F0() == 0) {
+                func_0030E140(0x2D, i, -1, -1);
+                n->step++;
+            }
+        }
+        break;
+    case 3:
+        if (func_0030E1F0() == 2) {
+            func_0030E100();
+            func_00120928(b, func_0030ABF0(r));
+            func_00120928(a, func_002F2890(i));
+            func_001204B0(g_007B4E60, func_00390760(0x4C), a, b);
+            SHOW();
+            if (func_0023A760(0xE) != 0) {
+                func_00102960(1);
+                func_0023A7D0(0xE);
+            }
+            n->step++;
+        }
+        break;
+    case 4:
+        if (CLOSED_OK()) {
+            func_0023AA40();
+            func_003A9610();
+            n->step++;
+        }
+        break;
+    case 5:
+        m = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, r, 0, 0);
+        o = func_002F7B10();
+        cnt = 0;
+        for (k = 0; k < m; k++, o++) {
+            int x = *o, found = 0;
+
+            if (x == (int)i)
+                continue;
+            for (j = 0; j < n->count; j++) {
+                if (x == n->list[j]) {
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found)
+                rest[cnt++] = x;
+        }
+        func_0030A870(1, i, r, n->list, n->count, 1);
+        for (k = 0; k < cnt; k++)
+            n->list[k] = rest[k];
+        n->count = cnt;
+        if (cnt == 0) {
+            n->step += 3;
+        } else {
+            func_00374EE0(func_00390760(199));
+            n->step++;
+        }
+        break;
+    case 6:
+        if (CLOSED_OK()) {
+            func_0023AA40();
+            func_003986E0(func_002FB2D0(p), -1, n->list, n->count);
+            n->step++;
+        }
+        break;
+    case 7:
+        if (func_0039B980() != 2)
+            n->step++;
+        break;
+    case 8:
+        func_0030E4E0(0);
+        break;
+    }
+}
