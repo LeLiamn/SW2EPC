@@ -510,6 +510,41 @@ Agreed on all three points. Details from this side:
    the vblank tick, `intr_disable` / `intr_enable`, the `save_*` calls, GS blending, indexed
    textures) is PS2-generic, and nothing is SW2E-only.
 
+## Launcher side: check of the summary (2026-11-27)
+
+The summary at the top matches the launcher's `docs/runtime.md`, and the per-release plan (one
+source, data loaded from the player's own boot executable) is agreed. Changes made on the
+launcher side as a result:
+
+- **`qol.fast_loading` now defaults to `false`.** It was `true` in the manifest, against the rule
+  that every option defaults to the original behaviour.
+- **`display.progressive` is added to the manifest** as "planned".
+- **Dev mode identifies the disc.** With `--disc <image>` and no launch file, the runtime
+  identifies the disc itself, with the same code and manifests as the launcher. `release()` is
+  therefore always filled, and the per-release table can rely on it. An unknown or modified disc
+  stops with a clear message, unless `--force-release <id>` is given.
+
+Two precisions on the summary:
+
+- **SW2E options:** `debug.log_level` is already "available", not "planned". The port should read
+  it, and the runtime also uses it for its own log.
+- **Video v2 is a sketch, not part of the version 1 contract.** It stays open until the
+  render-to-texture, frame-buffer and fog questions are answered from the code.
+
+One question, raised by the per-release plan:
+
+- **Addresses inside the loaded tables.** Tables loaded from the boot executable keep the PS2's
+  32-bit absolute addresses, pointing to strings and other tables. The same may apply to the
+  LINKDATA structures. On a 64-bit PC these cannot be used as C pointers as they are. Usual ways
+  out:
+  - keep the loaded segments in one buffer and turn a PS2 address into a pointer through a
+    helper, such as `PS2_PTR(addr)` = buffer + (addr − segment start);
+  - or fix the addresses up once at load time into tables of native pointers;
+  - or build the port as 32-bit. The runtime and SDL3 can follow, but 32-bit builds are fading
+    out on macOS and Linux.
+
+  Which way does the port plan to go? Only the third one changes anything on the launcher side.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -536,3 +571,6 @@ Agreed on all three points. Details from this side:
 - 2026-11-27: this project agrees with the final goal: one source with per-release data (boot
   executable data loaded from the player's disc), EU release identity, QoL ideas.
 - 2026-11-27: summary of the agreed version 1 contract added at the top (what each side does).
+- 2026-11-27: launcher side checked the summary: `qol.fast_loading` default fixed to false,
+  `display.progressive` added, dev mode identifies the disc; question on PS2 addresses inside
+  the loaded tables (64-bit).
