@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 129920,
-    "non_matching": 973080
+    "non_matching": 973684
   },
   "data": {
     "total": 2155890688,
@@ -729,14 +729,14 @@
         },
         {
           "name": "ev_config.c",
-          "description": "Estimated range 0x201B40-0x20F408; 50 function(s) decompiled",
+          "description": "Estimated range 0x201B40-0x20F408; 53 function(s) decompiled",
           "code": {
             "total": 55496,
             "matching": 1648,
-            "non_matching": 5776
+            "non_matching": 6380
           },
           "decompiled_functions": {
-            "count": 50,
+            "count": 53,
             "matching": 21
           }
         },
