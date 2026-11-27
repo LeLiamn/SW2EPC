@@ -834,3 +834,87 @@ void func_0038AB80(u8 *m)
         func_0037DDD0(func_0030D7D0(), *(int *)(p + 0x10), e[0], func_002F9060(f));
     }
 }
+
+/* Rising value drawers and the gallery lists (0x0038BB50, 0x0038BCA0, 0x0038C0F0, 0x0038DE60). */
+
+void func_0037ED80(int a, int x, int y, int f, int *v, int b, int c);
+int func_002F9390(int f, int j);
+u8 *func_0038DC40(void);
+int func_003A0040(int k);
+int func_0039E650(int k);
+
+/* 0x0038BB50, 0x148 bytes. Draws an officer value rising by the command's gain over 10 frames. */
+void func_0038BB50(u8 *m)
+{
+    int *e = (int *)(ENTRY(m) + 0x80);
+    int *p = func_003DB900(7);
+
+    g_007B9F3C = 10;
+    if (STEP(m) == 2) {
+        g_007B9F38 = 10;
+        g_007B9F30 = 0;
+        func_003808D0(func_0030D7D0(), p[0], p[1], e[0], e[1]);
+    } else if (STEP(m) == 1) {
+        g_007B9F30 = 1;
+        g_007B9F38++;
+        func_003808D0(func_0030D7D0(), p[0], p[1], e[0], e[1] * g_007B9F38 / g_007B9F3C);
+    } else if (STEP(m) == 0) {
+        g_007B9F38 = 0;
+        g_007B9F30 = 0;
+        func_0037FD50(func_0030D7D0(), p[0], p[1], e[0]);
+    }
+}
+
+/* 0x0038BCA0, 0x154 bytes. */
+void func_0038BCA0(u8 *m)
+{
+    int *p = func_003DB900(9);
+
+    g_007B9F3C = 0x1E;
+    if (STEP(m) == 2 || STEP(m) == 1 || STEP(m) == 0)
+        func_003DFD80(E32(m, 0x84), func_0030D7D0(), func_0030D810(), p[0], p[1], 1, g_007B9EA0, g_007B9ED0);
+}
+
+/* 0x0038C0F0, 0x13C bytes. Draws force `f`'s three values. */
+void func_0038C0F0(u8 *m)
+{
+    int f = E32(m, 0x80), v[8], j;
+    int *p = func_003DB900(1);
+
+    if (f < 0 || f >= func_0030AB90())
+        return;
+    for (j = 0; j < 3; j++) {
+        v[j] = func_002F9390(f, j);
+        v[j + 3] = 0;
+    }
+    if (STEP(m) == 2)
+        func_0037ED80(func_0030D7D0(), p[0], p[1], f, v, 0, 0);
+    else if (STEP(m) == 1)
+        func_0037ED80(func_0030D7D0(), p[0], p[1], f, v, 0, 0);
+}
+
+/* 0x0038DE60, 0x124 bytes. Builds the gallery's officer lists: the seen officers (then the
+ * custom ones), and the seen generic ones. */
+void func_0038DE60(void)
+{
+    u8 *q = func_0038DC40();
+    int *n1 = (int *)(q + 0x4E68), *n2 = (int *)(q + 0x54EC);
+    u32 o;
+
+    *(int *)(q + 0x5B6C) = 0;
+    *n1 = 0;
+    for (o = 0; o < 400; o++) {
+        if (func_003A0040(o) != 0)
+            ((u32 *)(q + 0x47EC))[(*n1)++] = o;
+    }
+    *n2 = 0;
+    for (o = 0; o < 0x19F; o++) {
+        if (o > 0x1B && (o < 400 || o > 0x19E) && func_003A0040(o) != 0)
+            ((u32 *)(q + 0x4E70))[(*n2)++] = o;
+    }
+    *(int *)(q + 0x4E6C) = *n1;
+    for (o = 400; o < 0x19F; o++) {
+        if (func_0039E650(o - 400) != 0)
+            ((u32 *)(q + 0x47EC))[(*n1)++] = o;
+    }
+}
