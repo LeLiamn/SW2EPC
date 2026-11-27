@@ -35,6 +35,13 @@ typedef signed char s8;
 
 typedef u8 Unit;
 
+/* A flag byte: the original tests its bits as signed one-bit fields (LSB first). */
+typedef struct {
+    signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} Bits8;
+
+#define BIT(o, off, n) (((Bits8 *)((u8 *)(o) + (off)))->f##n)
+
 #define ACT(u) PTR(u, 0x210)
 
 float sqrtf(float x);
@@ -219,7 +226,7 @@ int func_00161790(float scale, Unit *u, int *cam, float *eye, float *target, int
         c4 = 0;
         c3 = 0;
     }
-    if (U8(cam, 0x3C) & 2) {
+    if (BIT(cam, 0x3C, 1)) {
         eye[1] = F32(*(u8 **)cam, 0x1C4);
         for (k = 0; k < 4; k++)
             v[k] = eye[k] - target[k];
@@ -269,7 +276,7 @@ void func_00161E10(int *cam, Unit *u, u8 *obj)
     float eye[4], target[4], fwd[4], h, x;
     int k;
 
-    if (m != 0 && (U8(u, 0x198) & 2)) {
+    if (m != 0 && BIT(u, 0x198, 1)) {
         func_00164DA0(m, 1);
         func_00178AC0(m);
         func_00166A00(m);
@@ -307,7 +314,7 @@ void func_00161E10(int *cam, Unit *u, u8 *obj)
     U16(cam, 0x36) = 0;
     cam[0xF] = 0;
     cam[0xE] = 0;
-    U8(cam, 0x3C) &= ~4;
+    BIT(cam, 0x3C, 2) = 0;
     func_00162C30(cam, eye, target, &x, 0);
     func_00161790(x, u, cam, eye, target, 0);
     for (k = 0; k < 4; k++) {
@@ -419,7 +426,7 @@ void func_00162250(float mx, float my, float mz, int *cam, float *out)
         my = 70.0f;
         mz = 50.0f;
     }
-    if (U8(cam, 0x3C) & 4)
+    if (BIT(cam, 0x3C, 2))
         my = 100.0f;
     for (k = 0; k < 4; k++) {
         dt[k] = out[k] - F32(obj, 0x1D0 + k * 4);
@@ -595,7 +602,7 @@ int func_00162C30(int *cam, float *eye, float *target, float *closeness, int fre
     int k;
 
     *closeness = 0.0f;
-    if (U8(cam, 0x3C) & 2) {
+    if (BIT(cam, 0x3C, 1)) {
         U16(cam, 0x36) = 0;
         return 0;
     }
@@ -808,14 +815,14 @@ void func_001637B0(float dt, int *cam)
     F32(obj, 0x224) = (g_00669F60 & 2) == 0 ? 0.2617994f : 0.17453294f;
     F32(obj, 0x220) = 0.0f;
     cam[7] = (int)act;
-    if ((U8(cam, 0x3C) & 2) && (U32(act, 0x18) & 0x20) == 0)
-        U8(cam, 0x3C) &= ~2;
+    if (BIT(cam, 0x3C, 1) && (U32(act, 0x18) & 0x20) == 0)
+        BIT(cam, 0x3C, 1) = 0;
     r.from = old;
     r.to = &F32(obj, 0x1C0);
     r.who = 0;
     r.radius = 30.0f;
     r.range = 100.0f;
-    U8(cam, 0x3C) &= ~4;
+    BIT(cam, 0x3C, 2) = 0;
     func_001F3930(&r);
     if (r.result & 0x100) {
         Probe p;
@@ -834,7 +841,7 @@ void func_001637B0(float dt, int *cam)
 
             F32(obj, 0x1C4) = y < r.height ? y : r.height;
         }
-        U8(cam, 0x3C) = (U8(cam, 0x3C) & ~4) | 4;
+        BIT(cam, 0x3C, 2) = 1;
     }
 }
 
@@ -996,9 +1003,9 @@ void func_00163F00(float dt, int *cam)
                 }
             }
         }
-        U8(u, 0x199) = (U8(u, 0x199) & ~8) | 8;
+        BIT(u, 0x199, 3) = 1;
         if (PTR(u, 0x270) != 0)
-            U8(PTR(u, 0x270), 0x199) = (U8(PTR(u, 0x270), 0x199) & ~8) | 8;
+            BIT(PTR(u, 0x270), 0x199, 3) = 1;
     }
     *(float *)&cam[0xC] = *(float *)&cam[0xC] + dt;
     if (cut || (float)(S32(*(u8 **)cam[0xA], 8) - 1) < *(float *)&cam[0xC]) {
@@ -1020,7 +1027,7 @@ void func_00164270(float unused, float dt, int *cam)
     if (cam[8] == 0 || cam[9] == 0)
         return;
     for (k = 0; k < 4; k++) {
-        if (U8(cam, 0x3C) & 1)
+        if (BIT(cam, 0x3C, 0))
             t[k] = F32(cam[9], 0x90 + k * 4);
         else
             t[k] = (F32(cam[8], 0x90 + k * 4) - F32(cam[9], 0x90 + k * 4)) * 0.5f
@@ -1037,7 +1044,7 @@ void func_00164270(float unused, float dt, int *cam)
     }
     for (k = 0; k < 4; k++)
         F32(obj, 0x1C0 + k * 4) = F32(cam, 0xE0 + k * 4);
-    if ((U8(cam, 0x3C) & 1) == 0) {
+    if (BIT(cam, 0x3C, 0) == 0) {
         F32(obj, 0x224) = g_004064B0[cam[9] % 3][0];
         F32(obj, 0x220) = g_004064B0[cam[9] % 3][1];
     }
@@ -1072,13 +1079,13 @@ void func_00164440(float step, float dt, int *cam)
         g_0045D2A8 = 0;
         func_00254030();
         func_00163A20(dt, cam);
-        U8(CAM_OBJ, 0x230) = (U8(CAM_OBJ, 0x230) & ~2) | 2;
+        BIT(CAM_OBJ, 0x230, 1) = 1;
     } else if (cam[0xB] != 0) {
         g_0045CC80 = 8;
         g_0045D2C8 = 0;
         func_00163BA0(dt, cam);
-        U8(CAM_OBJ, 0x230) = (U8(CAM_OBJ, 0x230) & ~2) | 2;
-        if ((U8(cam[0xB], 0x27C) & 4) == 0) {
+        BIT(CAM_OBJ, 0x230, 1) = 1;
+        if (BIT(cam[0xB], 0x27C, 2) == 0) {
             func_0029EE00(cam, 0);
             if (cam[1] != 0)
                 func_001FAA60(U8(cam[1], 0x14E));
@@ -1087,15 +1094,15 @@ void func_00164440(float step, float dt, int *cam)
         g_0045CC80 = 8;
         g_0045D2C8 = 0;
         func_00163F00(step, cam);
-        U8(CAM_OBJ, 0x230) = (U8(CAM_OBJ, 0x230) & ~2) | 2;
+        BIT(CAM_OBJ, 0x230, 1) = 1;
     } else if (g_0045D2A8 != 0) {
         g_0045CC80 = 8;
         g_0045D2C8 = 0;
         func_00164270(step, dt, cam);
-        U8(CAM_OBJ, 0x230) = (U8(CAM_OBJ, 0x230) & ~2) | 2;
+        BIT(CAM_OBJ, 0x230, 1) = 1;
     } else {
         func_001637B0(dt, cam);
-        U8(CAM_OBJ, 0x230) &= ~2;
+        BIT(CAM_OBJ, 0x230, 1) = 0;
     }
     if (cam[0x10] != 0) {
         func_0017C230(&cam[0x10]);

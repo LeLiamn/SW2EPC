@@ -32,6 +32,13 @@ typedef signed char s8;
 
 typedef u8 Unit;
 
+/* A flag byte: the original tests its bits as signed one-bit fields (LSB first). */
+typedef struct {
+    signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} Bits8;
+
+#define BIT(o, off, n) (((Bits8 *)((u8 *)(o) + (off)))->f##n)
+
 float sqrtf(float x);
 float vu0_angle(float x, float z);
 void vu0_sincos(float a, float *s, float *c);     /* VU0 micro subroutine 0x20 */               /* VU0 micro subroutine 0x30 (atan2?) */
@@ -85,14 +92,14 @@ void func_00150930(Unit *u)
     if (U8(u, 0x155) != 0)
         return;
     m = U16(PTR(u, 0x210), 0xA);
-    if (m != 0xFFFF && (U8(u, 0x2DC) & 4)) {
+    if (m != 0xFFFF && BIT(u, 0x2DC, 2)) {
         u8 kind = U8(PTR(u, 0x110), 0x1C);
 
         U32(u, 0x2F0) = *(u32 *)(g_005B5078[kind] + 0x20) + m * 0x20;
         U32(u, 0x2F4) = 0;
     }
     m = U16(PTR(u, 0x210), 8);
-    if (m != 0xFFFF && (U8(u, 0x34C) & 4)) {
+    if (m != 0xFFFF && BIT(u, 0x34C, 2)) {
         u8 kind = U8(PTR(u, 0x110), 0x1C);
 
         U32(u, 0x360) = *(u32 *)(g_005B5078[kind] + 0x10) + m * 0x20;
@@ -193,7 +200,7 @@ static inline int unit_hit(Unit *u, int dflt)
             if ((u16)(id - 0x76) < 2) {
                 F32(u, 0x224) = 0.0f;
                 F32(u, 0x228) = 0.0f;
-                U8(u, 0x27C) &= ~2;
+                BIT(u, 0x27C, 1) = 0;
                 return -1;
             }
             if (14.0f <= F32(u, 0x22C) || F32(u, 0x224) <= -20.0f) {
@@ -212,7 +219,7 @@ static inline int unit_hit(Unit *u, int dflt)
     F32(u, 0x224) = 0.0f;
 done:
     F32(u, 0x228) = 0.0f;
-    U8(u, 0x27C) &= ~2;
+    BIT(u, 0x27C, 1) = 0;
     return next;
 }
 
@@ -274,7 +281,7 @@ int func_00150FD0(Unit *u, Unit *other, short side)
         F32(u, 0x40 + k * 4) = F32(other, 0x40 + k * 4) + v[k];
     F32(u, 0x54) = F32(other, 0x54);
     F32(u, 0x238) = F32(other, 0x54);
-    U8(u, 0x27C) = (U8(u, 0x27C) & ~1) | 1;
+    BIT(u, 0x27C, 0) = 1;
     return left;
 }
 
@@ -295,10 +302,10 @@ int func_001511C0(Unit *u, Unit *other, u8 kind)
         U8(u, 0x157) = 0;
         S16(u, 0x194) = 0;
         func_00158CD0(u, 4);
-        if (U8(u, 0x19E) & 2) {
+        if (BIT(u, 0x19E, 1)) {
             u8 b;
 
-            U8(u, 0x19E) &= ~2;
+            BIT(u, 0x19E, 1) = 0;
             b = U8(u, 0x19D);
             U8(u, 0x19D) = b & 0xBF;
             U8(u, 0x19D) = b & 0x3F;
@@ -346,6 +353,7 @@ void func_001512F0(Unit *u)
 #define g_7000015C (*(u32 *)0x7000015C)          /* the random seed */
 #define RANDOM()   (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
+extern u8 g_00693970[];                 /* the game state: the officers at +0x100C0 */
 extern u8 g_006A3A30[][0xC0];            /* the officers (+0x86 maximum, +0x88 current: life?) */
 extern u32 g_0076E700[];
 extern u32 g_00669DB8;                   /* the game mode (4: ?) */
@@ -398,10 +406,10 @@ void func_001512F0(Unit *u);
  * players), and the lowest value seen so far for the players. */
 void func_001514C0(Unit *u)
 {
-    u8 *rec = g_006A3A30[S16(u, 0x178)];
+    u8 *rec = (g_00693970 + S16(u, 0x178) * 0xC0 + 0x100C0);
     u8 p;
 
-    U8(u, 0x19C) &= ~0x40;
+    BIT(u, 0x19C, 6) = 0;
     if (g_00669DB8 != 4) {
         u8 lv = (u8)(S16(rec, 0x88) / func_00271210());
 
@@ -416,9 +424,9 @@ void func_001514C0(Unit *u)
         func_00253690(1, u);
         g_0076E700[PLAYER(u)] &= ~2;
     }
-    U8(u, 0x19D) &= ~0x20;
+    BIT(u, 0x19D, 5) = 0;
     U8(u, 0x19F) = (U8(u, 0x19F) & ~2)
-                   | ((func_002713A0(u) != 0 && (U8(u, 0x19E) & 4) == 0) << 1);
+                   | ((func_002713A0(u) != 0 && BIT(u, 0x19E, 2) == 0) << 1);
     if (PLAYER(u) < 2 && func_001BE930(S32(u, 0x118)) != 0 && S32(u, 0x11C) != 0)
         S32(u, 0x1B4) = S32(u, 0x118) * 0x150 + 0x6CE080;
     if ((U32(ACT(u), 0x18) & 0x8000000) == 0) {
@@ -426,7 +434,7 @@ void func_001514C0(Unit *u)
         int players = 1, n = 1, with = 0;
 
         func_00118850(list, 0x10);
-        U8(u, 0x19D) &= ~0x10;
+        BIT(u, 0x19D, 4) = 0;
         list[0] = u;
         if (PLAYER(u) < 2) {
             u32 cnt = func_003E2000();
@@ -442,7 +450,7 @@ void func_001514C0(Unit *u)
                     if (PLAYER(v) < 2)
                         players++;
                 }
-                U8(u, 0x19D) = (U8(u, 0x19D) & ~0x20) | 0x20;
+                BIT(u, 0x19D, 5) = 1;
             }
             n = cnt + 1;
             with = players;
@@ -450,7 +458,7 @@ void func_001514C0(Unit *u)
         if ((g_00669F60 & 0x14000000) == 0 && func_001F2680(u) != 0) {
             func_001F2810(u);
             g_0045D2C8 = 0;
-            U8(u, 0x19D) = (U8(u, 0x19D) & ~0x20) | 0x20;
+            BIT(u, 0x19D, 5) = 1;
         } else if ((g_00669F60 & 0x14000000) == 0 && (U8(u, 0x19D) & 0x20)
                    && func_001F2AD0() == 0) {
             g_00669F60 |= 0x800000;
@@ -458,7 +466,7 @@ void func_001514C0(Unit *u)
             g_0045D2C8 = 0;
             func_001C8950(1);
         } else if ((g_00669F60 & 0x14000002) == 0 && func_002713A0(u) != 0
-                   && (U8(u, 0x19E) & 4) == 0) {
+                   && BIT(u, 0x19E, 2) == 0) {
             if (g_00669DB8 == 4) {
                 func_001D0E60(u);
             } else if (PLAYER(u) < 2) {
@@ -477,7 +485,7 @@ void func_001514C0(Unit *u)
         short v = (short)(int)((float)S16(rec, 0x88) * 0.7f);
         short t = mx < v ? mx : v;
 
-        U8(u, 0x19D) = (U8(u, 0x19D) & ~0x10) | 0x10;
+        BIT(u, 0x19D, 4) = 1;
         if (t < 1)
             v = 0;
         else if (mx < v)
@@ -506,7 +514,7 @@ void func_00151A90(Unit *u, int quiet)
     if (g_00669DB8 != 4) {
         func_00271870();
         if (quiet == 0) {
-            if (((U8(u, 0x19F) & 2) || (U8(u, 0x19D) & 0x20)) && (U8(u, 0x19E) & 4) == 0
+            if ((BIT(u, 0x19F, 1) || BIT(u, 0x19D, 5)) && BIT(u, 0x19E, 2) == 0
                 && PLAYER(u) < 2 && (U32(ACT(u), 0x18) & 0x8000000) == 0
                 && (g_00669F60 & 0x14080002) == 0) {
                 g_00669F60 |= 0x2000000;
@@ -519,7 +527,7 @@ void func_00151A90(Unit *u, int quiet)
         }
         if (PLAYER(u) < 2)
             g_0045CC7C = 1.0f;
-        U8(u, 0x19C) &= ~0x40;
+        BIT(u, 0x19C, 6) = 0;
         if (PLAYER(u) < 2)
             func_003E2D30();
     }
@@ -562,7 +570,7 @@ int func_00151D60(Unit *u)
         u8 *e = PTR(ACT(u), 0x14);
         u32 f = e == 0 ? 0 : U32(e, 0x2C) & 0x400;
 
-        if (f == 0 && (U8(u, 0x19C) & 2) == 0) {
+        if (f == 0 && BIT(u, 0x19C, 1) == 0) {
             func_00156AF0(u, 100);
             return 1;
         }
@@ -601,7 +609,7 @@ static inline void unit_face_hit(Unit *u, float *dir)
     for (i = 0; i < 4; i++)
         dir[i] = dir[i] / len;
     F32(u, 0x238) = vu0_angle(dir[0], dir[2]);
-    U8(u, 0x27C) = (U8(u, 0x27C) & ~1) | 1;
+    BIT(u, 0x27C, 0) = 1;
     for (i = 0; i < 4; i++)
         F32(u, 0x1F0 + i * 4) = dir[i] * -1.0f;
 }
@@ -624,7 +632,7 @@ int func_00151EB0(Unit *u, u8 *hit, u32 base, float *dir)
         func_00156AF0(u, ((base & 0xFF) + g_004063E8[r]) & 0xFFFF);
         if (g_004063E8[r] == 44) {
             F32(u, 0x224) = 8.0f;
-            U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+            BIT(u, 0x27C, 1) = 1;
         }
     } else {
         unit_face_hit(u, dir);
@@ -632,7 +640,7 @@ int func_00151EB0(Unit *u, u8 *hit, u32 base, float *dir)
         func_00156AF0(u, (a + (base & 0xFF)) & 0xFFFF);
         if (hit[9] != 0 && (U32(act, 0x18) & 0x20)) {
             F32(u, 0x224) = (float)(s8)hit[9];
-            U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+            BIT(u, 0x27C, 1) = 1;
         }
     }
     if (PLAYER(u) < 2)
@@ -653,7 +661,7 @@ int func_00152190(Unit *u, u8 *act, u8 *hit)
     S16(u, 0x190) = 0x1E;
     if (hit[0x14] != 0) {
         F32(u, 0x224) = (float)(s8)hit[0x14];
-        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        BIT(u, 0x27C, 1) = 1;
     }
     return 1;
 }
@@ -682,7 +690,7 @@ void func_00152250(Unit *u, short *act, u8 *hit, int other, u16 base)
                 func_00156AF0(u, 0x2A);
                 F32(u, 0x22C) = 0.0f;
                 F32(u, 0x224) = 10.0f;
-                U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+                BIT(u, 0x27C, 1) = 1;
             }
         } else {
             func_00152190(u, (u8 *)act, hit);
@@ -694,7 +702,7 @@ void func_00152250(Unit *u, short *act, u8 *hit, int other, u16 base)
         }
         F32(u, 0x22C) = 0.0f;
         F32(u, 0x224) = 3.0f;
-        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        BIT(u, 0x27C, 1) = 1;
     }
 }
 
@@ -749,7 +757,7 @@ int func_00152560(Unit *u, Unit *v, u8 *hit, float *dir, int *out)
     *out = 0;
     if (v == 0 || (U32(ACT(v), 0x1C) & 0x8000000))
         return 0;
-    if ((U32(hit, 0x28) & 0x4000000) || (U8(u, 0x19D) & 8))
+    if ((U32(hit, 0x28) & 0x4000000) || BIT(u, 0x19D, 3))
         return 0;
     if (func_003E2DC0(v) != 0) {
         u32 p = func_003E2FE0(v);
@@ -764,8 +772,8 @@ int func_00152560(Unit *u, Unit *v, u8 *hit, float *dir, int *out)
     f = U32(ACT(u), 0x18);
     if (((f & 2) == 0 || (U32(u, 0x13C) & 0x80000) == 0) && (f & 0x10) == 0)
         return 0;
-    rv = g_006A3A30[S16(v, 0x178)];
-    ru = g_006A3A30[S16(u, 0x178)];
+    rv = (g_00693970 + S16(v, 0x178) * 0xC0 + 0x100C0);
+    ru = (g_00693970 + S16(u, 0x178) * 0xC0 + 0x100C0);
     a = func_003AFE50(rv);
     b = func_003AFF70(ru);
     if (4.0f <= a / b) {
@@ -783,7 +791,7 @@ int func_00152560(Unit *u, Unit *v, u8 *hit, float *dir, int *out)
 }
 
 extern u8 *g_005BA688;                   /* the shared motion records (+n * 0x20) */
-#define OFFICER(u) g_006A3A30[S16(u, 0x178)]
+#define OFFICER(u) (g_00693970 + S16(u, 0x178) * 0xC0 + 0x100C0)
 
 float fabsf(float x);
 float func_00136E00(float y, float x);   /* atan2f */
@@ -828,7 +836,7 @@ int func_00152840(Unit *u, Unit *v, u8 *hit)
         return 0;
     if (e == 0 || (s8)U8(u, 0x19C) < 0 || (s8)U8(v, 0x19C) < 0)
         return 0;
-    if ((U8(u, 0x19C) & 2) == 0 && (U8(v, 0x19C) & 2) == 0) {
+    if (BIT(u, 0x19C, 1) == 0 && BIT(v, 0x19C, 1) == 0) {
         u8 *e2;
 
         if (e == 0 || F32(u, 0x21C) < (float)e[5] || (float)e[6] < F32(u, 0x21C))
@@ -841,9 +849,9 @@ int func_00152840(Unit *u, Unit *v, u8 *hit)
         return 0;
     if (U32(hit, 0x2C) & 0x400)
         return 0;
-    if (U8(v, 0x27C) & 4)
+    if (BIT(v, 0x27C, 2))
         return 0;
-    if ((U8(u, 0x19E) & 4) || (U8(v, 0x19E) & 4))
+    if (BIT(u, 0x19E, 2) || BIT(v, 0x19E, 2))
         return 0;
     if ((U32(ACT(u), 0x18) & 0x8000020) || (U32(ACT(v), 0x18) & 0x8000020))
         return 2;
@@ -865,12 +873,12 @@ int func_00152840(Unit *u, Unit *v, u8 *hit)
                 return 4;
         }
     } else {
-        if ((U8(u, 0x19C) & 2) && (U8(v, 0x19C) & 2) == 0)
+        if (BIT(u, 0x19C, 1) && BIT(v, 0x19C, 1) == 0)
             return 2;
-        if ((U8(v, 0x19C) & 2) && (U8(u, 0x19C) & 2) == 0)
+        if (BIT(v, 0x19C, 1) && BIT(u, 0x19C, 1) == 0)
             return 3;
     }
-    if ((U8(u, 0x19C) & 2) == 0 && (U8(v, 0x19C) & 2) == 0) {
+    if (BIT(u, 0x19C, 1) == 0 && BIT(v, 0x19C, 1) == 0) {
         if ((U32(hit, 0x28) & 2) == 0 || (U32(e, 0x28) & 2) == 0)
             return 0;
         if ((U32(hit, 0x28) & 1) || (U32(e, 0x28) & 1))
@@ -914,8 +922,8 @@ void func_00152EE0(Unit *u, Unit *v)
         U8(v, 0x276) = 0xFF;
         PTR(u, 0x280) = v;
     }
-    U8(u, 0x27C) = (U8(u, 0x27C) & ~4) | 4;
-    U8(v, 0x27C) = (U8(v, 0x27C) & ~4) | 4;
+    BIT(u, 0x27C, 2) = 1;
+    BIT(v, 0x27C, 2) = 1;
     if (PLAYER(u) < 2)
         func_0029EE00(g_005B49E0[PLAYER(u)], v);
     else if (PLAYER(v) < 2)
@@ -924,16 +932,16 @@ void func_00152EE0(Unit *u, Unit *v)
         func_001CEA40(v);
     else
         func_001CEA40(u);
-    if (U8(u, 0x19C) & 2) {
+    if (BIT(u, 0x19C, 1)) {
         func_00151A90(u, 1);
-        U8(u, 0x19C) &= ~2;
+        BIT(u, 0x19C, 1) = 0;
     }
     func_001649C0(u);
     if (PLAYER(u) < 2)
         func_00158CD0(u, 4);
-    if (U8(v, 0x19C) & 2) {
+    if (BIT(v, 0x19C, 1)) {
         func_00151A90(v, 1);
-        U8(v, 0x19C) &= ~2;
+        BIT(v, 0x19C, 1) = 0;
     }
     func_001649C0(v);
     if (PLAYER(v) < 2)
@@ -980,7 +988,7 @@ void func_001531B0(Unit *u)
     F32(u, 0x22C) = 3.0f;
     func_00156AF0(u, 0x2A);
     F32(u, 0x224) = 10.0f;
-    U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+    BIT(u, 0x27C, 1) = 1;
 }
 
 /* 0x00153230, 0x3D4 bytes. Blocks hit `hit` from `v` coming along `dir` for `damage`: the guard
@@ -1015,7 +1023,7 @@ int func_00153230(Unit *u, Unit *v, u8 *hit, float *dir, short damage, int keep_
     func_0027A080(500.0f, u + 0x90, snd, 0x10);
     if (no_action == 0)
         func_00156AF0(u, action);
-    U8(u, 0x19D) = (U8(u, 0x19D) & ~2) | 2;
+    BIT(u, 0x19D, 1) = 1;
     {
         int i;
 
@@ -1063,12 +1071,12 @@ static inline void unit_knock(Unit *u, u8 *hit, u8 *act, float *dir)
     if ((U32(act, 0x18) & 0x20) == 0) {
         F32(u, 0x22C) = 12.0f;
         F32(u, 0x224) = 10.0f;
-        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        BIT(u, 0x27C, 1) = 1;
     } else {
         F32(u, 0x22C) = (float)(s8)hit[10];
         if (hit[0xB] != 0) {
             F32(u, 0x224) = (float)(s8)hit[0xB];
-            U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+            BIT(u, 0x27C, 1) = 1;
         }
     }
 }
@@ -1184,7 +1192,7 @@ static inline void unit_flinch(Unit *u, u8 *hit, float *dir, int back, short dam
     func_00156AF0(u, b);
     if (hit[9] != 0 && (U32(ACT(u), 0x18) & 0x20)) {
         F32(u, 0x224) = (float)(s8)hit[9];
-        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        BIT(u, 0x27C, 1) = 1;
     }
     if ((U32(ACT(u), 0x18) & 0x8000420) == 0) {
         u8 *r = unit_motion(u);
@@ -1253,7 +1261,7 @@ void func_00153C40(Unit *u, u8 *hit, float *dir, u16 base)
     func_00156AF0(u, b);
     if (hit[0xB] != 0) {
         F32(u, 0x224) = (float)(s8)hit[0xB];
-        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        BIT(u, 0x27C, 1) = 1;
     }
 }
 
@@ -1264,11 +1272,18 @@ int func_00153DA0(Unit *u, Unit *v, u8 *rec)
 {
     if (U8(DESC(u), 0x1C) != ':')
         return 0;
-    if (v != 0 && (U8(v, 0x19C) & 2))
+    if (v != 0 && BIT(v, 0x19C, 1))
         return 1;
     if (S16(u, 0x1B8) < 1)
         return 1;
-    return !(0.25f < (float)S16(rec, 0x82) / (float)S16(rec, 0x80));
+    {
+        float k = 0.25f;
+        int r = 1;
+
+        if (k < (float)S16(rec, 0x82) / (float)S16(rec, 0x80))
+            r = 0;
+        return r;
+    }
 }
 
 /* 0x00153E50, 0x12E8 bytes. Takes hit `hit` from `v` along `dir` for `damage`: guard break
@@ -1290,14 +1305,14 @@ int func_00153E50(Unit *u, Unit *v, u8 *hit, int unused, float *dir, short damag
         S16(u, 0x172) = 0;
     if (U16(hit, 0x1C) & 8)
         func_00245360(u, hit);
-    if (U8(u, 0x19D) & 8)
-        U8(u, 0x19D) &= ~8;
+    if (BIT(u, 0x19D, 3))
+        BIT(u, 0x19D, 3) = 0;
     if (func_00153DA0(u, v, rec) != 0) {
         int k;
 
         broke = 1;
         PTR(u, 0x110) = g_005B7120;
-        U8(u, 0x19D) &= ~1;
+        BIT(u, 0x19D, 0) = 0;
         for (k = 0; k < 4; k++) {
             if (U8(u, 0x2DC + k * 0x70) & 1)
                 func_0016E910(u + 0x290 + k * 0x70);
@@ -1329,7 +1344,7 @@ int func_00153E50(Unit *u, Unit *v, u8 *hit, int unused, float *dir, short damag
 
             if ((af & 0x60) == 0 && broke) {
                 func_00151D60(u);
-            } else if (U8(u, 0x19C) & 0x20) {
+            } else if (BIT(u, 0x19C, 5)) {
                 func_00152250(u, (short *)act, hit, U32(rec, 0xB8) & 2, back);
             } else if ((U32(rec, 0xB8) & 2) == 0) {
                 if (quiet == 0) {
@@ -1351,7 +1366,7 @@ int func_00153E50(Unit *u, Unit *v, u8 *hit, int unused, float *dir, short damag
                             F32(u, 0x22C) = 3.0f;
                             func_00156AF0(u, back + 0x2C);
                             F32(u, 0x224) = 10.0f;
-                            U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+                            BIT(u, 0x27C, 1) = 1;
                         } else {
                             unit_flinch(u, hit, dir, back, damage);
                         }
@@ -1388,7 +1403,7 @@ tail:
         for (k = 0; k < 3; k++) {
             u8 *e = g_00574DE0[k + PLAYER(u) * 3 + 0x89];
 
-            if (e != 0 && (U8(e, 0x198) & 2) && U8(e, 0x15A) != 2 && U8(e, 0x15A) != 3
+            if (e != 0 && BIT(e, 0x198, 1) && U8(e, 0x15A) != 2 && U8(e, 0x15A) != 3
                 && 30.0f < F32(e, 0x160)) {
                 F32(e, 0x160) = 30.0f;
                 break;
@@ -1400,7 +1415,7 @@ tail:
 
         func_0015EA30(u, v, hit, damage, charged ? -1 : 0, (U32(rec, 0xB8) & 2) != 0 && !charged,
                       quiet);
-        U8(u, 0x19F) &= ~0x10;
+        BIT(u, 0x19F, 4) = 0;
     }
     return ret;
 }
@@ -1452,7 +1467,7 @@ void func_00155260(Unit *u, u8 *hit, const u32 *v)
 {
     int i;
 
-    U8(u, 0x27C) = (U8(u, 0x27C) & ~1) | 1;
+    BIT(u, 0x27C, 0) = 1;
     for (i = 0; i < 4; i++)
         U32(u, 0x1F0 + i * 4) = v[i];
     F32(u, 0x22C) = (float)(s8)hit[8];
@@ -1461,7 +1476,7 @@ void func_00155260(Unit *u, u8 *hit, const u32 *v)
     func_00156AF0(u, S16(hit, 0x10));
     if (hit[9] != 0) {
         F32(u, 0x224) = (float)(s8)hit[9];
-        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        BIT(u, 0x27C, 1) = 1;
     }
 }
 
@@ -1550,7 +1565,7 @@ int func_00155360(float dt, float g, Unit *u)
         } else {
             F32(u, 0x224) = 0.0f;
             F32(u, 0x228) = 0.0f;
-            U8(u, 0x27C) &= ~2;
+            BIT(u, 0x27C, 1) = 0;
             if (U8(u, 0x181) == 0)
                 func_001D0B20(u);
         }
@@ -1631,7 +1646,7 @@ static inline void face_away(Unit *u, const float *d)
     if (PI < a)
         a -= TWO_PI;
     F32(u, 0x238) = a;
-    U8(u, 0x27C) = (U8(u, 0x27C) & ~1) | 1;
+    BIT(u, 0x27C, 0) = 1;
 }
 
 /* 0x00155B20, 0x284 bytes. Held 120 units from the one holding it (+0x280; or held by +0x284,
@@ -1820,7 +1835,7 @@ void func_00156070(Unit *u)
     s[5] = F32(PTR(PTR(u, 0x11C), 0x208), 4);
     s[6] = 0.0f;
     s[7] = 1.0f;
-    if (S16(ACT(u), 0xA) != -1 && (U8(u, 0x2DC) & 4)) {
+    if (S16(ACT(u), 0xA) != -1 && BIT(u, 0x2DC, 2)) {
         u8 *b = PTR(u, 0x2D4);
 
         F32(b, 0x214) = F32(a, 0x214);
@@ -1829,7 +1844,7 @@ void func_00156070(Unit *u)
         U8(b, 0x21E) = 1;
         save_pose(b);
     }
-    if (S16(ACT(u), 8) != -1 && (U8(u, 0x34C) & 4)) {
+    if (S16(ACT(u), 8) != -1 && BIT(u, 0x34C, 2)) {
         u8 *b = PTR(u, 0x344);
 
         F32(b, 0x214) = F32(a, 0x214);
@@ -1901,7 +1916,7 @@ void func_00156720(Unit *u)
                 for (k = 0; (int)k < 3; k++) {
                     u8 *e = g_00574DE0[k + PLAYER(u) * 3 + 0x89];
 
-                    if (e != 0 && (U8(e, 0x198) & 2) == 0) {
+                    if (e != 0 && BIT(e, 0x198, 1) == 0) {
                         func_001589B0(u, 2, k);
                         U8(u, 0x196) = 1;
                         break;
@@ -1915,7 +1930,7 @@ void func_00156720(Unit *u)
         }
     }
     if ((U32(act, 0x18) & 0x800) == 0)
-        U8(u, 0x19F) &= ~8;
+        BIT(u, 0x19F, 3) = 0;
     func_0029F3C0(u);
 }
 
@@ -1940,7 +1955,7 @@ void func_00156AF0(Unit *u, u16 id)
     act = PTR(d, 8) + id * 0x20;
     if (S16(act, 2) == -1)
         return;
-    if ((U32(act, 0x1C) & 0x80000000) && (U8(g_005B5078[U8(d, 0x1C)], 0x54) & 1) == 0)
+    if ((U32(act, 0x1C) & 0x80000000) && BIT(g_005B5078[U8(d, 0x1C)], 0x54, 0) == 0)
         return;
     if (id != 0x55 && id != 0x56)
         func_00155F70(u, (float *)tmp);
@@ -1955,14 +1970,14 @@ void func_00156AF0(Unit *u, u16 id)
     hit = PTR(act, 0x14);
     if (aid == 0x34 || aid == 0x35) {
         F32(u, 0x224) = 5.0f;
-        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        BIT(u, 0x27C, 1) = 1;
         F32(u, 0x228) = F32(u, 0x228) * 0.5f;
         F32(u, 0x22C) = F32(u, 0x22C) * 0.5f;
         if (PLAYER(u) < 2)
             func_0016CB60(u, g_00669E2A[PLAYER(u)][0], 1, 0xFF, 0xF);
     } else if (aid == 0x36 || aid == 0x37) {
         F32(u, 0x224) = 7.0f;
-        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        BIT(u, 0x27C, 1) = 1;
         F32(u, 0x228) = F32(u, 0x228) * 0.75f;
         F32(u, 0x22C) = F32(u, 0x22C) * 0.75f;
         if (PLAYER(u) < 2)
@@ -1981,7 +1996,7 @@ void func_00156AF0(Unit *u, u16 id)
             && (U32(ACT(u), 0x18) & 0x20))) {
         float y = F32(u, 0x94) - F32(newrec, 0x14);
 
-        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        BIT(u, 0x27C, 1) = 1;
         for (i = 0; i < 4; i++)
             U32(u, 0x200 + i * 4) = U32(u, 0x1D0 + i * 4);
         if (g_00669DB8 != 4)
@@ -2027,9 +2042,9 @@ void func_00156AF0(Unit *u, u16 id)
         F32(u, 0x54) = y;
         F32(u, 0x230) = 0.0f;
         if (S32(u, 0x118) == 0x3C)
-            U8(u, 0x27C) &= ~1;
+            BIT(u, 0x27C, 0) = 0;
         else
-            U8(u, 0x27C) = (U8(u, 0x27C) & ~1) | 1;
+            BIT(u, 0x27C, 0) = 1;
     }
     if (PTR(u, 0x11C) != 0 && U8(u, 0x155) == 0) {
         u8 *nodes = PTR(PTR(u, 0x11C), 0x208);
@@ -2050,21 +2065,21 @@ void func_00156AF0(Unit *u, u16 id)
     }
     if (PTR(u, 0x11C) != 0) {
         if ((U32(ACT(u), 0x1C) & 0x2000000) == 0) {
-            if (U8(u, 0x19D) & 1) {
+            if (BIT(u, 0x19D, 0)) {
                 for (i = 0; i < 4; i++) {
                     if (U8(u, 0x2DC + i * 0x70) & 1)
                         func_0016E910(u + 0x290 + i * 0x70);
                 }
                 func_00164B40(u, 0);
-                U8(u, 0x19D) &= ~1;
+                BIT(u, 0x19D, 0) = 0;
             }
-        } else if ((U8(u, 0x19D) & 1) == 0) {
+        } else if (BIT(u, 0x19D, 0) == 0) {
             for (i = 0; i < 4; i++) {
                 if (U8(u, 0x2DC + i * 0x70) & 1)
                     func_0016E910(u + 0x290 + i * 0x70);
             }
             func_00164B40(u, 1);
-            U8(u, 0x19D) = (U8(u, 0x19D) & ~1) | 1;
+            BIT(u, 0x19D, 0) = 1;
         }
         if (PTR(u, 0x214) != 0 && (U32(PTR(u, 0x214), 0x1C) & 0x10) && PTR(u, 0x11C) != 0)
             func_00148B60(PTR(u, 0x11C), 0xE, 0x15);
@@ -2075,9 +2090,9 @@ void func_00156AF0(Unit *u, u16 id)
         if (0.0f < F32(a, 0x214)) {
             F32(a, 0x210) = 0.0f;
             F32(a, 0x214) = 0.0f;
-            U8(u, 0x27C) &= ~0x20;
+            BIT(u, 0x27C, 5) = 0;
         }
-        if (S16(ACT(u), 0xA) != -1 && (U8(u, 0x2DC) & 4)) {
+        if (S16(ACT(u), 0xA) != -1 && BIT(u, 0x2DC, 2)) {
             u8 *b = PTR(u, 0x2D4);
 
             if (0.0f < F32(b, 0x214)) {
@@ -2085,7 +2100,7 @@ void func_00156AF0(Unit *u, u16 id)
                 F32(b, 0x214) = 0.0f;
             }
         }
-        if (S16(ACT(u), 8) != -1 && (U8(u, 0x34C) & 4)) {
+        if (S16(ACT(u), 8) != -1 && BIT(u, 0x34C, 2)) {
             u8 *b = PTR(u, 0x344);
 
             if (0.0f < F32(b, 0x214)) {
@@ -2116,11 +2131,11 @@ void func_00156AF0(Unit *u, u16 id)
         U8(u, 0x27C) = (b & 0xE7) | was;
     }
     S16(u, 0x278) = -1;
-    U8(u, 0x27C) = (U8(u, 0x27C) & ~0x40) | 0x40;
+    BIT(u, 0x27C, 6) = 1;
     if ((U32(ACT(u), 0x18) & 0x800) == 0)
-        U8(u, 0x19F) &= ~1;
+        BIT(u, 0x19F, 0) = 0;
     if ((U32(ACT(u), 0x18) & 0x8000000) == 0)
-        U8(u, 0x19F) &= ~0x40;
+        BIT(u, 0x19F, 6) = 0;
     func_00150930(u);
     func_0016A1C0(u);
     func_00156720(u);
@@ -2260,7 +2275,7 @@ void func_00157B60(Unit *u, int mine, int theirs)
     if (mine == 3)
         officer_ko(OFFICER(u));
     o = PTR(u, 0x280);
-    if (U8(o, 0x198) & 2) {
+    if (BIT(o, 0x198, 1)) {
         func_00152410(PTR(u, 0x280), theirs);
         o = PTR(u, 0x280);
         if (PLAYER(u) < 2 && mine == 2) {
@@ -2277,7 +2292,7 @@ void func_00157B60(Unit *u, int mine, int theirs)
             F32(u, 0x54) = a;
             F32(u, 0x238) = a;
             F32(u, 0x230) = 0.0f;
-            U8(u, 0x27C) = (U8(u, 0x27C) & ~1) | 1;
+            BIT(u, 0x27C, 0) = 1;
             a = F32(u, 0x54) + PI;
             if (PI < a)
                 a -= TWO_PI;
@@ -2286,17 +2301,17 @@ void func_00157B60(Unit *u, int mine, int theirs)
                 F32(PTR(u, 0x280), 0x40 + i * 4) = F32(u, 0x40 + i * 4) + d[i] * 120.0f;
             F32(o, 0x238) = F32(PTR(u, 0x280), 0x54);
             F32(o, 0x230) = 0.0f;
-            U8(o, 0x27C) = (U8(o, 0x27C) & ~1) | 1;
+            BIT(o, 0x27C, 0) = 1;
         }
         if (theirs == 3)
             officer_ko(OFFICER(PTR(u, 0x280)));
         PTR(o, 0x284) = 0;
         U8(o, 0x275) = 0xFF;
         U8(o, 0x276) = 0xFF;
-        U8(PTR(u, 0x280), 0x27C) &= ~4;
+        BIT(PTR(u, 0x280), 0x27C, 2) = 0;
     }
     PTR(u, 0x280) = 0;
-    U8(u, 0x27C) &= ~4;
+    BIT(u, 0x27C, 2) = 0;
     if (PLAYER(u) < 2) {
         func_0029EE00(g_005B49E0[PLAYER(u)], 0);
         func_001FAA60(PLAYER(u));
@@ -2332,7 +2347,7 @@ float func_00157EE0(Unit *u, float *turn)
         }
         PTR(u, 0x270) = 0;
     }
-    U8(u, 0x27C) &= ~0x10;
+    BIT(u, 0x27C, 4) = 0;
     return 0.0f;
 }
 
@@ -2352,7 +2367,7 @@ void func_001580D0(Unit *u, short id, u8 *hit)
             return;
         }
     }
-    U8(g_005ADD80[slot[0]], 0x8C) &= ~2;
+    BIT(g_005ADD80[slot[0]], 0x8C, 1) = 0;
     for (i = 0; i < n - 1; i++)
         slot[i] = slot[i + 1];
     slot[i] = id;
@@ -2414,7 +2429,7 @@ static inline void fire_spread(Unit *u, u8 *a, u8 *b, const float *dir, const fl
         vu0_rot_y(m, angles[i]);
         mat_vec(v, m, dir);
         e = func_00177ED0();
-        U8(e, 0x8C) = (U8(e, 0x8C) & ~8) | 8;
+        BIT(e, 0x8C, 3) = 1;
         func_001AC980(e, a, b, v, u);
     }
 }
@@ -2476,13 +2491,13 @@ void func_001589B0(Unit *u, u8 kind, u8 slot)
 
     if (e == 0)
         return;
-    if (U8(e, 0x198) & 2)
+    if (BIT(e, 0x198, 1))
         func_00166160(e);
     func_001656E0(e, S32(u, 0x118), U8(DESC(u), 0x1C), U8(u, 0x158), U8(u, 0x156), U8(u, 0x154),
                   U8(u, 0x14F), 0);
     func_001660C0(e, u + 0x40);
     F32(e, 0x238) = F32(u, 0x54);
-    U8(e, 0x27C) &= ~1;
+    BIT(e, 0x27C, 0) = 0;
     for (i = 0; i < 4; i++)
         U32(e, 0x50 + i * 4) = U32(u, 0x50 + i * 4);
     U8(e, 0x17C) = slot;
@@ -2548,7 +2563,7 @@ void func_00158CD0(Unit *u, u32 kind)
     for (i = 0; i < 3; i++) {
         Unit *e = BODYGUARD(PLAYER(u), i);
 
-        if (e != 0 && (U8(e, 0x198) & 2) && (kind == 4 || kind == U8(e, 0x15A)))
+        if (e != 0 && BIT(e, 0x198, 1) && (kind == 4 || kind == U8(e, 0x15A)))
             func_00166160(e);
     }
 }
@@ -2561,7 +2576,7 @@ int func_00158D90(Unit *u)
     for (i = 0; i < 3; i++) {
         Unit *e = BODYGUARD(PLAYER(u), i);
 
-        if (e != 0 && (U8(e, 0x198) & 2))
+        if (e != 0 && BIT(e, 0x198, 1))
             n++;
     }
     return n;
@@ -2596,7 +2611,7 @@ void func_00158E00(Unit *e)
             pos[1] = func_001F2B70();
             func_001660C0(e, (u8 *)pos);
             F32(e, 0x238) = F32(m, 0x54);
-            U8(e, 0x27C) &= ~1;
+            BIT(e, 0x27C, 0) = 0;
             for (i = 0; i < 4; i++)
                 U32(e, 0x50 + i * 4) = U32(m, 0x50 + i * 4);
             h = F32(PTR(m, 0x114), 0x80);
@@ -2641,7 +2656,7 @@ static inline void unit_place(Unit *e, const u32 *pos, const u32 *angles)
         U32(e, 0xA0 + i * 4) = U32(e, 0x40 + i * 4);
     }
     F32(e, 0x238) = ((float *)angles)[1];
-    U8(e, 0x27C) &= ~1;
+    BIT(e, 0x27C, 0) = 0;
     for (i = 0; i < 4; i++)
         U32(e, 0x50 + i * 4) = angles[i];
 }
@@ -2730,7 +2745,7 @@ void func_00158FB0(float dt, Unit *e)
 /* 0x001595B0, 0x94 bytes. Gives musou (?) for a hit: 30 to 60 by the player's level. */
 void func_001595B0(Unit *u)
 {
-    if ((U8(u, 0x19C) & 2) == 0) {
+    if (BIT(u, 0x19C, 1) == 0) {
         u8 b = func_002F41E0(g_00669DE8[PLAYER(u)][0]);
 
         func_0016C180(((float)b / 49.0f + 1.0f) * 30.0f, u);
@@ -2741,7 +2756,7 @@ void func_001595B0(Unit *u)
  * +6) into +0x148, and always into +0x14A (low six bits cleared). */
 void func_00159650(float t, Unit *u, u8 *hit)
 {
-    if ((U8(u, 0x19C) & 0x20) == 0) {
+    if (BIT(u, 0x19C, 5) == 0) {
         if ((hit[5] != 0 || hit[6] != 0) && (float)hit[5] <= t && t <= (float)hit[6])
             U16(u, 0x148) |= U16(hit, 0x12);
         U16(u, 0x14A) |= U16(hit, 0x12);
@@ -2810,7 +2825,7 @@ static inline void attack_effect(Unit *u, u8 *hit, u8 *eff, float (*m)[4])
             }
             S16(u, 0x258) = S16(e, 0x94);
             U32(e, 0x84) = 0;
-            U8(e, 0x8C) = (U8(e, 0x8C) & ~2) | 2;
+            BIT(e, 0x8C, 1) = 1;
         }
     } else {
         func_001580D0(u, S16(e, 0x94), hit);
@@ -2853,7 +2868,7 @@ static inline void attack_effects(Unit *u, u8 *hit, float t, float dt, int force
                     for (s = 0; s < 4; s++) {
                         u8 *slot = u + 0x290 + s * 0x70;
 
-                        if ((U8(slot, 0x4C) & 1) && (U8(slot, 0x4C) & 4))
+                        if (BIT(slot, 0x4C, 0) && BIT(slot, 0x4C, 2))
                             attack_effect(u, hit, eff,
                                           func_0014F810(PTR(slot, 0x44), (k - 0xC) & 0xFF));
                     }
@@ -2996,7 +3011,7 @@ int func_0015ABD0(float dt, Unit *u)
         int i;
 
         F32(u, 0x224) = -1.0f;
-        U8(u, 0x27C) = (U8(u, 0x27C) & ~2) | 2;
+        BIT(u, 0x27C, 1) = 1;
         F32(u, 0x228) = 0.0f;
         for (i = 0; i < 4; i++)
             F32(u, 0x200 + i * 4) = VEC_ZERO[i];
@@ -3027,7 +3042,7 @@ int func_0015ABD0(float dt, Unit *u)
         goto end;
     if (func_00240C00(u) != 0)
         F32(u, 0x244) = 0.0f;
-    if (U8(u, 0x27C) & 4) {
+    if (BIT(u, 0x27C, 2)) {
         int a, b;
 
         if (PTR(u, 0x280) != 0 && func_001578D0(u, &a, &b) != 0)
@@ -3037,7 +3052,7 @@ int func_0015ABD0(float dt, Unit *u)
     if (PLAYER(u) < 2) {
         float speed, turn;
 
-        if ((U8(u, 0x27C) & 0x10) && (turn = func_00157EE0(u, &speed), PTR(u, 0x270) != 0)) {
+        if (BIT(u, 0x27C, 4) && (turn = func_00157EE0(u, &speed), PTR(u, 0x270) != 0)) {
             int ok;
 
             if (hit == 0) {
@@ -3050,12 +3065,12 @@ int func_0015ABD0(float dt, Unit *u)
             if (ok) {
                 F32(u, 0x238) = wrap_angle(F32(u, 0x54) + turn);
                 F32(u, 0x230) = speed;
-                U8(u, 0x27C) &= ~1;
+                BIT(u, 0x27C, 0) = 0;
             }
         }
     } else {
         PTR(u, 0x270) = 0;
-        U8(u, 0x27C) &= ~0x10;
+        BIT(u, 0x27C, 4) = 0;
     }
     if (U8(u, 0x181) == 0 && PTR(u, 0x11C) != 0 && (s8)U8(u, 0x19C) >= 0) {
         if (U16(act, 0) != 5) {
@@ -3093,13 +3108,13 @@ int func_0015ABD0(float dt, Unit *u)
                 if (kind == 0x15)
                     flags |= 0x100;
             }
-            if (U8(u, 0x19E) & 2)
+            if (BIT(u, 0x19E, 1))
                 flags |= 0x400;
             else if (S16(u, 0x192) != 0)
                 flags |= 0x1000;
-            if (U8(u, 0x19E) & 1)
+            if (BIT(u, 0x19E, 0))
                 flags |= 0x4000;
-            else if (U8(u, 0x19E) & 8)
+            else if (BIT(u, 0x19E, 3))
                 flags |= 0x40000;
         }
     } else {
@@ -3147,7 +3162,7 @@ int func_0015ABD0(float dt, Unit *u)
                     flags |= 0x300;
             }
             if ((U32(hit, 0x28) & 0x20000) == 0) {
-                if (U8(u, 0x19E) & 2)
+                if (BIT(u, 0x19E, 1))
                     flags |= 0x400;
                 else if ((U16(hit, 0x1C) & 0x80) == 0) {
                     if (S16(u, 0x192) != 0)
@@ -3159,10 +3174,10 @@ int func_0015ABD0(float dt, Unit *u)
                 flags |= 0xC00;
             }
             if ((U32(hit, 0x2C) & 0x80) == 0) {
-                if (U8(u, 0x19E) & 1)
+                if (BIT(u, 0x19E, 0))
                     flags |= 0x4000;
                 else if ((U16(hit, 0x1C) & 0x10) == 0) {
-                    if (U8(u, 0x19E) & 8)
+                    if (BIT(u, 0x19E, 3))
                         flags |= 0x40000;
                 } else if ((float)hit[5] <= t) {
                     flags |= 0xC0000;
@@ -3179,7 +3194,7 @@ int func_0015ABD0(float dt, Unit *u)
         func_00240790(p, flags);
     if (U8(d, 0x1C) == 0x15)
         func_002409B0(u);
-    if (U8(u, 0x19E) & 0x20) {
+    if (BIT(u, 0x19E, 5)) {
         if (U8(u, 0x17E) != 0 && U8(u, 0x17F) != 0)
             flags |= 0x100000 << (U8(u, 0x17E) - 1);
         func_00240A60(u, flags);
@@ -3223,14 +3238,14 @@ int func_0015ABD0(float dt, Unit *u)
     if (hit != 0) {
         if (U32(hit, 0x28) & 0x200000) {
             if (AT_FRAME(hit[5], F32(u, 0x21C), dt)) {
-                U8(u, 0x19D) = (U8(u, 0x19D) & ~8) | 8;
+                BIT(u, 0x19D, 3) = 1;
                 g_70000D60 = 0;
                 func_001C7F30(0x65, &F32(u, 0x40), 0, 0);
                 func_00253300(0x17, u);
             }
         } else if (U32(hit, 0x28) & 0x400000) {
             if (AT_FRAME(hit[5], F32(u, 0x21C), dt))
-                U8(u, 0x19D) &= ~8;
+                BIT(u, 0x19D, 3) = 0;
         }
     }
     if (PLAYER(u) < 2) {
@@ -3336,7 +3351,7 @@ void func_0015BEA0(float dt, Unit *u)
             func_00156AF0(u, U16(q, 0));
             PTR(u, 0x218) = 0;
         } else {
-            if (U8(u, 0x27C) & 8)
+            if (BIT(u, 0x27C, 3))
                 func_00156AF0(u, U16(q, 0));
             PTR(u, 0x218) = 0;
         }
@@ -3373,7 +3388,7 @@ static inline void aim_held(Unit *u, float rate)
         F32(u, 0x238) = F32(u, 0x54);
         F32(u, 0x230) = 0.0f;
     }
-    U8(u, 0x27C) &= ~1;
+    BIT(u, 0x27C, 0) = 0;
 }
 
 /* Turns towards the aim (+0x238) at its rate (+0x230) for `dt` (at once when flag 1 is set),
@@ -3386,8 +3401,8 @@ static inline void turn_to_aim(Unit *u, float dt)
         F32(u, 0x54) = F32(u, 0x238);
         return;
     }
-    if (U8(u, 0x27C) & 1) {
-        U8(u, 0x27C) &= ~1;
+    if (BIT(u, 0x27C, 0)) {
+        BIT(u, 0x27C, 0) = 0;
         a = d;
     } else {
         float r = F32(u, 0x230), s = -r;
@@ -3429,7 +3444,7 @@ static inline float run_speed(Unit *u)
 {
     u8 *hit = PTR(ACT(u), 0x14);
 
-    if ((U8(u, 0x19C) & 2) && (U32(ACT(u), 0x18) & 0x8000000) == 0
+    if (BIT(u, 0x19C, 1) && (U32(ACT(u), 0x18) & 0x8000000) == 0
         && (hit == 0 || (U32(hit, 0x28) & 0x1C) == 0))
         return F32(OFFICER(u), 0x90) + 1.5f;
     return func_003B00A0();
@@ -3481,7 +3496,7 @@ void func_0015C2A0(float dt, Unit *u)
             if ((f & 0x10000000) == 0) {
                 u8 *h = PTR(ACT(u), 0x14);
 
-                if ((h == 0 ? 0 : U32(h, 0x28) & 0x100) == 0)
+                if ((h != 0 ? U32(h, 0x28) & 0x100 : 0) == 0)
                     follow = (f & 0x80) || (S32(u, 0x118) == 0x3C
                                             && (aid == 3 || aid == 4 || aid == 5 || aid == 6));
                 else
@@ -3502,17 +3517,17 @@ void func_0015C2A0(float dt, Unit *u)
         } else if (PTR(u, 0x270) == 0) {
             F32(u, 0x238) = F32(u, 0x54);
             F32(u, 0x230) = 0.0f;
-            U8(u, 0x27C) &= ~1;
+            BIT(u, 0x27C, 0) = 0;
         }
     }
-    if ((U8(u, 0x27C) & 0x40) == 0) {
+    if (BIT(u, 0x27C, 6) == 0) {
         if (!(aid == 1 || aid == 2 || aid == 3 || aid == 4) || U8(u, 0x155) != 0) {
             if (PTR(u, 0x288) == 0)
                 turn_to_aim(u, dt);
         } else if (0.0001f < HELD_LEN2(u)) {
             F32(u, 0x238) = vu0_angle(F32(u, 0x1D0), F32(u, 0x1D8));
             F32(u, 0x230) = 0.05235988f;
-            U8(u, 0x27C) &= ~1;
+            BIT(u, 0x27C, 0) = 0;
             if (PTR(u, 0x288) == 0)
                 turn_to_aim(u, dt);
         }
@@ -3622,7 +3637,7 @@ tail:
     c = U8(u, 0x27C);
     if (c & 2)
         func_00155360(dt, F32(act, 0x10), u);
-    if ((U8(u, 0x19D) & 2) || ((U32(act, 0x18) & 0x800) && (U32(act, 0x18) & 0x40) == 0))
+    if (BIT(u, 0x19D, 1) || ((U32(act, 0x18) & 0x800) && (U32(act, 0x18) & 0x40) == 0))
         func_00155A80(dt, u);
     if (S16(ACT(u), 0) == 0x62)
         func_00155B20(u);
@@ -3704,9 +3719,9 @@ void func_0015DE30(float dt, Unit *u)
         if (v - dt < 0.0001f) {
             tr[0] = 0.0f;
             tr[1] = 0.0f;
-            U8(u, 0x27C) &= ~0x20;
+            BIT(u, 0x27C, 5) = 0;
         }
-        if (S16(ACT(u), 0xA) != -1 && (U8(u, 0x2DC) & 4)) {
+        if (S16(ACT(u), 0xA) != -1 && BIT(u, 0x2DC, 2)) {
             u8 *b = PTR(u, 0x2D4);
 
             F32(b, 0x210) = F32(b, 0x210) - dt;
@@ -3715,7 +3730,7 @@ void func_0015DE30(float dt, Unit *u)
                 F32(b, 0x214) = 0.0f;
             }
         }
-        if (S16(ACT(u), 8) != -1 && (U8(u, 0x34C) & 4)) {
+        if (S16(ACT(u), 8) != -1 && BIT(u, 0x34C, 2)) {
             u8 *b = PTR(u, 0x344);
 
             F32(b, 0x210) = F32(b, 0x210) - dt;
@@ -3725,7 +3740,7 @@ void func_0015DE30(float dt, Unit *u)
             }
         }
     }
-    if (!blending || (U8(u, 0x27C) & 0x20)) {
+    if (!blending || BIT(u, 0x27C, 5)) {
         int end = act_end(u, ACT(u));
 
         F32(u, 0x21C) = F32(u, 0x21C) + dt;
@@ -3767,7 +3782,7 @@ void func_0015DE30(float dt, Unit *u)
             for (k = 0; k < 2; k++) {
                 u8 *s = u + g_0045CC68[k] * 0x70;
 
-                if ((U8(s, 0x2DC) & 4) && PTR(s, 0x2F0) != 0) {
+                if (BIT(s, 0x2DC, 2) && PTR(s, 0x2F0) != 0) {
                     int n = S32(*(u8 **)PTR(s, 0x2F0), 8);
 
                     F32(s, 0x2F4) = F32(s, 0x2F4) + dt;
@@ -3777,7 +3792,7 @@ void func_0015DE30(float dt, Unit *u)
             }
         }
     }
-    if (!blending && (U8(u, 0x27C) & 0x20) == 0 && PTR(u, 0x250) != 0) {
+    if (!blending && BIT(u, 0x27C, 5) == 0 && PTR(u, 0x250) != 0) {
         u8 *b = PTR(u, 0x250);
         int end = act_end(u, b);
         u16 nx;
@@ -3794,7 +3809,7 @@ void func_0015DE30(float dt, Unit *u)
                 PTR(u, 0x250) = 0;
             if (PTR(u, 0x11C) != 0) {
                 func_00156070(u);
-                U8(u, 0x27C) = (U8(u, 0x27C) & ~0x20) | 0x20;
+                BIT(u, 0x27C, 5) = 1;
             }
         }
         if ((U32(ACT(u), 0x1C) & 0x10000000) == 0) {
@@ -3802,7 +3817,7 @@ void func_0015DE30(float dt, Unit *u)
             F32(u, 0x254) = 0.0f;
             if (PTR(u, 0x11C) != 0) {
                 func_00156070(u);
-                U8(u, 0x27C) = (U8(u, 0x27C) & ~0x20) | 0x20;
+                BIT(u, 0x27C, 5) = 1;
             }
         }
     }
@@ -3818,7 +3833,7 @@ void func_0015DE30(float dt, Unit *u)
     F32(u, 0x23C) = F32(u, 0x23C) + dt;
 }
 
-/* 0x0015E890, 0x60 bytes. The text of message `k` (*out: 0x100 + k, 0x1D8 + k from 0x28,
+/* 0x0015E890, 0x60 bytes, matching. The text of message `k` (*out: 0x100 + k, 0x1D8 + k from 0x28,
  * 0x664 + k from 0x71); 1 for 0xFF (none). */
 int func_0015E890(int *out, int k)
 {
@@ -3830,10 +3845,11 @@ int func_0015E890(int *out, int k)
         *out = k + 0x1D8;
         return 0;
     }
-    if (k == 0xFF)
-        return 1;
-    *out = k + 0x664;
-    return 0;
+    if (k != 0xFF) {
+        *out = k + 0x664;
+        return 0;
+    }
+    return 1;
 }
 
 /* 0x0015E8F0, 0x134 bytes. The reaction kind of situation `k` (0-13; some at random); -1 for
@@ -3966,16 +3982,16 @@ int func_0015ED30(Unit *u, int m)
         return 1;
     if (U8(u, 0x154) != 0)
         return 1;
-    if ((U8(g_00574DE0[0], 0x19D) & 0x20) && func_003E1F80(u) != 0)
+    if (BIT(g_00574DE0[0], 0x19D, 5) && func_003E1F80(u) != 0)
         return 0;
-    if ((g_00669F60 & 2) == 0 || (U8(g_00574DE0[1], 0x19D) & 0x20) == 0
+    if ((g_00669F60 & 2) == 0 || BIT(g_00574DE0[1], 0x19D, 5) == 0
         || func_003E1F80(u) == 0)
         return 1;
     return 0;
 }
 
 /* Whether the unit is in its special state with a plain hit. */
-#define SPECIAL_PLAIN(u) ((U8(u, 0x19C) & 2) && (U32(ACT(u), 0x18) & 0x8000000) == 0 \
+#define SPECIAL_PLAIN(u) (BIT(u, 0x19C, 1) && (U32(ACT(u), 0x18) & 0x8000000) == 0 \
                           && (PTR(ACT(u), 0x14) == 0 || (U32(PTR(ACT(u), 0x14), 0x28) & 0x1C) == 0))
 
 /* 0x0015EE10, 0xD40 bytes. A unit each frame (`dt`, scaled by `dt2`): its time scale (special
@@ -3991,7 +4007,7 @@ void func_0015EE10(float dt, float dt2, Unit *u)
     int i;
 
     if ((g_00669F60 & 0x800000) == 0) {
-        U8(u, 0x19C) &= ~0x20;
+        BIT(u, 0x19C, 5) = 0;
         if (SPECIAL_PLAIN(u)) {
             dt = dt * func_00271360(U8(u, 0x182));
         } else {
@@ -4031,7 +4047,7 @@ void func_0015EE10(float dt, float dt2, Unit *u)
     if ((g_00669F60 & 0xC) == 0 || (g_00669F60 & 0x4000000) == 0) {
         u8 *rec = OFFICER(u);
 
-        if ((U8(u, 0x19C) & 2) && S16(rec, 0x88) == 0) {
+        if (BIT(u, 0x19C, 1) && S16(rec, 0x88) == 0) {
             U32(u, 0x13C) &= 0x3C000000;
         } else if (S16(rec, 0x82) == 0) {
             U32(u, 0x13C) = 0;
@@ -4044,7 +4060,7 @@ void func_0015EE10(float dt, float dt2, Unit *u)
             F32(u, 0x1D0 + i * 4) = VEC_ZERO[i];
     }
     if (func_0015ABD0(s, u) == 0)
-        U8(u, 0x27C) &= ~0x40;
+        BIT(u, 0x27C, 6) = 0;
     if ((s8)U8(u, 0x19C) < 0)
         func_00158E00(u);
     hit = PTR(ACT(u), 0x14);
@@ -4065,13 +4081,13 @@ void func_0015EE10(float dt, float dt2, Unit *u)
     }
     if (g_0045D2A8 == 0 && (g_00669F60 & 0x2800000) == 0) {
         if (S16(u, 0x15E) != 0) {
-            if ((U8(u, 0x19D) & 0x40) || (s8)U8(u, 0x19D) < 0)
+            if (BIT(u, 0x19D, 6) || (s8)U8(u, 0x19D) < 0)
                 func_00244430(u);
             S16(u, 0x15E) -= 1;
             if (S16(u, 0x15E) == 0) {
                 u8 b;
 
-                U8(u, 0x19E) &= ~2;
+                BIT(u, 0x19E, 1) = 0;
                 b = U8(u, 0x19D);
                 U8(u, 0x19D) = b & 0xBF;
                 U8(u, 0x19D) = b & 0x3F;
@@ -4088,13 +4104,13 @@ void func_0015EE10(float dt, float dt2, Unit *u)
             U8(u, 0x157) = 0;
         if (S16(u, 0x1CC) != -1 || S16(u, 0x1CE) != -1) {
             func_002444B0(u);
-            if ((U8(u, 0x19C) & 2) == 0) {
+            if (BIT(u, 0x19C, 1) == 0) {
                 S16(u, 0x1CC) = -1;
                 S16(u, 0x1CE) = -1;
             }
         }
     }
-    if ((U8(u, 0x19E) & 4) && func_0016C070(u) == 0 && (U32(ACT(u), 0x18) & 0x800))
+    if (BIT(u, 0x19E, 2) && func_0016C070(u) == 0 && (U32(ACT(u), 0x18) & 0x800))
         func_002450D0(u);
     f = U32(ACT(u), 0x18);
     if ((f & 0x20) == 0 || (f & 0x800)) {
@@ -4162,13 +4178,13 @@ void func_0015EE10(float dt, float dt2, Unit *u)
         }
     }
 animate:
-    if ((U8(u, 0x27C) & 0x40) == 0)
+    if (BIT(u, 0x27C, 6) == 0)
         func_0015DE30(s, u);
     func_001596F0(s, u, 0, 0);
     func_0015C2A0(s, u);
     if ((s8)U8(u, 0x19C) < 0)
         func_00158FB0(s, u);
-    if ((U8(u, 0xE8) & 2) && (U32(ACT(u), 0x18) & 0x20) == 0) {
+    if (BIT(u, 0xE8, 1) && (U32(ACT(u), 0x18) & 0x20) == 0) {
         F32(u, 0x40) += F32(u, 0xF0) * s;
         F32(u, 0x48) += F32(u, 0xF8) * s;
     }
@@ -4181,7 +4197,7 @@ animate:
             func_0016C810(F32(u, 0x21C), PLAYER(u), u + 0x40, u + 0x50, u + 0x1D0,
                           S16(ACT(u), 0), (U8(u, 0x27C) & 2) ? -1 : 0);
     }
-    U8(u, 0x27C) &= ~0x40;
+    BIT(u, 0x27C, 6) = 0;
 }
 
 /* 0x0015FB50, 0x1C bytes, matching. */
@@ -4249,7 +4265,7 @@ int func_0015FD90(u32 *file, u8 *desc, u8 kind)
     PTR(desc, 0xC) = (u8 *)h;
     for (i = 0; i < U32(PTR(desc, 4), 0xC); i++, h += 0xC)
         PTR(PTR(desc, 8) + U16(h, 2) * 0x20, 0x14) = (u8 *)h;
-    U8(desc, 0x10) = (U8(desc, 0x10) & ~1) | 1;
+    BIT(desc, 0x10, 0) = 1;
     U8(desc, 0x1C) = kind;
     return 1;
 }

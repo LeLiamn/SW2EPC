@@ -29,6 +29,13 @@ typedef unsigned int u32;
 
 typedef u8 Unit;
 
+/* A flag byte: the original tests its bits as signed one-bit fields (LSB first). */
+typedef struct {
+    signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} Bits8;
+
+#define BIT(o, off, n) (((Bits8 *)((u8 *)(o) + (off)))->f##n)
+
 #pragma opt_unroll_loops on
 
 float fabsf(float x);
@@ -325,7 +332,7 @@ static inline u8 *take_weapon(void)
     int k;
 
     for (k = 0; k < 0xA0; k++, w += 0xB0) {
-        if ((U8(w, 0x60) & 1) == 0)
+        if (BIT(w, 0x60, 0) == 0)
             return w;
     }
     return 0;
@@ -334,9 +341,9 @@ static inline u8 *take_weapon(void)
 /* Marks a weapon object used and not drawn. */
 static inline void weapon_use(u8 *w)
 {
-    U8(w, 0x60) = (U8(w, 0x60) & ~1) | 1;
-    U8(w, 0x60) &= ~2;
-    U8(w, 0x60) &= ~4;
+    BIT(w, 0x60, 0) = 1;
+    BIT(w, 0x60, 1) = 0;
+    BIT(w, 0x60, 2) = 0;
 }
 
 /* 0x0016E300, 0x554 bytes. Gives a slot weapon `kind` on node `node`: its parts (one or, with
@@ -396,7 +403,7 @@ int func_0016E300(u8 *slot, int kind, u8 node, int actor, int pair, int no_parts
             func_0016E910(slot);
             return 0;
         }
-        U8(o, 0x168) = (U8(o, 0x168) & ~1) | 1;
+        BIT(o, 0x168, 0) = 1;
         func_0014FCA0(o, g_006C3590[kind]);
         U8(o, 0x165) = U8(slot, 0x49);
     } else {
@@ -406,12 +413,12 @@ int func_0016E300(u8 *slot, int kind, u8 node, int actor, int pair, int no_parts
             func_0016E910(slot);
             return 0;
         }
-        U8(o, 0x20C) = (U8(o, 0x20C) & ~1) | 1;
+        BIT(o, 0x20C, 0) = 1;
         func_00149620(PTR(slot, 0x44), g_006C3590[kind], 0);
     }
     b = U8(slot, 0x4C);
     U8(slot, 0x4C) = (b & 0x60) | 1 | (actor & 1) << 2 | (pair & 1) << 3 | (no_parts & 1) << 4;
-    U8(slot, 0x4D) &= ~1;
+    BIT(slot, 0x4D, 0) = 0;
     return 1;
 }
 
@@ -443,9 +450,9 @@ void func_00208980(u8 *trail, void *m, int colour);
 /* Frees a weapon object (flags 1, 2, 4 of +0x60). */
 static inline void weapon_free(u8 *w)
 {
-    U8(w, 0x60) &= ~1;
-    U8(w, 0x60) &= ~2;
-    U8(w, 0x60) &= ~4;
+    BIT(w, 0x60, 0) = 0;
+    BIT(w, 0x60, 1) = 0;
+    BIT(w, 0x60, 2) = 0;
 }
 
 /* 0x0016E910, 0x198 bytes. Empties a weapon slot: its object released, its trails stopped
@@ -456,16 +463,16 @@ void func_0016E910(u8 *slot)
     u32 i;
 
     if (o != 0) {
-        if (U8(slot, 0x4C) & 4) {
+        if (BIT(slot, 0x4C, 2)) {
             PTR(o, 0x1E8) = 0;
-            U8(PTR(slot, 0x44), 0x20C) &= ~1;
+            BIT(PTR(slot, 0x44), 0x20C, 0) = 0;
         } else {
             PTR(o, 0x160) = 0;
-            U8(PTR(slot, 0x44), 0x168) &= ~1;
+            BIT(PTR(slot, 0x44), 0x168, 0) = 0;
         }
     }
     PTR(slot, 0x44) = 0;
-    if (U8(slot, 0x4D) & 1)
+    if (BIT(slot, 0x4D, 0))
         func_0016E860(slot);
     for (i = 0; i < 2; i++) {
         if (PTR(slot, 0x50 + i * 4) != 0)
@@ -603,12 +610,12 @@ int func_0016F8E0(float grow, float *e, int player)
     return 1;
 }
 
-/* 0x001700A0, 0x50 bytes. Draws a slot's weapon object (not with flag 0x80): a model actor
+/* 0x001700A0, 0x50 bytes, matching. Draws a slot's weapon object (not with flag 0x80): a model actor
  * (flag 4) or a plain object. */
 void func_001700A0(u8 *slot, u32 alpha)
 {
-    if ((U8(slot, 0x4C) & 0x80) == 0) {
-        if (U8(slot, 0x4C) & 4)
+    if (!BIT(slot, 0x4C, 7)) {
+        if (BIT(slot, 0x4C, 2))
             func_0014F0E0(PTR(slot, 0x44), alpha);
         else
             func_0014F970(PTR(slot, 0x44));
@@ -631,9 +638,9 @@ void func_001700F0(u8 *slot, int on, float *ma, float *mb, int side)
         place_x(&F32(w, 0x30), mb, g_00406580[U8(slot, 0x48)]);
     else
         place_x(&F32(w, 0x30), mb, g_004065A0[U8(slot, 0x48)]);
-    if (U8(slot, 0x4C) & 0x40)
+    if (BIT(slot, 0x4C, 6))
         keep_ends(w);
-    U8(slot, 0x4C) &= ~0x40;
+    BIT(slot, 0x4C, 6) = 0;
 }
 
 /* 0x00170300, 0x204 bytes. Draws a two-handed weapon's two lines (from node `ma` to the reaches
@@ -674,9 +681,9 @@ void func_00170510(u8 *slot, int on, float *ma, float *mb)
     keep_ends(w);
     place_x(&F32(w, 0x20), ma, 16.0f);
     place_x(&F32(w, 0x30), mb, 14.0f);
-    if (U8(slot, 0x4C) & 0x40)
+    if (BIT(slot, 0x4C, 6))
         keep_ends(w);
-    U8(slot, 0x4C) &= ~0x40;
+    BIT(slot, 0x4C, 6) = 0;
 }
 
 /* 0x001706A0, 0x100 bytes. Draws that weapon's line (16 along `ma` to 14 along `mb`). */

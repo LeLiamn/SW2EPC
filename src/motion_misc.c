@@ -13,6 +13,13 @@
 typedef unsigned char u8;
 typedef unsigned int u32;
 
+/* A flag byte: the original tests its bits as signed one-bit fields (LSB first). */
+typedef struct {
+    signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} Bits8;
+
+#define BIT(o, off, n) (((Bits8 *)((u8 *)(o) + (off)))->f##n)
+
 #define U8(o, off)  (*(u8 *)((u8 *)(o) + (off)))
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
 #define F32(o, off) (*(float *)((u8 *)(o) + (off)))
@@ -99,7 +106,7 @@ int func_0017C320(u32 *pack, u32 *out)
         func_001477E0((u32 *)(out[0] + (*pack & ~3)), (u32 *)st);
         st += 0x20;
     }
-    U8(out, 0xC) = (U8(out, 0xC) & ~1) | 1;
+    BIT(out, 0xC, 0) = 1;
     return 1;
 }
 
@@ -110,13 +117,13 @@ void func_0017C3E0(int k)
     u8 *r = g_005B5060[k];
 
     func_00102EC0(PTR(r, 0x18));
-    if (U8(r, 0x6C) & 1) {
+    if (BIT(r, 0x6C, 0)) {
         func_00102EC0(PTR(r, 0x68));
         func_00102EC0(PTR(r, 4));
     }
-    if (U8(r, 0x2C) & 1)
+    if (BIT(r, 0x2C, 0))
         func_00102EC0(PTR(r, 0x28));
-    if (U8(r, 0x3C) & 1)
+    if (BIT(r, 0x3C, 0))
         func_00102EC0(PTR(r, 0x38));
     func_00102EC0(PTR(r, 0));
     func_001185E0(r, 0xD0, 0);

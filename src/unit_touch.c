@@ -21,6 +21,13 @@ typedef unsigned int u32;
 
 typedef u8 Unit;
 
+/* A flag byte: the original tests its bits as signed one-bit fields (LSB first). */
+typedef struct {
+    signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
+} Bits8;
+
+#define BIT(o, off, n) (((Bits8 *)((u8 *)(o) + (off)))->f##n)
+
 float sqrtf(float x);
 void vu0_sincos(float a, float *s, float *c);     /* VU0 micro subroutine 0x20 */
 
@@ -59,7 +66,7 @@ static inline void touch(Unit *v, Unit *u, u8 *hit, float *pos, u8 alpha)
     int k;
 
     func_0016AA60(v, u, hit, pos, &d, alpha);
-    U8(v, 0x19F) = (U8(v, 0x19F) & ~8) | 8;
+    BIT(v, 0x19F, 3) = 1;
     for (k = 0; k < 4; k++)
         F32(v, 0x80 + k * 4) = F32(v, 0x90 + k * 4) - F32(v, 0x40 + k * 4);
 }
@@ -77,7 +84,7 @@ int func_00171FE0(Unit *u, Unit *v, u8 *hit)
         return 0;
     if (func_0016B9B0(v, u, hit, 0xFF) != 0)
         return 0;
-    if ((U8(u, 0x19C) & 0x20) && (U8(v, 0x19C) & 0x20) == 0)
+    if (BIT(u, 0x19C, 5) && BIT(v, 0x19C, 5) == 0)
         return 0;
     for (k = 0; k < 4; k++)
         p[k] = F32(u, 0x90 + k * 4);
@@ -134,7 +141,7 @@ int func_00172280(Unit *h, Unit *v, u8 *hit)
             p[k] = F32(h, 0x90 + k * 4);
         func_0016AA60(v, r, hit, p, &d, alpha);
         func_0029F790(v, r, hit, alpha);
-        U8(v, 0x19F) = (U8(v, 0x19F) & ~8) | 8;
+        BIT(v, 0x19F, 3) = 1;
         for (k = 0; k < 4; k++)
             F32(v, 0x80 + k * 4) = F32(v, 0x90 + k * 4) - F32(v, 0x40 + k * 4);
         return 0;
