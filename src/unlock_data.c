@@ -1,7 +1,7 @@
 /*
  * unlock_data.c - the gallery and encyclopedia unlock data (the 0x8220-byte block func_0019FBF0
  * gives, saved with the system data): officer, province and event records, bit arrays of what was
- * seen, and their updates after a game or a battle (parts of 0x003A0040-0x003A4DE0). Original
+ * seen, and their updates after a game or a battle (parts of 0x0039FAB0-0x003A4DE0). Original
  * file name unknown.
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
@@ -1274,4 +1274,116 @@ void func_003A4D70(void)
     func_003A3E30();
     func_003A4970();
     func_003A2810(0, 1);
+}
+
+/* 0x0039FAB0, 0x4C bytes, matching. */
+u8 *func_0039FAB0(int a, int b)
+{
+    return func_0019FBF0() + (b + a * 2) * 0xC + 0x54;
+}
+
+/* 0x0039FB00, 0x38 bytes, matching. Officer `o`'s record (0x48 bytes). */
+u8 *func_0039FB00(int o)
+{
+    return func_0019FBF0() + o * 0x48 + 0x324;
+}
+
+/* 0x0039FB40, 0x38 bytes, matching. Province entry `p` (0x14 bytes). */
+u8 *func_0039FB40(int p)
+{
+    return func_0019FBF0() + p * 0x14 + 0x77DC;
+}
+
+/* 0x0039FB80, 0x24 bytes, matching. */
+u8 *func_0039FB80(void)
+{
+    return func_0019FBF0() + 0x816E;
+}
+
+/* 0x0039FBB0, 0x38 bytes, matching. Save slot record `k` (0x21 bytes). */
+u8 *func_0039FBB0(int k)
+{
+    return func_0019FBF0() + k * 0x21 + 0x8197;
+}
+
+/* 0x0039FBF0, 0x34 bytes. Entry -> province (0x74 is province 0x78). */
+int func_0039FBF0(int k)
+{
+    if (k > 0x73)
+        k = k == 0x74 ? 0x78 : 0;
+    return k;
+}
+
+/* 0x0039FC30, 0x34 bytes. Province -> entry. */
+int func_0039FC30(int k)
+{
+    if (k > 0x73)
+        k = k == 0x78 ? 0x74 : 0;
+    return k;
+}
+
+/* 0x0039FC70, 0x2C bytes, matching. */
+int func_0039FC70(int k)
+{
+    if (k < 0x74 || k == 0x78)
+        return 1;
+    return 0;
+}
+
+/* 0x0039FCA0, 0xDC bytes. Sets or clears bit `k` of the array at +0x0. */
+void func_0039FCA0(int k, int on)
+{
+    u8 *b;
+
+    if (k < 0 || k >= 0xB)
+        return;
+    b = func_0019FBF0() + 0x0 + (k >> 3);
+    if (on == 0)
+        *b &= ~(1 << (k & 7));
+    else
+        *b |= 1 << (k & 7);
+}
+
+/* 0x0039FD80, 0x80 bytes. */
+int func_0039FD80(int k)
+{
+    if (k < 0 || k >= 0xB)
+        return 0;
+    return (1 << (k & 7) & func_0019FBF0()[0x0 + (k >> 3)]) != 0;
+}
+
+/* 0x0039FE00, 0xDC bytes. Sets or clears bit `k` of the array at +0x2. */
+void func_0039FE00(int k, int on)
+{
+    u8 *b;
+
+    if (k < 0 || k >= 0x1E)
+        return;
+    b = func_0019FBF0() + 0x2 + (k >> 3);
+    if (on == 0)
+        *b &= ~(1 << (k & 7));
+    else
+        *b |= 1 << (k & 7);
+}
+
+/* 0x0039FEE0, 0x80 bytes. */
+int func_0039FEE0(int k)
+{
+    if (k < 0 || k >= 0x1E)
+        return 0;
+    return (1 << (k & 7) & func_0019FBF0()[0x2 + (k >> 3)]) != 0;
+}
+
+/* 0x0039FF60, 0xDC bytes. Sets or clears bit `k` of the array at +0x6. */
+void func_0039FF60(int k, int on)
+{
+    u8 *b;
+
+    if (k < 0 || k >= 0x190)
+        return;
+    b = func_0019FBF0() + 0x6 + (k >> 3);
+    if (on == 0)
+        *b &= ~(1 << (k & 7));
+    else
+        *b |= 1 << (k & 7);
 }
