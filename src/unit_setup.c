@@ -2127,3 +2127,272 @@ void func_0016A8A0(Unit *u, Unit *v, u8 *hit, int counted, void *x)
         && (U8(v, 0x19C) & 0x80) == 0)
         func_00155140(u, v, hit, x);
 }
+
+extern u8 g_00669E2A[][0x48];            /* per player settings: +0 the pad port */
+
+int func_00152840(Unit *u, Unit *v, u8 *hit);
+void func_00152EE0(Unit *u, Unit *v);
+int func_001D1170(Unit *u, Unit *v, u8 *hit, float *dir);
+int func_001524D0(Unit *u, Unit *v, u8 *hit);
+int func_00152560(Unit *u, Unit *v, u8 *hit, float *dir, int *out);
+void func_003DD5B0(u8 horse, int a);
+short func_001CCD60(Unit *u, Unit *v, u8 *hit, void *pos);
+int func_00153230(Unit *u, Unit *v, u8 *hit, float *dir, short damage, int keep_dir,
+                  int no_action);
+void func_001C8130(int kind, float *pos, int a, int b, u8 player);
+short func_001CD060(Unit *u, Unit *v, u8 *hit, float *dir, void *pos, int kind, int guard,
+                    int stand);
+int func_00153E50(Unit *u, Unit *v, u8 *hit, void *pos, float *dir, short damage, int stand);
+u8 func_0016BE40(Unit *u);
+void func_001CF2A0(Unit *u, u8 a, int b);
+void func_0016CB60(Unit *u, u8 port, int motor, int power, int frames);
+void func_00153110(Unit *u, float *dir);
+void func_00153190(Unit *u);
+
+/* 0x0016AA60, 0x574 bytes. `u` takes `hit` from `v` (or from the point `pos` without one):
+ * clashes (func_00152840: 1 a clash, 2-4 one or both knocked back), counters (func_001D1170),
+ * dodges (func_001524D0), guards (func_00152560: a guarded hit only pushes, vibrating 10
+ * frames); else a real hit: in a struggle it wears the struggle down, otherwise the damage
+ * (func_001CD060, by the guard chance and whether it withstands); the reaction
+ * (func_00153E50); the player's pad vibrates. *damage gets the damage; `alpha` the hit's flash
+ * (+0x14C) for hits with flag 0x80000000. Whether it was a real hit. */
+int func_0016AA60(Unit *u, Unit *v, u8 *hit, void *pos, short *damage, u8 alpha)
+{
+    float dir[4];
+    int r, k, got = 0, guard_kind;
+
+    *damage = 0;
+    for (k = 0; k < 4; k++)
+        dir[k] = (v == 0 ? ((float *)pos)[k] : F32(v, 0x90 + k * 4)) - F32(u, 0x90 + k * 4);
+    r = func_00152840(u, v, hit);
+    if (r == 1) {
+        if (U8(u, 0x19C) & 2) {
+            func_00151A90(u, 0);      /* a1 is left over from the call before in the original */
+            U8(u, 0x19C) &= ~2;
+        }
+        func_00152EE0(u, v);
+        PTR(u, 0x140) = v;
+    } else {
+        if (r == 2) {
+            func_00151D60(v);
+        } else if (r == 3) {
+            func_00151D60(u);
+        } else if (r == 4) {
+            func_00151D60(v);
+            func_00151D60(u);
+        } else if (v != 0 && func_001D1170(u, v, hit, dir) != 0) {
+            func_00153190(u);
+        } else if (func_001524D0(u, v, hit) != 0) {
+            func_00153110(u, dir);
+        } else if (func_00152560(u, v, hit, dir, &guard_kind) != 0) {
+            short d = func_001CCD60(u, v, hit, pos);
+
+            if (func_00153230(u, v, hit, dir, d, guard_kind, 0) != 0) {
+                g_70000D60 = 1;
+                func_001C8130(5, &F32(u, 0x90), 0, 8, U8(u, 0x14E));
+            }
+            if (U8(u, 0x14E) < 2) {
+                u8 port = g_00669E2A[U8(u, 0x14E)][0];
+
+                func_0016CB60(u, port, 1, 0x80, 10);
+                func_0016CB60(u, port, 0, 1, 10);
+            }
+        } else {
+            int guard = func_0016A210(u, v, hit);
+            int stand = func_0016A3D0(u, v, hit);
+            int kind;
+
+            if (v != 0 && (U16(hit, 0x1C) & 0x200) && PTR(v, 0x288) != 0)
+                func_003DD5B0(U8(PTR(v, 0x288), 0x180), 3);
+            kind = func_0016A340(v, hit);
+            if (U8(u, 0x157) != 0 || S16(u, 0x194) != 0) {
+                short d = func_001CCD60(u, v, hit, pos);
+
+                func_00153230(u, v, hit, dir, d, guard_kind, 1);
+                U8(u, 0x19D) &= ~2;
+                F32(u, 0x22C) = 0.0f;
+                g_70000D60 = 1;
+                func_001C8130(5, &F32(u, 0x90), 0, 8, U8(u, 0x14E));
+                func_0016A6E0(u, hit, dir, d);
+                *damage = 0;
+                stand = 1;
+            } else {
+                *damage = func_001CD060(u, v, hit, dir, pos, kind, guard, stand);
+            }
+            if (0.0001f < F32(u, 0x168))
+                func_0016A820(u, *damage);
+            if (func_00153E50(u, v, hit, pos, dir, *damage, stand) != 0 && PTR(u, 0x288) != 0)
+                func_001CF2A0(u, func_0016BE40(u), 1);
+            U8(u, 0x17D) += 1;
+            if (U8(u, 0x14E) < 2) {
+                u8 port = g_00669E2A[U8(u, 0x14E)][0];
+
+                if (stand == 0)
+                    func_0016CB60(u, port, 1, 0xA0, 0x14);
+                else
+                    func_0016CB60(u, port, 1, 0, 0);
+                func_0016CB60(u, port, 0, 1, 0xF);
+            }
+            got = 1;
+        }
+        PTR(u, 0x140) = v;
+    }
+    if (U32(hit, 0x28) & 0x80000000)
+        U8(u, 0x14C) = alpha;
+    else
+        U8(u, 0x14C) = 0x40;
+    return got;
+}
+
+extern u32 g_00669DE8[][0x12];           /* per player (0x48 bytes): +0 the officer's item list */
+extern u8 g_004282AF;                    /* the item effect's divisor */
+
+int func_0036DC80(u32 list, int item);
+int func_0036DBA0(u32 list, int item);
+void func_00247FA0(u8 player, int message, int a);
+void func_002F00F0(u8 player, int kind);
+u8 func_002F41E0(u32 list);
+void func_0016C180(float amount, Unit *u);
+int func_0016D780(float a, float b, float *part, float *point, float *out);
+
+/* An officer's life raised by `n`, at most its maximum (+0x80) and at least 0; the highest
+ * reached is kept (+0x84). */
+static inline void officer_heal(u8 *o, short n)
+{
+    short max = S16(o, 0x80), v = S16(o, 0x82) + n;
+
+    if (max < v)
+        v = max;
+    if (v < 1)
+        v = 0;
+    S16(o, 0x82) = v;
+    if (S16(o, 0x84) < v)
+        S16(o, 0x84) = v;
+}
+
+/* 0x0016AFE0, 0x250 bytes. A unit picks up a healing item: its officer heals 50 (more with the
+ * players' item 0x1E: 1 + its level / g_004282AF times); not for officers with flag 2. */
+void func_0016AFE0(Unit *u, u8 alpha)
+{
+    u8 *o = g_006A3A30[S16(u, 0x178)];
+    u32 f = U32(o, 0xB8), list = 0x1A;
+    int src = 2, msg = 6;
+    float k = 1.0f;
+
+    if ((f & 2) == 0) {
+        if (f & 4) {
+            src = 0;
+            list = g_00669DE8[0][0];
+        } else if (f & 8) {
+            src = 1;
+            list = g_00669DE8[1][0];
+        }
+        if (src != 2 && func_0036DC80(list, 0x1E) != 0) {
+            k = (float)func_0036DBA0(list, 0x1E) / (float)g_004282AF + 1.0f;
+            msg = func_0036DBA0(list, 0x1E) - 1;
+        }
+        officer_heal(o, (short)(int)(k * 50.0f));
+        func_00247FA0(U8(u, 0x14E), 1, msg);
+    }
+    U8(u, 0x14C) = alpha;
+}
+
+/* 0x0016B230, 0x26C bytes. A unit opens a box: at random 10% heals 50, 40% doubles its attack
+ * (+0x98, flag 0x8000000), 40% its defence (+0x9C, flag 0x10000000), 10% +0xA9 (flag
+ * 0x20000000), each for 500 frames (+0xA4); a message, and the players' display. */
+void func_0016B230(Unit *u, u8 alpha)
+{
+    u8 *o = g_006A3A30[S16(u, 0x178)];
+    u32 r;
+
+    if ((U32(o, 0xB8) & 2) == 0) {
+        r = RANDOM() % 100;
+        if (r < 10) {
+            officer_heal(o, 0x32);
+            func_00247FA0(U8(u, 0x14E), 1, 6);
+        } else if (r < 0x32) {
+            U32(o, 0xBC) |= 0x8000000;
+            F32(o, 0x98) = 2.0f;
+            U16(o, 0xA4) = 500;
+            func_00247FA0(U8(u, 0x14E), 9, 6);
+            if (U8(u, 0x14E) < 2)
+                func_002F00F0(U8(u, 0x14E), 0);
+        } else if (r < 0x5A) {
+            U32(o, 0xBC) |= 0x10000000;
+            F32(o, 0x9C) = 2.0f;
+            U16(o, 0xA4) = 500;
+            func_00247FA0(U8(u, 0x14E), 0xB, 6);
+            if (U8(u, 0x14E) < 2)
+                func_002F00F0(U8(u, 0x14E), 1);
+        } else {
+            U32(o, 0xBC) |= 0x20000000;
+            U8(o, 0xA9) = 1;
+            U16(o, 0xA4) = 500;
+            func_00247FA0(U8(u, 0x14E), 0xF, 6);
+            if (U8(u, 0x14E) < 2)
+                func_002F00F0(U8(u, 0x14E), 2);
+        }
+    }
+    U8(u, 0x14C) = alpha;
+}
+
+/* 0x0016B4A0, 0xA4 bytes. A player's unit (not held) gains musou: 21 + the item level / 49. */
+void func_0016B4A0(Unit *u)
+{
+    u8 p = U8(u, 0x14E);
+
+    if (p < 2 && (U8(u, 0x19C) & 2) == 0) {
+        u8 b = func_002F41E0(g_00669DE8[p][0]);
+
+        func_0016C180((float)b / 49.0f + 1.0f + 20.0f, u);
+    }
+}
+
+/* 0x0016B550, 0xD8 bytes. Tests a weapon part (its point +0x40, rotation +0x50 and its edge
+ * +0x20 to +0x30) against the unit's body (a cylinder from +0x90 up by the state's height,
+ * radius / height +0x84 / +0x88 of the state description); *out: the edge's end. Whether it
+ * touches. */
+int func_0016B550(Unit *u, u8 *part, float *out)
+{
+    float s[5][4], pt[4];
+    int k, r;
+
+    for (k = 0; k < 4; k++) {
+        s[0][k] = F32(part, 0x40 + k * 4);
+        s[4][k] = F32(part, 0x40 + k * 4);
+        s[1][k] = F32(part, 0x50 + k * 4);
+        s[2][k] = F32(part, 0x30 + k * 4);
+        s[3][k] = F32(part, 0x20 + k * 4);
+    }
+    pt[0] = F32(u, 0x90);
+    pt[2] = F32(u, 0x98);
+    pt[3] = F32(u, 0x9C);
+    pt[1] = F32(u, 0x94) + F32(PTR(u, 0x114), 0x80);
+    r = func_0016D780(F32(PTR(u, 0x114), 0x84), F32(PTR(u, 0x114), 0x88), s[0], pt, out);
+    for (k = 0; k < 4; k++) {
+        out[k] = F32(part, 0x30 + k * 4) - F32(part, 0x20 + k * 4);
+        out[k] = out[k] + F32(part, 0x20 + k * 4);
+    }
+    return r;
+}
+
+/* 0x0016B630, 0xE8 bytes. Whether a drawn part of weapon `w` (+0x50 / +0x54, +0x58 / +0x5C)
+ * touches unit `u`. */
+int func_0016B630(u8 *w, Unit *u, float *out)
+{
+    int r = 0, i;
+
+    for (i = 0; i < 2; i++) {
+        u8 *p = PTR(w, 0x50 + i * 4);
+
+        if (p != 0 && (U8(p, 0x60) & 2))
+            r |= func_0016B550(u, p, out);
+    }
+    for (i = 0; i < 2; i++) {
+        u8 *p = PTR(w, 0x58 + i * 4);
+
+        if (p != 0 && (U8(p, 0x60) & 2))
+            r |= func_0016B550(u, p, out);
+    }
+    return r;
+}
