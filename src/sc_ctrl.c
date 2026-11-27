@@ -20,6 +20,8 @@ typedef unsigned int u32;
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
 #define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
 
+#pragma opt_unroll_loops on
+
 /* A table file: a count, then the entries. */
 typedef struct {
     u32 *data;
@@ -43,7 +45,7 @@ void func_0019A790(void);
 void func_0019A7B0(void);
 void func_0023ED90(void);
 u32 func_0035DC70(int p);
-void func_0018A290(u8 *c, u8 v, void *x);
+void func_0018A290(u8 *c, u8 v, int x);
 void func_0019A4F0(u8 *b, int a);
 
 /* 0x00185CA0, 0x40 bytes, matching. The scenario's frame: func_00185390 in mode 1, else func_001854C0. */
@@ -138,7 +140,7 @@ u32 func_00185E00(u32 id, int free)
 
 /* 0x00185F30, 0x80 bytes. Marks command `a` done (flag 2) and applies its `a[5]` entries
  * (0x10 bytes each, from `c`) with `b[1]`. */
-void func_00185F30(u8 *a, u8 *b, u8 *c, void *x)
+void func_00185F30(u8 *a, u8 *b, u8 *c, int x)
 {
     u8 n, v;
     u32 i;
@@ -165,5 +167,123 @@ int func_00185FB0(u8 *a, u8 *b, int both)
             return 0;
     }
     a[0] |= 1;
+    return 1;
+}
+
+/* The scenario's commands (0x005BA7CC): command i is at data + the offset at data + 0xC + 4i;
+ * each has a list of conditions (0x12 bytes each, +1 its state) and entries. */
+typedef struct {
+    u8 *data;
+    u32 count;
+    u32 pad[2];
+    u8 **conds;              /* +0x10 */
+    u8 **entries;            /* +0x14 */
+} ScCommands;
+
+extern ScCommands g_005BA7CC;
+
+#define SC_CMD(i) (g_005BA7CC.data + *(u32 *)(g_005BA7CC.data + (i) * 4 + 0xC))
+
+int func_0032E7B0(void);
+int func_00183410(int a, u32 i, u8 state, u8 b, int c);
+void func_0027DEA0(int a, int b);
+
+/* 0x00186050, 0x130 bytes. Each frame (unless func_0032E7B0), the commands not yet met or done
+ * and not of the second kind (+2) are tested; met ones run their entries (+3), or ask
+ * func_00183410 first and are cleared if refused. */
+void func_00186050(void)
+{
+    ScCommands *t;
+    u32 n, i;
+
+    if (func_0032E7B0() != 0)
+        return;
+    t = &g_005BA7CC;
+    n = t->count;
+    for (i = 0; i < n; i++) {
+        u8 *c = t->data + *(u32 *)(t->data + i * 4 + 0xC);
+
+        if ((c[0] & 3) == 0 && c[2] == 0) {
+            u8 *cond = t->conds[i];
+
+            if (func_00185FB0(c, cond, 1) != 0) {
+                if (c[3] == 0) {
+                    if (func_00183410(0, i, cond[1], c[1], 0) == 0)
+                        c[0] &= ~3;
+                } else {
+                    func_00185F30(c, cond, t->entries[i], 0);
+                }
+            }
+        }
+    }
+}
+
+/* 0x00186190, 0xEC bytes. Runs the commands of the second kind (+2) whose conditions are met
+ * (func_0027DEA0 when there are none). */
+void func_00186190(void)
+{
+    u32 n = g_005BA7CC.count, i;
+
+    if (n == 0) {
+        func_0027DEA0(0, 2);
+        return;
+    }
+    for (i = 0; i < n; i++) {
+        u8 *c = SC_CMD(i);
+
+        if (c[2] != 0) {
+            u8 *cond = g_005BA7CC.conds[i];
+
+            if (func_00185FB0(c, cond, 0) != 0)
+                func_00185F30(c, cond, g_005BA7CC.entries[i], 1);
+        }
+    }
+}
+
+/* 0x00186280, 0xF8 bytes. Restores the commands' states from a save (`p`); returns the end. */
+u8 *func_00186280(u8 *p)
+{
+    u32 n = g_005BA7CC.count, i, j;
+
+    for (i = 0; i < n; i++) {
+        u8 *cond = g_005BA7CC.conds[i];
+        u8 *c = SC_CMD(i);
+        u32 m = c[4];
+
+        c[0] = *p++;
+        for (j = 0; j < m; j++) {
+            cond[1] = *p++;
+            cond += 0x12;
+        }
+    }
+    return p;
+}
+
+/* 0x00186380, 0xF8 bytes. Saves the commands' states into `p`; returns the end. */
+u8 *func_00186380(u8 *p)
+{
+    u32 n = g_005BA7CC.count, i, j;
+
+    for (i = 0; i < n; i++) {
+        u8 *cond = g_005BA7CC.conds[i];
+        u8 *c = SC_CMD(i);
+        u32 m = c[4];
+
+        *p++ = c[0];
+        for (j = 0; j < m; j++) {
+            *p++ = cond[1];
+            cond += 0x12;
+        }
+    }
+    return p;
+}
+
+/* 0x00186480, 0x24 bytes. Whether bit 0 of `x` is clear. */
+int func_00186480(int x)
+{
+    u8 b = x;
+
+    if (b & 1)
+        return 0;
     return 1;
 }
