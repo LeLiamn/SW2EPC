@@ -841,7 +841,7 @@ void func_001F6CA0(u8 a, u16 id, u8 *p, u32 w);
 void func_00143268(void *m, void *a, void *b, void *c);
 void func_00143328(void *m, void *a, void *b, void *c, void *d);
 
-/* 0x00196530, 0x8 bytes. Nothing. */
+/* 0x00196530, 0x8 bytes, matching. Nothing. */
 void func_00196530(void)
 {
 }
@@ -1079,7 +1079,7 @@ void func_00196CB0(float r, u32 layer)
     }
 }
 
-/* 0x00196D40, 0x30 bytes. Squared draw distance `i` of the current bank. */
+/* 0x00196D40, 0x30 bytes, matching. Squared draw distance `i` of the current bank. */
 float func_00196D40(int i)
 {
     return g_005D30B0[SP32(0x88C)][i];
@@ -1200,7 +1200,7 @@ void func_00197010(u8 *p)
     }
 }
 
-/* 0x00197050, 0x30 bytes. Drawn part `k`'s +0x40 (0 for none). */
+/* 0x00197050, 0x30 bytes, matching. Drawn part `k`'s +0x40 (0 for none). */
 u8 *func_00197050(int k)
 {
     u8 *p = g_005D3020[k];
@@ -1269,7 +1269,7 @@ u8 *func_00197230(u8 *p)
     return p;
 }
 
-/* 0x001972F0, 0x8 bytes. Nothing. */
+/* 0x001972F0, 0x8 bytes, matching. Nothing. */
 void func_001972F0(void)
 {
 }
@@ -1302,7 +1302,7 @@ void func_00197300(u32 *f)
     }
 }
 
-/* 0x00197420, 0x4C bytes. Shuts the stage's model parts down. */
+/* 0x00197420, 0x4C bytes, matching. Shuts the stage's model parts down. */
 void func_00197420(void)
 {
     func_001F6FF0();
@@ -1314,7 +1314,7 @@ void func_00197420(void)
     func_002080E0();
 }
 
-/* 0x00197470, 0x9C bytes. Opens the second stage file (its offsets made into addresses): two
+/* 0x00197470, 0x9C bytes, matching. Opens the second stage file (its offsets made into addresses): two
  * pairs of tables, the objects (not in mode 2), the rest. */
 void func_00197470(u8 *file)
 {

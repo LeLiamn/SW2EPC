@@ -1047,11 +1047,21 @@ its state in the scratchpad (`0x70000700`-`0x70000BA0`).
 
 ## Scenario conditions (`src/sc_cond.c`)
 
-From `0x00197510`, before `sc_ubase.c`; the original file's name is unknown. A condition returns
-which players it holds for (bit 0 player 1, bit 1 player 2). Done so far: 12 functions (3
-match): an officer or its garrison in an area of cells, an officer's state (beaten, away, fled),
-two officers or bases meeting, comparisons, event bits, the number of players, the game mode,
-the players' officers, an officer's side.
+From `0x00197510` to `0x0019A7AC`, just before `sc_ubase.c`; the original file's name is
+unknown. Complete: 56 functions (7 match). A condition returns which players it holds for (bit 0
+player 1, bit 1 player 2, 3 both, 0 not met).
+
+- **Records:** 0x12 bytes, +0 the code, +1 the result, +2 the arguments (u16). Code 0xFE is an
+  "or" group and 0xFF an "and" group (+2 their number of parts, which follow); `func_0019A4F0`
+  evaluates one record and returns how many records it used.
+- **Codes:** 0x00-0x12 (`func_00199EF0`): timers, a base's value, stored values in percent,
+  switches, leaders, life in percent, levels, officer values, player scores, scenario variables;
+  0x13-0x22 (`func_00199DA0`): variables, commands done, items, meetings, officer states, areas,
+  distances, flags, sides, and the same for officers found by `func_0034B130`; 0x23-0x28
+  (`func_00199D00`): sides, the game mode, the players' officers, the number of players, event
+  bits. Mode 2 re-evaluates only conditions whose extra argument is set; `func_0019A5A0` maps an
+  older numbering of the codes to this one.
+- Operators (`func_00197A70`): 0 `<`, 1 `<=`, 2 `==`, 3 `>=`, 4 `>`.
 
 ## The strategic map (`src/field.c`)
 

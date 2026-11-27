@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 75840,
-    "non_matching": 466184
+    "matching": 76464,
+    "non_matching": 475584
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 703
+    "matching": 707
   },
   "layout": "treemap",
   "areas": [
@@ -553,11 +553,11 @@
         },
         {
           "name": "sc_ubase.c",
-          "description": "Estimated range 0x197470-0x1A1BF0; 13 function(s) decompiled",
+          "description": "Estimated range 0x197470-0x1A1BF0; 57 function(s) decompiled",
           "code": {
             "total": 42880,
-            "matching": 336,
-            "non_matching": 2496
+            "matching": 960,
+            "non_matching": 11896
           }
         },
         {
