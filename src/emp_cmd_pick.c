@@ -996,3 +996,195 @@ void func_00337A70(void)
     func_002FC660();
     s[0] = 0;
 }
+
+int func_00323C60(int p);
+int func_00323BD0(int p);
+void func_00329880(int a);
+void func_002F9130(int f, int v);
+u32 func_003620E0(int side, int k);
+void func_00362840(int side, int k, int v);
+void func_003638D0(void);
+void func_00388710(void);
+void func_003A9010(int a);
+void func_003A9110(void);
+void func_003890B0(int a);
+int func_00389050(void);
+int func_00389090(void);
+void func_0031DBE0(void);
+void func_0036A560(void);
+void func_00373B60(void);
+extern int g_00448050[];
+
+/* 0x00337AB0, 0x274 bytes. Step 3: sets up the chosen battle (kind = command state +8: 0 defence,
+ * 1 attack, 2/3 battles between others) and pays its cost. */
+void func_00337AB0(void)
+{
+    u8 *st = func_002FC2C0();
+    int t = g_007B5F00[0][0], from = 0x19, to = 0x19, k;
+    int *c = *(int **)(st + 0x6A0);
+    u32 kind = *(u32 *)(st + 8), lord, o;
+    int s[9];
+
+    for (k = 0; k < 9; k++) {
+        int v = (&g_007B5F00[1][0])[k];
+
+        s[k] = -1;
+        if (v != -1)
+            s[k] = v;
+    }
+    if (kind == 3 || kind == 2) {
+        if (PROVINCE_OK_F(func_00323C60(t))) {
+            to = func_00323BD0(t);
+            from = t;
+        } else {
+            from = func_00323BD0(t);
+            to = t;
+        }
+    } else if (kind == 1) {
+        from = func_00323BD0(t);
+        func_00329880(1);
+        to = t;
+    } else if (kind == 0) {
+        func_00329880(0);
+        to = t;
+        from = 0x19;
+    }
+    if (kind < 2) {
+        func_00335FC0();
+        func_00337230(kind, from, to, (u32 *)s, c[2]);
+    } else if (kind - 2 < 2) {
+        func_003375A0(kind, from, to, (u32 *)s);
+    }
+    func_002F9130(func_00327D50(), c[1] / 10);
+    lord = func_002F9260(func_00327D50());
+    if (lord < 0x19F) {
+        for (k = 0; k < 8; k++) {
+            o = func_003620E0(1, k);
+            if (o < 0x19F && o == lord)
+                func_00362840(1, k, 1);
+        }
+    }
+    func_003638D0();
+    c[0] = 4;
+    func_00337A70();
+}
+
+/* 0x00337D30, 0x1C bytes, matching. */
+void func_00337D30(void)
+{
+    func_00388710();
+}
+
+/* 0x00337D50, 0x5C bytes, matching. The text of battle kind `k`. */
+int func_00337D50(int k)
+{
+    int v = -1;
+
+    switch (k) {
+    case 0:
+        v = 0xC;
+        break;
+    case 1:
+        v = 0xD;
+        break;
+    case 2:
+        v = 0xE;
+        break;
+    case 3:
+        v = 0xF;
+        break;
+    case 4:
+        v = 10;
+        break;
+    case 5:
+        v = 0xB;
+        break;
+    }
+    return v;
+}
+
+/* 0x00337DB0, 0x50 bytes. */
+int func_00337DB0(int k)
+{
+    int v = -1;
+
+    switch (k) {
+    case 0:
+        v = 0x15C;
+        break;
+    case 1:
+        v = 0x15C;
+        break;
+    case 2:
+        v = 0x15C;
+        break;
+    case 3:
+        v = 0x15C;
+        break;
+    }
+    return v;
+}
+
+/* 0x00337E00, 0xC4 bytes. The battle kind menu. */
+int func_00337E00(void)
+{
+    int *s = (int *)func_002FC2C0(), k;
+
+    func_003A9010(0);
+    func_003A9110();
+    func_003890B0(1);
+    k = func_00389050();
+    func_003890B0(0);
+    if (k == 1) {
+        int t;
+
+        k = func_00389090();
+        s[2] = k;
+        s[0] = g_00448050[k];
+        t = func_00337D50(s[2]);
+        func_00376100(5, t, func_00337DB0(s[2]));
+        if (s[2] == 4)
+            func_0031DBE0();
+    }
+    return 5;
+}
+
+/* 0x00337ED0, 0x5C bytes. Draw. */
+void func_00337ED0(void)
+{
+    if (BCMD()[0] == 2)
+        func_0036A560();
+    else if (BCMD()[0] == 1)
+        func_00373B60();
+}
+
+/* 0x00337F30, 0xB8 bytes. Update. */
+int func_00337F30(void)
+{
+    int r = 5, s = BCMD()[0];
+
+    if (s == 4) {
+        func_00337A70();
+    } else if (s == 3) {
+        func_00337AB0();
+        r = 0;
+    } else if (s == 2) {
+        func_003379A0();
+    } else if (s == 1) {
+        func_003378E0();
+    } else {
+        if (s != 0)
+            return 5;
+        func_003378A0();
+    }
+    return r;
+}
+
+/* 0x00337FF0, 0x40 bytes, matching. Step 0 of the other battle command. */
+void func_00337FF0(void)
+{
+    int *c = BCMD();
+
+    func_00373970(1, 3, func_00327C00());
+    c[0] = 1;
+}
