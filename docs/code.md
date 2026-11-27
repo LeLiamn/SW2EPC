@@ -1012,6 +1012,19 @@ functions:
   horse's), and is stopped by stronger ones;
 - a horse's reach is an ellipse 45 wide and 140 long.
 
+## Battlefield managers (`src/battle_units.c`)
+
+`0x001724C0`-`0x0017C0CC` holds the battlefield's managers. Only the simple functions are done
+so far (13 functions, 5 match):
+
+- the per-frame sweep over the 143 units (`0x00173970`), a search for the nearest unit of a
+  mount kind through the battlefield grid (`0x001748B0`), the 64 effect records taken in turn;
+- the shutdown and reset of all the battlefield managers;
+- drawing the units of the draw list, limiting drawing to one half of the screen (two players)
+  or the whole screen (GS scissor registers);
+- the perspective and screen matrices, and a camera object's defaults (a 15-degree view angle,
+  depth 64 to 50000).
+
 ## Camera shake and motion sets (`src/motion_misc.c`)
 
 Just before `MotionManager.c`: `0x0017C0D0`-`0x0017C49C`, 6 functions. A shake holds a timer

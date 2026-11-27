@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 67184,
-    "non_matching": 421716
+    "matching": 67936,
+    "non_matching": 423576
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 595
+    "matching": 600
   },
   "layout": "treemap",
   "areas": [
@@ -408,11 +408,11 @@
         },
         {
           "name": "Weapon.c",
-          "description": "Estimated range 0x166E68-0x1748E8; 85 function(s) decompiled",
+          "description": "Estimated range 0x166E68-0x1748E8; 87 function(s) decompiled",
           "code": {
             "total": 55936,
-            "matching": 1600,
-            "non_matching": 29032
+            "matching": 1856,
+            "non_matching": 29432
           }
         },
         {
@@ -467,11 +467,11 @@
         },
         {
           "name": "MotionManager.c",
-          "description": "Estimated range 0x1748E8-0x1814A8; 6 function(s) decompiled",
+          "description": "Estimated range 0x1748E8-0x1814A8; 17 function(s) decompiled",
           "code": {
             "total": 52160,
-            "matching": 0,
-            "non_matching": 976
+            "matching": 496,
+            "non_matching": 2436
           }
         },
         {
