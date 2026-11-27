@@ -281,7 +281,7 @@ void func_001D8F90(void)
     SP_PKT = p + 4;
 }
 
-/* 0x001D91F0, 0x84 bytes. The event scene's actors' frame. */
+/* 0x001D91F0, 0x84 bytes, matching. The event scene's actors' frame. */
 void func_001D91F0(u32 *e, int x)
 {
     if ((*e & 1) == 0)
@@ -605,7 +605,7 @@ u8 *func_001DBA70(short k)
     return r;
 }
 
-/* 0x001DBB50, 0x70 bytes. */
+/* 0x001DBB50, 0x70 bytes, matching. */
 void func_001DBB50(void)
 {
     int i;
@@ -651,7 +651,7 @@ void func_001DC330(void)
     }
 }
 
-/* 0x001DC3C0, 0x6C bytes. Draws them. */
+/* 0x001DC3C0, 0x6C bytes, matching. Draws them. */
 void func_001DC3C0(void)
 {
     int k;
@@ -745,8 +745,9 @@ void func_001DB2D0(u32 *e)
 }
 
 /* 0x001DB6B0, 0x1F0 bytes. Draws the subtitles (when switched on in the settings). */
-void func_001DB6B0(u8 *e)
+void func_001DB6B0(u32 *ev)
 {
+    u8 *e = (u8 *)ev;
     u8 buf[264];
     int w, h;
     u8 *s;
