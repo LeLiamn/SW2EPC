@@ -884,14 +884,19 @@ player * 3 + slot) whose fields are mostly unknown and are reached by offset. Th
 
 ## The battle camera (`src/camera.c`)
 
-The code from 0x00161490 on, after `scene_initialize.c`, is the battle camera. Done so far
-(0x00161490-0x00163A1C, 17 functions, none matching yet):
+The code from 0x00161490 on, after `scene_initialize.c`, is the battle camera. It is fully
+decompiled (0x00161490-0x0016467C, 22 functions, none matching yet):
 
 - **State:** a block of words: +0 the 3D camera object (eye at +0x1C0, target at +0x1D0, view
   angle at +0x224), +4 the unit followed, +8 a yaw to turn to, +0xC the distance, +0x10 the eye
   height, +0x14 a height offset, +0x18 a turn timer, +0x1C the unit's previous action, +0x36 a
   "free place" timer, +0x3C flags, +0x90 / +0xB0 / +0xC0 positions kept from the last frame,
   +0xD0 the free place's offset.
+- **Views** (`0x00164440`, each frame): looking down at a beaten unit from 300 away
+  (`0x00163A20`), between two units from 400 to the side (`0x00163BA0`), a camera played from a
+  motion (`0x00163F00`, components 9-16; it stops when the scenery cuts the view), the
+  slow-motion duel view (`0x00164270`), else the usual modes. The shake is taken out before and
+  put back after.
 - **Modes** (dispatcher `0x001637B0`, by the unit's action): turning to a set yaw while the
   timer runs (`0x00163050`), straight behind the facing (`0x001635F0`) for actions that keep
   their direction, a fixed placement (`0x00162130`), else the usual one (`0x00163380`): behind
@@ -913,6 +918,22 @@ The code from 0x00161490 on, after `scene_initialize.c`, is the battle camera. D
 Some of these functions pass vectors to each other in VU0 registers (for example the dead-zone
 helper `0x0029DE30` gets its margins in float registers): their C was written from the
 disassembly rather than from Ghidra's output.
+
+## Unit set-up (`src/unit_setup.c`)
+
+After the camera, from 0x00164680 up to `Weapon.c` (0x0016CD30), the code sets units up. Done
+so far (0x00164680-0x0016555C, 9 functions, 4 match):
+
+- **Reset:** a unit is cleared (0x630 bytes) and reset for its player: origin, scale 1, its
+  matrix, state 0x40, its four motion slots (+0x290, 0x70 each) and ten records (+0x450, 0x30
+  each, kinds from `0x00424B30`).
+- **Models:** a table per unit state at `0x006CDF60` (0x150 bytes each) holds the state's model
+  (+0xA0), a variant's second model (+0xD0) and the variant flag (+0xD8). The model actor comes
+  from one of three shared sets (on foot, mounted, 0x3D-0x3F).
+- **Slots:** each unit kind (`0x0016CF30`) gives per set four (motion, node) pairs and two modes
+  that decide which slots get which flags.
+- **Weapon and horse:** a weapon model (+0x156, 0x11 = none) and, mounted, the horse; a new unit
+  waits 5 or 16 frames before acting.
 
 ## Scene 0x14: the officer editor (`src/scene_edit.c`)
 
