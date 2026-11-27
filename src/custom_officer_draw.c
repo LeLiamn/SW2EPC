@@ -33,7 +33,8 @@ void func_002C8500(int x, int y, int a, int w, int h, int c, int d);
 void func_002C80A0(int x, int y, int a, int w, int h, int c, int d);
 void func_001AE550(float f, int *box, short *xy, u8 *alpha, int a);
 void func_001A3460(int x, int y, int a, int b, int c, int d, int e, int f);
-void func_003D4600(int x, int y, int w, int h, int a, int b);
+void func_003D4600(int x, int y, int w, int h, int a, void *b);
+void func_003D3A80(int x, int y, int a, int b, int c, int d, int k);
 
 #define FONT_COLOUR(c) (g_0056CCA4[0] = g_0056CCA4[1] = g_0056CCA4[2] = g_0056CCA4[3] = (c))
 
@@ -169,7 +170,7 @@ void func_003D5AC0(int x, int y)
     for (k = 0; k < 10; k++, x += 0x1A) {
         if (*(int *)(s + 0x38) == k && *(int *)(s + 0x9A4) == 3) {
             func_001ABEA0(func_00376810(), k + 0x10, x + 1, y + 1, 0, 0x18, 0x18, 0);
-            func_003D4600(x - 6, y - 5, 0x26, 0x24, 1, (int)(s + 0x974));
+            func_003D4600(x - 6, y - 5, 0x26, 0x24, 1, s + 0x974);
         } else {
             func_001ABEA0(func_00376810(), 0x1A, x, y, 0, 0x18, 0x18, 0);
             func_001ABEA0(func_00376810(), k + 0x10, x, y, 0, 0x18, 0x18, 0);
@@ -325,7 +326,7 @@ void func_003D6E00(void)
         }
     }
     if (*(int *)(s + 0x9A4) == 3)
-        func_003D4600(sx - 7, sy - 7, 0x2E, 0x2E, 1, (int)(s + 0x974));
+        func_003D4600(sx - 7, sy - 7, 0x2E, 0x2E, 1, s + 0x974);
 }
 
 /* 0x003D7400, 0x270 bytes. The two weapon slots and the OK button. */
