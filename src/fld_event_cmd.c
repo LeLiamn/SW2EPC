@@ -1,7 +1,7 @@
 /*
  * fld_event_cmd.c - the battlefield's queued event commands (camera targets, battle messages,
  * scenario calls) and the helpers that queue them. Original file name unknown; this code follows
- * emp_fld_base.c's unit placement (0x00355FE0-0x0035801C).
+ * emp_fld_base.c's unit placement (0x00355FE0-).
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -914,4 +914,461 @@ void func_00357F00(int p, u8 **g)
         m = func_003579E0(g, pg) != 0 ? 0x59 : 0x5A;
     if (m < 0x5C)
         func_00357420(m, ((u8 *)g - g_006A1D58[0]) / 0x68, 0, 2, 0);
+}
+
+extern int g_00669F9C;                   /* the battle's frame counter */
+
+#define GROUP(i) ((u8 **)g_006A1D58[i])
+#define GROUP_INDEX(g) (((u8 *)(g) - g_006A1D58[0]) / 0x68)
+#define SIDE_STATE(s) (g_00693970 + 0x16C84 + (s) * 0x10)
+
+/* Whether unit `u` is active (in use, not down or leaving, without flag 4). */
+#define UNIT_ACTIVE(u) ((UNIT_FLAGS(u) & 1) != 0 && (UNIT_FLAGS(u) & 0x8C40002) == 0 \
+                        && (UNIT_FLAGS(u) & 4) == 0)
+
+u32 func_0035DCB0(int p);
+u32 func_0033BFD0(u8 **g);
+int func_0033B150(u8 **g);
+int func_0033CD90(u8 **g);
+int func_0033B050(u8 **g);
+int func_0033B090(u8 **g);
+u8 **func_0033D0B0(u8 **g);
+u8 *func_0034A740(u8 *u);
+int func_00362F40(u32 side, u32 k);
+u32 func_0035F520(u32 side);
+u32 func_0035F200(int side);
+void func_0033DDC0(u8 **g, u8 *cell);
+u32 func_0035F0C0(void);
+int func_0035D5A0(int side);
+void func_0033DF10(u8 **g, int side);
+int func_00361540(u32 side);
+void func_0035F560(u32 side, int n);
+u8 **func_0033F0C0(u32 side, u32 k);
+int func_0036F390(u32 side, int k);
+int func_0034B5D0(u8 *st, int a, int b);
+void func_003701E0(u32 g, int a, int b, int c);
+
+/* 0x00358020, 0x1B4 bytes. Player `p` meets side 1's group `g`: its leader's greeting (0xB, or
+ * 0xB-0xD for officer kinds 0x1C-0x21), then the player's group comments (0x30, 0x38-0x3A). */
+void func_00358020(int p, u8 **g)
+{
+    u32 pg = func_0035DCB0(p), kind = func_0033BFD0(g), m;
+    int line = 0xB;
+
+    if (kind > 0x21)
+        kind -= 9;
+    if (kind > 0x1B && kind < 0x22)
+        line = RANDOM() % 3 + 0xB;
+    func_00357420(line, GROUP_INDEX(g), 0, 2, 0);
+    m = 0x5C;
+    if (func_0033B150(g) == 0) {
+        if (func_0033CD90(g) == 0)
+            m = RANDOM() % 100 < 0x32 ? 0x38 : 0x39;
+        else
+            m = func_00357BA0(func_0035DD10(p), g) != 0 ? 0x3A : 0x30;
+    }
+    if (m < 0x5C)
+        func_00357420(m, pg, 0, 2, 0);
+}
+
+/* 0x003581E0, 0xC8 bytes. Command: player `a` meets group `b` (when active). */
+void func_003581E0(EvCmd *c)
+{
+    u8 **g = GROUP(c->b), *u = *g;
+
+    if (!UNIT_ACTIVE(u))
+        return;
+    if (u[0x79] == 0)
+        func_00357F00(c->a, g);
+    else
+        func_00358020(c->a, g);
+}
+
+/* 0x003582B0, 0xD4 bytes. The message after group `g` beat group `h` (0x1D / 0x1E, or 0x1F
+ * naming both). */
+void func_003582B0(u8 **g, u8 **h)
+{
+    u32 hi = GROUP_INDEX(h);
+
+    if (func_0033B050(h) != 0)
+        return;
+    if (func_0033B090(g) != 0) {
+        if ((*g)[0x79] == 0)
+            func_00357170(0x1D, hi & 0xFFFF);
+        else
+            func_00357170(0x1E, hi & 0xFFFF);
+    } else {
+        func_003571A0(0x1F, GROUP_INDEX(g) & 0xFFFF, hi & 0xFFFF);
+    }
+}
+
+/* 0x00358390, 0xCC bytes. Another group of `g`'s side comments on its defeat (0x41 / 0x42). */
+void func_00358390(u8 **g)
+{
+    u8 **h = func_00357890(g);
+
+    if (h == 0)
+        return;
+    if (func_003579E0(h, g) == 0)
+        func_00357420(0x42, GROUP_INDEX(h), 1, 2, 0);
+    else
+        func_00357420(0x41, GROUP_INDEX(h), 1, 2, 0);
+}
+
+/* 0x00358460, 0x26C bytes. Command: group `a` defeated group `b`'s leader. */
+void func_00358460(EvCmd *c)
+{
+    u32 ai = c->a, bi = c->b;
+    u8 **g = GROUP(ai), **h = GROUP(bi);
+    u8 *gu = *g, *hu = *h;
+    u8 **by = func_0033D0B0(h);
+
+    if ((*h)[0x79] == 1) {
+        func_00357420(0x22, bi, 3, 2, 0);
+    } else if (func_0033B050(g) != 0 && (UNIT_FLAGS(gu) & 0x20000) != 0) {
+        func_00357420(0, ai, 1, 2, 0);
+    } else if ((UNIT_FLAGS(hu) & 0x20000) == 0) {
+        func_00357420(0x27, bi, 3, 2, 0);
+    } else if (func_003579E0(h, by) == 0) {
+        func_00357420(0x2A, bi, 3, 2, 0);
+    } else {
+        func_00357420(0x29, bi, 3, 2, 0);
+    }
+    func_00357000(ai);
+    func_003582B0(g, h);
+    if (func_0033B150(h) == 0) {
+        if ((*h)[0x79] == 0)
+            func_00357170(0x71, bi & 0xFFFF);
+        else
+            func_00357170(0x83, bi & 0xFFFF);
+    }
+    if (func_0033B150(h) == 0 && (UNIT_FLAGS(*g) & 0x30) != 0)
+        func_00358390(g);
+}
+
+/* 0x003586D0, 0x1A8 bytes. Command: group `a`'s leader withdrew from group `b`. */
+void func_003586D0(EvCmd *c)
+{
+    u32 ai = c->a, bi = c->b;
+    u8 **g = GROUP(ai), *gu = *g;
+
+    if (gu[0x79] == 0)
+        func_00357420(0x28, bi, 3, 2, 0);
+    if (func_0033B050(g) != 0 && (UNIT_FLAGS(gu) & 0x20000) != 0)
+        func_00357420(0x23, ai, 1, 2, 0);
+    func_00357000(ai);
+    func_003582B0(g, GROUP(bi));
+    if ((*g)[0x79] == 0)
+        func_00357170(0x7A, bi & 0xFFFF);
+    else
+        func_00357170(0x7B, bi & 0xFFFF);
+    if (func_0033B150(GROUP(bi)) == 0 && (UNIT_FLAGS(*g) & 0x30) != 0)
+        func_00358390(g);
+}
+
+/* 0x00358880, 0x88 bytes. Side `side`'s commander group when active, else 0. */
+u8 **func_00358880(u8 side)
+{
+    u8 **g = func_0033F110(side);
+
+    if (!UNIT_ACTIVE(*g))
+        return 0;
+    return g;
+}
+
+/* 0x00358910, 0x248 bytes. Command: unit `c` took base `a` (how: byte `b`, 0-3). */
+void func_00358910(EvCmd *c)
+{
+    u16 ui = c->c, b = c->a;
+    u8 how = (u8)c->b;
+    u8 *u = UNIT(ui);
+    u8 **g = (u8 **)func_0034A740(u);
+    u32 m = 0xC3;
+
+    if ((UNIT_FLAGS(u) & 0x30) != 0)
+        func_003573A0(0x24, ui, 0, 2, 0);
+    func_00357070(b);
+    if (how == 3)
+        m = 0x1A;
+    else if (how == 1)
+        m = 0x1C;
+    else if (how == 0)
+        m = 0x1B;
+    if (m < 0xC3)
+        func_00357140(m, ui);
+    if (how == 1) {
+        u8 **h;
+
+        if ((UNIT_FLAGS(u) & 0x30) != 0 && (h = func_00357890(g)) != 0) {
+            if (func_003579E0(h, g) == 0)
+                func_00357420(0x26, GROUP_INDEX(h) & 0xFFFF, 1, 2, 0);
+            else
+                func_00357420(0x25, GROUP_INDEX(h) & 0xFFFF, 1, 2, 0);
+        }
+        h = func_00358880(1);
+        if (h != 0 && RANDOM() % 100 < 0x1E)
+            func_00357420(0x2B, GROUP_INDEX(h), 3, 2, 0);
+    }
+}
+
+/* 0x00358B60, 0xD4 bytes. Command: group `a` was beaten (when still active). */
+void func_00358B60(EvCmd *c)
+{
+    u16 ai = c->a;
+
+    if (!UNIT_ACTIVE(*GROUP(ai)))
+        return;
+    func_00357420(4, ai, 0, 2, 0);
+    func_00357000(ai);
+    func_00357170(0x72, ai);
+}
+
+/* 0x00358C40, 0x164 bytes. Command: group `a` attacks group `b` of the other side. */
+void func_00358C40(EvCmd *c)
+{
+    u16 ai = c->a, bi = c->b;
+    u8 *gu = *GROUP(ai), *hu;
+
+    if (!UNIT_ACTIVE(gu))
+        return;
+    hu = *GROUP(bi);
+    if (UNIT_ACTIVE(hu) && gu[0x79] != hu[0x79]) {
+        func_00357000(ai);
+        func_003571A0(0x14, ai, bi);
+    }
+}
+
+/* 0x00358DB0, 0x5C bytes. Command: group `a` (`b`: 0x15 / 0x16). */
+void func_00358DB0(EvCmd *c)
+{
+    u16 ai = c->a;
+    short v = c->b;
+
+    func_00357000(ai);
+    if (v == 0)
+        func_00357170(0x16, ai);
+    else
+        func_00357170(0x15, ai);
+}
+
+/* 0x00358E10, 0x40 bytes. Command: side `a` (`b`: 0x17 / 0x18). */
+void func_00358E10(EvCmd *c)
+{
+    if ((short)c->b == 0)
+        func_003571D0(0x18, c->a);
+    else
+        func_003571D0(0x17, c->a);
+}
+
+/* 0x00358E50, 0xB8 bytes. Side `side`'s first hidden reserve group (6-8) still waiting. */
+u8 **func_00358E50(u32 side)
+{
+    u32 k;
+
+    if (side >= 2)
+        return 0;
+    for (k = 6; k < 9; k++) {
+        u8 **g = func_0033EF80(side * 8 + k);
+
+        if ((((u32 *)g)[0x19] & 1) != 0 && (UNIT_FLAGS(*g) & 0x40000) != 0
+            && func_00362F40(side, k) == 0)
+            return g;
+    }
+    return 0;
+}
+
+/* 0x00358F10, 0xB8 bytes. Command: side `a`'s reserve arrives at its base (0x21 / 0x22). */
+void func_00358F10(EvCmd *c)
+{
+    u16 s = c->a;
+    u32 b = func_0035F520(s);
+    u8 **g = func_00358E50(s);
+
+    if (g != 0 && s < 2 && b < 0x14) {
+        func_00357070(b);
+        func_00357170(0x21, GROUP_INDEX(g) & 0xFFFF);
+        func_003571D0(0x22, s);
+    }
+}
+
+/* 0x00358FD0, 0x198 bytes. Command: side `a`'s hidden groups (6-7) set out for its main base
+ * when it has no reserve base. */
+void func_00358FD0(EvCmd *c)
+{
+    u32 s = c->a, k;
+    u8 cell[4];
+
+    if (func_0035F520(s) <= 0x13)
+        return;
+    func_0034ED90((u8 *)func_0034EC80(func_0035F200(s)), cell);
+    for (k = 6; k < 8; k++) {
+        u8 **g = func_0033EF80(s * 8 + k);
+
+        if ((((u32 *)g)[0x19] & 1) != 0 && (UNIT_FLAGS(*g) & 0x40000) != 0
+            && func_00362F40(s, k) == 0) {
+            func_0033DDC0(g, cell);
+            if (s == func_0035F0C0())
+                func_00357420(0x2D, GROUP_INDEX(g), 0, 2, 0);
+            else
+                func_00357420(0x2C, GROUP_INDEX(g), 0, 2, 0);
+            func_00357000(GROUP_INDEX(g));
+            func_00357170(0x25, GROUP_INDEX(g) & 0xFFFF);
+        }
+    }
+}
+
+/* 0x00359170, 0x80 bytes. Command: side `a`'s reserve is ready (0x23 / 0x24). */
+void func_00359170(EvCmd *c)
+{
+    short s = c->a;
+    u8 **g = func_00358E50(s);
+
+    if (g == 0)
+        return;
+    if (s == 0)
+        func_00357110(0x23);
+    else
+        func_00357170(0x24, GROUP_INDEX(g) & 0xFFFF);
+}
+
+/* 0x003591F0, 0x154 bytes. Command: group `a` turns against its side. */
+void func_003591F0(EvCmd *c)
+{
+    u16 ai = c->a;
+    u8 **g;
+    u8 side;
+    u32 i;
+
+    if (ai >= 0x47)
+        return;
+    g = GROUP(ai);
+    if (g == 0 || (((u32 *)g)[0x19] & 1) == 0 || !UNIT_ACTIVE(*g))
+        return;
+    side = (*g)[0x79];
+    func_0033F110(side);
+    func_0033DF10(g, func_0035D5A0(side));
+    i = GROUP_INDEX(g);
+    func_00357420(0x2F, i, 0, 2, 0);
+    func_00357000(i);
+    func_00357290(0x5E, i & 0xFFFF, side);
+}
+
+/* 0x00359350, 0x264 bytes. Command: side `a`'s reinforcements (when none, a wait of
+ * frames/3000 + 1-3). */
+void func_00359350(EvCmd *c)
+{
+    u32 s = c->a, k;
+    u8 **g;
+
+    if (s >= 2)
+        return;
+    if (func_00361540(s) == 0) {
+        func_0035F560(s, g_00669F9C / 3000 + RANDOM() % 3 + 1);
+        return;
+    }
+    g = func_0033F0C0(s, 0);
+    if (s == func_0035F0C0())
+        func_00357650(1, GROUP_INDEX(g), 2, 0);
+    else
+        func_00357650(0, GROUP_INDEX(g), 2, 0);
+    for (k = 0; k < 3; k++) {
+        u8 **h = func_0033F0C0(s, k);
+
+        if (UNIT_ACTIVE(*h))
+            func_00357000(GROUP_INDEX(h));
+    }
+    if (func_0036F390(s, 4) != 0)
+        func_00357170(0x20, GROUP_INDEX(func_0033F110(s)) & 0xFFFF);
+}
+
+/* 0x003595C0, 0xA4 bytes, matching. Side 1's commander heads for its main base. */
+void func_003595C0(void)
+{
+    u8 **g = func_0033F110(1);
+    u8 cell[4];
+    u32 i;
+
+    func_0034ED90((u8 *)func_0034EC80(func_0035F200(1)), cell);
+    func_0033DDC0(g, cell);
+    i = GROUP_INDEX(g);
+    func_00357420(0x2E, i, 0, 2, 0);
+    func_00357000(i);
+    func_00357170(0x68, i & 0xFFFF);
+}
+
+/* 0x00359670, 0x6C bytes, matching. Command: player `a` fell (battle lost). */
+void func_00359670(EvCmd *c)
+{
+    u8 **g = func_0035DD10(c->a);
+
+    func_00357420(0x1D, GROUP_INDEX(g) & 0xFFFF, 3, 2, 0);
+    BATTLE_END = 3;
+}
+
+/* 0x003596E0, 0x134 bytes. Command: group `a`'s side gets order `b` (0-3; lines 0x1E-0x21). */
+void func_003596E0(EvCmd *c)
+{
+    short v = c->b;
+    u32 i = c->a;
+    u8 **g = GROUP(i), *st;
+    u32 m = 0x5C;
+
+    if (g == 0)
+        return;
+    st = SIDE_STATE((*g)[0x79]);
+    if (st == 0)
+        return;
+    if (v == 3) {
+        func_0034B5D0(st, 3, 0xFF);
+        m = 0x21;
+    } else if (v == 2) {
+        func_0034B5D0(st, 2, 0xFF);
+        m = 0x20;
+    } else if (v == 1) {
+        func_0034B5D0(st, 1, 0xFF);
+        m = 0x1F;
+    } else if (v == 0) {
+        func_0034B5D0(st, 0, 0xFF);
+        m = 0x1E;
+    }
+    if (m < 0x5C)
+        func_00357420(m, i, 0, 2, 0);
+}
+
+/* 0x00359820, 0x104 bytes. Whether group `g` is active (and group `h` too when given). */
+int func_00359820(u8 **g, u8 **h)
+{
+    if (g == 0 || (((u32 *)g)[0x19] & 1) == 0 || !UNIT_ACTIVE(*g))
+        return 0;
+    if (h != 0 && !UNIT_ACTIVE(*h))
+        return 0;
+    return 1;
+}
+
+/* 0x00359930, 0xB0 bytes. Command: group `a` (in state 2) gets order 0 (lines 0x55, 0x5F). */
+void func_00359930(EvCmd *c)
+{
+    u16 i = c->a;
+    u8 **g = GROUP(i);
+
+    if (func_00359820(g, 0) != 0 && (*g)[0x7A] == 2) {
+        func_003701E0(i, 0, 1, 0xFF);
+        func_00357420(0x55, i, 0, 2, 0);
+        func_00357000(i);
+        func_00357170(0x5F, i);
+    }
+}
+
+/* 0x003599E0, 0xB0 bytes. The same with order 1 (lines 0x53, 0x60). */
+void func_003599E0(EvCmd *c)
+{
+    u16 i = c->a;
+    u8 **g = GROUP(i);
+
+    if (func_00359820(g, 0) != 0 && (*g)[0x7A] == 2) {
+        func_003701E0(i, 1, 1, 0xFF);
+        func_00357420(0x53, i, 0, 2, 0);
+        func_00357000(i);
+        func_00357170(0x60, i);
+    }
 }
