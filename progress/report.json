@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 164352,
-    "non_matching": 1094856
+    "matching": 165216,
+    "non_matching": 1096376
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2094
+    "matching": 2111
   },
   "layout": "treemap",
   "areas": [
@@ -615,15 +615,15 @@
         },
         {
           "name": "MiniMap.c",
-          "description": "Estimated range 0x20F408-0x2132D8; 0 function(s) decompiled",
+          "description": "Estimated range 0x20F408-0x2132D8; 5 function(s) decompiled",
           "code": {
             "total": 16080,
-            "matching": 0,
-            "non_matching": 0
+            "matching": 16,
+            "non_matching": 320
           },
           "decompiled_functions": {
-            "count": 0,
-            "matching": 0
+            "count": 5,
+            "matching": 1
           }
         },
         {
@@ -729,15 +729,15 @@
         },
         {
           "name": "ev_config.c",
-          "description": "Estimated range 0x201B40-0x20F408; 64 function(s) decompiled",
+          "description": "Estimated range 0x201B40-0x20F408; 99 function(s) decompiled",
           "code": {
             "total": 55496,
-            "matching": 1648,
-            "non_matching": 9364
+            "matching": 2496,
+            "non_matching": 10564
           },
           "decompiled_functions": {
-            "count": 64,
-            "matching": 21
+            "count": 99,
+            "matching": 37
           }
         },
         {
