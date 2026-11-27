@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 172144,
-    "non_matching": 1158540
+    "non_matching": 1160860
   },
   "data": {
     "total": 2155890688,
@@ -389,14 +389,14 @@
         },
         {
           "name": "emp_war_tl.c",
-          "description": "Estimated range 0x3DEC78-0x3E48A8; 115 function(s) decompiled",
+          "description": "Estimated range 0x3DEC78-0x3E48A8; 123 function(s) decompiled",
           "code": {
             "total": 23600,
             "matching": 2544,
-            "non_matching": 11264
+            "non_matching": 13408
           },
           "decompiled_functions": {
-            "count": 115,
+            "count": 123,
             "matching": 55
           }
         },
@@ -454,14 +454,14 @@
         },
         {
           "name": "emp_zuroku_movie.c",
-          "description": "Estimated range 0x3E48A8-0x3E5320; 2 function(s) decompiled",
+          "description": "Estimated range 0x3E48A8-0x3E5320; 3 function(s) decompiled",
           "code": {
             "total": 2680,
             "matching": 32,
-            "non_matching": 176
+            "non_matching": 352
           },
           "decompiled_functions": {
-            "count": 2,
+            "count": 3,
             "matching": 1
           }
         },

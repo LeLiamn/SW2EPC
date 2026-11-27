@@ -27,7 +27,7 @@ extern char g_0045C5A0[];                /* the allocations' source name */
 int func_0035DAE0(void);
 void func_003DEB40(int k);
 void func_003DED10(int k);
-void func_003E3270(int x, int y, int a, int b, int c, int t);
+void func_003E3270(int x, int y, int a, int b, int c, u32 t);
 int func_0036D310(void);
 int func_0036D300(void);
 void func_003E3E80(int x, int y, int a, int b, int v);
@@ -1267,4 +1267,157 @@ void func_003E2B30(int p)
         g_007BF6C0[p][0x10] = n - 2;
     }
     func_003E1DD0();
+}
+
+/* HUD numbers and plates, the gallery list (parts of 0x003E3270-0x003E4BD8). */
+
+extern char g_0045C5B0[];
+extern int g_0041D2F0[7], g_0041D310[7], g_0041D330[8];
+extern short g_007BF760, g_007BF764;
+extern u8 *g_007BF770;
+extern u8 g_0056CCC8[4];
+
+int func_001204B0(char *buf, const char *fmt, ...);
+void func_001ABB00(u8 *t, int k, int l, int x, int y, int a, int w, int h, u8 *rgba);
+int func_00313CB0(u8 *o);
+void func_0037E1B0(u8 *o);
+char *func_003729C0(int k);
+void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
+void func_002C4C50(float size, char *text, int x, int y, int w, int a, int b, int c);
+void func_002C80A0(int x, int y, int a, int w, int h, int b, int c);
+void func_002C8500(int x, int y, int a, int w, int h, int b, int c);
+void func_001A3460(int x, int y, int a, int b, int h, int c, int n, int m);
+
+/* 0x003E3270, 0x1F0 bytes. Draws time `t` (in 50 Hz frames) as mm:ss:cc. */
+void func_003E3270(int x, int y, int a, int b, int c, u32 t)
+{
+    char buf[16], *s = buf;
+    int i;
+
+    func_001204B0(buf, g_0045C5B0, (int)(t / 0x32 / 0x3C), t / 0x32 % 0x3C,
+                  (u32)((int)t % 0x32 * 100) / 0x32);
+    for (i = 0; i < 8; i++, x += 0xC) {
+        if (i == 2) {
+            func_001ABEA0(g_0045D838, 1, x, y, a, 0xC, 0xC, 0);
+        } else if (i == 5) {
+            func_001ABEA0(g_0045D838, 1, x, y, a, 0xC, 0xC, 0xC);
+        } else {
+            int d = *s++ - '0';
+
+            if (d >= 0 && d < 10)
+                func_001ABEA0(g_0045D838, 0, x, y, a, 0xC, 0xC, d * 0xC);
+        }
+    }
+}
+
+/* 0x003E3470, 0xA8 bytes. A plain rectangle of colour (r, g, b, alpha). */
+void func_003E3470(int x, int y, int a, int w, int h, u8 r, u8 g, u8 b, u8 alpha)
+{
+    u8 c[4];
+
+    c[0] = 0;
+    c[1] = 0;
+    c[2] = 0;
+    c[3] = 0;
+    c[3] = alpha;
+    c[0] = r;
+    c[1] = g;
+    c[2] = b;
+    func_001ABB00(g_0045D838, 10, 10, x, y, a, w, h, c);
+}
+
+/* 0x003E3990, 0xB4 bytes. */
+void func_003E3990(u8 *o, int x, int y)
+{
+    int v = func_00313CB0(o);
+
+    func_0037E1B0(o);
+    if (v > 6)
+        func_001ABEA0(g_0045D838, v + 0x34, x, y, 0, 0x60, 0x18, 0);
+}
+
+/* 0x003E41A0, 0x7C bytes. */
+void func_003E41A0(int x, int y, int a, int b, int k)
+{
+    if (k >= 0 && k < 3)
+        func_001ABEA0(g_0045D838, 0x39, x, y, a, 0x78, 0x10, 0);
+}
+
+/* 0x003E4300, 0xB8 bytes. */
+void func_003E4300(int x, int y, int a, int b, int k)
+{
+    int t[7], j;
+
+    for (j = 0; j < 7; j++)
+        t[j] = g_0041D2F0[j];
+    if (k >= 0 && k < 7)
+        func_001ABE40(g_0045D83C, t[k], x, y, a, 0xA8, 0x20, 0x80);
+}
+
+/* 0x003E43C0, 0xB8 bytes. */
+void func_003E43C0(int x, int y, int a, int b, int k)
+{
+    int t[7], j;
+
+    for (j = 0; j < 7; j++)
+        t[j] = g_0041D310[j];
+    if (k >= 0 && k < 4)
+        func_001ABE40(g_0045D83C, t[k], x, y, a, 0x80, 0x18, 0x80);
+}
+
+/* 0x003E4540, 0xC4 bytes. */
+void func_003E4540(int x, int y, int a, int b, int k)
+{
+    int t[8], j;
+
+    for (j = 0; j < 8; j++)
+        t[j] = g_0041D330[j];
+    if (k >= 0 && k < 8)
+        func_001ABE40(g_0045D840, t[k], x, y, a, 0xA8, 0x20, 0x80);
+}
+
+/* 0x003E48A0, 0x230 bytes. Draws the gallery list (six lines sliding in). */
+void func_003E48A0(void)
+{
+    u8 *p = func_003E46F0();
+    int n = *(short *)(p + *(int *)p * 2 + 8), shown = n < 7 ? n : 6;
+    int first = *(short *)(p + 0xE), i, y = 0x6C;
+
+    if (*(int *)p == 1)
+        first = *(short *)(p + 0xE) + 0xE;
+    if (n != 0) {
+        for (i = 0; i < 6; i++, y += 0x24) {
+            if (*(short *)(p + 0xE) + i < n) {
+                int x = g_007BF760 - g_007BF764 * (i * 2 - (g_007BF770[0x13] - 10)) / 10, k;
+
+                if (x > 8)
+                    x = 8;
+                func_002C80A0(x, y, 0, 0x108, 0x24, 0x80, 0);
+                k = first + i;
+                if (func_003E4780(k) != 0)
+                    func_001ABE40(*(u8 **)(p + 4), k, x + 0x2C, y + 6, 0, 0xD0, 0x18, 0x80);
+                func_003E47D0(k, x + 8, y + 6, 0);
+                if (i == *(short *)(p + 0xC))
+                    func_002C8500(x, y, 0, 0x108, 0x24, 0x80, 0);
+            }
+        }
+    }
+    if (func_003E46B0() != 0 && n > 5)
+        func_001A3460(0x110, 100, 0, 0x10, 0xE8, 0x80, n, shown);
+}
+
+/* 0x003E4B30, 0xA8 bytes. The gallery's title. */
+void func_003E4B30(void)
+{
+    u8 *p = func_003E46F0();
+    char *s = func_003729C0(*(int *)p);
+    int x;
+
+    g_0056CCC8[1] = 0x80;
+    x = g_007BF760;
+    g_0056CCC8[0] = 0x80;
+    g_0056CCC8[2] = 0x80;
+    g_0056CCC8[3] = 0x80;
+    func_002C7310(x + 0x32, 0x46, 0, 0xA4, 0x18, 0x80, 0);
+    func_002C4C50(20.0f, s, x + 0x46, 0x48, 0x7C, 1, 0, 6);
 }
