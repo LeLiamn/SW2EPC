@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 156592,
-    "non_matching": 1073800
+    "matching": 156784,
+    "non_matching": 1075448
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 1943
+    "matching": 1944
   },
   "layout": "treemap",
   "areas": [
@@ -890,15 +890,15 @@
         },
         {
           "name": "JapanMap.c",
-          "description": "Estimated range 0x39DD30-0x3ACA98; 231 function(s) decompiled",
+          "description": "Estimated range 0x39DD30-0x3ACA98; 242 function(s) decompiled",
           "code": {
             "total": 60776,
-            "matching": 3904,
-            "non_matching": 13552
+            "matching": 4096,
+            "non_matching": 15200
           },
           "decompiled_functions": {
-            "count": 231,
-            "matching": 72
+            "count": 242,
+            "matching": 73
           }
         },
         {

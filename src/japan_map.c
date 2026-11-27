@@ -435,3 +435,169 @@ void func_003AF8D0(void)
     func_003A9480(1);
     func_003AE8E0(6);
 }
+
+/* Province colours, alliance lines and blinking provinces (0x003A7A10-0x003A9AE4). */
+
+int func_0030C660(int p);
+int func_0030C250(int p);
+int func_00327D50(void);
+void func_003A9060(int v);
+int func_0023A760(int k);
+void func_00102960(int a);
+void func_0023A7D0(int k);
+void func_003A8460(int p, int a, int b);
+void func_003A86F0(int p);
+
+/* 0x003A7A10, 0xAC bytes. Every province's base colour (its owner's). */
+void func_003A7A10(void)
+{
+    int p;
+
+    for (p = 0; p < func_0030AB90(); p++) {
+        int f;
+
+        func_003A80B0(p, 0);
+        func_003A80F0(p, 0);
+        f = func_0030AFF0(p);
+        if (f >= 0 && f < func_0030AB90())
+            func_003A78E0(p, func_002F9990(f), 0);
+    }
+}
+
+/* 0x003A7AC0, 0x94 bytes. Every province's owner flag. */
+void func_003A7AC0(void)
+{
+    int p;
+
+    for (p = 0; p < func_0030AB90(); p++) {
+        int f = func_0030AFF0(p);
+
+        if (f >= 0 && f < func_0030AB90())
+            func_003A6110(p, func_002F9990(f));
+    }
+}
+
+/* 0x003A7B60, 0x84 bytes. Every province's level mark (6 at most). */
+void func_003A7B60(void)
+{
+    int p;
+
+    for (p = 0; p < func_0030AB90(); p++) {
+        if (func_0030C660(p) < 6)
+            M8(0x1C9 + p) = func_0030C660(p);
+        else
+            M8(0x1C9 + p) = 6;
+    }
+}
+
+/* 0x003A7DA0, 0x70 bytes. Province `p`'s colours (`all`: then every province again). */
+void func_003A7DA0(int p, int all)
+{
+    M8(0x1B0 + p) = 0xFF;
+    M8(0x1B0 + p) = func_002F6850(func_002F8F20(func_0030AFF0(p)));
+    if (all != 0) {
+        func_003A7A10();
+        func_003A7AC0();
+        func_003A7B60();
+    }
+}
+
+/* 0x003A7E10, 0xBC bytes. Resets the map's provinces. */
+void func_003A7E10(void)
+{
+    int p, v = -1;
+
+    for (p = 0; p < 0x19; p++) {
+        M8(0x1B0 + p) = 0xFF;
+        M8(0x1B0 + p) = 0x43;
+    }
+    func_003A7A10();
+    func_003A7AC0();
+    func_003A7B60();
+    if (func_0030AB90() > 0)
+        v = 0;
+    func_003A9060(v);
+}
+
+/* 0x003A9170, 0x78 bytes. Clears the alliance lines. */
+void func_003A9170(void)
+{
+    int k;
+
+    for (k = 0; k < 13; k++) {
+        M32(0x88 + k * 8) = -1;
+        M32(0x8C + k * 8) = -1;
+    }
+}
+
+/* 0x003A92D0, 0xC4 bytes. Sets them back from the kept ones. */
+void func_003A92D0(void)
+{
+    int k;
+
+    for (k = 0; k < 13; k++) {
+        M32(0x88 + k * 8) = M32(4 + k * 8);
+        M32(0x8C + k * 8) = M32(8 + k * 8);
+    }
+}
+
+/* 0x003A93B0, 0x84 bytes. Starts a province blink. */
+void func_003A93B0(int a, int b, int c)
+{
+    if (func_0023A760(9) != 0) {
+        func_00102960(1);
+        func_0023A7D0(9);
+        M32(0x78) = a;
+        M32(0x74) = 0;
+        M32(0x7C) = b;
+        M32(0x80) = c;
+        M32(0x1AC) = 1;
+    }
+}
+
+/* 0x003A9640, 0xC0 bytes, matching. Whether province `p` is the player's or an ally's (func_0030C250). */
+int func_003A9640(int p)
+{
+    int k, a, b;
+
+    if (func_00327D50() == func_0030AFF0(p))
+        return 1;
+    for (k = 0; k < 0xC; k++) {
+        if (func_00329160(k, &a, &b) != 0
+            && ((a == p && func_0030C250(b) != 0) || (b == p && func_0030C250(a) != 0)))
+            return 1;
+    }
+    return 0;
+}
+
+/* 0x003A9700, 0xB4 bytes. Force `p`'s ally into `out` (its line drawn); whether it has one. */
+int func_003A9700(int p, int *out)
+{
+    int k, a, b;
+
+    func_00327D50();
+    for (k = 0; k < 0xC; k++) {
+        if (func_00329160(k, &a, &b) != 0 && (a == p || b == p))
+            break;
+    }
+    if (k > 0xB)
+        return 0;
+    *out = a == p ? b : a;
+    func_003A90E0(k, a, b);
+    return 1;
+}
+
+/* 0x003A9A30, 0xB8 bytes. Starts or stops province `p`'s blink. */
+void func_003A9A30(int p, int on)
+{
+    if (p < 0 || p >= func_0030AB90())
+        return;
+    if (on == 0) {
+        func_003A78E0(p, 0x1E, 0);
+        M32(0x11C + p * 4) = 0;
+    } else if (M32(0x11C + p * 4) == 0) {
+        M32(0x11C + p * 4) = 1;
+        func_003A8460(p, 5, 1);
+        func_003A86F0(p);
+    }
+}
