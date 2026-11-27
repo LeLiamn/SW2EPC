@@ -28,6 +28,7 @@ extern u32 g_00424B30[10];               /* the ten records' kinds */
 void func_001185E0(void *p, int size, int value);  /* memset */
 void func_00150B20(Unit *u);
 void func_00166160(Unit *u);
+void func_00165560(Unit *u);
 void func_0016E2E0(u8 *slot);
 u8 *func_001BE4F0(void);
 u8 *func_001BE540(void);
@@ -651,4 +652,195 @@ void func_001660C0(Unit *u, float *pos)
         F32(u, 0xB0 + k * 4) = F32(u, 0x90 + k * 4);
     for (k = 0; k < 4; k++)
         F32(u, 0xA0 + k * 4) = F32(u, 0x40 + k * 4);
+}
+
+extern u8 g_005ADD80[0x40][0xC0];        /* 64 effect records (+0x88 owner, +0x8C flag 1: on) */
+#define g_700000C0 ((float *)0x700000C0)  /* (scratchpad) a zero vector */
+
+int func_0016C070(Unit *u);
+void func_001F54B0(Unit *u);
+void func_001F5420(Unit *u);
+void func_00151A90(Unit *u, int a);
+void func_0015FB70(Unit *u);
+void func_00150BB0(Unit *u);
+void func_001AE090(u8 *rec);
+void func_00253800(Unit *u);
+void func_002A5B10(void);
+void func_0016C620(Unit *u);
+void func_0016C470(float amount, Unit *u);
+void func_0029F930(float dt, Unit *u);
+void func_001CEBC0(Unit *u);
+
+/* 0x00166160, 0x3B0 bytes. Takes a unit off the field: its mount links (states 0x3D-0x3F), its
+ * hold and grabs, the effects it owns; with flag 2 of +0x198 its model too, and it becomes an
+ * empty unit (state 0x40, no description). */
+void func_00166160(Unit *u)
+{
+    u8 *a, *b;
+    int k;
+
+    if ((u32)(S32(u, 0x118) - 0x3D) < 3) {
+        if (func_0016C070(u) != 0 && PTR(u, 0x11C) != 0)
+            func_001F54B0(u);
+        else
+            func_001F5420(u);
+    }
+    if (U8(u, 0x19C) & 2)
+        func_00151A90(u, 1);
+    if (U8(u, 0x27C) & 4)
+        func_0015FB70(u);
+    a = PTR(u, 0x280);
+    b = PTR(u, 0x284);
+    if (a != 0) {
+        func_0016BD30(u);
+        func_00150A10(a);
+        func_00150A10(u);
+    }
+    if (b != 0) {
+        func_0016BD30(b);
+        func_00150A10(b);
+        func_00150A10(u);
+    }
+    U32(u, 0x13C) = 0;
+    for (k = 0; k < 4; k++)
+        F32(u, 0x1D0 + k * 4) = g_700000C0[k];
+    func_00150BB0(u);
+    for (k = 0; k < 0x40; k++) {
+        if ((g_005ADD80[k][0x8C] & 1) && PTR(g_005ADD80[k], 0x88) == u)
+            func_001AE090(g_005ADD80[k]);
+    }
+    if ((U8(u, 0x198) & 2) == 0)
+        return;
+    if (PTR(u, 0x11C) != 0)
+        func_00165560(u);
+    if (g_00669DB8 != 4 && g_00669DB8 != 2)
+        func_00253800(u);
+    if (U8(u, 0x19C) & 2) {
+        func_00151A90(u, 1);
+        U8(u, 0x19C) &= ~2;
+    }
+    PTR(u, 0x114) = 0;
+    PTR(u, 0x110) = 0;
+    S32(u, 0x118) = 0x40;
+    U8(u, 0x156) = 0x11;
+    U8(u, 0x154) = 3;
+    U8(u, 0x14F) = 0xFF;
+    U8(u, 0x198) &= ~2;
+    U8(u, 0x19E) &= ~0x20;
+    U8(u, 0x155) = 4;
+    U8(u, 0x158) = 0x8D;
+    U32(u, 0x138) = 0;
+    U8(u, 0x17D) = 0;
+    U16(u, 0x15C) = 0;
+    U16(u, 0x172) = 0;
+    U16(u, 0x174) = 0;
+    U16(u, 0x170) = 0;
+    U16(u, 0x176) = 0;
+    U8(u, 0x17F) = 0;
+    U8(u, 0x17E) = 0;
+    U32(u, 0x16C) = 0;
+    U8(u, 0x180) = 0x10;
+    U16(u, 0x15E) = 0;
+    U8(u, 0x187) = 0;
+    U8(u, 0x18A) = 0;
+    U8(u, 0x18B) = 0;
+    U8(u, 0x157) = 0;
+    U16(u, 0x194) = 0;
+    U32(u, 0x120) = 0;
+    U32(u, 0x124) = 0;
+    U16(u, 0x188) = 0;
+    U16(u, 0x190) = 0;
+    U16(u, 0x192) = 0;
+    U8(u, 0x1BC) = 0;
+    U8(u, 0x1BA) = 7;
+    U32(u, 0x1B4) = 0;
+    U16(u, 0x1B8) = 0;
+    U8(u, 0x198) &= ~0x20;
+    U16(u, 0x1CC) = 0xFFFF;
+    U16(u, 0x1CE) = 0xFFFF;
+    U32(u, 0x19C) = 0;
+    if (S32(u, 0x128) != -1) {
+        func_002A5B10();
+        S32(u, 0x128) = -1;
+    }
+    func_001649C0(u);
+}
+
+/* Ends the unit's appearing / leaving (flags 8 and 4 of +0x19C, timer +0x12C of +0x12E). */
+static inline void end_fade(Unit *u)
+{
+    u8 c = U8(u, 0x19C);
+
+    U8(u, 0x19C) = c & ~8;
+    U8(u, 0x19C) = c & ~0xC;
+    U16(u, 0x12C) = 0;
+    U16(u, 0x12E) = 0;
+}
+
+/* 0x00166510, 0x4E8 bytes. A unit's bookkeeping each frame (`dt`, at least one frame counted):
+ * an officer under a quarter of its life (at most 50) heals 1 every 8 frames; timers; leaving
+ * (flag 4: the timer runs out, then the model is taken away, or func_001CEBC0 for a beaten
+ * unit); appearing (flag 8: the timer runs up); the fade (+0x14D, 0-0x80) from them; the frame
+ * count +0x138. */
+void func_00166510(float dt, Unit *u)
+{
+    short n = (short)(int)(1.0f < dt ? dt : 1.0f);
+    float f;
+
+    func_0016C620(u);
+    if ((U8(u, 0x19C) & 2) == 0) {
+        u8 *o = g_006A3A30[S16(u, 0x178)];
+        int lim = S16(o, 0x80) / 4;
+
+        if (lim >= 0x32)
+            lim = 0x32;
+        if (S16(o, 0x82) < lim && (U32(u, 0x138) & 7) == 0)
+            func_0016C470(1.0f, u);
+    }
+    if (U32(PTR(u, 0x210), 0x18) & 0x2014)
+        U8(u, 0x17D) = 0;
+    if (PTR(u, 0x144) != 0 && U8(PTR(u, 0x144), 0x17D) == 0)
+        PTR(u, 0x144) = 0;
+    func_0029F930(dt, u);
+    if (n < U16(u, 0x176))
+        U16(u, 0x176) = U16(u, 0x176) - n;
+    else
+        U16(u, 0x176) = 0;
+    if (U8(u, 0x19C) & 4) {
+        if (S16(u, 0x12C) != 0) {
+            short s = S16(u, 0x12C) - n;
+
+            S16(u, 0x12C) = s < 1 ? 0 : s;
+        } else if (func_0016C070(u) == 0) {
+            if (PTR(u, 0x11C) != 0) {
+                end_fade(u);
+                func_00165560(u);
+            }
+        } else {
+            end_fade(u);
+            func_001CEBC0(u);
+        }
+    }
+    if (S16(u, 0x12E) == 0) {
+        if ((U8(u, 0x19C) & 0x80) == 0)
+            U8(u, 0x14D) = 0x80;
+    } else {
+        if ((U8(u, 0x19C) & 4) && func_0016C070(u) != 0) {
+            f = (float)U16(u, 0x12C) * 128.0f / ((float)U16(u, 0x12E) - 16.0f);
+            if (128.0f <= f)
+                f = 128.0f;
+        } else {
+            f = (float)U16(u, 0x12C) * 128.0f / (float)U16(u, 0x12E);
+        }
+        U8(u, 0x14D) = (int)f < 0x80 ? (u8)(int)f : 0x80;
+    }
+    if ((U8(u, 0x19C) & 8) && PTR(u, 0x11C) != 0) {
+        if (U16(u, 0x12C) < U16(u, 0x12E))
+            U16(u, 0x12C) += 1;
+        if (S16(u, 0x12E) == S16(u, 0x12C))
+            end_fade(u);
+    }
+    U32(u, 0x138) += 1;
+    U8(u, 0x19C) = (U8(u, 0x19C) & ~1) | 1;
+    U8(u, 0x19F) &= ~0x20;
 }
