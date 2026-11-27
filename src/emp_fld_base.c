@@ -2722,3 +2722,287 @@ u8 *func_003502B0(u8 *b, u32 side)
         best = func_0035DC70(0) & 0xFFFF;
     return UNIT(best);
 }
+
+extern int g_00415550[];                 /* by difficulty */
+extern u8 g_00669D81;                    /* settings: difficulty */
+
+void func_0019CD70(int side, int v, int a);
+u8 *func_003519F0(u8 *b, int side);
+void func_00352060(u8 *b);
+void func_0035E210(int b);
+void func_0035E290(int b);
+void func_0024C0D0(u8 *b);
+void func_003F7CF0(int b, int old);
+void func_0035CAF0(int b, int old, int side, int u);
+int func_00352780(u8 *b, int side);
+int func_0035F2D0(int side);
+int func_0035F640(int side);
+int func_0035D570(int a, int b);
+u32 func_00352930(u8 *a, u8 *b);
+void func_001F1910(u8 *u);
+void func_001F1640(u8 *code, u8 *out);
+void func_001F1A30(u8 *u);
+void func_0033D920(u8 *u, int a, int b);
+void func_001EE3B0(u8 *u);
+u32 func_003527A0(u8 *b, int side);
+
+/* 0x00350410, 0x54 bytes. A flagged unit taking a base gives its side the difficulty's reward. */
+void func_00350410(u8 *u)
+{
+    if ((UNIT_FLAGS(u) & 0x30) != 0)
+        func_0019CD70(func_0034A1C0(u), g_00415550[g_00669D81], 0);
+}
+
+/* 0x00350470, 0x1A0 bytes. Unit `u` takes base `b`: the base changes hands (new guard unit,
+ * delay, events and messages), the taking group's count of bases grows. */
+void func_00350470(u8 *b, u8 *u)
+{
+    int old = func_0034EDB0(b);
+    char s = u[0x79];
+    u8 *g = func_0034A740(u);
+
+    func_0034EE00(b, s);
+    func_003519F0(b, s);
+    func_00352060(b);
+    func_00350820(b);
+    func_0035E210(func_0034ED40(b));
+    if (s == 0)
+        func_0035E290(func_0034ED40(b));
+    else
+        func_0024C0D0(b);
+    if (func_0033B050(g) != 0) {
+        u32 v = GROUP_INFO(g)[0x19];
+
+        if (v != 0xFF) {
+            v++;
+            if (v > 0xFF)
+                v = 0xFF;
+            GROUP_INFO(g)[0x19] = v;
+        }
+    }
+    func_00350410(u);
+    func_0034BAB0();
+    func_003F7CF0(func_0034ED40(b), old);
+    func_0035CAF0(func_0034ED40(b), old, s, (u - g_00693970) / 0x88);
+}
+
+/* 0x00350610, 0xD0 bytes. Base `b` changes hands once the new holder stayed long enough (5
+ * counts, 10 for side 1's main base). */
+void func_00350610(u8 *b)
+{
+    u32 o, n, lim;
+
+    if (func_0036D310() != 0)
+        return;
+    o = func_0034EDB0(b);
+    n = func_00350130(b);
+    if (o == n) {
+        func_0034F2E0(b);
+        return;
+    }
+    lim = o;
+    if (o < 2)
+        lim = (int)b == func_0034EC80(func_0035F200(1)) ? 10 : 5;
+    func_0034F2D0(b);
+    if (func_0034F2F0(b) < lim)
+        return;
+    func_00350470(b, func_003502B0(b, n));
+}
+
+/* 0x003506E0, 0x68 bytes, matching. A new guard for base `b` unless flagged 2 or threatened. */
+void func_003506E0(u8 *b)
+{
+    int o = func_0034EDB0(b);
+
+    if (func_0034EE80(b) == 0 && func_00352780(b, func_0035D5A0(o)) == 0)
+        func_003519F0(b, o);
+}
+
+/* 0x00350750, 0xD0 bytes. Base `b`'s guard delay: 60 counts divided by its side's strength
+ * (1-20, from func_0035F2D0 and func_0035F640); 0 for none. */
+int func_00350750(u8 *b)
+{
+    int o, n, c;
+
+    if (b == 0)
+        return 0;
+    o = func_0034EDB0(b);
+    if (o == 3)
+        return 0;
+    n = func_0035F2D0(o);
+    if (n == 0)
+        return 0;
+    c = (n - 1) / 4000 + 1 + func_0035F640(o);
+    if (c > 0x14)
+        c = 0x14;
+    if (c < 2)
+        return 0x3C;
+    return (c + 0x3B) / c;
+}
+
+/* 0x00350820, 0x30 bytes. Restarts base `b`'s guard delay. */
+void func_00350820(u8 *b)
+{
+    func_0034F340(b, func_00350750(b));
+}
+
+/* 0x00350850, 0x60 bytes. Counts a side's base `b` down to its next guard. */
+void func_00350850(u8 *b)
+{
+    func_0034EDB0(b);
+    if ((u32)func_0034EDB0(b) < 2) {
+        func_0034F380(b);
+        if (func_0034F360(b) == 0) {
+            func_003506E0(b);
+            func_00350820(b);
+        }
+    }
+}
+
+/* 0x003508B0, 0x4C bytes, matching. A new guard for a side's base `b` at once. */
+void func_003508B0(u8 *b)
+{
+    func_0034EDB0(b);
+    if ((u32)func_0034EDB0(b) < 2)
+        func_003519F0(b, func_0034EDB0(b));
+}
+
+/* 0x00350900, 0x44 bytes. */
+void func_00350900(u8 *b)
+{
+    if (func_0036D310() == 0)
+        func_00350850(b);
+    else
+        func_003508B0(b);
+}
+
+/* 0x00350950, 0xD4 bytes. Side `side`'s active guard unit standing on base `b` (0 for none). */
+u8 *func_00350950(u8 *b, int side)
+{
+    int k = func_0034ED40(b);
+    u32 j;
+
+    for (j = 0; j < 5; j++) {
+        u8 *u = func_0034AA90(side, k, j);
+
+        if (u != 0) {
+            u32 f = UNIT_FLAGS(u);
+
+            if ((f & 1) != 0 && (f & 0x8C40002) == 0 && func_0034A660(u, b) != 0)
+                return u;
+        }
+    }
+    return 0;
+}
+
+/* 0x00350A30, 0xA8 bytes. A free guard slot of side `side` at base `b` (0 for none). */
+u8 *func_00350A30(u8 *b, int side)
+{
+    int k = func_0034ED40(b);
+    u32 j;
+
+    for (j = 0; j < 5; j++) {
+        u8 *u = func_0034AA90(side, k, j);
+
+        if (u != 0 && (UNIT_FLAGS(u) & 1) == 0)
+            return u;
+    }
+    return 0;
+}
+
+/* 0x00350AE0, 0x1E4 bytes. The linked base base `b`'s guard would move to (one of its side's or
+ * flagged 2, with a free slot): the nearest to the enemy's main base, then the farthest from its
+ * own. */
+u8 *func_00350AE0(u8 *b)
+{
+    int o = func_0034EDB0(b), e = func_0035D5A0(o);
+    u8 *my = BASE(func_0035F200(o)), *en = BASE(func_0035F200(e)), *best = 0;
+    u32 n = func_0034EEF0(b), bd = 0, be = 0xFFF, k;
+
+    for (k = 0; k < n; k++) {
+        u8 *x = func_0034EF60(b, k);
+
+        if (x == 0)
+            continue;
+        if ((func_0035D570(o, func_0034EDB0(x)) == 0 || func_0034EE80(x) != 0) && func_00350A30(x, o) != 0) {
+            u32 a = func_00352930(x, my), d = func_00352930(x, en);
+            int take;
+
+            if (be < d)
+                take = 0;
+            else if (d < be)
+                take = 1;
+            else if (a < bd)
+                take = 0;
+            else if (bd < a)
+                take = 1;
+            else
+                take = RANDOM() % 100 < 0x32;
+            if (take) {
+                be = d;
+                bd = a;
+                best = x;
+            }
+        }
+    }
+    return best;
+}
+
+/* 0x00350CE0, 0x1D4 bytes. Base `b`'s guard moves to base `to`: a new guard there takes over its
+ * position code, values and heading; the old one leaves. */
+void func_00350CE0(u8 *b, u8 *to)
+{
+    int o = func_0034EDB0(b);
+    u8 *u = func_00350950(b, o), *n;
+    u16 a46, a40;
+    unsigned long long v;
+    float ang;
+
+    if (u == 0)
+        return;
+    a46 = *(u16 *)(u + 0x46);
+    a40 = *(u16 *)(u + 0x40);
+    v = *(unsigned long long *)(u + ((UNIT_FLAGS(u) & 0x20000) == 0 ? 0x28 : 0x30));
+    ang = *(float *)(u + 0x20);
+    n = func_003519F0(to, o);
+    if (n != 0) {
+        u16 c[6];
+        u8 xy[2];
+
+        func_001F1910(n);
+        func_0034ED90(to, (u8 *)c);
+        func_001F1640((u8 *)c, xy);
+        *(u16 *)(n + 0x40) = a40;
+        *(u16 *)(n + 0x46) = a46;
+        *(unsigned long long *)(n + 0x28) = v;
+        *(unsigned long long *)(n + 0x30) = v;
+        if (ang > 3.1415927f)
+            ang -= 6.2831855f;
+        else if (ang <= -3.1415927f)
+            ang += 6.2831855f;
+        *(float *)(n + 0x20) = ang;
+        *(u16 *)(n + 0x44) = c[0];
+        *(float *)(n + 0x38) = (float)xy[0] * 1000.0f + 500.0f;
+        *(float *)(n + 0x3C) = (float)xy[1] * 1000.0f + 500.0f;
+        *(u32 *)(n + 0x84) |= 0x10;
+        func_001F1A30(n);
+        func_0033D920(u, 0, 0);
+        func_001EE3B0(u);
+    }
+}
+
+/* 0x00350EC0, 0xBC bytes. Now and then (50 of every 1500 counts) a safe base with more than four
+ * guards sends one forward. */
+void func_00350EC0(u8 *b)
+{
+    int o;
+    u8 *t;
+
+    if (g_00669F9C % 0x5DC >= 0x32)
+        return;
+    o = func_0034EDB0(b);
+    if (o == 3 || func_0034EE80(b) != 0)
+        return;
+    if (func_00352780(b, func_0035D5A0(o)) == 0 && func_003527A0(b, o) > 4 && (t = func_00350AE0(b)) != 0)
+        func_00350CE0(b, t);
+}
