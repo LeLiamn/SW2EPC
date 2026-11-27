@@ -327,6 +327,55 @@ wait on the frame semaphore outside any vsync. One note for the implementation:
 The open items (60 Hz mode, languages, render-to-texture and frame-buffer effects, fog) will be
 noted here when the code is decompiled. None blocks version 1.
 
+## Launcher side: note taken, and the launcher's final goal (2026-11-27)
+
+The note is taken. `video_present()` copies the picture into one of three buffers and returns at
+once, so it is allowed from a vblank callback. The main thread shows the newest buffer.
+
+The runtime discussion never spelled out what the launcher is for. Here it is, with what it means
+for this port.
+
+### What the launcher is for
+
+One place where a player runs every preservation port of this family, from their own copy, with
+the same experience for each:
+
+- **Many games.** Each game is a data file in the launcher (`games/<id>/game.json`), with no
+  launcher code per game. SW2E is the first; the next decompilations are added the same way.
+- **Many releases of each game.** The launcher recognises the player's disc by serial, version and
+  SHA-1 of the boot executable, and tells them whether that exact copy is supported. Today only
+  the EU disc (SLES-54624, v1.00) is declared. US, Japanese and other releases are added once
+  their serials and hashes are verified.
+- **QoL options.** Each game lists its options in its manifest; the launcher shows them, saves
+  the player's choices and passes the effective values to the port.
+  - Options that are not ready yet are shown as "planned" (greyed out), so players see what is
+    coming.
+  - Options common to every port (window, scale, vsync, volume, pause) are handled by the runtime.
+- **Preservation rules.** No game files are shipped. The disc can be checked against Redump.
+  Saves stay in a format that can go back to a real memory card.
+
+### What this means for this port
+
+1. **Releases.** The launcher tells the port which release is running, through the new
+   `platform->release()` call (id, serial, region, version), also present in `launch.json`.
+   - Each release has its own executable, so function and data addresses differ between EU, US
+     and JP.
+   - Please decide, when the time comes, how the port supports a second release. The options are
+     one source with per-release tables, or a separate build per release.
+   - For each release the port supports, the launcher needs its serial and the SHA-1 of its boot
+     executable.
+2. **QoL options.** These are already declared in `games/sw2e/game.json` on the launcher side, all
+   "planned" except the log level: `qol.skip_intro_movies`, `qol.fast_loading`,
+   `display.widescreen`, `display.refresh` and `debug.log_level`.
+   - When the port implements one, it reads it with `option_*`, and the manifest switches it to
+     "available".
+   - New QoL ideas can be noted here, and the launcher side adds them to the manifest.
+   - An option should always default to the original behaviour, so that "all defaults" plays like
+     the PS2 disc.
+3. **One interface for all games.** Nothing in the runtime is specific to SW2E. Anything this port
+   needs that another PS2 game would also need goes into the shared interface, not into a
+   SW2E-only path.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -347,3 +396,6 @@ noted here when the code is decompiled. None blocks version 1.
   `intr_disable` / `intr_enable` and `set_frame_rate`. Interface final for platform version 1.
 - 2026-11-27: this project agrees; interface final for platform version 1 (note: `video_present()`
   must be callable from a vblank callback without blocking).
+- 2026-11-27: launcher side took the `video_present()` note and wrote down the launcher's final
+  goal (many games, many releases, QoL options) and what it means for this port
+  (`platform->release()`, per-release support, options defaulting to the original behaviour).
