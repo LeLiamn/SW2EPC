@@ -402,3 +402,193 @@ int func_00272E40(u8 *u)
         return 0;
     return func_002F6A60(*(u32 *)(g_00669D60 + 0x88 + u[0x14E] * 0x48)) == 0x29;
 }
+
+/* ---- Special weapon checks: whether player unit `u` holds special weapon kind `k` and is in
+ * the state its extra attack needs (parts of 0x00272ED0-0x00274A1C). ---- */
+
+extern u8 g_0076F62F, g_0076F630, g_0076F614, g_0076F3D5;
+extern u32 g_7000015C;
+
+#define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
+
+void func_00273E40(void);
+
+/* Player unit `u`'s special weapon (-1: none). */
+static int player_weapon(u8 *u)
+{
+    if (u[0x14E] >= 2 || OFF(u)[0xB2] >= 0x35)
+        return -1;
+    return func_002F6A60(*(u32 *)(g_00669D60 + 0x88 + u[0x14E] * 0x48));
+}
+
+/* Whether the motion's hit window holds the current frame. */
+#define IN_WINDOW(u, m) ((int)*(float *)((u) + 0x21C) >= (m)[5] &&                        \
+                         (int)*(float *)((u) + 0x21C) <= (m)[6] + 1)
+
+/* 0x00272ED0, 0x140 bytes. */
+int func_00272ED0(u8 *u, u8 *w)
+{
+    u8 *m;
+    u32 f;
+
+    if (player_weapon(u) != 0x2A)
+        return 0;
+    m = *(u8 **)(u + 0x214);
+    if (m == 0)
+        return 0;
+    f = *(u32 *)(m + 0x18);
+    if ((f & 0x10) != 0 || (f & 0x20000) != 0)
+        return 0;
+    if (20.0f < *(float *)(u + 0x23C))
+        return 0;
+    f = KIND_FLAGS(w, 0x18);
+    return (f & 0x8000000) == 0 && (f & 0x20) == 0;
+}
+
+/* 0x00273010, 0xD0 bytes. */
+int func_00273010(u8 *u)
+{
+    u32 f;
+
+    if (player_weapon(u) != 0x2B)
+        return 0;
+    f = KIND_FLAGS(u, 0x18);
+    return (f & 0x20) != 0 && (f & 0x800) != 0;
+}
+
+/* 0x002730E0, 0xF8 bytes. */
+int func_002730E0(u8 *u)
+{
+    u32 f;
+
+    if (player_weapon(u) != 0x2C)
+        return 0;
+    f = KIND_FLAGS(u, 0x18);
+    if ((f & 0x800) == 0 || (f & 0x400) != 0 || (f & 0x20) != 0)
+        return 0;
+    return (f & 0x8000000) == 0;
+}
+
+/* 0x002731E0, 0x108 bytes. */
+int func_002731E0(u8 *u)
+{
+    u8 *m;
+
+    if (player_weapon(u) != 0x2D || (u[0x27C] & 8) == 0 || (KIND_FLAGS(u, 0x18) & 0x400000) == 0)
+        return 0;
+    m = *(u8 **)(*(u8 **)(u + 0x210) + 0x14);
+    return m != 0 && (*(u32 *)(m + 0x28) & 1) != 0;
+}
+
+/* 0x002732F0, 0x128 bytes. */
+int func_002732F0(u8 *u)
+{
+    u8 *m;
+
+    if (player_weapon(u) != 0x2E)
+        return 0;
+    m = *(u8 **)(*(u8 **)(u + 0x210) + 0x14);
+    if ((KIND_FLAGS(u, 0x18) & 0x400000) == 0)
+        return 0;
+    if (m == 0 || (*(u32 *)(m + 0x28) & 1) == 0)
+        return 0;
+    return IN_WINDOW(u, m);
+}
+
+/* 0x00273420, 0x140 bytes. */
+int func_00273420(u8 *u)
+{
+    u8 *m;
+    u32 f;
+
+    if (player_weapon(u) != 0x2F)
+        return 0;
+    m = *(u8 **)(*(u8 **)(u + 0x210) + 0x14);
+    f = KIND_FLAGS(u, 0x18);
+    if ((f & 0x400000) == 0 || (f & 0x40000) != 0)
+        return 0;
+    if (m == 0 || (*(u32 *)(m + 0x28) & 1) == 0)
+        return 0;
+    return IN_WINDOW(u, m);
+}
+
+/* 0x00273560, 0xB4 bytes. */
+int func_00273560(u8 *u, u8 *w)
+{
+    if (player_weapon(u) != 0x30)
+        return 0;
+    return (*(u32 *)(w + 0x28) & 0x20000000) != 0;
+}
+
+/* 0x00273620, 0x150 bytes. */
+int func_00273620(u8 *u, u8 *w)
+{
+    u8 *o;
+    u32 f;
+
+    if (player_weapon(u) != 0x31)
+        return 0;
+    o = OFF(u);
+    if (*(short *)(o + 0x88) < *(short *)(o + 0x86))
+        return 0;
+    f = KIND_FLAGS(u, 0x18);
+    if ((f & 0x400) != 0 || (f & 0x20) != 0)
+        return 0;
+    f = *(u32 *)(w + 0x28);
+    return (f & 1) == 0 && (f & 4) == 0 && (f & 8) == 0 && (f & 0x10) == 0
+        && (f & 0x4000000) == 0;
+}
+
+/* 0x00273940, 0xDC bytes. */
+int func_00273940(u8 *u)
+{
+    short s;
+
+    if (player_weapon(u) != 0x33)
+        return 0;
+    s = **(short **)(u + 0x210);
+    return s == 0x10 || s == 0x11 || s == 0x12;
+}
+
+/* 0x00273A20, 0x90 bytes. */
+int func_00273A20(u8 *u)
+{
+    return player_weapon(u) == 0x34;
+}
+
+/* 0x00273AB0, 0x58 bytes. */
+void func_00273AB0(void)
+{
+    if (g_0076F62F == 0)
+        g_0076F630 = 0;
+    else
+        g_0076F630 = RANDOM() % g_0076F62F;
+}
+
+/* 0x002743E0, 0x1C bytes, matching. */
+void func_002743E0(void)
+{
+    func_00273E40();
+}
+
+/* 0x002744C0, 0x84 bytes. A 75-frame cycle: frames 0-6 in its first third, else 0. */
+u32 func_002744C0(void)
+{
+    u32 v = (g_0076F614 + 1) % 0x4B, r = 0;
+
+    g_0076F614 = v;
+    if (g_0076F614 < 0x1A) {
+        r = v / 3;
+        if ((int)r < 0)
+            r = 0;
+        else if (r > 6)
+            r = 6;
+    }
+    return r;
+}
+
+/* 0x00274A10, 0x10 bytes. */
+void func_00274A10(void)
+{
+    g_0076F3D5 = 0xC;
+}
