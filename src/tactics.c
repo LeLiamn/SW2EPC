@@ -305,3 +305,107 @@ void func_0036F8C0(void)
     else
         func_0036F810();
 }
+
+extern u8 g_006A1D58[][0x68];            /* the groups */
+
+u8 func_00362600(u32 s, u32 k);
+void func_003283D0(int v);
+int func_0032E7B0(void);
+int *func_0033EF80(u32 k);
+u8 *func_00338410(int g);
+int func_0033B1E0(int *g);
+void func_00338500(int *g, int v);
+u8 func_0035D5A0(int s);
+int func_0034EC80(u32 i);
+int func_0034EE50(int c);
+u32 func_0034EDB0(int c);
+int func_0034EE60(int c);
+void func_0036E8D0(int c);
+
+#define GROUP_INDEX(g) (((u8 *)(g) - g_006A1D58[0]) / 0x68)
+
+/* 0x0036E170, 0xEC bytes. Loads the battle's tactics (Empire battles: the player's are used up). */
+void func_0036E170(void)
+{
+    u32 s, k;
+
+    if (*(int *)(g_00669D60 + 0x20C) == 1 || func_0032E7B0() != 0)
+        return;
+    for (s = 0; s < 2; s++) {
+        for (k = 0; k < 2; k++) {
+            u8 t = func_00362600(s, k);
+
+            if (t < 0x1F)
+                func_0036DCE0(s, k, t);
+        }
+    }
+    if (func_0036D2E0() != 0) {
+        for (k = 0; k < 2; k++) {
+            u8 t = func_00362600(0, k);
+
+            if (t < 0x1F)
+                func_003283D0(func_0036F610(t));
+        }
+    }
+}
+
+/* 0x0036E430, 0x104 bytes. Side `s`'s gate groups get a tenth of their strength back (1000 at
+ * least). */
+void func_0036E430(u32 s)
+{
+    u32 k;
+
+    for (k = 0; k < 0x10; k++) {
+        int *g = func_0033EF80(k);
+
+        if ((g[0x19] & 1) != 0 && s == ((u8 *)g[0])[0x79]) {
+            u8 *r = func_00338410(GROUP_INDEX(g));
+
+            if (r[0x25] == 'G' && func_0033B1E0(g) != 0) {
+                u32 v = *(u16 *)(func_00338410(GROUP_INDEX(g)) + 0x1C) / 10;
+
+                if (v < 1000)
+                    v = 1000;
+                func_00338500(g, v);
+            }
+        }
+    }
+}
+
+/* 0x0036E550, 0x114 bytes. The enemy's gate groups lose a fifth (1000 at least). */
+void func_0036E550(void)
+{
+    u8 s = func_0035D5A0(0);
+    u32 k;
+
+    for (k = 0; k < 0x10; k++) {
+        int *g = func_0033EF80(k);
+
+        if ((g[0x19] & 1) != 0 && s == ((u8 *)g[0])[0x79]) {
+            u8 *r = func_00338410(GROUP_INDEX(g));
+
+            if (r[0x25] == 'G' && func_0033B1E0(g) != 0) {
+                u32 v = (*(u16 *)(func_00338410(GROUP_INDEX(g)) + 0x1C) << 1) / 10;
+
+                if (v < 1000)
+                    v = 1000;
+                func_00338500(g, -(int)v);
+            }
+        }
+    }
+}
+
+/* 0x0036EA60, 0xC8 bytes. Tactic: turns enemy camps (its timer: 60 or 120 frames). */
+void func_0036EA60(u32 s, u32 k)
+{
+    u8 side = func_0035D5A0(s);
+    u32 i;
+
+    for (i = 0; i < 0x14; i++) {
+        int c = func_0034EC80(i);
+
+        if (func_0034EE50(c) != 0 && func_0034EDB0(c) == side && func_0034EE60(c) == 0)
+            func_0036E8D0(c);
+    }
+    func_0036DD90(s, k, s == 0 ? 0x3C : 0x78);
+}

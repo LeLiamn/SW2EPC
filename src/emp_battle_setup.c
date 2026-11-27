@@ -592,8 +592,8 @@ int func_00362160(int s, int k);
 int func_0036B880(u32 s, u32 k);
 u8 **func_0033EF80(u32 k);
 int func_0033B1E0(u8 **g);
-int func_00328B30(int k);
-void func_0036D180(int k, int p);
+u8 *func_00328B30(int k);
+void func_0036D180(u8 o, u8 *p);
 void func_00328A00(int k, int v);
 void func_00328AA0(int k, int v);
 void func_0019FC30(void);
@@ -1229,4 +1229,70 @@ void func_0036BC40(void)
     if (func_00362B60(0) != 0 && *(int *)(g_00669D60 + 0x58) == 1)
         v |= 0x10;
     g_007B9620 = v;
+}
+
+void func_0036BD10(void);
+void func_0036C200(void);
+void func_0036C9A0(void);
+void func_0036C530(void);
+int func_002F57F0(u8 o);
+u8 func_002F5840(int a);
+int func_00328270(void);
+int func_003282C0(void);
+
+/* 0x0036D000, 0x12C bytes. Prepares the battle's set-up data. */
+void func_0036D000(void)
+{
+    int k;
+
+    if (func_0032E7B0() != 0 || *(int *)(g_00669D60 + 0x210) == 7)
+        return;
+    func_0036BC40();
+    func_0036BD10();
+    func_0036C200();
+    if (*(int *)(g_00669D60 + 0x58) == 0) {
+        for (k = 0; k < 8; k++) {
+            g_007B97E8[k] = 0;
+            g_007B9808[k] = 0;
+        }
+    }
+    if ((u32)func_00362570() < 6 || (u32)func_00362570() > 0x12)
+        func_0036C9A0();
+    func_0036C530();
+    func_0036CE50();
+    func_0036CEF0();
+    func_0036CFC0();
+}
+
+/* 0x0036D180, 0xA4 bytes. An unlock record for officer `o` (0x7F: none yet). */
+void func_0036D180(u8 o, u8 *p)
+{
+    int k;
+
+    p[0] = o;
+    p[1] = 0;
+    for (k = 2; k < 10; k++) {
+        p[k] = 10;
+        p[k + 8] = 0;
+    }
+    p[0x12] = func_002F5840(func_002F57F0(o));
+    p[0x13] = 0;
+    if (func_002F57F0(o) != 0)
+        p[0] = 0x7F;
+}
+
+/* 0x0036D850, 0x118 bytes, matching. Whether the pair (`a`, `b`) is one of the special duels. */
+int func_0036D850(int a, int b)
+{
+    if (func_0036D970(a, b, 2, 10) != 0)
+        return 1;
+    if (func_0036D970(a, b, 0xD, 0x17) != 0)
+        return 1;
+    if (func_00328270() == 1 && func_0036D970(a, b, 5, 0x12) != 0)
+        return 1;
+    if (func_00328270() == 3 && func_0036D970(a, b, 5, 0x1B) != 0)
+        return 1;
+    if (func_003282C0() == 1 && func_0036D970(a, b, 0xF, 0x80) != 0)
+        return 1;
+    return 0;
 }
