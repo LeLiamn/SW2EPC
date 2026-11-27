@@ -1028,7 +1028,7 @@ so far (13 functions, 5 match):
 ## The battlefield stage (`src/stage.c`)
 
 Original source file `Stage.c` (its name is passed to the file loader at `0x00193B90` and
-`0x00194130`). Done so far: `0x00193450`-`0x001949B4` (47 functions, 22 match). The stage keeps
+`0x00194130`). Done so far: `0x00193450`-`0x00195EEC` except a few larger functions (55 functions, 28 match). The stage keeps
 its state in the scratchpad (`0x70000700`-`0x70000BA0`).
 
 - **Files:** the stage table (LINKDATA entry 0x34, one 0x10-byte record per map) and, per

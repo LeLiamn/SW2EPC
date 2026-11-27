@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 75152,
-    "non_matching": 458952
+    "matching": 75296,
+    "non_matching": 460008
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 691
+    "matching": 694
   },
   "layout": "treemap",
   "areas": [
@@ -354,11 +354,11 @@
         },
         {
           "name": "Stage.c",
-          "description": "Estimated range 0x190010-0x197470; 81 function(s) decompiled",
+          "description": "Estimated range 0x190010-0x197470; 89 function(s) decompiled",
           "code": {
             "total": 29792,
-            "matching": 2080,
-            "non_matching": 8644
+            "matching": 2224,
+            "non_matching": 9700
           }
         },
         {
