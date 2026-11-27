@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 127232,
-    "non_matching": 951156
+    "non_matching": 952484
   },
   "data": {
     "total": 2155890688,
@@ -698,14 +698,14 @@
         },
         {
           "name": "ItemModel.c",
-          "description": "Estimated range 0x245518-0x24FF58; 6 function(s) decompiled",
+          "description": "Estimated range 0x245518-0x24FF58; 15 function(s) decompiled",
           "code": {
             "total": 43584,
             "matching": 128,
-            "non_matching": 1248
+            "non_matching": 2576
           },
           "decompiled_functions": {
-            "count": 6,
+            "count": 15,
             "matching": 2
           }
         }
