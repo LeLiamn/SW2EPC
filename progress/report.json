@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 185184,
-    "non_matching": 1265356
+    "matching": 185776,
+    "non_matching": 1277772
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2374
+    "matching": 2383
   },
   "layout": "treemap",
   "areas": [
@@ -324,15 +324,15 @@
         },
         {
           "name": "emp_ev_station.c",
-          "description": "Estimated range 0x3C84B8-0x3D70F0; 138 function(s) decompiled",
+          "description": "Estimated range 0x3C84B8-0x3D70F0; 165 function(s) decompiled",
           "code": {
             "total": 60472,
-            "matching": 0,
-            "non_matching": 23776
+            "matching": 592,
+            "non_matching": 36192
           },
           "decompiled_functions": {
-            "count": 138,
-            "matching": 0
+            "count": 165,
+            "matching": 9
           }
         },
         {
