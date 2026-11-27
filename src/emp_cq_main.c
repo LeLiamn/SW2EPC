@@ -4832,3 +4832,248 @@ int func_0031A740(CmdRecord *p)
 {
     return market(p, 0x33, 0xF, 8);
 }
+
+int func_00308F50(u32 i, int f);
+int func_00308B70(int v);
+int func_0030C250(int r);
+int func_0030C440(int r, int f);
+int func_0030ACE0(int r);
+int func_002F6FE0(u32 i, int k);
+int func_002F4450(u32 i);
+int func_002F3380(u32 i);
+int func_002F8B60(u32 i, u32 j);
+int func_002F8110(u32 i, int f);
+int func_002F7900(u32 i, u32 j);
+
+/* Whether officer `i` would flee (100% - its loyalty grade * 10): -1, else 0. */
+static int flees(u32 i)
+{
+    int pct = func_002F4A70(i) * -10 + 100;
+
+    if (pct > 100)
+        pct = 100;
+    if (pct < 1)
+        pct = 0;
+    return func_0030CB50(pct) != 0 ? -1 : 0;
+}
+
+/* 0x0031A9B0, 0x154 bytes. Command result: winning officer `target` over (kind 5, message 0x46),
+ * or failing (kind 0x15, message 0x47; it may flee). */
+int func_0031A9B0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    u32 i = p->target;
+    int at;
+
+    if (func_00308F50(i, p->f) == 0) {
+        int esc = flees(i);
+
+        r->kind = 0x15;
+        r->v[1] = i;
+        r->v[2] = esc;
+        func_001204B0(r->text, func_00390760(0x47), func_002F2890(i));
+        r->v[0x1E] = 2;
+    } else {
+        r->kind = 5;
+        r->v[0] = i;
+        func_001204B0(r->text, func_00390760(0x46), func_002F2890(i));
+        r->v[0x1E] = 1;
+    }
+    at = func_002F5CC0(i);
+    func_003155C0(p, &at, 1);
+    return 0;
+}
+
+/* 0x0031AB10, 0x388 bytes. Command result: stirring up region `target`: the chance falls with
+ * its troops and its officers' soldiers (and the player's fame); success (kind 5, message 0x48
+ * / 0x49, with infamy a chance of more), else failure (kind 0x15, message 0x4A; one of its
+ * officers may flee). */
+int func_0031AB10(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg = p->target, cap = func_0030ACE0(reg), t = func_0030B090(reg), n, s = 0, k, bonus = 0, div, v;
+    u32 *o;
+
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, reg, 0, 1);
+    o = func_002F7B10();
+    for (k = 0; k < n; k++, o++)
+        s += func_002F3770(*o);
+    if (func_002FB2A0(p->f) != 0 && func_00327B70(p->f) != 0)
+        bonus = 0x14;
+    div = func_0030C440(reg, p->f) == 0 ? 5 : 1;
+    s = s / 1000 + n * 5;
+    v = ((bonus + 100 + t * -10) * (0xC - t * 10 / cap)) / 10;
+    v = s < v ? v - s : 0;
+    v /= div;
+    if (func_0030C250(reg) != 0)
+        v = func_00308B70(v);
+    if (func_0030CB50(v) == 0) {
+        int esc = 0;
+        u32 i = 0x19F;
+
+        if (n != 0) {
+            i = func_002F7B10()[func_0030CB00(n)];
+            esc = flees(i);
+        }
+        r->kind = 0x15;
+        r->v[1] = i;
+        r->v[2] = esc;
+        r->v[0] = 0x19;
+        func_001204B0(r->text, func_00390760(0x4A), func_0030ABF0(reg));
+        r->v[0x1E] = 2;
+    } else {
+        int e = func_00327E90();
+
+        r->v[3] = e < 0 ? func_0030CB50(func_0011B740(e) << 1) != 0 : 0;
+        r->kind = 5;
+        r->v[0] = reg;
+        if (func_002FB2A0(func_0030AFF0(reg)) == 0)
+            func_001204B0(r->text, func_00390760(0x48), func_0030ABF0(reg));
+        else
+            func_001204B0(r->text, func_00390760(0x49), func_0030ABF0(reg));
+        func_002FB2A0(p->f);
+        r->v[0x1E] = 1;
+    }
+    func_003155C0(p, &reg, 1);
+    return 0;
+}
+
+/* 0x0031AEA0, 0x8D0 bytes. Command result: inciting region `target`'s first officer to rebel
+ * (not when tied to its leader; by chance from its liking, values and service): the region's
+ * other officers follow (when tied to it, or by chance) or stay; the rebels win (kind 7,
+ * message 0x4C) when their soldiers beat the others' with the troops, else lose (message 0x4D);
+ * failure: kind 0x15, message 0x4E. */
+int func_0031AEA0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int reg = p->target, ok = 0, n, k, nj = 1, nr = 0, sj = 0, sr = 0;
+    int joined[7], rest[8];
+    u32 *o, i, lead;
+    char rn[32], nm[32];
+
+    r->v[2] = 0x19F;
+    n = func_002F7D90(0, (int (*)(u32, int, int))func_002F80C0, reg, 0, 0);
+    o = func_002F7B10();
+    if (n == 0) {
+        int m = func_002F7D90(0, (int (*)(u32, int, int))func_002F8110, reg, 0, 0);
+
+        func_002F87D0(o, m, (int (*)(u32, u32, int, int))func_002F8B60, -1, -1);
+    } else {
+        func_002F87D0(o, n, (int (*)(u32, u32, int, int))func_002F8B60, -1, -1);
+    }
+    i = o[0];
+    lead = func_002F8F20(func_002F4080(i));
+    if (func_002F77A0(i, lead) == 0 && func_002F78C0(i, lead) == 0 && func_002F7900(i, lead) == 0) {
+        int kg = 0, x, s, a, b, y, mul, e, v;
+
+        if (func_002FB2A0(p->f) != 0) {
+            int m = func_00327E90();
+
+            kg = m < 1 ? 0 : m < 10 ? 1 : 2;
+        }
+        x = func_002F6FE0(i, kg);
+        s = func_002FB3B0(p->f);
+        a = func_002F4450(i);
+        b = func_002F4450(i);
+        y = func_00327C70() - func_002F3380(i);
+        mul = func_002FABC0(p->f) < 0x1F5 ? 1 : 2;
+        e = func_002F4A70(i);
+        v = (x / 4 + s / 4 + mul * a * b - y / 2) / (e + 1);
+        if (v > 0x51)
+            v = 0x51;
+        if (v < 1)
+            v = 0;
+        if (func_0030C250(reg) != 0)
+            v = func_00308B70(v);
+        ok = func_0030CB50(v);
+    }
+    func_00120928(rn, func_0030ABF0(reg));
+    func_00120928(nm, func_002F2890(i));
+    if (ok == 0) {
+        r->v[0x1E] = 2;
+        r->kind = 0x15;
+        r->v[0] = 0x19;
+        func_001204B0(r->text, func_00390760(0x4E), rn);
+    } else {
+        int m, t;
+
+        r->v[0x1E] = 1;
+        m = func_002F7D90(0, (int (*)(u32, int, int))func_002F7EC0, reg, 0, 1);
+        o = func_002F7B10();
+        joined[0] = i;
+        for (k = 0; k < m; k++, o++) {
+            u32 x = *o;
+            int go;
+
+            if (x == i)
+                continue;
+            if (func_002F77A0(x, lead) != 0 || func_002F78C0(x, lead) != 0 || func_002F7900(x, lead) != 0) {
+                go = 0;
+            } else if (func_002F77A0(x, i) != 0 || func_002F78C0(x, i) != 0 || func_002F7900(x, i) != 0) {
+                go = 1;
+            } else {
+                int kg = 0;
+
+                if (func_002FB2A0(p->f) != 0) {
+                    int e = func_00327E90();
+
+                    if (e < -10)
+                        kg = 2;
+                    else if (e < 0)
+                        kg = 1;
+                }
+                go = func_0030CB50((7 - func_002F4A70(i)) * 7
+                                   + (func_002F6FE0(x, kg) / 5 + func_002F4450(x) * func_002F4450(x)
+                                      - (func_00327C70() - func_002F3380(x)) / 2)) != 0;
+            }
+            if (go)
+                joined[nj++] = x;
+            else
+                rest[nr++] = x;
+        }
+        for (k = 0; k < nj; k++)
+            sj += func_002F3770(joined[k]);
+        for (k = 0; k < nr; k++)
+            sr += func_002F3770(rest[k]);
+        t = func_0030B090(reg);
+        r->kind = 6;
+        func_001204B0(r->text, func_00390760(0x4B), nm, rn);
+        r->v[0] = reg;
+        r->v[2] = i;
+        r = func_003155A0(p, 1);
+        for (k = 3; k < 0xD; k++)
+            r->v[k] = 0x19F;
+        if (sr * (t + 10) / 10 < sj) {
+            r->kind = 7;
+            r->v[0] = reg;
+            r->v[2] = i;
+            r->v[1] = 1;
+            for (k = 0; k < nj; k++)
+                r->v[3 + k] = joined[k];
+            for (k = 0; k < nr; k++)
+                r->v[8 + k] = rest[k];
+            func_001204B0(r->text, func_00390760(0x4C), nm, rn);
+        } else {
+            r->kind = 0x15;
+            r->v[0] = reg;
+            r->v[2] = i;
+            r->v[1] = 0;
+            func_001204B0(r->text, func_00390760(0x4D), nm, rn);
+        }
+    }
+    func_003155C0(p, &reg, 1);
+    return 0;
+}
+
+/* 0x0031B7A0, 0x98 bytes, matching. Command result: kind 0xC about force `target` (message 0x4F). */
+int func_0031B7A0(CmdRecord *p)
+{
+    CmdResult *r = func_003155A0(p, 0);
+    int g = p->target, reg[28];
+
+    r->kind = 0xC;
+    r->v[0] = g;
+    func_001204B0(r->text, func_00390760(0x4F), func_002F8DB0(g));
+    func_003155C0(p, reg, func_002FB320(g, reg));
+    return 0;
+}
