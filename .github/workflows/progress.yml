@@ -10,7 +10,7 @@ name: Progress report
 on:
   push:
     branches: [main]
-    paths: [progress/report.json]
+    paths: [progress/report.json, .github/workflows/progress.yml]
   workflow_dispatch:
 
 jobs:
