@@ -1053,3 +1053,378 @@ int func_001CB880(int f, int w, int h)
         return w * h >> 2;
     return 0;
 }
+
+/* ---- Texture tables and VIF/GIF packet pieces (parts of 0x001CB9E0-0x001CD05C). The packet
+ * writer caches the last texture (0x0045CD8C), light set (0x0045CD88) and fog flag
+ * (0x0045CD90) to skip repeated state. ---- */
+
+extern int g_0045CD88, g_0045CD8C, g_0045CD90, g_0045CD94;
+extern u8 *g_0045D384, *g_0045D388, *g_0045D38C;      /* (small data) texture files being set up */
+extern u8 g_00426070[];                  /* texture id -> kind (0x11: none) */
+extern int g_00426230[0x11], g_00426280[0x3F];
+extern u8 g_004261C0[0x6F];
+extern u64 g_0040C3F0[0x6F];             /* TEX0 values */
+extern u8 *g_0072C760[0x3F];
+extern u8 *g_0072C82C[0x11];
+extern u8 g_00426420[], g_00426560[], g_00426580[], g_00426380[], g_004263F0[];
+extern u8 g_003FCEB0[], g_003FFF70[], g_003FF550[], g_00400280[];
+extern u32 g_0040C770[4], g_0040C780[4];
+extern u32 g_007302E0[0x1C];
+extern u8 g_006A3A30[][0xC0];
+
+void func_00103000(int on);
+void func_00102EC0(void *p);
+void func_00107440(u8 *t, int size, int a);
+int func_00106F40(u8 *t);
+u8 func_002051A0(void);
+
+#define TEX_SIZE(k, n) ((int)(k) < (n) ? g_00426230[k] : 0x169)
+
+/* 0x001CB9E0, 0x1B8 bytes. Uploads the common textures, then sets the TEX0 table. */
+void func_001CB9E0(void)
+{
+    u32 k;
+    u8 **e;
+
+    func_00103000(0);
+    if (g_0045D38C != 0) {
+        e = (u8 **)(g_0045D38C + 4);
+        for (k = 0; k < 9; k++)
+            e[k * 2] += (u32)g_0045D38C;
+        e = (u8 **)(g_0045D38C + 4);
+        for (k = 2; k < 9; k++, e += 2)
+            func_00107440(*e, TEX_SIZE(k, 0x11) << 5, 0);
+        for (k = 0; k < 2; k++, e += 2)
+            func_00107440(*e, TEX_SIZE(k, 0x11) << 5, 0);
+        func_00102EC0(g_0045D38C);
+        g_0045D38C = 0;
+    }
+    for (k = 0; k < 0x6F; k++) {
+        u8 b = g_004261C0[k];
+
+        if (b == 0x3F)
+            g_0040C3F0[k] |= 0x2840000000000ULL;
+        else
+            g_0040C3F0[k] |= (u64)(long long)(b < 0x3F ? g_00426280[b] : 0x14) << 0x25;
+    }
+    func_00103000(1);
+}
+
+/* 0x001CBCE0, 0x2D0 bytes. Sets up the two sets of model textures. */
+void func_001CBCE0(void)
+{
+    u32 *keep = SP_PKT;
+    u32 k;
+    u8 **e;
+
+    func_00103000(0);
+    if (g_0045D388 != 0) {
+        e = (u8 **)(g_0045D388 + 4);
+        for (k = 0; k < 0x18; k++)
+            e[k * 2] += (u32)g_0045D388;
+        e = (u8 **)(g_0045D388 + 4);
+        for (k = 0; k < 0x18; k++, e += 2) {
+            if ((int)k < 0x3F)
+                g_0072C760[k] = *e;
+            func_001CB970(*e, (int)k < 0x3F ? g_00426280[k] : 0x14, 8, 2);
+        }
+    }
+    if (g_0045D384 != 0) {
+        e = (u8 **)(g_0045D384 + 4);
+        for (k = 0; k < 0x27; k++)
+            e[k * 2] += (u32)g_0045D384;
+        e = (u8 **)(g_0045D384 + 4);
+        for (k = 0x18; k < 0x3F; k++, e += 2) {
+            if ((int)k < 0x3F)
+                g_0072C760[k] = *e;
+            func_001CB970(*e, (int)k < 0x3F ? g_00426280[k] : 0x14, 0x10, 0x10);
+        }
+    }
+    SP_PKT = keep;
+    if (g_0045D388 != 0) {
+        func_00102EC0(g_0045D388);
+        g_0045D388 = 0;
+    }
+    if (g_0045D384 != 0) {
+        func_00102EC0(g_0045D384);
+        g_0045D384 = 0;
+    }
+    func_00103000(1);
+}
+
+/* 0x001CC220, 0x188 bytes. Selects texture `k` (TEX0). */
+u32 *func_001CC220(u32 *p, int k)
+{
+    u8 b;
+    u8 *t;
+    long long v;
+
+    if (k == g_0045CD8C)
+        return p;
+    b = g_00426070[k];
+    p[0] = 0x10000002;
+    p[1] = 0;
+    p[2] = 0x13000000;
+    p[3] = 0x51000002;
+    *(u64 *)(p + 4) = 0x1000000000008001ULL;
+    *(u64 *)(p + 6) = 0xE;
+    if (b == 0x11) {
+        *(u64 *)(p + 8) = g_0040C3F0[k];
+    } else {
+        t = 0;
+        if (b > 0xC && b < 0x11)
+            t = g_0072C82C[b];
+        v = func_00106F40(t) == 0x100 ? 8 : 7;
+        *(u64 *)(p + 8) = (u64)(v << 0x1E) | g_0040C3F0[k];
+    }
+    *(u64 *)(p + 10) = 6;
+    g_0045CD8C = k;
+    return p + 0xC;
+}
+
+/* 0x001CC3B0, 0x98 bytes. Selects the light set of flags `f` (bits 16-25). */
+u32 *func_001CC3B0(u32 *p, u32 f)
+{
+    u32 k = 10, j;
+
+    for (j = 0; j < 10; j++) {
+        if ((f >> 0x10 & 0x3FF & 1 << (j & 0x1F)) != 0) {
+            k = j;
+            break;
+        }
+    }
+    if (k != (u32)g_0045CD88) {
+        g_0045CD88 = k;
+        p[0] = 0x30000002;
+        p[1] = (u32)(g_00426420 + k * 0x20);
+        p[2] = 0x13000000;
+        p[3] = 0x51000002;
+        p += 4;
+    }
+    return p;
+}
+
+/* 0x001CC450, 0xA4 bytes. Switches fog (flag 0x10). */
+u32 *func_001CC450(u32 *p, u32 f)
+{
+    f &= 0x10;
+    if ((f != 0 && g_0045CD90 == 0) || (f == 0 && g_0045CD90 != 0)) {
+        p[0] = 0x30000002;
+        p[1] = f == 0 ? (u32)g_00426580 : (u32)g_00426560;
+        p[2] = 0x13000000;
+        p[3] = 0x51000002;
+        p += 4;
+        g_0045CD90 = f;
+    }
+    return p;
+}
+
+/* 0x001CC500, 0x7C bytes. The shadow matrices block (scratchpad matrix, then `a` and `b`). */
+void func_001CC500(u32 *a, u32 *b)
+{
+    int k;
+
+    g_007302E0[0] = 0;
+    g_007302E0[1] = 0;
+    g_007302E0[2] = 0x11000000;
+    g_007302E0[3] = 0x6C060000;
+    for (k = 0; k < 16; k++)
+        g_007302E0[4 + k] = ((u32 *)0x70000000)[k];
+    for (k = 0; k < 4; k++)
+        g_007302E0[20 + k] = a[k];
+    for (k = 0; k < 4; k++)
+        g_007302E0[24 + k] = b[k];
+}
+
+#define CAM_COPY(p, o, n) do {                                          \
+    int k_;                                                             \
+    for (k_ = 0; k_ < (n); k_++)                                        \
+        (p)[k_] = *(u32 *)(g_0045D2C0 + (o) + k_ * 4);                  \
+} while (0)
+
+#define QCOPY(p, s) do {                                                \
+    (p)[0] = (s)[0]; (p)[1] = (s)[1]; (p)[2] = (s)[2]; (p)[3] = (s)[3];  \
+} while (0)
+
+#define PACKET_END(p) do {                                              \
+    (p)[0] = 0x10000000; (p)[1] = 0; (p)[2] = 0; (p)[3] = 0x14000000;   \
+} while (0)
+
+/* 0x001CC580, 0x140 bytes. The shadow pass's microcode and camera block. */
+u32 *func_001CC580(u32 *p, u8 *a, u8 *b, u8 *c)
+{
+    p[0] = 0x50000000;
+    p[1] = (u32)g_003FCEB0;
+    p[2] = 0x11000000;
+    p[3] = 0;
+    p[4] = 0x30000007;
+    p[5] = (u32)g_007302E0;
+    p[6] = 0;
+    p[7] = 0;
+    p[8] = 0x1000000D;
+    p[9] = 0;
+    p[10] = 0x11000000;
+    p[11] = 0x6C0D0006;
+    CAM_COPY(p + 0xC, 0x100, 16);
+    CAM_COPY(p + 0x1C, 0xC0, 16);
+    CAM_COPY(p + 0x2C, 0x1C0, 4);
+    CAM_COPY(p + 0x30, 0x1D0, 4);
+    QCOPY(p + 0x34, (u32 *)a);
+    QCOPY(p + 0x38, (u32 *)b);
+    QCOPY(p + 0x3C, (u32 *)c);
+    PACKET_END(p + 0x40);
+    return p + 0x44;
+}
+
+/* 0x001CC880, 0xEC bytes. Another pass's microcode and camera block. */
+u32 *func_001CC880(u32 *p, u8 *a, u8 *b, u8 *c)
+{
+    p[0] = 0x50000000;
+    p[1] = (u32)g_003FFF70;
+    p[2] = 0x11000000;
+    p[3] = 0;
+    p[4] = 0x1000000B;
+    p[5] = 0;
+    p[6] = 0x11000000;
+    p[7] = 0x6C0B0000;
+    CAM_COPY(p + 8, 0x100, 16);
+    CAM_COPY(p + 0x18, 0x140, 16);
+    QCOPY(p + 0x28, (u32 *)a);
+    QCOPY(p + 0x2C, (u32 *)b);
+    QCOPY(p + 0x30, (u32 *)c);
+    PACKET_END(p + 0x34);
+    return p + 0x38;
+}
+
+/* 0x001CC9C0, 0xCC bytes. */
+u32 *func_001CC9C0(u32 *p)
+{
+    p[0] = 0x50000000;
+    p[1] = (u32)g_003FF550;
+    p[2] = 0x11000000;
+    p[3] = 0;
+    p[4] = 0x10000001;
+    p[5] = 0;
+    p[6] = 0x11000000;
+    p[7] = 0x6C010000;
+    QCOPY(p + 8, g_0040C770);
+    PACKET_END(p + 0xC);
+    return p + 0x10;
+}
+
+/* 0x001CCA90, 0x2C bytes, matching. Sends mesh buffer `m`. */
+u32 *func_001CCA90(u32 *p, u8 *m)
+{
+    *(u32 *)(m + 0xC) = 0x6C128000;
+    p[0] = 0x30000013;
+    p[1] = (u32)m;
+    p[2] = 0;
+    p[3] = 0;
+    return p + 4;
+}
+
+/* 0x001CCAC0, 0x20 bytes, matching. */
+u32 *func_001CCAC0(u32 *p)
+{
+    p[0] = 0x10000000;
+    p[1] = 0;
+    p[2] = 0;
+    p[3] = 0x17000000;
+    return p + 4;
+}
+
+/* 0x001CCAE0, 0xCC bytes. */
+u32 *func_001CCAE0(u32 *p)
+{
+    p[0] = 0x50000000;
+    p[1] = (u32)g_00400280;
+    p[2] = 0x11000000;
+    p[3] = 0;
+    p[4] = 0x10000001;
+    p[5] = 0;
+    p[6] = 0x11000000;
+    p[7] = 0x6C010000;
+    QCOPY(p + 8, g_0040C780);
+    PACKET_END(p + 0xC);
+    return p + 0x10;
+}
+
+/* 0x001CCBB0, 0x2C bytes, matching. */
+u32 *func_001CCBB0(u32 *p, u8 *m)
+{
+    *(u32 *)(m + 0xC) = 0x6C128004;
+    p[0] = 0x30000013;
+    p[1] = (u32)m;
+    p[2] = 0;
+    p[3] = 0;
+    return p + 4;
+}
+
+/* 0x001CCBE0, 0x20 bytes, matching. */
+u32 *func_001CCBE0(u32 *p)
+{
+    p[0] = 0x10000000;
+    p[1] = 0;
+    p[2] = 0;
+    p[3] = 0x17000000;
+    return p + 4;
+}
+
+/* 0x001CCC00, 0xD0 bytes. Starts the 3D packets (resets the cached state). */
+u32 *func_001CCC00(u32 *p)
+{
+    p[0] = 0x30000007;
+    p[1] = (u32)g_00426380;
+    p[2] = 0x11000000;
+    p[3] = 0x50000007;
+    p[4] = 0x10000002;
+    p[5] = 0;
+    p[6] = 0x11000000;
+    p[7] = 0x50000002;
+    *(u64 *)(p + 8) = 0x1000000000008001ULL;
+    *(u64 *)(p + 10) = 0xE;
+    *(u64 *)(p + 0xC) = ((u64)func_00100FE0() & 0xFFFFFFFF) | 0x13A000000ULL;
+    *(u64 *)(p + 0xE) = 0x4E;
+    g_0045CD90 = 1;
+    g_0045CD8C = 0x6F;
+    g_0045CD88 = 0;
+    g_0045CD94 = 0x1E;
+    return p + 0x10;
+}
+
+/* 0x001CCCD0, 0x50 bytes, matching. */
+u32 *func_001CCCD0(u32 *p)
+{
+    p[0] = 0x30000003;
+    p[1] = (u32)g_004263F0;
+    p[2] = 0x11000000;
+    p[3] = 0x50000003;
+    g_0045CD8C = 0x6F;
+    g_0045CD88 = 0;
+    g_0045CD90 = 1;
+    g_0045CD94 = 0x1E;
+    return p + 4;
+}
+
+/* 0x001CCD20, 0x3C bytes. A mesh's state: lights, fog, texture. */
+u32 *func_001CCD20(u32 *p, int k, u32 f)
+{
+    p = func_001CC3B0(p, f);
+    p = func_001CC450(p, f);
+    return func_001CC220(p, k);
+}
+
+/* 0x001CCFA0, 0xBC bytes. Marks unit `u`'s officer as hit down. */
+void func_001CCFA0(u8 *u)
+{
+    u8 *o = g_006A3A30[*(short *)(u + 0x178)], *w;
+
+    *(u32 *)(o + 0xB8) |= 2;
+    w = *(u8 **)(o + 0x10);
+    if (w == 0)
+        return;
+    if ((*(u32 *)(o + 0xB8) & 0x80) != 0)
+        *(u32 *)(w + 0x80) |= 4;
+    if ((GAME_FLAGS & 0x4000000) == 0 && w[0x79] != 0 && (*(u32 *)(w + 0x84) & 0x1000) == 0)
+        u[0x185] = func_002051A0();
+}
