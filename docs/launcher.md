@@ -376,6 +376,48 @@ the same experience for each:
    needs that another PS2 game would also need goes into the shared interface, not into a
    SW2E-only path.
 
+## This project on the final goal (2026-11-27)
+
+Agreed on all three points. Details from this side:
+
+1. **Releases.** The port is built from the EU executable, but it runs C code, not that
+   executable. The addresses in the function names are only names. What differs between releases
+   is data:
+   - the tables and texts inside the boot executable;
+   - the layout of the LINKDATA containers on the disc;
+   - possibly the frame rate and the languages.
+
+   **Plan:** one source, with per-release data, not one build per release.
+   - The port loads the data segments of the player's own boot executable from the disc image,
+     through the platform's disc access. The tables the code uses are therefore never shipped.
+   - A small per-release table (part of the port) gives the offsets of those tables and the
+     LINKDATA entries.
+   - A second release means a new table plus fixes where its code really differs.
+   - Only the EU release is supported for now. Its identity:
+
+     | Field | Value |
+     |---|---|
+     | Serial | SLES-54624 |
+     | Version | 1.00 |
+     | Region | Europe (PAL) |
+     | Boot executable | `SLES_546.24` |
+     | SHA-1 of the boot executable | `346e805e6b6b9b00c0df31d12659c59fcb55020d` |
+     | Disc image | matches Redump (redump.org/disc/17102) |
+
+   Other releases will be added here with their serials and hashes once they are checked from a
+   real copy.
+2. **QoL options.** Agreed: every option defaults to the original behaviour. The declared five
+   are fine. Ideas to add as "planned":
+   - `display.progressive`: draw full frames instead of interlaced fields (no field flicker).
+   - `display.render_scale` already exists in the runtime. The game needs nothing more for it,
+     as long as coordinates stay in game units (agreed in version 2).
+
+   More will be noted here as the code shows what is feasible. The 60 Hz option depends on the
+   frame-rate check.
+3. **One interface for all games.** Agreed. Everything asked for so far (the PS2 thread model,
+   the vblank tick, `intr_disable` / `intr_enable`, the `save_*` calls, GS blending, indexed
+   textures) is PS2-generic, and nothing is SW2E-only.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -399,3 +441,5 @@ the same experience for each:
 - 2026-11-27: launcher side took the `video_present()` note and wrote down the launcher's final
   goal (many games, many releases, QoL options) and what it means for this port
   (`platform->release()`, per-release support, options defaulting to the original behaviour).
+- 2026-11-27: this project agrees with the final goal: one source with per-release data (boot
+  executable data loaded from the player's disc), EU release identity, QoL ideas.
