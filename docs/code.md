@@ -1025,6 +1025,20 @@ so far (13 functions, 5 match):
 - the perspective and screen matrices, and a camera object's defaults (a 15-degree view angle,
   depth 64 to 50000).
 
+## The strategic map (`src/field.c`)
+
+Original source file `Field.c` (its name is passed to the file loader at `0x0018C490`). Done
+so far: simple functions from `0x0018C490` to `0x0018DA54` (17 functions, 7 match). Like
+`Weapon.c` and `sc_ctrl.c`, it was built with the loop unroller on.
+
+- **Map objects** (0x5C8 bytes, `0x005BD750`; five in game mode 2): the map file split into
+  four tables, the provinces (0x40-byte records, one 0x88-byte entry each with its value, 8 flag
+  bytes and a link), the named provinces indexed by id, a 32 x 32 grid of provinces by cell,
+  n x n province tables, up to three map parts with their offsets in 5000-unit cells.
+- **Route cache:** 64 entries in a list and 0x57 hash buckets; a key's hash is two words summed
+  with the complement of two others, xored with `0x1895F7C2` by a flag.
+- The provinces' 16-byte state is saved with the game.
+
 ## Scenario control (`src/sc_ctrl.c`)
 
 Original source file `sc_ctrl.c` (its name is passed to the file loader at `0x00185D10`, from

@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 72208,
-    "non_matching": 440252
+    "matching": 72704,
+    "non_matching": 443404
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10624,
-    "matching": 641
+    "matching": 648
   },
   "layout": "treemap",
   "areas": [
@@ -345,11 +345,11 @@
       "children": [
         {
           "name": "Field.c",
-          "description": "Estimated range 0x1890D0-0x190010; 61 function(s) decompiled",
+          "description": "Estimated range 0x1890D0-0x190010; 78 function(s) decompiled",
           "code": {
             "total": 28480,
-            "matching": 1920,
-            "non_matching": 7412
+            "matching": 2416,
+            "non_matching": 10564
           }
         },
         {
