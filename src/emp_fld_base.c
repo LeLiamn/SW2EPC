@@ -2015,3 +2015,238 @@ void func_0034F660(u8 *map)
         map[k * 0x3C + 0x116] = 0;
     map[0x5C0] = n;
 }
+
+extern int g_00415470[10];               /* the default action weights */
+extern u8 g_00448088[12], g_00448098[14];   /* (action, weight) pairs */
+
+int func_0035DB50(int *w, int n);
+u32 func_003E6D30(void);
+int func_0036F390(u8 *u, int k);
+u32 func_0035F100(void);
+void func_001EF900(void);
+short *func_0033B730(int x);
+
+/* 0x00348890, 0x98 bytes. A random action by the default weights. */
+int func_00348890(u8 *u, int x)
+{
+    int w[10], k;
+
+    for (k = 0; k < 10; k++)
+        w[k] = g_00415470[k];
+    return func_0035DB50(w, 5);
+}
+
+/* 0x00348930, 0xA4 bytes. Actions 0x11 / 0x12 become 0x17, 0xF / 0x10 become 0x16 (0x15 at
+ * 20%); others stay. */
+u32 func_00348930(u32 k)
+{
+    u32 m = 0x25;
+
+    if (k == 0x12 || k == 0x11)
+        m = 0x17;
+    else if (k == 0x10 || k == 0xF)
+        m = 0x16;
+    if (m < 0x25) {
+        k = m;
+        if (RANDOM() % 100 < 0x14)
+            k = 0x15;
+    }
+    return k;
+}
+
+u32 func_00348BA0(u8 *u);
+
+/* 0x003489E0, 0xF8 bytes. Unit `u`'s next action: its event action by chance (func_003E6D30%),
+ * else a random one (changed by event 0x14); event action 0x1D becomes 0x1E half the time. */
+u32 func_003489E0(u8 *u, int x)
+{
+    u32 p = func_003E6D30(), m = func_00348BA0(u);
+
+    if (m > 0x24 || p <= RANDOM() % 100) {
+        m = func_00348890(u, x);
+        if (func_0036F390(u, 0x14) != 0)
+            m = func_00348930(m);
+        return m;
+    }
+    if (m != 0x1D)
+        return m;
+    return RANDOM() % 100 < 0x32 ? 0x1E : 0x1D;
+}
+
+/* 0x00348AE0, 0xB8 bytes. A random action 9-0xD (with func_0036D310, 0x1B-0x21 at 3%). */
+int func_00348AE0(void)
+{
+    if (func_0036D310() == 0 || RANDOM() % 100 > 2)
+        return RANDOM() % 5 + 9;
+    return RANDOM() % 7 + 0x1B;
+}
+
+/* 0x00348BA0, 0xE4 bytes, matching. Unit `u`'s event action (events 0xD-0x13), else 0x25. */
+u32 func_00348BA0(u8 *u)
+{
+    if (func_0036F390(u, 0xD) != 0)
+        return 0x1B;
+    if (func_0036F390(u, 0xE) != 0)
+        return 0x1C;
+    if (func_0036F390(u, 0xF) != 0)
+        return 0x1D;
+    if (func_0036F390(u, 0x10) != 0)
+        return 0x1F;
+    if (func_0036F390(u, 0x11) != 0)
+        return 0x20;
+    if (func_0036F390(u, 0x12) != 0)
+        return 0x21;
+    if (func_0036F390(u, 0x13) != 0)
+        return 0x22;
+    return 0x25;
+}
+
+/* 0x00348C90, 0x8C bytes. The same, the event action half the time. */
+u32 func_00348C90(u8 *u)
+{
+    u32 m = func_003489E0(u, 0), b;
+
+    if (RANDOM() % 100 < 0x32 && (b = func_00348BA0(u)) < 0x25)
+        m = b;
+    return m;
+}
+
+/* 0x00348D20, 0x154 bytes. A unit's random move (by weights: the strong table by chance from
+ * func_0035F100, else the weak one); 0x17 without a side or with flag 0x400. */
+u8 func_00348D20(u8 *u)
+{
+    u8 *tbl = 0;
+    u32 n = 0, r, k;
+
+    if (u[0x79] != 0 && (UNIT_FLAGS(u) & 0x400) == 0) {
+        u32 p = func_0035F100();
+
+        if (func_0036D310() != 0)
+            p *= 10;
+        if (p > 100)
+            p = 100;
+        if (RANDOM() % 100 < p) {
+            n = 7;
+            tbl = g_00448098;
+        } else {
+            n = 6;
+            tbl = g_00448088;
+        }
+    }
+    if (tbl != 0) {
+        r = RANDOM() % 100;
+        for (k = 0; k < n; k++) {
+            if (r < tbl[k * 2 + 1])
+                return tbl[k * 2];
+            r -= tbl[k * 2 + 1];
+        }
+    }
+    return 0x17;
+}
+
+/* 0x00348E80, 0x2C bytes. Whether unit `u` has flag 0x20000 without 0x800. */
+int func_00348E80(u8 *u)
+{
+    return (UNIT_FLAGS(u) & 0x800) == 0 && (UNIT_FLAGS(u) & 0x20000) != 0;
+}
+
+/* 0x00348EB0, 0xE0 bytes. Whether unit `u` (flag 0x20000) may follow flagged unit `v`: its
+ * group not of kinds 6, 8, 9 and below 50. */
+int func_00348EB0(u8 *u, u8 *v)
+{
+    u8 *g = func_0034A740(u), k;
+
+    if ((UNIT_FLAGS(u) & 0x20000) == 0)
+        return 0;
+    if ((UNIT_FLAGS(v) & 0x30) == 0)
+        return 0;
+    k = GROUP_INFO(g)[5];
+    if (k == 9 || k == 8 || k == 6)
+        return 0;
+    return GROUP_INFO(g)[10] < 0x32;
+}
+
+/* 0x00348F90, 0x58 bytes, matching. Whether unit `u` (flag 0x20000) faces flagged unit `v`. */
+int func_00348F90(u8 *u, u8 *v)
+{
+    func_0034A740(u);
+    if ((UNIT_FLAGS(u) & 0x20000) == 0)
+        return 0;
+    return (UNIT_FLAGS(v) & 0x30) != 0;
+}
+
+/* 0x00348FF0, 0x1C bytes, matching. */
+void func_00348FF0(void)
+{
+    func_001EF900();
+}
+
+/* 0x00349010, 0x38 bytes, matching. Whether unflagged unit `u` passes func_00348E80. */
+int func_00349010(u8 *u)
+{
+    if ((UNIT_FLAGS(u) & 0x30) != 0)
+        return 0;
+    return func_00348E80(u) != 0;
+}
+
+/* Whether units `u` and `v` both stand on the base of `u`'s group, else whether the group is
+ * below `lim` or `u` passes func_00348E80. */
+static int on_base_or(u8 *u, u8 *v, int lim)
+{
+    u8 *g = func_0034A740(u);
+    int b = func_0033C160(g);
+
+    if (func_0034A660(u, (u8 *)b) != 0 && func_0034A660(v, (u8 *)b) != 0)
+        return 1;
+    if (GROUP_INFO(g)[10] < lim)
+        return 1;
+    return func_00348E80(u) != 0;
+}
+
+/* The same with the group's func_0033C1E0 position. */
+static int at_spot_or(u8 *u, u8 *v, int lim)
+{
+    u8 *g = func_0034A740(u);
+    int x = func_0033C1E0(g);
+
+    if (*(short *)(u + 0x40) == *func_0033B730(x) && *(short *)(v + 0x40) == *func_0033B730(x))
+        return 1;
+    if (GROUP_INFO(g)[10] < lim)
+        return 1;
+    return func_00348E80(u) != 0;
+}
+
+/* 0x00349050, 0xD0 bytes. */
+int func_00349050(u8 *u, u8 *v)
+{
+    return on_base_or(u, v, 0x1E);
+}
+
+/* 0x00349120, 0xE0 bytes. */
+int func_00349120(u8 *u, u8 *v)
+{
+    return at_spot_or(u, v, 0x1E);
+}
+
+/* 0x00349200, 0xD0 bytes. */
+int func_00349200(u8 *u, u8 *v)
+{
+    return on_base_or(u, v, 10);
+}
+
+/* 0x003492D0, 0xE0 bytes. */
+int func_003492D0(u8 *u, u8 *v)
+{
+    return at_spot_or(u, v, 10);
+}
+
+/* 0x003493C0, 0x90 bytes. Whether both stand on the group's base, else func_00348E80. */
+int func_003493C0(u8 *u, u8 *v)
+{
+    u8 *g = func_0034A740(u);
+    int b = func_0033C160(g);
+
+    if (func_0034A660(u, (u8 *)b) != 0 && func_0034A660(v, (u8 *)b) != 0)
+        return 1;
+    return func_00348E80(u) != 0;
+}
