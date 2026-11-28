@@ -31,6 +31,11 @@ practical side.
 
 ## Step 1: take over `upp.h`
 
+**Done on the UPP side (2026-11-28, UPP commit f6b0e80):** `include/upp/upp.h` is now the
+reference. SW2EPC follows it: `port/upp/upp.h` is a copy of it, and the port was adapted to the
+changes (`size` fields, `fatal`, `event_count`, the PS2 thread calls). The original description
+of the draft is kept below.
+
 `port/upp/upp.h` follows the version 1 contract (see "Agreed contract, version 1" in
 [launcher.md](launcher.md)):
 
@@ -91,8 +96,12 @@ What to do:
 | `release` | `sw2e_entry.c` | the path of the boot executable |
 | `disc_file_size`, `disc_read_file` | `sw2e_entry.c` | loading the boot executable |
 | `event_create`, `event_wait`, `event_signal`, `event_destroy` | `ps2_kernel.c` | the game's semaphores (`CreateSema`, `WaitSema`, `SignalSema`, `PollSema` = wait with timeout 0) |
-| `thread_create`, `thread_yield` | `ps2_kernel.c` | the game's threads (`StartThread`, `SleepThread`), PS2 priorities |
+| `event_count` | `ps2_kernel.c` | `ReferSemaStatus`, `iReferSemaStatus` |
+| `thread_create` | `ps2_kernel.c` | `StartThread` (a PS2 thread is created dormant by `CreateThread`, then started) |
+| `thread_self`, `thread_set_priority`, `thread_sleep`, `thread_wakeup`, `thread_exit`, `thread_terminate` | `ps2_kernel.c` | `GetThreadId`, `ChangeThreadPriority`, `SleepThread`, `WakeupThread` / `iWakeupThread`, `ExitThread`, `TerminateThread` |
 | `intr_enable` | `pc_hw.c` | the EI at the end of the game's interrupt handlers |
+| `fatal` | `sw2e_entry.c` | the stop of a function not decompiled yet (no `exit()` in game code) |
+| `version`, `size` | `sw2e_entry.c` | `init` refuses a platform table older than the header it was built with |
 
 More calls will be used as the Sony library replacements are written (disc reads, pads, audio,
 `vsync` and `video_present`, saves), in that order. Each will be added to this table.
@@ -155,15 +164,19 @@ log should show, in this order:
 [error] not decompiled yet: func_0011DFB0
 ```
 
+Since UPP added `fatal()` (2026-11-28), the last line goes through it: the stand-in prints
+`[fatal] not decompiled yet: func_0011DFB0`, and the real runtime also shows it to the player.
+
 The last line is expected today: it is the next function this project has to write (the Sony CD
 and DMA library). The run stops there with exit code 3.
 
 ## Known limits, to remove later
 
-- **`sw2e_missing()` calls `exit(3)`.** The contract says the game never calls `exit()`. This
+- **`sw2e_missing()` called `exit(3)`.** The contract says the game never calls `exit()`. This
   stop is a development aid and goes away once every function is written. If the runtime
   prefers, it can export a hook so the game reports the stop and returns from `run()` instead.
   Tell us here.
+  - **Settled (2026-11-28):** it now calls `platform->fatal()`, added by UPP for this.
 - **Function tables in PS2 data** (`sw2e_fntab`) are read once, when first used. A table the game
   rewrites later (none seen so far) would keep its old entries.
 - **The VU0 matrix order** in `pc_hw.c` comes from the 3D model data (T × Rz × Ry × Rx). It still

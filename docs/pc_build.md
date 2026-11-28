@@ -11,7 +11,7 @@ see [port.md](port.md), [upp_integration.md](upp_integration.md) and [launcher.m
 | Port files compiled | 4 of 4 |
 | Functions defined twice | 0 |
 | Functions called but not decompiled yet | 979 |
-| Other symbols from outside the sources | 33 (C library, port) |
+| Other symbols from outside the sources | 35 (C library, port) |
 | Link | ok: `build/pc/sw2epc.exe` |
 
 ## First run
@@ -23,7 +23,7 @@ With the player's own disc image (`--run`), stand-in runtime:
 [info] segment 0x00100000: 0x35D180 bytes from the disc
 [info] segment 0x007C0000: 0x0 bytes from the disc
 [info] boot executable loaded (3529520 bytes)
-[error] not decompiled yet: func_0011DFB0
+[fatal] not decompiled yet: func_0011DFB0
 ```
 
 ## Missing functions by area

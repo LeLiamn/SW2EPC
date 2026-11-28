@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 #include "upp.h"
 
 /* ---- logging and options ---------------------------------------------------------------------- */
@@ -171,9 +172,10 @@ static int g_frame_limit = 1;      /* --frames N: vsync() returns 0 after N fram
 
 static const upp_release *stub_release(void)
 {
-    static const upp_release r = { "eu-sles-54624-1.00", "SLES-54624", "1.00", "SLES_546.24",
+    static const upp_release r = { "eu-1.00", "SLES-54624", "1.00", "SLES_546.24",
         { 0x34, 0x6e, 0x80, 0x5e, 0x6b, 0x6b, 0x9b, 0x00, 0xc0, 0xdf,
-          0x31, 0xd1, 0x26, 0x59, 0xc5, 0x9f, 0xcb, 0x55, 0x02, 0x0d } };   /* not checked here */
+          0x31, 0xd1, 0x26, 0x59, 0xc5, 0x9f, 0xcb, 0x55, 0x02, 0x0d },     /* not checked here */
+        "Europe" };
     return &r;
 }
 
@@ -206,25 +208,90 @@ static int stub_event_wait(int id, int64_t t) { (void)id; (void)t; return 1; }
 static void stub_int_nop(int id) { (void)id; }
 static int stub_mutex_create(void) { return 0; }
 
+/* Calls added when UPP took the header over */
+static void stub_fatal(const char *fmt, ...)
+{
+    va_list ap;
+
+    fprintf(stderr, "[fatal] ");
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    fputc('\n', stderr);
+    exit(3);
+}
+static uint64_t stub_ticks_us(void) { return (uint64_t)clock() * 1000000u / CLOCKS_PER_SEC; }
+static int stub_audio_queued(void) { return 0; }
+static int stub_event_count(int id) { (void)id; return 0; }
+static int stub_thread_self(void) { return 0; }
+static void stub_thread_set_priority(int id, int prio) { (void)id; (void)prio; }
+static void stub_thread_wakeup(int id) { (void)id; }
+static void stub_thread_exit(void) { stub_log(1, "thread_exit: no threads in the stand-in runtime"); }
+static void stub_thread_terminate(int id) { (void)id; }
+
 static const upp_platform g_platform = {
-    UPP_PLATFORM_VERSION,
-    stub_log,
-    stub_release, stub_option_bool, stub_option_number, stub_option_string,
-    stub_vsync, stub_video_present, stub_set_frame_rate, stub_frame_count,
-    stub_vblank_add, stub_vblank_remove, stub_nop, stub_nop,
-    stub_audio_push,
-    stub_pad_read, stub_pad_rumble,
-    stub_disc_file_size, stub_disc_read_file, stub_disc_file_lsn, stub_disc_read_sectors,
-    stub_save_list, stub_save_read, stub_save_begin, stub_save_write, stub_save_end, stub_save_delete,
-    stub_thread_create, stub_thread_join, stub_nop, stub_sleep_us,
-    stub_event_create, stub_event_wait, stub_int_nop, stub_int_nop,
-    stub_mutex_create, stub_int_nop, stub_int_nop, stub_int_nop,
+    .version = UPP_PLATFORM_VERSION,
+    .size = sizeof(upp_platform),
+    .log = stub_log,
+    .release = stub_release,
+    .option_bool = stub_option_bool,
+    .option_number = stub_option_number,
+    .option_string = stub_option_string,
+    .vsync = stub_vsync,
+    .video_present = stub_video_present,
+    .set_frame_rate = stub_set_frame_rate,
+    .frame_count = stub_frame_count,
+    .vblank_add = stub_vblank_add,
+    .vblank_remove = stub_vblank_remove,
+    .intr_disable = stub_nop,
+    .intr_enable = stub_nop,
+    .audio_push = stub_audio_push,
+    .pad_read = stub_pad_read,
+    .pad_rumble = stub_pad_rumble,
+    .disc_file_size = stub_disc_file_size,
+    .disc_read_file = stub_disc_read_file,
+    .disc_file_lsn = stub_disc_file_lsn,
+    .disc_read_sectors = stub_disc_read_sectors,
+    .save_list = stub_save_list,
+    .save_read = stub_save_read,
+    .save_begin = stub_save_begin,
+    .save_write = stub_save_write,
+    .save_end = stub_save_end,
+    .save_delete = stub_save_delete,
+    .thread_create = stub_thread_create,
+    .thread_join = stub_thread_join,
+    .thread_yield = stub_nop,
+    .sleep_us = stub_sleep_us,
+    .event_create = stub_event_create,
+    .event_wait = stub_event_wait,
+    .event_signal = stub_int_nop,
+    .event_destroy = stub_int_nop,
+    .mutex_create = stub_mutex_create,
+    .mutex_lock = stub_int_nop,
+    .mutex_unlock = stub_int_nop,
+    .mutex_destroy = stub_int_nop,
+    .fatal = stub_fatal,
+    .ticks_us = stub_ticks_us,
+    .audio_queued = stub_audio_queued,
+    .event_count = stub_event_count,
+    .thread_self = stub_thread_self,
+    .thread_set_priority = stub_thread_set_priority,
+    .thread_sleep = stub_nop,
+    .thread_wakeup = stub_thread_wakeup,
+    .thread_exit = stub_thread_exit,
+    .thread_terminate = stub_thread_terminate,
 };
 
 int main(int argc, char **argv)
 {
     const upp_game_api *game = upp_game_entry();
     const char *disc = NULL;
+
+    if (game->version != UPP_PLATFORM_VERSION || game->size < (int)sizeof(upp_game_api)
+        || (game->thread_model != UPP_THREADS_PS2 && game->thread_model != UPP_THREADS_PARALLEL)) {
+        fprintf(stderr, "the game's table is not platform version %d\n", UPP_PLATFORM_VERSION);
+        return 1;
+    }
     int run = 0, i;
 
     for (i = 1; i < argc; i++) {

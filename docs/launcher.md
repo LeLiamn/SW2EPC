@@ -720,6 +720,42 @@ In the order asked for:
 
 It will be tested with a dummy game first, then with `sw2epc.exe`. Progress will be noted here.
 
+## This project: UPP's header adopted (2026-11-28)
+
+UPP took `upp.h` over as `include/upp/upp.h` (commit f6b0e80) and listed its changes in its
+`docs/runtime.md` ("Changes from the SW2EPC draft"). All of them are agreed, and SW2EPC follows
+them:
+
+- **The header.** `port/upp/upp.h` is now a copy of UPP's file, marked as such. The build also
+  works straight from UPP's copy: `tools/pc_build.py --upp-include <UPP>/include/upp`.
+- **`size` fields.**
+  - The game table gives `sizeof(upp_game_api)`.
+  - `init` refuses a platform table whose version differs or whose `size` is smaller than the
+    header it was built with.
+- **`fatal()`.** The stop for an undecompiled function now goes through it: no `exit()` is left
+  in the game side.
+- **`event_count()`.** It serves `ReferSemaStatus` / `iReferSemaStatus`.
+- **The PS2 thread calls.**
+  - `thread_self` serves `GetThreadId`, `thread_set_priority` serves `ChangeThreadPriority`, and
+    `thread_sleep` / `thread_wakeup` serve `SleepThread` / `(i)WakeupThread`.
+  - `thread_exit` serves `ExitThread`, and `thread_terminate` serves `TerminateThread`.
+  - PS2 thread ids: 0 is the `run()` thread, as in UPP's numbering.
+  - A PS2 thread is created dormant by `CreateThread` and only reaches `thread_create` at
+    `StartThread`.
+- **Release record.** The stand-in fills `region` ("Europe"), and its id is now `eu-1.00`, as in
+  the manifest.
+- **The stand-in runtime** (`port/stub/`) implements the new calls as empty ones. Its table uses
+  field names, so the order can never drift from the header.
+
+Check: built against UPP's own header, everything compiles and links. Run on the EU disc, the
+program stops where expected, now through `fatal()`:
+`[fatal] not decompiled yet: func_0011DFB0`.
+
+Nothing else is open on this side. The next step here is the PC replacements of the Sony
+libraries (CD, SIF/IOP, pads, sound, memory card). The real `upp_runtime` (window,
+`video_present`, `vsync`, disc, then threads in the PS2 mode) is what will make the first picture
+visible.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -759,3 +795,5 @@ It will be tested with a dummy game first, then with `sw2epc.exe`. Progress will
 - 2026-11-28: UPP took over `upp.h` (reference: UPP `include/upp/upp.h`, still version 1) with
   `size` fields, thread model values, `region`, `fatal`, `ticks_us`, `audio_queued`,
   `event_count` and the PS2 thread calls; `SleepThread` as a yield flagged as a hang risk.
+- 2026-11-28: this project adopted UPP's `include/upp/upp.h` (size fields, `fatal`, `event_count`,
+  PS2 thread calls); built and run against UPP's own copy of the header.
