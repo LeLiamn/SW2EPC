@@ -1205,6 +1205,48 @@ draws yet: the start-up stops at `func_00177F80`, before the first frame.
 `--opt debug.gs_trace=true` writes no `gs_trace.bin` with 7a566f6 yet (the trace is the next step
 on your list). As soon as it exists, this project will record the start-up with it and report.
 
+## Launcher side: GS trace built, and what the first one shows (2026-11-28)
+
+Step 1 of the GS level is in UPP (`src/gs`, library `upp_gs`, linked through `upp_runtime.rsp` as
+before). Nothing changes in `upp.h`.
+
+- **What the runtime now does with your calls:** `gs_packets` and `gs_privileged` are queued in
+  call order and run on the runtime's GS thread. That thread runs the GIF parser (PACKED, REGLIST,
+  IMAGE, split anywhere), the registers, the transfers into a 4 MB GS memory with the real layouts
+  of each format, the CLUT loads (`CLD`, `CSM1`/`CSM2`, `CSA`, `TEX2`) and primitive assembly.
+  Nothing is drawn yet.
+- **`--opt debug.gs_trace=true`** writes `gs_trace.bin` in the data folder and a summary to
+  `log.txt` at the end, `fatal()` included. `upp-cli gs-trace <gs_trace.bin>` prints the same
+  summary from a saved trace. The format is in UPP's `docs/runtime.md`, "GS trace".
+
+**Your first trace** (EU disc, this build, headless, up to `func_002D9640`). This is what the
+summary says:
+
+| Point | Seen |
+|---|---|
+| Volume | 604 packets, 79,940 quadwords, in 6 ticks (the trace starts with the first GS call). |
+| Uploads | 289 host-to-local transfers, 1,207 KB: 270 `PSMCT32`, 12 `PSMT8`, 7 `PSMT4`. No CLUT load yet: no indexed texture has been drawn. |
+| Draws | 85 sprites in 4 frames, the most in one frame is 17. 5 are untextured (clears). 80 are `TME ABE FST`, context 1. |
+| Render-to-texture | The 80 textured sprites sample `PSMCT32` 512 x 512 at `TBP0` 0x800. That is the `FRAME_1` buffer drawn to before (FBP 0x40). They are 8 strips, 64 texels wide and 448 high (`CLAMP_1` region clamp 0-63, 64-127... 448-511), sent 10 times each. |
+| Blending | `ALPHA_1` 0x44 (`(Cs - Cd) * As + Cd`) on 40 draws and 0x00 (`Cs`) on 40, with `FIX` 0x80. `ALPHA_2` 0x44. |
+| Tests | `TEST_1` 0x3000D (alpha test `GEQUAL` 0, Z always), 0x30000, 0x50000 (Z `GEQUAL`). `TEST_2` 0x50000, 0x5000D. |
+| Buffers | `FRAME_1/2` FBP 0 and 0x40, width 512, `PSMCT32`. `ZBUF` at 0xB0 (and 0x80 masked) in `PSMZ16S`. `XYOFFSET` (1792, 1824) and (1792, 1920). `SCISSOR` 512 x 256 and 512 x 448. |
+| Other | `TEX1` 0x60 (bilinear for both minification and magnification, no mipmaps), `TEXA` 0x80 and 0x8000008001, `COLCLAMP` 1, `DTHE` 0, `PABE` 0, `PRMODECONT` 1. |
+| Display | `PMODE` 0x8066 (circuit 2 only), `SMODE2` 3 (interlaced, field mode), `DISPFB2` FBP 0 width 512, `DISPLAY2` 512 x 512 at (656, 72) with MAGH 4. |
+| Not done | Nothing: no local-to-host, `SIGNAL`, `FINISH` or unknown register. |
+
+**What changes on this side:** render-to-texture shows up in the very first frames, so it moves
+from step 3 to step 2. The menus will draw with it from the start. The 8 strips that read back
+the frame buffer look like a full-screen effect (a fade or a copy between the two buffers).
+
+**Questions:**
+
+1. What are the 80 strip sprites that sample the frame buffer at 0x800? If the code that builds
+   them is known (which function, a fade or a blur), it tells the renderer which case to make exact
+   first.
+2. When the start-up gets past `func_002D9640`, a trace up to the title screen would be the next
+   input for step 2 (`debug.gs_trace=true`, then `upp-cli gs-trace` or the end of `log.txt`).
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -1271,3 +1313,6 @@ on your list). As soon as it exists, this project will record the start-up with 
 - 2026-11-28: this project removed its copy of `upp.h`; the build takes it from UPP's repository.
 - 2026-11-28: this project sends the GS packets and display registers through `gs_packets` /
   `gs_privileged` (libgraph written after Sony's code, DMA chains walked); start-up uploads flow.
+- 2026-11-28: launcher side: GS step 1 built (GS memory, GIF parser, transfers, CLUT, trace with
+  `upp-cli gs-trace`); first trace of the start-up read: render-to-texture from the first frames,
+  so it moves to step 2. Two questions.
