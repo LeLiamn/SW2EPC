@@ -1247,6 +1247,50 @@ the frame buffer look like a full-screen effect (a fade or a copy between the tw
 2. When the start-up gets past `func_002D9640`, a trace up to the title screen would be the next
    input for step 2 (`debug.gs_trace=true`, then `upp-cli gs-trace` or the end of `log.txt`).
 
+## This project: answers on the first trace (2026-11-28)
+
+GS step 1 checked: SW2EPC builds against the new `upp_runtime.rsp` (now with `upp_gs`), runs as
+before, and `--opt debug.gs_trace=true` writes `gs_trace.bin` and the same summary as yours
+(604 packets, 85 sprites). Nothing to adjust.
+
+**1. The 80 strip sprites are the game's frame output pass.** They are built once at start-up by
+`func_001017D0` (`src/system.c`) and sent at every flip by `func_00101C90`, through the GIF:
+`g_0045E900[field]`, 0x99 quadwords.
+
+- **The game draws each frame at 512 x 448** into the buffer at FBP 0x40 (`FRAME_1`, the draw
+  buffer).
+- **At the flip, that frame goes into the displayed buffer.** The packet has its own draw
+  environment: FBP 0, 512 x 256 (`SCISSOR` 512 x 256). It samples the frame as a texture: TEX0
+  base 0x40, so TBP0 0x800, `PSMCT32` 512 x 448 (`func_001016A0`).
+- **It is drawn as 8 strips of 64 texels** (`func_00101500`), each with its own `REGION_CLAMP`
+  (x to x + 63), so bilinear filtering never reads past the strip. U covers the strip's 64 texels
+  (+0.5), V goes from 0.5 to 448.5, and the screen goes from Y 0x7800 to 0x8800 (256 lines).
+  That makes the 448 lines into the 256 lines of a field.
+- **Two passes per strip** with the same coordinates:
+  - first `ALPHA` 0x00 (`Cs`), colour 0x80808080, a copy;
+  - then `ALPHA` 0x44 (`(Cs - Cd) * As + Cd`), colour 0x40808080 (alpha 0x40 = half).
+
+  `TEST` 0x3000D for both, `TEX1` 0x60 (bilinear). The field-dependent part comes from the
+  half-pixel `XYOFFSET` that `func_00101C90` sets per field (`sceGsSetHalfOffset`). So this is the
+  vertical scale and filter that turns the progressive 448-line frame into the interlaced field
+  picture.
+- **A second, half-height variant** (`g_0045FC20`, 0x51 quadwords, 224 lines, one pass) is used
+  when the game runs in its other display mode (`g_0045D1C8`).
+
+What to make exact first, for the picture: a `PSMCT32` frame buffer read as a texture (TBP0 0x800
+= FBP 0x40), bilinear filtering with region clamp, the two blends above (`Cs` with
+`FIX` 0x80, then `(Cs - Cd) * As + Cd`), and the 448 to 256 vertical scale.
+
+**For later (QoL):** since the whole frame exists at 512 x 448 before this pass, a sharper
+progressive picture is possible: show FBP 0x40 directly, without the scale to a field. That
+would be a game option on this side: skip the pass and point the display at the draw buffer. With
+a higher internal resolution in the runtime, it would also avoid scaling a large frame down to a
+field.
+
+**2. A trace up to the title screen:** yes, as soon as the start-up gets past `func_002D9640`
+(the save manager's memory card check, next on this side). It will be recorded with
+`debug.gs_trace=true` and summarised here.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -1316,3 +1360,5 @@ the frame buffer look like a full-screen effect (a fade or a copy between the tw
 - 2026-11-28: launcher side: GS step 1 built (GS memory, GIF parser, transfers, CLUT, trace with
   `upp-cli gs-trace`); first trace of the start-up read: render-to-texture from the first frames,
   so it moves to step 2. Two questions.
+- 2026-11-28: this project checked GS step 1 (nothing to adjust) and explained the strip sprites: the
+  frame output pass (448-line frame scaled into the 256-line field buffer, two blends).
