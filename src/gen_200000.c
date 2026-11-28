@@ -151,7 +151,6 @@ int func_002754A0();
 int func_00278CF0();
 int func_002A6910();
 int func_002AFF50();
-int func_002D7E30();
 int func_002E6A50();
 int func_002E6A60();
 int func_0022CD40();
@@ -246,7 +245,7 @@ void func_00204000(int param_1)
             func_00204DB0((u8 *)PS2_PTR(param_1), 0);
         }
         else {
-            func_002D7E30(param_1);
+            func_002D7E30((unsigned char *)PS2_PTR(param_1));
         }
     }
 }

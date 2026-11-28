@@ -16,7 +16,6 @@ typedef unsigned int u32;
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
 int func_00206080();
-int func_00388200();
 
 #define true 1
 #define false 0

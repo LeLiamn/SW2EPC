@@ -15,7 +15,6 @@ typedef unsigned int u32;
 
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_001EC180();
 
 extern u8 g_00730560[0x18];
 extern u8 g_00730564[0x18];
@@ -101,7 +100,6 @@ int func_001EDB50();
 int func_001EE9C0();
 int func_001EF900();
 int func_001F5900();
-int func_001F5EB0();
 int func_001FAA60();
 int func_001FC840();
 int func_001FCB10();
@@ -1833,7 +1831,7 @@ void func_001EC2A0(int param_1)
 void func_001EC620(int param_1)
 {
     func_001EC530();
-    func_001EC180(param_1);
+    func_001EC180((unsigned char *)PS2_PTR(param_1));
     *(u32 *)((int)param_1 + 0x68) = 0;
 }
 

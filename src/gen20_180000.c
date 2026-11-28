@@ -50,7 +50,6 @@ int func_001FF100();
 int func_0027C210();
 int func_002F7D90();
 int func_0039C490();
-int func_003AF040();
 
 /* 0x001D0970, 0x1AC bytes. */
 void func_001D0970(u8 *param_1)

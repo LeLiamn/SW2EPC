@@ -55,7 +55,6 @@ u8 *func_001C7F30(u16 k, u8 *o, int a, u32 f);
 void func_001C8CF0(int k);
 void func_001E2100(void);
 void func_001E1A20(u32 *e, int x);
-void func_001D7670(u8 *cam);
 void func_001D7470(float dt);
 void func_001E2360(float dt, u32 *e);
 void func_001DADC0(u8 *e);
@@ -264,7 +263,7 @@ void func_001D91F0(u32 *e, int x)
         return;
     func_001E2100();
     func_001E1A20(e, x);
-    func_001D7670(g_00730570[g_0045D3E0]);
+    func_001D7670(PS2_ADDR(g_00730570[g_0045D3E0]));
     func_001D8E50((unsigned char *)(e));
     func_001DB8A0((unsigned char *)(e));
     func_00272C80((unsigned char *)(e));

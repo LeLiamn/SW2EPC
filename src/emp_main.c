@@ -30,7 +30,6 @@ extern int g_0045D688, g_0045D68C, g_0045D690, g_0045D69C, g_0045D6A0;   /* (sma
 int func_0030AB90(void);
 int func_0030C1C0(int f, int g);
 int func_0030AD80(int f);
-void func_00388200(int a, u32 b);
 int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort, int p5);
 
 /* 0x002FC220, 0x8C bytes. The sum of func_0030AD80 over the forces func_0030C1C0 lists for

@@ -23,7 +23,6 @@ extern u8 g_007BFB20[0x18];
 extern u8 g_007BFB3C[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_001EE3B0();
 
 #define true 1
 #define false 0
@@ -773,7 +772,7 @@ void func_001CEBC0(u8 *param_1)
                                   0x1AD;
                     }
                     func_001D4C00((u8 *)PS2_PTR(iVar3));
-                    func_001EE3B0(iVar3);
+                    func_001EE3B0((unsigned char *)PS2_PTR(iVar3));
                     *(u32 *)(g_006A3AEC + iVar8) = 0;
                     *(u32 *)(g_006A3AE8 + iVar8) = 0;
                     return;
@@ -819,7 +818,7 @@ void func_001CEBC0(u8 *param_1)
                             }
                         }
                         func_001D4C00((u8 *)PS2_PTR(iVar3));
-                        func_001EE3B0(iVar3);
+                        func_001EE3B0((unsigned char *)PS2_PTR(iVar3));
                         bVar6 = cVar1 + *(char *)(iVar12 + 0x74);
                         if (9 < bVar6) {
                             bVar6 = 9;

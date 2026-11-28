@@ -5003,6 +5003,28 @@ void func_003A5E20(void);
 void func_003A6450(int *, int *, int);
 #endif
 
+#ifndef SW2E_FILE_GEN25_180000_C
+void func_00188740(unsigned char *);
+void func_001D7670(int);
+void func_001EC180(unsigned char *);
+void func_001EE3B0(unsigned char *);
+void func_001F5EB0(unsigned char *, int);
+void func_00236FC0(int);
+void func_00237410(unsigned char *);
+void func_00237550(unsigned char *);
+void func_0023A0C0(unsigned char *);
+void func_002D7970(unsigned char *);
+void func_002D7C60(int, unsigned char *, int);
+void func_002D7E30(unsigned char *);
+void func_002E1820(unsigned char *);
+void func_00388200(int, int);
+void func_003A0220(int, int);
+void func_003A2940(int, int);
+void func_003AF040(void);
+void func_003B3E70(int, int, int, int, int, int, int, int, int, int);
+void func_003BD7A0(void);
+#endif
+
 #ifndef SW2E_FILE_GEN2_180000_C
 void func_00183240(void);
 void func_001EB860(unsigned char *);
