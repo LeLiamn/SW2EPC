@@ -2060,35 +2060,6 @@ int func_002BEC60(u8 *param_1, int param_2)
   return 1;
 }
 
-/* 0x002C24B0, 0xBC bytes. */
-void func_002C24B0(int param_1, u8 *param_2)
-{
-    u8 auStack_40[64];
-    u8 * iVar2;
-    int iVar5;
-    u16 * puVar3;
-    int uVar1;
-    u32 uVar4;
-
-  
-  iVar2 = func_0027E660();
-  iVar5 = (u32)*(u8 *)(iVar2 + 10) * 0x400 + 0x7957a0;
-  iVar2 = func_001FF140(*(u16 *)(param_2 + 0x54));
-  uVar1 = *(u16 *)(iVar2 + 4);
-  uVar4 = 0;
-  puVar3 = (u16 *)(iVar2 + 0x30);
-  if (uVar1 != 0) {
-    do {
-      func_002BB490(iVar5,auStack_40);
-      func_001FD4B0(param_1,param_2,*puVar3,auStack_40);
-      puVar3 = (u16 *)func_001FF230(puVar3);
-      uVar4 = uVar4 + 1;
-      iVar5 = iVar5 + 0x40;
-    } while (uVar4 < uVar1);
-  }
-  return;
-}
-
 /* 0x002CDF40, 0xE4 bytes, matching. */
 int func_002CDF40(int param_1)
 {

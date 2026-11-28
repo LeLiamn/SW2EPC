@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 204128,
-    "non_matching": 1691520
+    "non_matching": 1688656
   },
   "data": {
     "total": 2155890688,
@@ -324,14 +324,14 @@
         },
         {
           "name": "emp_ev_station.c",
-          "description": "Estimated range 0x3C84B8-0x3D70F0; 210 function(s) decompiled",
+          "description": "Estimated range 0x3C84B8-0x3D70F0; 209 function(s) decompiled",
           "code": {
             "total": 60472,
             "matching": 1344,
-            "non_matching": 51156
+            "non_matching": 49924
           },
           "decompiled_functions": {
-            "count": 210,
+            "count": 209,
             "matching": 14
           }
         },
@@ -402,14 +402,14 @@
         },
         {
           "name": "emp_war_wllt.c",
-          "description": "Estimated range 0x3E6768-0x3EDD28; 161 function(s) decompiled",
+          "description": "Estimated range 0x3E6768-0x3EDD28; 160 function(s) decompiled",
           "code": {
             "total": 30144,
             "matching": 4464,
-            "non_matching": 25068
+            "non_matching": 24476
           },
           "decompiled_functions": {
-            "count": 161,
+            "count": 160,
             "matching": 55
           }
         },
@@ -729,14 +729,14 @@
         },
         {
           "name": "ev_config.c",
-          "description": "Estimated range 0x201B40-0x20F408; 134 function(s) decompiled",
+          "description": "Estimated range 0x201B40-0x20F408; 133 function(s) decompiled",
           "code": {
             "total": 55496,
             "matching": 2496,
-            "non_matching": 20984
+            "non_matching": 20728
           },
           "decompiled_functions": {
-            "count": 134,
+            "count": 133,
             "matching": 37
           }
         },
@@ -820,14 +820,14 @@
         },
         {
           "name": "BriefingCmnParts.c",
-          "description": "Estimated range 0x2C1EA8-0x2DE550; 160 function(s) decompiled",
+          "description": "Estimated range 0x2C1EA8-0x2DE550; 159 function(s) decompiled",
           "code": {
             "total": 116392,
             "matching": 2384,
-            "non_matching": 36864
+            "non_matching": 36672
           },
           "decompiled_functions": {
-            "count": 160,
+            "count": 159,
             "matching": 34
           }
         }
@@ -890,14 +890,14 @@
         },
         {
           "name": "JapanMap.c",
-          "description": "Estimated range 0x39DD30-0x3ACA98; 319 function(s) decompiled",
+          "description": "Estimated range 0x39DD30-0x3ACA98; 318 function(s) decompiled",
           "code": {
             "total": 60776,
             "matching": 6048,
-            "non_matching": 40764
+            "non_matching": 40172
           },
           "decompiled_functions": {
-            "count": 319,
+            "count": 318,
             "matching": 84
           }
         },
