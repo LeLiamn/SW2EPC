@@ -1102,6 +1102,55 @@ vblank, as today. `video_present` stays for software pictures.
   **Widescreen is a game option:** the projection is set in the game code (camera matrices and
   the VU1 constants), and the HUD layout has to move too, so SW2EPC will provide it.
 
+## Launcher side: the 3D path is the GS level (2026-11-28)
+
+Agreed: **B, the GS level**, with your two calls. They are in UPP's `include/upp/upp.h` now, at
+the end of the platform table, so the version stays 1 and `size` tells whether a runtime has
+them. For now the runtime accepts them and logs the first use. The full design is in UPP's
+`docs/runtime.md`, "Video: the GS level".
+
+```c
+void (*gs_packets)(const void *data, size_t qwords);   /* [irq] */
+void (*gs_privileged)(uint32_t reg, uint64_t value);   /* [irq] */
+```
+
+What was chosen around your proposal:
+
+- **`gs_packets`:** GIF tags with PACKED, REGLIST or IMAGE data, path 3 style, from any source
+  (EE packets, the C VU1 programs in place of `XGKICK`, VIF `DIRECT`). Any alignment. The data is
+  copied, so the buffer is free as soon as the call returns, as after a finished DMA.
+- **`gs_privileged(reg, value)`:** `reg` is the offset from 0x12000000 (`UPP_GS_PMODE`,
+  `UPP_GS_DISPFB1`... in the header). If `pc_hw.c` maps the hardware block, it can pass the
+  writes through unchanged.
+- **Order and threads:** one stream, in call order. Neither call blocks, and both may be made from
+  a vblank callback, so `sceGsSwapDBuff` in the interrupt handler is fine.
+- **Display:** at each tick the runtime shows what `PMODE`/`DISPFB`/`DISPLAY` point at. Since you
+  draw whole 640 x 512 frames, the whole frame is shown (what a CRT showed). If a tick has both a
+  `video_present` picture and a GS frame, the last one wins.
+- **Not in the first cut:** local-to-host transfers, `SIGNAL`/`FINISH`/`LABEL` and `CSR` reads.
+  They are logged once if used. Tell us if the game waits on one of them (for example a
+  `FINISH` poll in `sceGsSyncPath`), and it moves up the list.
+- **Your "to record" points:** no logging code is needed in `ps2_gs.c`. The runtime gets a GS trace
+  (`--opt debug.gs_trace=true`): every packet and privileged write with tick marks in
+  `gs_trace.bin`, plus a summary in the log: registers and values used (`XYOFFSET`, Z range,
+  `ALPHA`, `TEST`, `TEX1`, `CLAMP`...), primitives, formats, uploads and draws per frame. It is
+  the first thing built, so you can record as soon as your packets flow.
+- **Widescreen** stays a game option, as you say. Internal resolution and texture filtering are
+  runtime options.
+
+UPP's order of work follows yours:
+
+1. trace, packet parser, registers, GS memory with the real format layouts, uploads and palette
+   loading (CSM1, `CLD`), with unit tests;
+2. title screen and menus: `PSMT8`/`PSMT4` with 32-bit palettes, `PSMCT32`, sprites, triangles,
+   alpha blending, `SCISSOR`, display registers;
+3. battles: strips, lines, the `PSMZ16S` Z buffer, fog, the other blend and test modes, then
+   render-to-texture and GS to GS copies if the trace shows them.
+
+From this side, the useful next step is to send the packets you already build through
+`gs_packets`, rather than only counting them. That needs no drawing on our side yet, and it
+gives the first trace.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -1161,3 +1210,5 @@ vblank, as today. `video_present` stays for software pictures.
   (draw calls or GS packets), VU1, textures, frame buffer, blending, fog, volume, order.
 - 2026-11-28: this project answered the 3D questions: GS level (B) recommended, 15 VU1 programs to
   rewrite in C on the SW2EPC side, formats and modes known so far, the rest to come from a GS trace.
+- 2026-11-28: launcher side: 3D path agreed at the GS level; `gs_packets` and `gs_privileged`
+  added to `upp.h` (still version 1); GS trace first, then menus, then battles.
