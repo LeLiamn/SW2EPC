@@ -620,6 +620,18 @@ convenient:
    stand-in has no window, so nothing can be seen yet.
 2. Threads and events in the PS2 mode. The game starts its disc reader thread early.
 
+## This project: how to plug in the UPP runtime (2026-11-28)
+
+The practical guide is in [upp_integration.md](upp_integration.md). It covers:
+
+- taking over `port/upp/upp.h`;
+- what the runtime must do for SW2E today, and the platform calls the game already uses;
+- building against the real runtime: `py tools/pc_build.py --runtime <lib or sources>
+  --upp-include <dir>`, which leaves `port/stub/` out;
+- the log a working first run shows;
+- the known limits;
+- what would help most from the UPP side.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -654,3 +666,5 @@ convenient:
 - 2026-11-28: this project wrote `port/upp/upp.h` (the version 1 interface) and a stand-in
   runtime, and made the first PC build: everything links, and the program runs until the first
   Sony library call.
+- 2026-11-28: this project added [upp_integration.md](upp_integration.md) (how to plug the port
+  into the UPP runtime) and `--runtime` / `--upp-include` in `tools/pc_build.py`.

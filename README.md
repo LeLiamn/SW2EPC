@@ -32,7 +32,9 @@ with a native PC port as the long-term goal.
 | Sound effects (1,610) | Bank split and decoded to WAV (17 minutes) |
 | Battlefield terrain (186) | Decoded from the game code (Stage.c); terrain exports to OBJ |
 | Effects, events, text, save icon... | Read by checked tools; **100% of the data bytes are classified** |
-| Decompilation | 16.9% of the code in C (50 files in `src/`), 691 functions matching the original byte for byte ([docs/code.md](docs/code.md), [docs/matching.md](docs/matching.md); what is left: [docs/inventory.md](docs/inventory.md)) |
+| Decompilation | 61.5% of the code in C (160 files in `src/`, 29 of them generated from Ghidra's output and checked against the machine code), 2,575 functions matching the original byte for byte ([docs/code.md](docs/code.md), [docs/matching.md](docs/matching.md); what is left: [docs/inventory.md](docs/inventory.md)) |
+| PC port | First build: all of `src/` compiles as 64-bit C and links into `sw2epc.exe`, which loads the player's boot executable from the disc and runs the decompiled `main()` up to the first Sony library call. No picture yet ([docs/pc_build.md](docs/pc_build.md), [docs/port.md](docs/port.md)) |
+| Launcher (UPP) | Interface agreed (platform version 1) and written as `port/upp/upp.h`; how to plug the port into the launcher's runtime: [docs/upp_integration.md](docs/upp_integration.md) |
 
 ## Decompilation
 
@@ -52,10 +54,35 @@ rewritten in C, one original source file at a time, in `src/`:
   the disc reader thread, movies, IPU pictures, text drawing and the first part of the 3D model
   code.
 - About 7% of the code is Sony's libraries, built with another compiler; it is left for later.
+  On the PC they are replaced rather than decompiled (CD, IOP, pads, sound, memory card).
+- **Since then:** the battle core (units, camera, stages, effects, soldiers' AI), the Empire mode
+  (map, commands, turns, officers, events) and many interface screens. Every file uses the same
+  prototypes (`src/sw2e_protos.h`, from `tools/make_protos.py`), so each call is checked against
+  the called function's definition.
 
 `py tools/check_src.py` checks that every file in `src/` is valid C (with any GCC or Clang), and
 `py tools/check_layout.py` that the structs modelling the game's objects sit at the right
 addresses.
+
+## PC port
+
+The port is a 64-bit program that runs the decompiled C with the player's own disc. It will run
+inside **UPP** (UnifiedPortProject), a launcher for this family of ports that provides the window,
+sound, pads, disc access and saves.
+
+- **Memory model:** one 32 MB block stands for the PS2's RAM. The player's boot executable is
+  loaded into it at its PS2 addresses, and addresses stored in game data stay 32-bit
+  ([docs/port.md](docs/port.md)).
+- **Interface with the launcher:** `port/upp/upp.h` (platform version 1, agreed in
+  [docs/launcher.md](docs/launcher.md)). Until the launcher's runtime exists, `port/stub/` stands
+  in for it; [docs/upp_integration.md](docs/upp_integration.md) explains how to plug in the real
+  one.
+- **Build:** `py tools/pc_build.py --disc "Iso/<image>.iso"` builds `build/pc/sw2epc.exe` (GCC or
+  Clang, 64-bit) and writes [docs/pc_build.md](docs/pc_build.md). Each function that is not
+  decompiled yet stops the program with its name, so a run shows the next piece to write.
+- **Today:** the program loads the game's data from the disc, enters the decompiled `main()` and
+  stops at the first Sony library call. Nothing is drawn yet: the GS and VU1 drawing still has to
+  be translated, and the stand-in runtime has no window.
 
 ## Related projects
 
@@ -98,6 +125,9 @@ addresses.
 | `tools/pac0.py` | Read the PAC0 files (one per voice clip of the cutscenes) |
 | `tools/ps2icon.py` | Read the 3D memory card save icon |
 | `tools/check_src.py` | Syntax and type check of the decompiled C in `src/` |
+| `tools/make_protos.py` | Write `src/sw2e_protos.h`, the shared prototypes, from the functions' definitions |
+| `tools/pc_rewrite.py` | Rewrite `src/` for the PC build (globals as accessors into the PS2 memory block) |
+| `tools/pc_build.py` | Build the PC port (`build/pc/sw2epc.exe`) and report what is missing |
 | `tools/check_layout.py` | Check that the game objects' struct fields sit at their addresses |
 | `tools/group_globals.py` | Turn scattered globals into the structs they belong to |
 | `tools/decompme.py` | Prepare a function for a decomp.me scratch (assembly, context, C) |
@@ -112,6 +142,10 @@ addresses.
 - [docs/code.md](docs/code.md): the code, module by module
 - [docs/matching.md](docs/matching.md): compiler settings and how to write matching C
 - [docs/inventory.md](docs/inventory.md): what is left to decompile, and the plan
+- [docs/port.md](docs/port.md): the PC port's memory model and code conventions
+- [docs/pc_build.md](docs/pc_build.md): the latest PC build (generated)
+- [docs/launcher.md](docs/launcher.md): the interface agreed with the UPP launcher, and its history
+- [docs/upp_integration.md](docs/upp_integration.md): how to plug the port into the UPP runtime
 
 ## Contributing rules
 
