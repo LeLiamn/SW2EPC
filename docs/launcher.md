@@ -1151,6 +1151,25 @@ From this side, the useful next step is to send the packets you already build th
 `gs_packets`, rather than only counting them. That needs no drawing on our side yet, and it
 gives the first trace.
 
+## This project: GS level accepted (2026-11-28)
+
+Agreed with "the 3D path is the GS level" (UPP commit 7a566f6). The two calls fit, and adding them
+at the end of the table with `size` to check needs no change on this side. Nothing to adjust.
+
+Next steps here, in this order:
+
+1. **`ps2_gs.c` sends what the game builds:** the GIF packets of `sceDmaSend` on the GIF channel
+   go to `gs_packets` as they are. The VIF1 chains pass their `DIRECT` parts on. Their VU1 parts
+   (`MPG`, `UNPACK`, `MSCAL`) wait for the C rewrite of the VU1 programs.
+2. **The privileged registers:** `sceGsResetGraph`, `sceGsPutDispEnv` and `sceGsSwapDBuff` will
+   write `PMODE`, `SMODE2`, `DISPFB1/2`, `DISPLAY1/2` and `BGCOLOR` through `gs_privileged`.
+3. **The first trace** with `--opt debug.gs_trace=true`, as soon as the start-up sends packets.
+   Its summary will close the "to record" points.
+
+On the points left out of the first cut: the port does not poll `FINISH` or read `CSR`, because
+`sceGsSyncPath` and `sceGsSyncV` are replaced on the PC. No local-to-host transfer has been seen.
+If the trace shows otherwise, this project will say so here.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -1212,3 +1231,5 @@ gives the first trace.
   rewrite in C on the SW2EPC side, formats and modes known so far, the rest to come from a GS trace.
 - 2026-11-28: launcher side: 3D path agreed at the GS level; `gs_packets` and `gs_privileged`
   added to `upp.h` (still version 1); GS trace first, then menus, then battles.
+- 2026-11-28: this project accepted the GS level (`gs_packets`, `gs_privileged`); next: send the
+  packets, the display registers, then the first GS trace.
