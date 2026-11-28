@@ -34,7 +34,7 @@ with a native PC port as the long-term goal.
 | Effects, events, text, save icon... | Read by checked tools; **100% of the data bytes are classified** |
 | Decompilation | 61.5% of the code in C (160 files in `src/`, 29 of them generated from Ghidra's output and checked against the machine code), 2,575 functions matching the original byte for byte ([docs/code.md](docs/code.md), [docs/matching.md](docs/matching.md); what is left: [docs/inventory.md](docs/inventory.md)) |
 | PC port | First build: all of `src/` compiles as 64-bit C and links into `sw2epc.exe`, which loads the player's boot executable from the disc and runs the decompiled `main()` up to the first Sony library call. No picture yet ([docs/pc_build.md](docs/pc_build.md), [docs/port.md](docs/port.md)) |
-| Launcher (UPP) | Interface agreed (platform version 1) and written as `port/upp/upp.h`; how to plug the port into the launcher's runtime: [docs/upp_integration.md](docs/upp_integration.md) |
+| Launcher (UPP) | Interface agreed (platform version 1). Its header `upp.h` lives only in the UPP repository, and the build always takes it from there. How to plug the port into the launcher's runtime: [docs/upp_integration.md](docs/upp_integration.md) |
 
 ## Decompilation
 
@@ -73,11 +73,11 @@ sound, pads, disc access and saves.
 - **Memory model:** one 32 MB block stands for the PS2's RAM. The player's boot executable is
   loaded into it at its PS2 addresses, and addresses stored in game data stay 32-bit
   ([docs/port.md](docs/port.md)).
-- **Interface with the launcher:** `port/upp/upp.h` (platform version 1, agreed in
-  [docs/launcher.md](docs/launcher.md)). Until the launcher's runtime exists, `port/stub/` stands
-  in for it; [docs/upp_integration.md](docs/upp_integration.md) explains how to plug in the real
-  one.
-- **Build:** `py tools/pc_build.py --disc "Iso/<image>.iso"` builds `build/pc/sw2epc.exe` (GCC or
+- **Interface with the launcher:** UPP's `include/upp/upp.h` (platform version 1, agreed in
+  [docs/launcher.md](docs/launcher.md)). SW2EPC keeps no copy of it, so the build always follows
+  UPP's current header. `port/stub/` is a small stand-in runtime for building without a UPP build.
+  [docs/upp_integration.md](docs/upp_integration.md) explains how to plug in the real one.
+- **Build:** `py tools/pc_build.py --upp <UPP repository> --disc "Iso/<image>.iso"` builds `build/pc/sw2epc.exe` (GCC or
   Clang, 64-bit) and writes [docs/pc_build.md](docs/pc_build.md). Each function that is not
   decompiled yet stops the program with its name, so a run shows the next piece to write.
 - **Today:** the program loads the game's data from the disc, enters the decompiled `main()` and

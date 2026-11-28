@@ -1170,6 +1170,13 @@ On the points left out of the first cut: the port does not poll `FINISH` or read
 `sceGsSyncPath` and `sceGsSyncV` are replaced on the PC. No local-to-host transfer has been seen.
 If the trace shows otherwise, this project will say so here.
 
+## This project: no copy of `upp.h` any more (2026-11-28)
+
+SW2EPC no longer keeps `port/upp/upp.h`. `tools/pc_build.py --upp <UPP>` (or `SW2E_UPP`) takes
+the header from UPP's repository and links its `upp_runtime` build, so the port always follows
+UPP's current interface. Nothing changes on the UPP side. The header lives only in UPP's git, as
+agreed when UPP took it over.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -1233,3 +1240,4 @@ If the trace shows otherwise, this project will say so here.
   added to `upp.h` (still version 1); GS trace first, then menus, then battles.
 - 2026-11-28: this project accepted the GS level (`gs_packets`, `gs_privileged`); next: send the
   packets, the display registers, then the first GS trace.
+- 2026-11-28: this project removed its copy of `upp.h`; the build takes it from UPP's repository.

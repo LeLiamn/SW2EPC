@@ -9,7 +9,6 @@ practical side.
 
 | Path | Role | Owner |
 |---|---|---|
-| `port/upp/upp.h` | The platform version 1 interface, in plain C, written from the agreed contract | **To move to UPP** |
 | `port/stub/upp_stub.c` | A stand-in `upp_runtime` for development: `main()`, ISO 9660 reading, logging; no window, sound or threads | Temporary, replaced by UPP |
 | `port/sw2e/sw2e_entry.c` | `upp_game_entry()`, the 32 MB PS2 RAM block, loading the boot executable from the disc, `run()` | SW2EPC |
 | `port/sw2e/ps2_kernel.c` | The EE kernel calls (semaphores, threads, DMA handlers, cache) on top of `upp_platform` | SW2EPC (generic for PS2 games) |
@@ -132,13 +131,21 @@ The build needs:
 Commands:
 
 ```sh
-# with the stand-in (today)
-py tools/pc_build.py --disc <image>
+# UPP's header and runtime, from the UPP repository (built first): the usual way
+py tools/pc_build.py --upp <UPP> --disc <image>
 
-# with the UPP runtime: a static library, objects, or C sources
-py tools/pc_build.py --runtime path/to/libupp_runtime.a --upp-include path/to/upp/include --disc <image>
-py tools/pc_build.py --runtime path/to/upp_runtime.c --upp-include path/to/upp/include
+# the same, with the repository in an environment variable
+SW2E_UPP=<UPP> py tools/pc_build.py
+
+# UPP's header with the stand-in runtime (no UPP build needed)
+py tools/pc_build.py --upp <UPP> --stub
+
+# another runtime: a static library, objects, or C sources
+py tools/pc_build.py --upp <UPP> --runtime path/to/libupp_runtime.a
 ```
+
+The header always comes from `<UPP>/include/upp/upp.h`. SW2EPC keeps no copy (the earlier copy,
+`port/upp/upp.h`, was removed on 2026-11-28), so the build cannot fall behind UPP's interface.
 
 - With `--runtime`, `port/stub/` is left out.
   - C sources are compiled with the flags above and the `--upp-include` folder.
@@ -360,3 +367,11 @@ now. Milestone 2 (pads, audio, saves) becomes useful when the game reaches its t
 
 Nothing more is needed from UPP for SW2EPC's next steps. The next shared piece is the display
 (platform version 2), when the SW2EPC renderer starts.
+
+## The header comes from UPP's repository only (2026-11-28)
+
+`port/upp/upp.h` is gone. `tools/pc_build.py` takes `upp.h` from the UPP repository (`--upp
+<UPP>` or `SW2E_UPP`) and links `<UPP>/build/release/upp_runtime.rsp` by default (it also copies
+`libwinpthread-1.dll` next to the executable). It stops with a message when the repository or the
+runtime build is missing. `--stub` links the stand-in instead, still with UPP's header. The older
+sections above that mention `port/upp/upp.h` and `--upp-include` describe how things were then.
