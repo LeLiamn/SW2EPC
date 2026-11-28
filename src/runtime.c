@@ -20,6 +20,7 @@
 #define SW2E_FILE_RUNTIME_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+#include "sw2e_pc.h"
 
 typedef unsigned char u8;
 typedef unsigned int u32;
@@ -93,6 +94,7 @@ void func_00117FA0(void)
 
     for (i = 0; i < 10; i++)
         v[i] = g_004015D0[i];
+#ifndef SW2E_PC   /* the PC code does not use the VU0 registers */
     __asm__ volatile(
         "vsub.xyzw $vf31, $vf0, $vf0\n"
         "lqc2 $vf28, 0(%0)\n"
@@ -110,6 +112,7 @@ void func_00117FA0(void)
         : "r"(&v[0]), "r"(&v[1]), "r"(&v[2]), "r"(&v[3]), "r"(&v[6]), "r"(&v[7]), "r"(&v[8]),
           "r"(&v[9])
         : "memory");
+#endif
 }
 
 /* 0x001181E0, 0x114 bytes. Sets VU0 up: its packet sent, the constants loaded, then in the
@@ -237,7 +240,11 @@ void func_001185B0(Vec4 *to, u32 n)
     u32 i;
 
     for (i = 0; i < n; i++)
+#ifdef SW2E_PC
+        to[i] = (Vec4){ 0 };
+#else
         __asm__ volatile("sq $0, 0(%0)" : : "r"(&to[i]) : "memory");
+#endif
 }
 
 /* 0x001185E0, 0x268 bytes. Fills `n` bytes with `c`: bytes up to a 16-byte boundary, bytes at

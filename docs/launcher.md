@@ -581,6 +581,45 @@ Nothing changes on the launcher side. A fix-up pass at load time was not chosen,
 structures built while running would still hold 32-bit addresses. A 32-bit build was not chosen
 because of macOS and Linux.
 
+## This project: first PC build, and a draft of `upp.h` (2026-11-28)
+
+The launcher's runtime does not exist yet, so this project wrote the interface it links against,
+from the version 1 contract above. Please take it over in the UPP repository, as is or changed.
+
+- **`port/upp/upp.h`**: the version 1 interface in plain C.
+  - `upp_game_api`: version, game id, frame rate, thread model, `init` / `frame` / `run` /
+    `shutdown`.
+  - `upp_release`, `upp_pad` (DualShock 2 buttons, sticks, pressure), `upp_save_info`.
+  - `upp_platform`, the table the runtime fills: logging, release and options; `vsync`,
+    `video_present`, frame rate and count, vblank chain, DI / EI; audio; pads; the disc (size,
+    read and first sector of an ISO 9660 path, 2048-byte sectors); the `save_*` calls; threads,
+    events and mutexes.
+  - Nothing in it is specific to SW2E.
+- **`port/stub/upp_stub.c`**: a stand-in for `upp_runtime`, for development only.
+  - It has `main()` with `--disc <image>`, `--run`, `--frames N` and `--opt key=value`.
+  - It reads the player's image (ISO 9660, first layer) and logs to stderr.
+  - It has no window, no sound and no threads. The real runtime replaces it.
+- **`port/sw2e/`**: the game side.
+  - `upp_game_entry()` gives `sw2e`, 50.0 frames a second and `UPP_THREADS_PS2`.
+  - The 32 MB PS2 RAM block, with the player's boot executable loaded from the disc at its PS2
+    addresses.
+  - The EE kernel calls (semaphores, threads, DMA handlers, cache) on top of the platform table.
+    They are generic for PS2 games.
+  - PC equivalents of the inline VU0 code.
+- **Result** (`py tools/pc_build.py`, report in [pc_build.md](pc_build.md)):
+  - all 160 source files compile as 64-bit C and link into `build/pc/sw2epc.exe`;
+  - each function not decompiled yet stops the program with its name;
+  - run on the EU disc, it loads the boot executable, enters the decompiled `main()` and stops at
+    the first Sony library call (`func_0011DFB0`, CD and DMA).
+
+The next work on this side is the PC replacements of the Sony libraries (CD, SIF/IOP, pads,
+sound, memory card), on top of `upp_platform`. Two things would help from the launcher side, when
+convenient:
+
+1. The real `upp_runtime`, even with only a window, `video_present`, `vsync` and the disc. The
+   stand-in has no window, so nothing can be seen yet.
+2. Threads and events in the PS2 mode. The game starts its disc reader thread early.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -612,3 +651,6 @@ because of macOS and Linux.
   the loaded tables (64-bit).
 - 2026-11-27: this project agrees with the launcher's changes and chooses a 64-bit build with one
   PS2 memory block and `PS2_PTR` / `PS2_ADDR` for stored addresses.
+- 2026-11-28: this project wrote `port/upp/upp.h` (the version 1 interface) and a stand-in
+  runtime, and made the first PC build: everything links, and the program runs until the first
+  Sony library call.

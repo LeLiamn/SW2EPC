@@ -16,6 +16,7 @@ int func_002F57F0(int k);
 #define SW2E_FILE_UNIT_SETUP_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+#include "sw2e_pc.h"
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -51,6 +52,9 @@ u8 *func_001BE770(void);
 void func_001649C0(Unit *u);
 
 /* The matrix of rotation `rot` and position `pos` (VU0 micro subroutine 0x50) into m. */
+#ifdef SW2E_PC
+#define UNIT_MATRIX(m, rot, pos) sw2e_vu0_matrix((float *)(m), (const float *)(rot), (const float *)(pos))
+#else
 #define UNIT_MATRIX(m, rot, pos)                                        \
     __asm__ volatile("lqc2 $vf1, 0(%1)\n"                               \
                      "lqc2 $vf2, 0(%2)\n"                               \
@@ -61,6 +65,7 @@ void func_001649C0(Unit *u);
                      "sqc2 $vf18, 0x20(%0)\n"                           \
                      "sqc2 $vf19, 0x30(%0)\n"                           \
                      : : "r"(m), "r"(rot), "r"(pos) : "$9", "memory")
+#endif
 
 /* 0x00164680, 0x34 bytes, matching. Clears a unit and gives it its defaults. */
 void func_00164680(Unit *u)
@@ -892,6 +897,9 @@ static inline float *root_node(u8 *a)
 }
 
 /* The rotation matrix of the unit's rotation +0x50 (VU0 micro subroutine 0x40) into m. */
+#ifdef SW2E_PC
+#define ROT_MATRIX(m, rot) sw2e_vu0_rotation((float *)(m), (const float *)(rot))
+#else
 #define ROT_MATRIX(m, rot)                                              \
     __asm__ volatile("lqc2 $vf1, 0(%1)\n"                               \
                      "vcallms 0x40\n"                                   \
@@ -901,6 +909,7 @@ static inline float *root_node(u8 *a)
                      "sqc2 $vf18, 0x20(%0)\n"                           \
                      "sqc2 $vf19, 0x30(%0)\n"                           \
                      : : "r"(m), "r"(rot) : "$9", "memory")
+#endif
 
 /* The motion's root offset turned with the unit (by the scratchpad matrix at 0x70000080). */
 static inline void root_offset(Unit *u)

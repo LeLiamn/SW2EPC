@@ -96,6 +96,27 @@ py tools/pc_rewrite.py --report
 gcc -m64 -DSW2E_PC -std=gnu99 -fsyntax-only -Ibuild/pc/src build/pc/src/<file>.c
 ```
 
+## The first PC build (2026-11-28)
+
+`py tools/pc_build.py [--disc <image>]` builds `build/pc/sw2epc.exe` and writes
+[pc_build.md](pc_build.md). It runs the steps below, in order:
+
+1. Rewrites `src/` into `build/pc/src/`.
+2. Compiles every file as 64-bit C.
+3. Adds the port's own files (`port/sw2e/`, and `port/stub/` until the UPP runtime exists).
+4. Turns every function that is not decompiled yet into a stop that names it.
+5. Links the result.
+
+Three more PC forms were added for this build:
+
+- **Inline PS2 assembly** has a PC equivalent under `#ifdef SW2E_PC`, declared in
+  `src/sw2e_pc.h`. These are the VU0 matrix subroutines and EI. The PS2 build keeps the
+  assembly.
+- **Function tables in PS2 data** (`extern R (*g_X[N])(A);`) hold PS2 code addresses. On the PC
+  they are read through `sw2e_fntab()`, which turns each address into the C function with that
+  address tag (`sw2e_func()`).
+- **Single function pointers**, which the game sets itself, become ordinary PC variables.
+
 ## Where the code stands (2026-11-27)
 
 - **All 137 files compile as 64-bit C** after the rewrite (`-fsyntax-only`, MinGW GCC 15).

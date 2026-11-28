@@ -17,6 +17,7 @@
 #define SW2E_FILE_IPU_PICTURE_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+#include "sw2e_pc.h"
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -129,8 +130,12 @@ int func_00143B50(int arg)
         g_0056CC80.current++;
         func_00143AB0(g_0056CC80.queue[g_0056CC80.current]);
     }
+#ifdef SW2E_PC
+    sw2e_intr_enable();
+#else
     __asm__ volatile("sync.l");
     __asm__ volatile("ei");
+#endif
     return arg;
 }
 

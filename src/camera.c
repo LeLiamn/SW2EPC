@@ -20,6 +20,7 @@
 #define SW2E_FILE_CAMERA_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+#include "sw2e_pc.h"
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -846,6 +847,9 @@ extern float g_004064B0[3][2];           /* view angle and +0x220 of the three t
 void func_0029EC70(float dt, int *cam);
 
 /* The matrix of rotation `rot` and position `pos` (VU0 micro subroutine 0x50) into m. */
+#ifdef SW2E_PC
+#define CAM_MATRIX(m, rot, pos) sw2e_vu0_matrix((float *)(m), (const float *)(rot), (const float *)(pos))
+#else
 #define CAM_MATRIX(m, rot, pos)                                         \
     __asm__ volatile("lqc2 $vf1, 0(%1)\n"                               \
                      "lqc2 $vf2, 0(%2)\n"                               \
@@ -856,6 +860,7 @@ void func_0029EC70(float dt, int *cam);
                      "sqc2 $vf18, 0x20(%0)\n"                           \
                      "sqc2 $vf19, 0x30(%0)\n"                           \
                      : : "r"(m), "r"(rot), "r"(pos) : "$9", "memory")
+#endif
 
 /* 0x00163A20, 0x17C bytes. The camera looking down at the unit's point (+0x90) from 300 away
  * along the flat line from it, at least 200 above it and 50 above the ground (Y points down);

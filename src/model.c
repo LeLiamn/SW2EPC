@@ -21,6 +21,7 @@
 #define SW2E_FILE_MODEL_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+#include "sw2e_pc.h"
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -658,6 +659,9 @@ void func_00143268(void *m, void *a, void *b, void *c);           /* sceVu0Norma
 void func_00143328(void *m, void *a, void *b, void *c, void *d);  /* sceVu0LightColorMatrix? */
 
 /* A node's local matrix from its rotation and translation (VU0 micro subroutine 0x50). */
+#ifdef SW2E_PC
+#define NODE_MATRIX(n) sw2e_vu0_matrix((float *)((u8 *)(n) + 0x20), (const float *)((u8 *)(n) + 0x10), (const float *)(n))
+#else
 #define NODE_MATRIX(n)                                                  \
     __asm__ volatile("lqc2 $vf1, 0x10(%0)\n"                            \
                      "lqc2 $vf2, 0(%0)\n"                               \
@@ -668,6 +672,7 @@ void func_00143328(void *m, void *a, void *b, void *c, void *d);  /* sceVu0Light
                      "sqc2 $vf18, 0x40(%0)\n"                           \
                      "sqc2 $vf19, 0x50(%0)\n"                           \
                      : : "r"(n) : "$9", "memory")
+#endif
 
 /* Takes a node's rotation and translation from its 9 floats (rotation, ?, translation). */
 #define NODE_TRS(n, trs)                                                \

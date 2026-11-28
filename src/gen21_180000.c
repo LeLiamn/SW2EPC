@@ -2674,7 +2674,7 @@ void func_002B6000(u8 *param_1, int param_2, int param_3, int param_4, int param
     unsigned long long uVar2;
 
   
-  uVar2 = PS2_ADDR(func_00104E70(param_1 + *(int *)(param_1 + 8) *
+  uVar2 = (u32)(func_00104E70(param_1 + *(int *)(param_1 + 8) *
                                  *(int *)((param_2 + (u32)param_10) * 8 + param_1 + 0x10),0x1d00,
                        0x3ffc,param_9));
   iVar4 = 0;
@@ -3754,7 +3754,7 @@ float func_003AFE50(u8 *param_1)
       fVar6 = fVar6 * 0.5f;
     }
     lVar2 = PS2_ADDR(func_0034A740((unsigned char *)PS2_PTR(iVar1)));
-    if ((lVar2 != 0) && (lVar3 = PS2_ADDR(func_0033B050((unsigned char **)PS2_PTR(lVar2))), lVar3 != 0)) {
+    if ((lVar2 != 0) && (lVar3 = (u32)(func_0033B050((unsigned char **)PS2_PTR(lVar2))), lVar3 != 0)) {
       iVar1 = PS2_ADDR(func_00338410(((int)lVar2 + -0x6a1d58) / 0x68));
       if (*(char *)((u8 *)PS2_PTR(iVar1) + 0x27) == '\0') {
         fVar6 = fVar6 * 2.0f;
@@ -3788,7 +3788,7 @@ float func_003AFF70(u8 *param_1)
       fVar6 = fVar6 * 0.5f;
     }
     lVar2 = PS2_ADDR(func_0034A740((unsigned char *)PS2_PTR(iVar1)));
-    if ((lVar2 != 0) && (lVar3 = PS2_ADDR(func_0033B050((unsigned char **)PS2_PTR(lVar2))), lVar3 != 0)) {
+    if ((lVar2 != 0) && (lVar3 = (u32)(func_0033B050((unsigned char **)PS2_PTR(lVar2))), lVar3 != 0)) {
       iVar1 = PS2_ADDR(func_00338410(((int)lVar2 + -0x6a1d58) / 0x68));
       if (*(char *)((u8 *)PS2_PTR(iVar1) + 0x27) == '\x01') {
         fVar6 = fVar6 * 2.0f;

@@ -321,7 +321,7 @@ void func_002B5870(u8 *param_1, int param_2, int param_3, int param_4, int param
     int * piVar3;
     unsigned long long uVar2;
 
-    uVar2 = PS2_ADDR(func_00104E70(param_1 + *(int *)(param_1 + 8) *
+    uVar2 = (u32)(func_00104E70(param_1 + *(int *)(param_1 + 8) *
                                                                   *(int *)(((u32)param_2 & 0xFF) * 8 + param_1 + 0x10),0x1D00,0x3FFC
                                               , param_9));
     iVar4 = 0;

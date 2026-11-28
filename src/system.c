@@ -15,6 +15,7 @@
 #define SW2E_FILE_SYSTEM_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+#include "sw2e_pc.h"
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -572,8 +573,12 @@ int func_00101C20(int cause)
     g_0045D184 = REG_RCNT1_COUNT % 0x107;
     if (g_0045D190 < g_0045D184 && g_0045D198 != 0)
         g_0045D198(g_0045D184);
+#ifdef SW2E_PC
+    sw2e_intr_enable();
+#else
     __asm__ volatile("sync.l");
     __asm__ volatile("ei");
+#endif
     return cause;
 }
 

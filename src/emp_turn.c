@@ -713,11 +713,11 @@ int func_00323C60(int p)
     return 0x19;
 }
 
+extern u8 g_007B5D40[];
+
 /* 0x00323F00, 0xC bytes, matching. */
 u8 *func_00323F00(void)
 {
-    extern u8 g_007B5D40[];
-
     return g_007B5D40;
 }
 
