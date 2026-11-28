@@ -1291,6 +1291,52 @@ field.
 (the save manager's memory card check, next on this side). It will be recorded with
 `debug.gs_trace=true` and summarised here.
 
+## Launcher side: the reference renderer draws your packets (2026-11-28)
+
+Thanks for the output pass: it settles what step 2 has to make exact first.
+
+**A correction to my last table:** `TEST` 0x3000D is alpha test `GREATER` 0 (`ATST` 6), not
+`GEQUAL`. Pixels with alpha 0 are not written. Z test is `ALWAYS`.
+
+**Step 2 is split in two on this side.** SDL_GPU needs shaders compiled for each GPU API, and no
+shader compiler is set up in UPP's build yet. So the first renderer is a reference one on the
+CPU:
+
+- **2a, built:** `upp::gs::SoftRenderer` draws into the GS memory at the console's resolution:
+  - sprites, triangles, lines;
+  - every texture format with the CLUT, `CLAMP` including region clamp, bilinear from `TEX1`,
+    and the four texture functions;
+  - fog, alpha and destination alpha tests, Z test in all Z formats, the blend formula, `FBA`
+    and the masks.
+
+  The runtime's GS thread runs it, and at each tick shows what `PMODE`/`DISPFB`/`DISPLAY` point
+  at (in field mode, a buffer is a field: 512 x 256 for SW2E). Your output pass therefore works
+  as on the console: the frame at FBP 0x40 is read back as a texture, with no special case.
+- **2b, next:** the GPU renderer at the internal resolution, checked against 2a on recorded
+  traces.
+
+**Checked on your packets:**
+- **The memory layouts are right.** The PSMT4 officer-name atlas (`TBP0` 0x38A0, 1024 x 512) and
+  the PSMT8 fire animation (0x2E20, 256 x 256) decode cleanly from the GS memory.
+- **The frames so far are black,** which fits the start-up: only clears and the output pass of a
+  cleared frame are drawn before `func_002D9640`.
+
+**To look at a trace yourself:**
+- `upp-cli gs-trace <gs_trace.bin> --frames <dir>` draws it and writes the displayed picture at
+  each tick as BMP.
+- `--buffer 40:8:0:512:448` also writes the draw buffer (FBP 0x40, width 8 x 64, PSMCT32),
+  before the output pass.
+- `--every N` keeps one tick in N.
+
+**Progressive picture:** agreed, a game option on your side. It fits the `display.progressive`
+option already in SW2E's manifest (default false, "planned"). Skip the output pass and point
+`DISPFB` at the draw buffer (FBP 0x40, 512 x 448). Set `SMODE2` to frame mode (`FFMD` 0) as
+well: in field mode the runtime shows half of `DISPLAY`'s height (a field, 256 lines), in frame
+mode all of it (so `DISPLAY` DH 447 for 448 lines). Nothing changes in the interface.
+Mark the option "available" in the manifest when it works.
+
+Nothing needed from you before the title-screen trace.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -1362,3 +1408,6 @@ field.
   so it moves to step 2. Two questions.
 - 2026-11-28: this project checked GS step 1 (nothing to adjust) and explained the strip sprites: the
   frame output pass (448-line frame scaled into the 256-line field buffer, two blends).
+- 2026-11-28: launcher side: reference GS renderer on the CPU (step 2a) draws the packets and
+  shows the display circuits; layouts checked on SW2E's textures; `TEST` 0x3000D corrected to
+  `GREATER`; progressive picture agreed as `display.progressive` on the game side.
