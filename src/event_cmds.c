@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EVENT_CMDS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -33,13 +37,11 @@ extern u8 *g_005BA6A0;
 #define SP_PKT (*(u32 **)0x70000158)
 #define FL38(o) (*(u32 *)((o) + 0x38))
 
-u32 func_001D6BD0(void *out, u32 cur, u8 t, u8 s);
-
 /* Reads the command's next argument into `out`. */
 #define ARG(p, out) do {                                                \
     u8 t_ = *(*(u8 **)((p) + 0x10))++;                                  \
     u8 s_ = *(*(u8 **)((p) + 0x14))++;                                  \
-    *(u32 *)((p) + 0xC) = func_001D6BD0((out), *(u32 *)((p) + 0xC), t_, s_); \
+    *(u32 *)((p) + 0xC) = func_001D6BD0((unsigned int *)((out)), (unsigned int *)PS2_PTR(*(u32 *)((p) + 0xC)), t_, s_); \
 } while (0)
 
 /* The player's draw flags for event models. */
@@ -47,46 +49,20 @@ u32 func_001D6BD0(void *out, u32 cur, u8 t, u8 s);
 
 u8 *func_001D78D0(u16 k);
 u8 *func_001D7870(u16 k);
-u8 *func_001E17E0(u16 k);
 u8 *func_0014F810(u8 *m, u8 k);
 u8 *func_001C7DB0(u16 k, u8 *part, u32 f);
-u8 *func_001C8810(u16 k, u8 *m, u16 a, u32 f);
 u8 *func_001C7F30(u16 k, u8 *o, int a, u32 f);
-u8 *func_001C8340(u16 k, u8 *m, int a, u32 f);
 void func_001C8CF0(int k);
-void func_001C8A00(void);
-u64 *func_00105190(void);
-u64 *func_00105410(void);
 void func_001E2100(void);
 void func_001E1A20(u32 *e, int x);
 void func_001D7670(u8 *cam);
-void func_001D8E50(u32 *e);
-void func_001DB8A0(u32 *e);
-void func_00272C80(u32 *e);
 void func_001D7470(float dt);
 void func_001E2360(float dt, u32 *e);
-void func_001D8EC0(float dt, u32 *e);
-void func_00272C60(float dt, u32 *e);
 void func_001DADC0(u8 *e);
 void func_0022E5D0(void);
-void func_00191240(int k);
-void func_00195C60(void);
-void func_00195CE0(void);
-void func_001F5150(void);
-void func_001F5260(void);
 void func_001E29C0(u32 *e, int k);
-void func_002E5E10(int a, int b);
-void func_001D8EF0(u32 *e, int k);
 void func_001DB6B0(u32 *e);
-void func_0017A400(int k);
 void func_0022ECD0(int k);
-int func_0032F780(void);
-int func_0032F090(int v);
-u32 func_00190D50(void);
-int func_001934E0(u32 k);
-int func_001F2B70(u8 *u);
-int func_00190B90(u8 *a, u8 *b);
-void func_00190C00(u8 *a, int b);
 
 /* 0x001D8170, 0x25C bytes. Attaches model `b` to part `d` of event actor `a` (or to the actor
  * itself), as event object `e`. */
@@ -103,7 +79,7 @@ void func_001D8170(u8 *p)
     ARG(p, &e);
     ARG(p, &f);
     o = func_001D78D0(e);
-    m = func_001E17E0(a);
+    m = (u8 *)PS2_PTR(func_001E17E0(a));
     if (m != 0 && o != 0) {
         u8 *part = func_0014F810(m, (u8)d);
 
@@ -111,7 +87,7 @@ void func_001D8170(u8 *p)
         if (f == 0)
             *(u8 **)(o + 0x14) = func_001C7DB0(g_0040C940[b], part, PLAYER_FLAGS(g_0040C9F0[c]));
         else
-            *(u8 **)(o + 0x18) = func_001C8810(g_0040C940[b], m, d, PLAYER_FLAGS(g_0040C9F0[c]));
+            *(u8 **)(o + 0x18) = (u8 *)PS2_PTR(func_001C8810(g_0040C940[b], PS2_ADDR(m), d, PLAYER_FLAGS(g_0040C9F0[c])));
     }
 }
 
@@ -180,7 +156,7 @@ void func_001D89C0(u8 *p)
     ARG(p, &e);
     ARG(p, &f);
     o = func_001D78D0(e);
-    m = func_001E17E0(a);
+    m = (u8 *)PS2_PTR(func_001E17E0(a));
     if (m != 0 && o != 0) {
         u8 *part = func_0014F810(m, d[0]);
         u32 *q = (u32 *)o;
@@ -244,7 +220,7 @@ void func_001D8F90(void)
     p[2] = 0x13000000;
     p[3] = 0;
     SP_PKT = p + 4;
-    q = func_00105190();
+    q = (u64 *)(func_00105190());
     q[2] = 0x8000000044ULL;
     q[3] = 0x43;
     q[4] = 0x3000D;
@@ -259,7 +235,7 @@ void func_001D8F90(void)
     p[2] = 0x13000000;
     p[3] = 0x51000005;
     SP_PKT = p + 4;
-    q = func_00105410();
+    q = (u64 *)(func_00105410());
     q[3] = 0x3F80000080000000ULL;
     q[4] = 0xFFFE79007000ULL;
     q[5] = 0xFFFE7A809000ULL;
@@ -269,7 +245,7 @@ void func_001D8F90(void)
     p[2] = 0x13000000;
     p[3] = 0x51000003;
     SP_PKT = p + 4;
-    q = func_00105410();
+    q = (u64 *)(func_00105410());
     q[3] = 0x3F80000080000000ULL;
     q[4] = 0xFFFE84807000ULL;
     q[5] = 0xFFFE87009000ULL;
@@ -289,9 +265,9 @@ void func_001D91F0(u32 *e, int x)
     func_001E2100();
     func_001E1A20(e, x);
     func_001D7670(g_00730570[g_0045D3E0]);
-    func_001D8E50(e);
-    func_001DB8A0(e);
-    func_00272C80(e);
+    func_001D8E50((unsigned char *)(e));
+    func_001DB8A0((unsigned char *)(e));
+    func_00272C80((unsigned char *)(e));
 }
 
 /* 0x001D93B0, 0xD8 bytes. The event scene's time; whether it goes on. */
@@ -304,8 +280,8 @@ int func_001D93B0(u32 *e, float *dt)
     g_0045D2C0 = g_00730570[g_0045D3E0];
     func_001D7470(*dt);
     func_001E2360(*dt, e);
-    func_001D8EC0(*dt, e);
-    func_00272C60(*dt, e);
+    func_001D8EC0(*dt, (unsigned char *)(e));
+    func_00272C60(*dt, (unsigned char *)(e));
     if (f[0x10] < 0.0f)
         f[0x10] = 0.0f;
     else
@@ -336,7 +312,7 @@ void func_001D9490(u32 *e, int k)
         func_001F5260();
         func_001E29C0(e, 0);
         func_002E5E10(0, 0);
-        func_001D8EF0(e, 0);
+        func_001D8EF0(PS2_ADDR(e), 0);
         func_001DB6B0(e);
     } else {
         func_0017A400(b);
@@ -350,7 +326,7 @@ void func_001D9490(u32 *e, int k)
         func_001F5260();
         func_001E29C0(e, b);
         func_002E5E10(b, 0);
-        func_001D8EF0(e, b);
+        func_001D8EF0(PS2_ADDR(e), b);
     }
     if (g_0073C790 == 0xB6 && (*e & 4) == 0)
         func_001D8F90();
@@ -383,8 +359,8 @@ void func_001D9850(u8 *p)
         *(u32 *)(p + 0x2C) = ang;
         if (func_00190D50() <= idx)
             idx = func_00190D50();
-        *(int *)(p + 0x34) = func_001934E0(idx);
-        *(int *)(p + 0x34) = func_001F2B70(p + 0x30);
+        *(float *)(p + 0x34) = func_001934E0(idx);
+        *(float *)(p + 0x34) = func_001F2B70(p + 0x30);
         *(int *)(p + 0x3C) = 0;
     }
 }
@@ -392,10 +368,10 @@ void func_001D9850(u8 *p)
 /* 0x001D9A40, 0x68 bytes. */
 void func_001D9A40(u8 *p)
 {
-    if (func_00190B90(p + 0x30, g_0073C460 + g_0073C79D * 0x10) == 0)
-        func_00190C00(p + 0x30, 0);
+    if (func_00190B90((unsigned int *)(p + 0x30), g_0073C460 + g_0073C79D * 0x10) == 0)
+        func_00190C00((unsigned int *)(p + 0x30), 0);
     *(int *)(p + 0x2C) = 0;
-    *(int *)(p + 0x34) = func_001F2B70(p + 0x30);
+    *(float *)(p + 0x34) = func_001F2B70(p + 0x30);
     *(int *)(p + 0x3C) = 0;
 }
 
@@ -435,23 +411,11 @@ extern u8 g_00730D10[];
 extern u8 g_00730DA0[3][0x10];           /* the effect pairs */
 extern u8 g_0073C79B[];
 
-int func_001D9C80(u8 *p, u16 a, u32 b, u16 c);
 float func_001D6C70(u8 *c);
-void func_001DA7E0(u8 *e);
 int func_0032F420(u16 k);
-int func_0032F7D0(int a);
-int func_001D9610(int a, u16 b);
-void func_0032FDD0(int a, u8 *out, int *r);
 void func_002723B0(u8 *e, int k, int a);
-int func_001D9670(void);
-void func_001DF1C0(u8 *e, u16 a, int b);
-void func_002AD8B0(u8 *p);
-void func_00118850(void *p, int n);
-void *func_0020EC50(int n);
 void func_001DC040(void);
-void func_001DBCF0(void);
 void func_002E9840(u8 *p);
-int func_0020E310(int a);
 
 /* The next command of event `e` (file + its offset). */
 #define EV_SEEK(e, c) do {                                              \
@@ -583,11 +547,11 @@ void func_001DB520(u8 *p)
     ARG(p, &a);
     ARG(p, &b);
     ARG(p, &c);
-    func_0032FDD0(func_001D9610(func_0032F7D0(func_0032F420(b)), c), g_00730D10, &r);
+    func_0032FDD0(PS2_ADDR(func_001D9610(func_0032F7D0(func_0032F420(b)), c)), g_00730D10, (unsigned int *)(&r));
     func_002723B0(p, (r - 0xA6) & 0xFFFF, 1);
     *(u8 **)(p + 0x20) = g_00730D10;
     if (r > 0x11CE && r < 0x151E)
-        func_001DF1C0(p, a, func_001D9670());
+        func_001DF1C0((unsigned int *)(p), a, PS2_ADDR(func_001D9670(r)));
 }
 
 /* 0x001DBA70, 0x58 bytes. The player's item model shown for `k` (0: none). */
@@ -613,7 +577,7 @@ void func_001DBB50(void)
     for (i = 0; i < 4; i++) {
         u8 *r = g_0045D3F8[g_0045D3E0] + i * 0x18;
 
-        func_002AD8B0(r);
+        func_002AD8B0((unsigned char **)(r));
         func_00118850(r, 0x18);
     }
 }
@@ -713,12 +677,7 @@ extern u8 g_00669D60[];
 extern u8 g_00730DE0[2][0x38];
 extern float g_0056CCC0, g_0056CCC4;
 
-u16 func_0019AE90(u16 f);
 int func_001204B0(void *buf, const char *fmt, ...);
-void func_00147160(const u8 *s, u8 *out, int w, int a, int b);
-void func_001B8920(u8 *s, int *w, int *h);
-void func_001B8800(u8 *s, int x, int y, int a);
-void func_001DC6E0(void);
 
 /* 0x001DB2D0, 0x248 bytes. The caption naming the battle's two forces. */
 void func_001DB2D0(u32 *e)
@@ -758,16 +717,17 @@ void func_001DB6B0(u32 *ev)
     s = *(u8 **)(e + 0x24);
     if (s != 0) {
         func_00147160(s, buf, 0x200, 0, 0);
-        func_001B8920(buf, &w, &h);
-        func_001B8800(buf, (0x200 - w) >> 1,
+        func_001B8920((const char *)(buf), &w, &h);
+        func_001B8800((const char *)(buf), (0x200 - w) >> 1,
                       ((((0x330 - (0x1C0 - ((0x330 - h) >> 1))) - h) >> 1 << 9) / 0x280 * 0x1E0)
-                          / 0x1C0, 0);
+                          / 0x1C0, 0, h);
     }
     if (*(u8 **)(e + 0x20) != 0) {
         func_00147160(*(u8 **)(e + 0x20), buf, 0x200, 0, 0);
-        func_001B8920(buf, &w, &h);
-        func_001B8800(buf, (0x200 - w) >> 1,
-                      (s == 0 ? 0 : 4) + (((0x330 - h) >> 1 << 9) / 0x280 * 0x1E0) / 0x1C0, 0);
+        func_001B8920((const char *)(buf), &w, &h);
+        func_001B8800((const char *)(buf), (0x200 - w) >> 1,
+                      (s == 0 ? 0 : 4) + (((0x330 - h) >> 1 << 9) / 0x280 * 0x1E0) / 0x1C0, 0,
+                      h);   /* not set again by the original: what the first text left */
     }
     g_0056CCC0 = g_0056CCC4 = 16.0f;
 }

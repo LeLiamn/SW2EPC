@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EDIT_WINDOWS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -26,16 +30,7 @@ typedef struct {
 extern u8 *g_0043C120[];                 /* the edit screens' texts */
 extern u8 *g_0043C738;
 
-u8 *func_003766C0(void);
-void func_003D7670(void);
-void func_003D7A10(void);
-void func_003D3C10(void);
-int func_001AE550(float speed, WindowAnim *window, short *pos, u8 *alpha, int a);
 void func_003D47A0(int k, int x, int y, u8 alpha);
-void func_001A7DC0(u8 *text, int a, int b);
-void func_002C59F0(void);
-void func_002C5A30(void);
-void func_001B8F60(int a, int b, int c);
 
 #define EDIT() func_003766C0()
 #define WIN(e, o) ((WindowAnim *)((e) + (o)))
@@ -65,7 +60,7 @@ void func_003D8030(void)
     func_003D7670();
     func_001AE550(1.0f, WIN(e, 0x9AC), pos, &alpha, 0);
     func_003D47A0(0xF, pos[0], pos[1], alpha);
-    func_001A7DC0(g_0043C738, 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C738), 0x80, 1);
 }
 
 /* 0x003D80A0, 0x184 bytes. Draws the page's side window (or only its help text when the entry
@@ -93,7 +88,7 @@ void func_003D80A0(void)
         func_003D47A0(*(int *)(e + 0xA4), pos[0], pos[1], alpha);
         t = 0x185;
     }
-    func_001A7DC0(g_0043C120[t], 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C120[t]), 0x80, 1);
 }
 
 /* 0x003D8280, 0x74 bytes, matching. */
@@ -408,10 +403,6 @@ extern u8 *g_007BEC40;                   /* its textures */
 extern u8 g_00500764, g_00500765;
 extern u16 g_0050074C;
 
-u64 *func_001050F0(void);
-void func_00105230(u64 *packet, int a);
-void func_003DA890(void);
-
 /* 0x003DA8D0, 0x188 bytes. Draws it (fading in over 12 frames, out after 32). */
 void func_003DA8D0(void)
 {
@@ -430,16 +421,16 @@ void func_003DA8D0(void)
     if (a < 0)
         a = 0;
     if (g_007BEC3C == 1 || g_007BEC3C == 3) {
-        p = func_001050F0();
+        p = (u64 *)(func_001050F0());
         p[2] = 0x48;
         p[3] = 0x43;
-        func_00105230(p, 4);
+        func_00105230((unsigned char *)(p), 4);
     }
     func_001ABE40(g_007BEC40, t / 4 % 0xF + base, 0, 0, 0, 0x200, 0x180, a, 4, 0);
-    p = func_001050F0();
+    p = (u64 *)(func_001050F0());
     p[2] = 0x8000000044ULL;
     p[3] = 0x43;
-    func_00105230(p, 4);
+    func_00105230((unsigned char *)(p), 4);
 }
 
 /* 0x003DAA60, 0xC4 bytes. Its frame: whether it is over (one second or the cancel button). */
@@ -494,9 +485,6 @@ extern SlideBox *g_0045D830;             /* (small data) */
 extern int g_0045D834;
 extern Box5 g_0045C4C0;
 
-void *func_00102DB0(int align, int size);
-void func_00102EC0(void *p);
-
 /* 0x003DB0C0, 0x54 bytes, matching. */
 void func_003DB0C0(SlideBox *b)
 {
@@ -515,11 +503,11 @@ void func_003DB120(int n)
     int k;
 
     if (g_0045D830 != 0) {
-        func_00102EC0(g_0045D830);
+        func_00102EC0((unsigned char *)(g_0045D830));
         g_0045D830 = 0;
     }
     g_0045D834 = n;
-    g_0045D830 = func_00102DB0(0x10, n * 0x4C);
+    g_0045D830 = (SlideBox *)(func_00102DB0(0x10, n * 0x4C));
     for (k = 0; k < n; k++)
         func_003DB0C0(&g_0045D830[k]);
 }
@@ -904,8 +892,6 @@ void func_003DC180(int k, int line, Box5 *out)
             func_003DBDF0(out, b, t, b->step);
     }
 }
-
-void func_003DC0E0(int k, int open, int kind);
 
 /* 0x003DA750, 0x9C bytes, matching. */
 void func_003DA750(void)

@@ -12,6 +12,10 @@
  * starts a battle (scene 9). The scene can also be the base for the season animation (0x16).
  */
 
+#define SW2E_FILE_SCENE_CONQUEST_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -84,117 +88,16 @@ extern u8 *g_0045D67C;                    /* the background (LINKDATA entry 4) *
 extern u8 *g_0045D680;                    /* its animation player */
 extern int g_0045D684;                    /* frame shown */
 
-void func_00101400(int value);
-u8 *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-int func_00102960(int value);
-void func_00102EC0(void *data);
-u8 *func_00102DB0(int size, int align);
-void func_00143DA0(u8 *player, u8 *data, int vram);
-void func_00143D60(u8 *player);
-u32 func_001020C0(void);                  /* frame counter */
-void func_00143CC0(u8 *player, int frame);
-u32 func_00106CD0(int vram, int a, int b, int c, u16 w, u16 h);
-u8 *func_00105860(u32 texture, int a);
-void func_001059B0(u8 *packet);
-void func_003F8BB0(void);
-int func_0032F780(void);
-u8 *func_003B5E90(void);
 void func_003A7360(void);
-int func_0030E1F0(void);
 void func_00375F90(void);
-void func_0039F880(void);
-void func_003752D0(void);
-int func_0030E4D0(void);
 int func_0038C7C0(void);
-void func_003F4F40(void);
-void func_003F11D0(void);
-void func_003B7160(void);
-void func_003270B0(void);
-void func_00326390(void);
-int func_003296F0(void);
-void func_002FC9A0(void);
-void func_003EB0E0(void);
-void func_003085F0(void);
-void func_002FC6F0(void);
-void func_003071D0(void);
-void func_00323680(void);
-void func_0038C800(void);
-void func_001A7DC0(const char *text, int alpha, int b);
-void func_0030EDC0(void);
-void func_0030E210(void);
-int func_003A8DC0(void);
-void func_00376450(void);
 int func_0017DDA0(void);
-void func_0030E240(void);
-void func_00375B00(void);
-void func_003DB860(void);
-void func_003DC110(void);
-void func_003135B0(void);
 void func_0038C910(void);
-int func_003F5410(void);
 int func_003F13E0(void);
 int func_003F11C0(void);
-int func_00323730(int value);
-void func_003F1070(int value);
-int func_003235A0(void);
-void func_003C3360(void);
-int func_00331250(int value);
-int func_00331AE0(void);
-void func_0030E090(void);
-int func_00331E70(void);
-int func_00332610(void);
-int func_00332EC0(void);
-int func_00333190(void);
-int func_00333650(void);
-int func_00333A40(void);
 int func_00334000(void);
-int func_00307120(void);
-int func_003138D0(void);
-void func_00327DF0(int value);
-void func_00329880(int value);
-int func_002FC860(void);
-int func_003236A0(void);
-int func_00308500(void);
-int func_00330440(int value);
-int func_00313A90(void);
-void func_003630C0(void);
-int func_002FCB50(void);
-int func_003EB120(void);
-int func_0030DD70(void);
-int func_0030D3F0(void);
-void func_0030CC20(int value);
-int func_0030D370(void);
 int func_003261C0(void);
-int func_003EAD10(void);
-void func_003BAD20(void);
 int func_00326E30(void);
-int func_003B7350(void);
-void func_003DD970(void);
-void func_0030DDB0(void);
-void func_0032E800(void);
-void func_0032F530(void);
-void func_0032F640(void);
-void func_003F54C0(void);
-void func_003B6E80(void);
-void func_0030DC10(int value);
-void func_003F8B80(void);
-int func_0030DFA0(void);
-int func_003C1850(void);
-int func_00329540(int value);
-int func_0036B260(void);
-void func_003F8B30(int value);
-void func_0030DB30(int value);
-void func_0030DD10(int value);
-void func_003F1580(void);
-void func_003F5430(void);
-void func_0032F670(void);
-void func_0032F5A0(void);
-void func_0032E7C0(void);
-void func_002C59F0(void);
-void func_002C5A30(void);
-void func_002C5A60(void);
-void func_0032FEB0(void);
-void func_003137C0(void);
 u8 *func_0030CCB0(void);
 
 /* 0x002F1950, 0x5C bytes, matching. Loads the background (LINKDATA entry 4) if needed. */
@@ -399,7 +302,7 @@ int func_002F1EE0(void)
     case 3:
         result = func_00331AE0();
         if (func_003296F0() != 0x13) {
-            func_0030E090();
+            func_0030E090(0x13);
             return 1;
         }
         break;

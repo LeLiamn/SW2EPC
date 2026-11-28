@@ -12,6 +12,10 @@
  * CLUT.
  */
 
+#define SW2E_FILE_FONT_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -46,12 +50,6 @@ extern struct {
     u8 pad[2];
     u8 flags;
 } g_0056CCA0;
-
-u8 *func_001026D0(int which, int entry, void *dest, int now, u32 size, u32 offset,
-                  const char *file, int line);
-u64 func_00107440(u8 *file, int tbp, int cbp);
-u64 func_00106C90(u64 tex, int cbp);
-void func_00102EC0(void *data);
 
 /* 0x00147580, 0x100 bytes. Loads font `which` (0 or 1) into the GS memory. */
 void func_00147580(int which)

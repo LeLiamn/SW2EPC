@@ -13,6 +13,10 @@
  * with free neighbours. The state can be saved (func_00102B80), e.g. before a scene.
  */
 
+#define SW2E_FILE_HEAP_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 

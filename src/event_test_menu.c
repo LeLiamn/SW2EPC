@@ -12,6 +12,9 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EVENT_TEST_MENU_C
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -47,44 +50,18 @@ extern ps2ptr g_0043C77C;
 #define ST_SHORT(s, o) (*(short *)((s) + (o)))
 #define ST_PTR(s, o) (*(u8 **)((s) + (o)))
 
-int func_0034A740(void);
-void func_0034ED90(int o, short *out);
-void func_00191200(float *out, int p);
-u8 *func_003B2000(void);
-int func_003B0470(int o, int k);
-char *func_003B0BD0(int o);
-char *func_003B0C10(int k);
-void func_00146B40(char *t, int x, int y, int w, int h, int a, int b);
 u8 *func_002EE5B0(void);
 u8 *func_002EE5C0(void);
-int func_001AE550(float f, u8 *anim, Slide *box, u8 *alpha, int a);
 int func_002ED160(void);
-void func_002C80A0(int x, int y, int a, int w, int h, int c, int d);
-void func_002C8500(int x, int y, int a, int w, int h, int c, int d);
 void func_002C7310(int x, int y, int a, int w, int h, int c, int d);
-void func_002C4C50(float s, char *t, int x, int y, int w, int a, int b, int col);
-void func_00118850(void *p, int n);
-void func_0023AD10(int a, int b, int c, int d, int e);
-void func_00102990(void);
-void func_003B0DF0(void);
-void func_003B0DA0(void);
-int func_003A1C60(int k);
-void func_0032EFC0(void);
-int func_00330320(int k, int a);
-void func_0023A3D0(void);
-void func_0032F670(void);
-void func_0032F5A0(void);
-void func_001A7DC0(u8 *t, int a, int b);
-void func_00102960(int a);
 void func_001265F0(int a, int b);
-void func_0032E870(void);
 
-/* 0x003B0340, 0x30 bytes. */
+/* 0x003B0340, 0x30 bytes, matching. */
 int func_003B0340(u8 *o)
 {
     if (*(int *)(o + 0x10) == 0)
         return 0;
-    return func_0034A740();
+    return PS2_ADDR(func_0034A740((u8 *)PS2_PTR(*(int *)(o + 0x10))));
 }
 
 /* 0x003B0370, 0xBC bytes. Whether unit `u` stands in the map cell of `o` (5000-unit cells). */
@@ -96,8 +73,8 @@ int func_003B0370(u8 *o, int u)
 
     if (o == 0 || u == 0)
         return 0;
-    func_0034ED90(u, cell);
-    func_00191200(pos, *(int *)(o + 0x14) + 0x40);
+    func_0034ED90((unsigned char *)PS2_PTR(u), (unsigned char *)(cell));
+    func_00191200(pos, (void *)PS2_PTR(*(int *)(o + 0x14) + 0x40));
     c[0] = (char)((int)pos[0] / 5000);
     c[1] = (char)((int)pos[1] / 5000);
     return cell[0] == (short)(c[0] | c[1] << 8);
@@ -144,7 +121,7 @@ void func_003B0C70(int o, int i)
     FONT_COLOUR(6);
     g_0056CCC0 = 20.0f;
     g_0056CCC4 = 20.0f;
-    func_00146B40(func_003B0BD0(o), x + 0x10, i * 0x18 + 0x5A, 0x98, 0x14, 2, 0);
+    func_00146B40((const unsigned char *)(func_003B0BD0(o)), x + 0x10, i * 0x18 + 0x5A, 0x98, 0x14, 2, 0);
     g_0056CCC0 = 16.0f;
     g_0056CCC4 = 16.0f;
     FONT_COLOUR(5);
@@ -156,7 +133,7 @@ static void slide_step(Slide *w, u8 *anim)
     int b;
 
     w->anim = anim;
-    b = func_001AE550(w->speed, anim, w, &w->alpha, 0);
+    b = func_001AE550(w->speed, anim, (short int *)(w), &w->alpha, 0);
     w->flags = (w->flags & 0xFE) | (b & 1);
     if (b & 1) {
         int t = func_002ED160();
@@ -213,7 +190,7 @@ void func_003B10C0(void)
             FONT_COLOUR(6);
             g_0056CCC0 = 20.0f;
             g_0056CCC4 = 20.0f;
-            func_00146B40(func_003B0C10(k), x + 8, y + 2, 0x108, 0x14, 2, 0);
+            func_00146B40((const unsigned char *)(func_003B0C10(k)), x + 8, y + 2, 0x108, 0x14, 2, 0);
             g_0056CCC0 = 16.0f;
             g_0056CCC4 = 16.0f;
             FONT_COLOUR(5);
@@ -396,7 +373,7 @@ void func_003B2010(void)
 void func_003B20B0(void)
 {
     if (g_0045D7F4 != 2)
-        func_001A7DC0((u8 *)PS2_PTR(g_0043C77C), 0x80, 2);
+        func_001A7DC0((const char *)((u8 *)PS2_PTR(g_0043C77C)), 0x80, 2);
 }
 
 /* 0x003B21A0, 0x58 bytes. */
@@ -421,16 +398,9 @@ extern ps2ptr g_0045D7FC;                /* (small data) the sprite bank */
 extern short g_0045B6A0[5][2];
 extern ps2ptr g_0043C5A8;
 
-u8 *func_003B2340(void);
-void func_003B2360(short *xy, int k);
-void func_003B2390(short *xy, int k);
-int func_003B23C0(int k);
-u8 *func_00390940(void);
 void func_00383D80(u8 *p);
-void func_00384870(u8 *p, int a);
 void func_003B5480(int x, int y, int a, int w, int b, int c);
 void func_003B34A0(int a);
-void func_001A3C20(int x, int y, int a, int w, int h, int b, int c);
 
 static void box_from(u8 *r, short *xy, short w, short h, u8 a0, u8 a1)
 {
@@ -483,14 +453,14 @@ void func_003B24F0(void)
 
         if (k == -1)
             continue;
-        func_001AE550(1.0f, s + 0xEC + i * 0x14, (Slide *)b, &al, 0);
+        func_001AE550(1.0f, s + 0xEC + i * 0x14, (short int *)((Slide *)b), &al, 0);
         if (ST_INT(s, 0x98) == 4 && i != 1)
             al = 0;
         func_001ABE40(ST_PTR(g, 0x8EBC), func_003B23C0(k), b[0], b[1], 0, b[2], b[3], al, 1, 0);
         if (i == 1)
-            lit = func_001AE550(1.0f, s + 0x9C + i * 0x14, (Slide *)b, &al, 0);
+            lit = func_001AE550(1.0f, s + 0x9C + i * 0x14, (short int *)((Slide *)b), &al, 0);
         else
-            func_001AE550(1.0f, s + 0x9C + i * 0x14, (Slide *)b, &al, 0);
+            func_001AE550(1.0f, s + 0x9C + i * 0x14, (short int *)((Slide *)b), &al, 0);
         if (ST_INT(s, 0x98) == 4 && i != 1)
             al = 0;
         func_001ABE40(ST_PTR(g, 0x8EBC), k + 0xE, b[0], b[1], 0, b[2], b[3], al, 1, 0);
@@ -505,14 +475,14 @@ void func_003B24F0(void)
         ST_INT(s, 0x154) = v & 0xFF;
         if ((v & 0xFF) == 8) {
             func_00383D80(g + 0x8E84);
-            func_00384870(g + 0x8E84, 1);
+            func_00384870(PS2_ADDR(g + 0x8E84), 1);
         }
         func_003B5480(ST_INT(s, 0x154) * 0x110 / 8 - 0x130, 0x52, 0, 0x110, al, 1);
         func_003B5480(ST_INT(s, 0x154) * 0x18A / 8 - 0x1AA, 0x86, 0, 0x18A, al, 1);
     }
     func_003B34A0(1);
     if (ST_INT(g, 0x8E6C) == 2)
-        func_001A7DC0((u8 *)PS2_PTR(g_0043C5A8), 0x80, 2);
+        func_001A7DC0((const char *)((u8 *)PS2_PTR(g_0043C5A8)), 0x80, 2);
 }
 
 /* 0x003B27E0, 0xC48 bytes. Sets the windows' moves for mode +0x98: 4 open, 2 / 1 turn one way or
@@ -525,10 +495,10 @@ void func_003B27E0(void)
     u8 a, b;
 
     if (m == 4) {
-        func_003B2390(p, 1);
+        func_003B2390((short unsigned int *)(p), 1);
         box_from(s + 0x100, p, 0x98, 0x30, 0x80, 0x80);
         box_to(s + 0x100, p[0], 0x30, 0x98, 0x30, 0x80, 0xF);
-        func_003B2360(p, 1);
+        func_003B2360((short unsigned int *)(p), 1);
         box_from(s + 0xB0, p, 200, 0x28, 0x80, 0x80);
         box_to(s + 0xB0, p[0], 0x30, 200, 0x28, 0x80, 0xF);
     } else if (m == 2) {
@@ -536,13 +506,13 @@ void func_003B27E0(void)
             j = i == 0 ? 0 : i - 1;
             a = place_alpha(j);
             b = place_alpha(i);
-            func_003B2390(p, j);
+            func_003B2390((short unsigned int *)(p), j);
             box_from(r + 0xEC, p, W1(j), H1(j), i == 0 ? 0 : a, i == 0 ? 0 : a);
-            func_003B2390(p, i);
+            func_003B2390((short unsigned int *)(p), i);
             box_to(r + 0xEC, p[0], p[1], W1(i), H1(i), b, 0xF);
-            func_003B2360(p, j);
+            func_003B2360((short unsigned int *)(p), j);
             box_from(r + 0x9C, p, W2(j), H2(j), i == 0 ? 0 : a, i == 0 ? 0 : a);
-            func_003B2360(p, i);
+            func_003B2360((short unsigned int *)(p), i);
             box_to(r + 0x9C, p[0], p[1], W2(i), H2(i), b, 0xF);
         }
     } else if (m == 1) {
@@ -550,22 +520,22 @@ void func_003B27E0(void)
             j = i != 3 ? i + 1 : 3;
             a = place_alpha(j);
             b = place_alpha(i);
-            func_003B2390(p, j);
+            func_003B2390((short unsigned int *)(p), j);
             box_from(r + 0xEC, p, W1(j), H1(j), i == 3 ? 0 : a, i == 3 ? 0 : a);
-            func_003B2390(p, i);
+            func_003B2390((short unsigned int *)(p), i);
             box_to(r + 0xEC, p[0], p[1], W1(i), H1(i), b, 0xF);
-            func_003B2360(p, j);
+            func_003B2360((short unsigned int *)(p), j);
             box_from(r + 0x9C, p, W2(j), H2(j), a, a);
-            func_003B2360(p, i);
+            func_003B2360((short unsigned int *)(p), i);
             box_to(r + 0x9C, p[0], p[1], W2(i), H2(i), b, 0xF);
         }
     } else if (m == 3) {
         for (i = 0, r = s; i < 4; i++, r += 0x14) {
             a = place_alpha(i);
-            func_003B2390(p, i);
+            func_003B2390((short unsigned int *)(p), i);
             box_from(r + 0xEC, p, W1(i), H1(i), 0, 0);
             box_to(r + 0xEC, p[0], p[1], W1(i), H1(i), a, 0);
-            func_003B2360(p, i);
+            func_003B2360((short unsigned int *)(p), i);
             box_from(r + 0x9C, p, W2(i), H2(i), 0, 0);
             box_to(r + 0x9C, p[0], p[1], W2(i), H2(i), a, 0);
         }
@@ -601,10 +571,6 @@ void func_003B3DD0(int alpha, int cur)
 }
 
 /* ---- Sprites of the bank gp 0x0045D7FC: digits, marks, icons. ---- */
-
-int func_00313B30(int k);
-void func_001AB4E0(u8 *img, u8 *pal, int x, int y, int z, int w, int h, int u, int v, int uw,
-                   int vh, const u32 *rgba, int layer, int centred);
 
 #define BANK_SPR(k) (BANK + *(int *)(BANK + 8) * *(int *)(BANK + 0x10 + (k) * 8))
 
@@ -749,46 +715,11 @@ extern ps2ptr g_0043C31C;
 extern char g_006935DB, g_006935DC;
 extern u8 g_0056CCC8[4];
 
-u8 *func_003B5E90(void);
-void func_003A5FA0(int a, int b, int c, int d);
-void func_001B8F60(int a, int b, int c);
-u8 *func_001026D0(int a, int k, int b, int c, int d, int e, const char *file, int line);
-void func_0017E010(int m);
-void func_0019FC30(void);
-u8 *func_0019FBC0(int k);
 char *func_00120928(char *to, const char *from);
-int func_003294A0(int k);
-void func_00329450(int k, int v);
-void func_001AE9F0(int a, char *t, int b);
-void func_001AFC50(int a);
-void func_001037F0(int a);
-void func_002DBAC0(int a);
 void func_002D8060(int a);
-void func_001AFFB0(int a);
-int func_002DAC30(void);
-void func_002D8160(void);
-void func_00118AC0(void *to, const void *from, u32 n);
-int func_003F0A00(u8 *p);
 void func_003F0800(u8 *p);
-int func_003C1850(void);
-int func_00327C00(void);
-void func_0039FCA0(int a, int b);
-int func_00327820(void);
 void func_0011ED38(void *p, int v, int n);
 void func_003B69A0(void);
-int func_0032EEB0(void);
-void func_003BA8F0(int k, int a, int b, int c, int d);
-int func_0023A9B0(int a, int b);
-void func_0023A960(int a);
-void func_003BC5E0(void);
-void func_003B9760(void);
-void func_00102EC0(u8 *h);
-int func_0030DFA0(void);
-char *func_00390760(int k);
-char *func_002F2890(int o);
-char *func_00372410(int k);
-void func_001AEDB0(int a, int b, int c, int d);
-void func_001AFEC0(int a);
 int func_001204B0(char *to, const char *f, ...);
 extern u32 g_7000015C;
 
@@ -1002,7 +933,7 @@ void func_003B67F0(void)
     ST_PTR(s, 0x24) = func_001026D0(1, 0x36, 0, 1, 0, 0, g_0045B6E8, 0x132);
     ST_PTR(s, 0x28) = func_001026D0(1, 0x37, 0, 1, 0, 0, g_0045B6E8, 0x133);
     for (k = 0; k < 4; k++)
-        func_00118AC0(s + 0x65C + k * 0x24, func_0019FBC0(k), 0x24);
+        func_00118AC0((unsigned int *)(s + 0x65C + k * 0x24), func_0019FBC0(k), 0x24);
     ST_INT(s, 0x750) = func_003F0A00(s + 0x514);
     func_003F0800(s + 0x514);
     for (k = 0; k < 8; k++)
@@ -1102,16 +1033,16 @@ void func_003B6F20(void)
     char t[0x100];
 
     if (k == 10) {
-        func_001204B0(t, func_00390760(0x7D), func_002F2890(o));
+        func_001204B0(t, (const char *)(func_00390760(0x7D)), func_002F2890(o));
     } else if (k == 7) {
-        func_001204B0(t, func_00390760(0x7E), func_002F2890(o));
+        func_001204B0(t, (const char *)(func_00390760(0x7E)), func_002F2890(o));
     } else {
         if (k != 6)
             return;
         if (func_003C1850() == 0)
-            func_001204B0(t, func_00390760(0x7B), func_002F2890(o));
+            func_001204B0(t, (const char *)(func_00390760(0x7B)), func_002F2890(o));
         else
-            func_001204B0(t, func_00390760(0x7C), func_002F2890(o),
+            func_001204B0(t, (const char *)(func_00390760(0x7C)), func_002F2890(o),
                           func_00372410(func_00327C00()));
     }
     func_001AEDB0(0, -1, 0x116, 0);
@@ -1126,41 +1057,9 @@ extern u8 g_00669FC7[][0x38];            /* custom officers' records (+0x267 in 
 typedef struct { u8 v[0x9D]; } Bytes157;
 extern Bytes157 g_0041C180;
 
-void func_003F0EC0(u8 *a, u8 *b, u8 *p);
-void func_002C6040(int x, int y, int w, int h, int a, int b);
-void func_003B4720(int x, int y, int a, int b);
-char *func_003725A0(int k);
-void func_003838B0(char *t, int a);
-void func_003BA160(void);
-void func_003BC660(void);
-void func_001B9000(void);
-u32 func_00327C80(void);
-void func_0017DEA0(int a);
-int func_002F3BB0(int o);
-void func_0030E140(int k, int a, int b, int c);
 int func_0017DDA0(void);
-int func_00331250(int ph);
-int func_0030E1F0(void);
-void func_0030E100(void);
-void func_003BC890(void);
-void func_003BA310(void);
 void func_0017D8E0(int k);
 void func_0017DF10(void);
-void *func_00329850(void);
-int func_0030AB90(void);
-int func_0030AD80(int p);
-int func_0030AE80(int p);
-int func_0030B090(int p);
-int func_0030ACE0(int p);
-int func_002F68E0(int o);
-int func_00337A10(int k);
-int func_00327D50(void);
-int func_002F5890(int o);
-int func_0030AAD0(int a);
-u8 *func_00329860(void);
-int func_002F9390(int f, int k);
-int func_002FAD90(int f);
-int func_002FABC0(int f);
 
 /* 0x003B7090, 0xC4 bytes. Draws the officer marking page. */
 void func_003B7090(void)
@@ -1169,12 +1068,12 @@ void func_003B7090(void)
     int n = ST_INT(s, 0x654), cur = ST_INT(s, 0x658);
 
     g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = 0x80;
-    func_003F0EC0(ST_PTR(s, 0x24), ST_PTR(s, 0x28), s + 0x514);
+    func_003F0EC0(PS2_ADDR(ST_PTR(s, 0x24)), PS2_ADDR(ST_PTR(s, 0x28)), s + 0x514);
     func_003B4720(0x10, 0x11C, 0, 1);
     if (n == cur)
         func_002C6040(-0x3C, 0x118, 0x100, 0x20, 0, 0x80);
-    func_003838B0(func_003725A0(0x38), 0);
-    func_001A7DC0((u8 *)PS2_PTR(g_0043C5F0), 0x80, 1);
+    func_003838B0(PS2_ADDR(func_003725A0(0x38)), 0);
+    func_001A7DC0((const char *)((u8 *)PS2_PTR(g_0043C5F0)), 0x80, 1);
 }
 
 /* 0x003B7160, 0xB0 bytes. Draw. */
@@ -1204,7 +1103,7 @@ void func_003B7210(void)
     if (func_00327C80() < 0x640) {
         if (s[0x1C8] == 0) {
             g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = 0x80;
-            func_001204B0(t, func_00390760(0x7F));
+            func_001204B0(t, (const char *)(func_00390760(0x7F)));
             func_001AE9F0(1, t, 1);
             func_001AFC50(1);
             s[0x1C8] = 1;
@@ -1341,7 +1240,7 @@ int func_003B7350(void)
     case 0xE:
         if (s[0x1D7] == 6 && func_003C1850() != 0) {
             for (k = 0; k < 4; k++)
-                func_00118AC0(func_0019FBC0(k), s + 0x197 + k * 9, 0x24);
+                func_00118AC0((unsigned int *)(func_0019FBC0(k)), (unsigned char *)(s + 0x197 + k * 9), 0x24);
             for (k = 0; k < 2; k++)
                 func_00329450(k, s[0x1D5 + k]);
             s[1] = 0x10;

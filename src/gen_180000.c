@@ -1627,7 +1627,7 @@ int func_001E1970(int param_1)
 }
 
 /* 0x001E3010, 0x240 bytes. */
-void func_001E3010(void)
+void func_001E3010(int param_1)
 {
     int bVar1;
     int bVar5;

@@ -9,6 +9,28 @@
  * with a question mark are hypotheses.
  */
 
+#ifndef SW2E_PC
+/* The original code here sees func_00117C90 as returning an int: it does not mask the result
+ * (which the function itself masks to a byte). */
+#define SW2E_OWN_PROTO_func_00117C90
+int func_00117C90(int a);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_00117280   /* the original callers here see it this way */
+void func_00117280(int, int, unsigned int, int, int, int, int);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_00117360   /* the original callers here see it this way */
+void func_00117360(int, int, unsigned int, int);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_00117410   /* the original callers here see it this way */
+void func_00117410(int, int, unsigned int, int, int, int, int);
+#endif
+#define SW2E_FILE_SOUND_FRONT_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -25,24 +47,7 @@ extern int g_0040E9E0[][9];              /* the effects banks */
 extern int g_0043D010[0xB], g_0043D040[0xB];
 extern char g_0043D070[];
 
-int func_00102960(int a);
-int func_00117DE0(void);
-void func_00117D00(int *e, int ch, int v, int a, int off, int b);
-int func_00117C90(int ch);
-void func_00117CE0(int ch);
-void func_00117CC0(void);
-int func_001020C0(void);
-void *func_001026D0(int a, int k, void *dest, int c, u32 size, u32 off, char *name, int line);
-void func_00117C70(int v);
-void func_00117A90(int k, int v);
-void func_00117A40(int k, int v);
-void func_001178A0(void);
 void func_002A7840(void);
-void func_00117280(int a, int b, u32 c, int d, int e, int f, int g);
-void func_00117360(int a, int b, u32 c, int d);
-void func_00117410(int a, int b, u32 c, int d, int e, int f, int g);
-void func_00117650(int a, int b);
-void func_00117AE0(int a, int b);
 
 void func_0023AA60(int k, u32 dst, int a);
 void func_0023AB00(int k, int a);
@@ -73,7 +78,7 @@ void func_0023A180(int k, int ch, int off)
         func_0023A170(1);
     }
     v = g_00500474 == 0 ? 0 : *(int *)(g_00500478 + 0x348);
-    func_00117D00(e, ch, v, 0, off + func_00117DE0(), 0);
+    func_00117D00((unsigned int *)(e), ch, v, 0, off + func_00117DE0(), 0);
 }
 
 /* 0x0023A260, 0x24 bytes, matching. Whether channel 0 is playing. */
@@ -408,19 +413,8 @@ extern u8 g_0043D0F0[];
 
 #define GAME_FLAGS (*(u32 *)(g_00669D60 + 0x200))
 
-int func_00117B20(int group, int *e);
-void func_0016C9B0(u8 *u);
-void func_00204D20(u8 *o);
-void func_001174F0(int group, int v, int a);
-void func_00117620(int v);
-void func_00114FA0(int a, int b);
-void func_0023B020(void);
-void func_002A7970(void);
-void func_00102EC0(void *p);
 u32 func_002D6B50(void);
-void func_002D6B60(u32 j, u8 *e, int *out);
 void func_002A5D70(u32 idx, u8 *e, int v);
-void *func_00102DB0(int align, int size);
 
 /* 0x0023AE30, 0x11C bytes. Loads bank `k` (head to SPU memory, body to IOP memory). */
 void func_0023AE30(int k, int wait)
@@ -447,7 +441,7 @@ void func_0023AF50(int k, int wait)
     int *e = g_0040E9E0[k];
 
     if (e[8] == 0xF) {
-        int r = func_00117B20(e[7], e), base = g_0074B7E4;
+        int r = func_00117B20(e[7], (unsigned int *)(e)), base = g_0074B7E4;
 
         e[8] = r;
         if (r < 0xF) {
@@ -524,7 +518,7 @@ void func_0023B5F0(void)
     if (g_0074B834 != 0)
         func_00102EC0(g_0074B834);
     if (g_0074B838 != 0)
-        func_00102EC0(g_0074B838);
+        func_00102EC0((unsigned char *)(g_0074B838));
     if (g_0074B83C != 0)
         func_00102EC0(g_0074B83C);
 }
@@ -542,7 +536,7 @@ int func_0023B650(void)
 
         if (idx > 0xF2)
             return 0;
-        func_002D6B60(j, e, out);
+        func_002D6B60(j, PS2_ADDR(e), (unsigned int *)(out));
         func_002A5D70(idx, e, *out);
         v = *out;
         if (v == 0x60B)
@@ -610,7 +604,7 @@ void func_0023B8A0(void)
     g_0074B840 = n;
     if (n != 0) {
         g_0074B834 = func_00102DB0(0x10, n << 4);
-        g_0074B838 = func_00102DB0(0x10, n << 2);
+        g_0074B838 = (int *)(func_00102DB0(0x10, n << 2));
         g_0074B83C = func_00102DB0(0x10, n);
         func_0023B650();
     }
@@ -636,17 +630,8 @@ int func_0023BC20(int k)
 void func_0023BC50(void);
 void func_0023BA20(void);
 void func_0017DF10(void);
-void func_002A7870(void);
-void func_00114C90(int a);
-void func_002A78B0(void);
 void func_0017DE50(void);
-int func_0032E7B0(void);
-void func_0035DAA0(void);
-void func_00114E30(void);
-void func_00114D30(int a);
 void func_002A7560(void);
-void func_002A77F0(void);
-void func_0017DDE0(void);
 void func_0017E130(void);
 
 /* 0x0023BF10, 0x38 bytes. */

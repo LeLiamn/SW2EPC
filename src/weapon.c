@@ -15,6 +15,10 @@
  * loops are unrolled by 8), hence the pragma below.
  */
 
+#define SW2E_FILE_WEAPON_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -49,14 +53,6 @@ extern u8 g_0056DC00[0xA0][0xB0];        /* the weapon objects */
 extern u8 g_00574A00[0x8D];              /* per kind: motions loaded */
 extern const char g_00424BB8[];          /* "Weapon.c" */
 
-u32 func_00102680(int which, int entry);
-void *func_001026D0(int which, int entry, void *dest, int now, u32 size, u32 offset,
-                    const void *file, int line);
-void func_00102EC0(void *data);
-void func_001185E0(void *p, int size, int value);  /* memset */
-int func_001BD9B0(u8 motion, void *a);
-int func_001BDDB0(char motion, void *a);
-int func_001BDAE0(char motion, void *a, void *b);
 void func_0016D160(u8 *w);
 
 /* 0x0016CD30, 0x150 bytes. Loads the two weapon tables and clears the weapon objects and the
@@ -122,7 +118,7 @@ int func_0016CFB0(int k, void *a)
         for (i = 0; i < 4; i++) {
             u8 m = r[3 + i * 2];
 
-            if (m != 0xFF && func_001BD9B0(m, a) == 0)
+            if (m != 0xFF && func_001BD9B0(m, PS2_ADDR(a)) == 0)
                 return 0;
         }
     }
@@ -142,9 +138,9 @@ int func_0016D060(int k, void *a, void *b)
 
             if (m != -1) {
                 if (g_0045D898 == 0x14) {
-                    if (func_001BDDB0(m, a) == 0)
+                    if (func_001BDDB0(m, PS2_ADDR(a)) == 0)
                         return 0;
-                } else if (func_001BDAE0(m, a, b) == 0) {
+                } else if (func_001BDAE0(m, PS2_ADDR(a), PS2_ADDR(b)) == 0) {
                     return 0;
                 }
             }
@@ -313,11 +309,8 @@ extern u8 g_006C3590[][0x30];            /* the weapon models */
 
 u8 *func_001BE5E0(void);
 u8 *func_001BE630(void);
-void func_0014FCA0(u8 *o, u8 *model);
-void func_00149620(u8 *a, u8 *m, u8 *m2);
 void func_0016E910(u8 *slot);
 void func_0016E860(u8 *slot);
-void func_002088C0(u8 *trail);
 
 /* 0x0016E2E0, 0x20 bytes, matching. Clears a weapon slot. */
 void func_0016E2E0(u8 *slot)
@@ -551,10 +544,6 @@ typedef unsigned long long u64;
 extern float g_00406580[0x38];           /* per kind: the reach of a two-handed weapon's end */
 extern float g_004065A0[0x38];           /* the same, on the other side */
 
-u8 *func_002087A0(void);
-void func_00208820(u8 *trail, float *a, float *b, int player);
-void func_0014F0E0(u8 *a, u32 alpha);
-void func_0014F970(u8 *o);
 u32 *func_0016F9B0(u32 *d, float *a, float *b, int r, int g, int bl, int al);
 u32 *func_0016FD00(u32 *d, float *a, float *b, int r, int g, int bl, int al);
 
@@ -606,7 +595,7 @@ int func_0016F8E0(float grow, float *e, int player)
     *(u8 **)&e[0x1A] = t;
     if (t == 0)
         return 0;
-    func_00208820(t, a, b, player);
+    func_00208820(t, (unsigned int *)(a), (unsigned int *)(b), player);
     return 1;
 }
 

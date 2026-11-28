@@ -7,6 +7,10 @@
  * with a question mark are hypotheses. Officers are 0-0x19E, forces 0-func_0030AB90().
  */
 
+#define SW2E_FILE_EMP_CMD_MISC_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -23,45 +27,11 @@ extern int g_0045D820;
 extern u8 g_0069395E;
 extern u32 g_007BEBB0[6];
 
-u8 *func_002FC2C0(void);
-void func_003A9070(int a);
 void func_002DB570(int a);
-int func_002DB750(void);
 void func_002DB700(void);
-void func_002FC560(void);
-void func_002FC660(void);
-int func_00327E20(void);
-void func_0030E090(int k);
-void func_002FC2D0(void);
-void func_002FC630(void);
 int func_0017DDA0(void);
 void func_0017DF10(void);
-void func_001B8F60(int a, int b, int c);
-int func_002F2840(u32 o);
-int func_002F34E0(u32 o);
-int func_002F33F0(u32 o);
-int func_0030C7F0(int a, int k);
-u8 *func_003B5E90(void);
-u32 func_00337A10(int x);
-void func_0032E8A0(int k, u32 o);
-int func_002F9550(int f);
-int func_002FB2D0(int a);
-void func_0030BBD0(int a, int b);
-int func_0030B3B0(u8 *out);
-void func_0030B330(void);
 int func_003C1850(void);
-int func_0030AB90(void);
-int func_002F9C90(int f, int g);
-int func_00327820(void);
-int func_00327AE0(int k);
-int func_00327870(void);
-int func_0032EB40(int a, int b, int c);
-int func_0030AFF0(int r);
-int func_002F3BB0(int o);
-int func_002F4080(int o);
-int func_002F5CC0(int o);
-int func_002F3E30(int o);
-int func_002F3770(int o);
 
 int func_003C0830(u32 o);
 int func_003C0C60(int f, int g);
@@ -88,7 +58,7 @@ void func_003C0080(int *p)
 /* 0x003C0090, 0x3C bytes, matching. Step 0: starts fade 6. */
 void func_003C0090(void)
 {
-    int *st = *(int **)(func_002FC2C0() + 0x6BC);
+    int *st = *(int **)(((u8 *)func_002FC2C0()) + 0x6BC);
 
     func_003A9070(1);
     func_002DB570(6);
@@ -98,7 +68,7 @@ void func_003C0090(void)
 /* 0x003C00D0, 0x38 bytes, matching. Step 1: waits for the fade. */
 void func_003C00D0(void)
 {
-    int *st = *(int **)(func_002FC2C0() + 0x6BC);
+    int *st = *(int **)(((u8 *)func_002FC2C0()) + 0x6BC);
 
     if (func_002DB750() == 0)
         *st = 2;
@@ -129,14 +99,14 @@ void func_003C0150(void)
 /* 0x003C0190, 0x40 bytes. */
 void func_003C0190(void)
 {
-    if (**(int **)(func_002FC2C0() + 0x6BC) == 1)
+    if (**(int **)(((u8 *)func_002FC2C0()) + 0x6BC) == 1)
         func_002DB700();
 }
 
 /* 0x003C01D0, 0x78 bytes. */
 int func_003C01D0(void)
 {
-    int k = **(int **)(func_002FC2C0() + 0x6BC);
+    int k = **(int **)(((u8 *)func_002FC2C0()) + 0x6BC);
 
     if (k == 2)
         func_003C0110();
@@ -150,14 +120,14 @@ int func_003C01D0(void)
 /* 0x003C0250, 0x40 bytes. */
 void func_003C0250(void)
 {
-    if (**(int **)(func_002FC2C0() + 0x6BC) == 1)
+    if (**(int **)(((u8 *)func_002FC2C0()) + 0x6BC) == 1)
         func_002DB700();
 }
 
 /* 0x003C0290, 0x78 bytes. */
 int func_003C0290(void)
 {
-    int k = **(int **)(func_002FC2C0() + 0x6BC);
+    int k = **(int **)(((u8 *)func_002FC2C0()) + 0x6BC);
 
     if (k == 2)
         func_003C0150();
@@ -340,7 +310,7 @@ int func_003C09B0(int f)
     int n, r;
 
     func_0030BBD0(func_002FB2D0(f), 1);
-    n = func_0030B3B0(buf);
+    n = func_0030B3B0((int *)(buf));
     func_0030B330();
     if (func_003C1850() == 0 && v > 0x37 && v < 0x40 && func_003C0890(f) > 6)
         return 0x40;
@@ -486,14 +456,6 @@ int func_003C1330(int r, int v)
 }
 
 extern int g_007BEBD0[0x19];             /* a force's connected regions (0x19 ends the list) */
-
-int func_00327C00(void);
-int func_00329160(int k, int *a, int *b);
-int func_002F8F20(int f);
-int func_0030AD20(int r, int k);
-int func_0030B240(int r, int k);
-int func_0030C280(int a, int b);
-int func_002FA790(int f);
 
 /* 0x003C1460, 0x114 bytes. Force `f`'s officers of rank kind `kind` with at least `v`. */
 int func_003C1460(int kind, int f, int v)
@@ -690,19 +652,6 @@ int func_003C1ED0(int a, int b)
         return 0;
     return 1;
 }
-
-int func_00327D50(void);
-int func_002FB3B0(int f);
-int func_00329870(void);
-int func_003635F0(void);
-int func_0036B260(void);
-u16 func_003620E0(int s, int k);
-int func_0030D370(void);
-int func_002F9260(int f);
-int func_0032EB00(void);
-int func_002F27D0(int v);
-int func_0032F7D0(int v);
-u8 func_00362570(void);
 
 /* 0x003C2090, 0xE8 bytes. Whether force `f` may attack region `b` from one of its regions. */
 int func_003C2090(int f, int b)
@@ -916,19 +865,6 @@ int func_003C2AE0(int a, int b)
 extern int g_0045D0D0[4];                /* (small data) two best scores and officers */
 extern int g_0045D834;                   /* (small data) */
 extern int g_00669DB8;
-
-int func_002F3DC0(int o);
-int func_0036B940(int s, int k);
-int func_00362160(int s, int k);
-int func_0036BA20(int s, int k);
-u32 func_0032EEB0(void);
-u32 func_0032EED0(void);
-int func_00329540(int k);
-int func_0032F2E0(int v);
-int func_0032F3D0(int v);
-void func_003BA8F0(int a, u32 o, int r, int x, int y);
-int func_002F3E70(u32 o);
-int func_0030DFA0(void);
 
 /* 0x003C2C60, 0x168 bytes. Whether side 0 has another officer (not the player's, `a` or `b`)
  * that is free (`free`: of no force and kind 0) or of side 1's commander's force. */
@@ -1219,18 +1155,12 @@ int func_003C3A20(void)
     return regions_event(0x16, 0x14);
 }
 
-u32 func_0030D170(int s);
 double func_00125450(u32 v);             /* soft-float: int to double */
 double func_00124F18(double a, double b);   /* soft-float: multiply */
 int func_00143920(double a, double b);   /* soft-float compares */
 int func_001438D0(double a, double b);
 int func_001438F0(double a, double b);
 int func_00143940(double a, double b);
-u32 func_0032E950(void);
-u32 func_00327C70(void);
-int func_00327E90(void);
-void func_002F94C0(int f);
-int func_0030D150(void);
 
 /* 0x003C4000, 0x50 bytes. Event 0x18 (once). */
 int func_003C4000(void)
@@ -1339,15 +1269,17 @@ int func_003C47B0(void)
 {
     int f = func_00327D50();
     short v;
+    u16 p;
 
     if (f < 0 || f >= func_0030AB90())
         return 0;
     v = func_002F9550(f);
     if (v == 99 || v == 0x62 || v == 0x61)
         return 0;
-    if ((short)func_003C09B0(f) == 100)
+    p = func_003C09B0(f);
+    if (p == 100)
         return 0;
-    func_002F94C0(f);
+    func_002F94C0(f, p);
     return 1;
 }
 
@@ -1381,10 +1313,6 @@ int func_003C4990(void)
     func_003C3170();
     return 1;
 }
-
-int func_0032EC50(int me, int a, int b, int c);
-int func_0030D470(int s);
-int func_0032EE10(int o);
 
 /* 0x003C4E30, 0x70 bytes. Event 0x77 (once, before 0x35): from turn 11 with a good fame. */
 int func_003C4E30(void)
@@ -1534,9 +1462,6 @@ int func_003C56B0(void)
         return 0;
     return func_003C2AE0(0, 0x10) != 0;
 }
-
-int func_00328270(void);
-int func_00328230(void);
 
 /* Event `ev` (once): from turn `turn`, the player knows officers `a` and `b` (`how` 0 or 1), both
  * of rank `rank` or more. */
@@ -1788,8 +1713,6 @@ int func_003C6AC0(void)
     return face(3, 0xB);
 }
 
-int func_002F7550(int o);
-
 /* 0x003C6B40, 0xE0 bytes. */
 int func_003C6B40(void)
 {
@@ -1916,8 +1839,6 @@ int func_003C74D0(void)
 {
     return func_00329540(0xBD) == 0 && face(4, 0x14);
 }
-
-int func_00327CC0(void);
 
 #define KNOWS(o, how) (func_0032EB40(func_00327820(), (o), (how)) != 0)
 
@@ -2390,8 +2311,6 @@ int func_003C9990(void)
     return trio_tail();
 }
 
-int func_0032EAC0(void);
-
 /* 0x003C9B00, 0x13C bytes. */
 int func_003C9B00(void)
 {
@@ -2578,11 +2497,6 @@ int func_003CA780(void)
 {
     return lead_event(0x103, 0xD, 0xD);
 }
-
-int func_002F41E0(int o);
-int func_003282C0(void);
-int func_00329680(int k);
-u32 func_00327C80(void);
 
 /* Event `ev` (once): from turn `turn`, player `p` knows `o`. */
 static int player_knows(int ev, u32 turn, int p, int o)

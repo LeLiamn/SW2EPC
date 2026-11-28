@@ -15,6 +15,10 @@
  * on any pad for 10 frames asks for a soft reset (g_0045D20C, see main.c).
  */
 
+#define SW2E_FILE_PAD_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -65,7 +69,6 @@ int func_00171B60(int port, int slot);
 int func_001718A8(int port, int slot, u8 *align);
 int func_00171150(int port, int slot, u8 *data);
 void func_0011EB80(void *to, const void *from, int size);
-void func_00118850(void *to, int size);
 int func_00170D00(int port, int slot, u8 *buffer);
 int func_00170EE8(int port, int slot);
 int func_001708A8(int a);
@@ -426,7 +429,7 @@ void func_00103D90(int port)
     Pad *p = &g_00500700[port];
 
     if ((p->flags & 1) == 0) {
-        func_00118850(p, 0x88);
+        func_00118850((unsigned char *)(p), 0x88);
         p->buffer = g_00500500[port];
         while (func_00170D00(port, 0, p->buffer) != 1)
             ;
@@ -452,7 +455,7 @@ void func_00103E60(int port)
                 state = func_001711C8(port, 0);
             while (state == 1);
         } while (state == 5 || func_00171330(port, 0) == 2 || func_00170EE8(port, 0) != 1);
-        func_00118850(p, 0x88);
+        func_00118850((unsigned char *)(p), 0x88);
     }
 }
 
@@ -494,7 +497,7 @@ void func_00104040(void)
     g_0045D210 = 0;
     g_0045D20C = 0;
     for (i = 0; i < 2; i++)
-        func_00118850(&g_00500700[i], 0x88);
+        func_00118850((unsigned char *)(&g_00500700[i]), 0x88);
     g_0045D204 = 3;
 }
 

@@ -11,6 +11,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_TROOP_AI3_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -53,31 +57,17 @@ extern int g_00441660[][4];
     }                                                                   \
 } while (0)
 
-u8 *func_001F14E0(u8 *o);
 void func_00271A10(u8 *o, int k);
-int func_00239140(u8 *o, int a);
 void func_002AFF50(u8 *o, int k);
 void func_002AFDD0(u8 *o);
-void func_0024D380(int k, u8 *u);
-void func_00204CD0(u8 *o, u32 f);
-void func_00204D00(u8 *o, int a);
-void func_00253300(int k, u8 *u);
-int func_00238930(u8 *o, float *f);
-int func_00238F50(u8 *o);
 void func_002AFC20(u8 *o);
 void func_00206080(u8 *o);
 void func_00207930(u8 *o);
-int func_00238DE0(u8 *o, int a);
-void func_002396B0(u8 *o);
 void func_00204B60(u8 *o, int k);
-int func_00240E20(u8 *u);
 int func_002B13F0(u8 *o, u8 *l);
-int func_00206C70(u8 *o);
 void func_002B3BF0(u8 *o);
 float func_002B19A0(u8 *o);
-void func_00204EA0(u8 *o);
 void func_002B1D00(u8 *o, u8 *l);
-int func_00236F30(u8 *o);
 
 int func_002B00D0(u8 *o);
 int func_002B0210(u8 *o, int a, int b);
@@ -146,7 +136,7 @@ void func_002B0320(u8 *o)
         k = 1;
     else
         return;
-    func_0024D380(k, UNIT(o));
+    func_0024D380(k, PS2_ADDR(UNIT(o)));
 }
 
 /* 0x002B0460, 0x210 bytes. A guard (state 2, flag 0x20000) against the target's attack. */
@@ -251,7 +241,7 @@ void func_002B0980(u8 *o)
     } else if (b == 2) {
         func_002B08F0(o);
     } else if (b == 1) {
-        func_002396B0(o);
+        func_002396B0(PS2_ADDR(o), 1);
     } else if (b == 0) {
         func_002B0670(o);
     }
@@ -331,7 +321,7 @@ void func_002B0E40(u8 *o)
     } else if (b == 2) {
         func_002B08F0(o);
     } else if (b == 1) {
-        func_002396B0(o);
+        func_002396B0(PS2_ADDR(o), 1);
     } else if (b == 0) {
         func_002B0AC0(o);
     }
@@ -362,7 +352,7 @@ void func_002B0EE0(u8 *o)
     } else {
         b += 0x11;
     }
-    if (func_00240E20(UNIT(o)) == 0) {
+    if (func_00240E20(PS2_ADDR(UNIT(o))) == 0) {
         func_00271A10(o, b);
     } else {
         u = UNIT(o);
@@ -433,7 +423,7 @@ void func_002B1350(u8 *o)
     } else if (b == 2) {
         func_002B08F0(o);
     } else if (b == 1) {
-        func_002396B0(o);
+        func_002396B0(PS2_ADDR(o), 1);
     } else if (b == 0) {
         func_002B10D0(o);
     }

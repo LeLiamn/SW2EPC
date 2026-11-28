@@ -1017,7 +1017,7 @@ void func_003263F0(u32 *param_1)
     param_1[0x22] = 0xFFFFFFFF;
 }
 
-/* 0x003266A0, 0x30 bytes. */
+/* 0x003266A0, 0x30 bytes, matching. */
 void func_003266A0(void)
 {
     int lVar1;

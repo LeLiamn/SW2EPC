@@ -16,6 +16,10 @@
  * func_00115C70 holds and the destination is aligned (a host / preloaded copy?).
  */
 
+#define SW2E_FILE_FILE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 
@@ -40,21 +44,6 @@ extern u32 g_0045CC04;                    /* (small data) the second source of B
 /* The containers' paths (0x00400C20) and the names searched for their first sector. */
 extern const char *g_00400C20[4];         /* "cdrom0:LINKDATA.ANS;1", ... */
 
-void func_00100870(u32 *out, const char *name, int a);
-void *func_00102DB0(int align, u32 size);
-void func_00102EC0(void *data);
-u32 func_00100AC0(u32 a, u32 b, u32 c, u32 d);
-u32 func_00100B90(u32 a, u32 b, u32 c, u32 d);
-u32 func_00100C60(u32 a, u32 b, u32 c, u32 d);
-u32 func_00100D00(u32 a, u32 b, u32 c, u32 d);
-int func_00115C70(void);
-u32 func_00115AC0(const char *path);
-void func_00118850(void *to, int size);
-int func_00100A30(int wait);
-void func_00100AA0(void);
-int func_001151C0(void);
-void func_00100DA0(void);
-
 void *func_00102880(const char *path, void *dest, int read, u32 size, u32 offset, const char *file,
                     int line);
 
@@ -71,19 +60,19 @@ void func_00102410(void)
         if (i == 3) {
             c->header = 0;
         } else if (i == 2) {
-            func_00100870(found, "\\LINKDATA.CNS", 0);
+            func_00100870(PS2_ADDR(found), PS2_ADDR("\\LINKDATA.CNS"), 0);
             g_00500460.start[i] = found[0];
-            c->header = func_00102DB0(0x40, 0x800);
+            c->header = (u32 *)(func_00102DB0(0x40, 0x800));
             func_00102880(g_00400C20[i], c->header, 1, 0x800, 0, "file.c", 0x57);
         } else if (i == 1) {
-            func_00100870(found, "\\LINKDATA.BNS", 0);
+            func_00100870(PS2_ADDR(found), PS2_ADDR("\\LINKDATA.BNS"), 0);
             g_00500460.start[i] = found[0];
-            c->header = func_00102DB0(0x40, 0x7000);
+            c->header = (u32 *)(func_00102DB0(0x40, 0x7000));
             func_00102880(g_00400C20[i], c->header, 1, 0x7000, 0, "file.c", 0x4A);
         } else if (i == 0) {
-            func_00100870(found, "\\LINKDATA.ANS", 0);
+            func_00100870(PS2_ADDR(found), PS2_ADDR("\\LINKDATA.ANS"), 0);
             g_00500460.start[i] = found[0];
-            c->header = func_00102DB0(0x40, 0x800);
+            c->header = (u32 *)(func_00102DB0(0x40, 0x800));
             func_00102880(g_00400C20[i], c->header, 1, 0x800, 0, "file.c", 0x3D);
         } else {
             c->header = 0;
@@ -92,7 +81,7 @@ void func_00102410(void)
             if (c->header[0] == 0x33B59) {
                 c->index = (u32 (*)[2])(c->header + 4);
             } else {
-                func_00102EC0(c->header);
+                func_00102EC0((unsigned char *)(c->header));
                 c->header = 0;
                 c->index = 0;
             }
@@ -108,7 +97,7 @@ void func_00102610(void)
     for (i = 0; i < 4; i++) {
         g_00500460.start[i] = 0;
         if (g_00500460.container[i].header != 0)
-            func_00102EC0(g_00500460.container[i].header);
+            func_00102EC0((unsigned char *)(g_00500460.container[i].header));
     }
 }
 

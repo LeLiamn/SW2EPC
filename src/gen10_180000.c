@@ -2260,23 +2260,6 @@ void func_0029CB20(int param_1, int param_2, u8 *param_3)
     }
 }
 
-/* 0x002A5A60, 0xB0 bytes. */
-void func_002A5A60(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6)
-{
-    int iVar1;
-
-    if (param_6 < 0x107) {
-        iVar1 = (int)param_6 * 0x70;
-        g_7000015C = g_7000015C * 0x41C64E6D + 0x3039;
-        *(u32 *)(g_00773448 + iVar1) = (g_7000015C >> 0x10) % 100 - 0x32;
-        *(u32 *)(g_00773450 + iVar1) = 0;
-        *(u32 *)(g_0077344C + iVar1) = 0;
-        *(u32 *)(g_00773454 + iVar1) = 0xFF;
-        func_00114470(param_2, param_3, param_1, iVar1 + 0x7733F0);
-        *(u32 *)(g_00773418 + iVar1) = param_5;
-    }
-}
-
 /* 0x002A5C40, 0xC0 bytes. */
 int func_002A5C40(int param_1)
 {

@@ -10,6 +10,10 @@
  * 3 one with two small portraits (0x00692AC0), 4 one with four portraits (0x00692DC0).
  */
 
+#define SW2E_FILE_TEXT_WINDOW_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -48,20 +52,11 @@ extern u32 g_0068FA50, g_0068FA60, g_0068FAA0, g_0068FAB0;
 extern u8 g_0073DCA3[];
 extern float g_0073DC6C;
 extern int g_00693710;
-extern void *g_0068F0F0, *g_0068F100;
+extern u64 g_0068F0F0, g_0068F100;     /* TEX0 values of texture sets */
 extern u64 g_004053F0, g_004053F8;       /* the names' font pages */
 extern u16 g_00405418, g_0040541A;
 
-u8 func_00147070(const char *s);
 void func_00120928(char *to, const char *from);
-void func_00146D80(const char *s, int *w, int *h);
-void func_00147160(const char *s, char *out, int w, int *tw, int *th);
-void func_001A9450(u8 *f, int x, int y, int z, int w, int h, int alpha, int flip, int half);
-u64 func_00106C90(void *set, int tex);
-void func_001057F0(u8 *p, u64 tex0, int a);
-void func_001055E0(u8 *p);
-void func_001050B0(u8 *p);
-void func_0023AD10(int a, int b, int c, int d, int e);
 
 /* A moving rectangle: from, to (x, y, w, h; -1 kept), alpha from / to, frames and frame. */
 typedef struct {
@@ -139,16 +134,16 @@ void func_001AE9F0(int k, const char *s, int wrap)
 
     if (fit)
         w->w = 0x1AC;
-    w->b[3] = func_00147070(s);
+    w->b[3] = func_00147070((const unsigned char *)(s));
     if (wrap == 0) {
         func_00120928(w->text, s);
         g_0056CCC0 = 16.0f;
         g_0056CCC4 = 16.0f;
-        func_00146D80(s, &w->tw, &w->th);
+        func_00146D80((const unsigned char *)(s), &w->tw, &w->th);
     } else {
         g_0056CCC0 = 16.0f;
         g_0056CCC4 = 16.0f;
-        func_00147160(s, w->text, w->w - w->pad[2] - w->pad[3], &w->tw, &w->th);
+        func_00147160((const unsigned char *)(s), (unsigned char *)(w->text), w->w - w->pad[2] - w->pad[3], &w->tw, &w->th);
     }
     g_0056CCC0 = 16.0f;
     g_0056CCC4 = 16.0f;
@@ -371,7 +366,7 @@ static inline u64 name_page(void)
 }
 
 /* A sprite packet's fixed part: grey, texels (u0, v0)-(u1, v1), at the screen's corner. */
-static inline void plain_sprite(u8 *p, void *set, int tex, u64 uv0, u64 uv1, int g)
+static inline void plain_sprite(u8 *p, u64 set, int tex, u64 uv0, u64 uv1, int g)
 {
     u64 xy = (u64)(long long)(-0xE00 / g + 0x8000) << 16 | 0xFFFE00007000ULL;
 
@@ -487,7 +482,7 @@ void func_001AFA70(u8 *p)
     }
 }
 
-void func_001AFC70(int k, u8 mode);
+void func_001AFC70(int k, u32 mode);
 
 /* 0x001AFC50, 0x1C bytes, matching. Opens window `k`. */
 void func_001AFC50(int k)
@@ -497,7 +492,7 @@ void func_001AFC50(int k)
 
 /* 0x001AFC70, 0x1A4 bytes. Opens window `k` in mode `mode` (window 3 also starts its sound and
  * its height from the player's record). */
-void func_001AFC70(int k, u8 mode)
+void func_001AFC70(int k, u32 mode)
 {
     TextWindow *w = &g_00693394[k];
 
@@ -544,10 +539,6 @@ extern u8 g_00693957;
 extern u8 g_00500700[][0x88];            /* the pads (+0x4C pressed, +0x4E held, +0x64/+0x65 ready) */
 extern int g_0045D1C8;                   /* (small data) 1: half-line drawing */
 extern int g_0056CCBC;                   /* (font state) the depth */
-
-int func_0023A410(void);
-u8 *func_00105860(u64 tex, int a);
-void func_00105900(u8 *p, int layer);
 
 /* 0x001AFEC0, 0xF0 bytes. Shows window `k` again (state 2). */
 void func_001AFEC0(int k)
@@ -790,9 +781,6 @@ void func_001B0B50(Glyph *g)
     draw_glyph(g, 0);
 }
 
-u8 *func_00105B40(u64 tex, int a);
-void func_00105BE0(u8 *p, int layer);
-
 /* A float point as a GS one, in half lines (with 1:1 drawing) or full ones. */
 static inline u64 win_xyz(float x, float y, float z)
 {
@@ -845,10 +833,6 @@ void func_001B0EC0(Glyph *g)
 extern void (*g_0056CCA0)(Glyph *g);     /* (font state) the glyph drawer */
 extern u32 g_0056CCA4, g_0056CCA8, g_0056CCAC, g_0056CCB0, g_0056CCB8;   /* colours, layer */
 extern u8 g_0068F3E0[2][0x370], g_0068FAC0[2][0x7F0], g_00690AA0[2][0x3E0], g_00691260[2][0xC30];
-
-void func_001A3D20(u8 *p, int x, int y, int z, int w, int h, int alpha);
-void func_00104F60(u8 *p, u32 n, int layer);
-void func_00146270(const char *s, int x, int y, int z, int a);
 
 /* A yes / no arrow (texture `tex`, texels (u0, v0)-(u1, v1)) at (x0, y)-(x1, y + 32). */
 static inline void put_arrow(u8 *q, int tex, u64 uv0, u64 uv1, int x0, int x1, int y, int z)
@@ -914,7 +898,7 @@ void func_001B25A0(TextWindow *w, int k)
         g_0056CCAC = w->b[4];
         g_0056CCA8 = g_0056CCA4;
         g_0056CCB0 = g_0056CCAC;
-        func_00146270(w->text, w->x + w->pad[2], w->y + w->pad[0], w->z, 0);
+        func_00146270((const unsigned char *)(w->text), w->x + w->pad[2], w->y + w->pad[0], w->z, 0);
         if (w->state == 5 || w->state == 6) {
             int c = ww / 2, y = w->y + hh - 0x28;
 
@@ -1048,9 +1032,6 @@ void func_001B3A90(Glyph *g)
     func_00105900(p, g->layer);
 }
 
-void func_001A4440(u8 *p, int x, int y, int z, int w, int h, int style);
-void func_001A5060(u8 *p, int x, int y, int z, int w, int h, int alpha);
-
 /* Window `k`'s state bytes and this frame's packets. */
 static inline u8 *window_state(int k)
 {
@@ -1082,7 +1063,7 @@ static inline void window_text(TextWindow *w, void (*draw)(Glyph *g))
         g_0056CCAC = w->b[4];
         g_0056CCA8 = g_0056CCA4;
         g_0056CCB0 = g_0056CCAC;
-        func_00146270(w->text, w->x + w->pad[2], w->y + w->pad[0], w->b[1], (int)w);
+        func_00146270((const unsigned char *)(w->text), w->x + w->pad[2], w->y + w->pad[0], w->b[1], (int)w);
         g_0056CCA8 = c0;
         g_0056CCAC = c0;
         g_0056CCB0 = c0;
@@ -1241,15 +1222,6 @@ void func_001B4D10(TextWindow *w, int k)
 extern float g_0073DC60[];
 extern u8 g_0073DF33[];
 extern float g_0073DEF0[];
-
-int func_001AB3A0(float size, u8 *font, u8 *rec);
-int func_001AB430(float size, float h, u8 *p, u8 *rec, float *pos, int col, int a, int flat,
-                  float *out);
-int func_001AB1D0(float size, float h, u8 *p, u32 t, u32 n, float *pos, int col, int a,
-                  int flat, float *out);
-int func_0019AF10(float size, u32 t, u32 n);
-void func_001A9B30(u8 *f, u32 id, int half);
-void func_001AA2C0(u8 *f, int layer);
 
 /* A texture coordinate pair (texel centres). */
 #define GS_UV2(u, v) ((u64)(long long)((u) << 4 | 8) | (u64)(long long)((v) << 4 | 8) << 16)
@@ -1426,11 +1398,6 @@ void func_001B5400(TextWindow *w, int k)
     }
 }
 
-void func_001A4780(u8 *p, int x, int y, int z, int w, int h, int alpha, int flip);
-void func_001A4C40(u8 *p, int x, int y, int z, int w, int h, int alpha, int flip, int alt);
-void func_001A9CE0(u8 *f, int x, int y, int z, int w, int h, int alpha, int flip, int half);
-void func_001AA2B0(u8 *f);
-
 /* 0x001B7270, 0xA80 bytes. Draws glyph `g` of the four-portrait window (`g->pad` points at the
  * window; +0x30 of the job is the glyph's number): typed out while the window opens (glyphs up
  * to its lines less its timer), squeezed down while it closes (timer / 5), whole when shown. */
@@ -1553,7 +1520,7 @@ void func_001B7D20(TextWindow *w, int k)
         g_0056CCB8 = 5;
         g_0056CCAC = g_0056CCA8;
         g_0056CCB0 = g_0056CCA4;
-        func_00146270(w->text, w->x + w->pad[2], w->y + w->pad[0], w->b[1], (int)w);
+        func_00146270((const unsigned char *)(w->text), w->x + w->pad[2], w->y + w->pad[0], w->b[1], (int)w);
         g_0056CCA8 = c0;
         g_0056CCAC = c0;
         g_0056CCB0 = c0;
@@ -1576,11 +1543,6 @@ extern u8 g_0069395C, g_0069395D, g_0069395F;               /* fade: mode, layer
 extern signed char g_0069395E;           /* fade: its alpha (also read by sc_ubase.c) */
 extern u32 g_00669F60[4];
 
-u8 *func_00105410(void);
-u8 *func_001050F0(void);
-void func_00105230(u8 *p, int layer);
-void func_001054B0(u8 *p, int layer);
-
 /* Draws text `s` at (x, y) with glyph drawer `draw`, its characters 4/5 as wide. */
 static inline void narrow_text(void (*draw)(Glyph *g), const char *s, int x, int y, int z, int a)
 {
@@ -1590,7 +1552,7 @@ static inline void narrow_text(void (*draw)(Glyph *g), const char *s, int x, int
     g_0056CCB8 = 5;
     g_0056CCA0 = draw;
     g_0056CCC0 = g_0056CCC0 * 512.0f / 640.0f;
-    func_00146270(s, x, y, z, a);
+    func_00146270((const unsigned char *)(s), x, y, z, a);
     g_0056CCB8 = layer;
     g_0056CCC0 = cw;
 }
@@ -1613,7 +1575,7 @@ void func_001B8920(const char *s, int *w, int *h)
     float cw = g_0056CCC0;
 
     g_0056CCC0 = g_0056CCC0 * 512.0f / 640.0f;
-    func_00146D80(s, w, h);
+    func_00146D80((const unsigned char *)(s), w, h);
     g_0056CCC0 = cw;
 }
 
@@ -1736,7 +1698,7 @@ void func_001B8D70(void)
             g_0056CCAC = c;
             g_0056CCA8 = g_0056CCA4;
             g_0056CCB0 = g_0056CCAC;
-            func_00146270((const char *)t[4], t[0], t[1], 5, 0);
+            func_00146270((const unsigned char *)((const char *)t[4]), t[0], t[1], 5, 0);
             g_0056CCA8 = c0;
             g_0056CCAC = c0;
             g_0056CCB0 = c0;

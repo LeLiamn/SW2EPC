@@ -1,8 +1,10 @@
 """Writes src/sw2e_protos.h: one prototype per non-static function defined in src/*.c, taken from
 its definition (the definition is the reference). Types that are local to a file (structures,
 typedefs of other names) become `void *` for pointers; functions taking or returning such types by
-value are left out. The header is included by the generated files (src/gen*.c) so that every call
-they make to a decompiled function is checked against its real parameters.
+value are left out. The header is included by every file in src/ so that each call to a decompiled
+function is checked against its real parameters. The prototypes are grouped by defining file, each
+group behind a guard (SW2E_FILE_UNIT_C for unit.c) that the defining file sets before including the
+header, so its own definitions (which may use its local types) are not declared twice.
 
 Usage: py tools/make_protos.py
 """
@@ -25,7 +27,8 @@ def norm_type(t):
     const = 'const ' if re.match(r'^const\b', t) else ''
     base = t.replace('*', '').replace('const', '').strip()
     base = ' '.join(base.split())
-    base = {'u64': 'unsigned long long', 's8': 'signed char'}.get(base, base)
+    base = {'u64': 'unsigned long long', 's8': 'signed char', 'u8': 'unsigned char', 'u16': 'unsigned short',
+            'u32': 'unsigned int'}.get(base, base)
     if base in BASIC:
         return (const if stars else '') + base + (' ' + '*' * stars if stars else '')
     if stars:
@@ -46,6 +49,12 @@ def param(p):
     return t if t is None else t
 
 
+def guard_name(name):
+    """SW2E_FILE_UNIT_C for unit.c: a file defines it before including this header, which then
+    leaves out its own functions (their definitions in the file are the reference)"""
+    return 'SW2E_FILE_' + re.sub(r'\W', '_', name).upper()
+
+
 def main():
     defs = {}
     for f in sorted(glob.glob(os.path.join(ROOT, 'src', '*.c'))):
@@ -63,17 +72,34 @@ def main():
                 continue
             if ps == ['void'] and m.group(3).strip() == '':
                 continue                    # K&R style: no parameter information
-            defs[m.group(2)] = '%s%s%s(%s);' % (ret, '' if ret.endswith('*') else ' ', m.group(2), ', '.join(ps))
+            defs[m.group(2)] = (os.path.basename(f),
+                                '%s%s%s(%s);' % (ret, '' if ret.endswith('*') else ' ', m.group(2), ', '.join(ps)))
     out = ['/*',
            ' * sw2e_protos.h - prototypes of the functions defined in src/, written by tools/make_protos.py',
            ' * from their definitions (do not edit by hand). Types local to a file appear as void *.',
+           ' * A file defines SW2E_FILE_<NAME>_C before including it, which leaves out its own functions.',
+           ' * Where the original callers of a file see a function differently from its definition (they do',
+           ' * not mask a byte result, say), the file defines SW2E_OWN_PROTO_func_<ADDR> and declares it',
+           ' * itself, on the PS2 build only.',
            ' */',
            '#ifndef SW2E_PROTOS_H',
            '#define SW2E_PROTOS_H',
            '',
-           '/* needs u8, u16, u32 (typedefs of the including file) and ps2ptr (sw2e_mem.h) */',
+           '/* uses only basic C types, plus ps2ptr (sw2e_mem.h) */',
            '']
-    out += [defs[k] for k in sorted(defs)]
+    # functions some file declares its own way on the PS2 build (SW2E_OWN_PROTO_func_...)
+    own = set()
+    for f in glob.glob(os.path.join(ROOT, 'src', '*.c')):
+        own |= set(re.findall(r'#define SW2E_OWN_PROTO_(func_[0-9A-F]{8})', open(f, encoding='utf-8').read()))
+    by_file = {}
+    for k in sorted(defs):
+        line = defs[k][1]
+        if k in own:
+            line = '#ifndef SW2E_OWN_PROTO_%s\n%s\n#endif' % (k, line)
+        by_file.setdefault(defs[k][0], []).append(line)
+    for name in sorted(by_file):
+        guard = guard_name(name)
+        out += ['#ifndef ' + guard] + by_file[name] + ['#endif', '']
     out += ['', '#endif', '']
     open(os.path.join(ROOT, 'src', 'sw2e_protos.h'), 'w', encoding='utf-8', newline='\n').write('\n'.join(out))
     print(len(defs), 'prototypes')

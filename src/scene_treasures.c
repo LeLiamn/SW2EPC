@@ -10,6 +10,10 @@
  * drawer and its button help line. Mode names below come from those help lines.
  */
 
+#define SW2E_FILE_SCENE_TREASURES_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 
@@ -122,7 +126,6 @@ extern struct {
 } s_00799A68;
 #define g_00799A68 (s_00799A68.g_00799A68)
 
-
 /* Scene state. */
 
 typedef struct {                     /* 0x00731240 */
@@ -153,89 +156,21 @@ extern u8 g_0040CC40[];
 #define BTN_LEFT   0x8000
 #define SE_CURSOR 0x2CDC
 
-void func_003BD5C0(void);
-void func_003BD540(void);
-void func_003971B0(void);
-void func_003B20F0(void);
-void func_003B2140(void);
-int func_003A1FC0(int mount);         /* MOUNT_LOCKED (4) when the mount is not unlocked */
-void func_002B3CF0(int value);
-
 /* Button help lines (0xF0 + letter = a button icon). */
 
 #define MENU_BGM 0x1C
 
-void *func_003BD290(void);
-void func_00101470(int value);
-void func_003F8B30(int value);
-u32 func_001026D0(int a, int b, int c, int d, int e, int f, void *g, int h);
-void func_003BD430(void);
-void func_002D6890(void);
-void func_00102960(int value);
-void func_002D0DC0(void *data);
 typedef struct { char c[20]; } Record20;
-const Record20 *func_0035DEC0(int entry, int record);
-void func_002ED190(int value);
 int func_002ED150(void);
-void func_002C5A60(void);
-void func_002C59F0(void);
-void func_002C5A30(void);
-int func_001037F0(int value);
-void func_00375C20(int a, int b, int c, void *d, int e);
-void func_00376100(int a, int b, int c);
-void func_0030CE90(int value);
-void func_001B8F60(int a, int b, int c);
-void func_0017E010(int value);
 void func_0017DF10(void);
 int func_0017DDA0(void);
-void func_00375D60(void);
-void func_003BD4A0(void);
 void func_002D68F0(void);
-void func_00102EC0(u32 handle);
-void func_003BD580(void);
-void func_003BD600(void);
-void func_003B21A0(void);
-void func_00397260(void);
-void func_0023AF50(int a, int b);
-void func_003F8B80(void);
-void func_00376450(void);
-void func_0023AD10(int a, int b, int c, int d, int e);
-void func_00391390(int value);
 void func_003914C0(void);
-void func_00397660(void);
-void func_003EEE50(void);
 void func_0039F340(void);
-void func_003E79C0(void);
-void func_003F90A0(void);
-void func_003963D0(void);
-void func_003E4700(void);
-void *func_00391250(void);
-int func_003955A0(float dt);
-void func_00395510(void);
-int func_00397AE0(float dt);
-void func_00397AC0(void);
-void *func_00397160(void);
-void func_003973E0(void);
-void *func_003E46F0(void);
-void func_003E4F40(void);
-void *func_003B2000(void);
-int func_003B22C0(float dt);
-int func_003EF070(void);
-int func_0039F7E0(void);
-int func_003E7E60(void);
-int func_003F95E0(void);
 void func_00278A20(void);
-void func_003F8C00(void);
 void func_00375F90(void);
-void func_001A7DC0(const char *text, int alpha, int b);
-void func_00391DA0(void);
-void func_003EEDD0(void);
-void func_003B20B0(void);
-void *func_002FC2C0(void);
-void func_002EE610(u32 a, u8 b);
 void func_002EF7F0(void);
 void func_002EF870(void);
-void func_002EEB60(u32 a, u8 b);
 void func_002EF150(u32 a, u32 b, u32 c, u32 d, u32 e, void *f, u8 g, u8 h, u8 i);
 void func_002EF360(u32 a, u32 b, void *c, u32 d, u8 e, u8 f);
 void func_002EF300(u32 a, void *b, u32 c, u8 d, u8 e);
@@ -305,11 +240,11 @@ void func_001E7290(void)
     switch (g_00731338) {
     case 0:                                     /* back to the main menu */
         if (g_00731334 == 5 && g_00731328 != 0) {
-            func_00102EC0(g_00731328);
+            func_00102EC0(PS2_PTR(g_00731328));
             g_00731328 = 0;
         }
         if (g_00731334 == 4 && g_00731324 != 0) {
-            func_00102EC0(g_00731324);
+            func_00102EC0(PS2_PTR(g_00731324));
             g_00731324 = 0;
         }
         if ((unsigned)(g_00731334 - 8) < 3)
@@ -363,7 +298,7 @@ void func_001E7290(void)
     case 4: {
         u32 *screen;
         func_003BD5C0();
-        screen = *(u32 **)((char *)func_002FC2C0() + 0x6AC);
+        screen = *(u32 **)((char *)((void *)func_002FC2C0()) + 0x6AC);
         screen[2] = 0xFFFFFFFF;
         *(unsigned short *)((char *)screen + 0x1E) = 0;
         *(unsigned short *)((char *)screen + 0x1C) = 0;
@@ -374,7 +309,7 @@ void func_001E7290(void)
     case 5:
         if (g_00731334 != 11) {                 /* not when coming back from the skills */
             if (g_00731328 == 0)
-                g_00731328 = func_001026D0(1, 0x41, 0, 1, 0, 0, g_00429230, 0x15F);
+                g_00731328 = PS2_ADDR(func_001026D0(1, 0x41, 0, 1, 0, 0, (const char *)(g_00429230), 0x15F));
             g_0073135F = 0;
             g_0073135B = 0;
             g_0073135C = 0;
@@ -473,7 +408,7 @@ void func_001E7830(void)
     int pressed = pad1_pressed();
     int held = pad1_held();
     int found = 0;
-    int *available = func_003BD290();
+    int *available = (int *)(func_003BD290());
 
     if (func_002ED150() != 0)                   /* animation still running */
         return;
@@ -545,7 +480,7 @@ void func_001E7830(void)
 /* 0x001E7D00, 0x60 bytes, matching. Mode 1 (viewer, shared with func_00391xxx). */
 void func_001E7D00(float dt)
 {
-    char *viewer = func_00391250();
+    char *viewer = (char *)func_00391250();
 
     if (func_003955A0(dt) != 0)
         func_00395510();
@@ -556,7 +491,7 @@ void func_001E7D00(float dt)
 /* 0x001E7D60, 0x60 bytes, matching. Mode 2 (same as mode 1 with another viewer). */
 void func_001E7D60(float dt)
 {
-    char *viewer = func_00391250();
+    char *viewer = (char *)func_00391250();
 
     if (func_00397AE0(dt) != 0)
         func_00397AC0();
@@ -597,7 +532,7 @@ void func_001E7DC0(void)
 /* 0x001E8010, 0x40 bytes, matching. Mode 12 ("Turn Page  Select  Back  Enlarge": an art book?). */
 void func_001E8010(void)
 {
-    char *book = func_00397160();
+    char *book = (char *)func_00397160();
 
     func_003973E0();
     if (*(int *)(book + 0x34) != 5)
@@ -607,7 +542,7 @@ void func_001E8010(void)
 /* 0x001E8050, 0x5C bytes, matching. Mode 13 ("Category  Select  Back  Play": a sound or movie player?). */
 void func_001E8050(void)
 {
-    char *player = func_003E46F0();
+    char *player = (char *)func_003E46F0();
 
     func_003E4F40();
     if (*(int *)(player + 0x10) != 5) {
@@ -621,7 +556,7 @@ void func_001E8050(void)
 /* 0x001E80B0, 0x60 bytes, matching. Mode 14. */
 void func_001E80B0(float dt)
 {
-    char *screen = func_003B2000();
+    char *screen = (char *)func_003B2000();
 
     if (func_003B22C0(dt) != 0)
         func_00395510();
@@ -821,23 +756,23 @@ void func_001E8AB0(IdList *list)
     list->count++;
 }
 
-/* 0x001E8B30, 0x298 bytes, matching. Scene enter. */
+/* 0x001E8B30, 0x298 bytes. Scene enter. */
 void func_001E8B30(void)
 {
-    char *res = func_003BD290();
+    char *res = (char *)func_003BD290();
     int i, j;
 
     func_00101470(1);
     func_003F8B30(2);
-    g_00731318 = func_001026D0(1, 0x36, 0, 1, 0, 0, g_00429230, 0x461);
-    g_0073131C = func_001026D0(1, 0x40, 0, 1, 0, 0, g_00429230, 0x462);
-    g_00731320 = func_001026D0(1, 0x37, 0, 1, 0, 0, g_00429230, 0x465);
-    g_0073132C = func_001026D0(1, 0x3B, 0, 1, 0, 0, g_00429230, 0x469);
+    g_00731318 = PS2_ADDR(func_001026D0(1, 0x36, 0, 1, 0, 0, (const char *)(g_00429230), 0x461));
+    g_0073131C = PS2_ADDR(func_001026D0(1, 0x40, 0, 1, 0, 0, (const char *)(g_00429230), 0x462));
+    g_00731320 = PS2_ADDR(func_001026D0(1, 0x37, 0, 1, 0, 0, (const char *)(g_00429230), 0x465));
+    g_0073132C = PS2_ADDR(func_001026D0(1, 0x3B, 0, 1, 0, 0, (const char *)(g_00429230), 0x469));
     func_003BD430();
     func_002D6890();
     func_00102960(1);
     func_001E8AB0(&g_00731240);
-    func_002D0DC0(g_007312AC);
+    func_002D0DC0(PS2_ADDR(g_007312AC));
 
     /* Count the records in use (first byte < 0x7F) of each entry. */
     for (i = 0; i < g_00731314; i++) {
@@ -845,7 +780,7 @@ void func_001E8B30(void)
         for (j = 0; j < 4; j++) {
             /* the original copies the 20-byte record before testing its first byte */
             Record20 rec;
-            rec = *func_0035DEC0(i, j);
+            rec = *(Record20 *)func_0035DEC0(i, j);
             if ((u8)rec.c[0] < 0x7F)
                 g_00731340[i]++;
         }
@@ -865,7 +800,7 @@ void func_001E8B30(void)
     g_0073135D = 0;
     g_0073135E = 0;
     func_001037F0(1);
-    func_00375C20(0, *(int *)(res + 0x30), 0x17, g_0040CC40, 0x0B);
+    func_00375C20(0, *(int *)(res + 0x30), 0x17, PS2_ADDR(g_0040CC40), 0x0B);
     func_00376100(4, -1, -1);
     func_0030CE90(10);
     func_001B8F60(1, 6, 8);
@@ -879,17 +814,17 @@ void func_001E8DD0(void)
     func_003BD4A0();
     func_002D68F0();
     if (g_00731328 != 0) {
-        func_00102EC0(g_00731328);
+        func_00102EC0(PS2_PTR(g_00731328));
         g_00731328 = 0;
     }
-    func_00102EC0(g_0073132C);
-    func_00102EC0(g_00731320);
+    func_00102EC0(PS2_PTR(g_0073132C));
+    func_00102EC0(PS2_PTR(g_00731320));
     if (g_00731324 != 0) {
-        func_00102EC0(g_00731324);
+        func_00102EC0(PS2_PTR(g_00731324));
         g_00731324 = 0;
     }
-    func_00102EC0(g_0073131C);
-    func_00102EC0(g_00731318);
+    func_00102EC0(PS2_PTR(g_0073131C));
+    func_00102EC0(PS2_PTR(g_00731318));
     func_003BD580();
     func_003BD600();
     func_003B21A0();
@@ -1021,7 +956,7 @@ void func_001E9150(void)
     case 7: func_001A7DC0(g_0043C670, 0x80, 2); break;
     case 8:
     case 9: {
-        char *game = func_002FC2C0();
+        char *game = (char *)(func_002FC2C0());
         int kind = *(int *)(*(char **)(game + 0x694) + 0x220);
         switch (kind) {
         case 0: func_001A7DC0(g_0043C578, 0x80, 2); break;

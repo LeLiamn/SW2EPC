@@ -167,28 +167,6 @@ void func_00373B60(void)
     }
 }
 
-/* 0x003820C0, 0x120 bytes. */
-void func_003820C0(int param_1, int param_2, int param_3, int param_4, int param_5)
-{
-    int iVar2;
-    unsigned long long uVar1;
-
-    iVar2 = (int)param_2;
-    if (param_5 == 0) {
-        func_002C80A0(param_2, param_3, 0, 0xDA, 0x18, 0x80, 1);
-    }
-    else {
-        func_002C8500(param_2, param_3, 0, 0xDA, 0x18, 0x80, 1);
-    }
-    func_003B5820(param_4, iVar2 + 0x10, param_3, 0, 0x80, 1);
-    func_00381CA0(param_1, iVar2 + 0x29, param_3, param_4, 0);
-    if (param_4 != 0x65) {
-        func_003B5DF0();
-    }
-    uVar1 = func_00313F20(param_4);
-    func_003B5CA0();
-}
-
 /* 0x00395C90, 0x18C bytes. */
 void func_00395C90(void)
 {

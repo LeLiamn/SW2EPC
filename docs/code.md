@@ -72,6 +72,53 @@ short.
   from the source, so C calls cannot be paired with call sites by order alone. Pair them by their
   constant arguments.
 
+## Prototypes checked against the definitions (2026-11-28)
+
+All files now take their prototypes from `src/sw2e_protos.h` (see rule 7 in
+[port.md](port.md)). Before that, each hand-written file declared its callees itself. Those 2,960
+local declarations disagreed with the definitions for 1,629 functions. Each disagreement was
+settled from the machine code.
+
+- **Wrappers that pass their result or arguments on.** About 30 functions only call another
+  function. They had been written `void`, or without the parameters they pass through in a0-t3.
+  They now return the callee's result and take its parameters. Examples:
+  - names: `func_0019B280`, `func_003B0BD0`, `func_003DD7D0`;
+  - map cells: `func_0018C0E0`, `func_0018C2A0`;
+  - other wrappers: `func_0033D270`, `func_00372230`, `func_001F0520`, `func_001F1770`,
+    `func_001D8EC0`, `func_0036F990`, `func_00102340`;
+  - screen drawers: `func_003B3970`, `func_003B4720`, `func_003B5CA0`, `func_003B5DF0`;
+  - getters: the `func_0034A450`..`func_0034A590` family.
+
+  `func_0033D0B0` returns the last player group it looked at. It passes the same group twice to
+  `func_0018C3F0`, and that quirk of the original is kept.
+- **Missing arguments.** About 180 calls passed fewer arguments than the original sets up. They
+  were filled in by tracing each register at the call site back to a constant or a caller
+  parameter, or by reading the call site by hand. Examples:
+  - mission timers: `left / 3000`;
+  - command flags: `cmd[2] == 1`, `cmd[3] == 1`, `cmd[4] == 1` in `sc_ctrl.c`;
+  - text window 1 in the shop and random-event screens;
+  - a text scale passed to `func_00146D00`;
+  - a float position passed to `func_00271610`, which had been written as a pointer.
+- **Unused parameters.** About 40 definitions take arguments that the original callers set but
+  the function never reads. Their parameters were added and are unused. Examples:
+  `func_00100870`, `func_002BC660`, `func_00106840` (the frame time).
+- **Wrong types.** Several types were corrected:
+  - `func_001F2B70` and `func_001F2BB0` return a `float` (the `min.s` of two heights);
+  - `func_003955A0` and `func_003E9460` take a `float`;
+  - `func_0029DE30` takes three floats and a vector;
+  - `func_0024D380` takes two ints;
+  - `g_0068F0F0`, `g_0068F0F8` and `g_0068F100` are 64-bit TEX0 values, not pointers. They are
+    stored with `sd` and read with `ld` in 417 places.
+- **Pointer arithmetic.** Where a call's result is offset, indexed or dereferenced, the call is
+  cast back to the pointer type the file used before (35 sites). A definition returning `int *`
+  instead of `u8 *` would otherwise change `func() + 0x694` into an offset four times larger.
+- **Removed.** The generated `func_002A5A60` (sound position: Ghidra dropped its five float
+  parameters), `func_0029B5A0` and `func_003820C0` (callers whose arguments are unknown).
+- **Matching.** 50 more functions match, because of the corrected types. Two stop matching:
+  `func_002A41D0` and `func_001E8B30` pass an array address to an `int` parameter, and the
+  `PS2_ADDR` there moves one instruction. Five other tags were stale: those generated functions
+  did not match before this pass either.
+
 ## The scene manager (`0x0045D880`)
 
 The whole game runs inside `func_001005A0`, which drives a block of globals at `0x0045D880` (see the

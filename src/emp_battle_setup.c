@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_BATTLE_SETUP_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -31,37 +35,13 @@ extern int (*g_00448440[0x1F])(void);
 
 #define SLOT(s, k) g_007B9628[s][k]
 
-void func_00102990(void);
 void func_00369990(int k);
 void func_003698F0(void);
 int func_0030D7D0(void);
 void func_0032D3C0(int a);
 void func_00369FE0(void);
-void func_003A92D0(void);
-void func_003A80A0(int a);
-void func_003A9060(int a);
-void func_003A7D90(void);
-int func_00362570(void);
-int func_00362320(void);
-int func_003620E0(int s, int k);
-int func_002F4080(int o);
-int func_002F9A90(int f);
-int func_00327870(void);
-int func_002F8F20(int f);
-int func_00363720(int p);
-int func_002FB3B0(int f);
-char func_00327E90(void);
-int func_002F47A0(int a);
 int func_0036DB00(int a, int b);
-int func_002F6A60(int a);
-int func_002F4900(int a, int b);
-u8 *func_002EFB00(int k);
 void func_0011EB80(u8 *to, const u8 *from, int n);
-void func_0036E080(void);
-void func_0036E260(void);
-void func_0036E310(void);
-void func_0036DD90(int a, int b, int c);
-int func_0036F520(int s, int k);
 
 /* 0x00369560, 0x10 bytes, matching. */
 int func_00369560(void)
@@ -208,7 +188,7 @@ int func_0036B330(void)
 }
 
 /* 0x0036B340, 0x54 bytes. Slot `k` of side `s`: its officer. */
-u16 func_0036B340(u32 s, u32 k)
+u32 func_0036B340(u32 s, u32 k)
 {
     if (s < 2 && k < 8)
         return *(u16 *)SLOT(s, k);
@@ -230,7 +210,7 @@ int func_0036B4A0(int s, int k)
 }
 
 /* 0x0036B4D0, 0x34 bytes, matching. */
-u8 func_0036B4D0(int s, int k, int j)
+u32 func_0036B4D0(int s, int k, int j)
 {
     return SLOT(s, k)[j + 0x10];
 }
@@ -242,9 +222,9 @@ u8 func_0036B6C0(int s, int k)
 }
 
 /* 0x0036B6F0, 0x28 bytes, matching. */
-u8 func_0036B6F0(void)
+u8 func_0036B6F0(int p)
 {
-    return func_0036B6C0(0, func_00362320());
+    return func_0036B6C0(0, func_00362320(p));
 }
 
 /* 0x0036B820, 0x60 bytes. Whether slot `k` of side `s` has flags `m`. */
@@ -444,7 +424,7 @@ int func_0036D740(void)
 /* 0x0036DBA0, 0x5C bytes, matching. */
 int func_0036DBA0(int a, int b)
 {
-    int x = func_002F47A0(a), y = func_0036DB00(a, b);
+    int x = func_002F47A0(a, b), y = func_0036DB00(a, b);
 
     return y < x ? x : y;
 }
@@ -458,7 +438,7 @@ int func_0036DC00(int a)
 /* 0x0036DC30, 0x44 bytes, matching. */
 int func_0036DC30(int a, int b)
 {
-    int x = func_002F47A0(a);
+    int x = func_002F47A0(a, b);
 
     return x < func_0036DB00(a, b);
 }
@@ -480,7 +460,7 @@ u8 *func_0036DCD0(void)
 /* 0x0036E040, 0x34 bytes. Loads the tactics state from the save image. */
 void func_0036E040(void)
 {
-    u8 *p = func_002EFB00(9);
+    u8 *p = (u8 *)PS2_PTR(func_002EFB00(9));
 
     func_0011EB80(func_0036DCD0(), p + 0xB5, 9);
 }
@@ -580,37 +560,8 @@ extern u32 g_7000015C;
 
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
-int func_00102960(int a);
-int func_0023A630(void);
-void func_0023A6D0(void);
-void func_0023A660(int v);
-int func_00327D50(void);
-int func_002F9060(int f);
-void func_002F4760(int o, int v);
-int func_002F8F20(int f);
-int func_00362160(int s, int k);
 int func_0036B880(u32 s, u32 k);
-u8 **func_0033EF80(u32 k);
-int func_0033B1E0(u8 **g);
-u8 *func_00328B30(int k);
 void func_0036D180(u8 o, u8 *p);
-void func_00328A00(int k, int v);
-void func_00328AA0(int k, int v);
-void func_0019FC30(void);
-void func_00329450(int s, int v);
-void func_003A5240(void);
-int func_00327AE0(int k);
-u8 func_002F6850(int o);
-int func_0035F0C0(void);
-int func_00362490(void);
-int func_0030B090(int f);
-int func_002FABC0(int f);
-int func_003623B0(void);
-int func_00327CC0(void);
-int func_0032E7B0(void);
-int func_0036D9B0(int f, int k);
-u8 func_0035D5A0(u32 s);
-u32 func_0033F430(u32 side, u32 alive, u32 *out, u32 max);
 extern u8 g_006A1D58[][0x68];
 
 /* 0x00369580, 0x94 bytes. The voice player's frame (a 50-frame pause between voices). */
@@ -659,7 +610,7 @@ int func_003696D0(int v)
         return 1;
     if (g_0045D788 == v) {
         if (g_0045D784 == 5) {
-            func_0023A6D0();
+            func_0023A6D0(v);
             g_0045D790 = 0x32;
             g_0045D784 = 0;
             g_0045D798 = 1;
@@ -775,7 +726,7 @@ char func_0036B510(int x)
     char n = 0;
 
     for (k = 0; k < 8; k++)
-        n += func_0036B4D0(0, func_00362320(), k);
+        n += func_0036B4D0(0, func_00362320(x), k);
     return n;
 }
 
@@ -963,24 +914,10 @@ u8 **func_0036E680(u32 s)
 extern u32 g_007B95E4, g_007B95E8, g_007B95F8;
 
 void func_003697F0(void);
-void func_0023AA40(void);
-int func_00323CD0(int a, int f, u32 b, int *l);
-int func_002F3E30(int o);
-int *func_002F7B10(void);
 int func_002F7D90(int a, int (*fn)(), int b, int c, int d, int e);
-int func_002F82A0();
-int func_002F3770(int o);
 int func_0032D9C0(void);
-int func_0032E760(void);
 int func_00369C50(void);
-void func_003A99B0(u32 f, int a);
-int func_003760C0(void);
-int func_003760E0(void);
-void func_00376100(int a, int b, int c);
-void func_0036AA60(void);
-int func_0036BB80(int v);
-u8 *func_0035DD10(int p);
-int func_00362B60(int a);
+int func_0036AA60(void);
 
 /* 0x003698F0, 0x98 bytes. Clears the voice queue. */
 void func_003698F0(void)
@@ -1074,7 +1011,7 @@ void func_00369BB0(u32 a, u32 b)
 int func_0036A5B0(int a, int b, int *out)
 {
     int f = func_00327D50(), n = 0, i, j;
-    int *l = func_002F7B10();
+    int *l = (int *)func_002F7B10();
     int c = func_00323CD0(a, f, g_007B95E4, l);
 
     for (i = 0; i < c; i++, l++) {
@@ -1092,7 +1029,7 @@ int func_0036A5B0(int a, int b, int *out)
 int func_0036A6C0(int a, int *out)
 {
     int f = func_00327D50(), n = 0, i, j;
-    int *l = func_002F7B10();
+    int *l = (int *)func_002F7B10();
     int c = func_002F7D90(0, func_002F82A0, f, -1, 1, 0);
 
     for (i = 0; i < c; i++, l++) {
@@ -1149,12 +1086,15 @@ int func_0036A870(void)
 }
 
 /* 0x0036B120, 0x50 bytes. */
-void func_0036B120(void)
+int func_0036B120(void)
 {
+    int r;                      /* undefined in the other states, as in the original */
+
     if (g_007B95EC == 0)
-        func_0036AA60();
+        r = func_0036AA60();
     else if (g_007B95EC == 1)
-        func_0036A870();
+        r = func_0036A870();
+    return r;
 }
 
 /* 0x0036B580, 0x140 bytes. Side `s`'s count over its slots (and the other side's leader). */
@@ -1222,23 +1162,17 @@ void func_0036BC40(void)
 
     if (func_0036BB80(*(int *)(g_00669D60 + 0x210)) == 0)
         v |= 1;
-    if (*(int *)(g_00669D60 + 0xA0) != 0 && *(u32 *)(func_0035DD10(0) + 0x54) > 1000)
+    if (*(int *)(g_00669D60 + 0xA0) != 0 && *(u32 *)(((u8 *)func_0035DD10(0)) + 0x54) > 1000)
         v |= 2;
-    if (*(int *)(g_00669D60 + 0xE8) != 0 && *(u32 *)(func_0035DD10(1) + 0x54) > 1000)
+    if (*(int *)(g_00669D60 + 0xE8) != 0 && *(u32 *)(((u8 *)func_0035DD10(1)) + 0x54) > 1000)
         v |= 4;
     if (func_00362B60(0) != 0 && *(int *)(g_00669D60 + 0x58) == 1)
         v |= 0x10;
     g_007B9620 = v;
 }
 
-void func_0036BD10(void);
-void func_0036C200(void);
 void func_0036C9A0(void);
 void func_0036C530(void);
-int func_002F57F0(u8 o);
-u8 func_002F5840(int a);
-int func_00328270(void);
-int func_003282C0(void);
 
 /* 0x0036D000, 0x12C bytes. Prepares the battle's set-up data. */
 void func_0036D000(void)

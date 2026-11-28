@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_SCREENS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -31,45 +35,11 @@ extern u8 g_007BAEFD, g_007BAEDD;
 #define TEX g_0045D7FC
 
 int func_0039B980(void);
-int func_003A9480(int v);
-void func_003AE8E0(int k);
-void func_00118850(void *p, int n);
-u8 func_0035D5A0(u32 s);
-int func_0036F5C0(int s);
-int func_0036F5E0(int s);
-int func_0034A790(u8 *o);
-int func_0032BC30(void);
-void func_0032D150(void);
-char *func_002F2970(int k);
-void func_00372740(int k);
-void func_002ED190(int k);
-void func_0032BB70(void);
-void func_0032E830(void);
-void func_003B1490(u8 *p, int v);
-void func_003B0A40(void);
-void func_0032F530(void);
-void func_0032F640(void);
-int func_00102960(int a);
-void func_0032B990(void);
-void func_001037F0(void);
-void func_003B1320(void);
-void func_003B0E40(void);
-void func_003B1A90(void);
-void func_003B14E0(void);
-u8 *func_00390940(void);
-u8 *func_001026D0(int a, int b, int c, int d, int e, int f, char *name, int line);
-void func_00102EC0(u8 *p);
-void func_003B39A0(void);
-void func_003B4740(void);
 void func_003B4A40(u8 *t, int k, int x, int y, int a, int w, int h, int b, int p8, int p9, int p10, int p11, int p12, int p13, int p14);
-void func_003B5B30(void);
-void func_003B5D50(void);
 void func_003B9D80(void);
 void func_003B9E00(void);
 void func_003B9ED0(void);
 void func_003B9FD0(void);
-int func_002F27D0(int o);
-u8 *func_00329850(void);
 int func_003BB8E0(u8 k, int a);
 
 /* 0x003AF920, 0x38 bytes, matching. */
@@ -106,7 +76,7 @@ void func_003AFB50(u32 s, u32 k, int on)
         g_0045D7EC[s] |= 1 << (k & 0x1F);
 }
 
-/* 0x003AFD40, 0x28 bytes. */
+/* 0x003AFD40, 0x28 bytes, matching. */
 int func_003AFD40(u32 s)
 {
     return func_0036F5C0(func_0035D5A0(s)) != 0;
@@ -127,7 +97,7 @@ int func_003B0310(u8 *o)
 }
 
 /* 0x003B0470, 0x34 bytes. */
-int func_003B0470(u32 k)
+int func_003B0470(u32 k, int b)
 {
     if (k < 0x1D)
         return g_0045B580[k]();
@@ -145,12 +115,11 @@ int func_003B0B90(void)
 }
 
 /* 0x003B0BD0, 0x34 bytes, matching. */
-void func_003B0BD0(int k)
+char *func_003B0BD0(int k)
 {
     if (k < 0x1C)
-        func_002F2970(k);
-    else
-        func_00372740(k);
+        return func_002F2970(k);
+    return func_00372740(k);
 }
 
 /* 0x003B0DA0, 0x48 bytes. */
@@ -205,13 +174,13 @@ void func_003B2170(void)
     func_0032F640();
 }
 
-/* 0x003B2200, 0x44 bytes. */
+/* 0x003B2200, 0x44 bytes, matching. */
 void func_003B2200(void)
 {
     if (g_0045D7F0 == 0 && func_00102960(0) != 0) {
         func_0032B990();
         g_0045D7F0 = 1;
-        func_001037F0();
+        func_001037F0(1);
     }
 }
 
@@ -227,7 +196,7 @@ void func_003B2250(void)
 }
 
 /* 0x003B22C0, 0x74 bytes. */
-int func_003B22C0(void)
+int func_003B22C0(float dt)
 {
     if (g_0045D7F4 == 2)
         func_003B0B90();
@@ -289,16 +258,16 @@ void func_003B3940(void)
     }
 }
 
-/* 0x003B3970, 0x24 bytes. */
-void func_003B3970(void)
+/* 0x003B3970, 0x24 bytes, matching. */
+void func_003B3970(int x, int y, int a, int k)
 {
-    func_003B39A0();
+    func_003B39A0(x, y, a, 0x18, 0x18, k);
 }
 
-/* 0x003B4720, 0x20 bytes. */
-void func_003B4720(void)
+/* 0x003B4720, 0x20 bytes, matching. */
+void func_003B4720(int x, int y, int a, int b)
 {
-    func_003B4740();
+    func_003B4740(x, y, a, b, 1, 0);
 }
 
 /* 0x003B4DE0, 0x68 bytes, matching. */
@@ -385,16 +354,16 @@ void func_003B5930(int x, int y, int a, int p3)
     func_001ABE40(TEX, 0x47, x, y, a, -1, -1, 0x80, p3, 0);
 }
 
-/* 0x003B5CA0, 0x1C bytes. */
-void func_003B5CA0(void)
+/* 0x003B5CA0, 0x1C bytes, matching. */
+void func_003B5CA0(int v, int x, int y, int z, int alpha, int layer)
 {
-    func_003B5B30();
+    func_003B5B30(v, x, y, z, alpha, layer, 0);
 }
 
-/* 0x003B5DF0, 0x1C bytes. */
-void func_003B5DF0(void)
+/* 0x003B5DF0, 0x1C bytes, matching. */
+void func_003B5DF0(int k, int x, int y, int z, int alpha, int layer)
 {
-    func_003B5D50();
+    func_003B5D50(k, x, y, z, alpha, layer, 0);
 }
 
 /* 0x003B5E90, 0xC bytes, matching. */
@@ -482,11 +451,6 @@ u8 *func_003BD210(void)
     return func_00390940();
 }
 
-int func_003F7780(int s, int k);
-int func_003A1C60(int k);
-char *func_00372470(void);
-char *func_00372990(int k);
-
 /* 0x003AFBD0, 0x80 bytes. Whether side `s` has tactic 1, 2, 3 or 9. */
 int func_003AFBD0(int s)
 {
@@ -512,7 +476,7 @@ int func_003AFCD0(int s)
 }
 
 /* 0x003B0430, 0x40 bytes, matching. Battle officer `o`'s side (3: none). */
-u8 func_003B0430(u8 *o)
+u32 func_003B0430(u8 *o)
 {
     u8 *u;
 
@@ -545,38 +509,10 @@ extern u8 g_007BC1A0[];
 
 #define RAND16() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
-int func_003297D0(void);
-int func_00329810(void);
-char func_003B7CF0(void);
-int func_00327D50(void);
-int func_002F4080(int o);
-u32 func_002F2E20(int o);
-int func_002F4A70(int o);
-int func_002F4660(int o);
-u8 *func_00329860(void);
-int func_003C1850(void);
 void func_003BB520(int k);
-void func_001B8F60(int a, int b, int c);
 void func_003BBFD0(void);
-void func_001B9000(void);
-void func_0023AA40(void);
 void func_003BD2A0(u8 *p);
-void func_00395330(void);
-void func_00397830(void);
 void func_0039F330(void);
-void func_003E79B0(void);
-void func_003EEE40(void);
-void func_003B2010(void);
-void func_00397170(void);
-void func_003E4CD0(void);
-void func_002FC2D0(void);
-void func_003E96B0(void);
-void func_0030DB30(int a);
-void func_0030DC10(int a);
-void func_0030DB50(void);
-int func_00327820(void);
-int func_00327C00(void);
-int func_00328230(void);
 void func_003BA8F0(int a, int b, int c, int d, int e);
 
 static u8 pick(int *t, int n)
@@ -923,13 +859,13 @@ void func_003BD640(int x1, int x2, int y, int k)
 /* 0x003BD6F0, 0x20 bytes, matching. */
 u8 *func_003BD6F0(void)
 {
-    return func_00390940() + 0x2C04;
+    return (u8 *)((u8 *)func_00390940()) + 0x2C04;
 }
 
 /* 0x003BD870, 0x20 bytes, matching. */
 u8 *func_003BD870(void)
 {
-    return func_00390940() + 0x2C34;
+    return (u8 *)((u8 *)func_00390940()) + 0x2C34;
 }
 
 /* More of the turn report: message pickers by the force's state, the score, the report pages'
@@ -945,25 +881,10 @@ extern u8 g_0056CCC8[4];
 
 #define PAD1_REPEAT() ((g_00500764 & 1) == 0 || (g_00500765 & 1) != 1 ? 0 : g_0050074E)
 
-int func_002FABC0(int f);
-u32 func_003B7EB0(void);
-int func_00337A10(int k);
-int func_0032EB40(int a, int b, int c);
-int func_0030AB90(void);
-int func_0030AD80(int p);
-int func_0030AE80(int p);
-int func_0030B090(int p);
-int func_0030ACE0(int p);
-int func_002FB100(int f);
-void func_003A5FA0(int a, int b, int c, int d);
 void func_003B8E00(void);
 int func_0032D180();
-u8 *func_003D3960(void);
 char *func_003B9770(void);
 void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
-void func_00146270(char *text, int x, int y, int a, int b);
-void func_0017DEA0(int v);
-int func_00329540(int k);
 
 /* 0x003B8440, 0xF0 bytes. */
 int func_003B8440(void)
@@ -1165,7 +1086,7 @@ void func_003B9FD0(void)
     func_002C7310(0x18, 0x9A, 0, 0x1D0, 0x46, a, 0);
     g_0056CCA4[0] = g_0056CCA4[1] = g_0056CCA4[2] = g_0056CCA4[3] = 6;
     g_0056CCC0 = g_0056CCC4 = 16.0f;
-    func_00146270(t, 0x28, 0xA2, 1, 0);
+    func_00146270((const unsigned char *)(t), 0x28, 0xA2, 1, 0);
     g_0056CCC0 = g_0056CCC4 = 16.0f;
     g_0056CCA4[0] = g_0056CCA4[1] = g_0056CCA4[2] = g_0056CCA4[3] = 5;
     g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = a;
@@ -1290,37 +1211,12 @@ extern u8 g_007B4E60[], g_007B4E6A[];
 extern char g_0045BB50[];
 extern int g_0045D800, g_0045D804;       /* (small data) */
 
-u32 func_00327C80(void);
-int func_00327CC0(void);
-int func_00328230(void);
-u8 func_002F5CC0(int o);
 int func_003BAB40(int k);
-int func_00327C70(void);
-int func_00327140(int a, int b);
-int func_0030C250(int p);
-int func_0030AFF0(int p);
-int func_002F9C90(int f, int g);
-u32 func_00362370(void);
-int func_0036B260(void);
-int func_00362570(void);
-int func_0035D5B0(int a);
-int func_0030D150(void);
-char *func_002F2BB0(u32 o);
-char *func_0019B0C0(int k);
-char *func_002F2890(u32 o);
-void func_003A7C10(void);
 int func_001204B0(char *buf, const char *fmt, ...);
-void func_003A9A30(int p, int on);
 void func_0011EB80(void *to, const void *from, int n);
 void func_00120928(char *to, const char *from);
 u32 func_00120A40(const char *s);
-void func_00147160(const char *s, u8 *out, int w, u8 *a, int *h);
-void func_003A9010(int a);
-void func_003A9170(void);
-void func_003A93A0(int a);
-void func_003A9AF0(int a);
 void func_003BC150(void);
-void func_0017E010(int k);
 
 /* 0x003BA8F0, 0x24C bytes. Records event `k` of this turn (kinds 0xD and 4-7 take the next free
  * one; the others only once). */
@@ -1436,7 +1332,7 @@ int func_003BB6F0(char *s, u8 **a, u8 **b)
     g_007B4E60[5] = 0;
     func_00120928((char *)g_007B4E6A, g_0045BA88);
     if (func_00120A40(s) > 6)
-        func_00147160(s + 6, g_007B4E6A, 0x160, tmp, &h);
+        func_00147160((const unsigned char *)(s + 6), g_007B4E6A, 0x160, (int *)(tmp), &h);
     *a = g_007B4E60;
     *b = g_007B4E6A;
     return h + 0x10;
@@ -1593,23 +1489,8 @@ extern u8 g_007BC1E0[0xC][0x10];
 extern u8 g_007BC2B0[2][0x1410];
 extern int g_0045D810, g_0045D0C8, g_0045D808;   /* (small data) */
 
-int func_003A1FC0(int k);
-int func_003A01A0(int o);
-void func_00395420(void);
-void func_003978F0(void);
 void func_0039F580(void);
-void func_003E7C00(void);
-void func_003EEF50(void);
 void func_003B2170(void);
-void func_00397230(void);
-void func_003E4D80(void);
-int func_003E9730(void);
-int func_003E96E0(void);
-void func_003E9630(void);
-void func_003E9690(void);
-int func_003DC2D0(int k);
-void func_003DC090(int k, Box5 *to);
-void func_003DC0E0(int k, int open, int kind);
 void func_003BF5F0(float dt, int k);
 int func_003BF8F0(void);
 
@@ -1650,7 +1531,7 @@ void func_003BD2A0(u8 *b)
 {
     int *p = (int *)b, k;
 
-    func_00118850(p, 0x34);
+    func_00118850((unsigned char *)(p), 0x34);
     p[10] = 0;
     p[11] = 0;
     p[12] = (int)func_001026D0(1, 0x85, 0, 1, 0, 0, g_0045BC08, 0x28);

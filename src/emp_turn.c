@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_TURN_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -19,50 +23,17 @@ extern int (*g_00414CC0[5])(void);       /* the end-of-turn steps */
 
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
-int *func_002FC2C0(void);
 #define MENU() ((u8 *)func_002FC2C0()[0x1A5])
 #define MI(o) (*(int *)(MENU() + (o)))
 
 void func_00388710(void);
-int func_003DC2D0(int k);
 int func_0030D7D0(void);
 int func_003890A0(void);
 void func_0037EB40(int a, int b, int c);
-int func_00327D50(void);
-int func_00313DB0(int o, int s);
-int func_002F9190(int s);
 void func_00320120(void);
-void func_001A7DC0(u8 *text, int a, int b);
-int func_00389050(void);
 void func_003890C0(void);
 int func_00389090(void);
-void func_0031DF40(int a);
-void func_002FC560(void);
-void func_0031FF20(void);
-void func_0031FDD0(int a);
-void func_00320450(void);
 void func_00320790(void);
-void func_00320B50(void);
-void func_003DC090(int k, int *r);
-void func_003DC0E0(int k, int a, int b);
-int func_00327E50(void);
-int func_00309FB0(void);
-void func_00327E30(int v);
-int func_0030AB90(void);
-int func_002F8CB0(int i);
-void func_002FA500(int i, int v);
-void func_002F91C0(int i, int v);
-void func_002FA610(int i, int v);
-void func_002FA720(int i, int v);
-void func_002FA800(int i, int v);
-int func_002FB9D0(int i);
-int func_002FA970(int i);
-void func_002FA8E0(int i, int v);
-void func_003280C0(int v);
-int func_0030CB50(int k);
-int func_00327F60(void);
-int func_0030AD20(int f, int j);
-void func_00327F00(int v);
 
 /* 0x00320060, 0x50 bytes, matching. */
 void func_00320060(void)
@@ -102,15 +73,15 @@ void func_003202B0(void)
     if (*(int *)(m + 0x220) == 1) {
         func_00320120();
         if (*(int *)(m + 0x1E0 + *(int *)(m + 0x218) * 4) == 1)
-            func_001A7DC0(g_0043C560, 0x80, 2);
+            func_001A7DC0((const char *)(g_0043C560), 0x80, 2);
         else
-            func_001A7DC0(g_0043C730, 0x80, 2);
+            func_001A7DC0((const char *)(g_0043C730), 0x80, 2);
     } else if (*(int *)(m + 0x220) == 0) {
         func_00320060();
         if (func_00320260() == 1)
-            func_001A7DC0(g_0043C560, 0x80, 2);
+            func_001A7DC0((const char *)(g_0043C560), 0x80, 2);
         else
-            func_001A7DC0(g_0043C730, 0x80, 2);
+            func_001A7DC0((const char *)(g_0043C730), 0x80, 2);
     }
 }
 
@@ -164,9 +135,9 @@ void func_003209D0(void)
     if (*(int *)(m + 0x220) == 1) {
         func_00320790();
         if (*(int *)(m + 0x20C) == 1)
-            func_001A7DC0(g_0043C560, 0x80, 2);
+            func_001A7DC0((const char *)(g_0043C560), 0x80, 2);
         else
-            func_001A7DC0(g_0043C730, 0x80, 2);
+            func_001A7DC0((const char *)(g_0043C730), 0x80, 2);
     }
 }
 
@@ -331,56 +302,14 @@ int func_003214C0(void)
 extern u8 *g_0043CE80;                   /* "New artwork has been added ..." */
 extern int (*g_00414CE0[0x17])(void);    /* the turn's steps */
 
-int func_002F8160();
-int func_002F8B20();
-int func_002F80C0();
-int func_002F8110();
 int func_002F7D90(int a, int (*fn)(), int b, int c, int d, int e);
-int *func_002F7B10(void);
 void func_002F87D0(int *list, int n, int (*fn)(), int a, int b);
-void func_002F7C40(int *list, int n);
-u32 func_003C09B0(int i);
 int func_00322720(int v);
-void func_002F94C0(int i, u32 v);
-void func_00329400(void);
-int func_00327C00(void);
-int func_00327900(void);
-u32 func_00327820(void);
-int func_00327C70(void);
-void func_0030E390(int k, int a, int b, int c, int d, int e);
-int func_003296F0(void);
-void func_003DA8B0(int v);
-int func_003DAA60(void);
-void func_00327C50(int v);
 int func_00327140(int a, int b);
 int func_00327170(int a);
 void func_0039F920(int a, int b);
-void func_003137C0(void);
-void func_003A7D90(void);
-void func_00329740(void);
 void func_003236F0(int a);
-int func_0030DFA0(void);
-int func_00327C40(void);
-int func_002FB3B0(int f);
-int func_002F41E0(int o);
-int func_002F38F0(int o);
-void func_002F37E0(int o, int v);
-int func_00327CC0(void);
-int func_002F4080(int o);
-int func_002FABC0(int f);
-void func_002F4B70(int o, int v);
-int func_002FB120(int f);
-int func_002F9C90(int a, int b);
-void func_002FAF30(int a, int b);
-int func_002F3E70(int o);
-void func_002F7410(int o);
-int func_002F2840(int o);
-int func_002F5CC0(int o);
-int func_0030AFF0(int p);
 int func_003A3F20(void);
-void func_00374EE0(u8 *text);
-void func_0023AD10(int a, int b, int c, int d, int e);
-int func_00375B90(void);
 
 /* 0x00322030, 0x74 bytes, matching. Sets the other forces' func_003C09B0 values (100: none). */
 int func_00322030(void)
@@ -484,7 +413,7 @@ int func_003223A0(int *p)
  * difficulty, `*b` by its size, `*c` its best officers' mean (6 at most); whether it has any. */
 int func_003225E0(int *a, int *b, int *c)
 {
-    int *list = func_002F7B10(), n, k;
+    int *list = (int *)func_002F7B10(), n, k;
 
     *a = func_00322720(func_00327C40());
     *b = func_002FB3B0(func_00327D50()) / 5 + 1;
@@ -518,8 +447,8 @@ void func_00322780(int *p)
 
     for (i = 0; i < 0x19F; i++)
         p[i] = i;
-    func_002F7C40(p, 0x2C);
-    func_002F7C40(p + 0x2C, 0x173);
+    func_002F7C40((unsigned int *)(p), 0x2C);
+    func_002F7C40((unsigned int *)(p + 0x2C), 0x173);
 }
 
 /* 0x00322850, 0x9C bytes. */
@@ -536,7 +465,7 @@ void func_00322850(int *p)
                 n++;
             }
         }
-        func_002F7C40(p, n);
+        func_002F7C40((unsigned int *)(p), n);
         p = q;
     }
 }
@@ -592,7 +521,7 @@ int func_00323150(void)
  * pass func_002F3E70 are let go). */
 void func_00323270(void)
 {
-    int *list = func_002F7B10();
+    int *list = (int *)func_002F7B10();
     int f;
 
     for (f = 0; f < func_0030AB90(); f++) {
@@ -645,7 +574,7 @@ int func_003234A0(void)
         if (func_003A3F20() == 0) {
             *(int *)(s + 8) = 2;
         } else {
-            func_00374EE0(g_0043CE80);
+            func_00374EE0(PS2_ADDR(g_0043CE80));
             func_0023AD10(9, 0, 0x2CDC, 0x2CDC, 0x1000);
             *(int *)(s + 8) += 1;
         }
@@ -692,27 +621,6 @@ int func_003235A0(void)
 
 /* Alliances and small turn helpers (parts of 0x00323680-0x003256A4). The 12 alliance slots:
  * func_00329160(k, &a, &b) gives the two forces of slot `k`. */
-
-void func_003DA8D0(void);
-void func_00328CB0(void);
-void func_00328E70(void);
-void func_00329030(void);
-int func_00328DE0(int i);
-int func_00328FA0(int i);
-int func_00329160(int k, int *a, int *b);
-void func_00329090(int k, int a, int b);
-void func_0032EA30(void);
-void func_0032E9E0(int o);
-int func_002FAFA0(int f, int p);
-int func_002F3770(int o);
-int func_00362160(int a, int b);
-int func_00337A10(int v);
-int func_0036B260(void);
-void func_003AE9F0(int a, int *b, int c);
-int func_0030D370(void);
-int func_0030CB00(int n);
-int func_00328970(void);
-void func_00328670(int v);
 
 /* 0x00323680, 0x1C bytes, matching. */
 void func_00323680(void)
@@ -818,7 +726,7 @@ int func_00324060(int a, int *list, int n)
 {
     int k;
 
-    func_0032EA30();
+    func_0032EA30(a);
     for (k = 0; k < n; k++)
         func_0032E9E0(*list++);
     return 0;
@@ -888,7 +796,7 @@ void func_00325360(int v)
 
     p[0] = v;
     if (v == 7)
-        func_003AE9F0(p[5], p + 0xD, p[0x13]);
+        func_003AE9F0(p[5], (unsigned int *)(p + 0xD), p[0x13]);
 }
 
 /* 0x003253B0, 0x3C bytes, matching. */
@@ -944,7 +852,7 @@ void func_003255C0(void)
         ids[k] = func_00325500();
         func_00328670(ids[k]);
     }
-    func_0030E390(0x17, 0, -1, -1, (int)ids, n);
+    func_0030E390(0x17, 0, -1, -1, (int *)PS2_PTR((int)ids), n);
     func_00325360(3);
 }
 
@@ -958,25 +866,8 @@ extern u32 g_0068EFD8, g_0068EFDC;
 #define AFTER() ((int *)func_002FC2C0()[0x1AA])
 #define AFTER2() ((int *)func_002FC2C0()[0x1AE])
 
-int func_0036BA60(int x);
-int func_0036BA40(int x);
-int func_00375B90(void);
-int func_0030C4E0(int p, int *list);
-int func_0030C250(int p);
-int func_002FB320(int f, int *list);
 void func_003986E0(int a, int b, int *c, int d);
-void func_0030E390(int k, int a, int b, int c, int d, int e);
-void func_0039B700(void);
-int func_003AF9F0(void);
-int func_00390760(int k);
-int func_00372660(int v);
-int func_00327C80(void);
-int func_0030CB80(int v);
-int func_002F2A30(int o);
 void func_001204B0(char *buf, int fmt, int a, int b, int c);
-int func_002FB430(int f);
-void func_0030A030(int a, int b);
-void func_00323E60(int *p);
 void func_003AF220(void);
 int func_00120A40(u8 *p);
 
@@ -1050,12 +941,12 @@ void func_00325D60(void)
 void func_00325E80(int o)
 {
     char buf[96];
-    int fmt = func_00390760(0x70);
-    int a = func_00372660(func_00327CC0());
-    int b = func_0030CB80(func_00327C80());
+    int fmt = PS2_ADDR(func_00390760(0x70));
+    int a = PS2_ADDR(func_00372660(func_00327CC0()));
+    int b = PS2_ADDR(func_0030CB80(func_00327C80()));
 
-    func_001204B0(buf, fmt, a, b, func_002F2A30(o));
-    func_00374EE0((u8 *)buf);
+    func_001204B0(buf, fmt, a, b, PS2_ADDR(func_002F2A30(o)));
+    func_00374EE0(PS2_ADDR((u8 *)buf));
 }
 
 /* 0x00325F10, 0x78 bytes. The beaten force falls when it has no province (or no officer) left. */
@@ -1084,7 +975,7 @@ void func_00325FC0(void)
 {
     int *st = func_002FC2C0();
 
-    func_00323E60((int *)st[0x1AA]);
+    func_00323E60((unsigned int *)((int *)st[0x1AA]));
     func_002FC560();
     st[0] = 0;
 }
@@ -1217,24 +1108,8 @@ void func_003276D0(void)
 #define STEP3() ((int *)func_002FC2C0()[0x1A6])
 
 int func_0032D9C0(void);
-int func_003760C0(void);
-int func_003760E0(void);
-void func_00376100(int a, int b, int c);
-int func_0032E760(void);
-int func_0030E1F0(void);
-void func_002F4360(int o, int v);
-void func_002F4510(int o, int v);
-void func_002F4760(int o, int v);
-void func_0030E140(int k, int a, int b, int c);
-void func_0030E100(void);
-void func_002FCF20(void);
-int func_00305040(int o);
-int func_002F8F20(int f);
-void func_0039F960(void);
-void func_003298A0(int *p);
 void func_0032D3C0(int a);
 void func_003298B0(void);
-int func_003280E0(void);
 
 /* 0x00329A00, 0x78 bytes, matching. */
 void func_00329A00(void)

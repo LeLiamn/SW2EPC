@@ -8,13 +8,15 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_CUSTOM_OFFICER_DRAW_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
 #include "sw2e_draw.h"
-
-u8 *func_00376810(void);
 
 extern int g_0045D0E0[];                 /* (small data) */
 extern int g_0041CBA0[];
@@ -23,19 +25,9 @@ extern int g_0056CCA4[4];
 extern float g_0056CCC0, g_0056CCC4;
 extern char g_0045C480[];                /* "%s%s"? */
 
-void func_00375C20(int a, u8 *h, int b, int *c, int d);
-void func_00376100(int a, int b, int c);
-u8 *func_003766C0(void);
 void func_0011ED38(void *p, int v, int n);
 int func_001204B0(char *to, const char *f, ...);
-void func_00146B40(char *t, int x, int y, int w, int h, int a, int b);
 void func_002C7310(int x, int y, int a, int w, int h, int c, int d);
-void func_002C5AC0(float f, u8 *g, int a, int b, int c, int d);
-void func_002C8500(int x, int y, int a, int w, int h, int c, int d);
-void func_002C80A0(int x, int y, int a, int w, int h, int c, int d);
-void func_001AE550(float f, int *box, short *xy, u8 *alpha, int a);
-void func_003D4600(int x, int y, int w, int h, int a, void *b);
-void func_003D3A80(int x, int y, int a, int b, int c, int d, int k);
 
 #define FONT_COLOUR(c) (g_0056CCA4[0] = g_0056CCA4[1] = g_0056CCA4[2] = g_0056CCA4[3] = (c))
 
@@ -49,7 +41,7 @@ void func_003D3B50(int x, int y, int a, int b, int c, int k)
 /* 0x003D3C10, 0x44 bytes. */
 void func_003D3C10(void)
 {
-    func_00375C20(0, func_00376810(), 0, g_0045D0E0, 1);
+    func_00375C20(0, PS2_ADDR(func_00376810()), 0, PS2_ADDR(g_0045D0E0), 1);
     func_00376100(1, 2, -1);
 }
 
@@ -74,7 +66,7 @@ void func_003D3CD0(char *b, char *a, int x, int y, int al, int size, int col)
     g_0056CCC0 = (float)size;
     g_0056CCC4 = (float)size;
     FONT_COLOUR(col);
-    func_00146B40(t, x, y, 0x98, size, al, 0);
+    func_00146B40((const unsigned char *)(t), x, y, 0x98, size, al, 0);
     g_0056CCC0 = 16.0f;
     g_0056CCC4 = 16.0f;
     FONT_COLOUR(5);
@@ -172,7 +164,7 @@ void func_003D5AC0(int x, int y, int alpha)
     for (k = 0; k < 10; k++, x += 0x1A) {
         if (*(int *)(s + 0x38) == k && *(int *)(s + 0x9A4) == 3) {
             func_001ABEA0(func_00376810(), k + 0x10, x + 1, y + 1, 0, 0x18, 0x18, 0, 0, 0x18, 0x18, alpha & 0xFF, 1, 0);
-            func_003D4600(x - 6, y - 5, 0x26, 0x24, 1, s + 0x974);
+            func_003D4600(x - 6, y - 5, 0x26, 0x24, 1, PS2_ADDR(s + 0x974));
         } else {
             func_001ABEA0(func_00376810(), 0x1A, x, y, 0, 0x18, 0x18, 0, 0, 0x18, 0x18, alpha & 0xFF, 1, 0);
             func_001ABEA0(func_00376810(), k + 0x10, x, y, 0, 0x18, 0x18, 0, 0, 0x18, 0x18, alpha & 0xFF, 1, 0);
@@ -196,22 +188,12 @@ extern char *g_0043C120[];               /* screen texts */
 extern char *g_0043C524, *g_0043C534;
 extern u8 *g_0043C738, *g_0043C750, *g_0043C754, *g_0043C758;
 
-void func_001A7DC0(u8 *t, int a, int b);
 void func_003D47A0(int k, int x, int y, int alpha);
 void func_003D54C0(void);
 void func_003D5080(int x, int y, int w, int h, int alpha);
 void func_003D5F60(int x, int y, int w, int h, int alpha);
 void func_003D6510(void);
-void func_002C6040(int x, int y, int w, int h, int a, int b);
-void func_003B4DE0(int x, int y, int a, int b, int c, int d, int e);
-int func_00377D50(void);
-int func_00377D80(void);
-int func_00377DF0(void);
-void func_003B4740(int x, int y, int a, int b, int c, int d);
 void func_003D4D20(u8 *h, int k, int x, int y, int a, int w, int hh, int b);
-void func_003B3970(int x, int y, int a, int b);
-char *func_002C5980(int p, u32 v);
-void func_003838B0(char *t, int a);
 
 /* 0x003D5C60, 0x2FC bytes. The weapon list page (scroll bar length by weapon kind). */
 void func_003D5C60(void)
@@ -337,7 +319,7 @@ void func_003D6E00(void)
         }
     }
     if (*(int *)(s + 0x9A4) == 3)
-        func_003D4600(sx - 7, sy - 7, 0x2E, 0x2E, 1, s + 0x974);
+        func_003D4600(sx - 7, sy - 7, 0x2E, 0x2E, 1, PS2_ADDR(s + 0x974));
 }
 
 /* 0x003D7400, 0x270 bytes. The two weapon slots and the OK button. */
@@ -452,7 +434,7 @@ void func_003D7B10(void)
         func_001204B0(t, g_0043C534, func_002C5980(0, 1));
     else
         func_001204B0(t, g_0043C120[k + 0x101]);
-    func_003838B0(t, 1);
+    func_003838B0(PS2_ADDR(t), 1);
 }
 
 /* The officer card (box +0x9AC) under a page. */
@@ -488,7 +470,7 @@ void func_003D7C40(void)
     func_001AE550(1.0f, (int *)(s + 0xA24), xy, &al, 0);
     func_003D5AC0(xy[0], xy[1], al);
     card(s);
-    func_001A7DC0(g_0043C750, 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C750), 0x80, 1);
 }
 
 /* 0x003D7CE0, 0x6C bytes. Draws the weapon page. */
@@ -498,7 +480,7 @@ void func_003D7CE0(void)
 
     func_003D5C60();
     card(s);
-    func_001A7DC0(g_0043C738, 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C738), 0x80, 1);
 }
 
 /* 0x003D7D50, 0x64 bytes. */
@@ -510,7 +492,7 @@ void func_003D7D50(void)
 
     func_001AE550(1.0f, (int *)(s + 0xA38), xy, &al, 0);
     func_003D5F60(xy[0], xy[1], xy[2], xy[3], al);
-    func_001A7DC0(g_0043C738, 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C738), 0x80, 1);
 }
 
 /* 0x003D7DC0, 0x6C bytes. */
@@ -520,7 +502,7 @@ void func_003D7DC0(void)
 
     func_003D6510();
     card(s);
-    func_001A7DC0(g_0043C754, 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C754), 0x80, 1);
 }
 
 /* 0x003D7E30, 0x74 bytes. Draws the skill page. */
@@ -531,7 +513,7 @@ void func_003D7E30(void)
     func_003D67F0();
     card(s);
     func_003D7B10();
-    func_001A7DC0(g_0043C738, 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C738), 0x80, 1);
 }
 
 /* 0x003D7EB0, 0x6C bytes. */
@@ -541,7 +523,7 @@ void func_003D7EB0(void)
 
     func_003D6BA0();
     card(s);
-    func_001A7DC0(g_0043C738, 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C738), 0x80, 1);
 }
 
 /* 0x003D7F20, 0x6C bytes. */
@@ -551,7 +533,7 @@ void func_003D7F20(void)
 
     func_003D6CD0();
     card(s);
-    func_001A7DC0(g_0043C738, 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C738), 0x80, 1);
 }
 
 /* 0x003D7F90, 0x68 bytes. Draws the face page. */
@@ -564,5 +546,5 @@ void func_003D7F90(void)
     func_003D6E00();
     func_001AE550(1.0f, (int *)(s + 0x9C0), xy, &al, 0);
     func_003D4C70(xy[0], xy[1], al);
-    func_001A7DC0(g_0043C758, 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C758), 0x80, 1);
 }

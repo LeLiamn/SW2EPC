@@ -7,11 +7,14 @@
  * names (func_/g_ + address).
  */
 
+#define SW2E_FILE_SCENE_CONFIG_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 
 #include "sw2e_draw.h"
-
 
 /* Flag bytes of the live settings (bitfields, first field = lowest bit). */
 typedef struct {             /* 0x00669DB0 */
@@ -243,24 +246,12 @@ extern struct {
 } s_00799A68;
 #define g_00799A68 (s_00799A68.g_00799A68)
 
-
 /* 0x0069395E: a byte checked before leaving (0 or 0xFF = nothing pending). */
 
 /* Button help lines shown at the bottom of each page (European version, English). In the strings,
  * 0xF0 followed by a letter inserts a button icon. */
 
-u32 func_001026D0(int a, int b, int c, int d, int e, int f, const void *g, int h);
-void func_00102960(int value);
-void func_00102EC0(u32 handle);
-int func_001037F0(int value);
-void func_00105EB0(u32 a, int b);
-u32 func_00105E10(void);
-void func_00105F70(u32 a);
-void func_0017E010(int value);
 int func_0017DDA0(void);
-void func_001A2040(void);
-void func_001A7DC0(const char *text, int alpha, int b);
-void func_001B8F60(int a, int b, int c);
 void func_001E3D50(void);
 void func_001E3D90(void);
 void func_001E4030(void);
@@ -274,28 +265,14 @@ void func_001E51C0(void);
 void func_001E5750(void);
 void func_001E5EF0(void);
 void func_00278CF0(void);
-void func_002B3CF0(int value);
 void func_002B4BE0(u32 handle, int page, int a, int b, int c, int d, int e, int f, int p8);
-int func_002B6450(u32 handle, u8 cursor);
-int func_002B7DA0(u32 handle, u8 cursor);
-int func_002B7E30(u32 handle, u8 cursor);
 int func_002B7EC0(u32 handle, void *data, char cursor);
-int func_002B8790(u32 handle);
 int func_002B89E0(u32 handle);
 int func_002B8BC0(u32 handle, void *data, char cursor);
 int func_002B9190(u32 handle, void *data, u8 cursor, u8 b, int c);
 int func_002B9360(u32 handle, void *data, u8 cursor);
-void func_002B9D70(u32 handle);
-void func_002C59F0(void);
-void func_002C5A30(void);
-void func_002D0DC0(void *data);
 void func_002DA2C0(void);
 void func_002DAE50(void);
-void func_00375D60(void);
-void func_00376450(void);
-void func_003F8B30(int value);
-void func_003F8B80(void);
-void func_003F8BB0(void);
 
 /* ---- Helpers and page 0 (main options page) ------------------------------------------------ */
 
@@ -325,22 +302,12 @@ extern u8 g_004290F8[];          /* layout data of the options menu window */   
 void func_001204B0(char *dst, const char *src);
 void func_0017DF10(void);
 void func_0017E110(u8 value);
-void func_001AE9F0(int kind, const char *text, ...);
-void func_001AFC50(int kind);
 static void func_001E3300(void *data);
 void func_001E33D0(int value, void *data);
 void func_001E3500(void *data);
-void func_0023A480(int value);
-void func_0023A4F0(int value);
-void func_0023AA40(void);
-void func_0023AB70(u8 value);
-void func_0023AD10(int a, int b, int c, int d, int e);
-void func_0023B530(u8 value);
-void func_0023C050(u8 value);
 void func_002B9CC0(int page);
 int func_002EFBB0(void);
 void func_002EFB40(void);
-void func_003A32C0(void);
 
 /* 0x001E3D00, 0x4C bytes, matching. Apply the four settings stored at 0x0073117C. */
 void func_001E3D00(void)
@@ -462,7 +429,7 @@ void func_001E4030(void)
     g_0073122C = 0;
 }
 
-/* 0x001E4080, 0x440 bytes. Page 0, the main options page: three entries, plus the message boxes
+/* 0x001E4080, 0x440 bytes, matching. Page 0, the main options page: three entries, plus the message boxes
  * for "reset all officers' abilities" and "void interim data". */
 void func_001E4080(void)
 {
@@ -496,7 +463,7 @@ void func_001E4080(void)
     } else if (box == 1) {
         /* Unreachable: the original code tests box == 1 twice. */
         if (answer == 4) {
-            func_001AE9F0(0, text);
+            func_001AE9F0(0, text, 1);
             func_001AFC50(0);
         }
     } else if (pressed & BTN_OK) {
@@ -553,13 +520,10 @@ void func_001E4080(void)
 
 /* Page 8 keeps the screen offset x (-24..24) in the first word of g_00731140, and y here. */
 
-void func_00100ED0(int *x, int *y);
 void func_001E3C30(void);
 void func_001E3CD0(void);
 void func_002D8060(int value);
-void func_002D8160(void);
 int func_002DA090(void);
-int func_002DAC30(void);
 void func_002DBAA0(void);
 void func_002DBAB0(void);
 
@@ -790,7 +754,6 @@ void func_001E46E0(void)
 
 /* ---- Page 9 ------------------------------------------------------------------------------------ */
 
-
 int func_001E39F0(int pad, void *settings);
 void func_001E37E0(int pad, void *settings);
 
@@ -872,8 +835,6 @@ void func_001E51C0(void)
 }
 
 /* ---- Page 10 ----------------------------------------------------------------------------------- */
-
-void func_001A2610(int pad);
 
 /* 0x001E5750, 0x7A0 bytes. Page 10: button set-up of the controller chosen on page 6. The settings
  * hold 8 words (one action per slot). Cursor g_0073121D: entries 0-1 in the left column, 2-7 (the
@@ -1000,7 +961,6 @@ void func_001E5750(void)
 #define MENU_BGM      0x1C            /* music of the options menu */
 
 int func_0017DCE0(void);              /* number of tracks in the sound test */
-int func_0017DCF0(u8 index);          /* track id of a sound-test entry */
 void func_0017E080(int track);        /* play a track */
 int func_0017E0A0(void);              /* track playing now */
 void func_001E3AD0(void *settings);
@@ -1170,7 +1130,6 @@ void func_001E5EF0(void)
  * table g_0040CC20) and flags. */
 extern int g_0040CC20[8];               /* offset of each button-map entry in a PadConfig */
 
-void func_001036B0(int port, int on);
 void func_0017E0C0(u8 volume, int b);
 
 #define PAD_MAP(pad, i) (((u8 *)&g_00669D8C[pad])[g_0040CC20[i]])
@@ -1472,7 +1431,7 @@ u8 func_001E6670(int table, int flag, int index)
 void func_001E6860(void)
 {
     func_003F8B30(4);
-    g_00731214 = func_001026D0(1, 0x3B, 0, 1, 0, 0, g_004290F8, 0x9D7);
+    g_00731214 = PS2_ADDR(func_001026D0(1, 0x3B, 0, 1, 0, 0, (const char *)(g_004290F8), 0x9D7));
     func_00102960(1);
     func_001E3D50();
     g_007311F0 = 0;
@@ -1481,7 +1440,7 @@ void func_001E6860(void)
     g_0073120C = 1;
     g_0073122C = 0;
     func_001A2040();
-    func_002D0DC0(g_00731184);
+    func_002D0DC0(PS2_ADDR(g_00731184));
     if (func_0017DDA0() == 0)
         func_0017E010(0x1C);
     func_002B3CF0(0);
@@ -1496,7 +1455,7 @@ void func_001E6860(void)
 void func_001E6960(void)
 {
     func_00375D60();
-    func_00102EC0(g_00731214);
+    func_00102EC0(PS2_PTR(g_00731214));
     func_001E3D90();
     func_001037F0(g_0073123C);
     func_003F8B80();
@@ -1570,9 +1529,9 @@ void func_001E6BC0(void)
 
     if (g_007311F0 != 8)
         func_00278CF0();
-    v = func_00105E10();
-    func_00105EB0(v, 0);
-    func_00105F70(v);
+    v = PS2_ADDR(func_00105E10());
+    func_00105EB0((unsigned char *)PS2_PTR(v), 0);
+    func_00105F70((unsigned char *)PS2_PTR(v));
     if (g_007311F0 != 8)
         func_003F8BB0();
     func_002B4BE0(g_00731214, g_007311F0, 0x10, 0x0C, 0, 0xD8, 0x28, 0x80, g_00731208);
@@ -1590,7 +1549,7 @@ void func_001E6BC0(void)
     case 5: g_00731228 = func_002B7EC0(g_00731214, g_00731140, g_0073121B); break;
     case 6: g_00731228 = func_002B89E0(g_00731214); break;
     case 7: g_00731228 = func_002B9360(g_00731214, g_0073117C, g_00731225); break;
-    case 8: g_00731228 = func_002B8790(g_00731214); break;
+    case 8: g_00731228 = func_002B8790(PS2_PTR(g_00731214)); break;
     case 9: g_00731228 = func_002B8BC0(g_00731214, g_00731158, g_0073121C); break;
     case 10:
         if (g_00731200 == 0)

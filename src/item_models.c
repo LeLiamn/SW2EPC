@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_ITEM_MODELS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -23,33 +27,7 @@ extern u8 g_00411F10[0x10], g_00411F20[0x10][5];
 extern u8 g_004412D8[];
 extern u8 *g_0045D310, *g_0045D318;      /* (small data) */
 
-int func_002F39F0(int o);
-int func_002F4C40(int o);
-int func_002F4DD0(int o);
-int func_002F4F60(int o);
-int func_002F50F0(int o);
-int func_002F5280(int o);
-int func_002F5410(int o);
-int func_002F55A0(int o);
-int func_002F34E0(int o);
-int func_002F41E0(int o);
-void func_002C8500(int x, int y, int a, int w, int h, int b, int c);
-void func_002C80A0(int x, int y, int a, int w, int h, int b, int c);
 void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
-u8 *func_001026D0(int a, int k, int b, int c, int d, int e, u8 *name, int line);
-void func_00147D20(u8 *s);
-void func_00147D30(u8 *f, u8 *s, int a, int b);
-void func_00148130(u8 *m);
-void func_001482F0(u8 *f, u8 *m, u8 *t);
-void func_0014F850(u8 *a);
-void func_0014F8B0(u8 *a, int b);
-void func_00147F40(u8 *s);
-void func_00148370(u8 *m);
-void func_0014F950(u8 *a);
-void func_0014FCA0(u8 *a, u8 *m);
-u8 *func_0019FBC0(int k);
-void func_00148070(u8 *m, int v);
-void func_0014F970(u8 *a);
 
 /* 0x002AB820, 0xD4 bytes, matching. Officer `o`'s stat `k`. */
 int func_002AB820(int o, int k)
@@ -164,22 +142,22 @@ void func_002AAD40(u8 *t, int x, int y, int w, int h, int c)
 /* 0x002AD4C0, 0x14C bytes. Loads the item models and clears the actors. */
 void func_002AD4C0(void)
 {
-    u8 *f = func_001026D0(1, 0x571, 0, 1, 0, 0, g_004412D8, 0x68);
+    u8 *f = func_001026D0(1, 0x571, 0, 1, 0, 0, (const char *)(g_004412D8), 0x68);
     int k;
 
-    func_00147D20(g_0078DF70);
-    func_00147D30(f, g_0078DF70, 0x2920, 0x3CE4);
+    func_00147D20((unsigned int *)(g_0078DF70));
+    func_00147D30((unsigned int *)(f), g_0078DF70, 0x2920, 0x3CE4);
     for (k = 0; k < 0x11; k++) {
         func_00148130(g_0078DC40[k]);
-        f = func_001026D0(1, g_00411F70[k], 0, 1, 0, 0, g_004412D8, 0x74);
+        f = func_001026D0(1, g_00411F70[k], 0, 1, 0, 0, (const char *)(g_004412D8), 0x74);
         if (k == 9 || (u32)(k - 0xE) < 3)
-            func_001482F0(f, g_0078DC40[k], g_0045D318);
+            func_001482F0((unsigned int *)(f), g_0078DC40[k], PS2_ADDR(g_0045D318));
         else
-            func_001482F0(f, g_0078DC40[k], g_0045D310);
+            func_001482F0((unsigned int *)(f), g_0078DC40[k], PS2_ADDR(g_0045D310));
     }
     for (k = 0; k < 0x96; k++) {
         func_0014F850(g_007804A0[k]);
-        func_0014F8B0(g_007804A0[k], 0);
+        func_0014F8B0((unsigned int *)(g_007804A0[k]), 0);
     }
 }
 
@@ -188,7 +166,7 @@ void func_002AD610(void)
 {
     int k;
 
-    func_00147F40(g_0078DF70);
+    func_00147F40((unsigned int *)(g_0078DF70));
     for (k = 0; k < 0x11; k++)
         func_00148370(g_0078DC40[k]);
     for (k = 0; k < 0x96; k++)

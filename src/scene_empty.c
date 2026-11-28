@@ -9,6 +9,10 @@
  * Scene 0x03 does nothing at all. Both may be left-overs of removed scenes.
  */
 
+#define SW2E_FILE_SCENE_EMPTY_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned int u32;
 
 /* The scene manager (0x0045D880, see main.c): one object, reached through lui / %lo. */

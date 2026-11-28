@@ -10,6 +10,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_OBJ_ACTION_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -59,20 +63,8 @@ extern int g_00669DB8, g_00669F6C;
 #define SETTINGS_FLAGS (*(u32 *)(g_00669D60 + 0x200))
 
 u32 func_001FF100(u16 v, int k);
-void func_0027DEA0(int k, int v);
-u32 func_00196A10(void);
 void func_0027F6F0(void);
-void func_0027F980(void);
-void func_001F5870(void);
 void func_0027F610(void);
-void func_002C45C0(void);
-void func_00102EC0(void *p);
-void *func_00102D30(int size);
-void func_00118850(void *p, int n);
-void func_001185E0(void *p, int v, int n);
-void func_002BBE70(void); void func_002BCA70(void); void func_002C17E0(void);
-void func_002C1C80(void); void func_002BF990(void); void func_002C2A10(void);
-void func_002C3D60(void); void func_002C4570(void);
 
 void func_0027E800(u8 *u, int on);
 int func_0027EB10(int k, int *arg);
@@ -413,7 +405,7 @@ u8 *func_0027F120(int k)
 }
 
 /* 0x0027F140, 0x18 bytes, matching. Its kind. */
-u8 func_0027F140(int k)
+u32 func_0027F140(int k)
 {
     return g_0045D540[k * 3];
 }
@@ -488,7 +480,7 @@ void func_0027F2C0(void)
 void func_0027F430(void)
 {
     func_002C45C0();
-    func_00102EC0(g_0045D560);
+    func_00102EC0((unsigned char *)(g_0045D560));
 }
 
 /* 0x0027F460, 0x16C bytes. Resets the objects: the map's gates marked, no actions, every kind's
@@ -506,8 +498,8 @@ void func_0027F460(void)
             g_0073DF28[(int)k >> 3] |= b;
         }
     }
-    func_00118850(g_0045D560, g_0045D564 << 2);
-    func_00118850(g_007720C0, 600);
+    func_00118850((unsigned char *)(g_0045D560), g_0045D564 << 2);
+    func_00118850((unsigned char *)(g_007720C0), 600);
     for (k = 0; k < 0x32; k++)
         g_007720C0[k].kind = 0x1F;
     func_001185E0(g_0045D544, 1, 3);
@@ -526,7 +518,7 @@ void func_0027F5D0(void)
 {
     g_0045D54C = 0;
     g_0045D548 = 0;
-    g_0045D560 = func_00102D30(g_0045D564 << 2);
+    g_0045D560 = (ObjAct **)(func_00102D30(g_0045D564 << 2));
     func_0027F460();
     func_0027F610();
 }

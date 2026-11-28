@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_TACTICS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -16,14 +20,9 @@ extern u8 g_0045D7B0[2];                 /* (small data) */
 extern int g_00415F30[5], g_00415F50[30], g_00415FD0[27];
 extern u8 g_00669D60[];
 
-u8 *func_0036DCD0(void);
 void func_0011EB80(u8 *to, const u8 *from, int n);
-void func_00118850(void *p, int n);
 void func_0036EB40(u32 s, u32 k);
 void func_0036FAC0(u32 s, u32 k);
-int func_0036EFA0(u32 v);
-int func_0036D2E0(void);
-int func_0035DBD0(int *t, int a, int b);
 
 #define TAC() func_0036DCD0()
 
@@ -35,7 +34,7 @@ void func_0036DCE0(u32 s, u32 k, u8 v)
 }
 
 /* 0x0036DD30, 0x54 bytes. Its tactic (0x1F: none). */
-u8 func_0036DD30(u32 s, u32 k)
+u32 func_0036DD30(u32 s, u32 k)
 {
     if (s < 2 && k < 2)
         return TAC()[k + s * 2];
@@ -181,7 +180,7 @@ int func_0036F290(u32 s, u32 k)
     return func_0036DFA0(s, k) == 0;
 }
 
-/* 0x0036F320, 0x6C bytes. */
+/* 0x0036F320, 0x6C bytes, matching. */
 int func_0036F320(u32 s)
 {
     u32 k;
@@ -194,7 +193,7 @@ int func_0036F320(u32 s)
     return 0;
 }
 
-/* 0x0036F390, 0x84 bytes. Whether side `s` has tactic `t`. */
+/* 0x0036F390, 0x84 bytes, matching. Whether side `s` has tactic `t`. */
 int func_0036F390(u32 s, u32 t)
 {
     u32 k;
@@ -223,7 +222,7 @@ int func_0036F420(u32 s, u32 t)
     return n;
 }
 
-/* 0x0036F4B0, 0x68 bytes. */
+/* 0x0036F4B0, 0x68 bytes, matching. */
 u32 func_0036F4B0(u32 s, u32 t)
 {
     u32 k;
@@ -307,20 +306,6 @@ int func_0036F8C0(void)
 
 extern u8 g_006A1D58[][0x68];            /* the groups */
 
-u8 func_00362600(u32 s, u32 k);
-void func_003283D0(int v);
-int func_0032E7B0(void);
-int *func_0033EF80(u32 k);
-u8 *func_00338410(int g);
-int func_0033B1E0(int *g);
-void func_00338500(int *g, int v);
-u8 func_0035D5A0(int s);
-int func_0034EC80(u32 i);
-int func_0034EE50(int c);
-u32 func_0034EDB0(int c);
-int func_0034EE60(int c);
-void func_0036E8D0(int c);
-
 #define GROUP_INDEX(g) (((u8 *)(g) - g_006A1D58[0]) / 0x68)
 
 /* 0x0036E170, 0xEC bytes. Loads the battle's tactics (Empire battles: the player's are used up). */
@@ -355,17 +340,17 @@ void func_0036E430(u32 s)
     u32 k;
 
     for (k = 0; k < 0x10; k++) {
-        int *g = func_0033EF80(k);
+        int *g = (int *)(func_0033EF80(k));
 
         if ((g[0x19] & 1) != 0 && s == ((u8 *)g[0])[0x79]) {
             u8 *r = func_00338410(GROUP_INDEX(g));
 
-            if (r[0x25] == 'G' && func_0033B1E0(g) != 0) {
+            if (r[0x25] == 'G' && func_0033B1E0((unsigned char **)(g)) != 0) {
                 u32 v = *(u16 *)(func_00338410(GROUP_INDEX(g)) + 0x1C) / 10;
 
                 if (v < 1000)
                     v = 1000;
-                func_00338500(g, v);
+                func_00338500((unsigned char **)(g), v);
             }
         }
     }
@@ -378,17 +363,17 @@ void func_0036E550(void)
     u32 k;
 
     for (k = 0; k < 0x10; k++) {
-        int *g = func_0033EF80(k);
+        int *g = (int *)(func_0033EF80(k));
 
         if ((g[0x19] & 1) != 0 && s == ((u8 *)g[0])[0x79]) {
             u8 *r = func_00338410(GROUP_INDEX(g));
 
-            if (r[0x25] == 'G' && func_0033B1E0(g) != 0) {
+            if (r[0x25] == 'G' && func_0033B1E0((unsigned char **)(g)) != 0) {
                 u32 v = (*(u16 *)(func_00338410(GROUP_INDEX(g)) + 0x1C) << 1) / 10;
 
                 if (v < 1000)
                     v = 1000;
-                func_00338500(g, -(int)v);
+                func_00338500((unsigned char **)(g), -(int)v);
             }
         }
     }
@@ -403,7 +388,7 @@ void func_0036EA60(u32 s, u32 k)
     for (i = 0; i < 0x14; i++) {
         int c = func_0034EC80(i);
 
-        if (func_0034EE50(c) != 0 && func_0034EDB0(c) == side && func_0034EE60(c) == 0)
+        if (func_0034EE50((unsigned char *)PS2_PTR(c)) != 0 && func_0034EDB0((unsigned char *)PS2_PTR(c)) == side && func_0034EE60((unsigned char *)PS2_PTR(c)) == 0)
             func_0036E8D0(c);
     }
     func_0036DD90(s, k, s == 0 ? 0x3C : 0x78);
@@ -420,9 +405,6 @@ extern u8 g_0045D7B8[5];                 /* (small data) */
                         (*(u32 *)((u8 *)(g)[0] + 0x80) & 0x8C40002) == 0 &&               \
                         (*(u32 *)((u8 *)(g)[0] + 0x80) & 4) == 0)
 
-void func_0035CDF0(void);
-void func_0035CE30(void);
-u8 *func_002EFB00(int k);
 void func_0036FD30(u32 k, u32 v);
 
 /* 0x0036EC10, 0x144 bytes. Side `s`'s gate groups get strong defence (1000) and morale 120. */
@@ -431,7 +413,7 @@ void func_0036EC10(u32 s)
     u32 k;
 
     for (k = 0; k < 0x10; k++) {
-        int *g = func_0033EF80(k);
+        int *g = (int *)(func_0033EF80(k));
 
         if ((g[0x19] & 1) != 0 && GROUP_ALIVE(g) && s == ((u8 *)g[0])[0x79]) {
             int i = GROUP_INDEX(g);
@@ -452,7 +434,7 @@ void func_0036ED70(void)
     u32 k;
 
     for (k = 0; k < 0x10; k++) {
-        int *g = func_0033EF80(k);
+        int *g = (int *)(func_0033EF80(k));
 
         if ((g[0x19] & 1) != 0 && GROUP_ALIVE(g) && s == ((u8 *)g[0])[0x79]) {
             if (func_00338410(GROUP_INDEX(g))[0x25] == 'G') {
@@ -526,16 +508,16 @@ int func_0036F900(void)
 }
 
 /* 0x0036F990, 0x3C bytes, matching. */
-void func_0036F990(u32 s, u32 k)
+void func_0036F990(u32 s, u32 k, u32 g)
 {
-    func_0035CDF0();
+    func_0035CDF0(s, k, g);
     func_0036DED0(s, k);
 }
 
 /* 0x0036FAC0, 0x1C bytes, matching. */
 void func_0036FAC0(u32 s, u32 k)
 {
-    func_0035CE30();
+    func_0035CE30(s, k);
 }
 
 /* 0x0036FBD0, 8 bytes, matching. The weather state. */
@@ -554,7 +536,7 @@ void func_0036FC20(void)
 }
 
 /* 0x0036FC60, 0x28 bytes, matching. */
-u8 func_0036FC60(void)
+u32 func_0036FC60(void)
 {
     func_0036FBD0();
     return func_0036FBD0()[0];
@@ -568,14 +550,14 @@ int func_0036FC90(void)
 }
 
 /* 0x0036FCD0, 0x28 bytes, matching. */
-u8 func_0036FCD0(void)
+u32 func_0036FCD0(void)
 {
     func_0036FBD0();
     return func_0036FBD0()[1];
 }
 
 /* 0x0036FD00, 0x28 bytes, matching. */
-u8 func_0036FD00(void)
+u32 func_0036FD00(void)
 {
     func_0036FBD0();
     return func_0036FBD0()[2];
@@ -584,7 +566,7 @@ u8 func_0036FD00(void)
 /* 0x0036FDD0, 0x34 bytes. Loads it from the save image. */
 void func_0036FDD0(void)
 {
-    u8 *q = func_002EFB00(9);
+    u8 *q = (u8 *)PS2_PTR(func_002EFB00(9));
 
     func_0011EB80(func_0036FBD0(), q + 0xB0, 5);
 }

@@ -15,6 +15,18 @@
  * it in the save (func_003F5770 / func_003F57A0).
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_002EFB00   /* the original callers here see it this way */
+unsigned char *func_002EFB00(int);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_0033B7B0   /* the original callers here see it this way */
+unsigned int func_0033B7B0(unsigned char **);
+#endif
+#define SW2E_FILE_BATTLE_MISSION_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -55,52 +67,8 @@ extern int (*g_0041DAA0[8])(int group);   /* per kind: whether it can be offered
 extern int (*g_0041DAC0[8])(void);        /* per kind: whether its goal is reached */
 
 void func_00120928(char *to, const char *from);
-void func_003576C0(char *text, int id, int colour, int value, int a, int b);
-void func_00118AC0(void *to, const void *from, int size);
-u8 *func_002EFB00(int slot);
-int func_0036D2E0(void);
-int func_002F78C0(int officer, int other);
-int func_0036D850(int officer, int other);
-int func_0033B050(u8 **group);
-u16 *func_00338410(int group);
-u8 **func_0033EF80(u32 i);
-u8 func_0035D5A0(u8 kind);
-int func_0033B140(u8 **group);
-int func_0033B690(u8 **group);
-u8 **func_0033F110(u8 kind);
-int func_0036D550(u8 kind);
-int func_0033B440(u8 **group);
-int func_0033B4E0(u8 **group);
-u32 *func_002F7B10(void);
-int func_002F4080(u32 officer);
-int func_002F8160();
 int func_002F7D90(int a, int (*filter)(), int value, int b, int c, int d);
-int func_002F77A0(u32 officer, u32 other);
-int func_002F7900(u32 officer, u32 other);
-u32 func_0033F7D0(int a, int b);
 int func_0033F240(int *out, int most, int (*filter)(u8 **group), int a, int b, int c, int d);
-int func_0036D300(void);
-int func_0032E7B0(void);
-u32 func_00362930(u32 side);
-int func_003636F0(int a);
-u32 func_00362570(void);
-int func_0036D700(void);
-int func_0036D740(void);
-u32 func_003531F0(int a);
-u32 func_003519E0(void);
-u32 func_0035F2D0(int side);
-int func_0033BA60(u8 **group);
-u8 **func_0035DD10(int side);
-void func_0035D2D0(u32 group);
-u32 func_001D22D0(int a);
-u8 **func_003E2D90(int a, u32 i);
-u8 **func_0033F1A0(u8 **unit);
-u32 func_0033B7B0(u8 **group);
-u32 func_0035F200(int a);
-u32 func_0034EC80(u32 target);
-int func_0033CB60(u8 **group, u32 target);
-void func_0035D300(u32 group, int won);
-void func_0035D330(void);
 
 /* 0x003F5550, 0x8 bytes, matching. */
 void func_003F5550(u8 group)
@@ -137,7 +105,7 @@ u32 func_003F55F0(void) { return g_0045D868.minutes; }    /* 0x003F55F0, 0x8 byt
 u32 func_003F5600(void) { return g_0045D868.target; }     /* 0x003F5600, 0x8 bytes, matching. */
 
 /* 0x003F5610, 0x8 bytes, matching. */
-void func_003F5610(u8 status)
+void func_003F5610(u32 status)
 {
     g_0045D868.status = status;
 }
@@ -202,13 +170,13 @@ char *func_003F5760(void)
 /* 0x003F5770, 0x24 bytes, matching. Keeps the mission in a save record. */
 void func_003F5770(u8 *save)
 {
-    func_00118AC0(save + 0xAE0, &g_0045D868, 8);
+    func_00118AC0((unsigned int *)(save + 0xAE0), (unsigned char *)(&g_0045D868), 8);
 }
 
 /* 0x003F57A0, 0x2C bytes, matching. Takes it back from save slot 9. */
 void func_003F57A0(void)
 {
-    func_00118AC0(&g_0045D868, func_002EFB00(9) + 0xAE0, 8);
+    func_00118AC0((unsigned int *)(&g_0045D868), (unsigned char *)PS2_PTR(func_002EFB00(9) + 0xAE0), 8);
 }
 
 /* 0x003F57D0, 0x24 bytes, matching. No mission. */
@@ -243,8 +211,8 @@ int func_003F58A0(u8 **group, u8 **other)
         return 0;
     if (func_0033B050(group) == 0 || func_0033B050(other) == 0)
         return 0;
-    b = *func_00338410(GROUP_INDEX(other));
-    a = *func_00338410(GROUP_INDEX(group));
+    b = *((u16 *)func_00338410(GROUP_INDEX(other)));
+    a = *((u16 *)func_00338410(GROUP_INDEX(group)));
     return func_003F5800(a, b);
 }
 
@@ -289,7 +257,7 @@ int func_003F5A20(u8 **group)
                 return 0;
             leader = func_0036D550(kind);
             if (leader >= 0 && leader < 0x19F &&
-                func_003F5800(*func_00338410(GROUP_INDEX(group)), leader) != 0)
+                func_003F5800(*((u16 *)func_00338410(GROUP_INDEX(group))), leader) != 0)
                 return 0;
         }
     }
@@ -297,7 +265,7 @@ int func_003F5A20(u8 **group)
         return 0;
     if (func_0036D2E0() != 0) {
         u32 *officers = func_002F7B10();
-        u32 leader = *func_00338410(GROUP_INDEX(group));
+        u32 leader = *((u16 *)func_00338410(GROUP_INDEX(group)));
         int entry = func_002F4080(leader);
 
         if (entry >= 0 && entry < 0x19) {
@@ -323,7 +291,7 @@ int func_003F5A20(u8 **group)
  * 0x16E). */
 int func_003F5CE0(u8 **group)
 {
-    u16 leader = *func_00338410(GROUP_INDEX(group));
+    u16 leader = *((u16 *)func_00338410(GROUP_INDEX(group)));
 
     return leader == 0xFF || leader == 0xB5 || leader == 0x16E;
 }
@@ -396,7 +364,7 @@ void func_003F5F00(void)
         if (func_003F58A0(group, func_0033F110(other)) != 0)
             score += 0x19;
         leader = func_0036D550(other);
-        if (leader >= 0 && leader < 0x19F && func_003F5800(*func_00338410(index), leader) != 0)
+        if (leader >= 0 && leader < 0x19F && func_003F5800(*((u16 *)func_00338410(index)), leader) != 0)
             score += 0x14;
         if (func_003F5CE0(group) != 0)
             score += 0x1E;
@@ -610,10 +578,10 @@ int func_003F67F0(void)
 
     if (func_003E2D90(0, 0) != 0) {
         for (i = 1; i < 4; i++) {
-            u8 **unit = func_003E2D90(0, i);
+            u8 **unit = (u8 **)PS2_PTR(func_003E2D90(0, i));
 
             if (unit != 0) {
-                u8 **target = func_0033F1A0(unit);
+                u8 **target = func_0033F1A0((unsigned char *)(unit));
 
                 if (target != 0 && target == func_003F5570())
                     return 1;
@@ -669,7 +637,7 @@ void func_003F6A00(void)
     int left = func_003F55F0() * 3000 - (int)g_00669D60.g_00669F9C;
 
     if (left >= 0 && left % 3000 == 0 && left / 3000 > 0 && left / 3000 < 4)
-        func_0035D330();
+        func_0035D330(left / 3000);
 }
 
 /* 0x003F6A90, 0x110 bytes. While the mission runs: while the group is active and the time

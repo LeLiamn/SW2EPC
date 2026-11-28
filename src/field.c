@@ -11,6 +11,10 @@
  * named ones, +0xF9 the gates?), +0x58 / +0x60 / +0x68 three more tables (count, data).
  */
 
+#define SW2E_FILE_FIELD_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -39,21 +43,10 @@ extern u32 g_00669F98[2];                /* (settings) +0: a counter */
 extern int g_00669F6C[4];                /* (settings) +0: the game mode (1: ?) */
 extern u8 *g_005BA694;                   /* the scenario table's entries (100 bytes each) */
 
-void *func_001026D0(int which, int entry, void *dest, int now, u32 size, u32 offset,
-                    const void *file, int line);
-u32 func_00102680(int which, int entry);
-void *func_00102D30(u32 size);           /* allocate */
-void func_00118850(void *to, int size);  /* clear */
-void func_00118AC0(void *to, const void *from, u32 n);  /* memcpy */
 void func_0018CAB0(u8 *map, u32 *data, u32 size);
-void func_00102EC0(void *data);          /* free */
 void func_0018CDA0(u8 *map);
 void func_0018E210(u8 *map, int m);
 void func_0018E870(void);
-int func_0032E7B0(void);
-u32 func_0032F780(void);
-int func_0032F090(u32 a);
-u8 *func_002EFB00(int a);
 
 /* 0x0018C490, 0x70 bytes, matching. Loads map file `entry` into map object `map`. */
 void func_0018C490(u8 *map, int entry)
@@ -117,7 +110,7 @@ void func_0018C730(void)
  * (address, size) pairs (*out); returns the count. */
 u32 func_0018C7B0(u32 **out, u32 *pack, int size)
 {
-    u32 *t = func_00102D30(pack[0] << 3), i;
+    u32 *t = (u32 *)(func_00102D30(pack[0] << 3)), i;
 
     size = size - pack[1];
     for (i = 0; i < pack[0]; i++) {
@@ -155,7 +148,7 @@ void func_0018C870(u8 *map, u32 *blk)
 
         PTR(e, 0) = r;
         U32(e, 0x10) = U32(r, 0);
-        func_00118AC0(e + 0x18, PTR(e, 0) + 0x10, 8);
+        func_00118AC0((unsigned int *)(e + 0x18), PTR(e, 0) + 0x10, 8);
         func_00118850(e + 0x14, 3);
         PTR(e, 4) = PTR(map, 0x5C) + U16(PTR(e, 0), 0x1E) * 0x10;
         if (U8(PTR(e, 0), 8) != 0xFF) {
@@ -168,10 +161,10 @@ void func_0018C870(u8 *map, u32 *blk)
         }
     }
     if (g_00669F6C[0] == 1) {
-        u8 *s = func_002EFB00(4);
+        u8 *s = (u8 *)PS2_PTR(func_002EFB00(4));
 
         for (i = 0; i < U8(map, 0x54); i = (i + 1) & 0xFF, s += 0x10)
-            func_00118AC0(PTR(map, 0x50) + i * 0x88 + 0x10, s, 0x10);
+            func_00118AC0((unsigned int *)(PTR(map, 0x50) + i * 0x88 + 0x10), s, 0x10);
     }
 }
 
@@ -196,16 +189,11 @@ void func_0018CA90(u8 *map, u32 *blk)
     U32(map, 0x6C) = blk[0];
 }
 
-u32 func_00103000(u32 heap);             /* selects a heap; returns the previous one */
-
 void func_0018D100(u8 *map);
 void func_0018D140(u8 *map);
 void func_0018D460(u8 *map);
 void func_0018D9B0(u8 *map);
-void func_0022B950(u8 *map);
 void func_00214FC0(u8 *map);
-void func_0034FDF0(u8 *map);
-void func_003535B0(u8 *map);
 
 /* 0x0018CAB0, 0x2E8 bytes. Opens map file `d` (`size` bytes) into `map`: its four tables (the
  * provinces last), the province tables (+8, +0xC: n x n), a 0x14000-byte work area (+0xF4),
@@ -224,7 +212,7 @@ void func_0018CAB0(u8 *map, u32 *d, u32 size)
     func_0018CA70(map, t + 4);
     func_0018C870(map, t);
     h = func_00103000(h);
-    func_00102EC0(t);
+    func_00102EC0((unsigned char *)(t));
     func_00103000(h);
     n2 = U8(map, 0x54) * U8(map, 0x54);
     U8(map, 0x56) = 0;
@@ -298,7 +286,7 @@ u8 *func_0018CE00(u8 *p)
             = U8(g_0045D2F0, 0x11 + i * 4);
     n = U8(g_0045D2F0, 0x54);
     for (i = 0; i < n; i++, p += 0x10)
-        func_00118AC0(p, PTR(m, 0x50) + i * 0x88 + 0x10, 0x10);
+        func_00118AC0((unsigned int *)(p), PTR(m, 0x50) + i * 0x88 + 0x10, 0x10);
     return p;
 }
 
@@ -340,7 +328,6 @@ void func_0018D140(u8 *map)
     PTR(map, 0x104) = 0;
 }
 
-void func_001185E0(void *p, int size, int value);  /* memset */
 void func_0018DA60(u8 *map, u8 *e, int side);
 
 /* 0x0018D460, 0x98 bytes. Resets the map's route cache: 64 entries of 0x20 bytes (+0x100) in a
@@ -460,7 +447,6 @@ extern u8 g_0073DC98[], g_0073DF28[];
 extern char g_00424EF0[], g_00424F10[];  /* cell steps by direction (x, z) */
 
 int func_0018F730(u8 *map, u8 *cell, int dir, int a);
-void func_0027DC90(u8 *cell);
 int func_0018EC60(u8 *g);
 int func_0018ED40(u8 *g);
 int func_0018ECA0(u8 *g);
@@ -642,8 +628,6 @@ extern struct {
     u32 arg;
 } g_0042A2E0[];                          /* the step functions */
 
-void func_0027DDE0(void);
-
 /* The index of a province entry. */
 #define PROV_INDEX(map, e) ((((e) - PTR(map, 0x50)) / 0x88) & 0xFF)
 
@@ -791,8 +775,6 @@ int func_0018F800(u8 *cell, int dir)
 #define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
-
-
 void func_0027DE50(u8 a, u16 *p, u16 *q);
 void func_0022B9B0(u8 *map, u8 *cell, u8 *next);
 void func_0018E350(u8 *cell, int dir);
@@ -930,7 +912,7 @@ void func_00190060(u32 kind)
 
     if (n == 0)
         return;
-    cells = func_00102D30(n << 1);
+    cells = (u16 *)(func_00102D30(n << 1));
     dirs = func_00102D30(n);
     for (i = 0; i < U8(m, 0x54); i++) {
         u8 *e = PTR(m, 0x50) + i * 0x88;
@@ -951,7 +933,7 @@ void func_00190060(u32 kind)
 
         func_0018F9A0((u8 *)&cells[k], dirs[k]);
     }
-    func_00102EC0(cells);
+    func_00102EC0((unsigned char *)(cells));
     func_00102EC0(dirs);
 }
 
@@ -967,10 +949,7 @@ void func_001902B0(void)
     func_001902D0(480000);
 }
 
-u32 func_00102360(int budget, void *fn, int *stop);  /* starts a time budget (a callback sets *stop) */
-void func_00102340(u32 t);
 void func_0022BC70(u8 *map, u32 a);
-int func_0022B890(u8 *bits, u32 *next);
 void func_00191200(float *out, void *p);
 
 /* 0x001902D0, 0x1A8 bytes. Rebuilds the routes marked at +0x56 one province at a time (+0x57),
@@ -1009,7 +988,7 @@ void func_001902D0(int budget)
     }
 out:
     if (budget != 0)
-        func_00102340(t);
+        func_00102340((void *)PS2_PTR(t));
 }
 
 /* 0x00190480, 0x60 bytes. Whether `cell` is on the map. */
@@ -1134,9 +1113,6 @@ char func_00190990(u8 *cell)
     return t;
 }
 
-float func_001F2B70(float *p);           /* the ground height under p */
-float func_001934E0(u8 part);
-u32 func_00193570(float *p);
 char func_00190990(u8 *cell);
 
 /* 0x00190B10, 0x80 bytes, matching. The terrain at a point (func_00191200's 5000-unit cell). */
@@ -1209,7 +1185,7 @@ int func_00190CD0(u8 *cell, u32 mask)
 }
 
 /* 0x00190D50, 0xC bytes, matching. The number of map parts. */
-u8 func_00190D50(void)
+u32 func_00190D50(void)
 {
     return U8(g_0045D2F0, 0xF8);
 }
@@ -1252,7 +1228,7 @@ void func_00190E50(u8 *map, float *out, float *p)
         out[0] = p[0];
         out[2] = p[1];
         out[3] = 1.0f;
-        out[1] = func_001F2B70(out);
+        out[1] = func_001F2B70((unsigned char *)(out));
     } else {
         u8 *part = part_of(map, p);
 
@@ -1260,7 +1236,7 @@ void func_00190E50(u8 *map, float *out, float *p)
         out[1] = func_001934E0(U8(part, 0x76));
         out[2] = p[1] - *(float *)(part + 0x7C);
         out[3] = 1.0f;
-        out[1] = func_001F2B70(out);
+        out[1] = func_001F2B70((unsigned char *)(out));
     }
 }
 

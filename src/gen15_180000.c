@@ -388,7 +388,7 @@ void func_002A5080(u8 *param_1, u8 *param_2, int param_3)
 }
 
 /* 0x002AA0C0, 0x88 bytes. */
-void func_002AA0C0(int param_1)
+void func_002AA0C0(int param_1, int param_2, int param_3)
 {
     int iVar2;
     u8 * puVar1;

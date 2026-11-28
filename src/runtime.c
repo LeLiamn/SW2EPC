@@ -17,6 +17,10 @@
  *   `opt_unroll_loops off`; they are written here as plain loops.
  */
 
+#define SW2E_FILE_RUNTIME_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 

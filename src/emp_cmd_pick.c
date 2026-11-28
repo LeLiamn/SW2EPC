@@ -10,6 +10,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_CMD_PICK_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -41,74 +45,14 @@ typedef struct {
 } PickCmd;
 
 #define PROVINCE_OK_F(p) ((p) >= 0 && (p) < func_0030AB90())
-#define PICK() (*(PickCmd **)((u8 *)func_002FC2C0() + 0x69C))
+#define PICK() (*(PickCmd **)((u8 *)((u8 *)func_002FC2C0()) + 0x69C))
 #define REC_COUNT(r) ((r)[0x1C])
 #define REC_CHOSEN(r) ((r)[0x1D])
 
-int func_00327D50(void);
-void func_002FD490(void);
 int func_002F7D90(int a, int fn, int b, int c, int d, int e);
-void func_002F82A0(void);
-void func_002F8160(void);
-void func_002F8340(void);
-int *func_002F7B10(void);
-void func_002F7C40(int *l, int n);
-u32 func_00327870(void);
-int func_002F3EC0(u32 o);
-int func_0030CB50(int chance);
-void func_00304DE0(int *rec, int o, int a);
-void func_003DC180(int k, int a, int *out);
 void func_002C7310(int x, int y, int a, int w, int h, int c, int d);
-void func_002C7A30(int x, int y, int a, int w, int h, int c, int d);
-void func_00382690(int x, int y, int a, int w, int h, int b, int o);
-char *func_002F2890(int o);
-void func_00146B40(char *t, int x, int y, int w, int h, int a, int b);
-void func_003B5820(int k, int x, int y, int a, int c, int d);
-u8 *func_002FC2C0(void);
 int func_0030D7D0(void);
-void func_00334A90(char *out, u32 k, int a, int b);
 void func_0037E920(int c, int k, int x, int y, int a, char *t, int b);
-int func_00313DB0(int k, int o);
-void func_00383050(int c, int x, int y, int a, int b, int v);
-void func_001A7DC0(u8 *t, int a, int b);
-u32 func_003276A0(void);
-void func_002FCF20(void);
-void func_003DC090(int k, int *box);
-void func_003DC0E0(int k, int a, int b);
-int func_003DC2D0(int k);
-void func_0023AD10(int a, int b, int c, int d, int e);
-int func_003760C0(void);
-int func_003760E0(void);
-void func_00376100(int a, int b, int c);
-int func_0030E1F0(void);
-void func_002F4360(u32 o, int v);
-void func_002F4510(u32 o, int v);
-void func_002F4760(u32 o, int v);
-void func_002F4610(u32 o);
-int func_002F8F20(int o);
-void func_0030E140(int k, int a, int b, int c);
-void func_0030E100(void);
-void func_002FB320(int o, int *out);
-void func_00315510(int *out, int o);
-void func_0031BD90(int *rec);
-int func_003280E0(void);
-void func_003280C0(int v);
-void func_0039F960(void);
-void func_002FC560(void);
-int func_0030D560(int a);
-void func_002F44C0(int o);
-void func_002F43C0(u32 o, int v);
-int func_002F3770(u32 o);
-int func_002F34E0(u32 o);
-int func_002FB040(int f, int *out);
-int func_0030AB90(void);
-int func_002FAFA0(int a, int b);
-int func_002F4080(u32 o);
-int func_002F8CB0(int p);
-int func_002FB2A0(void);
-int func_002F3E30(u32 o);
-int func_002F3E70(u32 o);
-u32 func_002F4DD0(u32 o);
 
 /* 0x00335000, 0x50 bytes, matching. Clears the records. */
 void func_00335000(int *r)
@@ -155,8 +99,8 @@ void func_00335090(int *r)
     func_00335000(r);
     func_002FD490();
     n = func_002F7D90(0, (int)func_002F82A0, f, 0, 1, 0);
-    l = func_002F7B10();
-    func_002F7C40(l, n);
+    l = (int *)(func_002F7B10());
+    func_002F7C40((unsigned int *)(l), n);
     c = func_00327870();
     if (c < 0x19F && func_002F3EC0(c) == 0)
         c = 0x19F;
@@ -191,7 +135,7 @@ void func_00335300(int c, int o, int k1, int k2, int i, int sel)
     FONT_COLOUR(6);
     g_0056CCC0 = 16.0f;
     g_0056CCC4 = 16.0f;
-    func_00146B40(func_002F2890(o), box[0] + 0x3C, y + 0x5D, 0x7A, 0x10, 1, 0);
+    func_00146B40((const unsigned char *)(func_002F2890(o)), box[0] + 0x3C, y + 0x5D, 0x7A, 0x10, 1, 0);
     g_0056CCC0 = 16.0f;
     g_0056CCC4 = 16.0f;
     FONT_COLOUR(5);
@@ -224,11 +168,11 @@ void func_003354D0(void)
         b = func_00313DB0(s[2], func_00327D50());
         if (b < 0)
             b = 0;
-        func_00383050(func_0030D7D0(), 0x141, 0x34, 0, 1, a + b);
+        func_00383050((unsigned char *)PS2_PTR(func_0030D7D0()), 0x141, 0x34, 0, 1, a + b);
         if (REC_COUNT(r) < 2)
-            func_001A7DC0(g_0043C560, 0x80, 1);
+            func_001A7DC0((const char *)(g_0043C560), 0x80, 1);
         else
-            func_001A7DC0(g_0043C578, 0x80, 1);
+            func_001A7DC0((const char *)(g_0043C578), 0x80, 1);
     }
 }
 
@@ -378,7 +322,7 @@ void func_00335CA0(void)
         e[1] = q[1];
         e[2] = q[3];
         e[3] = q[5];
-        func_0031BD90(e);
+        func_0031BD90(e, c->count);
         c->count++;
     } else {
         func_003280C0(func_003280E0() - 1);
@@ -476,7 +420,7 @@ int func_00335F20(int k)
 void func_00335FC0(void)
 {
     int n = func_002F7D90(0, (int)func_002F8160, func_00327D50(), 0, 1, 0);
-    int *l = func_002F7B10(), k;
+    int *l = (int *)func_002F7B10(), k;
 
     for (k = 0; k < n; k++, l++)
         func_002F44C0(*l);
@@ -622,7 +566,7 @@ u32 func_003366C0(int f, int must, int free, u32 *l, int n, u32 *used, u32 want)
     u32 me = 0x19F, best = 0x19F;
     int a = 0, k, i;
 
-    if (func_002FB2A0() != 0)
+    if (func_002FB2A0(f) != 0)
         me = func_00327870();
     for (k = 0; k < n; k++, l++) {
         u32 o = *l;
@@ -691,11 +635,6 @@ void func_00336980(u32 *l, int n)
 /* ---- Battle line-ups: 9 officer slots (0-2 and 3-5 two groups, 6 and 7 extra ones), filled from
  * a province's officers and the force's free ones (0x00323CD0 lists them). ---- */
 
-u32 func_002F9260(int f);
-int func_00323CD0(int a, int f, int p, int *l);
-void func_002F80C0(void);
-void func_002F8110(void);
-
 /* 0x00336AE0, 0x4F0 bytes. The defenders of province `p` (force `f`); the lord of `me` is moved
  * out of the first slot. */
 void func_00336AE0(int f, int p, int me, u32 *s)
@@ -716,7 +655,7 @@ void func_00336AE0(int f, int p, int me, u32 *s)
     for (k = 0; k < n2; k++)
         s[3 + k] = src[k];
     if (n1 < 3 || n2 < 3) {
-        l = func_002F7B10();
+        l = (int *)(func_002F7B10());
         cnt = func_00323CD0(1, f, p, l);
         for (k = n1; k < 3; k++) {
             o = func_003366C0(f, 2, 0, (u32 *)l, cnt, s, lord);
@@ -758,7 +697,7 @@ void func_00336AE0(int f, int p, int me, u32 *s)
 void func_00336FD0(int f, int p, int me, u32 *s)
 {
     u32 lord = func_002F9260(me), o;
-    int *l = func_002F7B10(), cnt, n1, n2;
+    int *l = (int *)func_002F7B10(), cnt, n1, n2;
 
     for (n1 = 0; n1 < 9; n1++)
         s[n1] = 0x19F;
@@ -790,30 +729,6 @@ void func_00336FD0(int f, int p, int me, u32 *s)
         s[1] = lord;
     }
 }
-
-void func_0030D010(int side, u32 *s, int n);
-void func_00323840(int p);
-void func_0030D120(int p, int v);
-int func_0030AFF0(int p);
-int func_003238D0(int p);
-int func_00329220(void);
-int func_002F5CC0(u32 o);
-void func_00329090(int k, int a, int b);
-int func_00327C40(void);
-void func_00362590(int a);
-int func_002FA5A0(int f);
-u32 func_0030D0C0(int side);
-void func_0030D0A0(int side, u32 o);
-u32 func_0030D100(int side);
-void func_0030D0E0(int side, u32 o);
-void func_00362550(int a);
-void func_003622F0(int a, int b);
-void func_0030D2B0(void);
-int func_002F8E50(int f);
-void func_00362990(int side, int v);
-void func_00363E20(void);
-void func_00364BF0(void);
-void func_00327EA0(int v);
 
 /* 0x00337230, 0x36C bytes. Sets up the player's battle: an attack (`att` != 0, from `from` into
  * `p`) or the defence of `p`, with the player's line-up `mine` (9 slots). */
@@ -914,22 +829,11 @@ void func_003375A0(int mode, int a, int b, u32 *mine)
 
 /* ---- The battle command (command state +0x6A0 = {step, a, b}; slots 0x007B5F00). ---- */
 
-#define BCMD() (*(int **)(func_002FC2C0() + 0x6A0))
+#define BCMD() (*(int **)(((u8 *)func_002FC2C0()) + 0x6A0))
 
-void func_00373970(int a, int b, int c);
-int func_00327C00(void);
 int func_00374250(void);
 int func_00337D50(int a);
-int func_00374E00(void);
-void func_00369BB0(int a, int b);
-void func_003A99E0(int a);
-int func_0036B120(void);
-void func_0036B170(int *out);
-int func_0036B1E0(void);
-int func_0036B1F0(void);
-int func_002F27D0(int o);
 void func_00335EF0(int *p);
-void func_002FC660(void);
 
 /* 0x003378A0, 0x40 bytes, matching. Step 0: opens the province choice. */
 void func_003378A0(void)
@@ -943,7 +847,7 @@ void func_003378A0(void)
 /* 0x003378E0, 0xC0 bytes, matching. Step 1: the target province. */
 void func_003378E0(void)
 {
-    u8 *st = func_002FC2C0();
+    u8 *st = (u8 *)(func_002FC2C0());
     int *c = *(int **)(st + 0x6A0);
     int a;
 
@@ -999,29 +903,16 @@ void func_00337A70(void)
     s[0] = 0;
 }
 
-int func_00323C60(int p);
-int func_00323BD0(int p);
-void func_00329880(int a);
-void func_002F9130(int f, int v);
-u32 func_003620E0(int side, int k);
-void func_00362840(int side, int k, int v);
-void func_003638D0(void);
 void func_00388710(void);
-void func_003A9010(int a);
-void func_003A9110(void);
 void func_003890B0(int a);
-int func_00389050(void);
 int func_00389090(void);
-void func_0031DBE0(void);
-void func_0036A560(void);
-void func_00373B60(void);
 extern int g_00448050[];
 
 /* 0x00337AB0, 0x274 bytes. Step 3: sets up the chosen battle (kind = command state +8: 0 defence,
  * 1 attack, 2/3 battles between others) and pays its cost. */
 void func_00337AB0(void)
 {
-    u8 *st = func_002FC2C0();
+    u8 *st = (u8 *)(func_002FC2C0());
     int t = g_007B5F00[0][0], from = 0x19, to = 0x19, k;
     int *c = *(int **)(st + 0x6A0);
     u32 kind = *(u32 *)(st + 8), lord, o;

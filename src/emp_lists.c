@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_LISTS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -29,16 +33,7 @@ extern float g_0056CCC0, g_0056CCC4;
 #define FONT_COLOUR(c) (g_0056CCA4[0] = g_0056CCA4[1] = g_0056CCA4[2] = g_0056CCA4[3] = (c))
 #define FONT_SIZE(s) (g_0056CCC0 = (s), g_0056CCC4 = (s))
 
-void func_00102EC0(void *p);
-int func_00328C80(int k, int i);
-int func_003E7FA0(int k);
-int func_003E7EC0(int k, int a, int i);
-int func_003A02F0(int v);
 void func_00391A10(void);
-void func_002ED190(int k);
-void func_003BD640(int x1, int x2, int y, int k);
-char *func_002F2970(int o);
-void func_00146B40(char *text, int x, int y, int w, int h, int a, int b);
 
 /* 0x00390760, 0x14 bytes, matching. Officer text `k`. */
 u8 *func_00390760(int k)
@@ -264,7 +259,7 @@ void func_00392440(int o, int i)
     s = func_002F2970(o);
     FONT_COLOUR(6);
     FONT_SIZE(20.0f);
-    func_00146B40(s, x + 0x10, i * 0x18 + 0x5E, 0x98, 0x14, 2, 0);
+    func_00146B40((const unsigned char *)(s), x + 0x10, i * 0x18 + 0x5E, 0x98, 0x14, 2, 0);
     FONT_SIZE(16.0f);
     FONT_COLOUR(5);
 }
@@ -301,20 +296,12 @@ static int slide_x(u8 *b, int i)
     }                                                                   \
 } while (0)
 
-void func_002C80A0(int x, int y, int a, int w, int h, int b, int c);
-void func_002C8500(int x, int y, int a, int w, int h, int b, int c);
 void func_00397700(int o, int i);
-char *func_00372750(int i);
-char *func_003728D0(int mode, short v);
-int func_001AE550(float speed, void *w, short *pos, u8 *alpha, int a);
 int func_002ED160(void);
 u8 *func_002EE560(void);
 u8 *func_002EE570(void);
 u8 *func_002EE580(void);
 u8 *func_002EE5D0(void);
-void func_003923A0(void);
-void func_00392790(int a);
-void func_00392A10(void);
 
 /* 0x00392570, 0x214 bytes. Draws the officer list (`k`: names or the other column). */
 void func_00392570(int k)
@@ -354,7 +341,7 @@ void func_00392850(void)
         func_002C80A0(x, y, 0, 0x78, 0x18, 0x80, 0);
         FONT_COLOUR(6);
         FONT_SIZE(20.0f);
-        func_00146B40(func_00372750(i), x + 0x10, y + 2, 0x58, 0x14, 2, 0);
+        func_00146B40((const unsigned char *)PS2_PTR(func_00372750(i)), x + 0x10, y + 2, 0x58, 0x14, 2, 0);
         FONT_SIZE(16.0f);
         FONT_COLOUR(5);
         if (sel == i)
@@ -375,7 +362,7 @@ void func_00392AF0(void)
         func_002C80A0(x, y, 0, 0xE8, 0x18, 0x80, 0);
         FONT_COLOUR(6);
         FONT_SIZE(20.0f);
-        func_00146B40(func_003728D0(*(int *)(p + 0xC), v), x + 0xC, y + 2, 0xD0, 0x14, 2, 0);
+        func_00146B40((const unsigned char *)PS2_PTR(func_003728D0(*(int *)(p + 0xC), v)), x + 0xC, y + 2, 0xD0, 0x14, 2, 0);
         FONT_SIZE(16.0f);
         FONT_COLOUR(5);
         if (i == *(short *)(p + 0x14C))
@@ -443,29 +430,14 @@ extern u8 g_0056CCC8[4];
 
 #define SP_PKT (*(u32 **)0x70000158)
 
-void func_00118850(void *p, int n);
-u8 *func_001026D0(int a, int k, int b, int c, int d, int e, char *name, int line);
 void func_003914C0(void);
-void func_003E8940(void);
 void func_00392FF0(int a);
-void func_003E95D0(void);
 u8 *func_00397160(void);
 u8 *func_002EE530(void);
-void func_002C5AE0(u8 *g);
 int func_001204B0(char *buf, const char *fmt, ...);
-int func_003A17A0(int k);
-int func_003A1930(int k);
-void func_002C4F40(float size, char *text, int x, int y, int a, int b, int c);
-void *func_00102DB0(int align, int size);
 void func_0011EB80(void *to, const void *from, int n);
 int func_0011EAE8(const void *a, const void *b, int n);
-u64 *func_00105190(void);
-void func_001052E0(u64 *q, int k);
 void func_00396160(u32 a);
-void func_00143C90(void);
-int func_00102960(int a);
-void func_00143DA0(u32 a, u32 b, int n);
-void func_001037F0(int a);
 
 /* 0x00395330, 0xEC bytes. Opens the lists screen. */
 void func_00395330(void)
@@ -626,7 +598,7 @@ void func_00395E20(u8 *p, int k)
 /* A full screen rectangle with GS ALPHA value `a` and TEST `t`. */
 static void full_screen(u64 a, u64 t, int k)
 {
-    u64 *q = func_00105190();
+    u64 *q = (u64 *)(func_00105190());
 
     q[2] = a;
     q[3] = 0x43;
@@ -645,7 +617,7 @@ static void full_screen(u64 a, u64 t, int k)
         p[3] = 0x51000005;
         SP_PKT = p + 4;
     } else {
-        func_001052E0(q, k);
+        func_001052E0((unsigned char *)(q), k);
     }
 }
 
@@ -710,7 +682,7 @@ void func_00396480(u32 *p)
         }
         func_00395E20((u8 *)p, 1);
     } else {
-        func_00143DA0(p[3], p[4], 0x1300);
+        func_00143DA0((void *)PS2_PTR(p[3]), (unsigned char *)PS2_PTR(p[4]), 0x1300);
         p[0] |= 0x10;
         func_001037F0(1);
     }
@@ -724,20 +696,9 @@ extern float g_007BA858;
 extern u8 *g_007BA860;
 extern u8 g_007BA8B0[];                  /* the command menu */
 
-void func_00102990(void);
 void func_001265F0(int a, int b);
-void func_00143D60(u32 a);
 u8 *func_002EE540(void);
 void func_00395AC0(void);
-void func_00395C90(void);
-void func_003967D0(u32 *p);
-char *func_003727B0(int k);
-void func_00146270(char *text, int x, int y, int a, int b);
-void func_003955A0(void);
-int func_0030AB90(void);
-void func_0030BBD0(int p, int a);
-int func_0030B2F0(int k);
-void func_0030B330(void);
 
 /* 0x00397160, 0xC bytes, matching. */
 u8 *func_00397160(void)
@@ -789,7 +750,7 @@ void func_00397260(void)
     func_00102960(1);
     func_001265F0(0, 1);
     if ((q[0] & 0x10) != 0) {
-        func_00143D60(q[3]);
+        func_00143D60((void *)PS2_PTR(q[3]));
         q[0] &= ~0x10;
     }
     for (k = 3; k < 6; k++) {
@@ -827,7 +788,7 @@ int func_003973E0(void)
 
     if (q != 0) {
         func_00396480((u32 *)q);
-        func_003967D0((u32 *)q);
+        func_003967D0(PS2_ADDR((u32 *)q));
     }
     return 0;
 }
@@ -880,7 +841,7 @@ void func_00397700(int o, int i)
 
     FONT_COLOUR(6);
     FONT_SIZE(20.0f);
-    func_00146270(s, x + 0x10, i * 0x18 + 0x5E, 2, 0);
+    func_00146270((const unsigned char *)(s), x + 0x10, i * 0x18 + 0x5E, 2, 0);
     FONT_SIZE(16.0f);
     FONT_COLOUR(5);
 }
@@ -946,9 +907,9 @@ void func_00397AC0(void)
 }
 
 /* 0x00397AE0, 0x1C bytes, matching. */
-void func_00397AE0(void)
+int func_00397AE0(float dt)
 {
-    func_003955A0();
+    return func_003955A0(dt);
 }
 
 /* 0x00397B00, 8 bytes, matching. */

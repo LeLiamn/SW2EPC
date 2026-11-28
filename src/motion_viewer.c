@@ -10,6 +10,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_MOTION_VIEWER_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -25,36 +29,10 @@ extern u32 g_0041D7D0[8];
 #define WAIT(p) (*(short *)((p) + 0x1C4))
 #define VFLAGS(p) ((p)[0x1C8])
 
-u8 *func_00391250(void);
-int func_003E96E0(void);
-void func_00166160(u8 *u);
-void func_00165C60(u8 *u, int k, int c, int d, int a, int b, u8 col, int e);
-void func_00165180(u8 *u, int a, int w);
-int func_003E7EC0(int k, int s, int i);
-int func_003E7FA0(int k);
-void func_001BD7F0(int k, int a);
-void func_0017C7D0(int m);
-void func_001BE030(void);
-void func_0016D060(int m, int a, int b);
-void func_001BC540(void);
-void func_001BE1A0(void);
 void func_001BE4F0(void);
-void func_001646C0(u8 *u, int a);
-void func_00149720(u8 *m);
-void func_00166A00(u8 *u);
-void func_001688D0(u8 *u);
-void func_0014D560(u8 *m, int a, int b);
 void func_00182C30(void);
 void func_003E8770(void);
-void func_0017A920(u8 *cam);
 void func_00279240(void);
-void func_001BD6D0(int k, int a);
-void func_0017C6D0(int m, int a, int b);
-void func_0016CFB0(int m, int a);
-int func_00102960(int a);
-void func_001508F0(u8 *u, int k);
-void func_00150910(u8 *u, u32 f);
-int func_00240E20(u8 *u);
 
 /* 0x003E8160, 0x1BC bytes. Officer kind `k`'s model. */
 int func_003E8160(int k)
@@ -177,7 +155,7 @@ void func_003E8560(void)
     func_0017C7D0(*(int *)(p + 0x15C));
     func_001BE030();
     for (k = 0; k < 4; k++) {
-        func_0016D060(func_003E7EC0(*q, *(int *)(p + 0x158), k), -1, 0);
+        func_0016D060(func_003E7EC0(*q, *(int *)(p + 0x158), k), (void *)PS2_PTR(-1), 0);
         if (*q > 0x21 && *q < 0x33)
             break;
     }
@@ -410,7 +388,7 @@ void func_003E8FE0(u8 *u)
     if (!motion_over_b(p, u))
         return;
     *(int *)(u + 0x13C) = 0x4000000;
-    if ((VFLAGS(p) & 1) == 0 && func_00240E20(u) != 0) {
+    if ((VFLAGS(p) & 1) == 0 && func_00240E20(PS2_ADDR(u)) != 0) {
         VFLAGS(p) = (VFLAGS(p) & 0xFE) | 1;
         func_001508F0(u, 1);
     }

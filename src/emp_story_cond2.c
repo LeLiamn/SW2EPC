@@ -10,6 +10,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_STORY_COND2_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -17,30 +21,6 @@ typedef unsigned int u32;
 #include "sw2e_draw.h"
 
 extern int g_0045D820;                   /* (small data) the variant */
-
-int func_00327820(void);
-int func_00327D50(void);
-int func_002F5CC0(int o);
-int func_002F4080(int o);
-int func_0030AB90(void);
-int func_003C1850(void);
-int func_00329540(int k);
-u32 func_00327C70(void);
-u32 func_00327C80(void);
-int func_0032EB40(int a, int b, int c);
-int func_002F3BB0(int o);
-int func_002F3DC0(int o);
-int func_003C2090(int f, int p);
-int func_0030AFF0(int p);
-int func_00329680(int k);
-int func_0032EE10(int o);
-int func_003C3040(void);
-int func_00327C00(void);
-int func_002F3770(int o);
-int func_003C1460(int a, int p, int v);
-int func_003C1120(int o);
-int func_00337A10(int k);
-int func_003C0C60(int a, int b);
 
 #define PROVINCE_OK(p) ((p) >= 0 && (p) < func_0030AB90())
 #define NEED(x) do { if (!(x)) return 0; } while (0)
@@ -267,9 +247,6 @@ int func_003D1590(void)
     return func_003C0C60(a, d) == 0;
 }
 
-int func_003C16F0(int a, int p, int v);
-int func_002FB3B0(int p);
-
 /* The common start of events 0xC/0xD (officers 0x10, 0x11, text records 0xAB and 0xC1). */
 static int quad_common(int o1, int o2, int *a, int *b, int *c, int *d)
 {
@@ -421,28 +398,7 @@ extern EventFn g_0041C470[0x1BE];        /* event starters */
 extern EventFn g_0041CB70[10];           /* story event conditions 6..15 */
 extern u32 g_7000015C;                   /* (scratchpad) the random seed */
 
-void func_0032F790(void);
-int func_002F34E0(int o);
-int func_0030CA50(void);
-int func_00329370(int k);
-int func_002F9060(int f);
 int func_002F7D90(int a, int fn, int b, int c, int d, int e);
-void func_002F8630(void);
-int func_00327E90(void);
-void func_003292D0(int a, int v);
-int func_003CF030(void);
-void func_00334670(int k);
-void func_003BAB70(int a);
-u8 *func_0030E0F0(void);
-int func_0032E8E0(int k);
-void func_003BA8F0(int k, int a, int b, int c, int d);
-void func_00327A80(int o, int k);
-void func_00327EA0(int v);
-u32 func_002F9550(int f);
-void func_00328290(int v);
-void func_00328240(int v);
-void func_002F3F70(int o, int p);
-void func_002F5BE0(int o, int f);
 
 /* 0x003D2F80, 0x60 bytes. Starts event `k`. */
 int func_003D2F80(int k)
@@ -525,7 +481,7 @@ void func_003D3280(void)
 void func_003D32C0(int k)
 {
     int me = func_00327820(), f = func_00327D50(), o, i;
-    u8 *ev = func_0030E0F0();
+    u8 *ev = (u8 *)(func_0030E0F0());
 
     switch (k) {
     case 0xC:
@@ -629,12 +585,6 @@ void func_003D32C0(int k)
 
 extern u8 *g_0045D828[2];                /* (small data) */
 extern char g_0045C3F0[];                /* this source file's name */
-
-u8 *func_001026D0(int a, int k, int b, int c, int d, int e, const char *file, int line);
-void func_00102EC0(u8 *h);
-void func_00102960(int a);
-void func_001B8F60(int a, int b, int c);
-u8 *func_00376810(void);
 
 /* 0x003D36C0, 8 bytes, matching. */
 u8 **func_003D36C0(void)

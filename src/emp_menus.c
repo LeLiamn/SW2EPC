@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_MENUS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -27,43 +31,18 @@ extern u16 g_0050074C;
 
 #define PAD1_PRESSED() ((g_00500764 & 1) == 0 || (g_00500765 & 1) != 1 ? 0 : g_0050074C)
 
-int *func_002FC2C0(void);
-void func_00376100(int a, int b, int c);
-void func_00373B60(void);
 u8 *func_0030D7D0(void);
-int func_00397B00(int v);
-void func_0039A880(int a);
 void func_00397B10(int k);
-int *func_003DB900(int k);
 int func_0039A630(void);
 void func_00380E80(u8 *a, int o, int x, int y);
 void func_00398ED0(void);
-void func_002FC560(void);
-void func_003A9480(int v);
-int func_00327C00(void);
-void func_00373970(int k, int a, int b);
-int func_00327D50(void);
-int func_002F8160();
 int func_002F7D90(int a, int (*fn)(), int b, int c, int d, int e);
-int *func_002F7B10(void);
-void func_0032D300(int a, int *list, int n);
-u8 func_00328330(int k);
-u8 func_00328640(int k);
-int func_00389050(void);
 int func_00389090(void);
 void func_0039C540(int k);
-void func_0023AD10(int a, int b, int c, int d, int e);
 void func_0039C490(int k);
-void func_00388140(int k);
-void func_00373790(int v);
 int func_00374250(void);
-void func_00373F60(void);
-int func_00328C00(int k);
-void func_0039CE50(void);
 void func_00388710(void);
-void func_001A7DC0(u8 *text, int a, int b);
 void func_0032D3C0(u8 *a);
-int func_002F9390(int f, int j);
 void func_0037ED80(u8 *a, int x, int y, int f, int *v, int b, int c);
 
 #define MENU2() ((int *)func_002FC2C0()[0x1AB])
@@ -285,7 +264,7 @@ void func_0039BCE0(void)
 {
     int n = func_002F7D90(0, func_002F8160, func_00327D50(), 0, 1, 0);
 
-    func_0032D300(2, func_002F7B10(), n);
+    func_0032D300(2, PS2_ADDR(func_002F7B10()), n);
 }
 
 /* 0x0039BEE0, 0x64 bytes. Whether an item is held. */
@@ -426,7 +405,7 @@ void func_0039D060(void)
 void func_0039D590(void)
 {
     func_00388710();
-    func_001A7DC0(g_0043C5A8, 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C5A8), 0x80, 1);
 }
 
 /* 0x0039D5C0, 0x1C bytes, matching. */
@@ -483,17 +462,9 @@ extern u16 g_0050074E;
 #define PAD1_REPEAT() ((g_00500764 & 1) == 0 || (g_00500765 & 1) != 1 ? 0 : g_0050074E)
 #define MENU5() ((u8 *)func_002FC2C0()[0x1A5])
 
-u8 *func_00391250(void);
-void func_0023AA40(void);
-void func_0023AC40(void);
-void func_0023AB00(int v, int a);
-void func_0023A180(int v, int a, int b);
 void func_00388200(int a, int k);
-void func_003882C0(u32 *t);
 int func_00388DA0(void);
 void func_0011ED38(void *p, int v, int n);
-int func_003A01A0(int o);
-int func_00313CB0(int o);
 
 /* 0x003E74B0, 0x118 bytes. Plays the current line's voice. */
 void func_003E74B0(void)
@@ -550,7 +521,7 @@ void func_003E7600(int k)
         }
     }
     func_00388200(2, r);
-    func_003882C0(t);
+    func_003882C0((int *)(t));
 }
 
 /* 0x003E76C0, 0xA8 bytes. The group list's frame; whether it closed. */

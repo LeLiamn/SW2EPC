@@ -12,6 +12,10 @@
  * platform layer; it is kept to document what the game expects.
  */
 
+#define SW2E_FILE_SYSTEM_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -97,41 +101,15 @@ extern u8 g_0045E900[2][0x990];           /* two prepared packets: full-height c
 extern u8 g_0045FC20[];                   /* the half-height one */
 extern u8 g_00400B80[];                   /* an initial GS packet (10 quadwords) */
 
-void func_001037F0(int value);
-void func_003B3940(void);
-void func_001781C0(void);
-void func_001F1E90(void);
 void func_002E6260(void);
-void func_0020E520(void);
 void func_001C7730(void);
-void func_00185D70(void);
-void func_00194100(void);
-void func_0019F400(void);
 void func_002D8030(void);
-void func_001B9230(void);
-void func_00147770(void);
-void func_001AC4C0(void);
-void func_0023C150(void);
-void func_00103F30(void);
-void func_001B9260(void);
-void func_00106840(float dt);
-void func_0023C100(void);
-void func_00106880(void);
-void func_001068B0(float dt);
-void func_0019EFD0(void);
-int func_00115A50(u32 a, u32 b, int c);
-int func_00115C80(int a);
-void func_00115BC0(Request *requests);
-void func_00115D40(void);
 void func_00127000(u8 *env, int x, int w, u16 h, int a, int b, int c);
 void func_00125988(u8 *env, int a, int w, int h, int b, int c);
 int func_001265F0(int a, int b);
 void func_0011B3E8(int channel, void *data, u32 qwc);
 void func_001256D0(int a, int b, int c, int d);
 u8 *func_00125860(void);
-void func_00118850(void *to, int size);
-int func_00106980(int size);
-int func_001069C0(int a, int w);
 void func_00125E88(void *env, int a, u16 w, u16 h, int b, int c);
 void func_00126558(int a);
 int func_00131EA0(void);
@@ -142,17 +120,15 @@ void func_00126D10(u8 *env, int a, int b, u16 field);
 void func_00126F78(u8 *env, int a, int b, u16 field);
 void func_001272E8(u8 *env, u32 field);
 void func_0011B380(u8 *channel, u32 *chain);
-void func_0023A860(void);
 int func_0010B198(int (*handler)(int), int a);
 void func_00128928(int a);
 void func_001289F8(int a);
 void func_0010B158(void);
-void func_00133D50(void);
+void func_00133D50(void *p);
 u32 func_00133B30(int budget, void *fn, int *stop);
 
 void func_00101470(int mode);
 void func_00101C90(int flip, int in_interrupt);
-void func_001014D0(int value);
 void func_001020E0(void);
 
 /* 0x00100410, 0x94 bytes, matching. Shuts the game's systems down (the end of func_001005A0). */
@@ -188,9 +164,9 @@ void func_001004B0(void)
 }
 
 /* 0x00100870, 0x4C bytes, matching. Sends until accepted. */
-void func_00100870(u32 a, u32 b)
+void func_00100870(u32 a, u32 b, int c)
 {
-    while (!func_00115A50(a, b, 0))
+    while (!func_00115A50((void *)PS2_PTR(a), (const char *)PS2_PTR(b), 0))
         ;
 }
 
@@ -471,7 +447,7 @@ void func_00101500(u64 *p, int x, int h, u64 tex, u64 alpha, u64 test, u64 prim,
     p[7] = 0x14;
     p[8] = 0x8400000000008001ULL;            /* (a GIF tag: the high half comes from v0) */
     p[9] = 0x53531860;
-    func_00118850(p + 10, 0x40);
+    func_00118850((unsigned char *)(p + 10), 0x40);
     p[10] = 0x156;
     p[11] = tex;
     p[12] = (u64)(h - 1) << 34 | (u64)x << 4 | 10 | (u64)(x + 0x3F) << 14;
@@ -803,9 +779,9 @@ void func_00102290(void)
 }
 
 /* 0x00102340, 0x1C bytes, matching. */
-void func_00102340(void)
+void func_00102340(void *p)
 {
-    func_00133D50();
+    func_00133D50(p);
 }
 
 /* 0x00102360, 0x1C bytes, matching. */

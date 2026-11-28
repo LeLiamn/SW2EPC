@@ -14,6 +14,10 @@
  * effect), +0x88 the unit that shot it, +0x8C flags, +0x96 its side (3: none), +0xA0 its model.
  */
 
+#define SW2E_FILE_BULLET_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -21,13 +25,8 @@ typedef unsigned int u32;
 extern u8 *g_0045D2FC;                   /* (small data) the projectile kinds' file */
 extern const char g_00425D50[];          /* "Bullet.c" */
 
-void *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-void func_00102EC0(void *p);
 void func_001ACA70(u8 *b, u8 *kind, float *pos, float *dir, u8 *unit);
-void func_0016BFD0(u8 *unit, u8 *b);
-void func_0024D070(int a, u8 *p);
 void func_0024F6B0(u32 a, u32 b, u32 c);
-void func_0015E890(u32 *h);
 void func_002A6910(u32 h, int a, u8 *p);
 
 /* 0x001AC980, 0xE4 bytes. Sets projectile `b` of kind `kind` up from `pos` along `dir`; one shot
@@ -76,7 +75,7 @@ void func_001AE090(u8 *b)
     if (*(u8 **)(b + 0x88) != 0)
         func_0016BFD0(*(u8 **)(b + 0x88), b);
     if (*(u8 **)(b + 0x70) != 0 && (*(u32 *)(*(u8 **)(b + 0x70) + 0x30) & 0x2000000))
-        func_0024D070(5, b + 0x30);
+        func_0024D070(5, (unsigned int *)(b + 0x30));
     func_001AE1A0(b);
     func_001AD090(b);
     *(u8 **)(b + 0x70) = 0;
@@ -109,13 +108,13 @@ void func_001AE1A0(u8 *b)
     }
 }
 
-/* 0x001AE1D0, 0x54 bytes. Plays kind `kind`'s sound (+0x1A) at projectile `b`. */
+/* 0x001AE1D0, 0x54 bytes, matching. Plays kind `kind`'s sound (+0x1A) at projectile `b`. */
 void func_001AE1D0(u8 *b, u8 *kind)
 {
     u32 h;
 
     if (kind != 0 && kind[0x1A] != 0 && kind[0x1A] != 0xFF) {
-        func_0015E890(&h);
+        func_0015E890((int *)&h, kind[0x1A]);
         func_002A6910(h, 0, b + 0x30);
     }
 }

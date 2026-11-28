@@ -240,7 +240,7 @@ void func_002B4E80(u8 *param_1, int *param_2, u16 *param_3, int param_4, int par
         *(u32 *)(g_00795054) = *(u32 *)(g_00795054) + 1;
     }
     if ((param_7 == 1) && ((int)(param_5 & 0xFF) < (int)param_4)) {
-        func_002C6040(*param_3, param_2[(param_5 & 0xFF) * 3 + 1], param_3[2], 0x1C, param_6);
+        func_002C6040(*param_3, param_2[(param_5 & 0xFF) * 3 + 1], param_3[2], 0x1C, param_6, 0x80);
     }
     uVar8 = 0;
     if (((uVar1 & 0xFF) != 0) && ((uVar1 & 0xFF) != 0)) {
@@ -332,7 +332,7 @@ void func_002B4E80(u8 *param_1, int *param_2, u16 *param_3, int param_4, int par
 }
 
 /* 0x002D2A80, 0x830 bytes. */
-void func_002D2A80(int param_1, int param_2, int param_3, int param_4, int param_5)
+void func_002D2A80(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6)
 {
     int aiStack_20[8];
     int iVar1;
@@ -525,7 +525,7 @@ void func_002EE610(int param_1, int param_2)
     *(u32 *)(g_007A22B8 + 0x4) = (u32)bVar1;
     lVar7 = func_002ED150();
     if (lVar7 == 0) {
-        func_002C6040(0xFFFFFFFFFFFFFFC4, (param_2 & 0xFF) * 0x1C + 0x3E, 0x100, 0x1C, 3);
+        func_002C6040(0xFFFFFFFFFFFFFFC4, (param_2 & 0xFF) * 0x1C + 0x3E, 0x100, 0x1C, 3, 0x80);
     }
     uVar15 = 0;
     if ((uVar3 & 0xFF) != 0) {
@@ -639,7 +639,7 @@ void func_002EEB60(int param_1, int param_2)
     *(u32 *)(g_007A22B8 + 0x4) = (u32)bVar1;
     lVar7 = func_002ED150();
     if (lVar7 == 0) {
-        func_002C6040(0xFFFFFFFFFFFFFFC4, (param_2 & 0xFF) * 0x1C + 0x3E, 0x100, 0x1C, 3);
+        func_002C6040(0xFFFFFFFFFFFFFFC4, (param_2 & 0xFF) * 0x1C + 0x3E, 0x100, 0x1C, 3, 0x80);
     }
     uVar15 = 0;
     if ((uVar3 & 0xFF) != 0) {
@@ -799,7 +799,7 @@ void func_003876C0(int param_1, u32 *param_2, int param_3, int param_4, int para
         param_4 = param_4 + 0x1E;
     } while (iVar5 < 7);
     if (param_7 == 7) {
-        func_002C6040(iVar6 + -0x2E, 0x122, 0x100, 0x1C, 1);
+        func_002C6040(iVar6 + -0x2E, 0x122, 0x100, 0x1C, 1, 0x80);
     }
     func_003B4740(iVar6 + 0xE, 0x124, 0, 1, param_7 == 7, param_8 == 0);
 }

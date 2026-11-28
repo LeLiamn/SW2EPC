@@ -606,7 +606,7 @@ void func_002015A0(u8 *param_1)
                     uVar8 = 8;
                 }
             }
-            func_0024D380((u8 *)PS2_PTR(uVar8), (u8 *)PS2_PTR(*(u32 *)(g_006A3A44 + iVar6)));
+            func_0024D380(uVar8, *(u32 *)(g_006A3A44 + iVar6));
             *(u32 *)(param_1 + 0xBC) = *(u32 *)(param_1 + 0xBC) & 0xFFFBFFFF;
             iVar6 = *(int *)(param_1 + 0x14);
             *(u32 *)((u8 *)PS2_PTR(iVar6) + 0x13C) = 0;

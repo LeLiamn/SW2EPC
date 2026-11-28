@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 203840,
-    "non_matching": 1660520
+    "matching": 208000,
+    "non_matching": 1655032
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2532
+    "matching": 2575
   },
   "layout": "treemap",
   "areas": [
@@ -49,12 +49,12 @@
           "description": "Estimated range 0x362128-0x36DE68; 275 function(s) decompiled",
           "code": {
             "total": 48448,
-            "matching": 10688,
-            "non_matching": 31756
+            "matching": 11488,
+            "non_matching": 30956
           },
           "decompiled_functions": {
             "count": 275,
-            "matching": 103
+            "matching": 112
           }
         },
         {
@@ -114,12 +114,12 @@
           "description": "Estimated range 0x1E10A0-0x1E6D78; 40 function(s) decompiled",
           "code": {
             "total": 23768,
-            "matching": 5456,
-            "non_matching": 11952
+            "matching": 6544,
+            "non_matching": 10864
           },
           "decompiled_functions": {
             "count": 40,
-            "matching": 24
+            "matching": 25
           }
         },
         {
@@ -127,25 +127,25 @@
           "description": "Estimated range 0x1E6D78-0x1E9208; 24 function(s) decompiled",
           "code": {
             "total": 9440,
-            "matching": 9440,
-            "non_matching": 0
+            "matching": 8768,
+            "non_matching": 672
           },
           "decompiled_functions": {
             "count": 24,
-            "matching": 24
+            "matching": 23
           }
         },
         {
           "name": "StateShop.c",
-          "description": "Estimated range 0x299DB8-0x2A5E80; 74 function(s) decompiled",
+          "description": "Estimated range 0x299DB8-0x2A5E80; 72 function(s) decompiled",
           "code": {
             "total": 49352,
-            "matching": 15056,
-            "non_matching": 15564
+            "matching": 14992,
+            "non_matching": 14588
           },
           "decompiled_functions": {
-            "count": 74,
-            "matching": 39
+            "count": 72,
+            "matching": 38
           }
         },
         {
@@ -153,25 +153,25 @@
           "description": "Estimated range 0x2F1798-0x2FF3F0; 401 function(s) decompiled",
           "code": {
             "total": 56408,
-            "matching": 8176,
-            "non_matching": 48220
+            "matching": 8384,
+            "non_matching": 48012
           },
           "decompiled_functions": {
             "count": 401,
-            "matching": 114
+            "matching": 118
           }
         },
         {
           "name": "StateEdit.c",
-          "description": "Estimated range 0x36DE68-0x382E28; 318 function(s) decompiled",
+          "description": "Estimated range 0x36DE68-0x382E28; 317 function(s) decompiled",
           "code": {
             "total": 85952,
-            "matching": 6304,
-            "non_matching": 57132
+            "matching": 6832,
+            "non_matching": 56316
           },
           "decompiled_functions": {
-            "count": 318,
-            "matching": 107
+            "count": 317,
+            "matching": 111
           }
         },
         {
@@ -249,12 +249,12 @@
           "description": "Estimated range 0x33F608-0x357160; 555 function(s) decompiled",
           "code": {
             "total": 97112,
-            "matching": 13760,
-            "non_matching": 77480
+            "matching": 14752,
+            "non_matching": 76488
           },
           "decompiled_functions": {
             "count": 555,
-            "matching": 201
+            "matching": 207
           }
         },
         {
@@ -262,12 +262,12 @@
           "description": "Estimated range 0x2FF3F0-0x31C840; 419 function(s) decompiled",
           "code": {
             "total": 122972,
-            "matching": 10304,
-            "non_matching": 112668
+            "matching": 10784,
+            "non_matching": 112188
           },
           "decompiled_functions": {
             "count": 419,
-            "matching": 122
+            "matching": 124
           }
         },
         {
@@ -288,12 +288,12 @@
           "description": "Estimated range 0x3B4C30-0x3B9068; 67 function(s) decompiled",
           "code": {
             "total": 17464,
-            "matching": 1664,
-            "non_matching": 13120
+            "matching": 1728,
+            "non_matching": 13056
           },
           "decompiled_functions": {
             "count": 67,
-            "matching": 19
+            "matching": 21
           }
         },
         {
@@ -314,12 +314,12 @@
           "description": "Estimated range 0x32D7E0-0x33F608; 313 function(s) decompiled",
           "code": {
             "total": 73256,
-            "matching": 6320,
-            "non_matching": 55912
+            "matching": 6480,
+            "non_matching": 55752
           },
           "decompiled_functions": {
             "count": 313,
-            "matching": 111
+            "matching": 112
           }
         },
         {
@@ -340,12 +340,12 @@
           "description": "Estimated range 0x31C840-0x32D7E0; 336 function(s) decompiled",
           "code": {
             "total": 69536,
-            "matching": 7328,
-            "non_matching": 39912
+            "matching": 7808,
+            "non_matching": 39432
           },
           "decompiled_functions": {
             "count": 336,
-            "matching": 121
+            "matching": 127
           }
         },
         {
@@ -353,12 +353,12 @@
           "description": "Estimated range 0x382E28-0x38FE30; 86 function(s) decompiled",
           "code": {
             "total": 53256,
-            "matching": 1984,
-            "non_matching": 21408
+            "matching": 1888,
+            "non_matching": 21504
           },
           "decompiled_functions": {
             "count": 86,
-            "matching": 19
+            "matching": 18
           }
         },
         {
@@ -379,12 +379,12 @@
           "description": "Estimated range 0x357160-0x362128; 341 function(s) decompiled",
           "code": {
             "total": 45000,
-            "matching": 7936,
-            "non_matching": 37032
+            "matching": 8192,
+            "non_matching": 36776
           },
           "decompiled_functions": {
             "count": 341,
-            "matching": 128
+            "matching": 130
           }
         },
         {
@@ -470,12 +470,12 @@
           "description": "Estimated range 0x3ACA98-0x3B4C30; 77 function(s) decompiled",
           "code": {
             "total": 33176,
-            "matching": 1152,
-            "non_matching": 20104
+            "matching": 1408,
+            "non_matching": 19848
           },
           "decompiled_functions": {
             "count": 77,
-            "matching": 18
+            "matching": 23
           }
         }
       ]
@@ -488,12 +488,12 @@
           "description": "Estimated range 0x1890D0-0x190010; 102 function(s) decompiled",
           "code": {
             "total": 28480,
-            "matching": 2784,
-            "non_matching": 17468
+            "matching": 2832,
+            "non_matching": 17420
           },
           "decompiled_functions": {
             "count": 102,
-            "matching": 34
+            "matching": 35
           }
         },
         {
@@ -566,12 +566,12 @@
           "description": "Estimated range 0x1AD448-0x1B56D8; 34 function(s) decompiled",
           "code": {
             "total": 36580,
-            "matching": 128,
-            "non_matching": 36452
+            "matching": 224,
+            "non_matching": 36356
           },
           "decompiled_functions": {
             "count": 34,
-            "matching": 3
+            "matching": 4
           }
         },
         {
@@ -732,12 +732,12 @@
           "description": "Estimated range 0x201B40-0x20F408; 125 function(s) decompiled",
           "code": {
             "total": 55496,
-            "matching": 2496,
-            "non_matching": 18464
+            "matching": 2720,
+            "non_matching": 18240
           },
           "decompiled_functions": {
             "count": 125,
-            "matching": 37
+            "matching": 39
           }
         },
         {
@@ -810,12 +810,12 @@
           "description": "Estimated range 0x3D70F0-0x3DEC78; 168 function(s) decompiled",
           "code": {
             "total": 31624,
-            "matching": 5600,
-            "non_matching": 16064
+            "matching": 5712,
+            "non_matching": 15952
           },
           "decompiled_functions": {
             "count": 168,
-            "matching": 91
+            "matching": 93
           }
         },
         {
@@ -823,8 +823,8 @@
           "description": "Estimated range 0x2C1EA8-0x2DE550; 153 function(s) decompiled",
           "code": {
             "total": 116392,
-            "matching": 2480,
-            "non_matching": 35024
+            "matching": 2528,
+            "non_matching": 34976
           },
           "decompiled_functions": {
             "count": 153,
@@ -893,12 +893,12 @@
           "description": "Estimated range 0x39DD30-0x3ACA98; 313 function(s) decompiled",
           "code": {
             "total": 60776,
-            "matching": 5968,
-            "non_matching": 38844
+            "matching": 5024,
+            "non_matching": 39788
           },
           "decompiled_functions": {
             "count": 313,
-            "matching": 83
+            "matching": 80
           }
         },
         {
@@ -906,12 +906,12 @@
           "description": "Estimated range 0x24FF58-0x268448; 108 function(s) decompiled",
           "code": {
             "total": 99568,
-            "matching": 1648,
-            "non_matching": 22896
+            "matching": 1744,
+            "non_matching": 22800
           },
           "decompiled_functions": {
             "count": 108,
-            "matching": 28
+            "matching": 29
           }
         }
       ]

@@ -14,6 +14,10 @@
  * sprite packet at +0x120.
  */
 
+#define SW2E_FILE_CMNPARTS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -30,23 +34,6 @@ extern u8 *g_0068F3D0;                   /* the portraits' buffer */
 extern u8 *g_0068F10C[0xB1];             /* the portraits loaded */
 extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each; +6 portrait) */
 extern const char g_00425D40[];          /* "cmnparts.c" */
-
-void func_00118850(void *p, u32 n);
-void func_00118AC0(void *d, const void *s, u32 n);
-void *func_00102DB0(int align, u32 n);
-void func_00102EC0(void *p);
-void *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-int func_003620E0(int p, int slot);
-u32 func_002F27D0(u32 id);
-u8 *func_00104250(u32 n);
-void func_00104520(u8 *p);
-void func_001057F0(u8 *p, u64 tex0, int a);
-void func_00104600(u8 *p, const u8 *src, u32 n, int dbp, int dbw, int psm, int x, int y);
-void func_001046E0(u8 *p, int layer);
-u8 *func_00105860(u64 tex, int a);
-void func_00105900(u8 *p, int layer);
-const char *func_0019B0C0(u32 id);
-int func_00146D00(float size, const char *s, int h);
 
 void func_001A9030(void);
 void func_001A9450(u8 *f, int x, int y, int z, int w, int h, int alpha, int flip, int half);
@@ -88,7 +75,7 @@ u8 *func_001A8F30(u8 **f, u8 *dst, int k, int v)
         i = v + (k - 0x33) * 4 + 0x99;
     else
         return dst;
-    func_00118AC0(dst, f[0] + *(int *)(f[0] + 8) * *(int *)(f[1] + i * 8) + 0x40, 0x1600);
+    func_00118AC0((unsigned int *)(dst), f[0] + *(int *)(f[0] + 8) * *(int *)(f[1] + i * 8) + 0x40, 0x1600);
     g_0068F10C[i] = dst;
     return dst + 0x1600;
 }
@@ -100,7 +87,7 @@ void func_001A9030(void)
     u8 *file;
     int k;
 
-    func_00118850(g_0068F10C, 0x2C4);
+    func_00118850((unsigned char *)(g_0068F10C), 0x2C4);
     file = func_001026D0(1, 6, 0, 1, 0, 0, g_00425D40, 0x56D);
     f[0] = file;
     f[1] = file + 0x10;
@@ -122,8 +109,8 @@ void func_001A9140(void)
     int used[0x40];
     int n = 0, p, s, k;
 
-    func_00118850(g_0068F10C, 0x2C4);
-    func_00118850(used, 0x100);
+    func_00118850((unsigned char *)(g_0068F10C), 0x2C4);
+    func_00118850((unsigned char *)(used), 0x100);
     for (p = 0; p < 2; p++) {
         for (s = 0; s < 8; s++) {
             int o = func_003620E0(p, s);
@@ -163,7 +150,7 @@ void func_001A9350(void)
         func_00102EC0(g_0068F3D0);
         g_0068F3D0 = 0;
     }
-    func_00118850(g_0068F10C, 0x2C4);
+    func_00118850((unsigned char *)(g_0068F10C), 0x2C4);
 }
 
 /* 0x001A93A0, 0xAC bytes, matching. A new portrait object. */
@@ -222,11 +209,11 @@ void func_001A9B30(u8 *f, u32 id, int half)
     if (img == 0)
         return;
     if (half == 0) {
-        func_00104600(f, img, 0x1200, 0x1D04, 0x13, 2, 0, 0);
-        func_00104600(f + 0x90, img + 0x1200, 0x400, 0x1D00, 0, 0x10, 0, 0);
+        func_00104600(f, img, 0x1200, 0x1D04, 0x13, 2, 0, 0, 0x40, 0x48);
+        func_00104600(f + 0x90, img + 0x1200, 0x400, 0x1D00, 0, 0x10, 0, 0, 0x10, 0x10);
     } else {
-        func_00104600(f, img, 0x1200, 0x1324, 0x13, 2, 0, 0);
-        func_00104600(f + 0x90, img + 0x1200, 0x400, 0x1320, 0, 0x10, 0, 0);
+        func_00104600(f, img, 0x1200, 0x1324, 0x13, 2, 0, 0, 0x40, 0x48);
+        func_00104600(f + 0x90, img + 0x1200, 0x400, 0x1320, 0, 0x10, 0, 0, 0x10, 0x10);
     }
 }
 
@@ -263,7 +250,7 @@ int func_001AA320(float size, u8 *font, u32 c)
                                  / *(u16 *)(font + 0x20)) * size / 20.0f);
         return 0;
     }
-    return func_00146D00(size, func_0019B0C0(c), (int)(size * 72.0f / 20.0f));
+    return func_00146D00(size, (const unsigned char *)(func_0019B0C0(c)), (int)(size * 72.0f / 20.0f));
 }
 
 /* A font (0x004053C0 the text font, 0x004053F0 the names' font). */
@@ -281,12 +268,6 @@ typedef struct {
 
 extern Font g_004053C0, g_004053F0;
 extern const u8 g_004248F0[][4];         /* text colours (RGB) */
-
-u32 func_00145FB0(Font *f, u32 c);
-int func_00146CA0(float size, const u8 *s);
-const u8 *func_003724C0(void);
-u32 func_003629E0(u8 *rec);
-u32 func_0019AE90(u32 t);
 
 /* A float point as a GS one (VU0 ftoi4: x 16, z kept whole). */
 static inline u64 xyz_ftoi4(float x, float y, float z)
@@ -360,7 +341,7 @@ int func_001AA9B0(float size, float h, u8 *p, u32 id, float *pos, int col, int a
 {
     Font *f = &g_004053C0;
     float x = pos[0], y0 = pos[1], z = pos[2], y1, cw, m;
-    const u8 *s = id == 0x2F9 ? func_003724C0() : (const u8 *)func_0019B0C0(id);
+    const u8 *s = id == 0x2F9 ? (const u8 *)func_003724C0() : (const u8 *)func_0019B0C0(id);
     int n = 0, tw;
     u32 code = 0;   /* (left unset in the original before the first character) */
 
@@ -458,7 +439,7 @@ int func_001AB1D0(float size, float h, u8 *p, u32 t, u32 n, float *pos, int col,
 /* 0x001AB3A0, 0x88 bytes. The width of record `rec`'s title with a gap and character 0x1DD. */
 int func_001AB3A0(float size, u8 *font, u8 *rec)
 {
-    u32 t = func_0019AE90(func_003629E0(rec));
+    u32 t = func_0019AE90(func_003629E0(PS2_ADDR(rec)));
 
     return func_001AA320(size, font, t) + (int)(size * 8.0f / 20.0f) + func_001AA320(size, font, 0x1DD);
 }
@@ -467,16 +448,11 @@ int func_001AB3A0(float size, u8 *font, u8 *rec)
 int func_001AB430(float size, float h, u8 *p, u8 *rec, float *pos, int col, int a, int flat,
                   float *out)
 {
-    return func_001AB1D0(size, h, p, 0x1DD, func_0019AE90(func_003629E0(rec)), pos, col, a, flat,
+    return func_001AB1D0(size, h, p, 0x1DD, func_0019AE90(func_003629E0(PS2_ADDR(rec))), pos, col, a, flat,
                          out);
 }
 
 extern int g_0045D1C8;                   /* (small data) 1: textures at the second place */
-
-u8 *func_00106F10(u8 *tim2);
-u64 func_00104AC0(u8 *tim2, int dbp, int layer);
-u64 func_00104D00(u8 *tim2, int cbp, int layer);
-u64 func_00106C50(u64 tex, u64 clut);
 
 /* Image `k` of a pack `f` (+8 the unit, +0x10 the offsets). */
 #define PACK_IMAGE(f, k) ((f) + *(int *)((f) + 8) * *(int *)((f) + 0x10 + (k) * 8))
@@ -623,15 +599,13 @@ typedef struct {
 } Layout;
 
 extern Layout g_0068F070[4];             /* the top, bottom and two side windows' layouts */
-extern void *g_0068F0F0, *g_0068F0F8, *g_0068F100;   /* texture sets */
+extern u64 g_0068F0F0, g_0068F0F8, g_0068F100;   /* the TEX0 values of the texture sets */
 extern u32 g_0068F108;
 extern u8 g_00574DE0[][0x630];           /* the units */
 
 #define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10 & 0xFFFF)
 
-void *func_00107440(u8 *img, int tbp, int cbp);
-void *func_00107420(u8 *img, int a, int b, int c, int d, int tbp, int cbp);
 void vu0_sincos(float a, float *s, float *c);    /* VU0 micro subroutine 0x20 */
 float vu0_atan2(float y, float x);                /* VU0 micro subroutine 0x30 */
 float sqrtf(float x);

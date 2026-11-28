@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_MISC_UI_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -22,50 +26,11 @@ extern int g_0045D834;
 extern char g_0045C490[];                /* the allocations' source name */
 extern void (*g_0041CE70[])(void), (*g_0041CEA0[])(void), (*g_0041CED0[])(void);
 
-void func_003D7400(void);
 void func_003D6F90(void);
-u8 *func_003766C0(void);
 void func_00375F90(void);
-void func_003D83C0(void);
-void func_003D3C60(void);
-u8 *func_00390940(void);
 int func_003DC2D0(int k);
 void func_003DA890(void);
-u8 *func_001026D0(int a, int b, int c, int d, int e, int f, char *name, int line);
-void func_00102960(int a);
-void func_00102EC0(u8 *p);
-void func_003DB400(int a, int b, int c);
-void func_003DB9F0(u8 *w, int a, int b, int c);
-void func_00118AC0(void *to, const void *from, int n);
-u8 *func_002EFB00(int k);
-void func_003535D0(void);
-void func_0034FE90(void);
-void func_00352100(void);
-u8 *func_0033B730(u8 **g);
-u16 func_0018F6F0(u8 *a, u8 *b, int c);
-void func_0034ED90(int c, u8 *pos);
-int func_00352B00(int a, int b);
-void func_00329450(int a, int b);
-int func_003294A0(int s);
-u8 *func_0019FBC0(int k);
-void func_0019B170(int a, int b, int c);
-int func_00363B90(void);
-int func_0034ED40(int c);
 void func_00372C80(int a, int b);
-void func_00372B40(void);
-char *func_00372B80(int k);
-void func_00372250(u8 *p);
-void func_00372580(u8 *p);
-void func_0019F750(u8 *p);
-void func_00362E20(void);
-void func_001A1CD0(void);
-void func_0030CE90(int k);
-int func_00362B60(int a);
-void func_0036D230(int v);
-void func_003DD880(void);
-void func_003DE720(int k);
-void func_003DE8C0(int k);
-int func_0035DAE0(void);
 
 /* 0x003D8000, 0x24 bytes, matching. */
 void func_003D8000(void)
@@ -150,13 +115,13 @@ void func_003D93F0(void)
 /* 0x003D9450, 0x20 bytes, matching. */
 u8 *func_003D9450(void)
 {
-    return func_00390940() + 0x2C70;
+    return (u8 *)((u8 *)func_00390940()) + 0x2C70;
 }
 
 /* 0x003D9470, 0x20 bytes, matching. */
 u8 *func_003D9470(void)
 {
-    return func_00390940() + 0x2C34;
+    return (u8 *)((u8 *)func_00390940()) + 0x2C34;
 }
 
 /* 0x003D9490, 0x3C bytes, matching. */
@@ -274,7 +239,7 @@ u8 *func_003DCAB0(int p)
 }
 
 /* 0x003DCB00, 0x30 bytes, matching. */
-u8 func_003DCB00(int p)
+u32 func_003DCB00(int p)
 {
     u8 *r = func_003DCAB0(p);
 
@@ -294,7 +259,7 @@ u32 func_003DCBB0(int p)
 }
 
 /* 0x003DCBE0, 0x30 bytes, matching. */
-u16 func_003DCBE0(int p)
+u32 func_003DCBE0(int p)
 {
     u8 *r = func_003DCAB0(p);
 
@@ -304,7 +269,7 @@ u16 func_003DCBE0(int p)
 }
 
 /* 0x003DCC10, 0x30 bytes, matching. */
-u16 func_003DCC10(int p)
+u32 func_003DCC10(int p)
 {
     u8 *r = func_003DCAB0(p);
 
@@ -314,7 +279,7 @@ u16 func_003DCC10(int p)
 }
 
 /* 0x003DCC40, 0x30 bytes, matching. */
-u8 func_003DCC40(int p)
+u32 func_003DCC40(int p)
 {
     u8 *r = func_003DCAB0(p);
 
@@ -324,7 +289,7 @@ u8 func_003DCC40(int p)
 }
 
 /* 0x003DCC70, 0x30 bytes, matching. */
-u8 func_003DCC70(int p)
+u32 func_003DCC70(int p)
 {
     u8 *r = func_003DCAB0(p);
 
@@ -334,7 +299,7 @@ u8 func_003DCC70(int p)
 }
 
 /* 0x003DCCA0, 0x30 bytes, matching. */
-u8 func_003DCCA0(int p)
+u32 func_003DCCA0(int p)
 {
     u8 *r = func_003DCAB0(p);
 
@@ -344,7 +309,7 @@ u8 func_003DCCA0(int p)
 }
 
 /* 0x003DCCD0, 0x30 bytes, matching. */
-u8 func_003DCCD0(int p)
+u32 func_003DCCD0(int p)
 {
     u8 *r = func_003DCAB0(p);
 
@@ -354,7 +319,7 @@ u8 func_003DCCD0(int p)
 }
 
 /* 0x003DCD00, 0x30 bytes, matching. */
-u8 func_003DCD00(int p)
+u32 func_003DCD00(int p)
 {
     u8 *r = func_003DCAB0(p);
 
@@ -364,7 +329,7 @@ u8 func_003DCD00(int p)
 }
 
 /* 0x003DCD30, 0x30 bytes, matching. */
-u8 func_003DCD30(int p)
+u32 func_003DCD30(int p)
 {
     u8 *r = func_003DCAB0(p);
 
@@ -374,7 +339,7 @@ u8 func_003DCD30(int p)
 }
 
 /* 0x003DCB30, 0x38 bytes. */
-u8 func_003DCB30(int p, int k)
+u32 func_003DCB30(int p, int k)
 {
     u8 *r = func_003DCAB0(p);
 
@@ -384,7 +349,7 @@ u8 func_003DCB30(int p, int k)
 }
 
 /* 0x003DCB70, 0x3C bytes, matching. */
-u8 func_003DCB70(int p)
+u32 func_003DCB70(int p)
 {
     u8 *r = func_003DCAB0(p);
 
@@ -396,13 +361,13 @@ u8 func_003DCB70(int p)
 /* 0x003DCD60, 0x28 bytes, matching. Saves the results into save image `p`. */
 void func_003DCD60(u8 *p)
 {
-    func_00118AC0(p + 0x870, g_007BF540, 0x138);
+    func_00118AC0((unsigned int *)(p + 0x870), (unsigned char *)(g_007BF540), 0x138);
 }
 
 /* 0x003DCD90, 0x30 bytes, matching. */
 void func_003DCD90(void)
 {
-    func_00118AC0(g_007BF540, func_002EFB00(9) + 0x870, 0x138);
+    func_00118AC0((unsigned int *)(g_007BF540), (unsigned char *)PS2_PTR(func_002EFB00(9) + 0x870), 0x138);
 }
 
 /* 0x003DCDC0, 0x2C bytes, matching. */
@@ -413,10 +378,10 @@ void func_003DCDC0(void)
     func_00352100();
 }
 
-/* 0x003DCDF0, 0x38 bytes. The route length from group `g` to cell `pos`. */
+/* 0x003DCDF0, 0x38 bytes, matching. The route length from group `g` to cell `pos`. */
 u16 func_003DCDF0(u8 **g, u8 *pos)
 {
-    return func_0018F6F0(func_0033B730(g), pos, 0);
+    return func_0018F6F0((short unsigned int *)(func_0033B730(g)), (short unsigned int *)(pos), 0);
 }
 
 /* 0x003DCE30, 0x34 bytes, matching. */
@@ -430,14 +395,14 @@ u16 func_003DCE70(u8 **g, int c)
 {
     u8 pos[4];
 
-    func_0034ED90(c, pos);
+    func_0034ED90((unsigned char *)PS2_PTR(c), pos);
     return func_003DCDF0(g, pos);
 }
 
-/* 0x003DCEB0, 0x24 bytes. */
+/* 0x003DCEB0, 0x24 bytes, matching. */
 u16 func_003DCEB0(u8 *u, u8 *pos)
 {
-    return func_0018F6F0(u + 0x40, pos, 0);
+    return func_0018F6F0((short unsigned int *)(u + 0x40), (short unsigned int *)(pos), 0);
 }
 
 /* 0x003DCEE0, 0x1C bytes, matching. */
@@ -449,7 +414,7 @@ u16 func_003DCEE0(u8 *a, u8 *b)
 /* 0x003DCF00, 0x1C bytes, matching. */
 int func_003DCF00(int a, int b)
 {
-    return func_00352B00(a, b);
+    return func_00352B00((unsigned char *)PS2_PTR(a), b);
 }
 
 /* 0x003DD4A0, 0x44 bytes, matching. */
@@ -481,7 +446,7 @@ int func_003DD680(int s)
 /* 0x003DD6E0, 0x24 bytes, matching. */
 void func_003DD6E0(int a, u16 *p)
 {
-    func_0019B170(a, p[0], p[1]);
+    func_0019B170((char *)PS2_PTR(a), p[0], p[1]);
 }
 
 /* 0x003DD710, 0x1C bytes, matching. */
@@ -499,13 +464,13 @@ void func_003DD730(int a, u8 **q)
 /* 0x003DD750, 0x3C bytes, matching. */
 void func_003DD750(int c)
 {
-    func_00372C80(func_00363B90(), func_0034ED40(c));
+    func_00372C80(func_00363B90(), func_0034ED40((unsigned char *)PS2_PTR(c)));
 }
 
 /* 0x003DD790, 0x1C bytes, matching. */
-void func_003DD790(void)
+char *func_003DD790(int k)
 {
-    func_00372B40();
+    return func_00372B40(k);
 }
 
 /* 0x003DD7B0, 0x1C bytes, matching. */
@@ -515,21 +480,21 @@ char *func_003DD7B0(int k)
 }
 
 /* 0x003DD7D0, 0x1C bytes, matching. */
-void func_003DD7D0(u8 *p)
+char *func_003DD7D0(int k)
 {
-    func_00372250(p + 0x3B);
+    return func_00372250(k + 0x3B);
 }
 
 /* 0x003DD7F0, 0x1C bytes, matching. */
 void func_003DD7F0(u8 *p)
 {
-    func_00372580(p + 0x3B);
+    func_00372580(PS2_ADDR(p + 0x3B));
 }
 
 /* 0x003DD970, 0x2C bytes, matching. */
 void func_003DD970(void)
 {
-    func_0019F750(func_002EFB00(8));
+    func_0019F750((unsigned char *)PS2_PTR(func_002EFB00(8)));
     func_00362E20();
 }
 
@@ -537,7 +502,7 @@ void func_003DD970(void)
 void func_003DD9A0(void)
 {
     func_001A1CD0();
-    func_0019F750(func_002EFB00(8));
+    func_0019F750((unsigned char *)PS2_PTR(func_002EFB00(8)));
     func_00362E20();
     func_0030CE90(10);
     func_0036D230(func_00362B60(0));

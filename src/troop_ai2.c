@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_TROOP_AI2_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -21,18 +25,11 @@ extern u32 g_7000015C;
 #define TARGET(o) (*(u8 **)((o) + 8))
 #define SET_STATE(o, s) do { FL_BC(o) &= 0xFFF8003F; (o)[0x7D] = (s); } while (0)
 
-u8 *func_001F14E0(u8 *o);
-void func_00237F10(u8 *o);
-void func_00237F60(u8 *o);
-void func_00237ED0(u8 *o);
 void func_00206080(u8 *o);
 void func_00238AE0(u8 *o, int t);
 int func_00238200(u8 *o);
-void func_00237FA0(u8 *o);
 void func_00204BF0(u8 *o);
 int func_00174A40(float r, u8 *a, u8 *b);
-int func_00238C90(u8 *o, int k);
-void func_002396B0(u8 *o, int k);
 void func_00239520(u8 *o);
 void func_00204B60(u8 *o, int k);
 void func_00271A10(u8 *o, int k);
@@ -46,11 +43,11 @@ void func_00238090(u8 *o)
     u8 *t = func_001F14E0(o);
 
     if (RANDOM() % 100 < (u32)(t[0] >> 1))
-        func_00237F10(o);
+        func_00237F10(PS2_ADDR(o));
     else if (RANDOM() % 100 < t[1])
-        func_00237F60(o);
+        func_00237F60(PS2_ADDR(o));
     else if (RANDOM() % 100 < t[6])
-        func_00237ED0(o);
+        func_00237ED0(PS2_ADDR(o));
     else if (RANDOM() % 100 < t[2])
         func_00206080(o);
     else if (RANDOM() % 100 < t[3])
@@ -75,7 +72,7 @@ void func_00238570(u8 *o)
     } else if (k == 1) {
         func_00238090(o);
     } else if (k == 0) {
-        func_00237FA0(o);
+        func_00237FA0(PS2_ADDR(o));
     }
 }
 
@@ -113,7 +110,7 @@ int func_00238DE0(u8 *o, int k)
 
         if (func_00174A40(100.0f, *(u8 **)(o + 0x14) + 0x40, o + 0x20) >= lim)
             return 0;
-        if (func_00238C90(o, 1) == 0)
+        if (func_00238C90(PS2_ADDR(o), 1) == 0)
             return 0;
     }
     return 1;
@@ -154,7 +151,7 @@ void func_002398A0(u8 *o)
     } else if (k == 2) {
         func_00239780(o, 0);
     } else if (k == 1) {
-        func_002396B0(o, 0);
+        func_002396B0(PS2_ADDR(o), 0);
     } else if (k == 0) {
         func_00239520(o);
     }

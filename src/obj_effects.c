@@ -10,6 +10,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_OBJ_EFFECTS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -31,10 +35,8 @@ extern int g_00441430[0x28], g_004414D0[0x28], g_00441390[0x28], g_004412F0[0x28
 #define SLOT(k) g_00792070[k]
 #define FL38(o) (*(u32 *)((o) + 0x38))
 
-void func_00118850(void *p, int n);
 void func_002ADA00(void);
 void func_002ADDE0(void);
-void func_002A6770(int s, int v);
 u32 *func_002AE2A0(float f, u32 *p, u8 *slot, float *cam);
 
 /* 0x002AE090, 0xC0 bytes. The effects' microcode and camera block. */

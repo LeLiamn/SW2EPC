@@ -14,6 +14,10 @@
  * and starts the demo after 25 seconds without input.
  */
 
+#define SW2E_FILE_SCENE_INITIALIZE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 typedef unsigned long long u64;
@@ -89,31 +93,13 @@ extern u64 g_0045D288;                    /* the picture's texture */
 extern int g_0045D290;                    /* phase */
 
 void func_002D8060(int value);
-void func_002D8160(void);
-void func_001E3C30(void);
 int func_002DAEE0(void);
 void func_0017D8E0(int cue);
-u32 func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-u64 func_00107440(u32 data, int a, int b);
-void func_00102EC0(u32 data);
-void func_001B8F60(int a, int b, int c);
-void func_0023AD10(int a, int b, int c, int d, int e);
 void func_002DA2C0(void);
-u8 *func_00105860(u64 texture, int a);
-void func_00105900(u8 *packet, int a);
-void func_001037F0(int value);
-void func_0017DEA0(int value);
 void func_0017DE50(void);
-void func_00102990(void);
-int func_00102960(int value);
-void func_001A2950(void);
-void func_0019F550(void);
-void func_001B8BF0(void);
-void func_0023C160(void);
 void func_001023B0(int value);
 int func_0017DDA0(void);
 void func_0017E0C0(int volume, int b);
-void func_0023B530(int volume);
 
 /* ---- Scene 0x00 ------------------------------------------------------------------------------- */
 
@@ -121,10 +107,10 @@ void func_0023B530(int volume);
  * starts the fade-in. */
 void func_00160FA0(void)
 {
-    u32 data = func_001026D0(1, 3, 0, 1, 0, 0, g_00424AD0, 0x19);
+    u32 data = PS2_ADDR(func_001026D0(1, 3, 0, 1, 0, 0, g_00424AD0, 0x19));
 
-    g_0045D288 = func_00107440(data, 0x1D00, 0x3FFC);
-    func_00102EC0(data);
+    g_0045D288 = func_00107440((unsigned char *)PS2_PTR(data), 0x1D00, 0x3FFC);
+    func_00102EC0((unsigned char *)PS2_PTR(data));
     g_0045D280 = 150;
     g_0069395E = 0xFF;
     g_0045D284 = 0;
@@ -347,29 +333,13 @@ extern u8 g_0045CC74;                     /* phase */
 extern u8 g_0045CC75;                     /* 1: come back without the title animation */
 extern u8 g_0045CC76;
 
-void func_0023ACC0(int a, int b);
 void func_0017DF10(void);
-void func_00101400(int value);
-void func_00278760(void);
-void func_00278870(void);
 void func_002788F0(void);
-void func_00278300(void);
 void func_00278150(int step);
-void func_0017E010(int value);
-void func_0023AC40(void);
 void func_002784F0(void);
-void func_002789C0(void);
 void func_002787E0(void);
 u8 func_002782C0(void);
 u8 func_00276B20(void);                   /* menu cursor */
-void func_00276B30(void);                 /* cursor up */
-void func_00276C80(void);                 /* cursor down */
-int func_0019FB80(void);
-int func_0019FB10(void);
-void func_001A2040(void);
-void func_001A1AC0(void);
-void func_00278500(void);
-void func_002786B0(void);
 
 /* 0x00160010, 0xC bytes, matching. */
 void func_00160010(int value)

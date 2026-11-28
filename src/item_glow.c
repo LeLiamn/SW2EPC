@@ -14,6 +14,10 @@
  * +0x1F its effect group (0x10 = none).
  */
 
+#define SW2E_FILE_ITEM_GLOW_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -29,11 +33,8 @@ extern u32 g_0045D508;                   /* (small data) the first free glow */
 extern int g_0045D50C;                   /* (small data) free position slots */
 extern u32 g_0045D510;                   /* (small data) the first free position slot */
 
-void func_00118850(void *p, int n);
 void func_0011EB80(void *to, const void *from, int n);
-void func_001F2BF0(void *q);
 u8 *func_0024CE50(int kind, u32 *pos, u8 *out);
-void func_002A8030(void);
 void func_0024F850(u32 k);
 
 /* A ground height query (func_001F2BF0). */
@@ -57,7 +58,7 @@ void func_0024E3C0(u32 v, int kind, u32 *pos)
     p[1] = pos[1];
     p[2] = pos[2];
     p[3] = pos[3];
-    func_001F2BF0(&q);
+    func_001F2BF0((unsigned char *)(&q));
     *(float *)&p[1] = q.ground - 50.0f;
     it = func_0024CE50(kind, p, out);
     if (it != 0)
@@ -169,7 +170,7 @@ void func_0024E6D0(u8 *g)
     *(float *)(g + 8) = 1.0f;
     g[0x1F] = 0x10;
     if (*(u32 *)(g + 0x14) < 0x30) {
-        func_002A8030();
+        func_002A8030(*(u32 *)(g + 0x14));
         *(u32 *)(g + 0x14) = 0x30;
     }
     if (g[0x1C] <= g_0045D508)
@@ -223,16 +224,7 @@ extern u8 *g_0045D4FC;                   /* (small data) the item model data */
 extern u8 g_00669D60[];
 extern int g_00669F6C;
 
-void func_0014F950(u8 *it);
-void func_001483B0(u8 *m);
-void func_00102EC0(void *p);
-u8 *func_002EFB00(int k);
-int func_0034EE50(u8 *b);
-u8 *func_0034ECA0(u8 *c);
-int func_00352CA0(u8 *c);
-void func_00191200(float *out, u8 *pos);
 void func_002A6910(int a, int b, u32 *pos);
-short func_00271210(u8 *a);
 void func_002A6D20(u8 who, int k);
 void func_0024D3A0(u8 *a, u8 *b, int c);
 
@@ -269,7 +261,7 @@ void func_0024BE90(void)
 void func_0024BF20(void)
 {
     if (g_00669F6C != 0)
-        func_0024E550(func_002EFB00(3));
+        func_0024E550((u8 *)PS2_PTR(func_002EFB00(3)));
 }
 
 /* 0x0024C070, 0x54 bytes. Removes item `k` (`it`). */
@@ -326,7 +318,7 @@ void func_0024D070(int kind, u32 *pos)
     p[1] = pos[1];
     p[2] = pos[2];
     p[3] = pos[3];
-    func_001F2BF0(&q);
+    func_001F2BF0((unsigned char *)(&q));
     *(float *)&p[1] = q.ground - 50.0f;
     func_0024CE50(kind, p, out);
     func_002A6910(8, 0, p);
@@ -384,7 +376,7 @@ void func_0024D2D0(short now, short before, short most, u8 *a)
 }
 
 /* 0x0024D380, 0x1C bytes, matching. */
-void func_0024D380(u8 *a, u8 *b)
+void func_0024D380(int kind, int model)
 {
-    func_0024D3A0(a, b, 1);
+    func_0024D3A0((u8 *)PS2_PTR(kind), (u8 *)PS2_PTR(model), 1);
 }

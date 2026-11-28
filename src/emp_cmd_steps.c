@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_CMD_STEPS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -28,42 +32,16 @@ extern int g_0045D898;                   /* (small data) the scene */
 #define E32(m, o) (*(int *)(ENTRY(m) + (o)))
 #define LAYOUT_COUNT() (*(int *)g_00459724[g_007B9E58])
 
-int func_0030B090(int o);
-int func_0030ACE0(int o);
-void func_0030B030(int o, int v);
 void func_0037FD50(int a, int x, int y, int o);
-int func_0030AD80(int o);
-int func_0030AE80(int o);
-void func_0030ADC0(int o, int v);
-int func_002F3770(int a, int o);
-void func_002C80A0(int x, int y, int a, int w, int h, int b, int c);
-void func_002C8500(int x, int y, int a, int w, int h, int b, int c);
-void func_003B5820(int k, int x, int y, int a, int b, int c);
 void func_00381CA0(int a, int x, int y, int k, int b);
-void func_003B5480(int x, int y, int a, int w, int b, int c);
 void func_001204B0(char *buf, char *fmt, int v);
-void func_002C4F40(float s, char *text, int x, int y, int a, int b, int c);
-void func_003B53C0(int x, int y, int a, int b, int c, int k);
 void func_002CD780(int v, int a, int x, int y, int b, int w, int h, int c, int p8);
-u8 *func_00365480(void);
 u8 *func_0030D7E0(void);
 int func_00382620(int k);
-u8 *func_00365470(void);
-void func_003DC090(int k, int *r);
-void func_003DC0E0(int k, int a, int b);
-void func_003DB480(int k, int a);
-int func_0030E1F0(void);
-void func_0030E100(void);
-void func_003DB220(int k, int *r);
-void func_003DB460(int k, int a);
-void func_0032E910(int o);
 int func_00330650(int k);
-void func_0030E140(int k, int a, int b, int c);
 void func_0038B5C0(void);
-int *func_003DB900(int k);
 int func_0030D7D0(void);
 void func_00380E80(int a, int o, int x, int y);
-void func_0037FB60(int a, int x, int y, int o, int v);
 
 /* 0x00380810, 0xBC bytes. Draws officer `o` with value func_0030B090 raised by `d` (at most
  * func_0030ACE0), then puts it back. */
@@ -96,7 +74,7 @@ void func_003808D0(int a, int x, int y, int o, int d)
 void func_00380990(int a, int o, int x, int y)
 {
     if (o >= 0 && o < 0x19F) {
-        float v = (float)func_002F3770(0, o) / 10000.0f;
+        float v = (float)func_002F3770(o) / 10000.0f;
 
         func_001A85D0(v, 0, 1.0f, x, y, 0, 2, 0, 0x5C, 1);
     }
@@ -409,38 +387,12 @@ extern u8 *g_0043C120[];                 /* message texts ("Checking the memory 
 extern short g_007BA830, g_007BA7F0, g_007BA7D0, g_007BA7D4;
 extern u8 *g_007BA7E0;
 
-void func_0037E9F0(int a, int k, int x, int y, int b, int c);
-u8 *func_0019FBC0(int k);
-int func_001A11F0(int a, int b, int c, int d, u8 *e);
-void func_003DF970(int a, u8 *b, int c, int d, u8 *e);
 int func_0030D810(void);
 void func_003DFD80(int a, int b, int c, int x, int y, int d, u8 *e, u8 *f);
 u8 *func_0038C6E0(void);
-int func_0030AB90(void);
-void func_003A9510(int *list, int n, int a);
-void func_003A9010(int v);
-int func_003635F0(void);
-u8 *func_001026D0(int a, int b, int c, int d, int e, int f, char *name, int line);
-int func_00102960(int a);
-void func_003A5C40(int k);
-void func_003A5FA0(int a, int b, int c, int d);
-void func_003A9AF0(int v);
-void func_0038FA80(int k, int on);
-int func_0039FEE0(int k);
-u8 *func_00390940(void);
 u8 *func_0038FB10(void);
-void func_003B24F0(void);
 void func_003BCDD0(void);
-void func_003BD230(void);
-u8 *func_00391250(void);
-void func_00376100(int a, int b, int c);
-void func_001A7DC0(u8 *text, int a, int b);
-char *func_00372780(int k);
 void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
-void func_002C4C50(float s, char *text, int x, int y, int w, int a, int b, int c);
-char *func_002F2970(int o);
-char *func_003727B0(int k);
-char *func_003728A0(int k);
 
 /* 0x0038BAA0, 0xA4 bytes. */
 void func_0038BAA0(u8 *m)
@@ -608,7 +560,7 @@ void func_00391DA0(void)
         k = 0x192;
     else if (w != 1 && w == 0 && *(int *)(s + 0x34) == 0)
         k = 0x191;
-    func_001A7DC0(g_0043C120[k], 0x80, 2);
+    func_001A7DC0((const char *)(g_0043C120[k]), 0x80, 2);
 }
 
 /* 0x003923A0, 0x94 bytes. */
@@ -662,21 +614,7 @@ extern u32 g_00459910, g_00459914;
 extern u8 g_00459870[][0x14];
 extern int g_007B9F30, g_007B9F38;
 
-int *func_002FC2C0(void);
-char *func_002F8DE0(int f);
-char *func_002F2890(int o);
 void func_00120B78(char *to, const char *from, int n);
-void func_00146B40(char *text, int x, int y, int w, int h, int a, int b);
-void func_00146270(char *text, int x, int y, int a, int b);
-void func_003DC180(int k, int a, int *r);
-u8 *func_001050F0(void);
-void func_00105230(u8 *p, int a);
-void func_003B5970(int x, int y, int a, int w, int h, int b, int c);
-u8 *func_00106F10(u8 *t);
-u8 func_003A60F0(u32 v);
-int func_002FB2A0(int o);
-int func_002F9060(int f);
-int func_002F8F20(int f);
 void func_0037DDD0(int a, int b, int c, int d);
 
 static void text_style(int col, float size)
@@ -709,7 +647,7 @@ void func_00381DF0(int a, int x, int y, int item, int sel, int w)
     else if (item == 0x37)
         func_00120B78(buf, func_002F8DE0(*(int *)(m + 0x18)), 0x40);
     text_style(6, 16.0f);
-    func_00146B40(buf, x + 0x90, y + 4, 0x7A, 0x10, 1, 0);
+    func_00146B40((const unsigned char *)(buf), x + 0x90, y + 4, 0x7A, 0x10, 1, 0);
     text_style(5, 16.0f);
 }
 
@@ -747,7 +685,7 @@ void func_00383050(u8 *t, int x, int y, int a, int b, int v)
     if (v == -1) {
         func_001204B0(buf, g_00459590, 0);
         text_style(5, 12.0f);
-        func_00146270(buf, x + 0xA1, y + 4, 1, 0);
+        func_00146270((const unsigned char *)(buf), x + 0xA1, y + 4, 1, 0);
         text_style(5, 16.0f);
     } else {
         func_001204B0(buf, g_00459500, v);
@@ -837,10 +775,7 @@ void func_0038AB80(u8 *m)
 /* Rising value drawers and the gallery lists (0x0038BB50, 0x0038BCA0, 0x0038C0F0, 0x0038DE60). */
 
 void func_0037ED80(int a, int x, int y, int f, int *v, int b, int c);
-int func_002F9390(int f, int j);
 u8 *func_0038DC40(void);
-int func_003A0040(int k);
-int func_0039E650(int k);
 
 /* 0x0038BB50, 0x148 bytes. Draws an officer value rising by the command's gain over 10 frames. */
 void func_0038BB50(u8 *m)
@@ -920,8 +855,6 @@ void func_0038DE60(void)
 
 extern int g_004169D0[];
 extern u8 *g_005BA6A0;
-int func_002F27D0(int o);
-char *func_00372580(int k);
 void func_0037E480(int a, int k, int x, int y, int z, char *t, int b, int c, int p8);
 
 /* 0x0037DA70, 0x40 bytes. Officer `o`'s look kind. */

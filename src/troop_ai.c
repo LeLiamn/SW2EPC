@@ -12,6 +12,14 @@
  * order bits (bits 6-18 the current order).
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_001F0520   /* the original callers here see it this way */
+unsigned int func_001F0520(unsigned char *);
+#endif
+#define SW2E_FILE_TROOP_AI_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -25,29 +33,16 @@ extern u32 g_7000015C;                   /* (scratchpad) the random seed */
 #define UNITS (*(u8 **)0x700001D0)       /* (scratchpad) the stage units (0x70 bytes each) */
 #define g_700001E0 ((u8 *)0x700001E0)    /* (scratchpad) a unit bit set */
 
-u8 *func_001F14E0(void);
 void func_00204D00(u8 *s, int a);
-void func_00236DD0(u8 *s);
-int func_00236F30(u8 *s);
-void func_00236ED0(u8 *s);
 void func_00206080(u8 *s);
-void func_00239780(u8 *s, int a);
-void func_002396B0(u8 *s);
-void func_002B0180(u8 *s, int a);
 void func_002AFC20(u8 *s);
 void func_00204B60(u8 *s, u32 f);
 void func_00271A10(u8 *s, int a);
 void func_00238AE0(u8 *s, int t);
 void func_00204BB0(u8 *s);
-void func_0024D380(int kind, u8 *a);
 u32 func_001FF100(u16 v, int k);
-void func_001185B0(void *p, int n);
-u32 *func_001945E0(int a, u32 x, u32 y);
-u32 func_00196A10(void);
-void func_00190060(int v);
 int func_0027D6B0(u8 *u, int v);
 void func_0027D960(void);
-void func_00239830(u8 *s);
 
 void func_0027B730(u8 *s);
 void func_0027C030(u8 *s);
@@ -66,7 +61,7 @@ static void order2(u8 *s)
 /* 0x0027B610, 0x9C bytes. Soldier `s` charges (alone or with others, by chance). */
 void func_0027B610(u8 *s)
 {
-    u8 *t = func_001F14E0();
+    u8 *t = func_001F14E0(s);
 
     order2(s);
     if (RANDOM() % 100 < t[1])
@@ -78,10 +73,10 @@ void func_0027B610(u8 *s)
 /* 0x0027B6B0, 0x7C bytes. */
 void func_0027B6B0(u8 *s)
 {
-    u8 *t = func_001F14E0();
+    u8 *t = func_001F14E0(s);
 
     if (RANDOM() % 100 < t[3])
-        func_00236DD0(s);
+        func_00236DD0(PS2_ADDR(s));
     else
         func_0027B730(s);
 }
@@ -90,7 +85,7 @@ void func_0027B6B0(u8 *s)
  * commander is hurt; half for some weapon kinds). */
 void func_0027B730(u8 *s)
 {
-    u8 *t = func_001F14E0(), *a, *m;
+    u8 *t = func_001F14E0(s), *a, *m;
     short *life;
     u32 f;
     float k, hurt;
@@ -140,7 +135,7 @@ void func_0027B970(u8 *s)
 /* 0x0027B9F0, 0xF4 bytes. An archer's choice: shoot, volley, step back or wait. */
 void func_0027B9F0(u8 *s)
 {
-    u8 *t = func_001F14E0();
+    u8 *t = func_001F14E0(s);
 
     if (RANDOM() % 100 < t[0])
         func_002B0180(s, 0);
@@ -160,7 +155,7 @@ void func_0027BAF0(u8 *s)
     if (st == 3 || st == 2)
         func_00239780(s, 1);
     else if (st == 1)
-        func_002396B0(s);
+        func_002396B0(PS2_ADDR(s), 1);
     else if (st == 0)
         func_0027B9F0(s);
 }
@@ -176,7 +171,7 @@ int func_0027BE70(u8 *s)
 
     if (most < life * 2.0f)
         return 0;
-    t = func_001F14E0();
+    t = func_001F14E0(s);
     if (RANDOM() % 100 >= (u32)(int)(((50.0f - life / most * 100.0f) * 0.01f + 1.0f) * (float)t[9]))
         return 0;
     for (k = 0; k < 0x10; k++) {
@@ -210,7 +205,7 @@ void func_0027C420(u8 *s)
 /* 0x0027C460, 0xF0 bytes. A spearman's choice: thrust, attack, close in or wait. */
 void func_0027C460(u8 *s)
 {
-    u8 *t = func_001F14E0();
+    u8 *t = func_001F14E0(s);
 
     if (RANDOM() % 100 < t[0])
         func_0027C210(s, 1);
@@ -225,7 +220,7 @@ void func_0027C460(u8 *s)
 /* 0x0027C550, 0xB4 bytes. Its guard choice. */
 void func_0027C550(u8 *s)
 {
-    u8 *t = func_001F14E0();
+    u8 *t = func_001F14E0(s);
 
     if (RANDOM() % 100 < t[0])
         func_0027C420(s);
@@ -264,7 +259,7 @@ int func_0027C910(u8 *s, int c)
 /* 0x0027C9C0, 0x9C bytes. */
 void func_0027C9C0(u8 *s)
 {
-    u8 *t = func_001F14E0();
+    u8 *t = func_001F14E0(s);
 
     if (RANDOM() % 100 < t[4]) {
         order2(s);
@@ -292,7 +287,7 @@ void func_0027CA60(u8 *s, int strong)
 /* 0x0027CAF0, 0x120 bytes. A swordsman's choice (bolder when hurt). */
 void func_0027CAF0(u8 *s)
 {
-    u8 *t = func_001F14E0();
+    u8 *t = func_001F14E0(s);
 
     if (RANDOM() % 100 < (u32)func_0027C910(s, t[0]))
         func_0027CA60(s, 0);
@@ -311,7 +306,7 @@ void func_0027CC10(u8 *s)
 
     if (l == 0)
         return;
-    t = func_001F14E0();
+    t = func_001F14E0(s);
     if (*(int *)(l + 0xC) == 0 && RANDOM() % 100 < t[6]) {
         order2(s);
         func_00271A10(s, 0);
@@ -350,7 +345,7 @@ int func_0027D050(u8 *s, u8 *t)
         lim = 0x32;
     if (*(short *)(c + 0x82) >= lim)
         return 0;
-    func_0024D380((RANDOM() & 1) == 0 ? 8 : 9, *(u8 **)(s + 0x14));
+    func_0024D380((RANDOM() & 1) == 0 ? 8 : 9, PS2_ADDR(*(u8 **)(s + 0x14)));
     func_00206080(s);
     return 1;
 }
@@ -358,7 +353,7 @@ int func_0027D050(u8 *s, u8 *t)
 /* 0x0027D1A0, 0x114 bytes. A supply soldier's choice. */
 void func_0027D1A0(u8 *s)
 {
-    u8 *t = func_001F14E0();
+    u8 *t = func_001F14E0(s);
 
     if (func_0027D050(s, t) != 0)
         return;
@@ -380,7 +375,7 @@ void func_0027D2C0(u8 *s)
     if (st == 3 || st == 2)
         func_00239780(s, 1);
     else if (st == 1)
-        func_002396B0(s);
+        func_002396B0(PS2_ADDR(s), 1);
     else if (st == 0)
         func_0027D1A0(s);
 }
@@ -412,7 +407,7 @@ void func_0027DC90(u8 *c)
         for (x = x0; (int)x < (int)x1; x++) {
             u32 *p;
 
-            for (p = func_001945E0(0, x, y); p != 0; p = (u32 *)p[1]) {
+            for (p = (u32 *)PS2_PTR(func_001945E0(0, x, y)); p != 0; p = (u32 *)p[1]) {
                 u32 b = 1 << (*p & 7);
 
                 if ((b & 0xFF & g_700001E0[*p >> 3]) == 0) {
@@ -451,7 +446,6 @@ void func_0027DEA0(int k, int v)
     }
 }
 
-u32 func_001F1360(u8 *s, int a);
 void func_0027B350(u32 t, u8 *s, u8 *cmd);
 
 /* 0x0027AE70, 0x7C bytes. A healer soldier goes to its commander. */
@@ -497,7 +491,7 @@ int func_0027B050(u8 *s, u8 *t)
         return 0;
     if (RANDOM() % 100 >= (u32)(int)(((50.0f - life / most * 100.0f) * 0.01f + 1.0f) * (float)t[9]))
         return 0;
-    func_0024D380(0xC, *(u8 **)(s + 0x14));
+    func_0024D380(0xC, PS2_ADDR(*(u8 **)(s + 0x14)));
     func_00206080(s);
     return 1;
 }
@@ -505,7 +499,7 @@ int func_0027B050(u8 *s, u8 *t)
 /* 0x0027B1B0, 0x118 bytes. The healer's attack choice. */
 void func_0027B1B0(u8 *s)
 {
-    u8 *t = func_001F14E0();
+    u8 *t = func_001F14E0(s);
 
     if (func_0027B050(s, t) != 0)
         return;
@@ -527,7 +521,7 @@ void func_0027B2D0(u8 *s)
     if (st == 3 || st == 2)
         func_00239780(s, 1);
     else if (st == 1)
-        func_002396B0(s);
+        func_002396B0(PS2_ADDR(s), 1);
     else if (st == 0)
         func_0027B1B0(s);
 }
@@ -539,25 +533,33 @@ void func_0027B2D0(u8 *s)
 extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each) */
 extern u8 g_00669D60[];
 
-void func_001505B0(u8 *a);
-void func_00150290(u8 *a, void *pos, u32 f);
-void func_00150910(u8 *a, u32 f);
-void func_001508F0(u8 *a, u32 f);
-void func_002A6770(int k, int snd);
 void func_002A6D20(int k, int snd);
-u32 func_001F0520(u8 *u);
-int func_003E6D90(void);
 
-/* 0x00204BB0, 0x40 bytes. Soldier `s` stops. */
+/* 0x00204BB0, 0x40 bytes. Soldier `s` turns towards its target point (+0x20), on the ground
+ * plane (a VU0 vector subtraction in the original). */
 void func_00204BB0(u8 *s)
 {
-    func_001505B0(*(u8 **)(s + 0x14));
+    u8 *m = *(u8 **)(s + 0x14);
+    float d[4];
+    int k;
+
+    for (k = 0; k < 4; k++)
+        d[k] = ((float *)(s + 0x20))[k] - ((float *)(m + 0x40))[k];
+    d[1] = 0.0f;
+    func_001505B0(m, d);
 }
 
-/* 0x00204C50, 0x40 bytes. */
+/* 0x00204C50, 0x40 bytes. The same, turning away from it. */
 void func_00204C50(u8 *s)
 {
-    func_001505B0(*(u8 **)(s + 0x14));
+    u8 *m = *(u8 **)(s + 0x14);
+    float d[4];
+    int k;
+
+    for (k = 0; k < 4; k++)
+        d[k] = ((float *)(m + 0x40))[k] - ((float *)(s + 0x20))[k];
+    d[1] = 0.0f;
+    func_001505B0(m, d);
 }
 
 /* 0x00204C90, 0x1C bytes, matching. */
@@ -567,9 +569,9 @@ void func_00204C90(u8 *s, void *pos, u32 f)
 }
 
 /* 0x00204CB0, 0x1C bytes, matching. */
-void func_00204CB0(u8 *s)
+void func_00204CB0(u8 *s, const float *dir)
 {
-    func_001505B0(*(u8 **)(s + 0x14));
+    func_001505B0(*(u8 **)(s + 0x14), dir);
 }
 
 /* 0x00204CD0, 0x28 bytes, matching. Soldier `s`'s attack flags. */
@@ -653,7 +655,7 @@ int func_002051F0(u8 *s, int hit)
     if (kind == 2) {
         c = (hit != 0 ? 3 : 2) * (s[0x7B] + 2);
     } else {
-        u8 *t = func_001F14E0();
+        u8 *t = func_001F14E0(s);
 
         c = hit == 0 ? t[0xB] : t[0xC];
         if (kind == 0x10) {
@@ -711,9 +713,7 @@ int func_00205480(u8 *s)
 /* The soldiers' running orders (0x002018B0-0x00201F7C). */
 
 int func_00271E70(u8 *s);
-void func_00253690(u32 kind, u8 *a);
 void func_00237B70(u8 *s);
-void func_002015A0(u8 *s);
 void func_00201990(u8 *s);
 
 /* Soldier `s`'s actor forgets its move target. */
@@ -766,7 +766,7 @@ void func_00201780(u8 *s)
         *(u32 *)(s + 0xBC) &= ~0x20000;
         func_00253690(0xB, a);
         stop_target(a);
-        func_0024D380((RANDOM() & 1) == 0 ? 8 : 9, a);
+        func_0024D380((RANDOM() & 1) == 0 ? 8 : 9, PS2_ADDR(a));
     }
 }
 
@@ -852,14 +852,12 @@ int func_00202C50(u8 *s);
 int func_002027F0(u8 *s);
 void func_00201F80(u8 *s);
 void func_00202F60(u8 *s);
-void func_002032F0(u8 *s);
 void func_00203C70(u8 *s);
-void func_002398A0(u8 *s); void func_00237200(u8 *s); void func_002E1820(u8 *s);
+void func_00237200(u8 *s); void func_002E1820(u8 *s);
 void func_00237550(u8 *s); void func_0023A0C0(u8 *s); void func_00239E60(u8 *s);
-void func_00238570(u8 *s); void func_00237410(u8 *s); void func_002B0980(u8 *s);
-void func_002B1350(u8 *s); void func_002AFB80(u8 *s); void func_002B0E40(u8 *s);
-void func_002B31A0(u8 *s); void func_002B27F0(u8 *s); void func_002B1F90(u8 *s);
-void func_002B18D0(u8 *s); void func_002B3C30(u8 *s); void func_002B3820(u8 *s);
+void func_00237410(u8 *s);
+void func_002AFB80(u8 *s);
+void func_002B31A0(u8 *s); void func_002B27F0(u8 *s);
 
 /* 0x00202B00, 0x14C bytes. Whether soldier `s` counters its attacker (by the difficulty). */
 int func_00202B00(u8 *s)
@@ -1033,9 +1031,6 @@ void func_00203F90(u8 *s)
 
 /* Target distances (0x00206480-0x00206DE8). */
 
-int func_00190610(u8 *pos, int k);
-void func_001F1470(u8 *s, u8 *t, u32 f, float *out);
-
 /* The squared ground distance between actors `a` and `b` (?: the VU0 code uses x and z). */
 static float dist2(u8 *a, u8 *b)
 {
@@ -1062,7 +1057,7 @@ void func_00206480(u8 *s, u8 *t, int far)
     d = dist2(*(u8 **)(s + 0x14), *(u8 **)(o + 0x14));
     if (far != 0)
         d *= 2.0f;
-    func_001F1470(s, t, *(u32 *)(o + 0xB8) & 0x8000, lim);
+    func_001F1470(s, PS2_ADDR(t), *(u32 *)(o + 0xB8) & 0x8000, lim);
     for (k = 0; k < 3; k++) {
         if (d < lim[k])
             break;

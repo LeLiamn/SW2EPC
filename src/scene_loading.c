@@ -12,6 +12,10 @@
  * 0x5E + stage). The scene itself only waits for the loading and fades out.
  */
 
+#define SW2E_FILE_SCENE_LOADING_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 typedef unsigned long long u64;
@@ -85,24 +89,6 @@ extern LoadingScreen g_007A2640;
  * original): 0x10 gives the cosine and 0x00 the sine of the angle passed in a VU0 register. */
 float vu0_cos(float angle);
 float vu0_sin(float angle);
-
-u8 *func_00106F10(u8 *texture);           /* the TIM2 picture header (+0x14 width, +0x16 height) */
-u8 *func_001050F0(void);
-void func_00105230(u8 *packet, int a);
-u8 *func_00104E70(u8 *texture, int a, int b, int c);
-u8 *func_00105B40(u8 *packet, int a);
-void func_00105BE0(u8 *packet, int a);
-u8 *func_00105410(void);
-void func_001054B0(u8 *packet, int a);
-void *func_00102D30(int size);
-void func_00102EC0(void *data);
-void func_00118850(void *p, int size);
-void func_00103000(int value);
-u8 *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-void func_00101470(int value);
-void func_001037F0(int value);
-int func_00102960(int value);
-void func_001B8F60(int a, int b, int c);
 
 #define TEX_W(h) (*(unsigned short *)((h) + 0x14))
 #define TEX_H(h) (*(unsigned short *)((h) + 0x16))
@@ -354,16 +340,16 @@ void func_002F1500(LoadingScreen *screen)
 /* 0x002F1550, 0x44 bytes, matching. Allocates and clears the six layers. */
 void func_002F1550(LoadingScreen *screen)
 {
-    screen->layers = func_00102D30(0x138);
-    func_00118850(screen->layers, 0x138);
+    screen->layers = (LoadLayer *)(func_00102D30(0x138));
+    func_00118850((unsigned char *)(screen->layers), 0x138);
     screen->speed = 1.2f;
 }
 
 /* 0x002F15A0, 0x34 bytes, matching. Frees the layers and clears the object. */
 void func_002F15A0(LoadingScreen *screen)
 {
-    func_00102EC0(screen->layers);
-    func_00118850(screen, 0x10);
+    func_00102EC0((unsigned char *)(screen->layers));
+    func_00118850((unsigned char *)(screen), 0x10);
 }
 
 /* 0x002F15E0, 0x78 bytes, matching. Opens the loading screen for `stage` (its pictures: LINKDATA entry

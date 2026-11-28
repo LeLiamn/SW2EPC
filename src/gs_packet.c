@@ -27,6 +27,10 @@
  * transfer (BITBLTBUF, TRXPOS, TRXREG, TRXDIR, then an IMAGE tag), followed by a TEXFLUSH.
  */
 
+#define SW2E_FILE_GS_PACKET_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -69,12 +73,6 @@ extern struct {
     Layer *layers;           /* 0x00560814 the layers (at the start of the buffer) */
     u32 pad[2];
 } g_00560810;
-
-u8 *func_00106F10(u8 *picture);          /* the TIM2 picture's header */
-int func_00106E90(u8 *header);           /* its GS pixel format */
-int func_001069C0(int psm, int width);   /* the buffer width for it */
-u64 func_00106CD0(int tbp, int psm, int a, int b, int width, int height);  /* a TEX0 value */
-u64 func_00106C50(u64 tex0, u64 clut);   /* both combined */
 
 void func_00105230(u8 *packet, int layer);
 void func_00105390(u8 *packet);

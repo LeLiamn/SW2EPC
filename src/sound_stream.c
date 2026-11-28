@@ -15,6 +15,10 @@
  * g_0045D230, and only while the disc reader is idle.
  */
 
+#define SW2E_FILE_SOUND_STREAM_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -99,25 +103,11 @@ int func_0010C2F8(int port, int volume, int a, int b);
 void func_0010BD90(int port);
 int func_0010C060(int port, int a, int b, int c, int volume, int d, int e, int start);
 int func_0010C278(int port, int c);
-void func_001171A0(void);
-void func_00117220(int port);
-void func_001178E0(int channel, int volume);
-int func_00115C80(int poll);
 int func_0010FA38(int core, u32 *voices);
 int func_0010BDF0(int port, int a, int b, int c);
 int func_0010BEF0(int port, int a, int b, int c, int d, int e, int f);
 int func_0010D090(int a);
 int func_0011A920(int media);                    /* sceCdMmode */
-void func_00117BA0(int bank);
-void func_00117DF0(int bank);
-void func_00117BD0(void);
-void func_00117E30(void);
-void func_001178A0(void);
-void func_00117620(int volume);
-void func_00117C70(int volume);
-u16 func_00116FA0(u16 volume);
-void func_00115D40(void);
-void func_00116520(void);
 void func_00115810(u16 playing);
 int CreateSema(SemaParam *p);
 int DeleteSema(int sema);

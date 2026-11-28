@@ -19,16 +19,23 @@
  * frees the buffers.
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_0039E760   /* the original callers here see it this way */
+int func_0039E760(int edited);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_002F3C20   /* the original callers here see it this way */
+int func_002F3C20(void *);
+#endif
+#define SW2E_FILE_SCENE_TUTORIAL_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
 #include "sw2e_draw.h"
-
-void func_0032F670(void);
-void func_0032F640(void);
-int func_003D2F80(int tutorial);
-void func_003302F0(int tutorial);
 
 /* 0x003F2A50, 0x1C bytes, matching. Scene 0x11 enter. */
 void func_003F2A50(void)
@@ -111,112 +118,13 @@ extern TutorialSetup *g_0045D860;
 extern GameStateCopy g_00669D60;          /* the game state (only copied here) */
 extern int g_0045C9C0[][8];               /* per main menu entry: up to eight entries */
 
-void *func_00102DB0(int align, int size);
-void func_00102EC0(void *data);
 void func_0011ED38(void *to, int value, int size);
-int func_00327C80(void);
-int func_00327C00(void);
-int func_00327D50(void);
-int func_00327E50(void);
 int func_002F7D90(int a, int (*filter)(), int value, int b, int c, int d);
-int *func_002F7B10(void);
-int func_002F8160();
-int func_002F7EC0();
-int func_002F8900();
 void func_002F87D0(int *list, int n, int (*compare)(), int a, int b);
-int func_002F3F20(int officer);
-int func_002FB320(int entry, int *out);
-int func_0030AD80(int entry);
-int func_0030AE80(int entry);
-int func_0030B090(int entry);
-int func_0030ACE0(int entry);
 OfficerRecord *func_0030CCB0(void);
-EntryRecord14 *func_0030CCD0(void);
 EntryRecord78 *func_0030CCC0(void);
-void func_0030CE90(int entry);
-void func_00327BD0(int entry);
-void func_002F7410(int officer);
-void func_002FAFC0(int entry);
-void func_002FB7C0(int entry);
-int func_0030C4E0(int entry, int *out);
-int func_0030AFF0(int entry);
-int func_0030AB90(void);
-int func_002F8CB0(int entry);
-int func_002FB5A0(int entry, int *out);
-int func_0030CB00(int n);
-void func_0030AF20(int a, int b);
-void func_00323840(int entry);
-void func_002F8D20(int entry);
-void func_002F8E80(int entry, int officer);
-int func_002F5CC0(int officer);
-int func_002F3C20(OfficerRecord *record);
-int func_002F3E70(int officer);
-int func_002F4080(int officer);
-void func_002F7610(int officer);
-int func_002F8F20(int entry);
-void func_002F32F0(int officer, int a);
-void func_002F4250(int officer, int a);
-void func_002F43C0(int officer, int a);
-void func_002F4510(int officer, int a);
-int func_002F9260(int entry);
-void func_002F91C0(int entry, int officer);
-void func_002F3B30(int officer, int a);
-void func_002F3CF0(int officer, int a);
-void func_002F3F70(int officer, int a);
-void func_002F5BE0(int officer, int a);
-int func_00327820(void);
-void func_0030A870(int a, int officer, int entry, int b, int c, int d);
-void func_00327CF0(int value);
-void func_00329030(void);
-void func_00327C50(int a);
-void func_00328CB0(void);
-void func_00328E70(void);
-void func_00327F00(int a);
-void func_00327F70(int a);
-void func_00327FE0(int a);
-void func_00328050(int a);
-void func_003292D0(int i, int a);
-u32 func_00327870(void);
-void func_00327830(int officer);
-u32 func_00327AE0(int i);
-void func_00327A80(int officer, int i);
-int func_002FB910(void);
-u32 func_002F9990(int entry);
-void func_002F9900(int entry, int a);
-void func_002F9A00(int entry, int a);
-void func_002F94C0(int entry, int a);
-void func_002F8F90(int entry, int a);
-void func_002FA400(int entry, int a);
-void func_002FA8E0(int entry, int a);
-int func_002FA970(int entry);
-void func_003280C0(int a);
-void func_002F92D0(int entry, int i, int a);
-void func_002FAA50(int entry, int i, int a);
-void func_0030ADC0(int entry, int a);
-void func_0030B030(int entry, int a);
-void func_0039E7C0(int edited);
-int func_00327950(void);
-int func_0039E760(int edited);
-void func_002F3440(int officer, int a);
-void func_002F40F0(int officer, int a);
-void func_002F3660(int officer, int a);
-void func_002F56A0(int officer, int a);
-void func_002F5930(int officer, int a);
-int func_0039E650(int edited);
-int func_003278B0(void);
-void func_003A54A0(int officer);
-void func_003A5650(int officer);
-int func_002F2840(int officer);
-void func_002F4AE0(int officer, int a);
-void func_00327750(int n);
-OfficerRecord *func_002F2720(int officer);
 int func_0017DDA0(void);
 void func_0017DF10(void);
-int func_003BA7F0(int a);
-void func_003BAB70(int a);
-int func_0032EEB0(void);
-void func_003BA8F0(int a, int b, int c, int d, int e);
-void func_0030E090(int a);
 
 #define ENTRY_VALID(e) ((e) >= 0 && (e) < func_0030AB90())
 #define SETUP_LIST() (g_0045C9C0[g_0045D860->menu])
@@ -267,7 +175,7 @@ void func_003F2C40(void)
 {
     int half = func_003F2BE0() / 2;
     int n = func_002F7D90(0, func_002F8160, func_00327D50(), 0, 0, 0);
-    int *officers = func_002F7B10();
+    int *officers = (int *)func_002F7B10();
     int *p;
     int i, j = 0;
 
@@ -348,7 +256,7 @@ void func_003F2F60(void)
     officers = func_0030CCB0();
     for (i = 0; i < 0x19F; i++)
         g_0045D854[i] = officers[i];
-    e14 = func_0030CCD0();
+    e14 = (EntryRecord14 *)(func_0030CCD0());
     for (i = 0; i < 25; i++)
         g_0045D858[i] = e14[i];
     e78 = func_0030CCC0();
@@ -373,7 +281,7 @@ void func_003F3470(int entry)
     int *p;
 
     n = func_002F7D90(0, func_002F8160, entry, 0, 0, 0);
-    p = func_002F7B10();
+    p = (int *)(func_002F7B10());
     for (i = 0; i < n; i++)
         func_002F7410(*p++);
     func_002FAFC0(entry);
@@ -448,7 +356,7 @@ void func_003F3790(void)
     int i;
 
     for (i = 0; i < 0x19F; i++) {
-        if (func_002F3C20(&g_0045D854[i]) != 0) {
+        if (func_002F3C20((unsigned char *)(&g_0045D854[i])) != 0) {
             if (func_002F3E70(i) != 0)
                 func_003F3470(func_002F4080(i));
             func_002F7610(i);
@@ -474,7 +382,7 @@ void func_003F3840(void)
         if (func_003F3690(func_002F8F20(game)) != 0)
             func_003F3470(game);
         m = func_002F7D90(0, func_002F7EC0, entry, 0, 0, 0);
-        officers = func_002F7B10();
+        officers = (int *)(func_002F7B10());
         for (j = 0; j < m; j++)
             func_002F7410(*officers++);
         func_0030AF20(entry, 0x19);
@@ -537,12 +445,12 @@ void func_003F3B40(void)
     for (i = 0; i < g_0045D860->count_a; i++) {
         int o = g_0045D860->list_a[i];
 
-        *func_002F2720(o) = g_0045D854[o];
+        *(OfficerRecord *)func_002F2720(o) = g_0045D854[o];
     }
     for (i = 0; i < g_0045D860->count_b; i++) {
         int o = g_0045D860->list_b[i];
 
-        *func_002F2720(o) = g_0045D854[o];
+        *(OfficerRecord *)func_002F2720(o) = g_0045D854[o];
     }
     a = 0;
     b = 0;
@@ -738,23 +646,23 @@ int func_003F4550(void)
 void func_003F4620(void)
 {
     if (g_0045D860 != 0) {
-        func_00102EC0(g_0045D860);
+        func_00102EC0((unsigned char *)(g_0045D860));
         g_0045D860 = 0;
     }
     if (g_0045D85C != 0) {
-        func_00102EC0(g_0045D85C);
+        func_00102EC0((unsigned char *)(g_0045D85C));
         g_0045D85C = 0;
     }
     if (g_0045D858 != 0) {
-        func_00102EC0(g_0045D858);
+        func_00102EC0((unsigned char *)(g_0045D858));
         g_0045D858 = 0;
     }
     if (g_0045D854 != 0) {
-        func_00102EC0(g_0045D854);
+        func_00102EC0((unsigned char *)(g_0045D854));
         g_0045D854 = 0;
     }
     if (g_0045D850 != 0) {
-        func_00102EC0(g_0045D850);
+        func_00102EC0((unsigned char *)(g_0045D850));
         g_0045D850 = 0;
     }
 }
@@ -762,15 +670,15 @@ void func_003F4620(void)
 /* 0x003F46B0, 0x184 bytes, matching. Scene 0x17 enter. */
 void func_003F46B0(void)
 {
-    g_0045D850 = func_00102DB0(0x10, 0x25310);
+    g_0045D850 = (GameStateCopy *)(func_00102DB0(0x10, 0x25310));
     func_0011ED38(g_0045D850, 0, 0x25310);
-    g_0045D854 = func_00102DB0(0x10, 0xFCE4);
+    g_0045D854 = (OfficerRecord *)(func_00102DB0(0x10, 0xFCE4));
     func_0011ED38(g_0045D854, 0, 0xFCE4);
-    g_0045D858 = func_00102DB0(0x10, 500);
+    g_0045D858 = (EntryRecord14 *)(func_00102DB0(0x10, 500));
     func_0011ED38(g_0045D858, 0, 500);
-    g_0045D85C = func_00102DB0(0x10, 3000);
+    g_0045D85C = (EntryRecord78 *)(func_00102DB0(0x10, 3000));
     func_0011ED38(g_0045D85C, 0, 3000);
-    g_0045D860 = func_00102DB0(0x10, 0xE0);
+    g_0045D860 = (TutorialSetup *)(func_00102DB0(0x10, 0xE0));
     func_0011ED38(g_0045D860, 0, 0xE0);
     if (func_0017DDA0() != 0)
         func_0017DF10();
@@ -855,7 +763,6 @@ extern PadState g_00500700[2];
 #define PAD_READY(p) ((g_00500700[p].ready & 1) ? (g_00500700[p].connected & 1) == 1 : 0)
 #define PAD_PRESSED(p) ((unsigned short)(PAD_READY(p) ? g_00500700[p].pressed : 0))
 
-void func_0023AD10(int a, int b, int c, int d, int e);
 #define SE(kind) func_0023AD10((kind), 0, 0x2CDC, 0x2CDC, 0x1000)
 
 #define g_70000154 (*(int *)0x70000154)    /* (scratchpad) the vertical scale */
@@ -864,17 +771,6 @@ void func_0023AD10(int a, int b, int c, int d, int e);
                          (u64)(z) << 32)
 
 extern int g_0041DA40[16];
-void *func_001026D0(int a, int b, void *to, int d, int e, int f, const void *file, int line);
-int func_00102960(int a);
-int func_00102680(int a, int entry);
-void func_00102990(void);
-void func_00118850(void *to, int size);
-void func_003A1CF0(int tutorial, int a);
-int func_003A1DF0(void);
-int func_001AE550(float speed, WindowAnim *window, short *pos, u8 *alpha, int a);
-u64 *func_00105410(void);
-void func_001054B0(u64 *packet, int a);
-void func_001A4340(int x, int y, int z, int w, int h, u8 alpha, int a);
 void func_003F4A00(int mode);
 
 /* 0x003F4840, 0x8 bytes, matching. */
@@ -1065,9 +961,9 @@ void func_003F4D20(int tutorial)
 }
 
 /* 0x003F4D40, 0x1C bytes, matching. */
-int func_003F4D40(void)
+int func_003F4D40(int k)
 {
-    return func_003A1DF0();
+    return func_003A1DF0(k);
 }
 
 /* 0x003F4D60, 0x104 bytes. Opens tutorial `tutorial` (at most 0x17) unless func_003F4D40
@@ -1077,7 +973,7 @@ int func_003F4D60(int tutorial)
 {
     TutorialWindow *w = func_003F4840();
 
-    if (w == 0 || func_003F4D40() != 0)
+    if (w == 0 || func_003F4D40(tutorial) != 0)
         return 0;
     func_003A1CF0(tutorial, 1);
     if (tutorial > 0x17)
@@ -1148,11 +1044,11 @@ void func_003F4F40(void)
         frame_alpha = 0x80;
         dark = 0x20;
     }
-    p = func_00105410();
+    p = (u64 *)(func_00105410());
     p[3] = (u64)(long long)dark << 24 | 0x3F80000000000000ULL;
     p[4] = GS_XYZ(0, 0, 0xFFFE);
     p[5] = GS_XYZ(0x200, 0x1C0, 0xFFFE);
-    func_001054B0(p, 3);
+    func_001054B0((unsigned char *)(p), 3);
     func_001A4340(pos[0], pos[1], 0, pos[2], pos[3], frame_alpha, 3);
     if (func_003F4EA0(w->shown) != 0)
         func_001ABA70(w->page[w->shown], pos[0], pos[1], 0, pos[2], pos[3], alpha, 3, 0);
@@ -1229,8 +1125,8 @@ int func_003F5410(void)
  * entry 0x91, rounded up to 0x800). */
 void func_003F5430(void)
 {
-    g_0045D864 = func_00102DB0(0x10, 0x2C);
-    func_00118850(g_0045D864, 0x2C);
+    g_0045D864 = (TutorialWindow *)(func_00102DB0(0x10, 0x2C));
+    func_00118850((unsigned char *)(g_0045D864), 0x2C);
     g_0045D864->page[0] = func_00102DB0(0x40, (func_00102680(1, 0x91) + 0x7FF) & ~0x7FF);
     g_0045D864->page[1] = func_00102DB0(0x40, (func_00102680(1, 0x91) + 0x7FF) & ~0x7FF);
     func_003F4A00(0);
@@ -1250,6 +1146,6 @@ void func_003F54C0(void)
         func_00102EC0(g_0045D864->page[0]);
     g_0045D864->page[0] = 0;
     if (g_0045D864 != 0)
-        func_00102EC0(g_0045D864);
+        func_00102EC0((unsigned char *)(g_0045D864));
     g_0045D864 = 0;
 }

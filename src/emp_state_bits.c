@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_STATE_BITS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -17,9 +21,6 @@ extern u8 g_0068F007[], g_0068F035[], g_0068F039[];
 extern int g_0068DDE0[0xC][2];
 extern int g_0068DF50[10][2];
 extern u32 g_0068DE40[];
-
-int func_0030AB90(void);
-void func_00329590(void);
 
 #define PROVINCE_OK(p) ((p) >= 0 && (p) < func_0030AB90())
 

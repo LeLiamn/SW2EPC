@@ -11,6 +11,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_RAND_EVENTS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -40,123 +44,17 @@ extern Ints10 g_00415090;
 
 void func_00228180(void);
 void func_0017E0C0(int a, int b);
-void func_0017DEA0(int a);
 int func_0017E0A0(void);
-void func_0017E010(int a);
 void func_0017D8E0(int a);
-void func_0032F770(int k);
-int func_0032F780(void);
-void func_0032FAA0(void);
-void func_003638D0(void);
-void func_0032E7A0(int a);
 void func_00334670(int k);
-void func_003D32C0(int k);
-void func_00329D70(int a);
-void func_0023A3D0(void);
-void func_0032B730(int k);
-void func_0032D110(void);
-void func_003698F0(void);
-void func_0032B5B0(void);
-void func_0032FEF0(int a);
-int func_002F4080(int a);
-char *func_002F8DB0(int a);
-char *func_00390760(int k);
-char *func_002F2890(int o);
-void func_00374EE0(char *t);
-void func_002F7610(int a);
-int func_00375B90(void);
-void func_003752D0(void);
-int func_00337A10(int k);
-int func_00329540(int k);
-int func_003C0720(void);
-void func_0032FF70(int a);
-void func_0032E8A0(int a, int b);
-void func_0030E100(void);
-int func_00327D50(void);
-int func_002F9060(int o);
-int func_00327AE0(int k);
-void func_0032FF10(int a);
-int func_00327C70(void);
-int func_0032FF00(void);
-int func_0032EAC0(void);
-void func_003292D0(int a, int v);
-int func_00329370(int k);
-void func_003D3280(void);
 int func_00330650(int k);
-void func_0032EFC0(void);
-void func_0030E240(void);
-void func_0030E210(void);
-void func_00376100(int a, int b, int c);
-void func_003EAC10(int k);
-void func_003295F0(int k, int v);
 void func_00331720(int k);
 void func_00331860(int k);
 void func_003319A0(int k);
 void func_003315E0(int k);
-int func_003D31F0(void);
-int func_0030AB90(void);
-int func_00327F60(void);
-int func_00327FD0(void);
-int func_00328040(void);
-int func_003280B0(void);
-void func_00327F00(int p);
-void func_00327F70(int p);
-void func_00327FE0(int p);
-void func_00328050(int p);
-int func_003293C0(void);
-int func_0030C250(int p);
-int func_00327E90(void);
-int func_002FABC0(int o);
-int func_002FAAD0(int o);
-void func_002FAB40(int o, int v);
-int func_001A06D0(void);
-int func_002FA9E0(int o, int k);
-void func_002FAA50(int o, int k, int v);
-void func_0030E140(int k, int a, int b, int c);
-int func_0030E1F0(void);
-u8 *func_0030E0F0(void);
-void func_002F9130(int o, int v);
-char *func_0030CB80(int v);
 int func_001204B0(char *to, const char *f, ...);
-u8 *func_0019FBC0(int k);
 int func_001207E0(const char *a, const char *b);
-void func_001A0020(int k);
 int func_002F7D90(int a, int fn, int b, int c, int d, int e);
-void func_002F86B0(void);
-int func_00327820(void);
-void func_00327830(int o);
-u32 func_00327870(void);
-int func_002F4450(u32 o);
-int func_002F45A0(u32 o);
-int func_002FB430(int o);
-int func_0032EB40(int a, int b, int c);
-int func_002F3DC0(int o);
-int func_002F41E0(int o);
-int func_002F3380(int o);
-u32 func_002F42F0(int o);
-int func_00327B10(int o);
-void func_001AFFB0(void);
-char *func_002F2A30(int o);
-void func_001AEDB0(int a, int b, int c, int d);
-void func_001AE9F0(int a, char *t, int b);
-void func_001AFC50(int a);
-int func_003C1850(void);
-int func_00327C00(void);
-int func_0032EE10(int k);
-void func_003A9170(void);
-void func_003A7D90(void);
-int func_003A9460(void);
-void func_0023AA40(void);
-void func_003A9440(void);
-void func_003A93B0(int a, int b, int c);
-int func_00327C80(void);
-int func_0030AFF0(int a);
-int func_003C0C60(int a, int b);
-void func_003A90E0(int a, int b, int c);
-void func_003294E0(int k);
-void func_003A4E20(void);
-int func_002FB3B0(int o);
-int func_00327D60(void);
 int func_003303B0(int k);
 int func_003301A0(int k);
 
@@ -170,7 +68,7 @@ int func_003300D0(void)
     func_002F8DB0(func_002F4080(0x1A));
     func_00390760(0x6C);
     func_002F2890(0x1A);
-    func_00374EE0(g_007B4E60);
+    func_00374EE0(PS2_ADDR(g_007B4E60));
     func_002F7610(0x1A);
     return 5;
 }
@@ -362,7 +260,7 @@ int func_003310A0(void)
         func_002F2890(func_00327AE0(2));
         func_002F2890(func_00327AE0(3));
         func_00390760(0x131);
-        func_00374EE0(g_007B4E60);
+        func_00374EE0(PS2_ADDR(g_007B4E60));
         g_0045D734 = 2;
     }
     return 5;
@@ -600,8 +498,8 @@ static int merchant_gift(int o, int *stats, int *horses)
         if (s == 0x28)
             return 0;
         func_002FAA50(o, s, lv + 1);
-        func_001204B0(g_007B4E60, func_00390760(8), g_0042D3E0[s], func_0030CB80(lv + 1));
-        func_00374EE0(g_007B4E60);
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(8)), g_0042D3E0[s], func_0030CB80(lv + 1));
+        func_00374EE0(PS2_ADDR(g_007B4E60));
     } else {
         int free;
         char *name;
@@ -618,8 +516,8 @@ static int merchant_gift(int o, int *stats, int *horses)
             }
         } while (!free);
         func_001A0020(s);
-        func_001204B0(g_007B4E60, func_00390760(9), name);
-        func_00374EE0(g_007B4E60);
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(9)), name);
+        func_00374EE0(PS2_ADDR(g_007B4E60));
     }
     return 1;
 }
@@ -667,7 +565,7 @@ int func_00331E70(void)
         break;
     case 1:
         if (func_0030E1F0() == 2) {
-            if (*(int *)(func_0030E0F0() + 0x10) == 0) {
+            if (*(int *)(((u8 *)func_0030E0F0()) + 0x10) == 0) {
                 func_0030E100();
                 func_0030E140(0x43, -1, -1, -1);
                 g_0045D730 = 3;
@@ -697,14 +595,14 @@ int func_00331E70(void)
             g_0045D730 = 5;
             v = merchant_gain(o, 5);
             func_002FAB40(o, v + func_002FAAD0(o));
-            func_001204B0(g_007B4E60, func_00390760(0x88), func_0030CB80(v));
-            func_00374EE0(g_007B4E60);
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x88)), func_0030CB80(v));
+            func_00374EE0(PS2_ADDR(g_007B4E60));
             return 5;
         }
         g_0045D730 = 6;
         func_002FAB40(o, func_002FAAD0(o) + 1);
-        func_001204B0(g_007B4E60, func_00390760(0x89), func_0030CB80(1));
-        func_00374EE0(g_007B4E60);
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(0x89)), func_0030CB80(1));
+        func_00374EE0(PS2_ADDR(g_007B4E60));
         break;
     case 5:
         func_003752D0();
@@ -770,7 +668,7 @@ int func_00332610(void)
         return 5;
     case 1:
         if (func_0030E1F0() == 2) {
-            if (*(int *)(func_0030E0F0() + 0x10) == 0) {
+            if (*(int *)(((u8 *)func_0030E0F0()) + 0x10) == 0) {
                 func_0030E100();
                 func_0030E140(0x40, -1, -1, -1);
                 g_0045D730 = 3;
@@ -800,14 +698,14 @@ int func_00332610(void)
             g_0045D730 = 5;
             v = merchant_gain(o, 5);
             func_002FAB40(o, v + func_002FAAD0(o));
-            func_001204B0(g_007B4E60, func_00390760(0x8B), func_0030CB80(v));
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x8B)), func_0030CB80(v));
         } else {
             g_0045D730 = 6;
             v = merchant_gain(o, 2);
             func_002FAB40(o, v + func_002FAAD0(o));
-            func_001204B0(g_007B4E60, func_00390760(0x8C), func_0030CB80(v));
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x8C)), func_0030CB80(v));
         }
-        func_00374EE0(g_007B4E60);
+        func_00374EE0(PS2_ADDR(g_007B4E60));
         break;
     case 5:
         func_003752D0();
@@ -896,20 +794,20 @@ int func_00333190(void)
             func_0030E100();
             func_001204B0(name, func_002F2890(g_0045D740));
             func_001204B0(name2, func_002F2A30(me));
-            func_001204B0(g_007B4E60, func_00390760(0x8F), name, name2);
-            func_00374EE0(g_007B4E60);
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x8F)), name, name2);
+            func_00374EE0(PS2_ADDR(g_007B4E60));
             g_0045D730 = 10;
         }
     } else if (g_0045D730 == 1) {
         if (g_006935DC == 4) {
-            func_001AFFB0();
+            func_001AFFB0(1);
             func_0030E100();
             func_0030E140(0x1D, g_0045D740, me, -1);
             func_00327830(g_0045D740);
             func_003292D0(0x1D, 7);
             g_0045D730 = 2;
         } else if (g_006935DC == 5) {
-            func_001AFFB0();
+            func_001AFFB0(1);
             func_003292D0(0x1D, 7);
             g_0045D730 = 0;
             return 0;
@@ -948,7 +846,7 @@ int func_00333190(void)
             g_0045D740 = list1[w];
         }
         func_001AEDB0(0, -1, 0x116, 0);
-        func_001204B0(t, func_00390760(0x8E), func_002F2890(g_0045D740));
+        func_001204B0(t, (const char *)(func_00390760(0x8E)), func_002F2890(g_0045D740));
         func_001AE9F0(1, t, 1);
         func_001AFC50(1);
         g_0045D730 = 1;
@@ -989,8 +887,8 @@ int func_00333650(void)
             return 0;
         }
     } else if (g_0045D730 == 3) {
-        func_001204B0(g_007B4E60, func_00390760(0x113));
-        func_00374EE0(g_007B4E60);
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(0x113)));
+        func_00374EE0(PS2_ADDR(g_007B4E60));
         g_0045D730 = 10;
     } else if (g_0045D730 == 2) {
         if (func_003A9460() != 0 && (PAD1_PRESSED() & 0x40) == 0)
@@ -1026,8 +924,8 @@ int func_00333650(void)
             return 0;
         if (func_003C0C60(a, b) != 0)
             return 0;
-        func_001204B0(g_007B4E60, func_00390760(0x112));
-        func_00374EE0(g_007B4E60);
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(0x112)));
+        func_00374EE0(PS2_ADDR(g_007B4E60));
         func_003A90E0(0, p1, p2);
         g_0045D730 = 1;
     }
@@ -1102,11 +1000,6 @@ int func_00334720(void)
 extern char g_00448008[];                /* "" */
 
 char *func_00120928(char *to, const char *from);
-char *func_0030ABF0(int p);
-int func_002F5CC0(int o);
-int func_002F9C90(int a, int b);
-void func_002CAD90(int *out);
-char *func_00372580(int k);
 
 /* 0x00334A90, 0x570 bytes. The text of news item `k` (< 100) about `a` and `b` into `out`. */
 void func_00334A90(char *out, u32 k, int a, int b)
@@ -1184,7 +1077,7 @@ void func_00334A90(char *out, u32 k, int a, int b)
         s1 = func_002F2890(a);
     } else if (k == 0x12) {
         id = 0x67;
-        func_002CAD90(h);
+        func_002CAD90((unsigned char *)(h));
         s1 = (char *)func_0019FBC0(h[a]) + 0x13;
     } else if (k == 0xF) {
         id = 0x66;

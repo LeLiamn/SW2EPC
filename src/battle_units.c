@@ -8,6 +8,10 @@
  * with a question mark are hypotheses. Units are reached by offset as in unit.c.
  */
 
+#define SW2E_FILE_BATTLE_UNITS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -55,21 +59,9 @@ extern u8 g_005B4DF0[0x10], g_005B5030[0x10];   /* flag bytes (bit 0) in larger 
 
 void func_00173430(Unit *u);
 void func_0017E560(u8 *grid, UnitList *out, float *box);
-void func_001AE090(u8 *rec);
 void func_00178250(void);
-void func_002A7D90(void);
-void func_001BCF00(void);
-void func_0017C640(void);
-void func_0024BF60(void);
-void func_0016CEB0(void);
-void func_001BCE60(void);
-void func_0017C5C0(void);
-void func_001AE530(void);
 void func_002A7A50(void);
-void func_0016CE80(void);
 void func_00178460(void);
-void func_0024BE90(void);
-int func_0032E7B0(void);
 void func_00179700(int a);
 
 /* 0x00173970, 0xFC bytes, matching. Runs func_00173430 for every unit on the field (flag 2 of +0x198)
@@ -193,17 +185,10 @@ extern Unit *g_00574DA0[];               /* the units to draw */
 extern int g_0045D2C8;                   /* (small data) the side in the duel view */
 extern int g_0045CC80;                   /* (small data) */
 
-int func_001F2450(void);
-void func_0014FCB0(u32 a);
-void func_0014FE00(void);
-void func_001500E0(int a);
-void func_002AD960(Unit *u);
-void func_001698D0(Unit *u, int mode);
 int func_00100FB0(void);                 /* the screen width */
 int func_00100FC0(void);                 /* the screen height */
 float func_00100FD0(void);
 float func_00136D70(float a);            /* tanf? */
-void func_00165560(Unit *u);
 
 /* 0x0017A350, 0xAC bytes, matching. Draws the units of the draw list. */
 void func_0017A350(void)
@@ -211,7 +196,7 @@ void func_0017A350(void)
     u32 k;
     int mode = func_001F2450();
 
-    func_0014FCB0(g_0045D2C0);
+    func_0014FCB0((unsigned char *)PS2_PTR(g_0045D2C0));
     func_0014FE00();
     func_001500E0(100);
     if (g_0045D2B8 != 0) {

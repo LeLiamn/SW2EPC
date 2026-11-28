@@ -12,6 +12,10 @@
  * with each force (value and kind), +0x6F a target.
  */
 
+#define SW2E_FILE_EMP_FORCE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -23,19 +27,8 @@ extern short g_004145F0[15][2];          /* per policy kind: two values */
 extern char g_00446470[];                /* a separator for names */
 
 u8 *func_0030CCC0(void);
-int func_0030AB90(void);
-int func_002F41E0(u32 i);
-int func_002F4A70(u32 i);
-int func_002F3380(u32 i);
-int func_002F4450(u32 i);
-int func_002F45A0(u32 i);
-int func_002F3770(u32 i);
-char *func_002F2A30(u32 i);
-u16 func_002F2C50(u32 i);
-char *func_002F2880(void);
 char *func_00120928(char *to, const char *from);
 char *func_001206B0(char *to, const char *from);
-const char *func_00372450(void);
 
 /* Whether `f` is a force in play. */
 static inline int is_force(int f)
@@ -105,7 +98,7 @@ void func_002F8D20(int f)
         *(u16 *)frc(f) = 0x19F;
 }
 
-/* 0x002F8DB0, 0x24 bytes. Writes force `f`'s leader's title. */
+/* 0x002F8DB0, 0x24 bytes, matching. Writes force `f`'s leader's title. */
 char *func_002F8DB0(int f)
 {
     return func_002F2A30(func_002F8F20(f));
@@ -122,7 +115,7 @@ char *func_002F8DE0(int f)
     return s;
 }
 
-/* 0x002F8E50, 0x24 bytes. Force `f`'s leader's shown name. */
+/* 0x002F8E50, 0x24 bytes, matching. Force `f`'s leader's shown name. */
 u16 func_002F8E50(int f)
 {
     return func_002F2C50(func_002F8F20(f));
@@ -181,7 +174,7 @@ int func_002F92D0(int f, int k, int v)
 }
 
 /* 0x002F9390, 0x74 bytes. */
-u16 func_002F9390(int f, int k)
+u32 func_002F9390(int f, int k)
 {
     return *(u16 *)(frc(f) + 6 + k * 2);
 }
@@ -301,7 +294,7 @@ int func_002F9B00(int f, int g, int v, int kind)
 }
 
 /* 0x002F9C90, 0xC0 bytes, matching. Force `f`'s relation kind with force `g`. */
-u8 func_002F9C90(int f, int g)
+u32 func_002F9C90(int f, int g)
 {
     if (!is_force(f) || !is_force(g))
         return 0;
@@ -309,7 +302,7 @@ u8 func_002F9C90(int f, int g)
 }
 
 /* 0x002F9D50, 0xC0 bytes, matching. Force `f`'s relation value with force `g`. */
-u8 func_002F9D50(int f, int g)
+u32 func_002F9D50(int f, int g)
 {
     if (!is_force(f) || !is_force(g))
         return 0;
@@ -420,27 +413,10 @@ int func_002FBC90(int r, int kind);
 int func_002FBF20(int r, int kind, int *out);
 int func_002FC000(int r);
 int func_002FC0C0(int f, int g);
-int func_00327D50(void);
-int func_00329790(void);
-int func_003297D0(void);
-int func_00329810(void);
 int func_002FBD80(int f);
 int func_002FBDA0(int f);
-int func_002F5CC0(u32 i);
-int func_0030AFF0(int f);
 int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort, int p5);
-int func_002F8160(u32 i, int f);
-u32 *func_002F7B10(void);
-int func_002F34E0(u32 i);
-void func_0030B540(int f);
-void func_0030B330(void);
-int func_0030B2F0(int f);
 void func_0011ED38(void *p, int c, u32 n);
-int func_0030C890(int f, int g);
-int func_0030CB50(int pct);
-int func_0030AC90(int f, int k);
-int func_0030AD80(int f);
-int func_0030AE80(int f);
 int func_002FBD60();
 int func_002FBDC0();
 int func_002FBDE0();
@@ -611,19 +587,12 @@ int func_002FAD20(u32 i)
     return *(u16 *)(frc(i) + 0xE);
 }
 
-
 int func_002FA160(u32 f);
 int func_002FA5A0(u32 f);
 int func_002FAAD0(u32 f);
 int func_002FAD20(u32 f);
-int func_00327D50(void);
-int func_00329790(void);
-int func_003297D0(void);
-int func_00329810(void);
 int func_002FBD80(int f);
 int func_002FBDA0(int f);
-int func_002F5CC0(u32 i);
-int func_0030AFF0(int f);
 
 /* Whether `v` is a force or 0x19. */
 #define FORCE_OR_NONE(v) (is_force(v) || (v) == 0x19)
@@ -739,7 +708,7 @@ void func_002FAF30(int f, int g)
         func_002FA500(g, 0x19);
 }
 
-/* 0x002FAFA0, 0x20 bytes. Whether forces `f` and `g` have a relation. */
+/* 0x002FAFA0, 0x20 bytes, matching. Whether forces `f` and `g` have a relation. */
 int func_002FAFA0(int f, int g)
 {
     return func_002F9C90(f, g) != 0;
@@ -857,21 +826,10 @@ int func_002FB3B0(int r)
 }
 
 int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort, int p5);
-int func_002F8160(u32 i, int f);
-u32 *func_002F7B10(void);
-int func_002F34E0(u32 i);
-void func_0030B540(int f);
-void func_0030B330(void);
-int func_0030B2F0(int f);
 void func_0011ED38(void *p, int c, u32 n);
 int func_002FA390(u32 f);
 int func_002FA6B0(u32 f);
 int func_002F9990(u32 f);
-int func_0030C890(int f, int g);
-int func_0030CB50(int pct);
-int func_0030AC90(int f, int k);
-int func_0030AD80(int f);
-int func_0030AE80(int f);
 int func_002F9EA0(u32 f);
 
 /* 0x002FB430, 0x34 bytes, matching. Lists force `f`'s active officers (sorted); returns how many. */

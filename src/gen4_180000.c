@@ -312,7 +312,7 @@ void func_00255D00(u8 *param_1)
 /* MISSING ['0x5b4d80', '0x5b4d84', '0x5b4d88', '0x5b4d90', '0x5b4d94', '0x5b4d98', '0x5b4de0', '0x5b4de4', '0x76ec60', '0x76ec64', '0x76ec68', '0x76ec6c', '0x76ec70', '0x76ec74', '0x76ec78', '0x76ec7c'] */
 
 /* 0x00255E00, 0x9C bytes. */
-void func_00255E00(void)
+void func_00255E00(int param_1)
 {
     g_0045D374 = 0;
     *(u32 *)(g_005B4D80) = *(u32 *)(g_0076EC60);
@@ -1170,7 +1170,7 @@ void func_0038B830(u8 *param_1)
 }
 
 /* 0x003955A0, 0x110 bytes. */
-int func_003955A0(int param_1)
+int func_003955A0(float param_1)
 {
     int cVar1;
     int iVar2;

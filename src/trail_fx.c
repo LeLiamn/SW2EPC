@@ -11,6 +11,10 @@
  * +0x1C its actor, +0x20 / +0x30 the two blade points.
  */
 
+#define SW2E_FILE_TRAIL_FX_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;

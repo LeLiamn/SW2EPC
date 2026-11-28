@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_UNIT_GAUGES_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -23,14 +27,11 @@ extern u8 *g_0045D530[2], *g_0045D538[2];
 #define OFF(u) g_006A3A30[*(short *)((u) + 0x178)]
 #define KIND_FLAGS(u, o) (*(u32 *)(*(u8 **)((u) + 0x210) + (o)))
 
-void *func_0020EC50(int n);
-int func_002A64C0(u32 s);
 int func_002A6910(int v, int a, u8 *r);
-void func_0023ACC0(u32 s, int a);
 void func_002A5B10(u32 h);
 
 /* 0x00271210, 0x64 bytes. Unit `u`'s musou gauge maximum. */
-short func_00271210(u8 *u)
+u32 func_00271210(u8 *u)
 {
     if (u[0x14E] < 2)
         return *(short *)(g_00669D60 + 0xC4 + u[0x14E] * 0x48);
@@ -227,16 +228,10 @@ void func_00272310(void)
 extern u8 g_00730730[2][0x240];          /* the players' cameras, from +0x1C0 */
 extern void (*g_00410CE0[9])(u8 *p);
 
-u32 func_001D6BD0(void *out, u32 cur, u8 t, u8 s);
-void func_0023B3C0(int on, int all);
-void func_0023AD10(u32 s, int a, int b, int c, int d);
-void func_0023AA40(void);
-int func_002F6A60(u32 o);
-
 #define ARG(p, out) do {                                                \
     u8 t_ = *(*(u8 **)((p) + 0x10))++;                                  \
     u8 s_ = *(*(u8 **)((p) + 0x14))++;                                  \
-    *(u32 *)((p) + 0xC) = func_001D6BD0((out), *(u32 *)((p) + 0xC), t_, s_); \
+    *(u32 *)((p) + 0xC) = func_001D6BD0((void *)(out), (unsigned int *)PS2_PTR(*(u32 *)((p) + 0xC)), t_, s_); \
 } while (0)
 
 #define LISTENER() g_0045D530[g_0045D3E0]
@@ -313,7 +308,7 @@ void func_002729E0(u8 *p)
 }
 
 /* 0x00272B60, 0xA0 bytes. The listener's frame (on the camera or its target). */
-void func_00272B60(void)
+void func_00272B60(u8 *p)
 {
     u8 *l = LISTENER();
     u32 *t = *(u32 **)(l + 0x10), *s = 0;
@@ -332,7 +327,7 @@ void func_00272B60(void)
 }
 
 /* 0x00272C00, 0x5C bytes. Ends the event scene's sounds (the listener's place back). */
-void func_00272C00(void)
+void func_00272C00(u8 *p)
 {
     u32 *l = (u32 *)LISTENER(), *t = (u32 *)l[4];
 
@@ -349,13 +344,13 @@ void func_00272C00(void)
 }
 
 /* 0x00272C60, 0x1C bytes, matching. */
-void func_00272C60(float dt)
+void func_00272C60(float dt, u8 *e)
 {
     func_002722C0(dt);
 }
 
 /* 0x00272C80, 0x7C bytes. Starts them (keeping the player's place). */
-void func_00272C80(void)
+void func_00272C80(u8 *e)
 {
     u32 *l, *t;
 

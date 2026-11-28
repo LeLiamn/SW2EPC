@@ -9,6 +9,14 @@
  * slots of 0x70, +0x450 ten records of 0x30.
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_002F57F0   /* the original callers here see it this way */
+int func_002F57F0(int k);
+#endif
+#define SW2E_FILE_UNIT_SETUP_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -35,11 +43,8 @@ float sqrtf(float x);
 
 extern u32 g_00424B30[10];               /* the ten records' kinds */
 
-void func_001185E0(void *p, int size, int value);  /* memset */
-void func_00150B20(Unit *u);
 void func_00166160(Unit *u);
 void func_00165560(Unit *u);
-void func_0016E2E0(u8 *slot);
 u8 *func_001BE4F0(void);
 u8 *func_001BE540(void);
 u8 *func_001BE770(void);
@@ -206,19 +211,6 @@ extern u32 g_00669DB8;                   /* the game mode */
 typedef u8 Actor;
 typedef u8 Model;
 
-u8 *func_0016CF30(u8 kind);
-int func_0016E300(u8 *slot, char motion, char node, int c, int b, int a);
-void func_0016E910(u8 *slot);
-void func_001F2BF0(u8 *probe);
-void func_00150930(Unit *u);
-void func_00149620(Actor *a, Model *m, Model *m2);
-void func_00149720(Actor *a);
-u8 *func_002A7E70(void);
-Model *func_002A7E30(u8 kind);
-void func_0014FCA0(u8 *o, Model *m);
-void func_002AD760(u8 kind, u8 *out);
-void func_00240B30(Unit *u);
-
 /* 0x00164B40, 0x244 bytes. Starts the motions of the four slots for set `set` of the unit's
  * kind (+0x158): per slot a motion and a node (-1: none); the set's two modes (+0x13, +0x15)
  * decide the three flags passed for each slot. A slot's object follows the unit's actor. Whether
@@ -319,19 +311,19 @@ static inline void setup_rest(Unit *u, int keep, int dispatch)
     u8 c;
 
     if (U8(u, 0x156) < 0x11) {
-        u8 *w = func_002A7E70();
+        u8 *w = (u8 *)PS2_PTR(func_002A7E70());
 
         PTR(u, 0x134) = w;
         if (w != 0) {
             BIT(w, 0x168, 0) = 1;
             U8(PTR(u, 0x134), 0x165) = 9;
-            func_0014FCA0(PTR(u, 0x134), func_002A7E30(U8(u, 0x156)));
+            func_0014FCA0(PTR(u, 0x134), (void *)PS2_PTR(func_002A7E30(U8(u, 0x156))));
         } else {
             U8(u, 0x156) = 0x11;
         }
     }
     if (S32(u, 0x118) == 0x3C)
-        func_002AD760(U8(u, 0x180), u + 0x1A0);
+        func_002AD760(U8(u, 0x180), (unsigned char **)(u + 0x1A0));
     U32(u, 0x16C) = 0;
     U32(u, 0x1B4) = 0;
     if (0.0f < F32(PTR(u, 0x11C), 0x214)) {
@@ -441,11 +433,6 @@ extern float g_004064D0[4][4];           /* the unit colours by player (the firs
 extern float g_00406510[4][4], g_00406550[4][4], g_00406590[4][4];  /* states 0x2E, 0x31, 0x32 */
 
 void func_0016BD30(Unit *u);
-void func_00150A10(Unit *u);
-void func_002AD8B0(u8 *horse);
-void func_002406D0(u8 player);
-float func_003E6EC0(void);
-void func_001F5370(Unit *u);
 
 /* 0x00165560, 0x17C bytes. Takes a unit's model away: the actor, the partner (+0x270), the
  * grab (+0x280), the slots, the weapon model, the records and the horse. */
@@ -482,7 +469,7 @@ void func_00165560(Unit *u)
         PTR(u, 0x134) = 0;
     }
     func_001649C0(u);
-    func_002AD8B0(u + 0x1A0);
+    func_002AD8B0((unsigned char **)(u + 0x1A0));
     U32(u, 0x16C) = 0;
     BIT(u, 0x19E, 5) = 0;
     U32(u, 0x1B4) = 0;
@@ -559,7 +546,7 @@ static inline void unit_init(Unit *u, int state, u8 slot_kind, u8 weapon, u8 b15
         if (life8)
             S16(u, 0x1B8) = S16(o, 0x82) / 8;
         else
-            S16(u, 0x1B8) = (short)(int)((float)(int)S16(o, 0x82) * func_003E6EC0());
+            S16(u, 0x1B8) = (short)(int)((float)(int)S16(o, 0x82) * func_003E6EC0(o));
     } else {
         S16(u, 0x1B8) = 0;
     }
@@ -625,7 +612,7 @@ int func_001656E0(Unit *u, int state, int kind, u8 slot_kind, u8 weapon, u8 b154
 
 /* 0x00165C60, 0x41C bytes. The same without the fallbacks; the extra life is an eighth of the
  * officer's. */
-int func_00165C60(Unit *u, int state, int kind, u8 slot_kind, u8 weapon, u8 b154, u8 b14f,
+int func_00165C60(Unit *u, int state, int kind, u32 slot_kind, u32 weapon, u32 b154, u32 b14f,
                   int coloured)
 {
     S32(u, 0x118) = state;
@@ -669,18 +656,9 @@ extern u8 g_005ADD80[0x40][0xC0];        /* 64 effect records (+0x88 owner, +0x8
 #define g_700000C0 ((float *)0x700000C0)  /* (scratchpad) a zero vector */
 
 int func_0016C070(Unit *u);
-void func_001F54B0(Unit *u);
-void func_001F5420(Unit *u);
-void func_00151A90(Unit *u, int a);
-void func_0015FB70(Unit *u);
-void func_00150BB0(Unit *u);
-void func_001AE090(u8 *rec);
-void func_00253800(Unit *u);
 void func_002A5B10(void);
 void func_0016C620(Unit *u);
 int func_0016C470(float amount, Unit *u);
-void func_0029F930(float dt, Unit *u);
-void func_001CEBC0(Unit *u);
 
 /* 0x00166160, 0x3B0 bytes. Takes a unit off the field: its mount links (states 0x3D-0x3F), its
  * hold and grabs, the effects it owns; with flag 2 of +0x198 its model too, and it becomes an
@@ -861,12 +839,6 @@ extern u8 g_005B5078[][0xD0];            /* weapon kinds (+0: the kind's motions
 extern u8 *g_005BA688;                   /* (small data) the shared motions */
 extern int g_0045D2C8;                   /* (small data) the side in the duel view */
 
-void func_00118850(void *to, int size);  /* clear */
-void func_0014D9A0(float t, Actor *a, u8 *motion);
-void func_0014D7E0(float t, Actor *a, u8 *motion, u32 first, u32 last);
-void func_0014DFC0(float t, Actor *a, u8 *rec, u8 *expr, int part);
-void func_0014E380(Actor *a);
-void func_0014D6C0(Actor *a);
 float *func_0016A170(Unit *u, int node);
 
 /* A track's value at time 0 (`p` on its first key; keys are (end frame, a, b, c, d)). */
@@ -1012,9 +984,9 @@ void func_00166A00(Unit *u)
     if (PTR(u, 0x1B4) != 0) {
         u8 *rec = g_006CDF60[S32(u, 0x118)] + 0x100;
 
-        func_0014DFC0(0.0f, PTR(u, 0x11C), rec, PTR(u, 0x1B4), 0);
-        func_0014DFC0(0.0f, PTR(u, 0x11C), rec, PTR(u, 0x1B4), 1);
-        func_0014DFC0(0.0f, PTR(u, 0x11C), rec, PTR(u, 0x1B4), 2);
+        func_0014DFC0(0.0f, PTR(u, 0x11C), rec, (void *)PTR(u, 0x1B4), 0);
+        func_0014DFC0(0.0f, PTR(u, 0x11C), rec, (void *)PTR(u, 0x1B4), 1);
+        func_0014DFC0(0.0f, PTR(u, 0x11C), rec, (void *)PTR(u, 0x1B4), 2);
         PTR(u, 0x1B4) = 0;
     }
     if (still) {
@@ -1381,12 +1353,7 @@ void func_00168190(Unit *u)
     BIT(u, 0x19C, 0) = 0;
 }
 
-void func_0016F8E0(float f, u8 *part, int player);
-void func_002088C0(u8 *trail);
-void func_0016EAB0(float grow, float *part);
 void func_00209190(float *a, float *b, u8 player, int c);
-u8 *func_002087A0(void);
-void func_00208820(u8 *trail, float *a, float *b, u8 player);
 void func_00208980(u8 *trail, void *m, u8 colour);
 
 /* 0x00168400, 0xB8 bytes. Turns a weapon part's trail (+0x68) on (func_0016F8E0, part flag 4
@@ -1396,7 +1363,7 @@ void func_00168400(float f, int player, u8 *part, int on)
     u8 *t = PTR(part, 0x68);
 
     if (on && t == 0) {
-        func_0016F8E0(f, part, player);
+        func_0016F8E0(f, (float *)(part), player);
         BIT(part, 0x60, 2) = 0;
     } else if (!on) {
         if (t != 0) {
@@ -1479,7 +1446,7 @@ int func_00168730(Unit *u, u8 *slot, int c)
     t = func_002087A0();
     PTR(slot, 0x28) = t;
     if (t != 0) {
-        func_00208820(t, a, b, U8(u, 0x14E));
+        func_00208820(t, (unsigned int *)(a), (unsigned int *)(b), U8(u, 0x14E));
         return 1;
     }
     return 0;
@@ -1515,15 +1482,10 @@ void func_001687C0(Unit *u, u8 *slot, int c, int on, int colour)
 
 extern u32 g_004065D0[12];               /* the nodes the ten records follow (from index 2) */
 
-float func_0014D390(Actor *a, u8 mount);
-float func_0014D3B0(Actor *a);
 float func_0016BF10(Unit *u);
 int func_0016BE50(Unit *u, float *rate);
 u8 *func_0014F810(Actor *a, int node);    /* (u8 node in model.c: callers pass it as is) */
 void func_0016EC90(float rate, float f, u8 *slot, u8 *node, u8 colour, int flag, int hit);
-void func_001700F0(u8 *slot, int on, float *a, float *b, int side);
-void func_00170510(u8 *slot, int on, float *a, float *b);
-int func_00209160(void);
 
 /* A node's point (its matrix times the scratchpad's (0, 0, 0, 1), divided by w) into out. */
 static inline void node_point(float *out, float *m)
@@ -1753,16 +1715,7 @@ extern u8 *g_005B4A00, *g_005B4A04;      /* the two duelling units */
 extern u32 g_0076E700[];                 /* per player: state flags */
 extern float g_00574D90[4];              /* the units' colour (w: the brightness) */
 
-int func_003E1F80(Unit *u);
-void func_002538C0(u8 player, u32 alpha);
-void func_001C8ED0(u8 player);
 void func_0027A210(Unit *u);
-void func_0014F0E0(Actor *a, u32 alpha);
-void func_001700A0(u8 *slot, u32 alpha);
-void func_00170300(u8 *slot, float *a, float *b, float *c);
-void func_001706A0(u8 *slot, float *a, float *b);
-void func_0014F970(u8 *weapon);
-void func_002AD9A0(u8 *horse);
 
 /* 0x001698D0, 0x7F4 bytes. Draws a unit (not with flag 8 of +0x19D): its opacity (players
  * always solid; hidden ones (flag 8 of +0x198) faint or invisible; during the slow-motion duel
@@ -1817,7 +1770,7 @@ void func_001698D0(Unit *u, int mode)
             }
         }
     } else {
-        if (BIT(u, 0x198, 3) && p > 3 && func_003E1F80(u) == 0)
+        if (BIT(u, 0x198, 3) && p > 3 && func_003E1F80(PS2_ADDR(u)) == 0)
             alpha = 0;
         if (BIT(u, 0x19C, 7))
             alpha = 0;
@@ -1884,7 +1837,7 @@ void func_001698D0(Unit *u, int mode)
     if (PTR(u, 0x134) != 0)
         func_0014F970(PTR(u, 0x134));
     if (S32(u, 0x118) == 0x3C && U8(u, 0x180) < 0x14)
-        func_002AD9A0(u + 0x1A0);
+        func_002AD9A0((unsigned char **)(u + 0x1A0));
     if (still) {
         d = g_70000158;
         d[0] = 0x10000002;
@@ -2002,14 +1955,10 @@ int func_0016A340(Unit *v, u8 *hit)
 
 #define g_70000D60 (*(int *)0x70000D60)          /* (scratchpad) */
 
-int func_00273620(Unit *u, u8 *hit);
 float func_003AFF70(u8 *officer);
 float func_003AFE50(u8 *officer);
-void func_00151D60(Unit *u);
 int func_0016C040(Unit *u);
 void func_001C7FC0(int kind, float *pos, void *a, u32 flags);
-void func_001D2260(u8 player, int a);
-void func_00155140(Unit *u, Unit *v, u8 *hit, void *x);
 
 /* 0x0016A3D0, 0x310 bytes. Whether `u` withstands `v`'s hit `hit` (keeps its footing): hits
  * with flag 0x20 during its own attack; officers of rank 2 (+0xAB) against flag 0x20000000,
@@ -2141,24 +2090,11 @@ void func_0016A8A0(Unit *u, Unit *v, u8 *hit, int counted, void *x)
 
 extern u8 g_00669E2A[][0x48];            /* per player settings: +0 the pad port */
 
-int func_00152840(Unit *u, Unit *v, u8 *hit);
-void func_00152EE0(Unit *u, Unit *v);
 int func_001D1170(Unit *u, Unit *v, u8 *hit, float *dir);
-int func_001524D0(Unit *u, Unit *v, u8 *hit);
-int func_00152560(Unit *u, Unit *v, u8 *hit, float *dir, int *out);
-void func_003DD5B0(u8 horse, int a);
-short func_001CCD60(Unit *u, Unit *v, u8 *hit, void *pos);
-int func_00153230(Unit *u, Unit *v, u8 *hit, float *dir, short damage, int keep_dir,
-                  int no_action);
-void func_001C8130(int kind, float *pos, int a, int b, u8 player);
 short func_001CD060(Unit *u, Unit *v, u8 *hit, float *dir, void *pos, int kind, int guard,
                     int stand, int a8, int a9);
-int func_00153E50(Unit *u, Unit *v, u8 *hit, void *pos, float *dir, short damage, int stand);
 Unit *func_0016BE40(Unit *u);
-void func_001CF2A0(Unit *u, Unit *m, int b);
 void func_0016CB60(Unit *u, u8 port, int motor, int power, int frames);
-void func_00153110(Unit *u, float *dir);
-void func_00153190(Unit *u);
 
 /* 0x0016AA60, 0x574 bytes. `u` takes `hit` from `v` (or from the point `pos` without one):
  * clashes (func_00152840: 1 a clash, 2-4 one or both knocked back), counters (func_001D1170),
@@ -2196,11 +2132,11 @@ int func_0016AA60(Unit *u, Unit *v, u8 *hit, void *pos, short *damage, u8 alpha)
         } else if (func_001524D0(u, v, hit) != 0) {
             func_00153110(u, dir);
         } else if (func_00152560(u, v, hit, dir, &guard_kind) != 0) {
-            short d = func_001CCD60(u, v, hit, pos);
+            short d = func_001CCD60(u, PS2_ADDR(v), hit, pos);
 
             if (func_00153230(u, v, hit, dir, d, guard_kind, 0) != 0) {
                 g_70000D60 = 1;
-                func_001C8130(5, &F32(u, 0x90), 0, 8, U8(u, 0x14E));
+                func_001C8130(5, PS2_ADDR(&F32(u, 0x90)), 0, 8, U8(u, 0x14E));
             }
             if (U8(u, 0x14E) < 2) {
                 u8 port = g_00669E2A[U8(u, 0x14E)][0];
@@ -2217,13 +2153,13 @@ int func_0016AA60(Unit *u, Unit *v, u8 *hit, void *pos, short *damage, u8 alpha)
                 func_003DD5B0(U8(PTR(v, 0x288), 0x180), 3);
             kind = func_0016A340(v, hit);
             if (U8(u, 0x157) != 0 || S16(u, 0x194) != 0) {
-                short d = func_001CCD60(u, v, hit, pos);
+                short d = func_001CCD60(u, PS2_ADDR(v), hit, pos);
 
                 func_00153230(u, v, hit, dir, d, guard_kind, 1);
                 BIT(u, 0x19D, 1) = 0;
                 F32(u, 0x22C) = 0.0f;
                 g_70000D60 = 1;
-                func_001C8130(5, &F32(u, 0x90), 0, 8, U8(u, 0x14E));
+                func_001C8130(5, PS2_ADDR(&F32(u, 0x90)), 0, 8, U8(u, 0x14E));
                 func_0016A6E0(u, hit, dir, d);
                 *damage = 0;
                 stand = 1;
@@ -2232,7 +2168,7 @@ int func_0016AA60(Unit *u, Unit *v, u8 *hit, void *pos, short *damage, u8 alpha)
             }
             if (0.0001f < F32(u, 0x168))
                 func_0016A820(u, *damage);
-            if (func_00153E50(u, v, hit, pos, dir, *damage, stand) != 0 && PTR(u, 0x288) != 0)
+            if (func_00153E50(u, v, hit, PS2_ADDR(pos), dir, *damage, stand) != 0 && PTR(u, 0x288) != 0)
                 func_001CF2A0(u, func_0016BE40(u), 1);
             U8(u, 0x17D) += 1;
             if (U8(u, 0x14E) < 2) {
@@ -2258,11 +2194,7 @@ int func_0016AA60(Unit *u, Unit *v, u8 *hit, void *pos, short *damage, u8 alpha)
 extern u32 g_00669DE8[][0x12];           /* per player (0x48 bytes): +0 the officer's item list */
 extern u8 g_004282AF;                    /* the item effect's divisor */
 
-int func_0036DC80(u32 list, int item);
-int func_0036DBA0(u32 list, int item);
-void func_00247FA0(u8 player, int message, int a);
 void func_002F00F0(u8 player, int kind);
-u8 func_002F41E0(u32 list);
 int func_0016C180(float amount, Unit *u);
 int func_0016D780(float a, float b, float *part, float *point, float *out);
 
@@ -2411,7 +2343,6 @@ int func_0016B630(u8 *w, Unit *u, float *out)
 extern u32 g_00669F60;                   /* battle flags */
 
 int func_001BEA70(u8 kind);
-int func_002732F0(Unit *u);
 
 /* `p` against the unit's body cylinder (radius +0x88, height +0x84 of the state description):
  * within `up` of half its height and `r` + radius of its axis (flat); *out the point on the body
@@ -2520,10 +2451,6 @@ int func_0016B9B0(Unit *u, Unit *v, u8 *hit, u8 alpha)
     return 1;
 }
 
-void func_0015FB50(Unit *u, int action);
-void func_001CF000(Unit *u, Unit *m);
-int func_00273A20(void);
-
 /* 0x0016BD30, 0x48 bytes. Lets go of the unit held (+0x280): its kept positions set to where
  * the holder is, the links cleared. */
 void func_0016BD30(Unit *u)
@@ -2610,7 +2537,7 @@ float func_0016BF10(Unit *u)
             r = r + 30.0f;
         else if (U8(u, 0x18B) != 0)
             r = r + 50.0f;
-        if (func_00273A20() != 0)
+        if (func_00273A20(u) != 0)
             r = r + 20.0f;
     }
     return r;
@@ -2675,15 +2602,7 @@ void func_0016C0B0(Unit *u)
 
 extern int g_00669F9C;                   /* the battle's frame counter */
 
-int func_0019B410(u32 list, int item);
-short func_00271210(Unit *u);
-void func_002539F0(Unit *u);
 void func_002A6D20(u8 player, int sound);
-void func_00253A60(Unit *u);
-int func_003E2DC0(void);
-int func_002715C0(Unit *u);
-int func_00271610(u8 *a, Unit *u);
-void func_00151C60(Unit *u);
 
 /* 0x0016C180, 0x2F0 bytes. Adds `amount` to the officer's musou gauge (+0x88, at most +0x86),
  * times 1 + its +0xA8 / 10 (and the players' item 8 percent); fractions in sixteenths kept at
@@ -2776,13 +2695,13 @@ void func_0016C620(Unit *u)
             func_0016C4C0(u, 1);
         return;
     }
-    if (func_003E2DC0() != 0 && g_00669F9C % 2 != 0)
+    if (func_003E2DC0(PS2_ADDR(u)) != 0 && g_00669F9C % 2 != 0)
         return;
     if (func_002715C0(u) != 0) {
         func_00151A90(u, 0);
         BIT(u, 0x19C, 1) = 0;
     } else if ((U32(PTR(u, 0x210), 0x18) & 0x8000000) == 0) {
-        if (func_0016C4C0(u, 1) != 0 && func_00271610(PTR(u, 0x248), u) != 0)
+        if (func_0016C4C0(u, 1) != 0 && func_00271610(F32(u, 0x248), u) != 0)
             func_00151C60(u);
     } else if (func_0016C4C0(u, 1) != 0 && (U32(PTR(u, 0x210), 0x18) & 0x400000)
                && (U32(u, 0x13C) & 0x20000) == 0) {
@@ -2806,10 +2725,7 @@ void func_0016C7A0(int p)
 
 extern u8 g_00574DE0[][0x630];           /* the units */
 
-void func_002A6770(u8 player, int sound);
 int func_001BEA50(u8 kind);
-void func_00103630(u8 port, int motor, int power, int frames);
-int func_002F57F0(int k);
 
 /* 0x0016C810, 0x16C bytes. Pushes a record at the front of player `p`'s list of 30 (the others
  * move back one; the last drops): points `a`, `b`, `c`, value `t`, `id` and `flag`. */

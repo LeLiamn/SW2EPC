@@ -1791,7 +1791,7 @@ int func_003D18D0(void)
 }
 
 /* 0x003E9460, 0x168 bytes. */
-void func_003E9460(int param_1)
+void func_003E9460(float param_1)
 {
     u8 auStack_10[16];
     u8 * iVar3;

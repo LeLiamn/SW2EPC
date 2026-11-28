@@ -12,6 +12,10 @@
  * (func_00105900). Screen y values are scaled from 480 to 448 lines first.
  */
 
+#define SW2E_FILE_UI_PARTS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -21,11 +25,7 @@ typedef unsigned long long u64;
 
 #define g_70000154 (*(int *)0x70000154)    /* (scratchpad) the vertical scale */
 
-extern void *g_0068F0F0, *g_0068F0F8;     /* texture sets */
-
-u64 func_00106C90(void *set, int tex);
-u8 *func_00105860(u64 tex, int a);
-void func_00105900(u8 *packet, int layer);
+extern u64 g_0068F0F0, g_0068F0F8;     /* the TEX0 values of the texture sets */
 
 /* A texture coordinate pair (texel centres). */
 #define GS_UV(u, v) ((u64)(long long)((u) << 4 | 8) | (u64)(long long)((v) << 4 | 8) << 16)
@@ -233,17 +233,10 @@ void func_001A4340(int x, int y, int z, int w, int h, int alpha, int layer)
         func_00105900(p[k], layer);
 }
 
-extern void *g_0068F100;                 /* a third texture set */
+extern u64 g_0068F100;                   /* the TEX0 value of a third texture set */
 extern const u8 g_00425D20[][8];         /* gradient styles: top colour and alpha, line colour */
 extern const u32 g_00425CD0[];           /* gauge colours (RGBA) */
 extern float g_0056CCC0, g_0056CCC4;     /* (font state) the character width and height */
-
-u8 *func_00105B40(u64 tex, int a);
-void func_00105BE0(u8 *packet, int layer);
-u8 *func_001050F0(void);
-void func_00105230(u8 *packet, int layer);
-int func_00146D80(const char *s, int a, int b);
-void func_00146270(const char *s, int x, int y, int z, int a);
 
 /* A screen point at (x, scaled y) with depth `z`, in half lines (y x 8). */
 static inline u64 gs_xyz_half(int x, int sy, int z)
@@ -608,11 +601,11 @@ void func_001A7DC0(const char *s, int alpha, int layer)
 
     g_0056CCC0 = 16.0f;
     g_0056CCC4 = 16.0f;
-    w = func_00146D80(s, 0, 0);
+    w = func_00146D80((const unsigned char *)(s), 0, 0);
     a = w + 0xF0 > 0x1FF ? 0x200 : w + 0xF0;
     b = w + 0xF0 > 0x1FF ? 0x200 : w + 0xF0;
     func_001A7CD0(0x200 - b, 0x15C, 0, alpha, layer, a, 0x14);
-    func_00146270(s, 0x2D8 - (w + 0xF0), 0x15E, layer, 0);
+    func_00146270((const unsigned char *)(s), 0x2D8 - (w + 0xF0), 0x15E, layer, 0);
     g_0056CCC0 = cw;
     g_0056CCC4 = ch;
 }

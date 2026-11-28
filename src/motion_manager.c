@@ -16,6 +16,10 @@
  * (entry 0x631, states at 0x005BA688).
  */
 
+#define SW2E_FILE_MOTION_MANAGER_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 
@@ -45,18 +49,6 @@ extern const char g_00424D10[];          /* "MotionManager.c" */
 extern int g_004067E0[0x58];             /* motion indexes of the kinds 0x3E-0x67, two each */
 extern int g_0045CC88, g_0045CC8C, g_0045CC90, g_0045CC94;  /* (small data) kinds 0x68, 0x69 */
 
-void func_001185E0(void *p, int size, int value);  /* memset */
-void *func_001026D0(int which, int entry, void *dest, int now, u32 size, u32 offset,
-                    const void *file, int line);
-void func_00102EC0(void *data);          /* free */
-void func_0015FD70(u8 *d);
-void func_0015FD90(u32 *data, u8 *d, u8 kind);
-void func_001477C0(void *p);
-void func_001477E0(u32 *motion, void *out);
-void func_001479C0(u32 *motion, void *s);
-void func_00147980(void *s);
-int func_0017C320(u32 *pack, u32 *out);
-void func_0017C3E0(int k);
 int func_001BEA10(int k);
 int func_001BE990(int k);
 unsigned short func_001BE9B0(int k);
@@ -79,7 +71,7 @@ void func_0017C4A0(void)
         func_0015FD70(r + 0x40);
     }
     func_001477C0(g_005B5040);
-    func_001477E0(func_001026D0(1, 0x56D, 0, 1, 0, 0, g_00424D10, 0x68), g_005B5040);
+    func_001477E0(func_001026D0(1, 0x56D, 0, 1, 0, 0, g_00424D10, 0x68), (unsigned int *)(g_005B5040));
     func_0017C320(func_001026D0(1, 0x631, 0, 1, 0, 0, g_00424D10, 0x6E), (u32 *)&g_005BA680);
     for (k = 0; k < 0x6A; k++) {
         if (func_001BEA10(k) != 0) {
@@ -102,10 +94,10 @@ void func_0017C5C0(void)
     {
         MotionPack *p = &g_005BA680;
 
-        func_00102EC0(p->pack);
+        func_00102EC0((unsigned char *)(p->pack));
         func_00102EC0(p->states);
     }
-    func_00147980(g_005B5040);
+    func_00147980((unsigned int *)(g_005B5040));
 }
 
 /* 0x0017C640, 0x8C bytes, matching. Frees (or clears) the motion data of the kinds not in use. */

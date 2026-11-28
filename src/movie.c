@@ -17,6 +17,10 @@
  * movie (the pads are read once, on the first call).
  */
 
+#define SW2E_FILE_MOVIE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -142,16 +146,10 @@ void func_001256D0(int a, int b, int c, int d);        /* sceGsResetGraph */
 u8 *func_00125860(void);                               /* sceGsGetGParam */
 void func_00126260(void *db, int psm, int w, int h, int ztest, int zpsm, int clear);
                                                        /* sceGsSetDefDBuff */
-void func_00100E10(void *db);
 void func_0011EB80(void *to, const void *from, u32 size);  /* memcpy */
 int func_00128928(int cause);                          /* DisableIntc */
 int func_001288C0(int cause);                          /* EnableIntc */
 void func_00128F20(int thread, void *arg);             /* StartThread */
-void func_001038D0(void);
-void *func_00102DB0(int align, u32 size);
-void func_00102EC0(void *data);
-void func_00115C80(int poll);
-void func_00115550(void);
 void FlushCache(int a);
 int GetThreadId(void);
 int CreateThread(ThreadParam *p);
@@ -335,8 +333,8 @@ void func_00116C70(int entry, int both)
     g_00400C78.stop = func_00116AC0;
     g_00400C78.on_frame = func_00116930;
     g_00400C78.on_vblank = func_00116850;
-    g_00400C78.alloc = func_00102DB0;
-    g_00400C78.free = func_00102EC0;
+    g_00400C78.alloc = (void * (*)(int,  u32))(func_00102DB0);
+    g_00400C78.free = (void (*)(void *))(func_00102EC0);
     g_00400C78.g = 0;
     g_00400C78.entry = entry;
     if (both == 0)
@@ -421,7 +419,7 @@ void func_00116FB0(void)
     g_00562830.draw[1].frame.fbp = 0;
     g_00562830.draw[0].zbuf.zbp = 0x140;
     g_00562830.draw[1].zbuf.zbp = 0x140;
-    func_00100E10(&g_00562830);
+    func_00100E10((unsigned char *)(&g_00562830));
     g_00562830.disp[1].pmode.alp = 0x80;
     g_00562830.disp[0].pmode.alp = 0x80;
     g_00562830.disp[0].pmode.en1 = 1;

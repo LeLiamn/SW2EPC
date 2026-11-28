@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_TEXTS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -82,19 +86,7 @@ void func_00370020(void);
 void func_003703A0(void);
 void func_00370A00(void);
 void func_00371030(void);
-int func_002F2840(int o);
-int func_002F4660(int o);
-void func_002F46D0(int o, int v);
-void func_00371850(void);
-void func_00371F00(void);
-int func_00327C00(void);
-void func_003A92D0(void);
-void func_003A80A0(int a);
-void func_003A7D90(void);
-void func_003A9010(int a);
-void func_00374E20(void);
 int func_0030D7D0(void);
-void func_00375C20(int a, int b, int c, int d, int e);
 void func_00376370(u8 *p);
 
 /* 0x00372250, 0x18 bytes, matching. */
@@ -230,7 +222,7 @@ char *func_00372650(void)
 }
 
 /* 0x00372740, 0xC bytes, matching. */
-char *func_00372740(void)
+char *func_00372740(int k)
 {
     return g_0044E1E8[0];
 }
@@ -499,16 +491,16 @@ void func_003712C0(int a, int b, int c, int v)
 }
 
 /* 0x00372200, 0x24 bytes, matching. */
-void func_00372200(void)
+int func_00372200(void)
 {
     func_00371850();
-    func_00371F00();
+    return func_00371F00();
 }
 
 /* 0x00372230, 0x1C bytes, matching. */
-void func_00372230(void)
+int func_00372230(void)
 {
-    func_00372200();
+    return func_00372200();
 }
 
 /* 0x00372750, 0x2C bytes. */
@@ -520,7 +512,7 @@ int func_00372750(int k)
 }
 
 /* 0x003728D0, 0x34 bytes. */
-int func_003728D0(u32 k)
+int func_003728D0(u32 k, int v)
 {
     if (k < 6)
         return g_0044F060[k]();
@@ -594,7 +586,7 @@ void func_00373F60(void)
 }
 
 /* 0x00374E00, 0xC bytes. */
-short func_00374E00(void)
+u32 func_00374E00(void)
 {
     return g_007B9980;
 }
@@ -691,32 +683,6 @@ void func_00376490(int a, int b)
 /* Event results and province picks (parts of 0x00370020-0x00373A08). */
 
 extern char *g_00456080[], *g_00454E60[];
-
-int func_0036FC90(void);
-int func_0036FC60(void);
-int func_0036FCD0(void);
-int func_0036FD00(void);
-int func_0036FEF0(int a, int b);
-void func_0035CDB0(int a, int b, int c);
-void func_0035CD80(int a);
-void func_0035CD50(int a);
-void func_0035CD20(int a);
-u8 *func_00338410(u32 k);
-void func_0036FC20(void);
-int func_0030AB90(void);
-int func_0030AFF0(int p);
-int func_0030AD20(int p, int j);
-int func_0030CB00(int n);
-int func_002F4080(int o);
-int func_0030C440(int a, int f);
-void func_002F5A10(int o, int v);
-int func_002F3DC0(int o);
-void func_002F5BE0(int o, int v);
-int func_00327820(void);
-int func_00327D50(void);
-int func_00327D60(void);
-void func_003737E0(int k, int a, int b, int p);
-int func_0039E6C0(int k);
 
 /* Whether `f` is a force. */
 static int is_force(int f)
@@ -864,13 +830,6 @@ char *func_00372A30(int k, int o)
         return g_00454E60[k];
     return g_00456080[k];
 }
-
-int func_002F3BB0(int o);
-int func_0039E650(int k);
-int func_00327950(void);
-void func_002F3B30(int o, int v);
-void func_002F3CF0(int o, int v);
-void func_002F3F70(int o, int v);
 
 /* 0x003703A0, 0x118 bytes. Officers without a force (and not states 3 or 4) become free (state
  * 2), except unused custom officers (state 3). */

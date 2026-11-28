@@ -10,6 +10,10 @@
  * +0x20 (the eye's) and +0x30 / +0x40 (the target's).
  */
 
+#define SW2E_FILE_MOTION_MISC_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 
@@ -28,12 +32,6 @@ typedef struct {
 extern u8 g_005B5060[][0xD0];            /* the weapon kinds' records (motions at +0x18) */
 
 void func_0017BE10(float *v);            /* a new random velocity? */
-void *func_00102D30(u32 size);           /* allocate */
-void func_00102EC0(void *data);          /* free */
-void func_001185E0(void *p, int size, int value);  /* memset */
-void func_001477C0(void *p);
-void func_001477E0(u32 *motion, u32 *out);
-void func_0015FD70(u8 *d);
 
 /* 0x0017C0D0, 0x4C bytes. Clears a shake. */
 void func_0017C0D0(u32 *s)

@@ -82,6 +82,7 @@ extern int g_0045D7D8;   /* (small data) */
 extern int g_0045D824;   /* (small data) */
 extern u32 g_7000015C;   /* (scratchpad) */
 
+int func_003820C0();
 int func_0011EB80();
 int func_001204B0();
 int func_00120928();
@@ -310,7 +311,7 @@ void func_003889B0(int *param_1, int param_2, int param_3)
                 uVar5 = 2;
             }
             if ((param_3 != 0) && (*(u8 *)(g_007B9E58 + 0x1) == uVar8)) {
-                func_002C6040(iVar7 + -0x3C, iVar6 + -4, 0x100, 0x20, 1);
+                func_002C6040(iVar7 + -0x3C, iVar6 + -4, 0x100, 0x20, 1, 0x80);
             }
             func_00388340(iVar7 + 0x10, iVar6, 0, uVar1, uVar2, uVar8, uVar5,
                                       param_3 != 0 && *(u8 *)(g_007B9E58 + 0x1) == uVar8);
@@ -461,7 +462,7 @@ int func_00389F90(int param_1, int param_2, int *param_3)
     return iVar1;
 }
 
-/* 0x0038B560, 0x58 bytes, matching. */
+/* 0x0038B560, 0x58 bytes. */
 void func_0038B560(int param_1, u32 *param_2)
 {
     u32 uVar1;
@@ -2468,7 +2469,7 @@ void func_0039F840(void)
     *(u32 *)(g_007BAC20 + 0x18) = 0;
 }
 
-/* 0x0039F880, 0x94 bytes, matching. */
+/* 0x0039F880, 0x94 bytes. */
 void func_0039F880(void)
 {
     int uVar1;
@@ -2758,7 +2759,7 @@ void func_003A3860(int param_1, int param_2)
     }
 }
 
-/* 0x003A3980, 0x288 bytes, matching. */
+/* 0x003A3980, 0x288 bytes. */
 void func_003A3980(int param_1)
 {
     int iVar4;
@@ -2862,7 +2863,7 @@ void func_003A3CE0(int param_1)
     func_003A11B0(uVar3, puVar2[0x13]);
 }
 
-/* 0x003A3DB0, 0x7C bytes, matching. */
+/* 0x003A3DB0, 0x7C bytes. */
 void func_003A3DB0(void)
 {
     int iVar4;

@@ -8,29 +8,23 @@
  * with a question mark are hypotheses.
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_002F8E50   /* the original callers here see it this way */
+int func_002F8E50(int f);
+#endif
+#define SW2E_FILE_EMP_BATTLE_PICK_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
 extern int g_0045D100, g_0045D104;       /* (small data) */
 
-u8 *func_003EA000(void);
-int func_00327D50(void);
-int func_003EA080(void);
-int func_003EA0A0(void);
-void func_0030CF90(int s, int k, int o);
-
-
-int func_002F8E50(int f);
-void func_00362990(int s, int v);
 void func_003EAA50(int k);
 int func_002F7D90(int a, int (*fn)(), int b, int c, int d, int e);
-int func_002F8160();
-u32 *func_002F7B10(void);
-int func_002F3770(u32 o);
 int func_0011B740(int v);
-void func_002F3860(u32 o, int v);
-void func_002F37E0(u32 o, int v);
 void func_003EA470(int a, int b, int *c, int n, int d, int e, int f, int g);
 void func_003EA820(int s, int k, int f, int lv);
 void func_003EAA20(int s, int k, int f, int lv, int *a, int b);
@@ -52,7 +46,7 @@ static void side_slots(int s, int f)
 /* 0x003E9800, 0x1BC bytes. */
 void func_003E9800(void)
 {
-    u8 *p = func_003EA000();
+    u8 *p = (u8 *)(func_003EA000());
     int a, b;
 
     func_00327D50();
@@ -74,7 +68,7 @@ void func_003E9800(void)
 /* 0x003E9C00, 0x1BC bytes. The same with the forces swapped (the last slot from the first). */
 void func_003E9C00(void)
 {
-    u8 *p = func_003EA000();
+    u8 *p = (u8 *)(func_003EA000());
     int a, b;
 
     func_00327D50();
@@ -127,28 +121,8 @@ void func_003EA430(int a, int b, int c, int d, int e, int f, int g)
     func_003EA470(a, b, &t, 1, d, e, f, g);
 }
 
-int func_002F3E70(int o);
-int func_0030CB50(int pct);
-int func_00327C00(void);
-int func_00327C40(void);
-void func_00362350(int v);
-void func_00362550(int k);
-void func_00362630(int s, int v);
-void func_00362590(int v);
-int func_0030AB90(void);
-int func_002FAFA0(int f, int p);
-int func_003E99C0(void);
-int func_003E9DC0(void);
-int func_003EB380(void);
-int func_003EB840(void);
 int func_003EBD10(void);
 int func_003EC400(void);
-int func_003ED310(void);
-int func_003ECC20(void);
-int func_003EDBD0(void);
-int func_003EE170(void);
-int func_003F8840(void);
-void func_003EA010(void);
 
 /* 0x003EA660, 0x1B4 bytes. Whether officer `b` should come before `a` (listed ones first, then
  * the free ones, then by level; ties at random). */
@@ -339,51 +313,12 @@ extern int g_007BFB48, g_007BFB4C;
 extern int g_0045D108, g_0045D10C, g_0045D110[2], g_0045D118, g_0045D11C;
 extern int g_0041D7F0[4];
 
-void func_00376100(int a, int b, int c);
-int func_003296F0(void);
-int func_003E9B80(void);
-int func_003E9F80(void);
-int func_003EB5D0(void);
-int func_003EBAA0(void);
-int func_003EC0B0(void);
-int func_003EC8F0(void);
-int func_003ED910(void);
-int func_003ECFC0(void);
-int func_003EDED0(void);
-int func_003EE3A0(void);
-int func_003F8AB0(void);
-int func_002FB9D0(int f);
-int func_002FA970(int f);
-void func_002FA8E0(int f, int v);
-void func_003280C0(int v);
-int func_0036B260(void);
 void func_003BC6B0(int k, int v);
-void func_003A7D90(void);
 void func_003EB1A0(void);
 void func_003EB650(void);
 void func_003EBB20(void);
 void func_003EC220(void);
-void func_003ED040(void);
-void func_003EC970(void);
-void func_003ED990(void);
 void func_003EDF50(void);
-void func_003F8740(int k);
-void func_003622F0(int a, int b);
-void func_003638D0(void);
-int func_003EA0C0(void);
-int func_003EA0E0(void);
-int func_003EA100(void);
-int func_003EA120(void);
-int func_003EA140(void);
-int func_003EA160(void);
-void func_0030E140(int a, int b, int c, int d);
-int func_00375BF0(void);
-int func_00375B90(void);
-void func_003EA310(int f);
-void func_003EA1C0(int f);
-void func_003EA330(int f);
-int func_002F8CB0(int f);
-void func_002FAF30(int f, int g);
 
 /* 0x003EAD10, 0x1E0 bytes. The special battle's step of the turn. */
 int func_003EAD10(void)
@@ -483,7 +418,7 @@ void func_003EAFA0(void)
     case 0x10:
     case 0x11:
     case 0x12:
-        func_003F8740(g_007BFB4C - 0x10);
+        func_003F8740((unsigned char *)PS2_PTR(g_007BFB4C - 0x10));
         break;
     }
     func_003622F0(0, 0);
@@ -494,7 +429,7 @@ void func_003EAFA0(void)
 /* 0x003EB1A0, 0x1DC bytes, matching. */
 void func_003EB1A0(void)
 {
-    u8 *p = func_003EA000();
+    u8 *p = (u8 *)(func_003EA000());
     int a, b, c, d;
 
     func_00327D50();
@@ -526,7 +461,7 @@ void func_003EB1A0(void)
 /* 0x003EB650, 0x1E8 bytes, matching. */
 void func_003EB650(void)
 {
-    u8 *p = func_003EA000();
+    u8 *p = (u8 *)(func_003EA000());
     int a, b, c, d;
 
     func_00327D50();
@@ -606,7 +541,7 @@ void func_003EB9D0(void)
 /* 0x003EBB20, 0x1EC bytes, matching. */
 void func_003EBB20(void)
 {
-    u8 *p = func_003EA000();
+    u8 *p = (u8 *)(func_003EA000());
     int a, e;
 
     func_00327D50();
@@ -647,16 +582,8 @@ int func_003EBD10(void)
 extern int g_0041D800[5];
 extern u8 g_007B4E60[];
 
-int func_0030E1F0(void);
-void func_0030E100(void);
-int func_002F4080(int o);
-u8 *func_00390760(int k);
 int func_001204B0(void *buf, const void *fmt, ...);
-void func_00374EE0(u8 *s);
-void func_002F7610(int o);
-void func_0030E390(int a, int b, int c, int d, int *l, int e);
 void func_003EBE60(void);
-void func_003EC130(int o);
 
 /* 0x003EC000, 0xB0 bytes. */
 void func_003EC000(void)
@@ -678,7 +605,7 @@ void func_003EC000(void)
 /* 0x003EC220, 0x1DC bytes, matching. */
 void func_003EC220(void)
 {
-    u8 *p = func_003EA000();
+    u8 *p = (u8 *)(func_003EA000());
     int a, e;
 
     func_00327D50();
@@ -728,7 +655,7 @@ void func_003EC4C0(void)
     else
         t = 0xF0;
     func_001204B0(g_007B4E60, func_00390760(t));
-    func_00374EE0(g_007B4E60);
+    func_00374EE0(PS2_ADDR(g_007B4E60));
     p[0] = 2;
 }
 
@@ -799,14 +726,10 @@ void func_003EC800(void)
 }
 
 void func_003EDD00(void);
-int func_003EE420(int i, int j);
-int func_003A02F0(int v);
 u8 *func_002EE550(void);
-int func_001AE550(float speed, void *w, short *pos, u8 *alpha, int a);
 int func_002ED160(void);
 void func_002ED170(void);
 void func_003EE4E0(void);
-int *func_002FC2C0(void);
 
 extern int g_007BFB60[0x1E], g_007BFBE0[0x1E][4];
 extern float g_007BFDC8;

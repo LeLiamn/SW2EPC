@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_SAVE_MISC_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -34,27 +38,7 @@ extern u32 g_7000015C;
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
 u8 *func_0021A630(void);
-void func_001B8F60(int a, int b, int c);
-int func_003636F0(int p);
-u32 func_00363720(int p);
-u8 *func_002F2720(u32 o);
-void func_00118AC0(void *to, const void *from, u32 n);
-int func_001F1B90(void);
-u8 **func_0035DD10(int p);
-short *func_0033B730(u8 **g);
-int func_001F1770(u8 *cell, u8 k, int v);
-int func_0018F7D0(int a, int k, int b);
-u8 *func_0019FBC0(int k);
-u8 *func_002EFB00(int k);
-void func_00362DF0(u8 *p);
-void func_0035F860(u8 *p);
 void func_0036FDA0(u8 *p);
-void func_0036E010(u8 *p);
-void func_0034F440(u8 *p);
-void func_00338E90(u8 *p);
-void func_003DCD60(u8 *p);
-void func_003F5770(u8 *p);
-void func_003F7030(u8 *p);
 
 /* A map cell's record (0 outside the map). */
 #define CELL(c) ((c) == 0 || (c)[0] > 0x1F || (c)[1] > 0x1F ? (u8 *)0 :                    \
@@ -78,7 +62,7 @@ void func_003DCA30(void)
 
     for (k = 0; k < 2; k++) {
         if (func_003636F0(k) != 0)
-            func_00118AC0(g_007BF540[k], func_002F2720(func_00363720(k)), 0x9C);
+            func_00118AC0((unsigned int *)(g_007BF540[k]), func_002F2720(func_00363720(k)), 0x9C);
     }
 }
 
@@ -89,12 +73,12 @@ int func_003DCF20(u8 *c, u8 i, u32 n)
     u32 lim = 0x1E, k;
     u8 *r;
 
-    if (func_001F1B90() != 0)
+    if (func_001F1B90(c) != 0)
         return 0;
     if (i == 0) {
         for (k = 0; k < 2; k++) {
             if (*(int *)(g_00669D60 + 0xA0 + k * 0x48) != 0
-                && *(short *)c == *func_0033B730(func_0035DD10(k))) {
+                && *(short *)c == *((short *)func_0033B730(func_0035DD10(k)))) {
                 lim = 10;
                 break;
             }
@@ -117,7 +101,7 @@ int func_003DD0C0(u8 *c, u8 *o)
 {
     u8 *r;
 
-    if (func_001F1B90() != 0)
+    if (func_001F1B90(c) != 0)
         return 0;
     if ((*(u32 *)(o + 0x84) & 8) == 0
         && ((*(u32 *)(o + 0x80) & 0x9B0) != 0 || (*(u32 *)(o + 0x84) & 4) != 0))
@@ -133,7 +117,7 @@ int func_003DD1D0(u8 *c, u32 i)
 {
     u8 *r;
 
-    if (func_001F1B90() != 0)
+    if (func_001F1B90(c) != 0)
         return 0;
     r = CELL(c) + (i & 0xFF);
     if (r[8] < 6)
@@ -142,7 +126,7 @@ int func_003DD1D0(u8 *c, u32 i)
 }
 
 /* 0x003DD290, 0x68 bytes. */
-u8 func_003DD290(u8 *c, u32 i)
+u32 func_003DD290(u8 *c, u32 i)
 {
     return CELL(c)[(i & 0xFF) + 8];
 }
@@ -154,7 +138,7 @@ int func_003DD300(int a)
     int k, r = 8;
 
     for (k = 0; k < 8; k++) {
-        if (func_0018F7D0(a, k, 0) != 0 && (r == 8 || (int)(RANDOM() % 100) < 0x32))
+        if (func_0018F7D0((unsigned char *)PS2_PTR(a), k, 0) != 0 && (r == 8 || (int)(RANDOM() % 100) < 0x32))
             r = k;
     }
     return r;
@@ -224,19 +208,19 @@ void func_003DD810(u8 *p)
 
     for (k = 0; k < 2; k++) {
         if (func_003636F0(k) != 0)
-            func_00118AC0(p + 0x9A8 + k * 0x9C, func_002F2720(func_00363720(k)), 0x9C);
+            func_00118AC0((unsigned int *)(p + 0x9A8 + k * 0x9C), func_002F2720(func_00363720(k)), 0x9C);
     }
 }
 
 /* 0x003DD880, 0x74 bytes, matching. Loads them back from the save image. */
 void func_003DD880(void)
 {
-    u8 *p = func_002EFB00(9);
+    u8 *p = (u8 *)PS2_PTR(func_002EFB00(9));
     int k;
 
     for (k = 0; k < 2; k++) {
         if (func_003636F0(k) != 0)
-            func_00118AC0(func_002F2720(func_00363720(k)), p + 0x9A8 + k * 0x9C, 0x9C);
+            func_00118AC0((unsigned int *)(func_002F2720(func_00363720(k))), p + 0x9A8 + k * 0x9C, 0x9C);
     }
 }
 

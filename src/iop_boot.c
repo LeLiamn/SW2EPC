@@ -13,6 +13,10 @@
  * and started from there.
  */
 
+#define SW2E_FILE_IOP_BOOT_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 
@@ -68,8 +72,6 @@ int func_001314C0(void);                 /* sceSifSyncIop? */
 void func_00130770(void);                /* sceSifInitIopHeap / sceFsReset? */
 int func_0011A920(int media);            /* sceCdMmode? */
 void func_0012CF00(void);
-void *func_00102DB0(int align, u32 size);
-void func_00102EC0(void *data);
 void FlushCache(int a);
 int GetThreadId(void);
 int ChangeThreadPriority(int thread, int priority);

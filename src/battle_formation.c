@@ -17,6 +17,10 @@
  * An Empire battle keeps the state in its save (record +0xAE8).
  */
 
+#define SW2E_FILE_BATTLE_FORMATION_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -54,27 +58,7 @@ extern int g_0041DC70[10];                /* per formation: its cost */
 extern int g_0041DCA0[10], g_0041DCD0[10], g_0041DD30[10];
 extern int g_0041DD00[9];
 
-void func_00118AC0(void *to, const void *from, int size);
-void func_00118850(void *to, int size);
-u8 *func_002EFB00(int slot);
-u32 func_0033F7D0(int side, int a);
-void func_0033BE80(int side, int a, int value);
 void func_003AFD90(void);
-u8 func_0035D5A0(u32 side);
-void func_0035D360(u32 side, u32 slot, int a);
-void func_0035D3E0(u32 side);
-void func_0035D410(u32 side);
-u32 func_00362CE0(void);
-u32 func_00362C10(u32 side, u32 slot);
-u32 func_00362C80(u32 side);
-void func_00362C50(u32 side, u32 slot);
-void func_0035D3A0(void);
-int func_0036D2E0(void);
-int func_00328780(u32 formation);
-void func_003286E0(int a);
-int func_0032E7B0(void);
-u32 func_00362D70(int side);
-void func_00362BD0(u32 side, u32 slot, u32 formation);
 
 void func_003F7640(void);
 u32 func_003F6CA0(u32 side, u32 slot);
@@ -222,13 +206,13 @@ void func_003F6FF0(u32 side)
 /* 0x003F7030, 0x28 bytes, matching. Keeps the state in a save record. */
 void func_003F7030(u8 *save)
 {
-    func_00118AC0(save + 0xAE8, g_007BFEF0, 0x20);
+    func_00118AC0((unsigned int *)(save + 0xAE8), (unsigned char *)(g_007BFEF0), 0x20);
 }
 
 /* 0x003F7060, 0x30 bytes, matching. Takes it back from save slot 9. */
 void func_003F7060(void)
 {
-    func_00118AC0(g_007BFEF0, func_002EFB00(9) + 0xAE8, 0x20);
+    func_00118AC0((unsigned int *)(g_007BFEF0), (unsigned char *)PS2_PTR(func_002EFB00(9) + 0xAE8), 0x20);
 }
 
 /* 0x003F7090, 0x78 bytes. The advantage of formation `a` over formation `b`. */
@@ -516,18 +500,18 @@ void func_003F7C60(u32 now, u32 before)
 }
 
 /* 0x003F7CF0, 0x8 bytes, matching. */
-void func_003F7CF0(void)
+void func_003F7CF0(int a, int b)
 {
 }
 
 /* 0x003F7D00, 0x1C bytes, matching. */
-void func_003F7D00(void)
+void func_003F7D00(int k)
 {
     func_003F7640();
 }
 
 /* 0x003F7D20, 0x1C bytes, matching. */
-void func_003F7D20(void)
+void func_003F7D20(int k)
 {
     func_003F7640();
 }
@@ -537,7 +521,7 @@ void func_003F7D40(void)
 {
     u32 side, slot;
 
-    func_00118850(g_007BFEF0, 0x20);
+    func_00118850((unsigned char *)(g_007BFEF0), 0x20);
     for (side = 0; side < 2; side++) {
         func_003F6BA0(side, 0);
         for (slot = 0; slot < 6; slot++) {
@@ -572,7 +556,7 @@ void func_003F7E20(void)
 u32 func_003F7E60(u32 side, u32 against, int mood)
 {
     u32 slots[8];
-    u32 budget = func_00362CE0();
+    u32 budget = func_00362CE0(side);
     int n = 0;
     u32 slot;
 

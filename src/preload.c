@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_PRELOAD_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -21,24 +25,8 @@ extern u8 g_0076F790[0x30];
 extern u8 g_0043FDB0[][0x10];
 extern u16 g_0045CE30[3];                /* (small data) the weapon model kinds */
 
-int func_0032E7B0(void);
-u32 func_00328B00(void);
-void func_001BD180(u8 k, int a, int b, u32 c);
-void func_0017C6D0(u32 k, int forced, int c);
-void func_0016CFB0(char k, int c);
-void func_002A7AF0(char k, int c);
-void func_001BD2C0(void);
-void func_0017C7D0(u32 k);
-void func_001BE030(void);
-void func_0016D060(char k, u16 m, int c);
-void func_002A7BF0(void);
 void func_00279240(void);
-void func_001BD540(void);
-void func_0017C970(void);
-void func_001BE040(void);
 void func_002A7CE0(void);
-void *func_00102DB0(int align, int size);
-void func_00118850(void *p, int n);
 
 /* 0x00279380, 0xC8 bytes. Keeps unit `k` loaded (`how` 0: kept, 1: kept and forced). */
 int func_00279380(u32 k, int how)
@@ -157,7 +145,7 @@ void func_002798B0(int a)
             u32 c = 0;
 
             if (*p < 0x1C)
-                c = func_00328B00();
+                c = func_00328B00(*p);
             func_001BD180(*p, a, 0, c);
         }
     }
@@ -184,7 +172,7 @@ void func_00279A10(void)
 
     for (i = 0; i < 0x40; i++) {
         if ((char)g_0076F650[i] != -1)
-            func_001BD2C0();
+            func_001BD2C0(g_0076F650[i]);
     }
     for (i = 0; i < 0x6A; i++) {
         if (g_0076F690[i] != 0xFF)
@@ -194,7 +182,7 @@ void func_00279A10(void)
     for (i = 0; i < 3; i++) {
         for (j = 0; j < 0x8D; j++) {
             if ((char)g_0076F6FA[j] != -1)
-                func_0016D060(g_0076F6FA[j], g_0045CE30[i], 0);
+                func_0016D060(g_0076F6FA[j], (void *)PS2_PTR(g_0045CE30[i]), 0);
         }
     }
     func_002A7BF0();

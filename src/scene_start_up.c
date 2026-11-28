@@ -22,6 +22,18 @@
  * byte. The officer lists of the start-up state are built by func_00365690.
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_00327C00   /* the original callers here see it this way */
+int func_00327C00(void);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_001020C0   /* the original callers here see it this way */
+unsigned int func_001020C0(void);
+#endif
+#define SW2E_FILE_SCENE_START_UP_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -115,7 +127,7 @@ static inline int box1_open(void)
 
 /* Shows message `id` (func_00390760) in box `box`; inlined in the original. */
 #define SHOW_MESSAGE(box, id) do {                                      \
-        func_001204B0(text, func_00390760(id));                         \
+        func_001204B0(text, (const char *)(func_00390760(id)));                         \
         func_001B8BF0();                                                \
         func_001AEDE0((box), 0xAA);                                     \
         func_001AE9F0((box), text, 1);                                  \
@@ -286,96 +298,21 @@ typedef struct {
 } OptionValues;
 extern OptionValues g_00415EB0;
 
-void *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-int func_00102960(int value);
-void func_00102EC0(void *data);
-int func_002F3DC0(int officer);
-int func_003A0040(int officer);
-int func_002F3BB0(int officer);
-int func_0039E650(int edited);
-int func_0030AB90(void);
-int func_0030AFF0(int entry);
-int func_002F8F20(int entry);
-int func_002F3E70(int officer);
-void func_002F3CF0(int officer, int a);
-void func_002F3F70(int officer, int a);
-void func_002F3B30(int officer, int a);
-void func_002F5BE0(int officer, int a);
-int func_0030C9C0(int entry);
-int func_002F7EC0();
-int func_002F80C0();
-int func_002F8110();
-int func_002F8160();
 int func_002F7D90(int a, int (*filter)(), int value, int b, int c, int d);
-int *func_002F7B10(void);
-void func_0030AF20(int a, int b);
-void func_003A8000(int a);
-int func_002FB320(int a, int *out);
-void func_002F8D20(int a);
 static void func_00367B10(int officer, int available);
 void func_0011EB80(void *to, const void *from, int size);
-int func_0039E5F0(void);
-int func_003A2A00(void);
-int func_0039FD80(int entry);
 void func_003853A0(void);
-void func_003849F0(void);
 void func_00384E30(void);
-void func_00327CF0(int value);
-void func_002FBAC0(int *values);
-void func_003A5FA0(int a, int b, int c, int d);
-int func_00327C00(void);
-void func_00373970(int a, int b, int c);
-void func_003A9010(int a);
-int func_00374E00(void);
-void func_00327780(int value);
-void func_003A7E10(void);
-void func_003A7ED0(void);
-void func_003A9060(int a);
-void func_003A78E0(int a, int b, int c);
-int func_003A28B0(int a);
-int func_003A1A80(void);
-int func_003A1AC0(void);
-int func_003A1B00(void);
-int func_003A1B40(void);
-void func_0030CE90(int entry);
 void func_00384A60(void);
-int func_003F1160(int a);
-void func_001A7DC0(const char *text, int alpha, int a);
 int func_00383B10(int entry);
-u32 func_001020C0(void);
-void func_0023AD10(int a, int b, int c, int d, int e);
 void func_00383D70(u8 *anim);
 void func_0017DF10(void);
-void func_001B8F60(int a, int b, int c);
-void func_00114DF0(int a);
-void func_003281F0(int a);
-void func_00327BD0(int entry);
-void func_00376100(int a, int b, int c);
-void func_003A5C40(int entry);
-void func_003F4D60(int a);
-void func_003B3DD0(int a, int level);
-void func_00327C10(int value);
 void func_003A5E20(void);
-void func_003A8DC0(void);
 int func_003748C0(int no_entry, int unprotected, int edit);
-void func_00387AC0(void);
-const char *func_00390760(int id);
-void func_00375030(int x, int y, int w, int h, int a, const char *text);
 void func_001204B0(char *to, const char *from);
-void func_001B8BF0(void);
-void func_001AEDE0(int box, int a);
-void func_001AE9F0(int box, const char *text, ...);
-void func_001AFC70(int box, int a);
-int func_00327D50(void);
-int func_002FB3B0(int a);
-int func_002FB430(int a);
 void func_003852A0(void);
 void func_00386520(int a);
-int func_00375B90(void);
-void func_003F1070(int a);
 void func_00387D90(void);
-void func_003A5240(void);
-void func_00387B70(void);
 
 int *func_00365450(void);
 void func_00365650(void);
@@ -614,7 +551,7 @@ void func_00365B60(int entry, int game)
 
     if (func_0030C9C0(entry) == 0) {
         n = func_002F7D90(0, func_002F7EC0, entry, 0, 1, 0);
-        officers = func_002F7B10();
+        officers = (int *)(func_002F7B10());
         for (i = 0; i < n; i++) {
             func_00365A40(*officers);
             func_00367B10(*officers, 1);
@@ -632,7 +569,7 @@ void func_00365B60(int entry, int game)
             func_002F8D20(game);
             func_003A8000(*p);
             m = func_002F7D90(0, func_002F8160, game, 0, 1, 0);
-            officers = func_002F7B10();
+            officers = (int *)(func_002F7B10());
             for (j = 0; j < m; j++) {
                 if (func_002F3E70(*officers) != 0)
                     for (k = 0; k < g_007B8CA0; k++)
@@ -657,7 +594,7 @@ void func_00365D50(void)
     int *officers;
 
     n = func_002F7D90(0, func_002F80C0, g_007B8D10, 0, 1, 0);
-    officers = func_002F7B10();
+    officers = (int *)(func_002F7B10());
     for (i = 0; i < 7; i++)
         g_007B93B0[i] = 0x19F;
     if (ENTRY_VALID(game))
@@ -671,14 +608,14 @@ void func_00365D50(void)
         }
         officers++;
     }
-    officers = func_002F7B10();
+    officers = (int *)(func_002F7B10());
     for (i = 0; i < n; i++) {
         if (func_002F3E70(*officers) == 0)
             g_007B93B0[1 + slot++] = *officers;
         officers++;
     }
     n = func_002F7D90(0, func_002F8110, g_007B8D10, 0, 1, 0);
-    officers = func_002F7B10();
+    officers = (int *)(func_002F7B10());
     for (i = 0; i < n; i++)
         g_007B93B0[4 + extra++] = *officers++;
     func_0011EB80(g_007B9394, g_007B93B0, 0x1C);
@@ -1039,7 +976,7 @@ void func_00366D70(void)
             func_00327CF0(game);
             func_00327780(func_002F8F20(game));
             func_00387AC0();
-            func_00375030(0x38, 0x10C, 400, 0x50, 0, func_00390760(0x93));
+            func_00375030(0x38, 0x10C, 400, 0x50, 0, PS2_ADDR(func_00390760(0x93)));
             g_007B7070 = 6;
         } else if (r == 0) {
             if (g_007B93D0 == 0) {
@@ -1354,13 +1291,6 @@ int *func_00367C20(int generals)
     }
 }
 
-void func_0032D300(int a, int *list, int count);
-int func_002F4080(int officer);
-void func_003A7DA0(int entry, int a);
-void func_0030A870(int a, int officer, int entry, int b, int c, int d);
-int func_002FB910(void);
-void func_002F9900(int a, int b);
-
 /* Whether slot 1 cannot be left empty / skipped (the ruler is also slot 1, or a new game without
  * func_003A1A80). */
 #define SLOT1_LOCKED() ((g_007B7070 == 5 && g_007B93B0[0] == g_007B93B0[1]) || \
@@ -1457,7 +1387,7 @@ void func_00367CF0(void)
                     SHOW_MESSAGE(0, 0x96);
                     return;
                 }
-                func_0032D300(0x10, g_007B7FA0, g_007B8CA0);
+                func_0032D300(0x10, PS2_ADDR(g_007B7FA0), g_007B8CA0);
             } else if (g_007B7104 > 0 && g_007B7104 < 4) {
                 if (g_007B93B0[slot] < 0x19F && func_002F3E70(g_007B93B0[slot]) != 0) {
                     SE(4);
@@ -1468,14 +1398,14 @@ void func_00367CF0(void)
                     SHOW_MESSAGE(0, 0x97);
                     return;
                 }
-                func_0032D300(0x10, func_00367C20(0), g_007B8CA4);
+                func_0032D300(0x10, PS2_ADDR(func_00367C20(0)), g_007B8CA4);
             } else if (g_007B7104 >= 4 && g_007B7104 < 7) {
                 SE(1);
                 if (g_007B8CA8 == 0) {
                     SHOW_MESSAGE(0, 0x98);
                     return;
                 }
-                func_0032D300(0x10, func_00367C20(1), g_007B8CA8);
+                func_0032D300(0x10, PS2_ADDR(func_00367C20(1)), g_007B8CA8);
             }
             g_007B7106 = 1;
         }
@@ -1558,60 +1488,23 @@ void func_00367CF0(void)
     }
 }
 
-void func_003A8DC0(void);
 int func_0032D9C0(void);
 
-int func_0032E760(void);
 static void func_00367B10(int officer, int in_use);
 void func_00367CF0(void);
-int func_00327C40(void);
-void func_00327C10(int value);
-void func_00327880(int on);
-void func_003278D0(int on);
-void func_00327920(int on);
-void func_00327970(u8 value);
-void func_003279D0(u8 value);
-void func_00327A30(int on);
-int func_00375BF0(void);
-int func_00375B90(void);
-int func_00375C10(void);
-int func_00374E00(void);
-int func_0030AFF0(int entry);
-void func_00327CF0(int value);
 
-void func_00327780(int value);
-int func_00372230(void);
 void func_0017DF10(void);
-void func_001B8F60(int a, int b, int c);
-int func_003F1160(int a);
-int func_0030AB90(void);
-int func_003A1A80(void);
-int func_0030C9C0(int entry);
-void func_001A7DC0(const char *text, int alpha, int a);
 int *func_00365450(void);
-void func_003F8BB0(void);
-void func_003752D0(void);
 void func_00278CF0(void);
-void func_003F4F40(void);
-void func_003F11D0(void);
 void func_00375F90(void);
 void func_00384E60(int a);
-void func_00387A10(int a, int b, int c);
 void func_00366670(void);
 void func_00366AC0(void);
 void func_003A7360(void);
-void func_00373B60(void);
-int func_00374E10(void);
 void func_003852A0(void);
-int func_003725A0(int a);
-void func_003838B0(int a, int b);
 void func_003673B0(void);
-void func_003876C0(void *list, int *officers, int a, int b, int c, int d, int slot, int any);
 void func_0032D3C0(void *list);
 void func_00367270(void);
-void func_00375B00(void);
-void func_00376450(void);
-int func_003F5410(void);
 int func_003F13E0(void);
 void func_00366740(void);
 void func_00366B10(void);
@@ -1620,28 +1513,10 @@ void func_003673E0(void);
 void func_003672D0(void);
 int func_0017DDA0(void);
 void func_00366600(void);
-void func_002789C0(void);
 void func_002787E0(void);
 void func_003A5E20(void);
 void func_003655F0(void);
-void func_00390780(void);
-void func_003F54C0(void);
-void func_003F8B80(void);
-void func_003F8B30(int a);
-void func_003F1580(void);
-void func_003F5430(void);
-void func_003907B0(void);
 void func_00365530(void);
-void func_001A2040(void);
-void func_001A1AC0(void);
-void func_00374E20(void);
-void func_003273E0(void);
-void func_003EA010(void);
-void func_0019FC30(void);
-void func_00375D30(void *list);
-void func_00376100(int a, int b, int c);
-void func_0017E010(int a);
-void func_003F4D60(int a);
 
 /* 0x00368980, 0x150 bytes, matching. Phases 4 and 5: the officer of the current slot. With the list open,
  * a choice (func_0032D9C0 1) frees the slot's previous officer (kept in g_007B8D14 unless
@@ -1795,7 +1670,7 @@ void func_00368EC0(void)
         if (func_00374E10() == 0) {
             func_003852A0();
             if (func_003F1160(0) == 0)
-                func_003838B0(func_003725A0(0x10), 1);
+                func_003838B0(PS2_ADDR(func_003725A0(0x10)), 1);
         }
         break;
     case 3:
@@ -1812,7 +1687,7 @@ void func_00368EC0(void)
                 any = 0;
             else
                 any = 1;
-            func_003876C0(g_0045D774, g_007B93B0, 0x18, 0x52, 0, 1, g_007B7104, any);
+            func_003876C0(PS2_ADDR(g_0045D774), (u32 *)g_007B93B0, 0x18, 0x52, 0, 1, g_007B7104, any);
             if (g_007B7070 == 5) {
                 u8 slot = g_007B7104;
                 int officer = g_007B93B0[slot];
@@ -1830,7 +1705,7 @@ void func_00368EC0(void)
             }
             page = func_00368E60();
             if (page >= 0)
-                func_003838B0(func_003725A0(page), 1);
+                func_003838B0(PS2_ADDR(func_003725A0(page)), 1);
         } else if (g_007B7106 == 1) {
             func_0032D3C0(g_0045D774);
         }
@@ -1935,7 +1810,7 @@ void func_003694B0(void)
     func_003273E0();
     func_003EA010();
     func_0019FC30();
-    func_00375D30(g_0045D774);
+    func_00375D30(PS2_ADDR(g_0045D774));
     func_00376100(0, -1, -1);
     func_0017E010(0x31);
     func_001B8F60(1, 6, 8);

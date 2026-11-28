@@ -13,6 +13,10 @@
  * of ten vectors, +0xB90 the banks' rectangles.
  */
 
+#define SW2E_FILE_STAGE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -29,31 +33,20 @@ extern u32 g_00669F60[4];                /* (settings) +0: the battle flags */
 extern int g_0045D2A8;                   /* (small data) slow motion */
 extern float g_0045CC7C;                 /* (small data) the frame rate factor */
 
-int func_00191330(u8 *r, u8 *c);
-int func_001912E0(u8 *grid, int x, int z);
-int func_0032E7B0(void);
 u8 *func_00194480(int k, int x, int z);
 int func_00193620(float *p);
-u32 *func_002184D0(int a, int i);
 float func_00200110(void);
 void func_001930D0(u32 layer, float *m);
 void func_00196CB0(float r, u32 layer);
 void func_00195920(u32 layer, float *m);
 void func_00196B10(int bank);
-void func_00245D60(void);
-void func_001F5020(void);
 void func_001970C0(void);
 void func_001FC800(void);
-void func_003BF820(void);
-void func_0027E470(void);
 void func_00247250(void);
 u8 *func_00197130(u8 *p);
 u8 *func_00197230(u8 *p);
 void func_00193A70(void);
 u32 func_001934D0(void);
-u8 *func_002EFB00(int a);
-void func_00102EC0(void *data);          /* free */
-void *func_00102D30(u32 size);           /* allocate */
 void func_00193710(u32 bank, float *m);
 void func_00193830(u32 bank);
 
@@ -163,7 +156,7 @@ void func_00193830(u32 bank)
     int i;
 
     for (i = 0; i < 10; i++) {
-        u32 *v = func_002184D0(0, i), *d = (u32 *)SPAD(0xA10 + bank * 0xA0 + i * 0x10);
+        u32 *v = (u32 *)PS2_PTR(func_002184D0(0, i)), *d = (u32 *)SPAD(0xA10 + bank * 0xA0 + i * 0x10);
 
         d[0] = v[0];
         d[1] = v[1];
@@ -225,7 +218,7 @@ u8 *func_00193A50(u8 *p)
 /* 0x00193A70, 0x24 bytes, matching. func_00197230 with func_002EFB00(5). */
 void func_00193A70(void)
 {
-    func_00197230(func_002EFB00(5));
+    func_00197230((u8 *)PS2_PTR(func_002EFB00(5)));
 }
 
 /* 0x00193AA0, 0xE4 bytes. Frees the stage's buffers (the five maps' and four layers' in game
@@ -264,24 +257,15 @@ extern u8 *g_0045D2F4;                   /* (small data) the stage table file (+
 extern int g_00669F6C[4];                /* (settings) +0: the game mode (1: ?) */
 extern const char g_004253D0[];          /* "Stage.c" */
 
-void *func_001026D0(int which, int entry, void *dest, int now, u32 size, u32 offset,
-                    const void *file, int line);
-u32 func_0032F780(void);
-int func_0032F090(u32 a);
-void func_00118850(void *to, int size);  /* clear */
-void func_00118AC0(void *to, const void *from, u32 n);  /* memcpy */
 void func_00195EF0(void);
 void func_00197420(void);
 void func_00195D20(void);
 void func_00195DB0(void);
-void func_001F4940(void);
 void func_00196530(void);
-void func_001F4DC0(void);
 u32 func_00196540(u8 *h);
 void func_001966C0(u8 *a, u8 *b, u32 c);
 void func_00197470(u8 *a);
 void func_00196980(void);
-void func_0027F2C0(void);
 void func_00193AA0(void);
 
 /* The scenario of the battle (mode 2: 0x54, mode 3: 0x55). */
@@ -675,7 +659,6 @@ u8 func_00194990(int x, int z)
     return func_00194450(x, z)[0xC] & 0x7F;
 }
 
-void func_00191240(u32 k);
 void func_002011B0(void);
 void func_00200CE0(int a);
 void func_002003D0(void);
@@ -685,7 +668,6 @@ void func_00201470(void);
 void func_00200EF0(void);
 void func_00200AB0(void);
 void func_001949C0(void);
-
 
 /* The larger / smaller of two ints. */
 #define IMAX(a, b) ((int)(a) < (int)(b) ? (int)(b) : (int)(a))
@@ -787,7 +769,7 @@ void func_00195DC0(u8 *p, u32 n)
     u32 k;
 
     for (k = 0; k < n; k++, p += 0x70)
-        func_00118AC0(p, SPAD(0x770), 0x70);
+        func_00118AC0((unsigned int *)(p), SPAD(0x770), 0x70);
 }
 
 /* 0x00195E30, 0xBC bytes. The draw slot of layer `k` (2-5: 1-4, with `alt` 5-8; 0 / 9 for the
@@ -834,9 +816,7 @@ extern u32 g_005D30C8;
 extern u8 *g_005D30CC;
 extern u8 *g_0045D460;                   /* (small data) the light set */
 
-
 void func_00195DC0(u8 *p, u32 n);
-void func_00107440(u32 a, int b, int c);
 void func_001F6CA0(u8 a, u16 id, u8 *p, u32 w);
 void func_00143268(void *m, void *a, void *b, void *c);
 void func_00143328(void *m, void *a, void *b, void *c, void *d);
@@ -854,7 +834,7 @@ u32 func_00196540(u8 *h)
 {
     int k;
 
-    func_00118AC0(SPAD(0x770), h, 0x100);
+    func_00118AC0((void *)SPAD(0x770), h, 0x100);
     SPP(0x7F0) = h + *(int *)(h + 0x80);
     if (SP32(0x84C) != 0) {
         for (k = 0; k < 5; k++)
@@ -904,7 +884,7 @@ void func_001966C0(u8 *a, u8 *b, u32 c)
     SP32(0x81C) = c;
     SPP(0x814) = a;
     SPP(0x818) = b;
-    func_00107440(c, 0x1320, 0x3ED8);
+    func_00107440((unsigned char *)PS2_PTR(c), 0x1320, 0x3ED8);
 }
 
 /* 0x001967E0, 0x64 bytes. The eight corners of the box from `b[0]` (min) to `b[1]` (max). */
@@ -1036,11 +1016,11 @@ void func_00196B10(int bank)
 
     for (k = 0; k < 10; k++, m += 0x40, c += 0x40) {
         float nl[4][4], cl[4][4];
-        u32 *l1 = func_002184D0(1, k), *l2;
+        u32 *l1 = (u32 *)PS2_PTR(func_002184D0(1, k)), *l2;
         int i, j;
 
         func_00143268(nl, g_0045D460 + 0x10, (void *)0x700000C0, (void *)0x700000C0);
-        l2 = func_002184D0(2, k);
+        l2 = (u32 *)PS2_PTR(func_002184D0(2, k));
         func_00143328(cl, l2, (void *)0x700000C0, (void *)0x700000C0, l1);
         for (i = 0; i < 4; i++)
             for (j = 0; j < 4; j++)
@@ -1141,24 +1121,14 @@ extern u32 g_005D25F4;
 extern void (*g_00412490[])(float k, u8 *m);   /* model updates by kind (+0x68) */
 extern u8 g_00574DE0[][0x630];           /* the units */
 
-void func_001F4FB0(u32 i, u32 bank);
-void func_001FBE60(float k, u8 *m);
 void func_001FF8F0(u8 *m);
-void func_0020FFB0(u8 *a);
 void func_00247410(void);
 void func_002474A0(void);
-int func_001FF160(u16 id);
-void func_001F70A0(u32 a, u32 b, u32 c);
 void func_001F6FF0(void);
 void func_001FF0C0(void);
 void func_00247970(void);
-void func_0027F430(void);
 void func_001FFF00(void);
-void func_002080E0(void);
 void func_001FFF10(u32 a, u32 b);
-void func_00208140(u32 a, u32 b);
-void func_0027F5D0(void);
-void func_002479C0(void);
 void func_001FF0D0(void);
 void func_00197300(u32 *f);
 void func_001972F0(void);
@@ -1181,7 +1151,7 @@ void func_00196EA0(void)
             continue;
         if (m[0x6B] < 0x8F && (g_00574DE0[m[0x6B]][0x198] & 8)) {
             func_001F4FB0((u32)((m - SPP(0x1D0)) / 0x70) / 0x70, SP32(0x88C));
-            func_001FBE60(0.15f, m);
+            func_001FBE60(0.15f, PS2_ADDR(m));
         } else {
             g_00412490[m[0x68]](1.0f, m);
         }
@@ -1281,7 +1251,7 @@ void func_00197300(u32 *f)
 {
     u32 k;
 
-    func_00118850(&g_005D25E0, 0xAF0);
+    func_00118850((unsigned char *)(&g_005D25E0), 0xAF0);
     for (k = 0; k < f[0]; k++)
         f[1 + k] = f[1 + k] + (u32)f;
     g_005D25E0 = *(u32 *)f[1];
@@ -1323,7 +1293,7 @@ void func_00197470(u8 *file)
     for (k = 0; k < f[0]; k++)
         f[1 + k] = f[1 + k] + (u32)f;
     func_001FFF10(f[1], f[3]);
-    func_00208140(f[2], f[4]);
+    func_00208140((unsigned char *)PS2_PTR(f[2]), (unsigned int *)PS2_PTR(f[4]));
     if (g_00669DB8[0] != 2)
         func_00197300((u32 *)f[5]);
     func_0027F5D0();

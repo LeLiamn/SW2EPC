@@ -9,13 +9,20 @@
  * with a question mark are hypotheses.
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_003294A0   /* the original callers here see it this way */
+unsigned char func_003294A0(int);
+#endif
+#define SW2E_FILE_UNLOCK_DATA_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
 extern u8 g_00459EB8[];                  /* "" */
 
-u8 *func_0019FBF0(void);
 u8 *func_0039FAB0(int a, int b);
 u8 *func_0039FB00(int o);
 u8 *func_0039FB40(int p);
@@ -24,28 +31,8 @@ u8 *func_0039FBB0(int k);
 int func_0039FC30(int x);
 int func_0039FBF0(int k);
 void func_003A0220(int k, int on);
-int func_002F57F0(int x);
-u8 func_002F5840(int v);
 void func_00120928(u8 *to, const u8 *from);
-void func_00118850(void *p, int n);
-void func_003A3020(void);
-void func_003A2BA0(void);
-void func_003A2D20(void);
-void func_003A2F10(void);
-int func_00327D50(void);
-int func_002F4080(int o);
 void func_0039FF60(int o, int v);
-int func_00328190(int k);
-int func_00328C00(int k);
-void func_003A3980(int o);
-int func_0036BA80(int *list, int a);
-int func_00328A60(int k);
-u8 func_00328B00(int k);
-int func_00329540(int k);
-void func_003A48E0(void);
-void func_003A4990(int k);
-int func_003636F0(int p);
-u8 func_003294A0(int p);
 
 /* 0x003A0320, 0x60 bytes. */
 void func_003A0320(int a, int b, int v)
@@ -338,7 +325,7 @@ void func_003A1F80(int k, u8 v)
 }
 
 /* 0x003A1FC0, 0x38 bytes. */
-u8 func_003A1FC0(int k)
+u32 func_003A1FC0(int k)
 {
     if (k < 0 || k > 0x3)
         return 0;
@@ -1390,8 +1377,6 @@ void func_0039FF60(int k, int on)
 
 extern u32 g_00428348[0x14];             /* the rank thresholds */
 extern int g_0041BFB0[0x10];
-u32 func_002F34E0(int o);
-void func_002F40F0(int o, int r);
 
 /* 0x003A4E50, 0xA4 bytes. Sets officer `o`'s rank by his merit. */
 void func_003A4E50(int o)

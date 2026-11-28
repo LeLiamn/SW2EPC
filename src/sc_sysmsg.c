@@ -15,6 +15,10 @@
  * window mode.
  */
 
+#define SW2E_FILE_SC_SYSMSG_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -49,22 +53,11 @@ extern u32 g_7000015C;                   /* (scratchpad) the random seed */
 #define W(w, off) (*(int *)((w) + (off)))
 #define SETTINGS_FLAGS (*(u32 *)(g_00669D60 + 0x200))
 
-u8 *func_0035DCD0(int p);
 void func_0022F120(u8 *f, char *out, const char *text, u32 ca, u32 cb);
-char *func_0019B170(char *out, u32 t, u32 n);
 void func_001204B0(char *to, const char *format, ...);
 void func_00120928(char *to, const char *from);
-void func_00183670(float *pos);
-void func_0022EF90(u8 *box, u32 kind, int mode);
-void func_002C4AE0(void *pos, char *text);
-void func_001F0960(u32 *pos, float *x, float *y);
-u8 *func_00215480(u8 *cell);
-void func_00215520(u8 *base, u8 *out);
 int func_002D6F80(u16 a, u16 b);
 int func_002D6F90(u16 a, u8 *o, u8 *pos, int side, u32 f);
-u8 *func_001B9330(int a);
-void func_00118AC0(void *to, const void *from, int size);
-void func_00183410(int a, int id, int b, int delay, int c);
 
 int func_0023D6C0(short n);
 
@@ -286,7 +279,7 @@ void func_0023CC50(u8 *box, u8 *w, char *text, u16 *a)
     u8 *u = UNIT(a[0]);
 
     func_0022F120(w, text, TEXT(g_005BA7B0, 0), 0, 0);
-    func_00183670((float *)unit_pos(u));
+    func_00183670(PS2_ADDR((float *)unit_pos(u)));
     W(w, 0x14C) = 1;
     W(w, 0x114) = 0x1E4;
     W(w, 0x11C) = g_005BA6A0[0x5336];
@@ -325,8 +318,8 @@ void func_0023CE60(u8 *box, u8 *w, char *text, u16 *a)
     func_001204B0(text, fmt, name);
     pos[0] = ((u32 *)unit_pos(u))[0];
     pos[1] = ((u32 *)unit_pos(u))[1];
-    func_00183670((float *)pos);
-    func_002C4AE0(pos, text);
+    func_00183670(PS2_ADDR((float *)pos));
+    func_002C4AE0(pos, PS2_ADDR(text));
     show_sys(box, w, 1);
 }
 
@@ -372,7 +365,7 @@ speak:
     if (g_005BD740[0] == 0)
         func_0022F120(w, text, TEXT(g_005BA6C4[k], line), 0, 0);
     if ((*(u32 *)(pu + 0x84) & 0x8000) == 0)
-        func_00183670((float *)unit_pos(pu));
+        func_00183670(PS2_ADDR((float *)unit_pos(pu)));
     show_line(box, w, o, 1, 0, pu[0x79]);
 }
 
@@ -387,7 +380,7 @@ void func_0023D190(u8 *box, u8 *w, char *text, u16 *a)
     func_0022F120(w, fmt, TEXT(g_005BA6BC, 6), 0, 0);
     func_0019B170(name, n[0], n[1]);
     func_001204B0(text, fmt, name, a[1] / 100 * 100);
-    func_00183670((float *)unit_pos(u));
+    func_00183670(PS2_ADDR((float *)unit_pos(u)));
     show_sys(box, w, 0);
 }
 
@@ -421,7 +414,7 @@ void func_0023D2B0(u8 *box, u8 *w, char *text, u16 *a)
     if ((*(u32 *)(u + 0x84) & 0x8000) == 0) {
         pos[0] = ((u32 *)unit_pos(u))[0];
         pos[1] = ((u32 *)unit_pos(u))[1];
-        func_001F0960(pos, (float *)&at[0], (float *)&at[1]);
+        func_001F0960((float *)(pos), (float *)&at[0], (float *)&at[1]);
     } else {
         *(float *)&pos[0] = -1.0f;
         *(float *)&pos[1] = -1.0f;
@@ -436,7 +429,7 @@ void func_0023D2B0(u8 *box, u8 *w, char *text, u16 *a)
     W(w, 0x138) = at[0];
     W(w, 0x13C) = at[1];
     W(w, 0x144) = v;
-    func_002C4AE0(pos, text);
+    func_002C4AE0(pos, PS2_ADDR(text));
     W(w, 0x14C) = 3;
     func_0022EF90(box, 0, 3);
 }
@@ -455,7 +448,7 @@ void func_0023D500(u8 *box, u8 *w, char *text, u16 *a)
         return;
     func_0022F120(w, text, TEXT(g_005BA6C4[k], 8), 0, 0);
     if ((*(u32 *)(u + 0x84) & 0x8000) == 0)
-        func_00183670((float *)unit_pos(u));
+        func_00183670(PS2_ADDR((float *)unit_pos(u)));
     show_line(box, w, o, 3, 0, u[0x79]);
 }
 
@@ -492,8 +485,8 @@ void func_0023D710(u8 *box, u8 *w, char *text, u16 *a)
         func_00120928(text, fmt);
     }
     if ((*(u32 *)(u + 0x84) & 0x8000) == 0)
-        func_00183670((float *)pos);
-    func_002C4AE0(pos, text);
+        func_00183670(PS2_ADDR((float *)pos));
+    func_002C4AE0(pos, PS2_ADDR(text));
     show_sys(box, w, 0);
 }
 
@@ -536,7 +529,7 @@ void func_0023D8D0(u8 *box, u8 *w, char *text, u16 *a)
     *(u16 *)(w + 0x12E) = n[1];
     W(w, 0x130) = side;
     if ((*(u32 *)(u + 0x84) & 0x8000) == 0) {
-        func_001F0960(pos, (float *)&at[0], (float *)&at[1]);
+        func_001F0960((float *)(pos), (float *)&at[0], (float *)&at[1]);
     } else {
         *(float *)&pos[0] = -1.0f;
         *(float *)&pos[1] = -1.0f;
@@ -546,7 +539,7 @@ void func_0023D8D0(u8 *box, u8 *w, char *text, u16 *a)
     W(w, 0x138) = at[0];
     W(w, 0x13C) = at[1];
     W(w, 0x14C) = 3;
-    func_002C4AE0(pos, text);
+    func_002C4AE0(pos, PS2_ADDR(text));
     func_0022EF90(box, 0, 3);
 }
 
@@ -581,20 +574,20 @@ void func_0023DBE0(u8 *box, u8 *w, char *text, u16 *a)
     func_001204B0(text, fmt, g_0042E260[g_00669FAE[a[2]]]);
     W(w, 0x128) = 0;
     W(w, 0x130) = a[2];
-    b = func_00215480(UNIT(a[0]) + 0x40);
+    b = (u8 *)PS2_PTR(func_00215480(PS2_ADDR(UNIT(a[0]) + 0x40)));
     if (b == 0) {
         at[0] = -1.0f;
         at[1] = -1.0f;
     } else {
         u8 c[4];
 
-        func_00215520(b, c);
+        func_00215520(b, (short unsigned int *)(c));
         at[0] = (float)c[0] * 5000.0f + 2500.0f;
         at[1] = (float)c[1] * 5000.0f + 2500.0f;
     }
     *(float *)(w + 0x138) = at[0];
     *(float *)(w + 0x13C) = at[1];
-    func_002C4AE0(at, text);
+    func_002C4AE0((unsigned int *)(at), PS2_ADDR(text));
     W(w, 0x14C) = 3;
     func_0022EF90(box, 0, 3);
 }
@@ -687,8 +680,8 @@ void func_0023DDE0(u8 *box, u8 *w, char *text, short *a)
     pos[0] = ((u32 *)unit_pos(u))[0];
     pos[1] = ((u32 *)unit_pos(u))[1];
     if ((*(u32 *)(u + 0x84) & 0x8000) == 0)
-        func_00183670((float *)pos);
-    func_002C4AE0(pos, text);
+        func_00183670(PS2_ADDR((float *)pos));
+    func_002C4AE0(pos, PS2_ADDR(text));
     show_sys(box, w, 0);
 }
 
@@ -705,14 +698,14 @@ void func_0023E620(u8 *box, u8 *w, char *text, u16 *a)
         return;
     func_0022F120(w, text, TEXT(g_005BA6C4[k], 0), 0, 0);
     p = func_0035DCD0(a[0]);
-    func_00183670((float *)unit_pos(p));
+    func_00183670(PS2_ADDR((float *)unit_pos(p)));
     u = UNIT(a[1]);
     pos[0] = ((u32 *)unit_pos(u))[0];
     pos[1] = ((u32 *)unit_pos(u))[1];
     func_0022F120(f, fmt, TEXT(g_005BA6C0, u[0x79] != 1), 0, 0);
     func_0019B170(name, (*(u16 **)(u + 8))[0], (*(u16 **)(u + 8))[1]);
     func_001204B0(out, fmt, name);
-    func_002C4AE0(pos, out);
+    func_002C4AE0(pos, PS2_ADDR(out));
     show_line(box, w, o, 1, 0, p[0x79]);
 }
 
@@ -819,7 +812,7 @@ void func_0023EB40(short *r, int delay, int c)
     k = func_0023EB00();
     if (k >= 0x40)
         return;
-    func_00118AC0(g_005BC3A8[k], r, 8);
+    func_00118AC0((unsigned int *)(g_005BC3A8[k]), (unsigned char *)(r), 8);
     func_00183410(1, k, 3, delay, c);
 }
 
@@ -827,16 +820,13 @@ extern u8 *g_005BA6B8;                   /* the battle text file */
 extern u8 *g_005BA7B4, *g_005BA7B8;
 extern const char g_0043D478[];
 
-u8 *func_001026D0(int a, int b, int c, int d, int e, int f, const char *path, int g);
-void func_00102EC0(void *p);
-
 /* 0x0023EC30, 0x64 bytes. Loads the requests from a save image; its end. */
 u8 *func_0023EC30(u8 *p)
 {
     u32 k;
 
     for (k = 0; k < 0x40; k++, p += 8)
-        func_00118AC0(g_005BC3A8[k], p, 8);
+        func_00118AC0((unsigned int *)(g_005BC3A8[k]), p, 8);
     return p;
 }
 
@@ -846,7 +836,7 @@ u8 *func_0023ECA0(u8 *p)
     u32 k;
 
     for (k = 0; k < 0x40; k++, p += 8)
-        func_00118AC0(p, g_005BC3A8[k], 8);
+        func_00118AC0((unsigned int *)(p), (unsigned char *)(g_005BC3A8[k]), 8);
     return p;
 }
 

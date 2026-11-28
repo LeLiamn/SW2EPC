@@ -15,6 +15,10 @@
  * streaming functions func_00113xxx.
  */
 
+#define SW2E_FILE_SOUND_CMD_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -338,7 +342,7 @@ void func_00117BD0(void)
 }
 
 /* 0x00117C70, 0xC bytes, matching. Sets the voices' volume; the previous one. */
-u16 func_00117C70(u16 volume)
+u32 func_00117C70(u16 volume)
 {
     u16 old = g_0045D228;
 

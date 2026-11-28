@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_RELATIONS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -47,41 +51,13 @@ extern int g_0045C590[2];
 #define FONT_SIZE(s) (g_0056CCC0 = (s), g_0056CCC4 = (s))
 
 u8 *func_0021A630(void);
-int func_003294A0(int k);
-u8 *func_0019FBC0(int k);
 void func_003DFD80(int k, int a, int b, int x, int y, int c, u8 *d, u8 *e);
 int func_001204B0(char *buf, const char *fmt, ...);
-void func_002C4F40(float size, char *text, int x, int y, int a, int b, int c);
-void func_003B5480(int x, int y, int a, int w, int b, int c);
 void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
-int func_002F27D0(int o);
-u8 *func_001A93A0(int x, int y, int a, int w, int h, int b, int c, int d);
-void func_001A9B30(u8 *h, int c, int a);
-void func_001AA2C0(u8 *h, int a);
-char *func_0019B170(char *buf, int a, int b);
-void func_00146B40(char *text, int x, int y, int w, int h, int a, int b);
-void func_003B55A0(int x, int y, int a, int b);
-void func_002D67E0(int k, int x, int y, int a, int b, int c);
 void func_00287A10(int a, int b, int c, int x, int y, int d);
-int func_001AE550(float speed, WindowAnim *window, short *pos, u8 *alpha, int a);
 void func_00286420(int a, int b, int c, int d, int e, int f, u8 *g, int sel);
 void func_002CFF20(int a, int b, int x, int y, int w, int h, int c, u8 *d, int p8, int p9);
-int func_002F8CB0(int f);
-int func_002F9C90(int f, int g);
-void func_003A7C10(void);
-int func_0030AB90(void);
-int func_0030AFF0(int p);
-void func_003A78E0(int p, int k, int a);
-void func_003A8000(int p);
-void func_003E0A50(void);
-void func_003A80A0(int a);
-void func_003A9010(int a);
 u8 *func_0030D7D0(void);
-void func_002C7A30(int x, int y, int a, int w, int h, int b, int c);
-char *func_002F8DB0(int f);
-int func_002F9D50(int f, int g);
-u64 *func_001050F0(void);
-void func_00105230(u64 *packet, int a);
 
 /* 0x003E0290, 0x90 bytes. Draws the player's item card. */
 void func_003E0290(void)
@@ -148,7 +124,7 @@ void func_003E0500(int o, int a, int b, int x, int y)
     func_0019B170(buf, ((short *)r)[0], ((short *)r)[1]);
     FONT_COLOUR(6);
     FONT_SIZE(16.0f);
-    func_00146B40(buf, x + 0x10, y + 0xD, 0x7A, 0x10, 0, 0);
+    func_00146B40((const unsigned char *)(buf), x + 0x10, y + 0xD, 0x7A, 0x10, 0, 0);
     FONT_SIZE(16.0f);
     FONT_COLOUR(5);
     func_003B55A0(x + 0x18, y + 0x1E, 0, 0);
@@ -316,7 +292,7 @@ void func_003E0F30(void)
             func_002C7A30(x, y, g_007BF680.z, 0xC0, 0x10, 0, g_007BF680.flag);
         FONT_COLOUR(6);
         FONT_SIZE(16.0f);
-        func_00146B40(func_002F8DB0(f), x + 0x10, y, 0x48, 0x10, g_007BF680.flag, 0);
+        func_00146B40((const unsigned char *)(func_002F8DB0(f)), x + 0x10, y, 0x48, 0x10, g_007BF680.flag, 0);
         FONT_SIZE(16.0f);
         FONT_COLOUR(5);
         if (r == 1) {
@@ -325,9 +301,9 @@ void func_003E0F30(void)
             func_002C4F40(16.0f, buf, x + 0x9C, y, g_007BF680.flag, 0, 6);
         }
     }
-    pk = func_001050F0();
+    pk = (u64 *)(func_001050F0());
     pk[2] = 0x8000000044ULL;
     pk[3] = 0x43;
-    func_00105230(pk, g_007BF680.flag);
+    func_00105230((unsigned char *)(pk), g_007BF680.flag);
     func_003E0D40();
 }

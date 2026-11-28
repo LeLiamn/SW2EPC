@@ -17,6 +17,10 @@
  * +0x3C flags, +0x40 the shake, +0x90 / +0xB0 / +0xC0 the targets and eye kept, +0xE0 a set eye.
  */
 
+#define SW2E_FILE_CAMERA_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -58,16 +62,9 @@ extern float g_0045CE70, g_0045CE80, g_0045CE84;
 extern char g_0045CE8C, g_0045CE90;
 extern float g_0045D568;
 
-float *func_0016A170(Unit *u, int node);
 float func_0029DEF0(float *pos, int a);          /* the ground's height under `pos` */
 void func_0029DF20(float angle, float m[4][4], float *axis);   /* a rotation about `axis` */
-void func_00164DA0(Unit *u, int a);
-void func_00178AC0(Unit *u);
-void func_00166A00(Unit *u);
-void func_001688D0(Unit *u);
-void func_0014D560(u8 *actor, char mode, int n);
 int func_00162C30(int *cam, float *eye, float *target, float *closeness, int free);
-void func_0017C0D0(int *p);
 void func_00164440(float a, float b, int *cam);
 
 /* 0x00161490, 0x8C bytes. The point a camera looks at on a unit (its centre; on foot while
@@ -330,7 +327,7 @@ void func_00161E10(int *cam, Unit *u, u8 *obj)
     cam[0xB] = 0;
     cam[8] = 0;
     cam[9] = 0;
-    func_0017C0D0(cam + 0x10);
+    func_0017C0D0((unsigned int *)(cam + 0x10));
     for (k = 0; k < 0x1E; k++)
         func_00164440(1.0f, 50.0f, cam);
 }
@@ -369,8 +366,6 @@ typedef struct {
 extern float g_0045CE88;                 /* (small data) the height offset's rate */
 
 void func_001F3930(Ray *r);
-void func_0029DE30(float *v, float mx, float my, float mz);
-void func_0029DD40(float a, float b, float *out, float *cur, float *prev, float *now);
 float func_0029DD90(float a, float b, float c, float d, float e);
 void vu0_rot_y(float m[4][4], float yaw);        /* VU0 micro subroutine 0x70 */
 
@@ -463,7 +458,7 @@ void func_00162250(float mx, float my, float mz, int *cam, float *out)
         for (k = 0; k < 4; k++)
             d[k] = out[k] - F32(cam, 0x90 + k * 4);
         turn_y(v, yaw * -1.0f, d);
-        func_0029DE30(v, mx, my, mz);
+        func_0029DE30(mx, my, mz, v);
         turn_y(d, yaw, v);
     }
     for (k = 0; k < 4; k++) {
@@ -481,8 +476,8 @@ void func_001626E0(int *cam, float *t, float *e, float a, float b, float c, floa
     float nt[4], ne[4], x, z;
     int k;
 
-    func_0029DD40(a, d, nt, t, &F32(cam, 0xB0), &F32(obj, 0x1D0));
-    func_0029DD40(b, d, ne, e, &F32(cam, 0xC0), &F32(obj, 0x1C0));
+    func_0029DD40(a, d, PS2_ADDR(nt), PS2_ADDR(t), PS2_ADDR(&F32(cam, 0xB0)), PS2_ADDR(&F32(obj, 0x1D0)));
+    func_0029DD40(b, d, PS2_ADDR(ne), PS2_ADDR(e), PS2_ADDR(&F32(cam, 0xC0)), PS2_ADDR(&F32(obj, 0x1C0)));
     x = ne[0] - nt[0];
     z = ne[2] - nt[2];
     if (!(x * x + z * z <= 10000.0f))
@@ -674,7 +669,6 @@ typedef struct {
 extern float g_0045CE74, g_0045CE78, g_0045CE7C;   /* (small data) the target's dead zone */
 
 float func_0029DDE0(float cur, float prev, float want, float rate, float dt);
-void func_001F2BF0(Probe *p);
 
 /* Wraps an angle into -pi..pi (one turn at most). */
 static inline float wrap1(float a)
@@ -832,10 +826,10 @@ void func_001637B0(float dt, int *cam)
             q[k] = F32(obj, 0x1C0 + k * 4);
         q[1] = q[1] + 100.0f;
         p.pos = q;
-        func_001F2BF0(&p);
+        func_001F2BF0((unsigned char *)(&p));
         area = p.area;
         p.pos = &F32(obj, 0x1D0);
-        func_001F2BF0(&p);
+        func_001F2BF0((unsigned char *)(&p));
         if (area == p.area) {
             float y = old[1] + 6.0f;
 
@@ -849,7 +843,6 @@ typedef struct MotionState MotionState;
 
 extern float g_004064B0[3][2];           /* view angle and +0x220 of the three two-unit views */
 
-void func_001479D0(float t, MotionState *s, float *out);
 void func_0029EC70(float dt, int *cam);
 
 /* The matrix of rotation `rot` and position `pos` (VU0 micro subroutine 0x50) into m. */
@@ -1054,11 +1047,8 @@ extern int g_0045D2A8;                   /* (small data) non-zero: slow motion (
 extern int g_0045CC80;                   /* (small data) */
 extern int g_0045D2C8;                   /* (small data) */
 
-int func_0016C070(Unit *u);
 void func_0029EE00(int *cam, int a);
 void func_001FAA60(u8 player);
-void func_00254030(void);
-void func_0017C230(int *shake);
 
 /* 0x00164440, 0x240 bytes. The battle camera's update: the shake (+0x40, offsets +0x60 eye,
  * +0x80 target) taken out, the view for the situation (looking down at a beaten unit; between two
@@ -1105,7 +1095,7 @@ void func_00164440(float step, float dt, int *cam)
         BIT(CAM_OBJ, 0x230, 1) = 0;
     }
     if (cam[0x10] != 0) {
-        func_0017C230(&cam[0x10]);
+        func_0017C230((unsigned int *)(&cam[0x10]));
         for (k = 0; k < 4; k++) {
             F32(CAM_OBJ, 0x1C0 + k * 4) = F32(CAM_OBJ, 0x1C0 + k * 4) + F32(cam, 0x60 + k * 4);
             F32(CAM_OBJ, 0x1D0 + k * 4) = F32(CAM_OBJ, 0x1D0 + k * 4) + F32(cam, 0x80 + k * 4);

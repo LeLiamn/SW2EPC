@@ -13,6 +13,10 @@
  * When a movie plays first (func_0032E7B0), the update builds the battle step by step instead.
  */
 
+#define SW2E_FILE_SCENE_PRE_BATTLE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -374,78 +378,26 @@ extern int g_0045D498;                    /* its frame count */
 extern int g_0045D49C;                    /* 1 while the loading screen is open */
 extern u8 *g_0045D670;
 
-void func_0023AD10(int a, int b, int c, int d, int e);
-u8 func_00362C80(int side);
-u8 func_00362D70(int side);
-int func_00362D10(int side, u8 value);
-void func_00362C50(int side, int value);
-int func_002C5220(int pad, u8 *cursor, u8 *stored, int count, int count2);
 void func_00220970(int page);
 int func_0029D220(u8 *state);
-void func_00362BD0(int side, int slot, int value);
 u32 func_0029D200(u8 *state);
-void func_00118AC0(void *dst, const void *src, int size);
-void func_00118850(void *p, int size);
 int func_0029D210(u8 *state);
-u8 func_00362BB0(void);
 void func_0017DE50(void);
 void func_0017E060(int track);
 int func_0017DC00(u8 track);
 int func_0017DC30(void);
 u8 func_0017DC50(u8 track, int step);
-void func_00362B90(u8 track);
 void func_0017DF10(void);
-void func_002CAD60(u8 *data);
 void func_0028F860(u8 *data);
-void func_0028EFC0(u8 *data);
-void func_0028F4C0(u8 *data);
 void func_002EBE40(void);
 void func_002EBD80(float distance, u8 *camera, const void *direction);
 void func_002EBAA0(float distance, u8 *camera, const void *direction, int frames);
-void func_0028D5D0(int value);
-void func_002C59F0(void);
-void func_002C5A30(void);
-u32 func_00328330(u32 i);
-u32 func_0036F600(u32 a);
-u32 func_0036F610(u32 i);
-int func_00362B60(int side);
-int func_003A01A0(u32 a);
-int func_0036D2E0(void);
-u32 func_003F73E0(u32 i);
 void func_0029D1F0(u8 *state, int index, u32 value);
 void func_00221890(void);
-void func_002CAC30(u8 *items, u32 officer);
 void func_00223B60(u8 *data);
-void func_00103000(int value);
-void *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-void func_002D6890(void);
-void func_0028F960(u8 *data);
-void func_003E4280(void);
-void func_00101470(int value);
-void func_003F1580(void);
-void func_002F15E0(u32 a, int stage);
-void func_001B8F60(int a, int b, int c);
-int func_0032E7B0(void);
 int func_0017DDA0(void);
-void func_003DD9A0(void);
-void func_001D42E0(void);
-void func_00235A70(void);
-void func_003E3D70(void);
-void func_00376490(u32 a, int b);
-int func_0036D310(void);
-u32 func_00363B90(void);
-int func_003EF0D0(u32 a);
-void func_00376100(int a, int b, int c);
-int func_00102960(int value);
-void func_00103000(int value);
-void func_0019B4F0(int side, int b);
-void func_0019BD90(int side);
 void func_0028FB40(u8 *data);
 void func_002D68F0(void);
-void func_00102EC0(void *data);
-void func_003E42D0(void);
-void func_00235F70(void);
-void func_002F1660(void);
 int func_00221950(int player);
 void func_002209E0(void);
 int func_00221AB0(int player);
@@ -456,40 +408,16 @@ void func_00223120(int player);
 void func_00223220(int player);
 void func_00223600(int player);
 void func_00223BB0(int player);
-void func_0019F410(void);
-void func_0035ED20(void);
-void func_003635A0(void);
-void func_0035FD10(void);
-void func_00213F40(int stage);
-void func_001C77D0(int value);
-void func_0018C500(void);
 void func_00216B40(void);
-void func_00194010(void);
-void func_001BE1A0(void);
-void func_00185CA0(void);
 void func_0022E150(void);
-void func_0020EBB0(void);
 void func_00221710(int value);
-void func_002F16B0(void);
-void func_00376450(void);
-int func_003F1400(int value);
-int func_00235FC0(float dt);
 void func_002EC0A0(void);
-void func_00236430(void);
-void func_00291650(void *data, int a);
-u8 *func_001050F0(void);
-void func_00105390(u8 *packet);
-u8 *func_00105410(void);
-void func_00105560(u8 *packet);
 int func_002ECA70(void);
 int func_002EC150(void);
-void func_00195C20(void);
-void func_001FCC50(void);
 void func_002937E0(u8 *a, u8 *b);
 void func_00292A90(u8 *a);
 void func_001FCC90(void);
 void func_002944D0(void);
-void func_0029B900(void *a, u8 *b, u8 *c, u8 *d, int *e);
 void func_0029BBC0(void *a, u8 *b, void *c, u8 d, int e, u8 *f);
 void func_0029C690(u8 *a, u8 *b, int c);
 void func_0029CC10(int a, u8 *b, u8 *c);
@@ -497,27 +425,11 @@ void func_0029CC70(u32 officer);
 void func_0029BEC0(void *a, u8 *b, u8 c, int d, u8 *e);
 void func_0029C140(u32 officer, u8 b, int c);
 void func_0029C460(void *a, void *b, u8 c, int d, u8 *e);
-void func_0029CEB0(int a, u8 *b, u8 *c, void *d);
-void func_0029D310(int a, u8 *b, u8 *c, void *d);
 void func_0029D520(int a, u8 *b, u8 *c, void *d);
 void func_0029D6F0(u8 *a);
 void func_00290CE0(void *a, u32 b, int c, int d, int e);
 void func_003764B0(void);
-int func_003F1160(int value);
-void func_001A7DC0(const char *text, int alpha, int b);
-int func_00328A60(int officer);
-int func_0036D780(void);
 int func_002208D0(u32 officer);
-u32 func_002F6A60(u32 officer);
-int func_0036DBA0(u32 officer, u32 item);
-int func_002F4900(u32 officer, u32 item);
-u32 func_0029A5C0(u8 *page);
-const char *func_003725A0(int id);
-void func_003838B0(const char *text, int b);
-void func_003F11D0(void);
-void func_00236450(void);
-void func_002F16D0(void);
-void func_001D1E80(void);
 
 /* ---- The menu and its first pages (0x00220780-0x00224D60) ------------------------------------- */
 
@@ -536,23 +448,8 @@ extern const char *g_0043C3EC;            /* "You do not have any mounts." */
 #define PLAYER_CURSOR(p) ((&g_00749AEC)[p])            /* main menu cursor per player */
 #define PLAYER_READY(p) ((&g_00749B08)[p])             /* two armies: player ready */
 
-int func_00362570(void);
-u32 func_0033F7D0(int a, int b);
-u8 *func_0035DEC0(u32 officer, int i);
-void func_0017DEA0(int value);
-float (*func_001942C0(void))[4];
 void func_002EC0C0(u8 *camera, int mode);
-void func_001911A0(float *out, u8 *pos);
-void func_003DCA30(void);
-u32 func_00290C10(void);
-u32 func_00290C90(int page);
-int func_003F1070(int value);
-int func_0035F440(void);
 void func_002ECB80(int pad);
-int func_00328B00(int officer);
-void func_00328AA0(int officer, int value);
-void func_001AE9F0(int box, const char *text, int a);
-void func_001AFC70(int box, int pad);
 void func_00223100(void);
 void func_00224DD0(void);
 void func_00224DF0(void);
@@ -650,7 +547,7 @@ void func_00220970(int page)
  * the battle. */
 void func_002209E0(void)
 {
-    float (*box)[4] = func_001942C0();
+    float (*box)[4] = (float (*)[4])PS2_PTR(func_001942C0());
     float dir[4], len;
     int current;
     int i;
@@ -741,7 +638,7 @@ void func_002209E0(void)
             g_007A1C24 = 0x0F;
             g_007A1C18 = 2048.0f;
             g_007A1C1C = 2048.0f;
-            func_001911A0(pos, (*(u32 *)(unit + 0x80) & 0x20000) ? unit + 0x30 : unit + 0x28);
+            func_001911A0(pos, (float *)((*(u32 *)(unit + 0x80) & 0x20000) ? unit + 0x30 : unit + 0x28));
             CAMERA_TARGET(pos);
             func_002EBAA0(g_00443530[BATTLE_TYPE()].c, g_007A1BC0, g_00443140[BATTLE_TYPE()], 0x0F);
             func_002EC0C0(g_007A1BC0, 1);
@@ -841,7 +738,7 @@ void func_002209E0(void)
         break;
     }
     g_00749A10 = g_00749A14;
-    func_00376100(0, func_00290C10(), func_00290C90(g_00749A10));
+    func_00376100(0, func_00290C10(g_00749A14), func_00290C90(g_00749A10));
 }
 
 /* 0x00221710, 0xFC bytes. Player `player` is ready: with one army (or both ready) on to the
@@ -1111,18 +1008,7 @@ void func_00221F70(int player)
 extern void (*g_0040DF30[4])(int pad);    /* page 3 handlers by mode (1 and 2 empty) */
 extern const char *g_0043CA14[2];         /* "... uses this mount" per player? */
 
-void func_0034ED90(u32 target, u8 *cell);
-u32 func_00352FE0(u8 kind, u32 *out, int max);
-u32 func_0033D270(u8 **group, u8 kind);
-u32 func_0034EC80(u32 target);
-u8 **func_0034A740(u8 *unit);         /* the group of a unit */
 void func_002281B0(u8 **group, u32 target);
-u32 func_002F57F0(u8 item);
-void func_002F56A0(u32 officer, u32 kind);
-void func_002F4980(u32 officer, u32 item, int equip);
-void func_002CAD90(void);
-void func_003DD660(int player, u8 mount);
-const char *func_0019B280(char *buf, u32 officer);
 void func_001204B0(char *out, const char *format, ...);
 
 /* 0x00222450, 0xDC bytes. Page 2 (the map): Cancel goes back. */
@@ -1148,7 +1034,7 @@ void func_00222530(u8 *pos)
 {
     float target[4];
 
-    func_001911A0(target, pos);
+    func_001911A0(target, (float *)(pos));
     g_007A1BA4 = 0;
     g_007A1B70[0] = g_007A1E00[0];
     g_007A1B70[1] = g_007A1E00[1];
@@ -1174,7 +1060,7 @@ void func_002225D0(u32 target)
     float pos[2];
     u8 cell[4];
 
-    func_0034ED90(target, cell);
+    func_0034ED90((unsigned char *)PS2_PTR(target), cell);
     pos[0] = (float)cell[0] * 5000.0f + 2500.0f;
     pos[1] = (float)cell[1] * 5000.0f + 2500.0f;
     func_00222530((u8 *)pos);
@@ -1204,7 +1090,7 @@ void func_002226D0(u8 **group)
 
     P3_GROUP = group;
     n = func_00352FE0((*group)[0x79], list, 0x14);
-    current = func_0033D270(group, (*group)[0x79]);
+    current = PS2_ADDR(func_0033D270(group, (*group)[0x79]));
     if (current == 0)
         current = func_0034EC80(0);
     for (i = 0; i < n; i++)
@@ -1273,7 +1159,7 @@ void func_00222910(int pad)
                 SE(4);
             } else {
                 SE(1);
-                func_002226D0(func_0034A740(unit));
+                func_002226D0((u8 **)(func_0034A740(unit)));
             }
         }
     } else if (pressed & BTN_CANCEL) {
@@ -1509,7 +1395,7 @@ void func_00223600(int player)
  * func_0036D310 set, none (0 mounts, both players' choice 4 = none). */
 void func_00223B60(u8 *mounts)
 {
-    func_002CAD90();
+    func_002CAD90(mounts);
     if (func_0036D310() != 0) {
         mounts[4] = 0;
         mounts[5] = 4;
@@ -1602,18 +1488,6 @@ extern u8 *g_0045D2F0;                    /* (small data) the battle map: +4 its
 extern u32 g_006AA580[6];                 /* a list ... */
 extern u32 g_006AA598;                    /* ... and its count */
 
-void func_0034FE40(u8 *map);
-void func_003535B0(u8 *map);
-void func_00182350(void);
-void func_001D5DC0(void);
-void func_00354500(void);
-void func_00355490(void);
-void func_003E5570(void);
-int func_00362600(int side, u32 i);
-void func_003E5E00(void);
-void func_003625D0(int side, int i, u32 value);
-int func_0029D000(u8 *page, u8 value, int b);
-
 /* A map cell (inlined in the original, with a pointer test that is always true). */
 static u8 *map_cell(u8 *map, const u8 *pos)
 {
@@ -1695,7 +1569,7 @@ void func_002240A0(void)
     func_00354500();
     func_00355490();
     func_003E5570();
-    func_0028EFC0(g_007496F0);
+    func_0028EFC0((int *)(g_007496F0));
 }
 
 /* 0x00224290, 0xFC bytes. When the slots' values changed kind (0 or 1) from `before`, rebuilds
@@ -1848,7 +1722,7 @@ static void page10_values(int pad, int count, int empire)
     int shown = count < 10 ? count : 9;
 
     if (pressed & BTN_OK) {
-        if (func_0029D000(g_00749B6C, P10_CURSOR, empire) == 0) {
+        if (func_0029D000(PS2_ADDR(g_00749B6C), P10_CURSOR, empire) == 0) {
             SE(4);
         } else {
             SE(1);
@@ -1876,7 +1750,7 @@ static void page10_values(int pad, int count, int empire)
 /* 0x00224870, 0x284 bytes. Page 10, mode 1 (an Empire battle): the values of func_0029A5C0. */
 void func_00224870(int pad)
 {
-    page10_values(pad, func_0029A5C0(g_00749B6C), 1);
+    page10_values(pad, func_0029A5C0(PS2_ADDR(g_00749B6C)), 1);
 }
 
 /* 0x00224B00, 0x264 bytes. Page 10, mode 2 (a free battle): the values listed at set-up. */
@@ -1991,7 +1865,7 @@ void func_00225100(void)
 {
     u8 *page = (u8 *)&s_00749B9E;
 
-    func_00118AC0(page + 3, page + 8, 5);
+    func_00118AC0((unsigned int *)(page + 3), page + 8, 5);
 }
 
 /* 0x00225130, 0x38 bytes, matching. Page 12: starts an edit. */
@@ -2000,7 +1874,7 @@ void func_00225130(void)
     u8 *page = (u8 *)&s_00749B9E;
 
     page[0x17] = 0;
-    func_00118AC0(page + 8, page + 3, 5);
+    func_00118AC0((unsigned int *)(page + 8), page + 3, 5);
     func_00224FB0(1);
 }
 
@@ -2205,7 +2079,7 @@ void func_00225B10(void)
 {
     func_002CAD60(g_00749ACC);
     func_0028F860(g_00749AD8);
-    func_0028EFC0(g_007496F0);
+    func_0028EFC0((int *)(g_007496F0));
     func_0028F4C0(g_00749530);
     func_002EBE40();
     g_007A1C14 = g_00443630[BATTLE_TYPE()].b;
@@ -2330,7 +2204,7 @@ void func_002261B0(void)
     u32 i;
 
     func_00118850(g_00749B96, 8);
-    func_00118850(&s_00749B9E, 0x18);
+    func_00118850((unsigned char *)(&s_00749B9E), 0x18);
     for (i = 0; i < 9; i++)
         g_00749BAB[i] = 10;
     if (func_0036D2E0() == 0)
@@ -2401,7 +2275,7 @@ void func_00226380(void)
     if (g_00669DB8 != 2)
         g_00749A24 = func_001026D0(1, 0x37, 0, 1, 0, 0, g_00429EA0, 0xD0C);
     func_002D6890();
-    func_0028F960(g_007499EC);
+    func_0028F960((unsigned int *)(g_007499EC));
     g_00772D54 = 0;
     func_003E4280();
     func_00103000(1);
@@ -2781,7 +2655,7 @@ void func_002275C0(void)
         func_002944D0();
     }
     switch (g_00749A10) {
-    case 0:  func_0029B900(g_00749A20, &g_00749AEC, g_00749AD8, g_007496F0, &g_00749B08); break;
+    case 0:  func_0029B900(PS2_ADDR(g_00749A20), PS2_ADDR(&g_00749AEC), PS2_ADDR(g_00749AD8), PS2_ADDR(g_007496F0), &g_00749B08); break;
     case 1:  func_0029BBC0(g_00749A20, g_007499EC, g_00749A24, g_00749AEE, g_00749A1C, g_00749AE4); break;
     case 2:  func_0029C690(g_00749530, g_00749AD8, 0); break;
     case 3:  func_0029CC10(g_00749A1C, g_007496F0, g_00749B10); break;
@@ -2792,8 +2666,8 @@ void func_002275C0(void)
         break;
     case 7:  func_0029C140(PLAYER_OFFICER(g_00749A1C), g_00749AF0, 1); break;
     case 9:  func_0029C460(g_00749A20, g_00749A24, g_00749AF0, g_00749A1C, g_00749AE4); break;
-    case 10: func_0029CEB0(g_00749A1C, g_007496F0, g_00749B6C, g_00749A20); break;
-    case 11: func_0029D310(g_00749A1C, g_007496F0, g_00749B96, g_00749A20); break;
+    case 10: func_0029CEB0(g_00749A1C, PS2_ADDR(g_007496F0), PS2_ADDR(g_00749B6C), PS2_ADDR(g_00749A20)); break;
+    case 11: func_0029D310(g_00749A1C, PS2_ADDR(g_007496F0), g_00749B96, PS2_ADDR(g_00749A20)); break;
     case 12: func_0029D520(g_00749A1C, g_007496F0, &g_00749B9E, g_00749A20); break;
     case 13: func_0029D6F0(&g_00749BB6); break;
     }
@@ -2875,21 +2749,21 @@ void func_002275C0(void)
                 func_001A7DC0(g_0043C6FC, 0x80, 1);
             else
                 func_001A7DC0(g_0043C700, 0x80, 1);
-        } else if (func_0029A5C0(g_00749B6C) < 2) {
+        } else if (func_0029A5C0(PS2_ADDR(g_00749B6C)) < 2) {
             func_001A7DC0(g_0043C560, 0x80, 1);
         } else {
             func_001A7DC0(g_0043C638, 0x80, 1);
         }
         break;
     case 11:
-        func_003838B0(func_003725A0(0x62), 1);
+        func_003838B0(PS2_ADDR(func_003725A0(0x62)), 1);
         if (func_00362D70(0) < 2)
             func_001A7DC0(g_0043C560, 0x80, 1);
         else
             func_001A7DC0(g_0043C72C, 0x80, 1);
         break;
     case 12:
-        func_003838B0(func_003725A0(99), 1);
+        func_003838B0(PS2_ADDR(func_003725A0(99)), 1);
         if (g_00749B9E == 0) {
             if (g_00749B9F < 5 && g_00749BA1[g_00749B9F] < 10)
                 func_001A7DC0(g_0043C6FC, 0x80, 1);

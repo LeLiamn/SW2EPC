@@ -12,6 +12,10 @@
  * [0xB] the other actor, [0xC-0x19] effects, +0x70 / +0x80 / +0x90 vectors.
  */
 
+#define SW2E_FILE_ACTOR_STATUS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -31,16 +35,9 @@ extern u8 g_00669D60[];
 #define g_70000158 (*(u32 *)0x70000158)
 #define SETTINGS_FLAGS (*(u32 *)(g_00669D60 + 0x200))
 
-int func_0016C040(u8 *a);
-u8 *func_0016A170(u8 *a, int node);
-u8 *func_001C8340(int k, float *pos, float *dir, u32 f);
 void func_001C7F30(int k, float *pos, int c, u32 f);
-void func_0021A3B0(int k, u8 *pos);
 u32 func_0024E790(u32 v, u8 *g);
-u32 func_001CCD20(u32 v, u32 a, u32 b);
 u32 func_002A81C0(u32 a, u32 b, u8 *c, u32 d);
-int func_00271280(void);
-void func_00229050(int a);
 
 /* The effect flags of actor `a` (0x200 when it is in view?). */
 static u32 fx_flags(u8 *a)
@@ -75,7 +72,7 @@ static void lerp4(float *out, const float *p, const float *q, float t)
 }
 
 /* Node `n`'s position of actor `a`. */
-#define NODE_POS(a, n) ((float *)(func_0016A170((a), (n)) + 0x30))
+#define NODE_POS(a, n) ((float *)(((u8 *)func_0016A170((a), (n))) + 0x30))
 
 /* Stops effect `e`. */
 #define FX_STOP(e) (*(u32 *)((e) + 0x38) |= 8)
@@ -103,7 +100,7 @@ u32 func_0024FA80(u32 v)
         u8 *g = g_00755060[k], *m;
 
         if (g[0x1D] != 0 && *(u32 *)(g + 0x14) < 0x30 && (m = *(u8 **)(g_00755020[g[0x1F]] + 0x18)) != 0) {
-            u32 c = func_001CCD20(v, *(u32 *)(m + 0x27C), *(u32 *)(m + 0x270));
+            u32 c = PS2_ADDR(func_001CCD20((unsigned int *)PS2_PTR(v), *(u32 *)(m + 0x27C), *(u32 *)(m + 0x270)));
 
             v = func_002A81C0(*(u32 *)(g + 8), c, m + g_70000150 * 0x130, *(u32 *)(g + 0x14));
         }
@@ -129,8 +126,8 @@ int func_0024FB50(u8 *a, u32 *st)
     st[2] = 0;
     st[7] = 0;
     *(float *)&st[8] = 0.2f;
-    st[0xE] = (u32)func_001C8340(0x10, (float *)(a + 0x40), 0, f);
-    func_0021A3B0(4, a + 0x40);
+    st[0xE] = (u32)func_001C8340(0x10, (unsigned char *)((float *)(a + 0x40)), 0, f);
+    func_0021A3B0(4, PS2_ADDR(a + 0x40));
     return 1;
 }
 
@@ -175,7 +172,7 @@ void func_00250190(u8 *a, u32 *st, int level);
 /* 0x0024FF00, 0x5C bytes, matching. The level status follows the current level. */
 void func_0024FF00(u8 *a, u32 *st)
 {
-    int v = func_00271280();
+    int v = func_00271280(a);
 
     func_00250120(a, st, v);
     func_00250190(a, st, v);
@@ -208,10 +205,10 @@ int func_0024FF60(u8 *a, u32 *st, int level)
     }
     f |= 1;
     for (k = 0; k < 9; k++)
-        st[0xC + k] = (u32)func_001C8340(k1, NODE_POS(a, g_00410A60[k]), 0, f);
+        st[0xC + k] = (u32)func_001C8340(k1, (void *)NODE_POS(a, g_00410A60[k]), 0, f);
     for (k = 9; k < 0xD; k++)
-        st[0xC + k] = (u32)func_001C8340(k2, NODE_POS(a, g_00410A60[k]), 0, f);
-    st[0x19] = (u32)func_001C8340(k3, NODE_POS(a, g_00410A60[0xD]), 0, f);
+        st[0xC + k] = (u32)func_001C8340(k2, (void *)NODE_POS(a, g_00410A60[k]), 0, f);
+    st[0x19] = (u32)func_001C8340(k3, (void *)NODE_POS(a, g_00410A60[0xD]), 0, f);
     return 1;
 }
 
@@ -300,7 +297,7 @@ static int halo_start(u8 *a, u32 *st, int k)
     d[1] = g_70000030[1];
     d[2] = g_70000030[2];
     d[3] = g_70000030[3];
-    st[0xC] = (u32)func_001C8340(k, p, d, f | 1);
+    st[0xC] = (u32)func_001C8340(k, (unsigned char *)(p), PS2_ADDR(d), f | 1);
     return 1;
 }
 
@@ -366,7 +363,7 @@ int func_002505E0(u8 *a, u32 *st, int k)
     f = fx_flags(a);
     midpoint(p, r, l);
     g_70000D60 = 0;
-    st[0xC] = (u32)func_001C8340(k, p, 0, f);
+    st[0xC] = (u32)func_001C8340(k, (unsigned char *)(p), 0, f);
     return 1;
 }
 
@@ -413,7 +410,7 @@ int func_00250870(u8 *a, u32 *st)
         float *p = NODE_POS(a, g_00410A70[j]);
 
         g_70000D60 = 0;
-        st[0xC + j] = (u32)func_001C8340(k, p, 0, f | 8);
+        st[0xC + j] = (u32)func_001C8340(k, (unsigned char *)(p), 0, f | 8);
     }
     return 1;
 }
@@ -475,10 +472,10 @@ int func_00250C10(u8 *a, u32 *st)
         k = 0x2E;
     if ((SETTINGS_FLAGS & 2) == 0) {
         g_70000D60 = 3;
-        st[0xC] = (u32)func_001C8340(0x2B, p, 0, 0x209);
+        st[0xC] = (u32)func_001C8340(0x2B, (unsigned char *)(p), 0, 0x209);
     }
     g_70000D60 = 0;
-    st[0xD] = (u32)func_001C8340(k, p, 0, 0x209);
+    st[0xD] = (u32)func_001C8340(k, (unsigned char *)(p), 0, 0x209);
     return 1;
 }
 
@@ -498,7 +495,6 @@ void func_00250D00(u8 *a, u32 *st)
 }
 
 extern u8 g_0045CDE8[7];                 /* (small data) the nodes of the seven-glow statuses */
-
 
 int func_00250E30(u8 *a, u32 *st);
 void func_00251000(u8 *a, u32 *st);
@@ -542,7 +538,7 @@ int func_00250E30(u8 *a, u32 *st)
     }
     f = func_0016C040(a) == 0 && func_0016C040((u8 *)st[0xB]) == 0 ? 0 : 0x200;
     g_70000D60 = 0;
-    st[0xC] = (u32)func_001C8340(k, p, 0, f | 9);
+    st[0xC] = (u32)func_001C8340(k, (unsigned char *)(p), 0, f | 9);
     return 1;
 }
 
@@ -597,7 +593,7 @@ int func_002513D0(u8 *a, u32 *st)
     }
     f = fx_flags(a);
     g_70000D60 = 0;
-    st[0xC] = (u32)func_001C8340(0x37, h, 0, f | 1);
+    st[0xC] = (u32)func_001C8340(0x37, (unsigned char *)(h), 0, f | 1);
     return 1;
 }
 
@@ -651,10 +647,10 @@ int func_00251590(u8 *a, u32 *st, int k1, int k2)
     f = fx_flags(a);
     if ((SETTINGS_FLAGS & 2) == 0) {
         g_70000D60 = 3;
-        st[0xC] = (u32)func_001C8340(k1, p, 0, f | 9);
+        st[0xC] = (u32)func_001C8340(k1, (unsigned char *)(p), 0, f | 9);
     }
     g_70000D60 = 0;
-    st[0xD] = (u32)func_001C8340(k2, p, 0, f | 9);
+    st[0xD] = (u32)func_001C8340(k2, (unsigned char *)(p), 0, f | 9);
     return 1;
 }
 
@@ -685,7 +681,7 @@ int func_00251730(u8 *a, u32 *st, int k)
         float *p = NODE_POS(a, g_0045CDE8[j]);
 
         g_70000D60 = 0;
-        st[0xC + j] = (u32)func_001C8340(k, p, 0, 0x208);
+        st[0xC + j] = (u32)func_001C8340(k, (unsigned char *)(p), 0, 0x208);
     }
     return 1;
 }
@@ -739,7 +735,7 @@ int func_00251A00(u8 *a, u32 *st, int k)
     f = fx_flags(a);
     st[1] = k;
     g_70000D60 = 0;
-    st[0xC] = (u32)func_001C8340(k, p, 0, f | 1);
+    st[0xC] = (u32)func_001C8340(k, (unsigned char *)(p), 0, f | 1);
     return 1;
 }
 
@@ -784,11 +780,6 @@ void func_00251B20(u8 *a, u32 *st)
 
 extern u8 g_005B4D80[], g_005B4FC0[];    /* two screen-corner positions (by player) */
 extern u8 g_005755A8;
-
-void func_001C8130(int k, float *pos, float *dir, u32 f, u8 who);
-u8 *func_001C84B0(int k, float *pos, float *dir, u32 f);
-int func_00240DB0(u8 *a);
-float func_001F2B70(float *pos);
 
 /* Copies node `n`'s position into the record's first vector. */
 static float *copy_node(u8 *a, u32 *st, int n)
@@ -835,7 +826,7 @@ int func_00251C80(u8 *a, u32 *st, int k)
     f = fx_flags(a);
     midpoint(p, r, l);
     g_70000D60 = 0;
-    st[0xC] = (u32)func_001C8340(k, p, 0, f | 9);
+    st[0xC] = (u32)func_001C8340(k, (unsigned char *)(p), 0, f | 9);
     st[3] = 0;
     st[1] = k;
     return 1;
@@ -864,7 +855,7 @@ void func_00251E00(u8 *a, u32 *st)
             float *p = NODE_POS(a, 0);
 
             g_70000D60 = 1;
-            func_001C8130(st[1] == 0x51 ? 0x52 : 0x50, p, 0, f | 8, a[0x14E]);
+            func_001C8130(st[1] == 0x51 ? 0x52 : 0x50, PS2_ADDR(p), 0, f | 8, a[0x14E]);
         }
     } else if (t < 10) {
         if (st[0xC] != 0) {
@@ -878,7 +869,7 @@ void func_00251E00(u8 *a, u32 *st)
             st[0xC] = 0;
             p = NODE_POS(a, 0);
             g_70000D60 = 1;
-            func_001C8130(st[0] == 0x10 ? 0x52 : 0x50, p, 0, f | 8, a[0x14E]);
+            func_001C8130(st[0] == 0x10 ? 0x52 : 0x50, PS2_ADDR(p), 0, f | 8, a[0x14E]);
         }
     } else {
         midpoint((float *)(st + 0x1C), NODE_POS(a, 7), NODE_POS(a, 6));
@@ -915,10 +906,10 @@ static int ground_pair(u8 *a, u32 *st, int k1, int k2)
     }
     if ((SETTINGS_FLAGS & 2) == 0) {
         g_70000D60 = 3;
-        st[0xC] = (u32)func_001C8340(k1, p, 0, 0x209);
+        st[0xC] = (u32)func_001C8340(k1, (unsigned char *)(p), 0, 0x209);
     }
     g_70000D60 = 0;
-    st[0xD] = (u32)func_001C8340(k2, p, 0, 0x209);
+    st[0xD] = (u32)func_001C8340(k2, (unsigned char *)(p), 0, 0x209);
     return 1;
 }
 
@@ -981,9 +972,9 @@ int func_00252400(u8 *a)
     if (o != 0 && (o[0x19C] & 2) == 0) {
         g_70000D60 = 0;
         if (o[0x14E] == 1)
-            func_001C8340(0x26, (float *)g_005B4FC0, 0, 0x2A4);
+            func_001C8340(0x26, (unsigned char *)((float *)g_005B4FC0), 0, 0x2A4);
         else
-            func_001C8340(0x26, (float *)g_005B4D80, 0, 0x264);
+            func_001C8340(0x26, (unsigned char *)((float *)g_005B4D80), 0, 0x264);
         if ((g_005755A8 & 2) == 0)
             func_00229050(2);
     }
@@ -993,7 +984,7 @@ int func_00252400(u8 *a)
 /* 0x002524B0, 0xF0 bytes. The target status ends with the partner. */
 void func_002524B0(u8 *a, u32 *st)
 {
-    if (*(u8 **)(a + 0x28C) == 0 || func_00240DB0(a) == 0)
+    if (*(u8 **)(a + 0x28C) == 0 || func_00240DB0(PS2_ADDR(a)) == 0)
         status_end(a, st);
 }
 
@@ -1027,7 +1018,7 @@ int func_00252600(u8 *a, u32 *st, int k)
     f = fx_flags(a);
     p = copy_node(a, st, 0);
     g_70000D60 = 0;
-    st[0xC] = (u32)func_001C84B0(k, p, 0, f | 0x109);
+    st[0xC] = (u32)func_001C84B0(k, (unsigned char *)(p), 0, f | 0x109);
     return 1;
 }
 
@@ -1076,8 +1067,8 @@ int func_00252810(u8 *a, u32 *st)
     f = fx_flags(a);
     g_70000D60 = 0;
     p = copy_node(a, st, 0);
-    p[1] = func_001F2B70(p);
-    st[0xC] = (u32)func_001C84B0(0xE4, p, 0, f | 0x11);
+    p[1] = func_001F2B70((unsigned char *)(p));
+    st[0xC] = (u32)func_001C84B0(0xE4, (unsigned char *)(p), 0, f | 0x11);
     return 1;
 }
 
@@ -1097,7 +1088,7 @@ void func_00252940(u8 *a, u32 *st)
     if ((a[0x19D] & 8) != 0 && st[0xC] != 0) {
         float *p = copy_node(a, st, 0);
 
-        p[1] = func_001F2B70(p);
+        p[1] = func_001F2B70((unsigned char *)(p));
         if (s != 0 && (u32)(*s - 0xA5) < 2)
             FX_LEAVE(st);
     } else if (st[0xC] != 0) {
@@ -1113,14 +1104,12 @@ extern u8 g_00410A20[0x19];              /* the statuses' view distance kinds */
 extern u32 g_0045D520;                   /* (small data) */
 extern u8 g_00574DE0[][0x630];           /* the actors */
 
-int func_001C8BE0(int k, u8 *pos);
-
 /* 0x00252A10, 0x2DC bytes. Starts status record `st` of actor `a`. */
 void func_00252A10(u32 *st, u8 *a)
 {
     switch (st[0]) {
     case 0: func_0024FB50(a, st); break;
-    case 1: func_0024FEE0(a, st, func_00271280()); break;
+    case 1: func_0024FEE0(a, st, func_00271280(a)); break;
     case 2: func_00250310(a, st); break;
     case 3:
         func_002505E0(a, st, a[0x182] == 1 ? 0x14C : a[0x182] == 2 ? 0x150 : 0x148);
@@ -1159,7 +1148,7 @@ void func_00252CF0(u32 *st, u8 *a)
     int ok;
 
     switch (st[0]) {
-    case 1: ok = func_0024FF60(a, st, func_00271280()); break;
+    case 1: ok = func_0024FF60(a, st, func_00271280(a)); break;
     case 2: ok = func_00250350(a, st); break;
     case 6: ok = func_00250C10(a, st); break;
     case 7: ok = func_00250E30(a, st); break;
@@ -1222,7 +1211,7 @@ void func_002530A0(u32 *st, u8 *a)
 {
     switch (st[0]) {
     case 1:
-        func_00250120(a, st, func_00271280());
+        func_00250120(a, st, func_00271280(a));
         /* falls through */
     case 7:
         func_00251000(a, st);
@@ -1300,7 +1289,7 @@ void func_00253300(u32 kind, u8 *a)
     }
     if (k >= 4)
         return;
-    if (*(int *)(a + 0x11C) == 0 || func_001C8BE0(g_00410A20[kind], a + 0x40) == 0) {
+    if (*(int *)(a + 0x11C) == 0 || func_001C8BE0(g_00410A20[kind], PS2_ADDR(a + 0x40)) == 0) {
         if (g_00410A00[kind] == 0)
             return;
         st[0] = kind;
@@ -1352,7 +1341,7 @@ void func_00253480(void)
                     }
                 } else if (*(int *)(a + 0x11C) == 0) {
                     func_002530A0(st, a);
-                } else if (func_001C8BE0(g_00410A20[st[0]], a + 0x40) != 0) {
+                } else if (func_001C8BE0(g_00410A20[st[0]], PS2_ADDR(a + 0x40)) != 0) {
                     func_00252CF0(st, a);
                 }
             } else {
@@ -1405,9 +1394,6 @@ extern u32 g_7000015C;                   /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 extern u8 g_006A3A30[][0xC0];            /* the battle officers */
 
-int func_00271210(void);
-u8 *func_001C8780(int k, u8 *a, u8 c, u32 f);
-u8 *func_001C8810(int k, u8 *a, u8 c, u32 f);
 void func_00229E20(int a);
 void func_00229E30(void);
 
@@ -1472,7 +1458,7 @@ void func_00253A60(u8 *a)
     if (*(int *)(a + 0x11C) != 0 && *(int *)(a + 0x118) < 0x1C && (a[0x19C] & 2) == 0) {
         short life = *(short *)(g_006A3A30[*(short *)(a + 0x178)] + 0x88);
         u8 n = a[0x14E];
-        short v = func_00271210();
+        short v = func_00271210(a);
 
         if ((g_0076E700[n] & 2) == 0 && v <= life) {
             func_00253690(0, a);
@@ -1539,15 +1525,15 @@ void func_00253D20(u8 *a)
 
             *m |= b;
             g_70000D60 = 0;
-            func_001C8780(0xF3, a, g_0045CDF0[k], f | 0x80000000);
+            func_001C8780(0xF3, PS2_ADDR(a), g_0045CDF0[k], f | 0x80000000);
         }
     }
 }
 
-/* 0x00253E40, 0x54 bytes. An element spark `c` of kind `k` at actor `a`. */
+/* 0x00253E40, 0x54 bytes, matching. An element spark `c` of kind `k` at actor `a`. */
 void func_00253E40(u8 *a, u8 k, u8 c)
 {
-    u8 *e = func_001C8810(0xF3, a, c, 0x80000001);
+    u8 *e = (u8 *)PS2_PTR(func_001C8810(0xF3, PS2_ADDR(a), c, 0x80000001));
 
     if (e != 0) {
         e[0x105] = k;
@@ -1584,7 +1570,7 @@ void func_00253FC0(void)
 {
     if ((g_005755A8 & 2) == 0 && g_0045D520 == 0) {
         g_70000D60 = 0;
-        g_0045D520 = (u32)func_001C8340(0xCF, (float *)g_005B4D80, 0, 0x265);
+        g_0045D520 = (u32)func_001C8340(0xCF, (unsigned char *)((float *)g_005B4D80), 0, 0x265);
         func_00229E20(2);
     }
 }

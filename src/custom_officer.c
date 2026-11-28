@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_CUSTOM_OFFICER_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -18,7 +22,6 @@ extern u8 g_00418E10[][0x20];
 extern u8 g_00418FD0[][0x20];
 
 void func_0011ED38(void *p, int v, int n);
-void func_0039E8C0(int k);
 
 /* 0x0039E650, 0x24 bytes. */
 int func_0039E650(int k)
@@ -51,7 +54,7 @@ u8 *func_0039E6A0(int k)
 }
 
 /* 0x0039E6C0, 0x20 bytes. */
-u8 func_0039E6C0(int k)
+u32 func_0039E6C0(int k)
 {
     return *(u8 *)(g_00669FB4[k] + 0x13);
 }
@@ -81,7 +84,7 @@ u32 func_0039E740(int k)
 }
 
 /* 0x0039E760, 0x20 bytes. */
-u8 func_0039E760(int k)
+u32 func_0039E760(int k)
 {
     return *(u8 *)(g_00669FB4[k] + 0x28);
 }
@@ -93,25 +96,25 @@ u8 func_0039E780(int k)
 }
 
 /* 0x0039E7A0, 0x20 bytes. */
-u8 func_0039E7A0(int k)
+u32 func_0039E7A0(int k)
 {
     return *(u8 *)(g_00669FB4[k] + 0x2C);
 }
 
 /* 0x0039E7C0, 0x20 bytes. */
-u8 func_0039E7C0(int k)
+u32 func_0039E7C0(int k)
 {
     return *(u8 *)(g_00669FB4[k] + 0x2D);
 }
 
 /* 0x0039E7E0, 0x20 bytes. */
-u8 func_0039E7E0(int k)
+u32 func_0039E7E0(int k)
 {
     return *(u8 *)(g_00669FB4[k] + 0x2F);
 }
 
 /* 0x0039E800, 0x20 bytes. */
-u8 func_0039E800(int k)
+u32 func_0039E800(int k)
 {
     return *(u8 *)(g_00669FB4[k] + 0x30);
 }

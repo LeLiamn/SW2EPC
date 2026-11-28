@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_CMD_STATE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -21,24 +25,7 @@ extern int g_0045D6FC;                   /* (small data) */
 extern u32 g_0045D004;
 extern int g_0045D010, g_0045D014, g_0045D018, g_0045D01C;
 
-void func_0032BAF0(void);
-void func_0032BB10(void);
-void func_0032BB30(void);
-void func_003D3980(void);
-void func_003D36D0(void);
-void func_003D3770(void);
-void func_003D3A40(void);
-void func_003D39F0(void);
-void func_003D3720(void);
 void func_0032F770(int a);
-int func_0030AB90(void);
-u32 func_002F8F20(int p);
-int func_00327C70(void);
-int func_002F8CB0(int f);
-int func_00327C00(void);
-int func_002F2840(u32 o);
-int func_002F3DC0(u32 o);
-int func_002F4080(u32 o);
 
 /* 0x0032E760, 0x20 bytes. The officer under the list's cursor. */
 int func_0032E760(void)
@@ -244,12 +231,6 @@ extern u8 *g_0045D71C;                   /* (small data) records of 0x3C bytes *
 extern int (*g_00414EF0[6])(void);
 extern int g_00414EA0[0x12];
 
-int func_00327820(void);
-int func_0030D370(void);
-int func_0036B280(int s);
-int func_00334720(void);
-int func_003C1850(void);
-
 /* 0x0032EE10, 0x9C bytes. Whether officer `o` is the lord of a force still in the game. */
 int func_0032EE10(int o)
 {
@@ -392,15 +373,8 @@ extern u32 g_7000015C;
 
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
-void func_00102EC0(void *p);
-void *func_00102DB0(int align, int size);
-u8 *func_001026D0(int a, int k, int b, int c, int d, int e, char *name, int line);
-int func_00102960(int a);
 u32 func_00120A40(const char *s);
-void func_003C0770(void);
 void func_0017E0C0(int v, int a);
-void func_0017DEA0(int v);
-void func_0023B3C0(int on, int all);
 
 /* 0x0032F1D0, 0xC4 bytes. A weapon kind's model group. */
 int func_0032F1D0(int k)
@@ -448,7 +422,7 @@ void func_0032F530(void)
         g_0045D714 = 0;
     }
     if (g_0045D718 != 0) {
-        func_00102EC0(g_0045D718);
+        func_00102EC0((unsigned char *)(g_0045D718));
         g_0045D718 = 0;
     }
     g_0045D70C = 0;
@@ -458,7 +432,7 @@ void func_0032F530(void)
 /* 0x0032F5A0, 0xA0 bytes. */
 void func_0032F5A0(void)
 {
-    g_0045D718 = func_00102DB0(0x10, 0x18);
+    g_0045D718 = (int *)(func_00102DB0(0x10, 0x18));
     g_0045D714 = func_00102DB0(0x10, 600);
     g_0045D710 = func_00102DB0(0x10, 0x240);
     g_007B5E50[0] = 0;

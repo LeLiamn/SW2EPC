@@ -7,6 +7,10 @@
  * with a question mark are hypotheses. Units are reached by offset as in unit.c.
  */
 
+#define SW2E_FILE_UNIT_TOUCH_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -33,9 +37,6 @@ void vu0_sincos(float a, float *s, float *c);     /* VU0 micro subroutine 0x20 *
 
 extern int g_0040669C[4];                /* +0: a setting in 0x4123-0x1046B (or 0) */
 
-int func_0016B9B0(Unit *u, Unit *v, u8 *hit, u8 alpha);
-int func_0016AA60(Unit *u, Unit *v, u8 *hit, void *pos, short *damage, u8 alpha);
-u8 *func_003DD3C0(u8 horse);
 void func_0029F790(Unit *u, Unit *v, u8 *hit, u8 alpha);
 
 /* 0x00171FA8, 0x34 bytes. Sets g_0040669C to `v` (0, or 0x4123-0x1046B); whether it was

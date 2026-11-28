@@ -9,6 +9,13 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_STAGE_OBJS2_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
+/* 0x002A5A60 (not decompiled yet): sets sound `h` up at a position (floats in f12-f16). */
+void func_002A5A60(float a, float b, float c, float d, float e, int h);
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -20,19 +27,10 @@ extern u8 g_00799920[0x100];
 extern u8 *g_0045D5E8;                   /* (small data) the free list */
 
 void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
-u32 *func_00177ED0(void);
 void func_001ACA70(u32 *o, int a, int b, int c, int d);
 u8 *func_001FF140(short k);
-void func_00118AC0(void *to, const void *from, u32 n);
-void func_00118850(void *p, int n);
-u8 *func_0027E660(u8 *o);
-u8 *func_002BBF40(u8 k);
 void func_002A5B10(u32 h);
-void func_002BBF00(u8 k);
-void func_0027E6A0(u8 *o);
-void func_0027E990(u32 s, u8 *o, u32 k);
 void func_002BC110(int a, u8 b);
-int func_00190C40(short *c, u8 k);
 
 /* 0x002B8790, 0x248 bytes. Draws a map screen's frame and corners. */
 int func_002B8790(u8 *t)
@@ -73,7 +71,7 @@ u8 *func_002BA740(u8 *o)
 /* 0x002BBC60, 0x98 bytes. A new projectile at `pos`. */
 u32 *func_002BBC60(int a, int b, u32 *pos, int c)
 {
-    u32 *o = func_00177ED0();
+    u32 *o = (u32 *)(func_00177ED0());
     int k;
 
     if (o != 0) {
@@ -136,9 +134,9 @@ int func_002BC2B0(u8 *a, int *b)
 }
 
 /* 0x002BC660, 0x1C bytes, matching. */
-void func_002BC660(void *a, const void *b)
+void func_002BC660(void *a, const void *b, int n)
 {
-    func_00118AC0(a, b, 0x30);
+    func_00118AC0(a, (u8 *)b, 0x30);
 }
 
 /* 0x002BC680, 0xEC bytes. Stops object `b` when it has arrived (sound off, next state). */
@@ -203,7 +201,7 @@ void func_002BC9B0(u8 *p)
 /* 0x002BC9F0, 0x78 bytes. Adds cell `c` to list `l` (21 at most) when it is in the area. */
 int func_002BC9F0(short *c, int *l)
 {
-    if (func_00190C40(c, (*(u8 **)l)[0x13]) != 0) {
+    if (func_00190C40((unsigned char *)(c), (*(u8 **)l)[0x13]) != 0) {
         u16 n = *(u16 *)(l + 1);
 
         if (n == 0x15)
@@ -242,14 +240,8 @@ extern int g_0045D5CC, g_0045D5D0;
                   *(u32 *)(g_00669D60 + 0x74))
 
 char func_001FF100(short k, int a);
-u8 *func_0027F120(char v);
-u8 *func_0027E5F0(u8 *o, int a);
-void func_0027E610(u8 *o);
-u8 *func_0027E8C0(u8 *o, u32 k);
 int func_002A6910(int v, int a, u8 *p);
-void func_002A5A60(u32 a, u32 b, u32 c, u32 d, u32 e);
 short func_001FF120(short k);
-void func_001FD4B0(float f, u8 *o, short m, u8 *s);
 short *func_001FF230(short *m);
 
 /* Whether the object moves forward (its direction byte). */
@@ -262,7 +254,7 @@ void func_002BCAE0(u8 *p, u8 *rec, u32 size)
 
     for (n = size >> 5; n != 0; n--, rec += 0x20) {
         if (rec[0] == MAP_ID())
-            func_00118AC0(p + rec[1] * 0x30 + 0x20, rec, 0x20);
+            func_00118AC0((unsigned int *)(p + rec[1] * 0x30 + 0x20), rec, 0x20);
     }
     for (k = 0; k < 4; k++, p += 0x30) {
         if (p[0x21] == k) {
@@ -310,7 +302,7 @@ int func_002BDD10(int *b)
 }
 
 /* 0x002BE2C0, 0x84 bytes. Starts the object's sound at `pos`. */
-void func_002BE2C0(u8 *a, u32 *pos)
+void func_002BE2C0(u8 *a, float *pos)
 {
     u8 *q = func_002BBF40(a[0xB]);
 
@@ -319,7 +311,7 @@ void func_002BE2C0(u8 *a, u32 *pos)
 
         *(int *)(q + 4) = h;
         if (h != 0x107)
-            func_002A5A60(pos[0], pos[1], pos[2], pos[3], pos[4]);
+            func_002A5A60(pos[0], pos[1], pos[2], pos[3], pos[4], h);
     }
 }
 
@@ -335,9 +327,9 @@ void func_002BE350(u8 *a)
 }
 
 /* 0x002BE3A0, 0x78 bytes. */
-int func_002BE3A0(u8 *o, int a, char c)
+int func_002BE3A0(int k, int a, char c)
 {
-    if (func_0027E5F0(o, a) != 0)
+    if (func_0027E5F0(k) != 0)
         return 1;
     if (c == 3 || c == 1)
         return 0;
@@ -345,14 +337,14 @@ int func_002BE3A0(u8 *o, int a, char c)
 }
 
 /* 0x002BE420, 0xC8 bytes. */
-int func_002BE420(u8 *o, int a, char c)
+int func_002BE420(int k, int a, char c)
 {
-    u8 *r = func_0027E5F0(o, a);
+    u8 *r = func_0027E5F0(k);
 
     if (r != 0 && r[10] == 0) {
         func_002BE350(r);
         func_002BBF00(r[0xB]);
-        func_0027E610(o);
+        func_0027E610(k);
         r = 0;
     }
     if (c == 2 || c == 0)
@@ -369,7 +361,7 @@ void func_002BEAE0(int *rec, u32 size)
     g_0045D5DC = 0;
     while (n != 0 && k < 4) {
         if ((u32)rec[0] == MAP_ID()) {
-            func_00118AC0(d, rec, 0x10);
+            func_00118AC0((unsigned int *)(d), (unsigned char *)(rec), 0x10);
             d += 0x10;
             k = ++g_0045D5DC;
         }
@@ -383,12 +375,12 @@ int func_002BEE30(u8 *o, u8 *v, u32 k)
 {
     u8 *r;
 
-    func_0027E610(o);
+    func_0027E610(PS2_ADDR(o));
     k &= 0xFF;
     if (k == 3 || k == 2)
         return 1;
     if (k == 1 || k == 0) {
-        r = func_0027E8C0(o, k);
+        r = func_0027E8C0(PS2_ADDR(o), k);
         if (r == 0)
             return 0;
         r[10] = *v;
@@ -407,7 +399,7 @@ void func_002BFAB0(float dt, u8 *o)
     u16 n = *(u16 *)(b + 4), j;
 
     for (j = 0; j < n; j++) {
-        func_001FD4B0(dt * (1.0f - f), o, *m, s + 0x60);
+        func_001FD4B0(dt * (1.0f - f), PS2_ADDR(o), *m, PS2_ADDR(s + 0x60));
         m = func_001FF230(m);
         s += 0x60;
     }
@@ -418,9 +410,9 @@ int func_002BFCC0(u8 *o, int a, u32 k)
 {
     k &= 0xFF;
     if (k == 3 || k == 1)
-        return func_0027E8C0(o, k) != 0;
+        return func_0027E8C0(PS2_ADDR(o), k) != 0;
     if (k == 2 || k == 0) {
-        func_0027E610(o);
+        func_0027E610(PS2_ADDR(o));
         g_0045D5D0 = 0;
         g_0045D5CC = 0;
         return 1;
@@ -439,12 +431,7 @@ extern u8 g_004123A5;
 extern u8 g_004123B0[][0x30];
 extern u8 *g_0045D5A0;
 
-int func_0027F0C0(char k);
-int func_0027F140(char k);
 int func_002C33C0(u8 *o, int a);
-void func_002AF120(u32 k);
-void func_002AEE00(u32 k, char s);
-u32 func_00196A10(void);
 
 /* 0x002C1540, 0xB4 bytes. */
 int func_002C1540(u8 *o, int a)
@@ -459,14 +446,14 @@ int func_002C1540(u8 *o, int a)
 }
 
 /* 0x002C2240, 0xA4 bytes. */
-int func_002C2240(u8 *o, int a, char c)
+int func_002C2240(int k, int a, char c)
 {
-    u8 *r = func_0027E5F0(o, a);
+    u8 *r = func_0027E5F0(k);
 
     if (r == 0)
         return 0;
     if (!(c == 2 || c == 0) || r[0xB] == 0)
-        func_0027E610(o);
+        func_0027E610(k);
     return 1;
 }
 
@@ -480,7 +467,7 @@ void func_002C2D80(int *rec, u32 size)
     while (n != 0) {
         n--;
         if ((u32)rec[0] == MAP_ID()) {
-            func_00118AC0(d, rec, 0x40);
+            func_00118AC0((unsigned int *)(d), (unsigned char *)(rec), 0x40);
             d += 0x40;
             g_0045D5BC++;
         }

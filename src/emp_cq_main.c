@@ -8,6 +8,14 @@
  * with a question mark are hypotheses. The file was built with the loop unroller on.
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_00362550   /* the original callers here see it this way */
+void func_00362550(int b);
+#endif
+#define SW2E_FILE_EMP_CQ_MAIN_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 #pragma opt_unroll_loops on
 
 typedef unsigned char u8;
@@ -43,116 +51,17 @@ extern void *g_0045D6A4, *g_0045D6A8;    /* (small data) two 0x67C-byte buffers 
 extern const char g_004467F8[];          /* "emp_cq_main.c" */
 extern const char *g_0043C5EC, *g_0043C5F0;   /* help lines */
 
-int func_0030AB90(void);
-int func_0030AFF0(int r);
-int func_0030B090(int r);
-void func_0030ABC0(void);
-int func_002FB3B0(int f);
-int func_002F9C90(int f, int g);
-int func_002F9060(u32 f);
-int func_002F4080(u32 i);
-int func_002F3770(u32 i);
-int func_002F38F0(u32 i);
-int func_002F3E70(u32 i);
-int func_002F27D0(u32 i);
-int func_002F2840(u32 i);
-void func_002F3660(u32 i, int v);
-void func_002F4980(u32 i, int k, int v);
-void func_002F8C80(void);
-void func_002F26F0(void);
 int func_002F7D90(int n, int (*keep)(u32, int, int), int a, int b, int c, int p5);
-int func_002F8160(u32 i, int f);
-int func_00327D50(void);
-int func_00327C00(void);
-u32 func_00327C70(void);
-int func_00327B70(int f);
-void func_00327750(int n);
-void func_00327DC0(int n);
-void func_00327710(int n);
-int func_00327820(void);
-int func_00327900(void);
-u32 func_00327140(int a, u32 b);
 void *func_0030CCC0(void);
 void func_0011ED38(void *to, int value, int size);
 void func_0011EB80(void *to, const void *from, int size);
-void *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-int func_00102960(int value);
-void func_00102EC0(void *data);
-void *func_00102DB0(int align, int size);
-int func_0039E650(int k);
-void func_0039EB40(int k);
-u8 *func_00390940(void);
 float sqrtf(float x);        /* (VU0 vsqrt) */
-u32 func_003620E0(int side, int k);
-void func_00362110(int side, int k, int v);
-void func_00362220(int side, int k, int v);
-void func_003621B0(int side, int k, int v);
-int func_00362260(int side, int k);
-void func_003623E0(int a);
-void func_00362550(int b);
-int func_00362490(void);
-u32 func_00362570(void);
-void func_00362630(int side, int v);
-void func_002D6890(void);
 void func_002D68F0(void);
-void func_00374E20(void);
-void func_0038C6F0(void);
-void func_003907B0(void);
-void func_00390780(void);
-void func_003A5C40(int k);
-void func_003A5FA0(int a, int b, int c, int d);
 void func_003A5E20(void);
-void func_003A7A10(void);
-void func_003A7D90(void);
-void func_003DA7F0(void);
-void func_003DA850(void);
-void func_00375CF0(void);
-void func_0039F840(void);
-void func_0039F960(void);
-void func_003DB120(int k);
-void func_003DB1B0(void);
-void func_003DC040(void);
-void func_003DC080(void);
-void func_002FC630(void);
-void func_002FC2D0(void);
-void func_002FC560(void);
-void func_002FC660(void);
-void func_003236F0(int a);
-void func_001AFFB0(int a);
-void func_003BA8C0(int k);
-void func_003BAB70(int k);
-void func_003BA8F0(int k, int a, int b, int c, int d);
-void func_003B6CD0(void);
-void func_003A9170(void);
-int func_0023A760(int k);
-void func_0023A7D0(int k);
-void func_0032E8A0(int k, int v);
-void func_00330320(int c, int a);
-void func_003D32C0(int c);
-int func_0032FF00(void);
-void func_0032BB70(void);
-int func_0032BC30(void);
-void func_0032FEF0(int a);
-void func_0032F770(int a);
-void func_00369A50(void);
-void func_0032D150(void);
-void func_0037FB60(void *pic, int x, int y, int a, int b);
-void func_0039B700(void);
 void func_0032D3C0(void *pic);
-int *func_003DB900(int k);
 void func_00380E80(void *pic, int a, int x, int y);
-void func_003D38A0(int a, int x, int y, int b, int c, int d, int e, int f);
-void func_001A7DC0(const char *text, int a, int b);
-int func_00372580(int i);
 void func_0037E480(void *pic, int i, int x, int y, int a, int b, int c, int d, int p8);
-void func_003DC180(int k, int a, int *out);
 void func_002C7310(int a, int x, int y, int w, int h, int b, int c);
-void func_00381FF0(void *pic, int a, int y, int i, int on);
-void func_0037E9F0(void *pic, int i, int a, int y, int b, int c);
-void func_003821E0(void *pic, int sel, int a, int y, u8 *l, int n);
-void func_0037E950(void *pic, int i, int a, int y, int b);
-int func_003725A0(int k);
-void func_003838B0(int a, int b);
 
 int func_0030D150(void);
 int func_0030D530(int side);
@@ -226,7 +135,7 @@ void func_0030CEF0(void)
 {
     void *d = func_001026D0(1, 0xAA, 0, 1, 0, 0, g_004467F8, 0x143);
 
-    *(void **)(func_00390940() + 0x8EC0) = d;
+    *(void **)((u8 *)((u8 *)func_00390940()) + 0x8EC0) = d;
     func_00102960(1);
 }
 
@@ -798,7 +707,7 @@ void func_0030E520(void)
 {
     Notice *n = func_0030E2C0();
 
-    func_0037FB60(g_0045D6B0, 0xA0, 0x60, n->a, n->b);
+    func_0037FB60(PS2_ADDR(g_0045D6B0), 0xA0, 0x60, n->a, n->b);
 }
 
 /* 0x0030E560, 8 bytes, matching. */
@@ -841,9 +750,9 @@ void func_0030E630(void)
 
     style = b == 0 ? 4 : 0xC;
     if (n->step == 4)
-        func_0037FB60(func_0030D7D0(), pos[0], pos[1], a, style);
+        func_0037FB60(PS2_ADDR(func_0030D7D0()), pos[0], pos[1], a, style);
     else if (n->step == 3)
-        func_0037FB60(func_0030D7D0(), pos[0], pos[1], a, style);
+        func_0037FB60(PS2_ADDR(func_0030D7D0()), pos[0], pos[1], a, style);
 }
 
 /* 0x0030E700, 8 bytes, matching. */
@@ -880,7 +789,7 @@ void func_0030E820(void)
     int *pos = func_003DB900(0xF);
 
     if (n->step == 1 || n->step == 0)
-        func_0037E480(func_0030D7D0(), n->a, 0xB4, 0x4A, pos[4], func_00372580(n->a), 1, 1, 1);
+        func_0037E480(func_0030D7D0(), n->a, 0xB4, 0x4A, pos[4], PS2_ADDR(func_00372580(n->a)), 1, 1, 1);
 }
 
 /* 0x0030E8C0, 0x34 bytes, matching. */
@@ -898,12 +807,12 @@ void func_0030E900(void)
     int *pos = func_003DB900(8), s = n->step, i = n->list[n->a];
 
     if (s == 1) {
-        func_0037E480(func_0030D7D0(), i, 0xB4, 0x4A, pos[4], func_00372580(i), 0, 0, 1);
+        func_0037E480(func_0030D7D0(), i, 0xB4, 0x4A, pos[4], PS2_ADDR(func_00372580(i)), 0, 0, 1);
         func_001A7DC0(g_0043C5EC, 0x80, 1);
     } else if (s == 2) {
-        func_0037E480(func_0030D7D0(), i, 0xB4, 0x4A, pos[4], func_00372580(i), 0, 0, 1);
+        func_0037E480(func_0030D7D0(), i, 0xB4, 0x4A, pos[4], PS2_ADDR(func_00372580(i)), 0, 0, 1);
     } else if (s == 0) {
-        func_0037E480(func_0030D7D0(), i, 0xB4, 0x4A, pos[4], func_00372580(i), 0, 0, 1);
+        func_0037E480(func_0030D7D0(), i, 0xB4, 0x4A, pos[4], PS2_ADDR(func_00372580(i)), 0, 0, 1);
     }
 }
 
@@ -918,11 +827,11 @@ void func_0030EA60(void)
     func_002C7310(pos[0], 0x58, 0, 0xA6, cnt * 0x18 + 0x10, 0x80, 1);
     box = pos[0];
     for (k = 0, y = 0x60; k < cnt; k++, y += 0x18)
-        func_00381FF0(func_0030D7D0(), box, y, n->list[k], n->b == k);
+        func_00381FF0(PS2_ADDR(func_0030D7D0()), box, y, n->list[k], n->b == k);
     func_003DC180(0x11, 0, pos);
-    func_0037E9F0(func_0030D7D0(), n->list[n->b], pos[0], 0x68, 0x80, 1);
+    func_0037E9F0(PS2_ADDR(func_0030D7D0()), n->list[n->b], pos[0], 0x68, 0x80, 1);
     func_001A7DC0(g_0043C5F0, 0x80, 1);
-    func_003838B0(func_003725A0(0x60), 1);
+    func_003838B0(PS2_ADDR(func_003725A0(0x60)), 1);
 }
 
 /* 0x0030EBB0, 0x19C bytes. The same as a compact list (officer numbers as bytes). */
@@ -935,11 +844,11 @@ void func_0030EBB0(void)
     for (k = 0; k < cnt; k++)
         l[k] = n->list[k];
     func_003DC180(0x10, 0, pos);
-    func_003821E0(func_0030D7D0(), n->b, pos[0], 0x50, l, cnt);
+    func_003821E0(PS2_ADDR(func_0030D7D0()), n->b, pos[0], 0x50, PS2_ADDR(l), cnt);
     func_003DC180(0x11, 0, pos);
-    func_0037E950(func_0030D7D0(), n->list[n->b], pos[0], 0x68, 0x80);
+    func_0037E950(PS2_ADDR(func_0030D7D0()), n->list[n->b], pos[0], 0x68, 0x80);
     func_001A7DC0(g_0043C5F0, 0x80, 1);
-    func_003838B0(func_003725A0(0x61), 1);
+    func_003838B0(PS2_ADDR(func_003725A0(0x61)), 1);
 }
 
 /* 0x0030ED50, 0x70 bytes. In step 1, the officer list (full rows for commands 0x3B-0x59, else
@@ -975,56 +884,11 @@ extern char g_007B4E60[];                /* the message text */
 extern const char g_00446808[];          /* "%s" */
 
 void func_0037DAD0(void *pic);
-void func_0023AD10(int a, int b, int c, int d, int e);
 void func_0039F950(int v);
-void func_00376100(int a, int b, int c);
 int func_0039B980(void);
-const char *func_00390760(int id);
-int func_00327CC0(void);
-const char *func_00372660(int k);
-int func_00327C80(void);
-char *func_0030CB80(int v);
-const char *func_002F8DB0(int f);
 void func_001204B0(char *out, const char *format, ...);   /* sprintf */
 void func_00120928(char *to, const char *from);          /* strcpy */
-void func_00374EE0(const char *text);
-int func_00375B90(void);
-int func_00375BF0(void);
-int func_0030A030(int f, int to);
-void func_002F3CF0(u32 i, int r);
-void func_002F8E80(int f, u32 i);
-int func_002FB2A0(int f);
-void func_00327780(u32 i);
-void func_002F43C0(u32 i, int v);
-void func_002F4510(u32 i, int v);
-void func_00308600(u32 i);
-int func_002F5CC0(u32 i);
-int func_002F80C0(u32 i, int f);
-void func_002F5BE0(u32 i, int r);
-int func_00309130(u32 i, int f, int r, int msg);
-const char *func_002F2890(u32 i);
-u32 *func_002F7B10(void);
-int func_002F77A0(u32 i, u32 j);
-int func_002F77F0(u32 i, u32 j);
-int func_002F78C0(u32 i, u32 j);
-int func_002F3DC0(u32 i);
-int func_002F7550(u32 i);
-int func_002F34E0(u32 i);
-int func_002F82F0(u32 i, int f);
-int func_002F8340(u32 i, int f);
-void func_0032D300(int k, u32 *l, int n);
-const char *func_0030ABF0(int r);
-void func_0023AA40(void);
-u32 func_002F8F20(int f);
-void func_002F7610(u32 i);
 int func_0032D9C0(void);
-u32 func_0032E760(void);
-void func_003DB480(int a, int b);
-void func_002FAEA0(int f, int g, int k, int v);
-void func_003DB220(int k, int *pos);
-void func_003DB460(int a, int b);
-void func_0032EA80(int k);
-void func_002FAFC0(int f);
 
 /* 0x0030EDC0, 0x228 bytes. Draws the notice by its kind. */
 void func_0030EDC0(void)
@@ -1098,9 +962,9 @@ void func_0030F1B0(int f)
 {
     char text[96];
 
-    func_001204B0(text, func_00390760(0x70), func_00372660(func_00327CC0()),
+    func_001204B0(text, (const char *)(func_00390760(0x70)), func_00372660(func_00327CC0()),
                   func_0030CB80(func_00327C80()), func_002F8DB0(f));
-    func_00374EE0(text);
+    func_00374EE0(PS2_ADDR(text));
 }
 
 /* 0x0030F240, 0xA0 bytes. Notice: force `a` is destroyed (by `b`) once its message closes. */
@@ -1149,13 +1013,13 @@ int func_0030F2E0(u32 i, u32 old)
         if (func_002FB2A0(f) == 0) {
             func_001204B0(a, g_00446808, func_002F2890(old));
             func_001204B0(b, g_00446808, func_002F2890(i));
-            func_001204B0(g_007B4E60, func_00390760(0x6F), a, b);
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x6F)), a, b);
         } else {
             func_001204B0(a, g_00446808, func_002F2890(i));
             func_001204B0(b, g_00446808, func_002F2890(old));
-            func_001204B0(g_007B4E60, func_00390760(0x6E), a, b);
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x6E)), a, b);
         }
-        func_00374EE0(g_007B4E60);
+        func_00374EE0(PS2_ADDR(g_007B4E60));
         return 0;
     }
     return 5;
@@ -1193,7 +1057,7 @@ u32 func_0030F500(int f, u32 dead)
         n = func_002F7D90(0, (int (*)(u32, int, int))func_002F8340, f, 0, 0, 0);
     if (n == 0)
         return -100;
-    func_0032D300(0xC, o, n);
+    func_0032D300(0xC, PS2_ADDR(o), n);
     return 0x19F;
 }
 
@@ -1224,10 +1088,10 @@ int func_0030F750(int step, u32 i, int quiet, int ask)
             func_0030E100();
             if (quiet == 0) {
                 if (func_002F3DC0(i) == 0) {
-                    func_001204B0(g_007B4E60, func_00390760(0x69), func_002F2890(i),
+                    func_001204B0(g_007B4E60, (const char *)(func_00390760(0x69)), func_002F2890(i),
                                   func_0030ABF0(func_002F5CC0(i)));
                 } else if (func_002F4080(i) == func_00327D50()) {
-                    func_001204B0(g_007B4E60, func_00390760(0x6A), func_002F2890(i),
+                    func_001204B0(g_007B4E60, (const char *)(func_00390760(0x6A)), func_002F2890(i),
                                   func_0030ABF0(func_002F5CC0(i)));
                     if (func_0023A760(10) != 0) {
                         func_00102960(1);
@@ -1236,20 +1100,20 @@ int func_0030F750(int step, u32 i, int quiet, int ask)
                 } else if (func_002F3E70(i) == 0) {
                     func_00120928(b, func_002F8DB0(func_002F4080(i)));
                     func_00120928(a, func_002F2890(i));
-                    func_001204B0(g_007B4E60, func_00390760(0x6C), a, b);
+                    func_001204B0(g_007B4E60, (const char *)(func_00390760(0x6C)), a, b);
                 } else {
-                    func_001204B0(g_007B4E60, func_00390760(0x6B), func_002F2890(i));
+                    func_001204B0(g_007B4E60, (const char *)(func_00390760(0x6B)), func_002F2890(i));
                 }
             } else {
                 int m = func_002FB2A0(func_002F4080(i)) == 0 ? 0xC1 : 0xC2;
 
-                func_001204B0(g_007B4E60, func_00390760(m), func_002F2890(i));
+                func_001204B0(g_007B4E60, (const char *)(func_00390760(m)), func_002F2890(i));
                 if (func_0023A760(0xB) != 0) {
                     func_00102960(1);
                     func_0023A7D0(0xB);
                 }
             }
-            func_00374EE0(g_007B4E60);
+            func_00374EE0(PS2_ADDR(g_007B4E60));
             step = 2;
         }
         break;
@@ -1381,8 +1245,8 @@ void func_0030FD00(void)
                 pos[1] = 0x60;
                 func_003DB220(3, pos);
                 func_003DB460(3, 2);
-                func_001204B0(g_007B4E60, func_00390760(m), func_002F8DB0(a));
-                func_00374EE0(g_007B4E60);
+                func_001204B0(g_007B4E60, (const char *)(func_00390760(m)), func_002F8DB0(a));
+                func_00374EE0(PS2_ADDR(g_007B4E60));
                 n->step++;
             }
         }
@@ -1439,30 +1303,11 @@ void func_0030FF70(void)
     }
 }
 
-void func_00375030(int x, int y, int w, int h, int a, const char *text);
-void func_00321A20(u32 i, u32 j, int c);
-void func_002F3B30(u32 i, int v);
-void func_0032E910(u32 i);
 int func_00330650(int k);
-int func_00309C30(u32 i, int f, int r);
-int func_0036B260(void);
-int func_0036BA20(int side, int k);
 int func_00120A40(const char *text);       /* strlen */
-void func_003A9510(int *r, int n, int a);
-void func_003A9010(int a);
-void func_003A9610(void);
-void func_002F90D0(int f, int v);
-int func_00320F10(void);
-int func_00327E50(void);
-void func_003A7C10(void);
-int func_002F9990(int f);
-void func_003A78E0(int r, int c, int a);
-void func_003A80F0(int r, int a);
-void func_003A8000(int r);
-void func_003A80A0(int a);
 
 /* Shows the message text once built. */
-#define SHOW() func_00374EE0(g_007B4E60)
+#define SHOW() func_00374EE0(PS2_ADDR(g_007B4E60))
 /* Whether the message box was closed with OK. */
 #define CLOSED_OK() (func_00375BF0() != 0 && func_00375B90() == 1)
 
@@ -1483,8 +1328,8 @@ void func_003100E0(void)
         func_003DB460(2, 2);
         func_00120928(b, func_002F2890(n->b));
         func_00120928(a, func_002F2890(n->a));
-        func_001204B0(g_007B4E60, func_00390760(0x71), a, b);
-        func_00375030(0x38, 0x11C, 400, 0x54, 0, g_007B4E60);
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(0x71)), a, b);
+        func_00375030(0x38, 0x11C, 400, 0x54, 0, PS2_ADDR(g_007B4E60));
         n->step++;
         break;
     case 1:
@@ -1530,7 +1375,7 @@ void func_003100E0(void)
             lead = func_002F8F20(func_002F4080(n->b));
             func_00120928(b, func_002F2890(n->a));
             func_00120928(a, func_002F8DB0(func_002F4080(lead)));
-            func_001204B0(g_007B4E60, func_00390760(0x72), b, a);
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x72)), b, a);
             SHOW();
             n->step++;
         }
@@ -1584,22 +1429,22 @@ void func_003104D0(void)
         switch (kind) {
         case 0: case 2:
             if (won == 0) {
-                func_001204B0(g_007B4E60, func_00390760(0xB3), func_002F8DB0(p), func_0030ABF0(region));
+                func_001204B0(g_007B4E60, (const char *)(func_00390760(0xB3)), func_002F8DB0(p), func_0030ABF0(region));
             } else {
                 func_00120928(a, func_002F8DB0(p));
                 func_00120928(b, func_002F8DB0(p));
-                func_001204B0(g_007B4E60, func_00390760(0xB1), a, func_0030ABF0(region), b);
+                func_001204B0(g_007B4E60, (const char *)(func_00390760(0xB1)), a, func_0030ABF0(region), b);
             }
             break;
         case 1: case 3:
             if (won == 0) {
                 func_00120928(a, func_002F8DB0(f2));
                 func_00120928(b, func_002F8DB0(p));
-                func_001204B0(g_007B4E60, func_00390760(0xB6), a, b);
+                func_001204B0(g_007B4E60, (const char *)(func_00390760(0xB6)), a, b);
             } else {
                 func_00120928(a, func_002F8DB0(f1));
                 func_00120928(b, func_002F8DB0(p));
-                func_001204B0(g_007B4E60, func_00390760(0xB5), a, b, a, func_0030ABF0(region));
+                func_001204B0(g_007B4E60, (const char *)(func_00390760(0xB5)), a, b, a, func_0030ABF0(region));
                 bonus = 3000;
             }
             break;
@@ -1607,9 +1452,9 @@ void func_003104D0(void)
             if (won == 0) {
                 func_00120928(a, func_002F8DB0(p));
                 func_00120928(b, func_002F8DB0(f1));
-                func_001204B0(g_007B4E60, func_00390760(0xB4), a, b, func_0030ABF0(region));
+                func_001204B0(g_007B4E60, (const char *)(func_00390760(0xB4)), a, b, func_0030ABF0(region));
             } else {
-                func_001204B0(g_007B4E60, func_00390760(0xB2), func_002F8DB0(p), func_0030ABF0(region));
+                func_001204B0(g_007B4E60, (const char *)(func_00390760(0xB2)), func_002F8DB0(p), func_0030ABF0(region));
             }
             break;
         case 5:
@@ -1617,11 +1462,11 @@ void func_003104D0(void)
                 func_00120928(a, func_002F8DB0(f1));
                 func_00120928(b, func_002F8DB0(f2));
                 func_00120928(c, func_002F8DB0(p));
-                func_001204B0(g_007B4E60, func_00390760(0xB8), b, c, a, func_0030ABF0(region));
+                func_001204B0(g_007B4E60, (const char *)(func_00390760(0xB8)), b, c, a, func_0030ABF0(region));
             } else {
                 func_00120928(a, func_002F8DB0(f1));
                 func_00120928(b, func_002F8DB0(p));
-                func_001204B0(g_007B4E60, func_00390760(0xB7), a, b, func_0030ABF0(region));
+                func_001204B0(g_007B4E60, (const char *)(func_00390760(0xB7)), a, b, func_0030ABF0(region));
                 bonus = 1000;
             }
             break;
@@ -1629,9 +1474,9 @@ void func_003104D0(void)
             func_00120928(a, func_002F8DB0(f1));
             func_00120928(b, func_002F8DB0(f2));
             if (c8 == 0)
-                func_001204B0(g_007B4E60, func_00390760(0xBA), a, b, func_0030ABF0(region));
+                func_001204B0(g_007B4E60, (const char *)(func_00390760(0xBA)), a, b, func_0030ABF0(region));
             else
-                func_001204B0(g_007B4E60, func_00390760(0xB9), a, b, func_0030ABF0(region), a);
+                func_001204B0(g_007B4E60, (const char *)(func_00390760(0xB9)), a, b, func_0030ABF0(region), a);
             break;
         }
         n->list[4] = bonus;
@@ -1657,7 +1502,7 @@ void func_003104D0(void)
         } else {
             func_00120928(a, func_002F8DB0(f1));
             func_00120928(b, func_002F8DB0(f2));
-            func_001204B0(g_007B4E60, func_00390760(0xC0), b, a);
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0xC0)), b, a);
             SHOW();
             func_003A9510(&n->list[2], 1, 0);
             func_003A9010(1);
@@ -1678,7 +1523,7 @@ void func_003104D0(void)
 
             gold += s < 2000 ? s : 2000;
             func_002F90D0(p, gold / 10);
-            func_001204B0(g_007B4E60, func_00390760(0xBB), func_002F8DB0(f1), func_0030CB80(gold));
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0xBB)), func_002F8DB0(f1), func_0030CB80(gold));
             SHOW();
             n->step++;
         }
@@ -1695,7 +1540,7 @@ void func_003104D0(void)
         } else {
             int lim = func_00327E50();
 
-            func_001204B0(g_007B4E60, func_00390760(0x78), func_002F8DB0(func_00327D50()), func_0030CB80(lim));
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x78)), func_002F8DB0(func_00327D50()), func_0030CB80(lim));
             SHOW();
             n->step++;
         }
@@ -1725,7 +1570,7 @@ void func_00310C80(void)
                 n->step++;
         }
     } else if (n->step == 0) {
-        func_001204B0(g_007B4E60, func_00390760(0x61), func_002F8DB0(n->list[n->a]));
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(0x61)), func_002F8DB0(n->list[n->a]));
         SHOW();
         n->step++;
     }
@@ -1742,7 +1587,7 @@ void func_00310D90(void)
         if (CLOSED_OK())
             n->step++;
     } else if (n->step == 0) {
-        func_001204B0(g_007B4E60, func_00390760(n->a));
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(n->a)));
         SHOW();
         n->step++;
     }
@@ -1773,7 +1618,7 @@ void func_00310E60(void)
     case 1: m = n->b == 0 ? 0x65 : 0x64; break;
     case 4: m = 0x62; break;
     }
-    func_001204B0(g_007B4E60, func_00390760(m));
+    func_001204B0(g_007B4E60, (const char *)(func_00390760(m)));
     SHOW();
     n->step = 1;
 }
@@ -1841,40 +1686,7 @@ extern int g_00446900[3][12];            /* by training command: the skills it c
 extern const char *g_0042D3E0[];         /* skill names ("Vitality", ...) */
 extern char *g_0045CFE8;                 /* (small data) a text buffer */
 
-void func_002F3A60(u32 i, int v);
-void func_002F4CB0(u32 i, int v);
-void func_002F5480(u32 i, int v);
-void func_002F4FD0(u32 i, int v);
-void func_002F52F0(u32 i, int v);
-void func_002F5610(u32 i, int v);
-void func_002F4E40(u32 i, int v);
-void func_002F5160(u32 i, int v);
-int func_002F39F0(u32 i);
-int func_002F4C40(u32 i);
-int func_002F5410(u32 i);
-int func_002F4F60(u32 i);
-int func_002F5280(u32 i);
-int func_002F55A0(u32 i);
-int func_002F4DD0(u32 i);
-int func_002F50F0(u32 i);
-int func_002F59A0(u32 i);
-int func_002F5D30(u32 i);
-int func_002F5E80(u32 i);
-int func_002F6510(u32 i);
-int func_002F6120(u32 i);
-int func_002F63C0(u32 i);
-int func_002F6660(u32 i);
-int func_002F5FD0(u32 i);
-int func_002F6270(u32 i);
-int func_002F47A0(u32 i, int k);
-void func_002F4820(u32 i, int k, int v);
-int func_002FABC0(int f);
-int func_002FA9E0(int f, int k);
 int func_002FBE80(int f);
-int func_0030AB50(int k);
-const char *func_00372FF0(int stat);
-int func_0030CB00(int n);
-int func_0030CB50(int pct);
 
 /* 0x00311260, 0x118 bytes. Notice: the command's help message (0xAB for commands 0x3B-0x59,
  * 0x12F for 0x5A-0x62 and 0x65, else 0xAA) in the window. */
@@ -1894,7 +1706,7 @@ void func_00311260(void)
             m = ((a < 0x5A || a > 0x62) && a != 0x65) ? 0xAA : 0x12F;
         else
             m = 0xAB;
-        func_00374EE0(func_00390760(m));
+        func_00374EE0(PS2_ADDR(func_00390760(m)));
         pos[4] = 0x80;
         func_003DB220(0xF, pos);
         func_003DB460(0xF, 5);
@@ -1915,7 +1727,7 @@ void func_00311380(void)
     } else if (n->step == 0) {
         int lim = func_00327E50();
 
-        func_001204B0(g_007B4E60, func_00390760(0x78), func_002F8DB0(func_00327D50()), func_0030CB80(lim));
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(0x78)), func_002F8DB0(func_00327D50()), func_0030CB80(lim));
         SHOW();
         n->step++;
     }
@@ -1939,9 +1751,9 @@ void func_00311490(void)
         break;
     case 2:
         if (b == 4)
-            func_001204B0(g_007B4E60, func_00390760(0x75), func_002F2890(i));
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x75)), func_002F2890(i));
         else
-            func_001204B0(g_007B4E60, func_00390760(0x74), func_002F2890(i), func_0030CB80(b / 4));
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x74)), func_002F2890(i), func_0030CB80(b / 4));
         SHOW();
         n->step++;
         break;
@@ -1950,7 +1762,7 @@ void func_00311490(void)
             n->step++;
         break;
     case 0:
-        func_001204B0(g_007B4E60, func_00390760(0x73), func_002F2890(i));
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(0x73)), func_002F2890(i));
         SHOW();
         n->step++;
         break;
@@ -2037,8 +1849,8 @@ int func_003117C0(u32 i, int c, int bonus)
 
         if (gain == 0)
             return 0;
-        func_001204B0(g_0045CFE8, func_00390760(0x2C), func_002F2890(i), func_00372FF0(s), func_0030CB80(gain));
-        func_00374EE0(g_0045CFE8);
+        func_001204B0(g_0045CFE8, (const char *)(func_00390760(0x2C)), func_002F2890(i), func_00372FF0(s), func_0030CB80(gain));
+        func_00374EE0(PS2_ADDR(g_0045CFE8));
         func_00311710(i, s, gain);
     }
     return 1;
@@ -2096,18 +1908,13 @@ int func_00311CC0(u32 i, u32 t, int c)
     if (func_0030CB50(pct) == 0)
         return 0;
     lv = func_002F47A0(i, k);
-    func_001204B0(g_007B4E60, func_00390760(0x2B), func_002F2890(i), g_0042D3E0[k], func_0030CB80(lv + 1));
+    func_001204B0(g_007B4E60, (const char *)(func_00390760(0x2B)), func_002F2890(i), g_0042D3E0[k], func_0030CB80(lv + 1));
     SHOW();
     func_002F4820(i, k, lv + 1);
     return 1;
 }
 
-const char *func_002F2A30(u32 i);
-int func_002FB320(int f, int *out);
-int func_002FB2D0(int f);
 void func_003986E0(int r, int a, int *l, int n);
-void func_0030A870(int kind, u32 i, int r, int *l, int n, int show);
-int func_002F7EC0(u32 i, int f);
 
 /* 0x00311F70, 0x11C bytes. The training's closing message: 0x32 for commands outside
  * 0x24-0x27, else when nothing was learned 0x2D-0x30 with both officers. 0 when there is none. */
@@ -2117,7 +1924,7 @@ int func_00311F70(u32 i, u32 j, int any, int c)
     int m = -1;
 
     if (c < 0x24 || c > 0x27) {
-        func_00374EE0(func_00390760(0x32));
+        func_00374EE0(PS2_ADDR(func_00390760(0x32)));
         return 1;
     }
     if (any != 0)
@@ -2132,7 +1939,7 @@ int func_00311F70(u32 i, u32 j, int any, int c)
         m = 0x2D;
     func_00120928(a, func_002F2890(i));
     func_00120928(b, func_002F2890(j));
-    func_001204B0(g_007B4E60, func_00390760(m), a, b);
+    func_001204B0(g_007B4E60, (const char *)(func_00390760(m)), a, b);
     SHOW();
     return 1;
 }
@@ -2261,7 +2068,7 @@ void func_00312400(void)
     case 1:
         func_0030E100();
         func_003A9510(reg, func_002FB320(f, reg), 0);
-        func_001204B0(g_007B4E60, func_00390760(0x5E), func_002F2A30(lead));
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(0x5E)), func_002F2A30(lead));
         SHOW();
         n->step++;
         break;
@@ -2315,7 +2122,7 @@ void func_00312660(void)
     } else if (n->step == 1) {
         if (func_0030E1F0() == 2) {
             func_0030E100();
-            func_001204B0(g_007B4E60, func_00390760(0x49), func_0030ABF0(r));
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x49)), func_0030ABF0(r));
             SHOW();
             if (func_0023A760(5) != 0) {
                 func_00102960(1);
@@ -2349,7 +2156,7 @@ void func_003127F0(void)
     } else if (n->step == 1) {
         if (func_0030E1F0() == 2) {
             func_0030E100();
-            func_001204B0(g_007B4E60, func_00390760(0x52), func_002F2890(i));
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x52)), func_002F2890(i));
             SHOW();
             if (func_0023A760(0xE) != 0) {
                 func_00102960(1);
@@ -2390,7 +2197,7 @@ void func_00312980(void)
             func_0030E100();
             func_00120928(b, func_0030ABF0(r));
             func_00120928(a, func_002F2890(i));
-            func_001204B0(g_007B4E60, func_00390760(0x4B), a, b);
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x4B)), a, b);
             SHOW();
             if (func_0023A760(5) != 0) {
                 func_00102960(1);
@@ -2413,7 +2220,7 @@ void func_00312980(void)
             func_0030E100();
             func_00120928(b, func_0030ABF0(r));
             func_00120928(a, func_002F2890(i));
-            func_001204B0(g_007B4E60, func_00390760(0x4C), a, b);
+            func_001204B0(g_007B4E60, (const char *)(func_00390760(0x4C)), a, b);
             SHOW();
             if (func_0023A760(0xE) != 0) {
                 func_00102960(1);
@@ -2447,14 +2254,14 @@ void func_00312980(void)
             if (!found)
                 rest[cnt++] = x;
         }
-        func_0030A870(1, i, r, n->list, n->count, 1);
+        func_0030A870(1, i, r, (unsigned int *)(n->list), n->count, 1);
         for (k = 0; k < cnt; k++)
             n->list[k] = rest[k];
         n->count = cnt;
         if (cnt == 0) {
             n->step += 3;
         } else {
-            func_00374EE0(func_00390760(199));
+            func_00374EE0(PS2_ADDR(func_00390760(199)));
             n->step++;
         }
         break;
@@ -2491,24 +2298,8 @@ typedef struct {
 extern Command g_00446AD0[100];
 extern int g_00447608[];
 
-const char *func_00372250(int k);
-u32 func_00328330(int k);
-u32 func_00328640(int k);
-void func_003DC090(int k, int *pos);
-void func_003DC0E0(int k, int a, int b);
-int func_003DC2D0(int k);
-void func_00328440(int r);
-void func_00328360(int a);
-void func_00328750(int r);
-void func_00328670(int a);
-int func_0030AC50(int r);
 int func_0017E0A0(void);
-void func_0017E010(int k);
-int func_003F4D60(int k);
-int func_003F1070(int k);
 int func_00314030(int k, int f);
-int func_002FBC90(int f, int t);
-int func_002F8CB0(int f);
 
 #define pad1_held() ((unsigned short)(pad1_ready() ? g_00500700[0].held : 0))
 
@@ -2541,7 +2332,7 @@ void func_00312E70(void)
         pos[4] = 0x80;
         func_003DB220(8, pos);
         func_003DB460(8, 5);
-        func_001204B0(g_007B4E60, func_00390760(0x118), func_00372250(n->list[n->a]));
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(0x118)), func_00372250(n->list[n->a]));
         SHOW();
         n->step = 1;
         break;
@@ -2930,38 +2721,12 @@ int func_00314000(int *p)
     return func_00313FC0(p[1], p[2], p[0]);
 }
 
-int func_002F9190(int f);
-int func_002FB120(int f);
-int func_002FB220(int f);
-int func_002FB1A0(int f);
-int func_002FB430(int f);
-int func_002FBA40(int f);
-int func_002FC0C0(int f, int g);
-int func_0030C020(int r);
-int func_0030BDB0(int r);
-int func_0030BEE0(int r);
-void func_0030B330(void);
-void func_0030B540(int r);
-int func_002FA790(u32 f);
 int func_002FBE00(int f);
 int func_002FBDE0(int f);
 int func_002FBDC0(int f);
 int func_002FBE40(int f);
 int func_002FBEC0(int f);
 int func_002FBF00(int f);
-int func_002FB100(int f);
-int func_002F8630(u32 i, int f);
-int func_002F8430(u32 i, int f);
-int func_002F85E0(u32 i, int f);
-int func_002F8480(u32 i, int f);
-int func_001A0700(void);
-int func_001A06D0(void);
-int func_002F9390(int f, int k);
-int func_002FC000(int f);
-int func_003285D0(int c);
-int func_00327E90(void);
-int func_00328190(int k);
-int func_002F3110(u32 i, int k);
 
 /* 0x00314030, 0x8E0 bytes. Whether force `f` may give command `c`: it can pay, then each
  * command's own condition (another force for diplomacy, force value and officers for training,
@@ -3176,13 +2941,7 @@ typedef struct {
 } CmdRecord;
 
 int func_002FBD60(int f);
-int func_00327870(void);
-int func_002FAD20(int f);
 int func_0011B740(int fame);
-int func_002FBF20(int f, int a, int *out);
-void func_003F4D20(int k);
-int func_0030AE80(int r);
-int func_0030AD80(int r);
 
 /* 0x00314C40, 0x5A0 bytes. Whether officer `i` (lists `a` / `b` of the candidates) may give
  * command `c`: commands needing an officer's skill need it (the computer: one of the listed
@@ -3384,7 +3143,7 @@ int func_003156E0(CmdRecord *p)
 
     r->kind = 0;
     r->v[0] = 300;
-    func_001204B0(r->text, func_00390760(0), func_0030ABF0(home));
+    func_001204B0(r->text, (const char *)(func_00390760(0)), func_0030ABF0(home));
     home = func_002FB2D0(p->f);
     func_003155C0(p, &home, 1);
     return 0;
@@ -3417,7 +3176,7 @@ int func_00315780(CmdRecord *p)
     }
     r->kind = 0;
     r->v[0] = (m + v + 200) / 10 * 10;
-    func_001204B0(r->text, func_00390760(1), func_0030CB80(r->v[0]));
+    func_001204B0(r->text, (const char *)(func_00390760(1)), func_0030CB80(r->v[0]));
     func_003155C0(p, reg, func_002FB320(p->f, reg));
     return 0;
 }
@@ -3436,7 +3195,7 @@ int func_00315990(CmdRecord *p)
         if (func_002FB2A0(p->f) != 0)
             x = func_0011B740(func_00327E90()) * 10;
         v = (func_0030CB00(4) * 0x32 + a * 0x32 + 300 + x) / 10 * 10;
-        func_001204B0(r->text, func_00390760(2), func_0030CB80(v));
+        func_001204B0(r->text, (const char *)(func_00390760(2)), func_0030CB80(v));
         r->v[0x1E] = 2;
     } else {
         int y, z;
@@ -3447,7 +3206,7 @@ int func_00315990(CmdRecord *p)
         y = func_0030CB00(5);
         z = func_0030CB00(b + 1);
         v = (z / 10 * 10 + y * 0x32 + (a + 1) * 500 + x) / 10 * 10;
-        func_001204B0(r->text, func_00390760(3), func_0030CB80(v));
+        func_001204B0(r->text, (const char *)(func_00390760(3)), func_0030CB80(v));
         r->v[0x1E] = 1;
     }
     r->kind = 0;
@@ -3470,7 +3229,7 @@ static int raise_region(CmdRecord *p, int base)
     r->v[0] = reg;
     r->v[1] = add;
     tot = add + func_0030AD80(reg) < 100 ? add + func_0030AD80(reg) : 100;
-    func_001204B0(r->text, func_00390760(0x56), func_0030ABF0(reg), func_0030CB80(add), func_0030CB80(tot));
+    func_001204B0(r->text, (const char *)(func_00390760(0x56)), func_0030ABF0(reg), func_0030CB80(add), func_0030CB80(tot));
     func_003155C0(p, &reg, 1);
     return 0;
 }
@@ -3487,16 +3246,9 @@ int func_00315DD0(CmdRecord *p)
     return raise_region(p, 10);
 }
 
-int func_00329540(int k);
 int func_00319C50(int *out, int f, int k);
-void func_001A0020(int k);
-u8 *func_0019FBC0(int k);
-void func_0038BE90(u8 *h);
-void func_0038BE00(int h, int a, int b);
 int func_002FBDA0(int f);
 int func_002FBD80(int f);
-int func_002F9480(int f, int k);
-const char *func_00372630(int k);
 
 /* Raise of force `f`'s value `k` (0-2, at most 400): by 20 at most. */
 static int raise_by_20(int f, int k)
@@ -3515,7 +3267,7 @@ int func_00315F30(CmdRecord *p)
 
     r->kind = 0xC;
     r->v[1] = func_002FAD20(p->f) / 200 + 5;
-    func_001204B0(r->text, func_00390760(0x57));
+    func_001204B0(r->text, (const char *)(func_00390760(0x57)));
     func_003155C0(p, reg, func_002FB320(p->f, reg));
     return 0;
 }
@@ -3541,7 +3293,7 @@ int func_00315FD0(CmdRecord *p)
     if (pct != 0 && func_0030CB50(pct) != 0)
         r->v[0xE] = 1;
     r->kind = 0xC;
-    func_00120928(r->text, func_00390760(0x58));
+    func_00120928(r->text, (const char *)(func_00390760(0x58)));
     func_003155C0(p, reg, func_002FB320(p->f, reg));
     return 0;
 }
@@ -3554,7 +3306,7 @@ int func_003160B0(CmdRecord *p)
 
     r->kind = 0;
     r->v[0] = 500;
-    func_00120928(r->text, func_00390760(4));
+    func_00120928(r->text, (const char *)(func_00390760(4)));
     func_003155C0(p, reg, func_002FB320(p->f, reg));
     return 0;
 }
@@ -3592,14 +3344,14 @@ int func_00316220(CmdRecord *p)
     if (pct != 0 && func_0030CB50(pct) != 0)
         r->v[0xE] = 1;
     r->kind = 0x12;
-    func_001204B0(r->text, func_00390760(0x59));
+    func_001204B0(r->text, (const char *)(func_00390760(0x59)));
     if (func_00316130(&h) != 0) {
         r = func_003155A0(p, 1);
         r->kind = 0x13;
         r->v[1] = h;
         func_001A0020(0xC);
-        func_001204B0(r->text, func_00390760(0x15), func_0019FBC0(h) + 0x13);
-        func_0038BE90(func_0019FBC0(h));
+        func_001204B0(r->text, (const char *)(func_00390760(0x15)), func_0019FBC0(h) + 0x13);
+        func_0038BE90(PS2_ADDR(func_0019FBC0(h)));
         func_0038BE00(h, 0, 0);
         func_003BA8F0(0x17, -1, -1, -1, -1);
     }
@@ -3618,12 +3370,12 @@ int func_00316420(CmdRecord *p)
     v = func_0030CB00(5) * 0x32 + func_002FB3B0(p->f) * 0x32 + 1000;
     r->kind = 0;
     r->v[0] = v / 10 * 10;
-    func_001204B0(r->text, func_00390760(5), func_0030CB80(v));
+    func_001204B0(r->text, (const char *)(func_00390760(5)), func_0030CB80(v));
     t = func_002FBA40(p->f);
     if (t != 0) {
         r = func_003155A0(p, 1);
         r->kind = 0xC;
-        func_001204B0(r->text, func_00390760(0xF));
+        func_001204B0(r->text, (const char *)(func_00390760(0xF)));
     }
     if (func_002F9390(p->f, 0) < 400 || func_002F9390(p->f, 1) < 400 || func_002F9390(p->f, 2) < 400) {
         a = raise_by_20(p->f, 0);
@@ -3637,7 +3389,7 @@ int func_00316420(CmdRecord *p)
         m = b < a ? a : b;
         if (m <= c)
             m = c;
-        func_001204B0(r->text, func_00390760(0xC), func_0030CB80(m));
+        func_001204B0(r->text, (const char *)(func_00390760(0xC)), func_0030CB80(m));
         func_003BA8F0(0x18, -1, -1, -1, -1);
     }
     func_003155C0(p, reg, func_002FB320(p->f, reg));
@@ -3659,13 +3411,13 @@ static int raise_value(CmdRecord *p, int k, int trait)
     r->v[0] = k == 0 ? t : 0;
     r->v[1] = k == 1 ? t : 0;
     r->v[2] = k == 2 ? t : 0;
-    func_001204B0(r->text, func_00390760(0xB), func_00372630(k), func_0030CB80(t));
+    func_001204B0(r->text, (const char *)(func_00390760(0xB)), func_00372630(k), func_0030CB80(t));
     old = func_002F9480(p->f, k);
     now = (t + func_002F9390(p->f, k) < 400 ? t + func_002F9390(p->f, k) : 400) / 100 + 1;
     if (old != now) {
         r = func_003155A0(p, 1);
         r->kind = 0x15;
-        func_001204B0(r->text, func_00390760(0xD), func_00372250(k + 10), func_0030CB80(now));
+        func_001204B0(r->text, (const char *)(func_00390760(0xD)), func_00372250(k + 10), func_0030CB80(now));
     }
     home = func_002FB2D0(p->f);
     func_003155C0(p, &home, 1);
@@ -3705,7 +3457,7 @@ int func_00316C80(CmdRecord *p)
     m = b < a ? a : b;
     if (c >= m)
         m = c;
-    func_001204B0(r->text, func_00390760(0xC), func_0030CB80(m));
+    func_001204B0(r->text, (const char *)(func_00390760(0xC)), func_0030CB80(m));
     for (k = 0; k < 3; k++) {
         int t = k == 1 ? b : k == 2 ? c : a, old, now;
 
@@ -3714,7 +3466,7 @@ int func_00316C80(CmdRecord *p)
         if (old != now) {
             r = func_003155A0(p, slot);
             r->kind = 0x15;
-            func_001204B0(r->text, func_00390760(0xD), func_00372250(k + 10), func_0030CB80(now));
+            func_001204B0(r->text, (const char *)(func_00390760(0xD)), func_00372250(k + 10), func_0030CB80(now));
             slot++;
         }
     }
@@ -3724,13 +3476,10 @@ int func_00316C80(CmdRecord *p)
 }
 
 int func_002FBE20(int f);
-u32 func_001A0670(void);
-void func_001A0650(u8 *buf);
 int func_002F6C20(u32 i, int k);
 int func_002F6D10(u32 i, int k);
 int func_002F6E00(u32 i, int k);
 int func_002F6EF0(u32 i, int k);
-void func_002CAD90(u8 *out);
 void func_002F87D0(u32 *l, int n, int (*less)(u32, u32, int, int), int a, int b);
 
 /* 0x00316F50, 0x94 bytes. Command result: region `target` gets kind 0xB value 1 (message 0xE). */
@@ -3742,7 +3491,7 @@ int func_00316F50(CmdRecord *p)
     r->kind = 0xB;
     r->v[0] = reg;
     r->v[1] = 1;
-    func_001204B0(r->text, func_00390760(0xE), func_0030ABF0(reg));
+    func_001204B0(r->text, (const char *)(func_00390760(0xE)), func_0030ABF0(reg));
     func_003155C0(p, &reg, 1);
     return 0;
 }
@@ -3756,7 +3505,7 @@ int func_00316FF0(CmdRecord *p)
     r->kind = 0xB;
     r->v[0] = reg;
     r->v[1] = 2;
-    func_001204B0(r->text, func_00390760(0x10D), func_0030ABF0(reg));
+    func_001204B0(r->text, (const char *)(func_00390760(0x10D)), func_0030ABF0(reg));
     func_003155C0(p, &reg, 1);
     return 0;
 }
@@ -3768,7 +3517,7 @@ int func_00317090(CmdRecord *p)
     int reg[28];
 
     r->kind = 0xC;
-    func_001204B0(r->text, func_00390760(0xF));
+    func_001204B0(r->text, (const char *)(func_00390760(0xF)));
     func_003155C0(p, reg, func_002FB320(p->f, reg));
     return 0;
 }
@@ -3802,7 +3551,7 @@ int func_00317100(CmdRecord *p)
     v = v > 100 ? 100 : v;
     if (func_0030CB50(v) == 0 || func_001A06D0() == 0) {
         r->kind = 0x15;
-        func_001204B0(r->text, func_00390760(0x11));
+        func_001204B0(r->text, (const char *)(func_00390760(0x11)));
         r->v[0x1E] = 2;
     } else {
         u32 h = func_001A0670();
@@ -3815,8 +3564,8 @@ int func_00317100(CmdRecord *p)
         func_0011EB80(rec, buf, 0x24);
         r->kind = 0xE;
         func_00120928(name, (char *)func_0019FBC0(h) + 0x13);
-        func_001204B0(r->text, func_00390760(0x10), name);
-        func_0038BE90(rec);
+        func_001204B0(r->text, (const char *)(func_00390760(0x10)), name);
+        func_0038BE90(PS2_ADDR(rec));
         r->v[0x1E] = 1;
         func_0038BE00(h, 0, 0);
     }
@@ -3917,7 +3666,7 @@ int func_00317540(CmdRecord *p)
     r->kind = 0xE;
     r->v[1] = h;
     r->v[2] = best;
-    func_001204B0(r->text, func_00390760(0x12), (char *)func_0019FBC0(h) + 0x13, func_0030CB80(r->v[3]),
+    func_001204B0(r->text, (const char *)(func_00390760(0x12)), (char *)func_0019FBC0(h) + 0x13, func_0030CB80(r->v[3]),
                   func_0030CB80(tot));
     home = func_002FB2D0(p->f);
     func_003155C0(p, &home, 1);
@@ -3934,7 +3683,7 @@ static int give_soldiers(CmdRecord *p, int m, int v)
     r->kind = 10;
     r->v[0] = i;
     r->v[1] = v;
-    func_001204B0(r->text, func_00390760(m), func_002F2890(i));
+    func_001204B0(r->text, (const char *)(func_00390760(m)), func_002F2890(i));
     reg = func_002F5CC0(i);
     func_003155C0(p, &reg, 1);
     return 0;
@@ -3966,7 +3715,7 @@ static int all_soldiers(CmdRecord *p, int m, int v)
 
     r->kind = 0xC;
     r->v[1] = v;
-    func_001204B0(r->text, func_00390760(m));
+    func_001204B0(r->text, (const char *)(func_00390760(m)));
     func_003155C0(p, reg, func_002FB320(p->f, reg));
     return 0;
 }
@@ -3992,20 +3741,6 @@ int func_00317BB0(CmdRecord *p)
 extern u32 g_00428348[];                 /* experience needed per level */
 extern const char g_00447840[];          /* an empty text */
 
-void func_002F7C40(u32 *l, int n);       /* shuffles a list */
-int func_002F8740(u32 i, int f);
-int func_002F8710(u32 i, int f);
-void func_002F7290(u32 i);
-int func_00308890(u32 i, int f);
-int func_00308B40(u32 i, int f);
-int func_003086C0(u32 i, int f);
-int func_002F4A70(u32 i);
-u32 func_002FB6F0(int f);
-int func_002F41E0(u32 i);
-int func_003276C0(void);
-int func_002F3F20(u32 i);
-int func_0030B3B0(int *out);
-
 /* 0x00317C30, 0x104 bytes. Command result: kind 0xC, (the square root of the player's fame
  * value + 2 + 0-root) hundreds (message 0x1C). */
 int func_00317C30(CmdRecord *p)
@@ -4020,7 +3755,7 @@ int func_00317C30(CmdRecord *p)
     r->kind = 0xC;
     v = (s + 2 + x) * 100;
     r->v[1] = v;
-    func_001204B0(r->text, func_00390760(0x1C), func_0030CB80(v));
+    func_001204B0(r->text, (const char *)(func_00390760(0x1C)), func_0030CB80(v));
     func_003155C0(p, reg, func_002FB320(p->f, reg));
     return 0;
 }
@@ -4045,7 +3780,7 @@ int func_00317D40(CmdRecord *p)
     if (pct != 0 && func_0030CB50(pct) != 0)
         r->v[0xE] = 1;
     r->kind = 0xC;
-    func_001204B0(r->text, func_00390760(0x1D));
+    func_001204B0(r->text, (const char *)(func_00390760(0x1D)));
     func_003155C0(p, reg, func_002FB320(p->f, reg));
     return 0;
 }
@@ -4057,7 +3792,7 @@ int func_00317E10(CmdRecord *p)
     int reg[28];
 
     r->kind = 0xC;
-    func_001204B0(r->text, func_00390760(0x1E));
+    func_001204B0(r->text, (const char *)(func_00390760(0x1E)));
     func_003155C0(p, reg, func_002FB320(p->f, reg));
     return 0;
 }
@@ -4071,7 +3806,7 @@ static void joined(CmdRecord *p, u32 i)
     r->kind = 0x15;
     func_00120928(a, func_002F2890(i));
     func_00120928(b, func_002F8DB0(p->f));
-    func_001204B0(r->text, func_00390760(0x72), a, b);
+    func_001204B0(r->text, (const char *)(func_00390760(0x72)), a, b);
     r->v[0x1E] = 1;
 }
 
@@ -4109,12 +3844,12 @@ int func_00317E80(CmdRecord *p)
         if (func_00308890(i, p->f) == 0) {
             r->kind = 0x15;
             r->v[0] = 0x19F;
-            func_001204B0(r->text, func_00390760(0x20), func_0030ABF0(at), func_002F2890(i));
+            func_001204B0(r->text, (const char *)(func_00390760(0x20)), func_0030ABF0(at), func_002F2890(i));
             r->v[0x1E] = 2;
         } else {
             r->kind = 2;
             r->v[0] = i;
-            func_001204B0(r->text, func_00390760(0x21), func_0030ABF0(at), func_002F2890(i));
+            func_001204B0(r->text, (const char *)(func_00390760(0x21)), func_0030ABF0(at), func_002F2890(i));
             joined(p, i);
         }
         func_003155C0(p, &at, 1);
@@ -4122,7 +3857,7 @@ int func_00317E80(CmdRecord *p)
         r->v[0x1E] = 2;
         r->kind = 0x15;
         r->v[0] = 0x19F;
-        func_001204B0(r->text, func_00390760(0x1F));
+        func_001204B0(r->text, (const char *)(func_00390760(0x1F)));
         func_003155C0(p, reg, func_002FB320(p->f, reg));
     }
     return 0;
@@ -4140,7 +3875,7 @@ static int persuade(CmdRecord *p, int (*test)(u32, int), int no, int yes)
     if (test(i, p->f) == 0) {
         r->kind = 0x15;
         r->v[0] = 0x19F;
-        func_001204B0(r->text, func_00390760(no), func_002F2890(i));
+        func_001204B0(r->text, (const char *)(func_00390760(no)), func_002F2890(i));
         r->v[0x1E] = 2;
     } else {
         int g;
@@ -4151,9 +3886,9 @@ static int persuade(CmdRecord *p, int (*test)(u32, int), int no, int yes)
         if (IS_FORCE(g)) {
             func_00120928(a, func_002F8DB0(g));
             func_00120928(b, func_002F2890(i));
-            func_001204B0(r->text, func_00390760(yes), b, a);
+            func_001204B0(r->text, (const char *)(func_00390760(yes)), b, a);
         } else {
-            func_001204B0(r->text, func_00390760(0x24), func_002F2890(i));
+            func_001204B0(r->text, (const char *)(func_00390760(0x24)), func_002F2890(i));
         }
         joined(p, i);
     }
@@ -4202,13 +3937,13 @@ int func_003183A0(CmdRecord *p)
         r->v[0] = i;
         func_00120928(a, func_002F2890(i));
         func_00120928(b, func_002F8DB0(p->f));
-        func_001204B0(r->text, func_00390760(0x72), a, b);
+        func_001204B0(r->text, (const char *)(func_00390760(0x72)), a, b);
         at = func_002F5CC0(i);
         func_003155C0(p, &at, 1);
         r->v[0x1E] = 1;
     } else {
         r->kind = 0x15;
-        func_001204B0(r->text, func_00390760(0x25));
+        func_001204B0(r->text, (const char *)(func_00390760(0x25)));
         func_003155C0(p, reg, func_0030B3B0(reg));
         r->v[0x1E] = 2;
     }
@@ -4267,7 +4002,7 @@ int func_003187F0(CmdRecord *p)
     gain = base + fv + x * 100 + y * 100;
     r->v[1] = gain;
     tot = gain + func_002F34E0(i) < 99999 ? gain + func_002F34E0(i) : 99999;
-    func_001204B0(r->text, func_00390760(0x29), func_002F2890(i), func_0030CB80(gain), func_0030CB80(tot));
+    func_001204B0(r->text, (const char *)(func_00390760(0x29)), func_002F2890(i), func_0030CB80(gain), func_0030CB80(tot));
     func_002F41E0(i);
     for (lv = 0; lv <= 0x12; lv++) {
         if (g_00428348[lv] <= tot && tot < g_00428348[lv + 1])
@@ -4318,7 +4053,7 @@ void func_00318BA0(CmdRecord *p)
     r->v[1] = j;
     func_00120928(a, func_002F2890(i));
     func_00120928(b, func_002F2890(j));
-    func_001204B0(r->text, func_00390760(0x10C), a, b);
+    func_001204B0(r->text, (const char *)(func_00390760(0x10C)), a, b);
     if (c == 0x27)
         c = r->v[6];
     if (func_00318A90(i, j, c, &sa, &sb) == 0) {
@@ -4453,7 +4188,7 @@ static int tie_result(CmdRecord *p, int k, int m)
     r->v[0] = g;
     r->v[1] = k;
     r->v[2] = 1;
-    func_001204B0(r->text, func_00390760(m), func_002F8DB0(func_002FB2A0(p->f) == 0 ? p->f : g));
+    func_001204B0(r->text, (const char *)(func_00390760(m)), func_002F8DB0(func_002FB2A0(p->f) == 0 ? p->f : g));
     homes[0] = func_002FB2D0(p->f);
     homes[1] = func_002FB2D0(g);
     func_003155C0(p, homes, 2);
@@ -4480,23 +4215,10 @@ int func_00319200(CmdRecord *p)
 
     r->kind = 0xC;
     r->v[0] = g;
-    func_001204B0(r->text, func_00390760(0x3E), func_002F8DB0(g));
+    func_001204B0(r->text, (const char *)(func_00390760(0x3E)), func_002F8DB0(g));
     func_003155C0(p, reg, func_002FB320(g, reg));
     return 0;
 }
-
-int func_002FA490(int f);
-int func_0030C1C0(int x, int g);
-int func_002FB470(int f);
-int func_002FB500(int f, int g);
-int func_002F95C0(int f);
-int func_002F9690(int k, int *out);
-int func_002F9730(int f, int k, int gold);
-int func_002F68E0(u32 i);
-const char *func_003725F0(int k);
-void func_002F94C0(int f, short v);
-int func_00328230(void);
-const char *func_002F2BB0(u32 i);
 
 /* 0x003192A0, 0x4A4 bytes. Command result: force `f` demands force `target`'s submission (kind
  * 4; at war or not): a computer target gives in when clearly weaker (sizes, officers and values,
@@ -4554,11 +4276,11 @@ int func_003192A0(CmdRecord *p)
     func_00120928(b, func_002F8DB0(p->f));
     if (ok) {
         r->v[1] = 1;
-        func_001204B0(r->text, func_00390760(war == 0 ? 0x41 : 0x3F), a, b);
+        func_001204B0(r->text, (const char *)(func_00390760(war == 0 ? 0x41 : 0x3F)), a, b);
         r->v[0x1E] = 1;
     } else {
         r->v[1] = 0;
-        func_001204B0(r->text, func_00390760(war == 0 ? 0x42 : 0x40), a, b);
+        func_001204B0(r->text, (const char *)(func_00390760(war == 0 ? 0x42 : 0x40)), a, b);
         r->v[0x1E] = 2;
     }
     homes[0] = func_002FB2D0(p->f);
@@ -4575,7 +4297,7 @@ int func_00319750(CmdRecord *p)
 
     r->kind = 0xC;
     r->v[0] = g;
-    func_001204B0(r->text, func_00390760(0x43), func_002F8DB0(g));
+    func_001204B0(r->text, (const char *)(func_00390760(0x43)), func_002F8DB0(g));
     homes[0] = func_002FB2D0(p->f);
     homes[1] = func_002FB2D0(g);
     func_003155C0(p, homes, 2);
@@ -4642,18 +4364,18 @@ int func_00319800(CmdRecord *p)
         r->v[1] = cur;
         if (ok)
             r->v[1] = next;
-        func_001204B0(r->text, func_00390760(0x45), func_002F2890(lead), func_003725F0(r->v[1]));
+        func_001204B0(r->text, (const char *)(func_00390760(0x45)), func_002F2890(lead), func_003725F0(r->v[1]));
         r->v[0x1E] = 1;
         func_002F94C0(r->v[0], (short)r->v[1]);
         if (func_00328230() == 0 && next == 0x62 && SPECIAL_LEAD(lead)) {
             r = func_003155A0(p, 1);
             r->kind = 0x15;
-            func_001204B0(r->text, func_00390760(0x8D), func_002F2BB0(lead));
+            func_001204B0(r->text, (const char *)(func_00390760(0x8D)), func_002F2BB0(lead));
         }
     } else {
         r->kind = 0xC;
         r->v[1] = -1;
-        func_001204B0(r->text, func_00390760(0x44));
+        func_001204B0(r->text, (const char *)(func_00390760(0x44)));
         r->v[0x1E] = 2;
     }
     func_003155C0(p, reg, func_002FB320(g, reg));
@@ -4678,10 +4400,6 @@ int func_00319BE0(CmdRecord *p)
 
 extern u32 g_00414BA0[3];                /* by command: a horse kind wanted */
 extern int g_00414BB0[2][3];             /* by command: the skills it may teach the force */
-
-int func_002FAAD0(int f);
-void func_002FAB40(int f, int v);
-void func_002FAA50(int f, int k, int v);
 
 /* 0x00319C50, 0x110 bytes. Whether the stable has room for a horse of command `c`'s kind and
  * has none of it yet; the first free slot into `out` (-1 for none). */
@@ -4787,7 +4505,7 @@ int func_0031A040(CmdRecord *p)
         b = func_002FB2A0(f) == 0 ? 0 : (500 - x + y * -0x32) / 0x14 * 10;
         r->kind = 0;
         r->v[0] = (b + y * 0x32 + x + 500) / 10 * 10;
-        func_001204B0(r->text, func_00390760(6), func_00372250(c), func_0030CB80(r->v[0]));
+        func_001204B0(r->text, (const char *)(func_00390760(6)), func_00372250(c), func_0030CB80(r->v[0]));
         r->v[0x1E] = 2;
     } else {
         x = 200;
@@ -4797,7 +4515,7 @@ int func_0031A040(CmdRecord *p)
         r->kind = 0;
         r->v[0] = f;
         r->v[0] = (y * 0x32 + x + 0x5DC) / 10 * 10;
-        func_001204B0(r->text, func_00390760(7), func_00372250(c), func_0030CB80(r->v[0]));
+        func_001204B0(r->text, (const char *)(func_00390760(7)), func_00372250(c), func_0030CB80(r->v[0]));
         ok = func_00319EA0(f, c) != 0;
         r->v[0x1E] = 1;
     }
@@ -4820,7 +4538,7 @@ static int market(CmdRecord *p, int c, int snd, int t)
             inc = 5;
         r->v[0] = p->f;
         r->v[1] = inc;
-        func_001204B0(r->text, func_00390760(10), func_0030CB80(inc));
+        func_001204B0(r->text, (const char *)(func_00390760(10)), func_0030CB80(inc));
         func_002FAB40(p->f, inc + func_002FAAD0(p->f));
         if (func_00319C50(&h, p->f, c) != 0) {
             r = func_003155A0(p, 2);
@@ -4828,8 +4546,8 @@ static int market(CmdRecord *p, int c, int snd, int t)
             r->v[0] = p->f;
             r->v[1] = h;
             func_001A0020(snd);
-            func_001204B0(r->text, func_00390760(9), func_0019FBC0(h) + 0x13);
-            func_0038BE90(func_0019FBC0(h));
+            func_001204B0(r->text, (const char *)(func_00390760(9)), func_0019FBC0(h) + 0x13);
+            func_0038BE90(PS2_ADDR(func_0019FBC0(h)));
             func_0038BE00(h, 0, 0);
         } else if (func_00319D70(&s, &l, p->f, c) != 0) {
             r = func_003155A0(p, 2);
@@ -4837,7 +4555,7 @@ static int market(CmdRecord *p, int c, int snd, int t)
             r->v[0] = p->f;
             r->v[1] = s;
             r->v[2] = l;
-            func_001204B0(r->text, func_00390760(8), g_0042D3E0[s], func_0030CB80(l + 1));
+            func_001204B0(r->text, (const char *)(func_00390760(8)), g_0042D3E0[s], func_0030CB80(l + 1));
             func_002FAA50(p->f, s, l + 1);
         }
     }
@@ -4857,18 +4575,6 @@ int func_0031A740(CmdRecord *p)
 {
     return market(p, 0x33, 0xF, 8);
 }
-
-int func_00308F50(u32 i, int f);
-int func_00308B70(int v);
-int func_0030C250(int r);
-int func_0030C440(int r, int f);
-int func_0030ACE0(int r);
-int func_002F6FE0(u32 i, int k);
-int func_002F4450(u32 i);
-int func_002F3380(u32 i);
-int func_002F8B60(u32 i, u32 j);
-int func_002F8110(u32 i, int f);
-int func_002F7900(u32 i, u32 j);
 
 /* Whether officer `i` would flee (100% - its loyalty grade * 10): -1, else 0. */
 static int flees(u32 i)
@@ -4896,12 +4602,12 @@ int func_0031A9B0(CmdRecord *p)
         r->kind = 0x15;
         r->v[1] = i;
         r->v[2] = esc;
-        func_001204B0(r->text, func_00390760(0x47), func_002F2890(i));
+        func_001204B0(r->text, (const char *)(func_00390760(0x47)), func_002F2890(i));
         r->v[0x1E] = 2;
     } else {
         r->kind = 5;
         r->v[0] = i;
-        func_001204B0(r->text, func_00390760(0x46), func_002F2890(i));
+        func_001204B0(r->text, (const char *)(func_00390760(0x46)), func_002F2890(i));
         r->v[0x1E] = 1;
     }
     at = func_002F5CC0(i);
@@ -4944,7 +4650,7 @@ int func_0031AB10(CmdRecord *p)
         r->v[1] = i;
         r->v[2] = esc;
         r->v[0] = 0x19;
-        func_001204B0(r->text, func_00390760(0x4A), func_0030ABF0(reg));
+        func_001204B0(r->text, (const char *)(func_00390760(0x4A)), func_0030ABF0(reg));
         r->v[0x1E] = 2;
     } else {
         int e = func_00327E90();
@@ -4953,9 +4659,9 @@ int func_0031AB10(CmdRecord *p)
         r->kind = 5;
         r->v[0] = reg;
         if (func_002FB2A0(func_0030AFF0(reg)) == 0)
-            func_001204B0(r->text, func_00390760(0x48), func_0030ABF0(reg));
+            func_001204B0(r->text, (const char *)(func_00390760(0x48)), func_0030ABF0(reg));
         else
-            func_001204B0(r->text, func_00390760(0x49), func_0030ABF0(reg));
+            func_001204B0(r->text, (const char *)(func_00390760(0x49)), func_0030ABF0(reg));
         func_002FB2A0(p->f);
         r->v[0x1E] = 1;
     }
@@ -5018,7 +4724,7 @@ int func_0031AEA0(CmdRecord *p)
         r->v[0x1E] = 2;
         r->kind = 0x15;
         r->v[0] = 0x19;
-        func_001204B0(r->text, func_00390760(0x4E), rn);
+        func_001204B0(r->text, (const char *)(func_00390760(0x4E)), rn);
     } else {
         int m, t;
 
@@ -5062,7 +4768,7 @@ int func_0031AEA0(CmdRecord *p)
             sr += func_002F3770(rest[k]);
         t = func_0030B090(reg);
         r->kind = 6;
-        func_001204B0(r->text, func_00390760(0x4B), nm, rn);
+        func_001204B0(r->text, (const char *)(func_00390760(0x4B)), nm, rn);
         r->v[0] = reg;
         r->v[2] = i;
         r = func_003155A0(p, 1);
@@ -5077,13 +4783,13 @@ int func_0031AEA0(CmdRecord *p)
                 r->v[3 + k] = joined[k];
             for (k = 0; k < nr; k++)
                 r->v[8 + k] = rest[k];
-            func_001204B0(r->text, func_00390760(0x4C), nm, rn);
+            func_001204B0(r->text, (const char *)(func_00390760(0x4C)), nm, rn);
         } else {
             r->kind = 0x15;
             r->v[0] = reg;
             r->v[2] = i;
             r->v[1] = 0;
-            func_001204B0(r->text, func_00390760(0x4D), nm, rn);
+            func_001204B0(r->text, (const char *)(func_00390760(0x4D)), nm, rn);
         }
     }
     func_003155C0(p, &reg, 1);
@@ -5098,31 +4804,16 @@ int func_0031B7A0(CmdRecord *p)
 
     r->kind = 0xC;
     r->v[0] = g;
-    func_001204B0(r->text, func_00390760(0x4F), func_002F8DB0(g));
+    func_001204B0(r->text, (const char *)(func_00390760(0x4F)), func_002F8DB0(g));
     func_003155C0(p, reg, func_002FB320(g, reg));
     return 0;
 }
 
 extern int (*g_00414BD0[100])(CmdRecord *p);   /* the command results by command */
 
-int func_00328570(void);
-int func_00327C40(void);
-void func_0030C920(int *l, int n);
-void func_002F7410(u32 i);
-int func_0030AD20(int r, int k);
-int func_00328970(void);
-void func_002F9130(int f, int v);
-int func_003276A0(void);
 int func_00314000(int *p);
-int func_0038C6B0(CmdRecord *p);
 void func_003BA520(int c);
 int func_0031C5C0(CmdRecord *p, int k);
-void func_002F32F0(u32 i, u32 t);
-void func_002F4B70(u32 i, int v);
-int func_002F57F0(int w);
-int func_0030AB20(u8 w);
-u8 *func_00328B30(int w);
-void func_0030B030(int r, int v);
 
 /* 0x0031B840, 0x70 bytes. Command result: kind 0xC (message 0x50). */
 int func_0031B840(CmdRecord *p)
@@ -5131,7 +4822,7 @@ int func_0031B840(CmdRecord *p)
     int reg[28];
 
     r->kind = 0xC;
-    func_001204B0(r->text, func_00390760(0x50));
+    func_001204B0(r->text, (const char *)(func_00390760(0x50)));
     func_003155C0(p, reg, func_002FB320(p->f, reg));
     return 0;
 }
@@ -5150,12 +4841,12 @@ int func_0031B8B0(CmdRecord *p)
         r->kind = 0x15;
         r->v[1] = i;
         r->v[2] = esc;
-        func_001204B0(r->text, func_00390760(0x53), func_002F2890(i));
+        func_001204B0(r->text, (const char *)(func_00390760(0x53)), func_002F2890(i));
         r->v[0x1E] = 2;
     } else {
         r->kind = 5;
         r->v[0] = i;
-        func_001204B0(r->text, func_00390760(func_002FB2A0(p->f) == 0 ? 0x51 : 0x52), func_002F2890(i));
+        func_001204B0(r->text, (const char *)(func_00390760(func_002FB2A0(p->f) == 0 ? 0x51 : 0x52)), func_002F2890(i));
         r->v[0x1E] = 1;
     }
     at = func_002F5CC0(i);
@@ -5187,7 +4878,7 @@ int func_0031BA40(CmdRecord *p)
     if (func_0030CB50(pct) == 0) {
         r->kind = 0x15;
         r->v[0] = g;
-        func_001204B0(r->text, func_00390760(0x55), func_002F8DB0(g));
+        func_001204B0(r->text, (const char *)(func_00390760(0x55)), func_002F8DB0(g));
         r->v[0x1E] = 2;
     } else {
         r->kind = 0xC;
@@ -5195,7 +4886,7 @@ int func_0031BA40(CmdRecord *p)
         r->v[1] = h;
         func_00120928(a, func_002F8DB0(g));
         func_00120928(b, func_002F8DB0(h));
-        func_001204B0(r->text, func_00390760(0x54), a, b);
+        func_001204B0(r->text, (const char *)(func_00390760(0x54)), a, b);
         r->v[0x1E] = 1;
     }
     func_003155C0(p, reg, func_002FB320(g, reg));
@@ -5209,7 +4900,7 @@ int func_0031BC30(CmdRecord *p)
     int reg[28];
 
     r->kind = 0xC;
-    func_001204B0(r->text, func_00390760(0x5B));
+    func_001204B0(r->text, (const char *)(func_00390760(0x5B)));
     func_003155C0(p, reg, func_002FB320(p->f, reg));
     return 0;
 }
@@ -5226,7 +4917,7 @@ void func_0031BCA0(CmdRecord *p)
         v = func_00328970();
     }
     r->kind = 0xC;
-    func_001204B0(r->text, func_00390760(m), func_00372250(p->cmd), func_0030CB80(v + 1));
+    func_001204B0(r->text, (const char *)(func_00390760(m)), func_00372250(p->cmd), func_0030CB80(v + 1));
     home = func_002FB2D0(p->f);
     func_003155C0(p, &home, 1);
 }
@@ -5257,7 +4948,7 @@ int func_0031BD90(CmdRecord *p, int a)
         if (func_002FB2A0(p->f) == 0)
             r = func_0031C5C0(p, a);
         else
-            r = func_0038C6B0(p);
+            r = func_0038C6B0(PS2_ADDR(p));
     }
     func_003BA520(c);
     g_7000015C = seed | 1;
@@ -5379,37 +5070,7 @@ void func_0031C520(int g, int k)
     }
 }
 
-void func_00327EA0(int d);
-void func_002F9410(int f, int k, int v);
-void func_002FAF30(int f, int g);
-void func_002FA500(int f, int g);
-void func_002FA610(int f, int g);
-void func_002FA720(int f, int v);
-void func_002FA800(int f, int v);
-void func_0030A470(int a, int b);
 void func_0030E390(int kind, int a, int b, int c, int *l, int n);
-int func_00309F90(u32 i);
-void func_002F91C0(int f, u32 i);
-void func_0030A870(int kind, u32 i, int r, int *l, int n, int show);
-void func_002F3550(u32 i, int v);
-void func_002F4760(u32 i, int v);
-void func_002F37E0(u32 i, int v);
-void func_0030B0D0(int r, int d);
-void func_0030ADC0(int r, int v);
-void func_0030AE40(int r, int d);
-int func_002F45A0(u32 i);
-void func_002F4AE0(u32 i, int v);
-int func_002F4660(u32 i);
-void func_002F46D0(u32 i, int v);
-int func_003297D0(void);
-void func_003297E0(int v);
-int func_00329810(void);
-void func_00329820(int v);
-int func_00329790(void);
-void func_003297A0(int v);
-void func_0029FD50(u32 i);
-void func_003281F0(int v);
-void func_003BACA0(void);
 
 /* For each officer of force `f` (`all`: func_002F7D90's last flag). */
 #define EACH_OFFICER(f, all, o, n, k)                                                    \
@@ -5516,7 +5177,7 @@ int func_0031C5C0(CmdRecord *p, int k)
 
             for (n = 0; n < 5 && (u32)v[3 + n] <= 0x19E; n++)
                 list[n] = v[3 + n];
-            func_0030A870(1, v[2], v[0], list, n, 1);
+            func_0030A870(1, v[2], v[0], (unsigned int *)(list), n, 1);
             for (n = 0; n < 5 && (u32)v[8 + n] <= 0x19E; n++)
                 list[n] = v[8 + n];
             if (n != 0)
@@ -5720,23 +5381,10 @@ typedef struct {
 extern CmdRecord g_007B5270;
 extern u8 g_007B5A50[];
 
-int *func_002FC2C0(void);
-int func_003287B0(int c);
-int func_00328800(int rank);
-void func_003280F0(int c, int v);
 void func_00388710(void);
 void func_00388200(int a, int b);
-void func_003882C0(int *on);
-int func_0039BDC0(void);
-int func_0039BEE0(void);
-int func_0039BF50(void);
-void func_003A90D0(int a);
-void func_0039F9F0(int a);
 void func_003890B0(int a);
-int func_00389050(void);
 int func_00389090(void);
-void func_00327690(int seed);
-int func_003280E0(void);
 
 #define CMD_MENU() ((CmdMenu *)func_002FC2C0()[0x1A5])
 
@@ -5973,11 +5621,7 @@ extern const char *g_0043C578, *g_0043C730, *g_0043C560;
 
 int func_003890A0(void);
 void func_0037EB40(void *pic, int a, int sel);
-void func_00383050(void *pic, int x, int y, int a, int b, int v);
-void func_003F0EC0(void *a, void *b, ListWindow *w);
-void func_00373B60(void);
 void func_003890C0(void);
-void func_003F0A00(ListWindow *w);
 void *func_0030D800(void);
 void *func_0030D810(void);
 
@@ -6141,20 +5785,20 @@ void func_0031E870(void)
 
     func_00388710();
     func_0037EB40(func_0030D7D0(), func_003890A0(), m->index);
-    func_0037E9F0(func_0030D7D0(), func_0031D690(m), 0x154, 0x68, 0x80, why < 0);
+    func_0037E9F0(PS2_ADDR(func_0030D7D0()), func_0031D690(m), 0x154, 0x68, 0x80, why < 0);
     cost = func_00313DB0(func_0031D690(m), func_00327D50());
     if (cost < 0)
         cost = 0;
     func_00383050(func_0030D7D0(), 0x141, 0x34, 0, 1, cost);
     if (why >= 0)
-        func_003838B0(func_003725A0(why), 1);
+        func_003838B0(PS2_ADDR(func_003725A0(why)), 1);
 }
 
 /* 0x0031E9A0, 0x64 bytes. Draws the list window (message 0x3C). */
 void func_0031E9A0(void)
 {
-    func_003F0EC0(func_0030D800(), func_0030D810(), &g_007B5900);
-    func_003838B0(func_003725A0(0x3C), 1);
+    func_003F0EC0(PS2_ADDR(func_0030D800()), PS2_ADDR(func_0030D810()), (unsigned char *)(&g_007B5900));
+    func_003838B0(PS2_ADDR(func_003725A0(0x3C)), 1);
     func_001A7DC0(g_0043C578, 0x80, 1);
 }
 
@@ -6240,7 +5884,7 @@ void func_0031EC60(void)
     ListWindow *w = &g_007B5900;
     int k;
 
-    func_003F0A00(w);
+    func_003F0A00((unsigned char *)(w));
     for (k = 0; k < g_007B5900.count; k++) {
         if (w->flag[k] != 0) {
             g_007B5900.count = k;

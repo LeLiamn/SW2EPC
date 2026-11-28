@@ -14,6 +14,14 @@
  * a force (0x19: none), +0x54 the level, +0x98 the experience.
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_0030AD80   /* the original callers here see it this way */
+int func_0030AD80();
+#endif
+#define SW2E_FILE_EMP_OFFICER_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -25,22 +33,9 @@ extern u32 g_004141D0[][3];
 extern u16 g_004463E0[];                 /* soldiers by level */
 
 u8 *func_0030CCB0(void);
-int func_00328230(void);
-char *func_0019B170(char *out, u32 t, u32 n);
-char *func_0019B200(char *out, u32 t, u32 n);
-char *func_0019B0E0(char *out, u32 t);
-char *func_0019B130(char *out, u32 id);
-char *func_0019B240(char *out, u32 t);
 int func_00120A40(const char *s);
-int func_0039E7C0(int k);
-int func_0039E760(int k);
-int func_0039E740(int k);
-u32 func_00327C00(void);
-u32 func_00327140(u32 a, int b);
-int func_00327C70(void);
 int func_002F59A0(u32 id);
 int func_002F5D30(u32 id);
-int func_0030AB90(void);
 
 /* Record `i` (past 0x19E: 0x19F). */
 static inline u8 *ofc(u32 i)
@@ -72,7 +67,7 @@ int func_002F2780(u8 *p)
 }
 
 /* 0x002F27D0, 0x64 bytes. Record `i`'s officer table record. */
-u16 func_002F27D0(u32 i)
+u32 func_002F27D0(u32 i)
 {
     return *(u16 *)ofc(i);
 }
@@ -242,7 +237,7 @@ u32 func_002F32F0(u32 i, u32 v)
 }
 
 /* 0x002F3380, 0x64 bytes. */
-u16 func_002F3380(u32 i)
+u32 func_002F3380(u32 i)
 {
     return *(u16 *)(ofc(i) + 0x48);
 }
@@ -648,27 +643,6 @@ int func_002F8710(u32 i);
 int func_002F8740(u32 i, int r);
 int func_002F87A0(u32 i);
 int func_002F8900(u32 i, u32 j);
-int func_0016CC80(u8 w);
-int func_0039E7A0(int k);
-u8 *func_0019FBA0(int k);
-int func_0019C170(u32 id, u32 level, int learn);
-int func_002FB2A0(u32 f);
-void func_00328A00(u32 i, int a);
-int func_00327C40(void);
-void func_00308600(u32 i);
-int func_0030AD20(int f, int k);
-int func_0030CB00(int n);
-int func_00327C80(void);
-int func_00327A60(void);
-int func_00328270(void);
-void func_00328240(int v);
-int func_003282C0(void);
-int func_0030AFF0(int f);
-int func_0030B2F0(int f);
-int func_002F8F90();
-int func_002F9060();
-int func_0030AD80();
-int func_0030ADC0();
 /* END PROTOS */
 
 /* 0x002F4250, 0x90 bytes. */
@@ -1201,7 +1175,6 @@ void func_0030AE40(u32 i, int n)
     func_0030ADC0(i, n + func_0030AD80(i));
 }
 
-
 extern u32 g_00446450[];
 extern u32 g_00414230[][3], g_004142F0[][8];
 extern u32 g_00428348[0x14];             /* the experience needed per level */
@@ -1272,8 +1245,6 @@ int func_002F5840(int g)
     return 8;
 }
 
-int func_0016CC80(u8 w);
-
 /* 0x002F5890, 0x94 bytes. Officer `i`'s weapon group. */
 int func_002F5890(u32 i)
 {
@@ -1304,9 +1275,6 @@ int func_002F5C50(u8 *p)
         return 0x19;
     return p[0x53];
 }
-
-int func_0039E7A0(int k);
-u8 *func_0019FBA0(int k);
 
 /* 0x002F67B0, 0x98 bytes. Officer `i`'s +0x13 (created: from their look). */
 int func_002F67B0(u32 i)
@@ -1382,10 +1350,6 @@ int func_002F7040(u32 i, int k)
     return g_004142F0[func_002F2EA0(i)][k];
 }
 
-int func_0019C170(u32 id, u32 level, int learn);
-int func_002FB2A0(u32 f);
-void func_00328A00(u32 i, int a);
-
 /* 0x002F70A0, 0xB8 bytes. Officer `i` goes from level `from` to `to` (each level's growth); a
  * named officer past level 9 of a force that allows it gets flag 1 (func_00328A00). */
 void func_002F70A0(u32 i, int to, int from)
@@ -1397,8 +1361,6 @@ void func_002F70A0(u32 i, int to, int from)
     if ((int)i < 0x1C && func_002F41E0(i) > 9 && func_002FB2A0(func_002F4080(i)) != 0)
         func_00328A00(i, 1);
 }
-
-int func_00327C40(void);
 
 /* 0x002F7160, 0x98 bytes. Officer `i`'s pay (rounded to 10): 500 + 150 x (level / 4 + the
  * year's) for named officers below 0x2C, 400 + 100 x for the others. */
@@ -1452,7 +1414,6 @@ int func_002F72E0(u32 lv)
 }
 
 void func_002F5BE0(u32 i, int f);
-void func_00308600(u32 i);
 
 /* 0x002F7300, 0x108 bytes. Officer `i` joins force `f` (second force `f2`, role `role`): rank
  * 2, experience of its level. */
@@ -1481,8 +1442,6 @@ void func_002F7300(u32 i, int f, int f2, int role)
 }
 
 int func_002F5CC0(u32 i);
-int func_0030AD20(int f, int k);
-int func_0030CB00(int n);
 
 /* 0x002F7410, 0x138 bytes. Officer `i` leaves its force: free, its second force becomes one of
  * its old force's neighbours (or any force) at random. */
@@ -1511,9 +1470,6 @@ void func_002F7410(u32 i)
     func_00308600(i);
 }
 
-int func_00327C80(void);
-int func_00327A60(void);
-
 /* 0x002F7550, 0x68 bytes, matching. Officer `i`'s age (at most 100). */
 int func_002F7550(u32 i)
 {
@@ -1530,9 +1486,6 @@ int func_002F75C0(u32 i)
     return func_002F7550(i) > 99;
 }
 
-int func_00328270(void);
-void func_00328240(int v);
-
 /* 0x002F7610, 0xA0 bytes, matching. Officer `i` dies (rank 3, no force; officers 0x12 and 0x1B move the
  * story on). */
 void func_002F7610(u32 i)
@@ -1547,7 +1500,6 @@ void func_002F7610(u32 i)
         func_00328240(4);
     func_002F3C30(i);
 }
-
 
 /* 0x002F76B0, 0xEC bytes. The kind of officer `i`'s next post for officer `j` (2 or 6), from
  * two counts. */
@@ -1567,12 +1519,11 @@ int func_002F76B0(u32 i, u32 j)
     return ok ? 2 : 6;
 }
 
-/* 0x002F77A0, 0x50 bytes. Whether officers `i` and `j` are each other's +0xC. */
+/* 0x002F77A0, 0x50 bytes, matching. Whether officers `i` and `j` are each other's +0xC. */
 int func_002F77A0(u32 i, u32 j)
 {
     return j == func_002F2E20(i) || i == func_002F2E20(j);
 }
-
 
 /* 0x002F77F0, 0xC4 bytes. Whether officers `i` and `j` are related (the same +0xC, or one of 14
  * pairs). */
@@ -1599,9 +1550,6 @@ int func_002F78C0(u32 i, u32 j)
 extern u32 g_00414580[9][3];             /* nine groups of three related officers */
 extern u32 g_007A2650[];                 /* officer lists */
 
-int func_003282C0(void);
-int func_0030AFF0(int f);
-int func_0030B2F0(int f);
 int func_002F2840(u32 i);
 int func_002F4A70(u32 i);
 

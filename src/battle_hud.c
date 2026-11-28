@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_BATTLE_HUD_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -26,36 +30,15 @@ extern int g_007BF720[2][4];
 extern u8 *g_0045D838, *g_0045D83C, *g_0045D840;   /* (small data) the overlay textures */
 extern char g_0045C5A0[];                /* the allocations' source name */
 
-int func_0035DAE0(void);
 void func_003DEB40(int k);
 void func_003DED10(int k);
 void func_003E3270(int x, int y, int a, int b, int c, u32 t);
-int func_0036D310(void);
-int func_0036D300(void);
 void func_003E3E80(int x, int y, int a, int b, int v);
-int func_003F7750(int s);
-int func_003F6E60(int s);
 void func_003B5CC0(int a, int x, int y, int b, int c, int d);
 void func_003DF2F0(int k);
-void func_003DE700(void);
-void func_003DE8A0(void);
-void func_003DEB20(void);
-void func_003DE710(void);
-void func_003DE8B0(void);
-void func_003DE850(void);
-void func_003DEAD0(void);
-void func_003A80A0(int a);
-void func_003A7D90(void);
-void func_00118850(void *p, int n);
 int func_003E2200(int k);
 int func_003E2330(int o);
-void func_003E2C60(int k);
 int func_003E2E00(int v);
-u8 *func_001026D0(int a, int b, int c, int d, int e, int f, char *name, int line);
-void func_00102960(int a);
-void func_00102EC0(u8 *p);
-void func_00375C20(int a, u8 *t, int k, int b, int c);
-void func_00376490(u8 *t, int k);
 
 /* 0x003DEB30, 0x8 bytes, matching. */
 void func_003DEB30(void)
@@ -400,8 +383,8 @@ u16 func_003E17B0(void)
 /* 0x003E17C0, 0x34 bytes, matching. */
 void func_003E17C0(void)
 {
-    func_00118850(g_007BF720, 0x20);
-    func_00118850(g_007BF6F0, 0x24);
+    func_00118850((unsigned char *)(g_007BF720), 0x20);
+    func_00118850((unsigned char *)(g_007BF6F0), 0x24);
 }
 
 /* 0x003E18F0, 0x38 bytes. */
@@ -459,7 +442,7 @@ int func_003E23C0(int o)
 /* 0x003E2770, 0x24 bytes, matching. */
 void func_003E2770(void)
 {
-    func_00118850(g_007BF6C0, 0x30);
+    func_00118850((unsigned char *)(g_007BF6C0), 0x30);
 }
 
 /* 0x003E2D90, 0x28 bytes, matching. */
@@ -548,8 +531,8 @@ void func_003E3220(int x, int y, int a, int b, int c, int k)
 /* 0x003E3D70, 0x38 bytes, matching. */
 void func_003E3D70(void)
 {
-    func_00375C20(0, g_0045D838, 0x23, 0, -1);
-    func_00376490(g_0045D838, 0x68);
+    func_00375C20(0, PS2_ADDR(g_0045D838), 0x23, 0, -1);
+    func_00376490(PS2_ADDR(g_0045D838), 0x68);
 }
 
 /* 0x003E3DB0, 0x40 bytes, matching. */
@@ -622,23 +605,12 @@ extern char g_0045C610[], g_0045C628[];
 extern int *g_0045D844;                  /* (small data) */
 extern u8 *g_005BBF18, *g_005BBF1C;
 
-int func_0030AB90(void);
-int func_0030AFF0(int p);
-void func_003A80F0(int p, int on);
 int func_003E2200(int k);
-int func_002F27D0(int o);
-void func_0024D380(int k);
 u8 func_003E2EF0(int a);
-int func_003A1510(int k);
-int func_003623B0(void);
-void func_0027F160(int k, int a);
-int func_0036D310(void);
 int func_003E5830(void);
 void func_003E5ED0(void);
 void func_003E63B0(void);
-int func_0036D2E0(void);
 int func_003E6940(void);
-int func_00183840(void);
 
 /* 0x003E0A50, 0x88 bytes. Marks force func_003E1790's provinces on the map. */
 void func_003E0A50(void)
@@ -682,13 +654,15 @@ void func_003E27A0(int a, int k)
     if (k < 0 || k >= 3)
         return;
     for (j = 0; j < 4; j++) {
-        if (func_003E2D90(a, j) != 0) {
+        int m = func_003E2D90(a, j);
+
+        if (m != 0) {
             if (k == 2)
-                func_0024D380(0xC);
+                func_0024D380(0xC, m);
             else if (k == 1)
-                func_0024D380(9);
+                func_0024D380(9, m);
             else if (k == 0)
-                func_0024D380(8);
+                func_0024D380(8, m);
         }
     }
 }
@@ -998,12 +972,6 @@ extern Pos6 g_0041CF60, g_0041CF90, g_0041CFC0;
 extern int g_0045D0E8[2];                /* (small data) */
 extern u8 g_006AA5F4;
 
-u8 *func_0035DCD0(int side);
-u8 *func_0034ECA0(u8 *p);
-u32 func_0034EDB0(u8 *g);
-u32 func_0034F140(u8 *g, u32 k);
-int func_0035F2D0(u32 k);
-int func_0035F340(u32 k);
 void func_003E3520(int x, int y, int a, int b, int c, int d, u32 k, int v);
 void func_003B4F50(u32 k, int v, int x, int y, int a, int b);
 
@@ -1082,14 +1050,6 @@ extern u8 g_00425FA0[0x1A], g_00425FC0[0x1A], g_00425FE0[0x1A];
 extern float g_0041D018[3];
 
 u32 func_003E1930(float r, u8 *u, u32 *out);
-int func_00271300(u8 *u);
-u8 **func_003B0340(u8 *o);
-int func_0033BA60(u8 **g);
-int func_0033B4E0(u8 **g);
-int func_0033BBD0(u8 **a, u8 **b);
-int func_0033BBF0(u8 **a, u8 **b);
-int func_0033BC10(u8 **a, u8 **b);
-int func_0033BCF0(u8 **a, u8 **b);
 void func_003E27A0(int a, int k);
 
 #define UNIT_OFF(u) g_006A3A30[*(short *)((u) + 0x178)]
@@ -1105,7 +1065,7 @@ void func_003E1DD0(void)
         if (*(int *)(g_00669D60 + 0xA0 + p * 0x48) != 0) {
             u32 t[3], n, j = 0;
 
-            func_00118850(t, 0xC);
+            func_00118850((unsigned char *)(t), 0xC);
             n = func_003E1930(300.0f, (u8 *)0x574DE0 + p * 0x630, t);
             for (; j < n; j++)
                 g_007BF720[p][j] = t[j];
@@ -1132,7 +1092,7 @@ int func_003E2130(u8 *u, u8 *w)
     if (func_003E2020(u, w) == 0)
         return 0;
     func_003B0340(UNIT_OFF(u));
-    g = func_003B0340(UNIT_OFF(w));
+    g = (u8 **)PS2_PTR(func_003B0340(UNIT_OFF(w)));
     if ((*(u32 *)(*g + 0x80) & 0x30) == 0 && func_0033BA60(g) == 0)
         return 0;
     return 1;
@@ -1210,13 +1170,13 @@ void func_003E2870(int p)
     f = g_0041D018[n - 2];
     for (i = 0; i < 4; i++) {
         if (list[i] != 0) {
-            u8 **g = func_003B0340(UNIT_OFF(list[i]));
+            u8 **g = (u8 **)PS2_PTR(func_003B0340(UNIT_OFF(list[i])));
 
             if (func_0033B4E0(g) != 0)
                 b5 = 1;
             for (j = i + 1; j < 4; j++) {
                 if (list[j] != 0) {
-                    u8 **h = func_003B0340(UNIT_OFF(list[j]));
+                    u8 **h = (u8 **)PS2_PTR(func_003B0340(UNIT_OFF(list[j])));
 
                     if (func_0033BBD0(g, h) != 0)
                         b1 = 1;
@@ -1260,7 +1220,7 @@ void func_003E2B30(int p)
             list[n++] = e;
     }
     if (n < 2) {
-        func_00118850(list, 0x10);
+        func_00118850((unsigned char *)(list), 0x10);
     } else {
         func_003E2870(p);
         g_007BF6C0[p][0x10] = n - 2;
@@ -1277,13 +1237,7 @@ extern u8 *g_007BF770;
 extern u8 g_0056CCC8[4];
 
 int func_001204B0(char *buf, const char *fmt, ...);
-int func_00313CB0(u8 *o);
-int func_0037E1B0(u8 *o);
-char *func_003729C0(int k);
 void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
-void func_002C4C50(float size, char *text, int x, int y, int w, int a, int b, int c);
-void func_002C80A0(int x, int y, int a, int w, int h, int b, int c);
-void func_002C8500(int x, int y, int a, int w, int h, int b, int c);
 
 /* 0x003E3270, 0x1F0 bytes. Draws time `t` (in 50 Hz frames) as mm:ss:cc. */
 void func_003E3270(int x, int y, int a, int b, int c, u32 t)
@@ -1326,8 +1280,8 @@ void func_003E3470(int x, int y, int a, int w, int h, u8 r, u8 g, u8 b, u8 alpha
 /* 0x003E3990, 0xB4 bytes. */
 void func_003E3990(u8 *o, int x, int y, int p3, int p4)
 {
-    int v = func_00313CB0(o);
-    int row = func_0037E1B0(o);
+    int v = func_00313CB0(PS2_ADDR(o));
+    int row = func_0037E1B0(PS2_ADDR(o));
 
     if (v > 6)
         func_001ABEA0(g_0045D838, v + 0x34, x, y, 0, 0x60, 0x18, 0, row * 0x18, 0x60, 0x18, p4, p3, 0);
@@ -1430,39 +1384,14 @@ extern u32 *g_005BA7CC;                  /* the stage's script file */
 extern u32 g_005BA7D0, g_005BA7D4, g_005BA7D8;
 extern u8 **g_005BA7DC, **g_005BA7E0;
 
-int func_001AE550(float speed, void *window, short *pos, u8 *alpha, int a);
 u8 *func_002EE590(void);
 u8 *func_002EE5A0(void);
 int func_002ED160(void);
 void func_003E4AD0(void);
-void *func_00102DB0(int align, int size);
-void func_003DCDC0(void);
-void func_00339760(void);
-void func_0036FEA0(void);
-void func_0036E130(void);
-void func_003F7E20(void);
-void func_003F65F0(void);
 void func_003E30D0(void);
-void func_0020FC40(void);
-void func_003DCD90(void);
 void func_003AFD90(void);
-int func_0032E7B0(void);
-void func_0035E010(void);
-void func_003554D0(void);
-void func_0035D0C0(void);
-void func_0035D0F0(void);
-void func_0035D120(void);
-void func_003F8100(void);
-void func_003F6630(void);
 void func_00254310(void);
 void func_002582B0(void);
-int func_0018F800(u8 *c, int k);
-void func_0018F890(u8 *c, int k, int v);
-int func_001902A0(void);
-void func_001902B0(void);
-u32 func_003635F0(void);
-int func_00363B30(int k);
-int func_00361E90(void);
 
 /* 0x003E4DA0, 0x1A0 bytes. The gallery viewer's frame. */
 void func_003E4DA0(void)
@@ -1597,8 +1526,8 @@ void func_003E5970(void)
         return;
     }
     if (n * 4 != 0) {
-        g_005BA7DC = func_00102DB0(0x10, n * 4);
-        g_005BA7E0 = func_00102DB0(0x10, n * 4);
+        g_005BA7DC = (u8 **)(func_00102DB0(0x10, n * 4));
+        g_005BA7E0 = (u8 **)(func_00102DB0(0x10, n * 4));
     }
     for (k = 0; k < n; k++) {
         u8 *b = (u8 *)g_005BA7CC + g_005BA7CC[3 + k];
@@ -1653,19 +1582,6 @@ extern u8 g_00693703, g_0069382B, g_00693953;
 extern char g_0045C6E0[];
 extern u8 *g_0045D2C0;
 extern int g_0045D378;
-
-int func_0036D6D0(void);
-int func_0036D5A0(u32 s);
-u8 **func_003B0340(u8 *o);
-u32 func_003B0430(u8 *o);
-int func_0036D620(int s);
-int func_0036B330(void);
-void func_0017A920(u8 *cam);
-void func_001CB810(u8 *p, int k);
-void func_001C8620(u8 *o, int k, u8 *m, int a, u32 f);
-void func_001CAF50(u8 *o);
-void func_0023C160(void);
-void func_0023AF50(int v, int a);
 
 /* 0x003E6940, 0x270 bytes. The enemy level by the player's provinces and turn (0-7, halved on
  * the lowest difficulty). */

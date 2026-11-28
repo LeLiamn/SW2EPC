@@ -10,6 +10,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_HIST_EVENT_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -19,40 +23,9 @@ extern char g_007B4E60[];                /* a message buffer */
 extern u8 *g_0045D2C0;                   /* (small data) the camera */
 extern u8 g_005B4BC0[];
 
-u8 *func_00391250(void);
-void func_001796D0(void);
 void func_001784E0(void);
 void func_00179320(void);
-void func_00178460(void);
-void func_00182C20(void);
-void func_00102990(void);
-void func_00279B20(void);
-void func_0019F550(void);
-int func_0036B260(void);
-void func_0030E140(int k, int a, int b, int c);
-int func_0030E1F0(void);
-void func_0030E100(void);
-int func_00390760(int k);
 void func_001204B0(char *buf, int fmt);
-void func_00374EE0(char *s);
-int func_00375BF0(void);
-int func_00375B90(void);
-int func_002F2840(int o);
-int func_002F3E70(int o);
-int func_002F4080(int o);
-void func_002F9E10(int f, int v);
-void func_002F9F40(int f, int v);
-void func_003EA200(int f, int v);
-int func_003620E0(int s, int k);
-int func_00327D50(void);
-int func_003EAB60(int f, int *list);
-void func_00376100(int a, int b, int c);
-int func_003296F0(void);
-void func_00369BB0(int a, int b);
-int func_0036B120(void);
-void func_0036B170(int *out);
-void func_0036A560(void);
-void func_003EAFA0(void);
 
 #define EV_STEP() ((int *)func_003EA000())
 int *func_003EA000(void);
@@ -191,8 +164,8 @@ static void event_message(int a, int b)
 
     if (func_0030E1F0() == 2) {
         func_0030E100();
-        func_001204B0(g_007B4E60, func_00390760(func_0036B260() == 0 ? a : b));
-        func_00374EE0(g_007B4E60);
+        func_001204B0(g_007B4E60, PS2_ADDR(func_00390760(func_0036B260() == 0 ? a : b)));
+        func_00374EE0(PS2_ADDR(g_007B4E60));
         s[0] = 2;
     }
 }
@@ -543,9 +516,6 @@ int func_003EB840(void)
     return 0;
 }
 
-void func_003EB880(void);
-void func_003EB9D0(void);
-
 /* 0x003EB940, 0x8C bytes. */
 void func_003EB940(void)
 {
@@ -557,8 +527,6 @@ int func_003EBAA0(void)
 {
     return event_run(func_003EB880, func_003EB940, func_003EB9D0);
 }
-
-void func_003EC000(void);
 
 /* 0x003EBD70, 0x58 bytes. */
 void func_003EBD70(void)
@@ -580,9 +548,6 @@ int func_003EC0B0(void)
 {
     return event_run(func_003EBD70, func_003EBDD0, func_003EC000);
 }
-
-void func_003EC4C0(void);
-void func_003EC800(void);
 
 /* 0x003EC460, 0x5C bytes. */
 void func_003EC460(void)
@@ -614,10 +579,6 @@ int func_003ECC20(void)
 {
     return release_all(func_003EA0E0());
 }
-
-void func_003303B0(int o);
-void func_003137C0(void);
-void func_003ECEB0(void);
 
 /* 0x003ECC90, 0x64 bytes. */
 void func_003ECC90(void)
@@ -651,8 +612,6 @@ int func_003ED310(void)
     return release_all(func_003EA160());
 }
 
-void func_003ED7F0(void);
-
 /* 0x003ED380, 0x68 bytes. */
 void func_003ED380(void)
 {
@@ -684,9 +643,6 @@ int func_003EDBD0(void)
     return 0;
 }
 
-void func_003EDC00(void);
-void func_003EDE40(void);
-
 /* 0x003EDC70, 0x8C bytes. */
 void func_003EDC70(void)
 {
@@ -704,8 +660,6 @@ int func_003EE170(void)
 {
     return release_all(func_003EA0E0());
 }
-
-void func_003EE2E0(void);
 
 /* 0x003EE1E0, 0x68 bytes. */
 void func_003EE1E0(void)

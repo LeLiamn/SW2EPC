@@ -14,6 +14,10 @@
  * channel 3.
  */
 
+#define SW2E_FILE_IPU_PICTURE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -58,12 +62,6 @@ void func_001289F8(int channel);                 /* EnableDmac */
 void func_00128990(int channel);                 /* DisableDmac */
 int AddDmacHandler(int channel, int (*handler)(int), int next);
 int RemoveDmacHandler(int channel, int id);
-void func_00104860(u8 *packet);
-void func_00104520(u8 *packet);
-void func_00104600(u8 *packet, u8 *data, u32 size, int dbp, int psm, int dbw, int x, int y,
-                   int w, int h);
-void *func_00102DB0(int align, u32 size);
-void func_00102EC0(void *data);
 
 void func_00143FF0(void);
 

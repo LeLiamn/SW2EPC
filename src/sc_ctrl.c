@@ -11,6 +11,10 @@
  * none, 0x1AE / 0x1AF stand for a player's officer.
  */
 
+#define SW2E_FILE_SC_CTRL_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -39,18 +43,7 @@ extern u8 g_00693970[][0x88];            /* the officers' records (+0x80 flags) 
 extern int g_00669F6C[4];                /* +0: the game mode (1: ?), inside the settings */
 extern const char g_00424E40[];          /* "sc_ctrl.c" */
 
-void *func_001026D0(int which, int entry, void *dest, int now, u32 size, u32 offset,
-                    const void *file, int line);
-void func_00102EC0(void *data);          /* free */
-void func_00185390(void);
-void func_001854C0(void);
-void func_0023ED70(void);
-void func_0019A790(void);
-void func_0019A7B0(void);
-void func_0023ED90(void);
-u32 func_0035DC70(int p);
 void func_0018A290(u8 *c, u8 v, int x);
-void func_0019A4F0(u8 *b, int a);
 
 /* 0x00185CA0, 0x40 bytes, matching. The scenario's frame: func_00185390 in mode 1, else func_001854C0. */
 void func_00185CA0(void)
@@ -69,7 +62,7 @@ void func_00185CE0(void)
 /* 0x00185CF0, 0x20 bytes, matching. Frees the table. */
 void func_00185CF0(void)
 {
-    func_00102EC0(g_005BA690.data);
+    func_00102EC0((unsigned char *)(g_005BA690.data));
 }
 
 /* 0x00185D10, 0x5C bytes, matching. Loads the table (LINKDATA entry 0x35). */
@@ -188,10 +181,6 @@ extern ScCommands g_005BA7CC;
 
 #define SC_CMD(i) (g_005BA7CC.data + *(u32 *)(g_005BA7CC.data + (i) * 4 + 0xC))
 
-int func_0032E7B0(void);
-int func_00183410(int a, u32 i, u8 state, u8 b, int c);
-void func_0027DEA0(int a, int b);
-
 /* 0x00186050, 0x130 bytes. Each frame (unless func_0032E7B0), the commands not yet met or done
  * and not of the second kind (+2) are tested; met ones run their entries (+3), or ask
  * func_00183410 first and are cleared if refused. */
@@ -299,19 +288,9 @@ int func_00186480(int x)
 
 extern u8 g_006A3A30[][0xC0];            /* the battle officers (game state +0x100C0) */
 
-void func_001EEBF0(u8 *o);
-void func_001F1910(u8 *o);
 void func_001EE3A0(u8 *o);
 void func_001EE9C0(u8 *o, u8 a);
-void func_001ED160(u8 *o, u8 *a, int b);
-void func_00207260(u8 *r, float *pos);
 void func_002075A0(float yaw, u8 *r, float *out, int a);
-void func_001660C0(u8 *u, float *pos);
-void func_001F1A30(u8 *o);
-void func_001D4C20(u8 *base, int a);
-void func_001EEC50(u8 *o);
-void func_001D4FB0(u8 *base);
-void func_001D4C00(u8 *o);
 void func_001EE3B0(u8 *o);
 
 /* 0x001864B0, 0x2C8 bytes. Moves officer record `o` to `pos` facing `yaw` (wrapped to -pi..pi):
@@ -324,7 +303,7 @@ void func_001864B0(float yaw, u8 *o, float *pos, int keep)
     if (keep == 0) {
         if ((U32(o, 0x80) & 2) == 0) {
             if (U32(o, 0x80) & 0x40000)
-                func_001EEBF0(o);
+                func_001EEBF0(PS2_ADDR(o));
             func_001F1910(o);
         } else {
             func_001EE3A0(o);
@@ -351,7 +330,7 @@ void func_001864B0(float yaw, u8 *o, float *pos, int keep)
     *(float *)(o + 0x20) = a;
     func_001EE9C0(o, U8(o, 0x7B));
     if (PTR(o, 0x18) != 0) {
-        func_001ED160(o, PTR(o, 0x18), 0);
+        func_001ED160(PS2_ADDR(o), PS2_ADDR(PTR(o, 0x18)), 0);
         PTR(o, 0x18) = 0;
         U32(o, 0x84) |= 0x10;
     }
@@ -368,7 +347,7 @@ void func_001864B0(float yaw, u8 *o, float *pos, int keep)
             float p[4];
             int k;
 
-            func_00207260(r, pos);
+            func_00207260(r, (unsigned char *)(pos));
             u = PTR(r, 0x14);
             *(float *)(u + 0x238) = yaw;
             U8(u, 0x27C) &= ~1;
@@ -399,7 +378,7 @@ void func_00186780(u16 *cmd)
             if (cmd[0] == 0 && f < 0x47)
                 func_001D4C20(BASE68(f), 1);
             else
-                func_001EEC50(o);
+                func_001EEC50(PS2_ADDR(o));
         }
     }
 }
@@ -428,16 +407,7 @@ void func_001869F0(u16 *cmd)
 
 extern u8 g_00669D70[];                  /* the scenario's event bits (in the settings) */
 
-void func_001D5060(u8 *base);
 void func_001EE570(u8 *o);
-void func_001D4DE0(u8 *base, short v);
-void func_001D4E40(u8 *base, short v);
-void func_001D4EA0(u8 *base, short v);
-void func_001EECE0(u8 *o, short v);
-void func_001EEDE0(u8 *o, short v);
-void func_001EEEE0(u8 *o, short v);
-
-
 
 /* Whether officer record `o` of side `side` stands in the area of cells x0-x1, z0-z1. */
 static inline int in_area(u8 *o, u16 side, int x0, int z0, int x1, int z1)
@@ -581,9 +551,9 @@ void func_00186EC0(short *cmd)
                     func_001D4EA0(b, cmd[3]);
             } else {
                 if (cmd[2] == 2)
-                    func_001EECE0(o, cmd[3]);
+                    func_001EECE0(PS2_ADDR(o), cmd[3]);
                 else if (cmd[2] == 1)
-                    func_001EEDE0(o, cmd[3]);
+                    func_001EEDE0(PS2_ADDR(o), cmd[3]);
                 else if (cmd[2] == 0)
                     func_001EEEE0(o, cmd[3]);
             }
@@ -602,8 +572,6 @@ extern u8 g_0073DCA3[], g_0073DF33[];    /* the two players' records (bit 2: no 
 extern u32 g_00669F60[4];                /* +0: the battle flags */
 extern float g_00424EE0[];               /* the eight facing angles */
 
-int func_0019A800(short *out, u32 slot, int x, int z);
-void func_001D4C00(u8 *o);
 void func_001EE3B0(u8 *o);
 
 /* 0x00187030, 0x12C bytes. Command: sets scenario switch cmd[0] to (cmd[1] == 1); switch 1 is
@@ -696,7 +664,7 @@ void func_001871D0(short *cmd, int any)
         if (g != 0) {
             short out[4];
 
-            if (func_0019A800(out, k, (int)x, (int)z) == 0) {
+            if (func_0019A800((unsigned char *)(out), k, (int)x, (int)z) == 0) {
                 func_001D4C00(g);
                 func_001EE3B0(g);
             } else {
@@ -725,7 +693,7 @@ void func_00187410(u16 *cmd)
                 if (cmd[0] == 0)
                     func_001D4C20(BASE68(U32(o, 0x10)), 0);
                 else
-                    func_001EEBF0(o);
+                    func_001EEBF0(PS2_ADDR(o));
             }
         }
     }
@@ -746,16 +714,12 @@ extern u32 g_00669DE8[][0x12];           /* per player settings (+0: the player'
 
 void func_002D6FA0(u8 *who, u8 *pos, int a);
 void func_0022F4B0(char *to, u16 text);
-void func_0019B170(char *to, u16 a, u16 b);
 void func_001204B0(char *to, const char *format, ...);   /* sprintf */
 void func_00120928(char *to, const char *from);         /* strcpy */
 void func_0018AEB0(u8 a, int b, int c, char *text);
 void func_0018ADA0(u8 a, int b);
-void func_0022EF90(u8 *box, u32 kind, int mode);
 void func_0018AE70(u8 a, char *text);
-u8 *func_0034B0D0(u32 id);
 void func_0022F450(char *to, u16 text);
-void func_002C4AE0(u8 *a, char *text);
 
 /* An officer's record for scenario id `id`, the player's own officer for the player ids. */
 static inline u8 *sc_officer(u32 id, int player)
@@ -911,7 +875,7 @@ void func_00187A70(short *cmd, int player)
         func_00120928(g_005BBF20, t);
     g_005BC064 = 0;
     g_005BC04C = 0;
-    func_002C4AE0((u8 *)&g_005BD728, g_005BBF20);
+    func_002C4AE0((unsigned int *)((u8 *)&g_005BD728), PS2_ADDR(g_005BBF20));
     g_005BD72C = 0;
     g_005BD728 = 0;
     func_0022EF90(g_005BC3A0, g_005BC020, 0);
@@ -930,11 +894,6 @@ extern u8 g_00669D60[];                  /* the settings (per player 0x48 bytes 
 int func_0017E0A0(void);
 int func_0017E0B0(void);
 void func_0017DE50(void);
-void func_0017DE70(u16 a);
-void func_00190860(u8 *a, u8 *b, char c, u32 mask);
-void func_001906B0(u8 *a, u8 *b, u32 mask, int on);
-void func_001F11E0(u8 kind, float *out);
-void func_00253B50(u8 *u, u8 kind);
 
 /* 0x00188C00, 0x7C bytes. Command: variable cmd[3] = cmd[0] + or x (cmd[2] 0 / 1) cmd[1]. */
 void func_00188C00(u16 *cmd)
@@ -1007,7 +966,7 @@ void func_00188DD0(u16 *cmd)
     if (k == 3 || k == 2 || k == 1) {
         if (cmd[0] > 7)
             k = 8;
-        func_00190860(a, b, (char)cmd[1], 1 << k);
+        func_00190860(a, b, (char)cmd[1], 1 << k, cmd[2] == 1);
     } else if (k == 0) {
         func_001906B0(a, b, 0x8000, cmd[2] == 1);
     }
@@ -1053,20 +1012,9 @@ void func_00188E90(u16 *cmd)
     }
 }
 
-void func_001D4D90(float v, u8 *base);
-void func_001D4CA0(u8 *base, short v);
-void func_001EF190(u8 *o, short v, int a, int b);
-void func_001D4D20(u8 *base, u16 v, int on);
 void func_001EC900(u8 *o, u16 v, int on);
-void func_001D50C0(u8 *base, u8 v);
-void func_001EE6B0(u8 *o, u8 v);
-void func_001D5120(u8 *base, u8 v);
-void func_001EE750(u8 *o, u8 v);
-void func_001D51F0(u8 *base, short v);
-void func_001D51A0(u8 *base, short v);
 void func_0018ACA0(u8 *cell);
 void func_0018AD30(int id);
-void func_00183670(float *pos);
 
 /* 0x00189080, 0xD0 bytes. Command: officer cmd[1]'s base (cmd[0] = 0) gets value cmd[2]
  * (func_001D4D90), else the officer's +0x24 becomes cmd[2] kept between 1 and 20. */
@@ -1099,7 +1047,7 @@ void func_00189150(short *cmd)
         return;
     o = REC88(id);
     if (cmd[0] == 0 && U32(o, 0x10) < 0x47)
-        func_001D4CA0(BASE68(U32(o, 0x10)), cmd[2]);
+        func_001D4CA0(BASE68(U32(o, 0x10)), cmd[2], cmd[3] == 1, cmd[4] == 1);
     else
         func_001EF190(o, cmd[2], cmd[3] == 1, cmd[4] == 1);
 }
@@ -1138,7 +1086,7 @@ void func_00189320(u16 *cmd)
         if (U32(o, 0x10) < 0x47)
             func_001D50C0(BASE68(U32(o, 0x10)), *(u8 *)&cmd[1]);
         else
-            func_001EE6B0(o, *(u8 *)&cmd[1]);
+            func_001EE6B0(PS2_ADDR(o), *(u8 *)&cmd[1]);
     }
 }
 
@@ -1155,7 +1103,7 @@ void func_001893E0(u16 *cmd)
         if (U32(o, 0x10) < 0x47)
             func_001D5120(BASE68(U32(o, 0x10)), *(u8 *)&cmd[1]);
         else
-            func_001EE750(o, *(u8 *)&cmd[1]);
+            func_001EE750(PS2_ADDR(o), *(u8 *)&cmd[1]);
     }
 }
 
@@ -1231,7 +1179,7 @@ void func_001896E0(u8 *cmd)
 
     p[0] = (float)cmd[0] * 1000.0f + 500.0f;
     p[1] = (float)cmd[2] * 1000.0f + 500.0f;
-    func_00183670(p);
+    func_00183670(PS2_ADDR(p));
     ((float *)&g_005BD728)[0] = p[0];
     ((float *)&g_005BD728)[1] = p[1];
 }
@@ -1239,18 +1187,7 @@ void func_001896E0(u8 *cmd)
 extern u32 g_005BC1A0[][2];              /* scenario timers (the scenario object's +0x1B10) */
 #define SC_TIMER(k) (g_005BA690.timers[k])
 
-u8 *func_0035DCD0(int p);
-void func_001F1640(u8 *cell, u8 *out);
-void func_001D4F00(u8 *base, float *pos, u8 *cell);
 u8 *func_001EE150(u8 *o);
-void func_001D4F60(u8 *base, u8 *target);
-void func_001D5240(u8 *base, u8 v);
-void func_0033BDC0(u8 *base, short v);
-void func_0033BE80(u16 a, short b, int c);
-void func_0018F890(u8 *cell, int n, u8 k);
-void func_0018FC00(u8 *cell, int n, int on);
-void func_0027F160(char a, char b);
-void func_00349AF0(u8 *o, u16 v);
 
 /* Whether a record is on the field: flag 1 and none of 0x8C40002. */
 static inline int on_field(u32 f)
@@ -1287,7 +1224,7 @@ void func_00189760(u16 *cmd, int player)
 
         p[0] = q[0];
         p[1] = q[1];
-        func_00183670(p);
+        func_00183670(PS2_ADDR(p));
     } else {
         p[0] = -1.0f;
         p[1] = -1.0f;
@@ -1310,7 +1247,7 @@ void func_001898C0(short *cmd, int fine)
     if (fine == 0) {
         c[0] = (u8)cmd[2];
         c[1] = (u8)cmd[3];
-        func_001F1640(c, d);
+        func_001F1640(c, (short int *)(d));
     } else {
         d[0] = (u8)cmd[2];
         d[1] = (u8)cmd[3];
@@ -1320,7 +1257,7 @@ void func_001898C0(short *cmd, int fine)
     pos[0] = (float)d[0] * 1000.0f + 500.0f;
     pos[1] = (float)d[1] * 1000.0f + 500.0f;
     if (cmd[0] == 0 && U32(o, 0x10) < 0x47) {
-        func_001D4F00(BASE68(U32(o, 0x10)), pos, c);
+        func_001D4F00(BASE68(U32(o, 0x10)), (const long long unsigned int *)(pos), (const short unsigned int *)(c));
     } else {
         *(float *)(o + 0x38) = pos[0];
         *(float *)(o + 0x3C) = pos[1];
@@ -1354,7 +1291,7 @@ void func_00189A60(short *cmd, int player)
         target = func_0035DCD0(func_00186480(player));
     }
     if (cmd[0] == 0 && U32(o, 0x10) < 0x47) {
-        func_001D4F60(BASE68(U32(o, 0x10)), target);
+        func_001D4F60(BASE68(U32(o, 0x10)), PS2_ADDR(target));
     } else {
         PTR(o, 0x1C) = target;
         U32(o, 0x84) |= 0x10;
@@ -1383,10 +1320,10 @@ void func_00189C70(u16 *cmd)
     u32 id = func_00185E00(cmd[0], 1);
 
     if (id < 0x1AD && U32(REC88(id), 0x10) < 0x47)
-        func_0033BDC0(BASE68(U32(REC88(id), 0x10)), (short)cmd[1]);
+        func_0033BDC0((void *)BASE68(U32(REC88(id), 0x10)), (short)cmd[1]);
 }
 
-/* 0x00189D00, 0x28 bytes. Command: func_0033BE80(cmd[0], cmd[1], 0). */
+/* 0x00189D00, 0x28 bytes, matching. Command: func_0033BE80(cmd[0], cmd[1], 0). */
 void func_00189D00(u16 *cmd)
 {
     func_0033BE80(cmd[0], (short)cmd[1], 0);
@@ -1465,8 +1402,6 @@ void func_00189F10(u16 *cmd)
     }
 }
 
-void func_0024D380(u16 a, u8 *unit);
-
 /* 0x0018A030, 0xFC bytes. Command: for officer cmd[0] in battle, its battle officers (those
  * of the 143 whose record is it, alive) get func_0024D380 with cmd[1]. */
 void func_0018A030(u16 *cmd)
@@ -1479,7 +1414,7 @@ void func_0018A030(u16 *cmd)
     b = g_006A3A30[0];
     for (k = 0; k < 0x8F; k++, b += 0xC0) {
         if ((U32(b, 0xB8) & 1) && PTR(b, 0x10) == o && (U32(b, 0xB8) & 2) == 0)
-            func_0024D380(cmd[1], PTR(b, 0x14));
+            func_0024D380(cmd[1], PS2_ADDR(PTR(b, 0x14)));
     }
 }
 
@@ -1544,9 +1479,6 @@ extern u8 g_0073DE10[8][0x1C];           /* player 2's map markers */
 extern u8 *g_0073DA28, *g_0073DA2C;      /* player 1's marker sprites */
 extern u8 *g_0073DCB8, *g_0073DCBC;      /* player 2's marker sprites */
 extern int g_00669F9C;                   /* the battle's frame counter */
-
-u32 func_001839B0(u32 a);
-void func_0019B4E0(int a, u32 b);
 
 #define OBJ(i) (g_005BA7E8 + (i) * 0x170)
 
@@ -1769,23 +1701,17 @@ extern const char g_00424EB0[];          /* "" */
 extern u32 g_005BBF0C, g_005BBF10;       /* (objectives +0x1724, +0x1728) */
 extern int g_005BBEEC[8];                /* (objectives +0x1704) the markers in use */
 
-void func_00118AC0(void *to, const void *from, u32 n);  /* memcpy */
-void func_001911A0(void *a, float *p);
-void func_003DD710(char *to, u32 id);
-const char *func_00372C40(void);
-const char *func_00372C00(u32 k);
-
 /* 0x0018B810, 0x38 bytes, matching. Restores the objectives from a save; returns the end. */
 u8 *func_0018B810(u8 *p)
 {
-    func_00118AC0(g_005BA7E8, p, 0x1730);
+    func_00118AC0((unsigned int *)(g_005BA7E8), p, 0x1730);
     return p + 0x1730;
 }
 
 /* 0x0018B850, 0x34 bytes, matching. Saves the objectives; returns the end. */
 u8 *func_0018B850(u8 *p)
 {
-    func_00118AC0(p, g_005BA7E8, 0x1730);
+    func_00118AC0((unsigned int *)(p), g_005BA7E8, 0x1730);
     return p + 0x1730;
 }
 
@@ -1868,9 +1794,9 @@ void func_0018BB20(u32 k, u32 *ids, u8 b)
             S32(l, j * 4) = id;
             c = col[U8(REC88(id), 0x79)];
             if ((U32(REC88(id), 0x80) & 0x8000000) == 0)
-                func_003DD710(name, id);
+                func_003DD710(PS2_ADDR(name), (unsigned char *)PS2_PTR(id));
             else
-                func_00120928(name, func_00372C40());
+                func_00120928(name, func_00372C40(U8(REC88(id), 0x79)));
             func_001204B0(names[j], g_00424EA0, c, name);
         }
     }
@@ -1882,14 +1808,14 @@ void func_0018BB20(u32 k, u32 *ids, u8 b)
 /* 0x0018BCC0, 0x38 bytes, matching. Restores the officer lists; returns the end. */
 u8 *func_0018BCC0(u8 *p)
 {
-    func_00118AC0(g_005BC068, p, 0x138);
+    func_00118AC0((unsigned int *)(g_005BC068), p, 0x138);
     return p + 0x138;
 }
 
 /* 0x0018BD00, 0x34 bytes, matching. Saves the officer lists; returns the end. */
 u8 *func_0018BD00(u8 *p)
 {
-    func_00118AC0(p, g_005BC068, 0x138);
+    func_00118AC0((unsigned int *)(p), (unsigned char *)(g_005BC068), 0x138);
     return p + 0x138;
 }
 
@@ -1945,7 +1871,7 @@ u8 *func_0018BEA0(u8 *p)
     u32 k;
 
     for (k = 0; k < 0x18; k++, p += 8)
-        func_00118AC0(p, SC_TIMER(k), 8);
+        func_00118AC0((unsigned int *)(p), (void *)SC_TIMER(k), 8);
     return p;
 }
 
@@ -1973,7 +1899,7 @@ u8 *func_0018BFA0(u8 *p)
     u32 k;
 
     for (k = 0; k < 0x10; k++, p += 4)
-        func_00118AC0(&SC_VAR(k), p, 4);
+        func_00118AC0((unsigned int *)(&SC_VAR(k)), p, 4);
     return p;
 }
 
@@ -1983,7 +1909,7 @@ u8 *func_0018C010(u8 *p)
     u32 k;
 
     for (k = 0; k < 0x10; k++, p += 4)
-        func_00118AC0(p, &SC_VAR(k), 4);
+        func_00118AC0((unsigned int *)(p), (unsigned char *)(&SC_VAR(k)), 4);
     return p;
 }
 
@@ -1994,8 +1920,6 @@ void func_0018C080(void)
 
 extern u8 *g_0045D2F0;                   /* (small data) the map: +4 its 32 x 32 blocks of 5 x 5 cells */
 
-void func_00190480(u8 *cell);
-int func_00352CA0(void);
 int func_0011B740(int x);                /* abs */
 
 /* 0x0018C090, 0x44 bytes, matching. Clears the 16 variables. */
@@ -2008,13 +1932,13 @@ void func_0018C090(void)
 }
 
 /* 0x0018C0E0, 0x7C bytes, matching. func_00190480 for the 5000-unit cell of point `p`. */
-void func_0018C0E0(float *p)
+int func_0018C0E0(float *p)
 {
     u8 c[2];
 
     c[0] = (u8)((int)p[0] / 5000);
     c[1] = (u8)((int)p[1] / 5000);
-    func_00190480(c);
+    return func_00190480(c);
 }
 
 /* 0x0018C160, 0x134 bytes. Whether 1000-unit cell `c` is open on the map (its block's bit
@@ -2023,7 +1947,7 @@ int func_0018C160(u8 *c)
 {
     u8 *m = g_0045D2F0, *b;
 
-    if (func_00352CA0() != 0)
+    if (func_00352CA0(c) != 0)
         return 0;
     if (c[0] / 5 > 0x1F || c[1] / 5 > 0x1F)
         b = 0;
@@ -2035,13 +1959,13 @@ int func_0018C160(u8 *c)
 }
 
 /* 0x0018C2A0, 0x7C bytes, matching. func_0018C160 for the 1000-unit cell of point `p`. */
-void func_0018C2A0(float *p)
+int func_0018C2A0(float *p)
 {
     u8 c[2];
 
     c[0] = (u8)((int)p[0] / 1000);
     c[1] = (u8)((int)p[1] / 1000);
-    func_0018C160(c);
+    return func_0018C160(c);
 }
 
 /* 0x0018C320, 0xD0 bytes, matching. The direction (0-7, 8 for the same cell) from cell `a` to `b`. */

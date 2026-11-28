@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_FLD_STATE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -45,60 +49,24 @@ extern u32 g_7000015C;                   /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 #define PLAYER_ON(p) (*(int *)(g_00669D60 + (p) * 0x48 + 0xA0))
 
-u8 *func_001026D0(int a, int b, int c, int d, int e, int f, const char *path, int g);
-void func_00102EC0(void *p);
-int func_0036D300(void);
-int func_0036D310(void);
-int func_0036D2E0(void);
-u32 func_001041B0(u8 pad);
-u16 func_0035DCB0(int p);
-void func_0035CCE0(u16 g, u16 dir);
 void func_0011EB80(void *to, const void *from, int n);
-u8 *func_002EFB00(int k);
 u8 func_00362660(int s);
 int func_00363800(int s, u32 k);
-u16 func_00362260(int s, int k);
+u32 func_00362260(int s, int k);
 int func_00362160(int s, int k);
 int func_00362F40(int s, u32 k);
 int func_00362810(void);
 int func_00363770(int s, int k);
-int func_002F27D0(int v);
 void func_00362F60(void);
 int func_003637D0(int s, int k);
-u8 func_00362570(void);
+u32 func_00362570(void);
 void func_00360E80(void);
 int func_00363720(int p);
-int func_002F5730(int x);
-u8 *func_0035DAF0(int x, int y);
-int func_003DD680(int p);
-int func_003DD5B0(int a, int b);
-int func_0036F390(u32 s, int k);
-int func_0036D6A0(int a);
-int func_0036D500(u32 a);
-int func_00327E90(void);
-int func_002FA870(int a);
-u8 **func_0033EF80(u32 k);
-void func_0033EDC0(u8 **g);
-int func_0036F420(u32 s, int k);
-u8 **func_0033F110(u8 s);
-int func_0033B1E0(u8 **g);
-int func_0034EC80(int k);
-int func_0034EE50(u8 *b);
-int func_0034EDB0(u8 *b);
-int func_00352240(u8 *b, int side);
-void func_0035CC80(void);
 void func_00361310(void);
 void func_00360700(void);
 void func_00361240(void);
-void func_003653F0(int l, void *buf, int cap);
-void func_00365230(int l);
-void func_00364E40(int l, int k);
-int func_003653D0(int l);
-int func_00365060(int l);
-int func_0035D5A0(int side);
 int func_0035F060(int p);
 int func_0035F2D0(u32 s);
-int func_0032E7B0(void);
 
 /* 0x0035E9C0, 0x1C bytes, matching. Set-up record `k` of the first table (0x18 bytes). */
 u8 *func_0035E9C0(int k)
@@ -326,7 +294,7 @@ void func_0035F0E0(u8 v)
 }
 
 /* 0x0035F100, 0x20 bytes, matching. */
-u8 func_0035F100(void)
+u32 func_0035F100(void)
 {
     return func_0035F090()->level;
 }
@@ -362,7 +330,7 @@ void func_0035F1D0(int s, u8 b)
 }
 
 /* 0x0035F200, 0x28 bytes. Side `s`'s main base. */
-u8 func_0035F200(int s)
+u32 func_0035F200(int s)
 {
     return func_0035F090()->main_base[s];
 }
@@ -399,7 +367,7 @@ void func_0035F310(int s, u8 v)
 }
 
 /* 0x0035F340, 0x28 bytes. */
-u8 func_0035F340(int s)
+u32 func_0035F340(int s)
 {
     return func_0035F090()->b10[s];
 }
@@ -452,7 +420,7 @@ void func_0035F480(u32 s, u8 v)
 }
 
 /* 0x0035F4B0, 0x38 bytes. */
-u8 func_0035F4B0(u32 s)
+u32 func_0035F4B0(u32 s)
 {
     if (s >= 2)
         return 0xFF;
@@ -467,7 +435,7 @@ void func_0035F4F0(u32 s, u8 v)
 }
 
 /* 0x0035F520, 0x38 bytes. Side `s`'s reserve base (0x14 for none). */
-u8 func_0035F520(u32 s)
+u32 func_0035F520(u32 s)
 {
     if (s >= 2)
         return 0x14;
@@ -482,7 +450,7 @@ void func_0035F560(u32 s, u8 v)
 }
 
 /* 0x0035F590, 0x38 bytes. */
-u8 func_0035F590(u32 s)
+u32 func_0035F590(u32 s)
 {
     if (s >= 2)
         return 0xFF;
@@ -502,7 +470,7 @@ void func_0035F610(int s, u8 v)
 }
 
 /* 0x0035F640, 0x28 bytes. */
-u8 func_0035F640(int s)
+u32 func_0035F640(int s)
 {
     return func_0035F090()->b1A[s];
 }
@@ -563,7 +531,7 @@ void func_0035F820(u8 v)
 }
 
 /* 0x0035F840, 0x20 bytes, matching. */
-u8 func_0035F840(void)
+u32 func_0035F840(void)
 {
     return func_0035F090()->b2A;
 }
@@ -577,7 +545,7 @@ void func_0035F860(u8 *p)
 /* 0x0035F890, 0x34 bytes. Loads it from the save image. */
 void func_0035F890(void)
 {
-    u8 *p = func_002EFB00(9);
+    u8 *p = (u8 *)PS2_PTR(func_002EFB00(9));
 
     func_0011EB80(func_0035F090(), p + 0x84, 0x2C);
 }
@@ -591,7 +559,7 @@ void func_0035F8D0(void)
         func_0035F310(s, func_00362660(s));
 }
 
-/* 0x0035F920, 0x8C bytes. Each side's count: the sum of its present officers'. */
+/* 0x0035F920, 0x8C bytes, matching. Each side's count: the sum of its present officers'. */
 void func_0035F920(void)
 {
     u32 s, k;
@@ -804,7 +772,7 @@ void func_003600F0(void)
 {
 }
 
-/* 0x00360100, 0x70 bytes. Side 1's commander alert (once): its main base threatened. */
+/* 0x00360100, 0x70 bytes, matching. Side 1's commander alert (once): its main base threatened. */
 void func_00360100(void)
 {
     if (func_0033B1E0(func_0033F110(1)) == 0 && func_0035F3D0(1) == 0) {
@@ -833,26 +801,26 @@ u32 func_003601B0(u32 s)
 
     if (s >= 2)
         return 0x14;
-    func_003653F0((int)l, buf, 0x14);
-    func_00365230((int)l);
+    func_003653F0((void *)PS2_PTR((int)l), (int *)(buf), 0x14);
+    func_00365230((void *)PS2_PTR((int)l));
     e = func_0035D5A0(s);
     for (k = 0; k < 0x14; k++) {
         u8 *b = (u8 *)func_0034EC80(k);
 
         if (b != 0 && func_0034EE50(b) != 0 && s == (u32)func_0034EDB0(b))
-            func_00364E40((int)l, k);
+            func_00364E40((void *)PS2_PTR((int)l), k);
     }
-    if (func_003653D0((int)l) != 0)
-        return func_00365060((int)l);
+    if (func_003653D0((void *)PS2_PTR((int)l)) != 0)
+        return func_00365060((void *)PS2_PTR((int)l));
     for (k = 0; k < 0x14; k++) {
         u8 *b = (u8 *)func_0034EC80(k);
 
         if (b != 0 && func_0034EE50(b) != 0 && k != func_0035F200(e))
-            func_00364E40((int)l, k);
+            func_00364E40((void *)PS2_PTR((int)l), k);
     }
-    if (func_003653D0((int)l) == 0)
+    if (func_003653D0((void *)PS2_PTR((int)l)) == 0)
         return 0x14;
-    return func_00365060((int)l);
+    return func_00365060((void *)PS2_PTR((int)l));
 }
 
 extern int g_00669F9C, g_00669FA0;       /* the battle's frame counter, its time limit */
@@ -867,31 +835,8 @@ extern u8 g_006A1D58[][0x68];
 #define UNIT_ACTIVE(u) ((UNIT_FLAGS(u) & 1) != 0 && (UNIT_FLAGS(u) & 0x8C40002) == 0 \
                         && (UNIT_FLAGS(u) & 4) == 0)
 
-void func_0035CBF0(u32 s);
-void func_0035CB90(u32 s);
-void func_0035CBC0(u32 s);
-void func_0035CC50(u32 s);
-void func_0035CC20(u32 g);
-void func_0035C9D0(u16 kind, int won);
-void func_0035D2A0(void);
-void func_0035CEE0(u16 k, u16 g, u16 h);
 u32 func_00361430(u32 s, u16 *out, u32 max);
 int func_00361F50(void);
-int func_0033F7D0(u32 s, int a);
-int func_003531F0(int s);
-int func_0033F860(int a, int b, int c);
-u8 *func_00338410(u32 g);
-int func_0033C320(u8 **g);
-int func_0033CB60(u8 **g, int b);
-int func_0033D150(u8 **g);
-u8 **func_0035DD10(int p);
-u32 func_0033F7F0(int b, int side);
-u32 func_0033F430(int a, int b, int *out, int max);
-u8 **func_0033EFD0(u32 s, u32 k);
-int func_00190480(u8 *c);
-int func_00353990(u8 *c);
-int func_00353A50(u8 *c);
-u32 func_003DD290(u8 *c, u32 s);
 
 /* 0x00360300, 0xF8 bytes. Reserves due this count of 3000 frames get a base (or, with the enemy's
  * event 8, are called off). */
@@ -1208,7 +1153,7 @@ int func_00361080(void)
 {
     int list[16];
     u8 **best = 0, **h;
-    u32 n = func_0033F430(0, 1, list, 0x10), k;
+    u32 n = func_0033F430(0, 1, (unsigned int *)(list), 0x10), k;
 
     for (k = 0; k < n; k++) {
         u8 **g = (u8 **)g_006A1D58[list[k]];
@@ -1296,11 +1241,6 @@ u32 func_00361430(u32 s, u16 *out, u32 max)
 
 extern int g_00415D20[3], g_00415D30[5];
 
-u8 **func_0033F0C0(u32 s, u32 k);
-void func_0033DDC0(u8 **g, u8 *cell);
-int func_0033B140(u8 **g);
-void func_003385E0(u8 **g, int a, int b);
-
 /* 0x00361540, 0x80 bytes, matching. Sends side `s`'s three reinforcement groups to contested cells; whether
  * there were any. */
 int func_00361540(u32 s)
@@ -1384,7 +1324,7 @@ void func_00361640(void)
 int func_00361C30(int s)
 {
     int list[16], n = 0;
-    u32 c = func_0033F430(s, 1, list, 0x10), k;
+    u32 c = func_0033F430(s, 1, (unsigned int *)(list), 0x10), k;
 
     for (k = 0; k < c; k++)
         n += *(u16 *)(func_00338410(list[k] * 0x68 / 0x68) + 0x1E);
@@ -1406,7 +1346,7 @@ int func_00361CE0(int s)
 int func_00361D40(int s)
 {
     int list[16], n = 0;
-    u32 c = func_0033F430(s, 1, list, 0x10), k;
+    u32 c = func_0033F430(s, 1, (unsigned int *)(list), 0x10), k;
 
     for (k = 0; k < c; k++) {
         int v;
@@ -1425,7 +1365,7 @@ int func_00361D40(int s)
 }
 
 /* 0x00361E20, 0x6C bytes. The players' total score. */
-int func_00361E20(void)
+int func_00361E20(int s)
 {
     int n = 0, p;
 
@@ -1482,33 +1422,11 @@ extern int g_00415D48[3], g_00415D60[30];
 extern u8 g_00415DE0[6];
 extern const char g_004482D0[];
 
-void func_0035D240(void);
-void func_0035D270(void);
-int func_00337A10(int x);
-char *func_002F2880(void);
 void func_0011ED38(void *p, int v, int n);
-void func_0019B0E0(char *out, u32 v);
-const char *func_00372470(void);
-const char *func_00372460(void);
 void func_001206B0(char *to, const char *s);
 void func_00120928(char *to, const char *from);
-u32 func_003F71B0(u32 k);
-void func_00118850(void *p, int n);
-u32 func_00327C00(void);
-u32 func_0035D780(int m);
-u32 func_0035D7F0(int m);
-u32 func_0035D6E0(int m);
-u32 func_0035D730(int m);
-int func_0035D5B0(int k);
 int func_0035EAE0(int k, int a, int b);
 int func_0035EBA0(int k, int a, int b);
-u8 func_0036F600(int v);
-int func_001E6670(u32 d, u32 a, int m);
-int func_003154F0(int a, int *out);
-int func_0036F6A0(u32 v, u32 j, int *t, u32 kind);
-int func_002F3DC0(int x);
-int func_0036D3B0(int x);
-int func_0036D400(int x);
 
 /* 0x00361F50, 0x60 bytes. With func_0036D310: the count to reach (by battle kind 0x10-0x12). */
 int func_00361F50(void)
@@ -1585,7 +1503,7 @@ void func_003621B0(int s, int k, u32 v)
 }
 
 /* 0x003621F0, 0x30 bytes. */
-u16 func_003621F0(int s, int k)
+u32 func_003621F0(int s, int k)
 {
     return func_003620A0()->life[s][k];
 }
@@ -1599,7 +1517,7 @@ void func_00362220(int s, int k, u32 v)
 }
 
 /* 0x00362260, 0x30 bytes. */
-u16 func_00362260(int s, int k)
+u32 func_00362260(int s, int k)
 {
     return func_003620A0()->troops[s][k];
 }
@@ -1634,7 +1552,7 @@ void func_00362350(u8 v)
 }
 
 /* 0x00362370, 0x20 bytes, matching. */
-u8 func_00362370(void)
+u32 func_00362370(void)
 {
     return func_003620A0()->map;
 }
@@ -1645,7 +1563,7 @@ void func_00362390(u8 v)
     func_00362350(v);
 }
 
-/* 0x003623B0, 0x24 bytes. The battlefield. */
+/* 0x003623B0, 0x24 bytes, matching. The battlefield. */
 u32 func_003623B0(void)
 {
     return func_0035D780(func_00362370());
@@ -1710,7 +1628,7 @@ void func_00362550(u8 v)
 }
 
 /* 0x00362570, 0x20 bytes, matching. The battle kind. */
-u8 func_00362570(void)
+u32 func_00362570(void)
 {
     return func_003620A0()->kind;
 }
@@ -1722,7 +1640,7 @@ void func_00362590(u8 v)
 }
 
 /* 0x003625B0, 0x20 bytes, matching. */
-u8 func_003625B0(void)
+u32 func_003625B0(void)
 {
     return func_003620A0()->difficulty;
 }
@@ -1734,7 +1652,7 @@ void func_003625D0(int s, int k, u8 v)
 }
 
 /* 0x00362600, 0x30 bytes. */
-u8 func_00362600(int s, int k)
+u32 func_00362600(int s, int k)
 {
     return func_003620A0()->b65[s][k];
 }
@@ -1827,7 +1745,7 @@ void func_00362990(u32 s, u32 v)
 }
 
 /* 0x003629E0, 0x38 bytes. */
-u16 func_003629E0(u32 s)
+u32 func_003629E0(u32 s)
 {
     if (s >= 2)
         return 0;
@@ -1882,7 +1800,7 @@ void func_00362B90(u8 v)
 }
 
 /* 0x00362BB0, 0x20 bytes, matching. */
-u8 func_00362BB0(void)
+u32 func_00362BB0(void)
 {
     return func_003620A0()->b73;
 }
@@ -1894,7 +1812,7 @@ void func_00362BD0(int s, int k, u8 v)
 }
 
 /* 0x00362C10, 0x38 bytes. */
-u8 func_00362C10(int s, int k)
+u32 func_00362C10(int s, int k)
 {
     return func_003620A0()->b74[s][k];
 }
@@ -1906,7 +1824,7 @@ void func_00362C50(int s, u8 v)
 }
 
 /* 0x00362C80, 0x28 bytes. */
-u8 func_00362C80(int s)
+u32 func_00362C80(int s)
 {
     return func_003620A0()->b80[s];
 }
@@ -1918,7 +1836,7 @@ void func_00362CB0(int s, u8 v)
 }
 
 /* 0x00362CE0, 0x28 bytes. */
-u8 func_00362CE0(int s)
+u32 func_00362CE0(int s)
 {
     return func_003620A0()->b82[s];
 }
@@ -1933,7 +1851,7 @@ int func_00362D10(int s, int k)
     return func_003F71B0(v) <= func_00362CE0(s);
 }
 
-/* 0x00362D70, 0x74 bytes. */
+/* 0x00362D70, 0x74 bytes, matching. */
 int func_00362D70(int s)
 {
     int n = 0;
@@ -1956,7 +1874,7 @@ void func_00362DF0(u8 *p)
 /* 0x00362E20, 0x44 bytes. Loads it. */
 void func_00362E20(void)
 {
-    u8 *p = func_002EFB00(9);
+    u8 *p = (u8 *)PS2_PTR(func_002EFB00(9));
 
     func_0011EB80(func_003620A0(), p, 0x84);
     func_00118850(g_0045D770, 2);
@@ -2146,7 +2064,7 @@ void func_003635A0(void)
         func_00363560();
 }
 
-/* 0x003635F0, 0x24 bytes. */
+/* 0x003635F0, 0x24 bytes, matching. */
 int func_003635F0(void)
 {
     return func_0035D5B0(func_00362570());
@@ -2178,7 +2096,7 @@ u32 func_00363690(int s, int k)
     return 2;
 }
 
-/* 0x003636F0, 0x24 bytes. Whether player `p` plays. */
+/* 0x003636F0, 0x24 bytes, matching. Whether player `p` plays. */
 int func_003636F0(int p)
 {
     return func_00362320(p) != 8;
@@ -2205,7 +2123,7 @@ int func_003637D0(int s, int k)
     return func_00363690(s, k) != 2;
 }
 
-/* 0x00363800, 0x94 bytes. Whether side `s`'s slot `k` takes part at the start. */
+/* 0x00363800, 0x94 bytes, matching. Whether side `s`'s slot `k` takes part at the start. */
 int func_00363800(int s, u32 k)
 {
     if (func_00362F40(s, k) != 0)
@@ -2248,7 +2166,7 @@ void func_003638D0(void)
     func_00362F60();
 }
 
-/* 0x003639E0, 0x68 bytes. Whether side `s` has `v` among its two +0x65 values. */
+/* 0x003639E0, 0x68 bytes, matching. Whether side `s` has `v` among its two +0x65 values. */
 int func_003639E0(int s, int v)
 {
     u32 k;
@@ -2296,13 +2214,13 @@ int func_00363B30(int v)
     return n;
 }
 
-/* 0x00363B90, 0x24 bytes. */
+/* 0x00363B90, 0x24 bytes, matching. */
 u32 func_00363B90(void)
 {
     return func_0035D7F0(func_00362370());
 }
 
-/* 0x00363BC0, 0x78 bytes. Whether officer `v` is in the battle. */
+/* 0x00363BC0, 0x78 bytes, matching. Whether officer `v` is in the battle. */
 int func_00363BC0(int v)
 {
     u32 s, k;
@@ -2353,7 +2271,7 @@ void func_00363D20(void)
     for (k = 0; k < n; k++) {
         u32 v = func_0036F600(list[k]);
 
-        if (func_0036F6A0(v, j, t, func_00362570()) != 0) {
+        if (func_0036F6A0(v, j, (unsigned int *)(t), func_00362570()) != 0) {
             t[j++] = v;
             if (j > 1)
                 break;
@@ -2370,7 +2288,7 @@ void func_00363E20(void)
     func_00363D20();
 }
 
-/* 0x00363E50, 0x50 bytes. Whether the battle kind is below 6 or above 0x12. */
+/* 0x00363E50, 0x50 bytes, matching. Whether the battle kind is below 6 or above 0x12. */
 int func_00363E50(void)
 {
     u32 k = func_00362570();
@@ -2412,19 +2330,8 @@ u32 func_00363EA0(int s)
 extern u32 g_00415E00[10], g_00415E60[5];
 
 u32 func_00363EA0(int s);
-u32 func_00328640(u32 k);
-u32 func_003F7310(u32 v);
-int func_002F7B10(void);
 int func_002F7D90(int a, int (*f)(void), int x, int b, int c, int d);
-int func_002F8160(void);
-int func_003F7270(u32 k);
-int func_003F73E0(u32 k);
-int func_00314BA0(int a, int b, int n);
-int func_0036D6D0(void);
-u32 func_003F71D0(u32 k);
-u32 func_003F7110(u32 k);
 int func_00363E50(void);
-void func_00364980(void);
 
 /* 0x00364020, 0x30 bytes. Side `s`'s tactic points from its rating. */
 void func_00364020(int s)
@@ -2476,8 +2383,8 @@ void func_00364180(void)
 /* 0x00364220, 0x10C bytes. The tactics (1-9) open to officer `x` into `out`. */
 int func_00364220(int x, u32 *out)
 {
-    int t = func_002F7B10(), c = 0;
-    int n = func_002F7D90(0, func_002F8160, x, 0, 1, 0);
+    int t = PS2_ADDR(func_002F7B10()), c = 0;
+    int n = func_002F7D90(0, (int (*)(void))(func_002F8160), x, 0, 1, 0);
     u32 k;
 
     if (n < 1)
@@ -2489,7 +2396,7 @@ int func_00364220(int x, u32 *out)
             continue;
         ok = 1;
         if (func_003F7270(k) != 1)
-            ok = func_00314BA0(func_003F73E0(k), t, n) != 0;
+            ok = func_00314BA0(func_003F73E0(k), (unsigned int *)PS2_PTR(t), n) != 0;
         if (ok) {
             *out++ = k;
             c++;

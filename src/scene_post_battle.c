@@ -9,6 +9,10 @@
  * (0x1C00 bytes); the battle's results come from the game state at 0x00669D60.
  */
 
+#define SW2E_FILE_SCENE_POST_BATTLE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -240,55 +244,11 @@ extern int g_00749520[];                         /* per player (2), not in $gp *
 
 extern const char g_00429CB0[];                  /* "StatePostBattle.c" (__FILE__ for the loader) */
 
-u32 func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-void func_00102EC0(u32 handle);
-void func_00101470(int value);
-void func_003F1580(void);
 int func_0021BE80(void);
-void func_002D6890(void);
 void func_002D68F0(void);
-int func_0036B330(void);
-int func_003623B0(void);
-int func_00362320(int player);
-int func_003620E0(int side, int slot);
-int func_003294A0(int player);
-int func_0036D310(void);
-u8 *func_0019FBC0(int item);
-int func_003637D0(int side, int slot);
-int func_002F41E0(int officer);
-int func_002F34E0(int officer);
-int func_002F39F0(int officer);
-int func_002F4C40(int officer);
-int func_002F4DD0(int officer);
-int func_002F4F60(int officer);
-int func_002F50F0(int officer);
-int func_002F5280(int officer);
-int func_002F5410(int officer);
-int func_002F55A0(int officer);
-void func_002CAC30(void *dst, u32 data);
-void func_003ACC90(void);
-void func_003AA920(void);
-void func_003AE420(void);
-void func_003AC340(void);
-int func_002F59A0(int officer);
-void func_002F5930(int officer, int value);
-u32 func_00327D50(void);
-void func_002F90D0(u32 force, int amount);
 void func_003AD790(void);
-void func_003AE2D0(void);
-void func_0017E010(int track);
 void func_0021BFC0(int player);
 void func_0021A840(int player);
-void func_002857E0(int value);
-int func_0036B8C0(int side);
-int func_0036B940(int side, int slot);
-int func_00362260(int side, int slot);
-int func_0036B340(int side, int slot);
-int func_0036BA20(int side, int slot);
-int func_0036BA40(int slot);
-int func_0036BA60(int slot);
-void func_001B8F60(int a, int b, int c);
-void func_001A2960(void);
 
 /* 0x0021C5F0, 0xA4C bytes. Scene enter: loads the scene's data (7 LINKDATA entries), takes the
  * battle's results (officers' levels and stats, rewards, the gold earned when g_00669DB8 is 0),
@@ -300,13 +260,13 @@ void func_0021C5F0(void)
 
     func_00101470(1);
     func_003F1580();
-    g_00747950 = func_001026D0(1, 0x38, 0, 1, 0, 0, g_00429CB0, 1303);
-    g_00747954 = func_001026D0(1, 0x8D, 0, 1, 0, 0, g_00429CB0, 1304);
-    g_00747958 = func_001026D0(1, 0x36, 0, 1, 0, 0, g_00429CB0, 1305);
-    g_0074795C = func_001026D0(1, 0x39, 0, 1, 0, 0, g_00429CB0, 1306);
-    g_00747964 = func_001026D0(1, 0x37, 0, 1, 0, 0, g_00429CB0, 1307);
-    g_00747968 = func_001026D0(1, 0x81, 0, 1, 0, 0, g_00429CB0, 1308);
-    g_00747960 = func_001026D0(1, func_0021BE80(), 0, 1, 0, 0, g_00429CB0, 1309);
+    g_00747950 = PS2_ADDR(func_001026D0(1, 0x38, 0, 1, 0, 0, g_00429CB0, 1303));
+    g_00747954 = PS2_ADDR(func_001026D0(1, 0x8D, 0, 1, 0, 0, g_00429CB0, 1304));
+    g_00747958 = PS2_ADDR(func_001026D0(1, 0x36, 0, 1, 0, 0, g_00429CB0, 1305));
+    g_0074795C = PS2_ADDR(func_001026D0(1, 0x39, 0, 1, 0, 0, g_00429CB0, 1306));
+    g_00747964 = PS2_ADDR(func_001026D0(1, 0x37, 0, 1, 0, 0, g_00429CB0, 1307));
+    g_00747968 = PS2_ADDR(func_001026D0(1, 0x81, 0, 1, 0, 0, g_00429CB0, 1308));
+    g_00747960 = PS2_ADDR(func_001026D0(1, func_0021BE80(), 0, 1, 0, 0, g_00429CB0, 1309));
     func_002D6890();
 
     g_00748F84 = g_00669DB8;
@@ -519,13 +479,13 @@ void func_0021C5F0(void)
 void func_0021D050(void)
 {
     func_002D68F0();
-    func_00102EC0(g_00747960);
-    func_00102EC0(g_0074795C);
-    func_00102EC0(g_00747958);
-    func_00102EC0(g_00747950);
-    func_00102EC0(g_00747954);
-    func_00102EC0(g_00747964);
-    func_00102EC0(g_00747968);
+    func_00102EC0(PS2_PTR(g_00747960));
+    func_00102EC0(PS2_PTR(g_0074795C));
+    func_00102EC0(PS2_PTR(g_00747958));
+    func_00102EC0(PS2_PTR(g_00747950));
+    func_00102EC0(PS2_PTR(g_00747954));
+    func_00102EC0(PS2_PTR(g_00747964));
+    func_00102EC0(PS2_PTR(g_00747968));
     func_001A2960();
 }
 
@@ -536,23 +496,6 @@ extern int g_0074941C;                    /* points added to every player */
 extern char g_00669D81;                   /* difficulty (0..4) */
 extern u32 g_00669F9C;
 
-u8 func_003A0EC0(int item);
-u8 func_003A1070(int item, int i);
-u8 func_003A1180(int item, int i);
-u8 func_003A0F60(int item);
-u8 func_003A1260(int item);
-int func_003DCB00(int player);
-int func_003DCBB0(int player);
-int func_003DCBE0(int player);
-int func_003DCC10(int player);
-int func_003DCC40(int player);
-int func_003DCC70(int player);
-int func_003DCCA0(int player);
-int func_003DCCD0(int player);
-int func_003DCD00(int player);
-int func_003DCD30(int player);
-void func_002CA590(u32 data, void *dst);
-void func_002F4820(int officer, int skill, int level);
 extern u32 g_00428348[];                  /* 20 thresholds (u32) */
 
 /* 0x0021A720, 0x9C bytes. Fills a 0x14-byte item record: the item, its kind, 8 pairs of values,
@@ -601,7 +544,7 @@ void func_0021A840(int player)
     r->stats[6] = func_003DCCD0(player);
     r->stats[7] = func_003DCD00(player);
     r->stats[8] = func_003DCD30(player);
-    func_002CA590(g_00669D60.players[player].data_0, r->block_4c);
+    func_002CA590(g_00669D60.players[player].data_0, (int *)(r->block_4c));
     r->value_80 = g_00669D60.players[player].value_4;
     r->value_88 = g_00669D60.players[player].value_c;
     r->value_84 = g_00669F9C;
@@ -669,8 +612,6 @@ void func_0021AC60(int player, SkillEntry *list)
             func_002F4820(g_00669D60.players[player].data_0, list[i].skill, list[i].level);
 }
 
-
-
 /* A skill on a player's list (8 bytes); each player has 0x14C bytes of them at 0x00747B60, the
  * count in the byte at +0x148. */
 typedef struct {
@@ -693,35 +634,16 @@ extern int g_00669F6C;
 extern u8 g_006935DB_state;               /* message box 1 state (see scene_shop.c) */
 extern const char *g_0043C31C;            /* "Saving here will update your per..." */
 
-void func_00328BA0(int item, int value);
-int func_002F57A0(int item);
-u8 *func_00328B30(int item);
-int func_002F57F0(int item);
-u8 func_002F5840(int kind);
-int func_003278B0(void);
-int func_003A02F0(int item);
-int func_00328C00(int item);
-int func_0030AAD0(int kind);
-int func_002F9480(u32 force, int kind);
 void func_0021C090(void);
 void func_0021C0D0(void);
 void func_0021C1D0(void);
 void func_0021C1F0(void);
 void func_0021C280(void);
 void func_0011EB80(void *dst, const void *src, int size);
-void func_0019DDC0(void *item);
 void func_0017DF10(void);
-int func_0019FB90(void);
-int func_0036B2F0(void);
 void func_002EFB40(void);
-void func_002885E0(void *data);
 void func_0028C310(void);
-void func_00289100(void);
-void func_001A2940(void);
 void func_001204B0(char *dst, const char *format, ...);
-void func_001B8BF0(void);
-void func_001AE9F0(int box, const char *text, int c);
-void func_001AFC50(int box);
 
 /* 0x0021B270, 0x104 bytes. Gives the player item `item` with the default values of its kind
  * (table 0x00428B79, 0x13 bytes per kind). */
@@ -966,7 +888,7 @@ void func_0021BC80(void)
     case 2:
         if (g_00747E90 != 0) {
             func_002857E0(0x0C);
-            func_002885E0(&g_00747DF8[g_0074794C]);
+            func_002885E0(PS2_ADDR(&g_00747DF8[g_0074794C]));
         }
         g_00747930 = 2;
         break;
@@ -1009,7 +931,6 @@ void func_0021BC80(void)
         break;
     }
 }
-
 
 /* Entry of the item screen's data for each scenario (func_003623B0), 0 when none. */
 static const u8 s_scenario_entry[0x1E] = {
@@ -1096,7 +1017,6 @@ void func_0021C1D0(void)
 extern u8 g_00748CB4[];
 extern int g_00749438[2], g_007494D0[2];
 extern u8 g_00749440[];                   /* 0x24 bytes per player */
-void func_003DF970(int item, void *a, int b, int c, void *d);
 
 /* 0x0021C1F0, 0x84 bytes. */
 void func_0021C1F0(void)
@@ -1119,13 +1039,6 @@ void func_0021C280(void)
     if (g_0074794C == 0 && g_00748F98 == 2 && g_00748A04[0] == g_00748A04[0x14])
         func_0011EB80(&g_00748A04[0x14], g_00748A04, 0x14);
 }
-
-
-int func_002F4080(int officer);
-int func_002FB2A0(int value);
-void func_00328A00(int officer, int value);
-int func_003635F0(void);
-void func_003A4DA0(int scenario, int b, int points, int c);
 
 /* 0x0021C390, 0x254 bytes. Saves the battle's results: the kept items (0x00748A04) into the item
  * records, unlocks officers (func_00328A00) of side 0 below 0x1C whose level is above 9 (in the
@@ -1166,11 +1079,6 @@ void func_0021C390(void)
         func_0011EB80(func_00328B30(item[0]), item, 0x14);
     }
 }
-
-
-int func_002F6A60(int officer);           /* the officer's weapon skill */
-int func_002F47A0(int officer, int skill);/* skill level */
-int func_003DCB30(int player, int skill); /* the skill's level before the battle */
 
 /* A skill learnt during the battle, in the game state (8 records of 8 bytes at 0x00669F20). */
 typedef struct {
@@ -1243,7 +1151,6 @@ void func_0021AD10(int player)
     }
 }
 
-
 /* The item comparison of the item screen, per player (0x2C bytes at 0x00748B80): six values and
  * a copy of the offered item. */
 typedef struct {
@@ -1303,7 +1210,6 @@ void func_002206F0(int player)
 void func_00220140(void)
 {
 }
-
 
 /* The item being edited on the item screen (0x00748AC8, a 0x14-byte item record): +0 item,
  * +1 kind, +2 eight attributes, +10 their values, +0x12 number of attributes, +0x13 a bonus. */
@@ -1379,7 +1285,6 @@ int func_0021E430(u32 attribute)
     return first_marked;
 }
 
-
 /* Controllers (see scene_shop.c): 0x88 bytes each at 0x00500700. */
 extern u8 g_00500700_pads[];
 #define PAD_READY(n) ((g_00500700_pads[(n) * 0x88 + 0x64] & 1) ? \
@@ -1388,9 +1293,6 @@ extern u8 g_00500700_pads[];
 
 extern u8 g_006934B4_answers[];           /* message box answers, 0x128 bytes per box */
 extern const char *g_004563A0;            /* "This weapon's data will be saved..." */
-void func_0023AD10(int a, int b, int c, int d, int e);
-void func_001AEDE0(int box, int width);
-void func_001AFC70(int box, int pad);
 
 /* 0x0021ED70, 0x1D4 bytes. Item screen, "keep which one" step (controller `pad`, open box `box`):
  * a "yes" in the question box keeps the choice and moves on (page 7); OK asks to confirm, Up or
@@ -1432,7 +1334,6 @@ int func_0021ED70(int pad, int box)
     return 0;
 }
 
-
 typedef unsigned long long u64;
 
 extern int g_0056CCA4, g_0056CCA8, g_0056CCAC, g_0056CCB0;    /* drawing modes */
@@ -1441,25 +1342,11 @@ extern const char *g_0043C5EC, *g_0043C610, *g_0043C6E4, *g_0043C6E8, *g_0043C80
 extern const char *g_00456368;            /* "Please select the weapon whose d..." */
 
 void func_00285E50(u32 a, u32 b, u32 c, int d, int e);
-u8 *func_001050F0(void);
-void func_00105390(u8 *packet);
-u8 *func_00105410(void);
-void func_00105560(u8 *packet);
-void func_003F11D0(void);
-int func_0036B260(void);
 void func_003DACA0(void);
 void func_003DAF70(void);
 void func_003DC300(void);
 void func_0028D0D0(u32 a, u32 b, int c, int d, int player, PlayerResult *r);
-void func_0028A420(u32 a, u32 b, SkillEntry *list);
 void func_003DE580(void);
-void func_003E0910(void);
-void func_003E0290(void);
-void func_003E0730(void);
-int func_003F1160(int value);
-void func_001A7DC0(const char *text, int alpha, int b);
-void func_003838B0(const char *text, int b);
-void func_00285D50(u32 a, int page, u8 b, int c);
 void func_002DAE50(void);
 
 /* 0x00220150, 0x484 bytes. Scene draw: the background, a darkened band (two GS packets), the
@@ -1509,7 +1396,7 @@ void func_00220150(void)
         break;
     case 4:
         func_0028A420(g_00747958, g_00747950,
-                      &g_00747B60[g_0074794C].entries[g_00748A2D - g_00748A2C]);
+                      (void *)&g_00747B60[g_0074794C].entries[g_00748A2D - g_00748A2C], g_00748A2C);
         break;
     case 5: func_003DE580(); break;
     case 6: func_003E0910(); break;
@@ -1532,7 +1419,7 @@ void func_00220150(void)
                 func_001A7DC0(g_0043C6E4, 0x80, 0);
             break;
         case 6:
-            func_003838B0(g_00456368, 0);
+            func_003838B0(PS2_ADDR(g_00456368), 0);
             func_001A7DC0(g_0043C610, 0x80, 0);
             break;
         case 0: case 1: case 2: case 3: case 4: case 7: case 8:
@@ -1545,7 +1432,6 @@ void func_00220150(void)
 extern u8 g_006934B3_state;               /* message box 0 state */
 extern u8 g_0069395E_state;               /* box 1 open when neither 0 nor 0xFF */
 
-
 extern int g_00747970;                    /* frames before leaving */
 extern u8 *g_005BA6A0_bases;              /* sc_ubase.c records, 0x2C bytes (see MISC.md 0051) */
 extern const char *g_00456318;            /* "... %s ... %s" (item earned) */
@@ -1556,18 +1442,9 @@ int func_0021D6A0(int pad);
 int func_0021E520(int pad);
 int func_0021EF50(int pad);
 int func_003F13E0(void);
-void func_002872E0(PlayerResult *r);
-void func_0028A3D0(void);
 void func_00288990(void);
-int func_00362160(int side, int slot);
-const char *func_0019B170(char *buf, int a, int b);
-int func_003DFAB0(void *data, int pad);
-int func_002DAC30(void);
-void func_002D8160(void);
 void func_002DBA90(void);
 void func_002D8060(int value);
-void func_003A3CE0(int item);
-void func_003F1070(int value);
 
 /* Which message box is open (0, 1, or 5 for none), as the scene tests it. */
 static int open_box(void)
@@ -1611,7 +1488,7 @@ int func_0021F680(void)
         } else if (g_00748F80 != 0 && (pressed & 0x40)) {
             g_00748F80 = 0;
             func_0023AD10(2, 0, 0x2CDC, 0x2CDC, 0x1000);
-            func_002872E0(&g_00747DF8[player]);
+            func_002872E0(PS2_ADDR(&g_00747DF8[player]), g_0074794C);
         }
         if (g_00747930 == 4 && (pressed & 0x40) && g_007729FC != 0) {
             func_0028A3D0();
@@ -1799,7 +1676,6 @@ int func_0021F680(void)
     return 1;
 }
 
-
 /* ---- Counting pages: numbers that count up by 8 a frame, with a tick sound every other frame - */
 
 #define PAD_REPEAT(n) (*(unsigned short *)&g_00500700_pads[(n) * 0x88 + 0x4E])
@@ -1926,11 +1802,7 @@ extern struct {
 #define SET_GAUGE(x) (g_00772674_gauge.a = (x), g_00772674_gauge.b = (x), \
                       g_00772674_gauge.c = 0, g_00772674_gauge.d = 0)
 
-void func_002868F0(void);
 int func_002861B0(void);
-void func_003DC9E0(void);
-void func_0028C330(int a, int b);
-void func_003E0320(int value);
 
 /* 0x0021D6A0, 0xB50 bytes. Officer results page: counts up the officer's values (phases 0-5),
  * runs an animation (6, 7), then on OK either shows a level-up (9 waits for box 1, 10 counts the
@@ -2033,7 +1905,7 @@ int func_0021D6A0(int pad)
                 func_0021A7C0(func_003DCBB0(g_0074794C))) {        /* level up */
                 PB_LEVEL = func_003DCBB0(g_0074794C);
                 PB_PHASE = 9;
-                func_003DC9E0();
+                func_003DC9E0(9);
             } else {
                 func_0021AD10(g_0074794C);
                 func_0021AC60(g_0074794C, g_00747B60[g_0074794C].entries);

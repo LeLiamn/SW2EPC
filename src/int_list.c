@@ -6,6 +6,10 @@
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address).
  */
 
+#define SW2E_FILE_INT_LIST_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;

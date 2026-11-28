@@ -7,6 +7,10 @@
  * is proven; comments with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_MAIN_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned int u32;
 
 /* 0x0045D1C4 (gp - 0x7A2C): a flag set to 0 before and 1 after set-up, shutdown and every pass of
@@ -67,34 +71,12 @@ extern SceneEntry g_00422000[SCENE_COUNT];
 extern int g_0045D20C;
 extern int g_0045D210;
 
-void func_00100410(void);
 void func_001023C0(void *callback, int value);
 void func_001023D0(void *callback, int value);
-void func_001037F0(int value);
-void func_00103FA0(void);
-void func_00147680(void);
 void func_00177F80(void);
-void func_00185DA0(void);
-void func_00194130(void);
-void func_0019F350(void);
-void func_001AC3A0(void);
-void func_001B9200(void);
-void func_001C7620(void);
-void func_001F1C70(void);
-void func_0020E4E0(void);
-void func_00214F90(void);
-void func_0023C120(void);
-void func_002D7F90(void);
-void func_002E6210(void);
-void func_00374E20(void);
-void func_003B38F0(void);
-void func_003DB0B0(void);
-void func_003DC030(void);
 void func_00100230(void);
 void func_00100240(void);
-void func_001004B0(void);
 void func_00100500(void);
-void func_001020E0(void);
 
 /* 0x0045CB80: passed four times to func_00117F10 during system set-up. */
 /* Four different symbols that the linker placed at the same address (the compiler loads each one
@@ -104,22 +86,7 @@ extern u32 g_0045CB80_a[], g_0045CB80_b[], g_0045CB80_c[], g_0045CB80_d[];
 /* 0x7000015C: a word in the PS2 scratchpad RAM, set to 12345 at start-up (random seed?). */
 #define g_7000015C (*(volatile u32 *)0x7000015C)
 
-void func_00102380(void);
-void func_001023E0(void);
-void func_001029B0(void);
-void func_00102A00(void);
-void func_00102B80(void);
-void func_00103060(void);
-void func_00104040(void);
-void func_001040D0(void);
-void func_001062F0(void);
-void func_00106700(void);
-void func_00117EB0(void);
 void func_00117F10(void *a, void *b, void *c, void *d);
-void func_001181E0(void);
-void func_0022DE80(void);
-void func_00143F50(void);
-void func_00143FB0(void);
 
 /* 0x001014D0, 8 bytes, matching. */
 void func_001014D0(int value)

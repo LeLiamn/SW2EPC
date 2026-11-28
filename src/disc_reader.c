@@ -16,6 +16,10 @@
  * driver's (?). The reads can be cancelled (func_00115D40).
  */
 
+#define SW2E_FILE_DISC_READER_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 
@@ -101,11 +105,6 @@ void func_0010C478(int port);
 void func_00131EA0(void);                                  /* DI? */
 void func_00131EF0(void);                                  /* EI? */
 void func_00128F20(int thread, void *arg);                 /* StartThread */
-int func_00115820(void);
-void func_00115860(int paused);
-void func_001152A0(void);
-void func_001171B0(void);
-void func_00117220(int port);
 int CreateSema(SemaParam *p);
 int CreateThread(ThreadParam *p);
 int WaitSema(int sema);

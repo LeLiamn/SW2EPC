@@ -11,6 +11,10 @@
  * by offset; 15 effect runners of 0x350 bytes live at 0x0072D120.
  */
 
+#define SW2E_FILE_EFFECT_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -32,21 +36,13 @@ extern u32 g_0072C750[4];
 extern u8 g_004084F0[], g_00408540[];
 
 void func_001C8CF0(u32 k);
-void func_001CC500(u8 *a, u8 *b);
-void func_001CAFF0(void);
-void func_001F1D50(void);
 void func_001C9070(void);
 void func_0020F420(void);
 void func_001023B0(void (*f)(void));
-void func_001C9390(void);
-void func_002EA9A0(void); void func_00208550(void); void func_0021A320(void);
-void func_00228E70(void); void func_0024EA80(void); void func_002A7EC0(void);
-void func_00240360(void); void func_002AEBB0(void); void func_002F0090(void);
-void func_002EB0F0(void); void func_0021A440(void); void func_002290E0(void);
-void func_002F03B0(void); void func_0024F8A0(void);
+void func_00208550(void); void func_0021A320(void);
+void func_0024F8A0(void);
 void func_001C1230(void);
 void func_001C3490(u8 *run, u8 *part, u32 k, u8 *shared);
-void func_001C4B10(u8 *run, u8 *part, u32 k, u8 *shared);
 
 /* 0x001C0250, 0xE8 bytes. Opens the effect pack: its offsets made into addresses; "EFB" entries
  * become effects (and are set up), the others take the effect they share. */
@@ -76,7 +72,7 @@ void func_001C0340(void)
 {
     u32 k;
 
-    func_001CC500(g_004084F0, g_00408540);
+    func_001CC500((unsigned int *)(g_004084F0), (unsigned int *)(g_00408540));
     for (k = 0; k < 0xF; k++) {
         u8 *r = g_0072D120[k];
 
@@ -229,7 +225,7 @@ void func_001C09C0(u8 *r, u8 *e)
         } else if (p[0] == 1) {
             t = *(float *)((u8 *)p[1] + 0x5C);
             if (t0 < t && t <= *(float *)(r + 0x28)) {
-                func_001C4B10(r, (u8 *)p[1], k, shared);
+                func_001C4B10(r, (u8 *)p[1], k, PS2_ADDR(shared));
                 *(u32 *)(r + 0x3C) |= bit;
                 *(int *)(r + 0x4C) += 1;
             }
@@ -244,13 +240,9 @@ void func_001C09C0(u8 *r, u8 *e)
 extern u32 g_0045D2A8;                   /* (small data) the game paused */
 extern float g_0045CC7C;                 /* (small data) the battle's slow motion factor */
 
-
 void func_001C39A0(u8 *r, float *p); void func_001C3890(float *p, int *list);
-void func_001C4F60(u8 *r, float *p); void func_001C4D10(u8 *r, float *p);
+void func_001C4D10(u8 *r, float *p);
 void func_001C4A00(u8 *r, float *p); void func_001C46F0(u8 *r, float *p);
-void func_002AF070(void); void func_0024F850(void); void func_002404F0(u8 a, u8 *e);
-void func_001C3A60(u8 *e); void func_001C4AC0(u8 *e); void func_001C4FF0(u8 *e);
-void func_001CB3D0(u8 *e); void func_001CB4A0(u8 *e); void func_001CB570(u8 *e);
 
 #define F32(o, off) (*(float *)((u8 *)(o) + (off)))
 #define W32(o, off) (*(u32 *)((u8 *)(o) + (off)))
@@ -280,7 +272,7 @@ void func_001C0C50(u8 *r)
 
     for (p = *(float **)(r + 0x10); p != 0; p = *(float **)(p + 7)) {
         if (*p > 1.0f)
-            func_001C4F60(r, p);
+            func_001C4F60(PS2_ADDR(r), PS2_ADDR(p));
         else
             func_001C4D10(r, p);
     }
@@ -449,9 +441,9 @@ void func_001C1230(void)
 /* Frees a runner's three part lists. */
 static inline void free_parts(u8 *e)
 {
-    func_001C3A60(e);
-    func_001C4AC0(e);
-    func_001C4FF0(e);
+    func_001C3A60(PS2_ADDR(e));
+    func_001C4AC0(PS2_ADDR(e));
+    func_001C4FF0(PS2_ADDR(e));
 }
 
 /* 0x001C1360, 0xDC bytes. Ends a world effect: its sound, its follow slot, out of the layer's
@@ -461,7 +453,7 @@ void func_001C1360(u8 *e)
     u8 *l = g_0072D120[g_70000D60] - 0x30;
 
     if (W32(e, 0x100) < 0xFF)
-        func_002AF070();
+        func_002AF070(W32(e, 0x100));
     if (W32(e, 0x108) < 5 && g_006D3370[W32(e, 0x108)] == e)
         g_006D3370[W32(e, 0x108)] = 0;
     *(u8 **)(*(u8 **)(e + 0xF0) + 0xF4) = *(u8 **)(e + 0xF4);
@@ -480,9 +472,9 @@ void func_001C1440(u8 *e)
     u8 *l = g_0072D120[g_70000D60] - 0x30;
 
     if (*(int *)(e + 0x110) != 0x40)
-        func_0024F850();
+        func_0024F850(*(int *)(e + 0x110));
     if (*(int *)(e + 0x114) != 0x40)
-        func_0024F850();
+        func_0024F850(*(int *)(e + 0x114));
     *(u8 **)(*(u8 **)(e + 0x118) + 0x11C) = *(u8 **)(e + 0x11C);
     if (*(u8 **)(l + 0x384) == e)
         *(u8 **)(l + 0x384) = *(u8 **)(e + 0x118);

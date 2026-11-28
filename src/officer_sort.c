@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_OFFICER_SORT_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -17,12 +21,6 @@ typedef int (*OfficerCmp)(int a, int b);
 extern int g_007BFB60[];
 extern int g_0045C870[0x46];
 extern u8 *g_0043C648, *g_0043C578;
-
-int *func_002FC2C0(void);
-int func_003EE460(int v);
-void func_001A7DC0(u8 *text, int a, int b);
-void func_003EEAE0(void);
-int func_003EE840(void);
 
 /* 0x003EE4A0, 0x3C bytes. */
 int func_003EE4A0(void)
@@ -38,9 +36,9 @@ void func_003EEDD0(void)
     int v = *(int *)((u8 *)func_002FC2C0()[0x1AB] + 4);
 
     if (v == 1)
-        func_001A7DC0(g_0043C648, 0x80, 2);
+        func_001A7DC0((const char *)(g_0043C648), 0x80, 2);
     else if (v == 0)
-        func_001A7DC0(g_0043C578, 0x80, 2);
+        func_001A7DC0((const char *)(g_0043C578), 0x80, 2);
 }
 
 /* 0x003EEE40, 0x8 bytes, matching. */
@@ -92,9 +90,6 @@ void func_003EF100(int *list, int n, OfficerCmp cmp)
     }
 }
 
-int func_003EF290(int a, int b);
-int func_003EF400(int a, int b);
-
 /* 0x003EF3E0, 0x20 bytes, matching. By name. */
 void func_003EF3E0(int *list, int n)
 {
@@ -106,8 +101,6 @@ void func_003EF550(int *list, int n)
 {
     func_003EF100(list, n, func_003EF400);
 }
-
-int func_002F41E0(int o);
 
 /* 0x003EF570, 0x34 bytes, matching. Higher func_002F41E0 first. */
 int func_003EF570(int a, int b)
@@ -123,8 +116,6 @@ void func_003EF5B0(int *list, int n)
     func_003EF100(list, n, func_003EF570);
 }
 
-int func_002F5CC0(int o);
-
 /* 0x003EF5D0, 0x34 bytes, matching. Higher func_002F5CC0 first. */
 int func_003EF5D0(int a, int b)
 {
@@ -138,8 +129,6 @@ void func_003EF610(int *list, int n)
 {
     func_003EF100(list, n, func_003EF5D0);
 }
-
-int func_002F4080(int o);
 
 /* 0x003EF630, 0x34 bytes, matching. Higher func_002F4080 first. */
 int func_003EF630(int a, int b)
@@ -155,8 +144,6 @@ void func_003EF670(int *list, int n)
     func_003EF100(list, n, func_003EF630);
 }
 
-int func_002F4660(int o);
-
 /* 0x003EF690, 0x34 bytes, matching. Higher func_002F4660 first. */
 int func_003EF690(int a, int b)
 {
@@ -170,8 +157,6 @@ void func_003EF6D0(int *list, int n)
 {
     func_003EF100(list, n, func_003EF690);
 }
-
-int func_002F3770(int o);
 
 /* 0x003EF6F0, 0x34 bytes, matching. Higher func_002F3770 first. */
 int func_003EF6F0(int a, int b)
@@ -187,8 +172,6 @@ void func_003EF730(int *list, int n)
     func_003EF100(list, n, func_003EF6F0);
 }
 
-int func_002F39F0(int o);
-
 /* 0x003EF750, 0x34 bytes, matching. Higher func_002F39F0 first. */
 int func_003EF750(int a, int b)
 {
@@ -202,8 +185,6 @@ void func_003EF790(int *list, int n)
 {
     func_003EF100(list, n, func_003EF750);
 }
-
-int func_002F4C40(int o);
 
 /* 0x003EF7B0, 0x34 bytes, matching. Higher func_002F4C40 first. */
 int func_003EF7B0(int a, int b)
@@ -219,8 +200,6 @@ void func_003EF7F0(int *list, int n)
     func_003EF100(list, n, func_003EF7B0);
 }
 
-int func_002F4DD0(int o);
-
 /* 0x003EF810, 0x34 bytes, matching. Higher func_002F4DD0 first. */
 int func_003EF810(int a, int b)
 {
@@ -235,8 +214,6 @@ void func_003EF850(int *list, int n)
     func_003EF100(list, n, func_003EF810);
 }
 
-int func_002F4F60(int o);
-
 /* 0x003EF870, 0x34 bytes, matching. Higher func_002F4F60 first. */
 int func_003EF870(int a, int b)
 {
@@ -250,8 +227,6 @@ void func_003EF8B0(int *list, int n)
 {
     func_003EF100(list, n, func_003EF870);
 }
-
-int func_002F5AA0(int o);
 
 /* 0x003EF8D0, 0x34 bytes, matching. Higher func_002F5AA0 first. */
 int func_003EF8D0(int a, int b)

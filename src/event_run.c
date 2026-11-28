@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EVENT_RUN_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -34,40 +38,18 @@ extern EvFn g_0040CB70[8];
 
 #define CMD(p) (*(u8 **)((p) + 8))
 
-void func_003E7310(int a);
-void func_00217BC0(void);
-void func_002E5ED0(void);
 void func_001D7760(void);
 void func_001D7BD0(void);
 void func_001D7920(void);
-void func_001C8B30(void);
-void func_001D79D0(void);
-void func_001C8A00(void);
-void func_001C92D0(int a);
-void func_001C8870(int k);
+void func_001D79D0(float dt, u8 *e);
 void func_001DA940(u8 *p);
-int func_0020E7B0(void);
-void func_001DAD50(u8 *p, int v);
-void func_001DA9A0(u8 *p, int b);
-void func_001D91F0(u8 *p, int a);
 void func_001DB8C0(void);
-void func_00272C00(u8 *p);
 void func_001DA980(u8 *p);
 void func_001D76F0(u8 *c);
-void func_001E3010(u8 *p);
-void func_001D75D0(void);
 void func_001E2150(u8 *p);
-void func_00272B60(u8 *p);
-u8 *func_0020E8B0(void);
 void func_001D9750(int k);
-u8 *func_001026D0(int a, int b, int c, int d, int e, int f, char *name, int line);
-void func_00102EC0(u8 *p);
-void func_001D6BD0(u8 *a, u8 *b, u8 c);
 void func_001DAEB0(u8 *p);
-u8 *func_0020EC50(int n);
-void func_00118850(void *p, int n);
 void func_002E9B70(u8 *p);
-int func_0020E230(void);
 
 /* 0x001D8140, 0x28 bytes, matching. */
 void func_001D8140(void)
@@ -89,7 +71,7 @@ void func_001D8E30(void)
 }
 
 /* 0x001D8E50, 0x34 bytes, matching. Switches the drawing to the event scene kind (4). */
-void func_001D8E50(void)
+void func_001D8E50(u8 *e)
 {
     func_001D7760();
     if (g_0045D374 != 4) {
@@ -107,9 +89,9 @@ void func_001D8E90(void)
 }
 
 /* 0x001D8EC0, 0x24 bytes, matching. */
-void func_001D8EC0(void)
+void func_001D8EC0(float dt, u8 *e)
 {
-    func_001D79D0();
+    func_001D79D0(dt, e);
     func_001C8A00();
 }
 
@@ -140,15 +122,15 @@ void func_001D8F40(u8 *p)
 void func_001D91A0(u8 *p, int b)
 {
     func_001DA940(p);
-    func_001DAD50(p, func_0020E7B0());
-    func_001DA9A0(p, b);
+    func_001DAD50((unsigned int *)(p), (unsigned char *)PS2_PTR(func_0020E7B0()));
+    func_001DA9A0(PS2_ADDR(p), b);
 }
 
 /* 0x001D9280, 0x54 bytes, matching. Starts the event for the current player. */
 void func_001D9280(u8 *p)
 {
     func_001D91A0(p, (int)g_00730A20[g_0045D3E0]);
-    func_001D91F0(p, 1);
+    func_001D91F0((unsigned int *)(p), 1);
 }
 
 /* 0x001D92E0, 0x6C bytes. Ends it. */
@@ -159,7 +141,7 @@ void func_001D92E0(u8 *p)
     func_001D8F10();
     func_001DA980(p);
     func_001D76F0(g_00730570[g_0045D3E0]);
-    func_001E3010(p);
+    func_001E3010(PS2_ADDR(p));
     g_0073C7A4 = 0;
 }
 
@@ -218,7 +200,7 @@ void func_001D9810(u8 *p)
 {
     u8 *q = CMD(p);
 
-    func_001D6BD0(p + 0x48, q + q[q[6] + 7] + 7, q[7]);
+    func_001D6BD0((unsigned int *)(p + 0x48), (unsigned int *)(q + q[q[6] + 7] + 7), q[7], q[q[6] + 7]);
 }
 
 /* 0x001DA7E0, 0x6C bytes, matching. */
@@ -298,7 +280,7 @@ void func_001DB660(u8 *p)
 }
 
 /* 0x001DB8A0, 0x20 bytes, matching. */
-void func_001DB8A0(void)
+void func_001DB8A0(u8 *e)
 {
     g_0045D3E8 = func_0020EC50(0x100);
 }
@@ -401,9 +383,9 @@ void func_001DC430(void)
 }
 
 /* 0x001DCEB0, 0x58 bytes. The current speaker's look kind (0x40 for the narrator). */
-u8 func_001DCEB0(void)
+u8 func_001DCEB0(int k)
 {
-    u32 v = func_0020E230() & 0xFFFF;
+    u32 v = func_0020E230(k) & 0xFFFF;
 
     if (v == 0x252)
         return 0x40;

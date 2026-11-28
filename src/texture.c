@@ -14,6 +14,10 @@
  * returned, so that callers can pack several textures.
  */
 
+#define SW2E_FILE_TEXTURE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -23,13 +27,6 @@ typedef unsigned long long u64;
 
 extern volatile int g_0045D1AC;          /* (small data) 1: flip at vblank (system.c) */
 
-void func_001020D0(void);
-void func_001020E0(void);
-void func_00102380(void);
-void func_00143C90(void);
-void func_00105F90(void);
-void func_00114E30(void);
-void func_001038D0(void);
 void func_00126908(void *load, short dbp, short dbw, short psm, short x, short y, short w,
                    short h);                       /* sceGsSetDefLoadImage */
 void func_00128060(int a);                         /* FlushCache */
@@ -37,7 +34,7 @@ void func_00126AF0(void *load, void *data);        /* sceGsExecLoadImage */
 int func_001265F0(int a, int b);                   /* sceGsSyncPath */
 
 /* 0x00106840, 0x34 bytes, matching. The end of a frame's drawing: the GS packets go out. */
-void func_00106840(void)
+void func_00106840(float dt)
 {
     func_001020D0();
     func_00143C90();
@@ -53,7 +50,7 @@ void func_00106880(void)
 }
 
 /* 0x001068B0, 0x34 bytes, matching. The start of a frame: the random seed moves on, the pads are read. */
-void func_001068B0(void)
+void func_001068B0(float dt)
 {
     g_7000015C = g_7000015C * 0x41C64E6D + 0x3039;
     func_001038D0();

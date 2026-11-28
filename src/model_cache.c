@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_MODEL_CACHE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -31,19 +35,8 @@ extern u8 *g_0073DA10, *g_0073DA14, *g_0073DA1C;
 #define SP_PKT (*(u8 **)0x70000158)
 
 void func_0020E9D0(int k);
-void func_0020E8C0(int k, int a, int b);
 void func_0020ED30(void);
-void func_0020EAA0(int k, int a);
-u8 *func_00102D30(int n);
-void func_00118850(void *p, int n);
-void func_00102EC0(u8 *p);
-u8 *func_00102DB0(int a, int n);
-void func_0020EE50(void);
-u8 *func_001050F0(void);
 u8 *func_0020EEC0(u8 *p);
-void func_00105390(u8 *p);
-int func_00190480(u8 *q);
-int func_0020FD50(u8 *q);
 
 /* 0x0020DF00, 0x20 bytes, matching. The two models kept for the whole battle. */
 int func_0020DF00(int k)
@@ -376,7 +369,7 @@ void func_0020FEB0(void)
 {
     if (g_0073DA10 != 0) {
         func_00102EC0(g_0073DA10);
-        func_00118850(&g_0073DA10, 0x10);
+        func_00118850((unsigned char *)(&g_0073DA10), 0x10);
     }
 }
 
@@ -388,12 +381,12 @@ void func_0020FF60(u8 *q)
     if (func_00190480(q) == 0)
         v = 0;
     else
-        v = func_0020FD50(q);
+        v = func_0020FD50(PS2_ADDR(q));
     func_0020FCF0(q, v);
 }
 
 /* 0x0020FFB0, 8 bytes, matching. */
-void func_0020FFB0(void)
+void func_0020FFB0(u8 *p)
 {
 }
 
@@ -401,7 +394,6 @@ extern int g_0073DA20, g_0073DA28, g_0073DA2C, g_0073DCB0, g_0073DCB8, g_0073DCB
 extern u8 *g_0045D2F0;                   /* (small data) the stage map */
 extern u8 g_00669D60[];
 
-int func_003623B0(void);
 void func_0020FA70(void);
 void func_00213B40(int k, int a);
 void func_00214E50(int k);

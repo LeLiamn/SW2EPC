@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_EV_STILL_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -42,40 +46,15 @@ extern u8 g_00669D60[];
 #define SPEAKER(s) ((s) == 0 ? EV.left : EV.right)
 
 u32 func_00120A40(const char *s);
-int func_00337A10(int v);
 int func_0032F420(int v);
-int func_0032F7D0(int v);
-int func_0032A040(int a, int b);
-void func_0032C940(int a, int b, int c, int d, int e);
 void func_0032D270(int v);
-void func_003A7C10(void);
-int func_0030AB90(void);
-int func_0030AFF0(int p);
-int func_002F9990(int f);
-void func_003A78E0(int a, int b, int c);
-void func_003A80F0(int a, int b);
-void func_003A80A0(int a);
-void func_00372540(int v);
-void func_00369890(int a, int b);
 u8 *func_0032C9D0(void);
 u8 *func_0032C050(void);
-int func_00390760(int k);
-void func_00369880(int a);
-void func_0023AA10(int a);
-void func_00329DA0(int m);
-void func_001AE9F0(int a, int b, int c);
-void func_00102EC0(u8 *p);
 void func_0032C8C0(void);
 void func_0032CE80(void);
 void func_0032CFC0(void);
-u8 *func_001026D0(int a, int b, int c, int d, int e, int f, char *name, int line);
-void func_0032B7B0(void);
-void func_0023AA40(void);
 void func_0017E0C0(int v, int k);
-int func_00369810(void);
-void func_00369AB0(void);
 void func_0032D0E0(void);
-void func_0032CFF0(void);
 
 /* 0x00329D20, 0x14 bytes. The current event's part `k`. */
 u8 *func_00329D20(int k)
@@ -282,7 +261,7 @@ u16 *func_0032ADC0(u16 *c)
     if (g_0045D6E4 == 0) {
         func_00369880(0);
         func_0023AA10(0);
-        func_001AE9F0(1, func_00390760(c[1]), 1);
+        func_001AE9F0(1, (const char *)(func_00390760(c[1])), 1);
         g_0045D6DC = 1;
     } else {
         func_00329D80(1);
@@ -525,11 +504,8 @@ extern u8 *g_0045D6F4;                   /* (small data) */
 extern int g_007B5E28, g_007B5E30, g_007B5E34, g_007B5E38;
 extern u8 g_007B5E4A, g_007B5E4B;
 
-u8 *func_00102DB0(int a, int n);
 void func_00120928(u8 *to, const u8 *from);
 void func_0032B640(void);
-void func_0023AD10(int a, int b, int c, int d, int e);
-void func_0028D5D0(int k);
 void func_0032CEB0(void);
 
 #define PI(p, o, k) (*(int *)((p) + (o) + (k) * 4))

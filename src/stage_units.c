@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_STAGE_UNITS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -26,9 +30,6 @@ typedef unsigned int u32;
 extern u8 g_00669D60[];
 
 void func_001FEEC0(void);
-void func_00102EC0(void *p);
-void *func_00102D30(int size);
-void func_00118850(void *p, int n);
 
 /* 0x00207CC0, 0x20 bytes. Byte `k` of unit `i`'s info. */
 u8 func_00207CC0(u32 i, int k)
@@ -67,7 +68,7 @@ u8 *func_00207D60(u32 i)
 }
 
 /* 0x00207D80, 0x20 bytes, matching. Unit `i`'s shape kind. */
-u8 func_00207D80(u32 i)
+u32 func_00207D80(u32 i)
 {
     return *SU_SHAPE[i & 0xFFFF];
 }
@@ -178,11 +179,11 @@ void func_00208070(u32 *t)
 void func_002080E0(void)
 {
     if (SU_DATA != 0) {
-        func_00102EC0(SU_DATA);
+        func_00102EC0((void *)SU_DATA);
         SU_DATA = 0;
     }
     if (SU_SHAPE != 0) {
-        func_00102EC0(SU_SHAPE);
+        func_00102EC0((void *)SU_SHAPE);
         SU_SHAPE = 0;
     }
 }
@@ -206,11 +207,11 @@ void func_00208140(u8 *info, u32 *f)
     SU_A = (u8 **)(a + 1);
     SU_B = (u8 **)(f[2] + 4);
     SU_C = (u8 **)(f[3] + 4);
-    SU_SHAPE = func_00102D30(size);
-    SU_DATA = func_00102D30(size);
+    SU_SHAPE = (u8 **)(func_00102D30(size));
+    SU_DATA = (u8 **)(func_00102D30(size));
     SU_COUNT = a[0];
-    func_00118850(SU_SHAPE, size);
-    func_00118850(SU_DATA, size);
+    func_00118850((void *)SU_SHAPE, size);
+    func_00118850((void *)SU_DATA, size);
     func_00207E90();
     func_00207FA0((u32 *)f[4]);
 }
@@ -232,7 +233,6 @@ void func_0020AFF0(u8 *q, u8 *box);
 void func_0020B110(u8 *q, u8 *box);
 void func_0020B2B0(u8 *q, u8 *box);
 void func_0020B410(u8 *q, u8 *box);
-u8 *func_0020BAC0(u8 *q, u8 *box, u8 *u, u8 *part);
 
 /* The slope side of box `j` of part `p` of unit `u`. */
 #define BOX_SIDE(p, k, u) ((*(char *)((p) + 8) + (k) + *(char *)((u) + 0x5B)) & 3)
@@ -291,7 +291,7 @@ u8 *func_0020B890(u8 *q, u8 *box, u16 *p)
     return box;
 }
 
-/* 0x0020B8F0, 0x70 bytes. */
+/* 0x0020B8F0, 0x70 bytes, matching. */
 u8 *func_0020B8F0(u8 *q, u8 *box, u16 *p)
 {
     u32 n = func_00207D80(*p), k;
@@ -316,7 +316,7 @@ u8 *func_0020B960(u8 *q, u8 *box, u8 *u, u16 *p)
     return box;
 }
 
-/* 0x0020BA50, 0x70 bytes. */
+/* 0x0020BA50, 0x70 bytes, matching. */
 u8 *func_0020BA50(u8 *q, u8 *box, u16 *p)
 {
     u32 n = func_00207D80(*p), k;
@@ -338,7 +338,7 @@ void func_0020BD00(u8 *q, u8 *box, u8 *u)
     p = d + 0x30;
     for (k = 0; k < *(u16 *)(d + 4); k++) {
         if ((on & 1 << k) != 0)
-            box = func_0020BAC0(q, box, u, p);
+            box = (u8 *)PS2_PTR(func_0020BAC0(PS2_ADDR(q), PS2_ADDR(box), PS2_ADDR(u), PS2_ADDR(p)));
         p = func_001FF230(p);
     }
 }
@@ -375,11 +375,6 @@ void func_0020BDE0(u8 *q, u8 *box, u8 *u)
 #define SU_BOXES (*(float **)0x700001D4)  /* (scratchpad) the collision boxes (8 floats each) */
 #define UNITS (*(u8 **)0x700001D0)        /* (scratchpad) the stage units (0x70 bytes each) */
 
-int func_001FF290(u8 *part, u32 kind);
-u32 *func_001946A0(float *p, int a);
-void func_001185B0(void *p, int n);
-float func_00209310(float *b, int side, float *p);
-
 /* Whether point `p` lies over box `b` (with a 0.1 margin). */
 static int over_box(float *p, float *b)
 {
@@ -399,7 +394,7 @@ float func_00209BB0(u8 *u, float *p)
         if ((on & 1 << k) != 0) {
             u32 n = func_00207D80(*(u16 *)part), j;
 
-            if (func_001FF290(part, kind) == 1) {
+            if (func_001FF290((short unsigned int *)(part), kind) == 1) {
                 u8 *kinds = func_00207DA0(*(u16 *)part);
 
                 for (j = 0; j < n; j++, b += 8) {
@@ -427,7 +422,7 @@ float func_00209E00(float *p)
     float h = 0.0f;
 
     func_001185B0(seen, 0x50);
-    for (c = func_001946A0(p, 1); c != 0; c = (u32 *)c[1]) {
+    for (c = (u32 *)PS2_PTR(func_001946A0(p, 1)); c != 0; c = (u32 *)c[1]) {
         u32 i = c[0], bit = 1 << (i & 7);
         u8 *u;
         int ok;

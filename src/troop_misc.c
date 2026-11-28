@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_TROOP_MISC_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -25,21 +29,13 @@ extern int (*g_00429410[0x1D])(void);
 #define SPAD_INT(a) (*(int *)(a))
 #define SPAD_PTR(a) (*(u8 **)(a))
 
-void func_00348D20(void);
-int func_002F67B0(int v);
-void func_003DCF20(void);
-int func_003DD0C0(u8 *c, u8 *o);
-void func_003DD1D0(void);
-void func_00102EC0(u8 *p);
 void func_001F3150(int a, int b, int c);
 void func_001F3FC0(float d, int a, int b, int c);
-int func_00196A10(void);
-void func_001185B0(void *p, int n);
 
 /* 0x001F0520, 0x1C bytes, matching. */
-void func_001F0520(void)
+u8 func_001F0520(u8 *u)
 {
-    func_00348D20();
+    return func_00348D20(u);
 }
 
 /* 0x001F0570, 0x34 bytes. */
@@ -104,7 +100,7 @@ int func_001F1300(u8 *o)
 }
 
 /* 0x001F1360, 0x10 bytes, matching. */
-float func_001F1360(void)
+float func_001F1360(u8 *s, int k)
 {
     return 500.0f;
 }
@@ -131,9 +127,9 @@ int func_001F15E0(u8 *o)
 }
 
 /* 0x001F1770, 0x1C bytes, matching. */
-void func_001F1770(void)
+int func_001F1770(u8 *c, u8 i, u32 n)
 {
-    func_003DCF20();
+    return func_003DCF20(c, i, n);
 }
 
 /* 0x001F1790, 0x1C bytes, matching. */
@@ -143,9 +139,9 @@ int func_001F1790(u8 *c, u8 *o)
 }
 
 /* 0x001F17B0, 0x1C bytes, matching. */
-void func_001F17B0(void)
+int func_001F17B0(u8 *c, u32 i)
 {
-    func_003DD1D0();
+    return func_003DD1D0(c, i);
 }
 
 /* 0x001F1E90, 0x28 bytes. */
@@ -415,27 +411,13 @@ extern u8 g_00731DF0[], g_00731F10[], g_00732030[];
                   *(int *)(g_00669D60 + 0x74))
 
 int func_001F1B90(u8 *c);
-int func_003498B0(u8 *t, u8 *e);
-u32 func_0018F6F0(u8 *a, u8 *b, int c);
-int func_0018C420(u8 *a, u8 *b);
-int func_0018C160(u8 *c);
 void func_001F17D0(u8 *c, u32 k, u8 n);
 void func_001F1870(u8 *c, u32 k, u32 n);
-int func_0034A630(u8 *t);
-u8 *func_0034ECA0(u8 *c);
-void func_0034F030(u8 *g, int t);
-void func_0034EFA0(u8 *g, int t);
-u8 *func_001026D0(int a, int k, int b, int c, int d, int e, u8 *name, int line);
-void func_001CB810(u8 *p, int k);
 void func_002554B0(int *d);
-void func_00255D00(int *d);
 void func_00256310(int *d);
 void func_00258920(int *d);
 void func_00259400(int *d);
-void func_002555D0(int *d);
-void func_00255E00(int *d);
 void func_00256580(int *d);
-void func_00258A40(int *d);
 void func_00259670(int *d);
 void func_00255620(int *d);
 void func_00255EA0(int *d);
@@ -447,13 +429,10 @@ void func_00256300(int *d);
 void func_002577C0(int *d);
 void func_00259230(int *d);
 void func_0025A550(int *d);
-void func_00254030(void);
-void func_0035D9E0(void);
 void func_001023B0(int fn);
 int func_001F29E0(void);
 int func_001F24C0(void);
 float func_002E38D0(void);
-float func_00209E00(u8 *u);
 float func_0020A2F0(u8 *u);
 void func_002E3D90(u8 *p);
 void func_002098E0(u8 *p);
@@ -544,8 +523,8 @@ int func_001F0600(u8 *pos, u8 *out)
         c1[1] = p1[1] / 5;
         c2[0] = p2[0] / 5;
         c2[1] = p2[1] / 5;
-        if ((func_0018F6F0(cur, c1, 0) < 4 && func_0018C420(pos, p1) < 6)
-            || (func_0018F6F0(cur, c2, 0) < 4 && func_0018C420(pos, p2) < 6)) {
+        if ((func_0018F6F0((short unsigned int *)(cur), (short unsigned int *)(c1), 0) < 4 && func_0018C420(pos, p1) < 6)
+            || (func_0018F6F0((short unsigned int *)(cur), (short unsigned int *)(c2), 0) < 4 && func_0018C420(pos, p2) < 6)) {
             int k;
 
             cnt += 4;
@@ -715,7 +694,7 @@ int func_001F1B90(u8 *c)
 }
 
 /* 0x001F1C00, 0x68 bytes. Side slot `k`'s troop count in cell `c`. */
-u8 func_001F1C00(u8 *c, u32 k)
+u32 func_001F1C00(u8 *c, u32 k)
 {
     return CELL(c)[(k & 0xFF) + 8];
 }
@@ -735,7 +714,7 @@ u8 func_001F1C00(u8 *c, u32 k)
 /* 0x001F1C70, 0xE0 bytes. Loads the duel's file. */
 void func_001F1C70(void)
 {
-    g_00731628 = func_001026D0(1, 0xC07, 0, 1, 0, 0, g_004298D8, 0xC);
+    g_00731628 = func_001026D0(1, 0xC07, 0, 1, 0, 0, (const char *)(g_004298D8), 0xC);
     DUEL_BUFFERS();
     DUEL(0) = 5;
 }
@@ -779,7 +758,7 @@ void func_001F1EC0(u32 *actors, u32 n, int kind)
     if (DUEL(0) == 0)
         func_002554B0(g_007315E0);
     else if (DUEL(0) == 1)
-        func_00255D00(g_007315E0);
+        func_00255D00((unsigned char *)(g_007315E0));
     else if (DUEL(0) == 2)
         func_00256310(g_007315E0);
     else if (DUEL(0) == 3)
@@ -805,13 +784,13 @@ void func_001F20E0(u32 a, int kind)
 void func_001F2130(void)
 {
     if (DUEL(0) == 0)
-        func_002555D0(g_007315E0);
+        func_002555D0(PS2_ADDR(g_007315E0));
     else if (DUEL(0) == 1)
-        func_00255E00(g_007315E0);
+        func_00255E00(PS2_ADDR(g_007315E0));
     else if (DUEL(0) == 2)
         func_00256580(g_007315E0);
     else if (DUEL(0) == 3)
-        func_00258A40(g_007315E0);
+        func_00258A40(PS2_ADDR(g_007315E0));
     else if (DUEL(0) == 4)
         func_00259670(g_007315E0);
     g_0073164D = 0;
@@ -921,19 +900,19 @@ int func_001F2AF0(void)
 }
 
 /* 0x001F2B70, 0x3C bytes. */
-int func_001F2B70(u8 *u)
+float func_001F2B70(u8 *u)
 {
-    float a = func_002E38D0(), b = func_00209E00(u);
+    float a = func_002E38D0(), b = func_00209E00((float *)(u));
 
-    return a < b ? (int)a : (int)b;
+    return a < b ? a : b;    /* min.s */
 }
 
 /* 0x001F2BB0, 0x3C bytes. */
-int func_001F2BB0(u8 *u)
+float func_001F2BB0(u8 *u)
 {
     float a = func_002E38D0(), b = func_0020A2F0(u);
 
-    return a < b ? (int)a : (int)b;
+    return a < b ? a : b;    /* min.s */
 }
 
 /* 0x001F2BF0, 0x6C bytes. */

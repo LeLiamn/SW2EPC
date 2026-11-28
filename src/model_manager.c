@@ -14,6 +14,10 @@
  * (0x220 bytes) and objects (0x170 bytes) come from fixed pools.
  */
 
+#define SW2E_FILE_MODEL_MANAGER_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -73,33 +77,6 @@ extern u8 g_006CC5D0[0xC][0x220], g_006C6630[0x2D][0x220], g_006C5DB0[4][0x220];
 extern u8 g_006AE040[2][0x220], g_006AFB80[0x18][0x220], g_006AB840[8][0x220];
 extern u8 g_006B2E80[0xB7][0x170], g_006AC940[0x10][0x170], g_006AE480[0x10][0x170];
 
-void func_00102680(int a, int b);
-void *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-void func_00102EC0(void *p);
-void func_00103000(int on);
-void *func_00107440(void *img, int tbp, int cbp);
-u64 func_00107420(void *img, int a, int b, int w, int h, int tbp, int cbp);
-void func_00147D20(u8 *p); void func_00148130(u8 *p); void func_001477C0(u8 *p);
-void func_00147BB0(u8 *p); void func_001486A0(u8 *p); void func_0014F850(u8 *p);
-void func_001494F0(u8 *p); void func_0014F950(u8 *p);
-void func_00147D30(u8 *src, u8 *dst, u32 a, u32 b);
-void func_001482F0(u8 *src, u8 *dst, u64 tex);
-void func_00148420(u8 *mesh, u8 *colours);
-void func_001483F0(u8 *mesh, u8 a, u8 b, int c, int d, int e, int f);
-void func_001477E0(u8 *src, u8 *dst);
-void func_00147BD0(u8 *src, u8 *dst);
-void func_001483B0(u8 *mesh);
-void func_00148370(u8 *mesh);
-void func_001492A0(u8 *a, int b, int c, int d);
-void func_001493B0(u8 *a, int b, int c, int d, int e, int f);
-void func_00149590(u8 *a, u8 *b, u8 *c, u8 *d);
-void func_00148AB0(u8 *a, int b);
-void func_0014F8B0(u8 *a, int b);
-void func_002AD4C0(void); void func_002AD610(void); void func_002AD690(void);
-void func_001BC540(void); void func_001BC690(void); void func_001BC710(void);
-TexSlot *func_001BC650(u32 id);
-TexSlot *func_001BC7A0(u32 id);
-TexSlot *func_001BC830(u32 id);
 void vu0_sincos(float a, float *s, float *c);    /* VU0 micro subroutine 0x20 */
 
 u16 func_001BE870(int k); u16 func_001BE890(int k); u32 func_001BE8B0(int k);
@@ -145,11 +122,11 @@ void func_001BC8C0(void)
         g_00406740[k][3] = 1.0f;
     }
     f = func_001026D0(1, 0x570, 0, 1, 0, 0, g_00425E70, 0xF0);
-    g_0045D310 = func_00107440(f, 0x2920, 0x3CE4);
-    g_0045D318 = func_00107440(f, 0x2920, 0x3CE0);
+    g_0045D310 = (void *)PS2_PTR(func_00107440(f, 0x2920, 0x3CE4));
+    g_0045D318 = (void *)PS2_PTR(func_00107440(f, 0x2920, 0x3CE0));
     func_00102EC0(f);
     for (k = 0; k < 0x40; k++) {
-        func_00147D20(g_006CDF50[k] + 0x10);
+        func_00147D20((unsigned int *)(g_006CDF50[k] + 0x10));
         func_00148130(g_006CDF50[k] + 0xB0);
         func_00148130(g_006CDF50[k] + 0xE0);
         func_001477C0(g_006CDF50[k] + 0x110);
@@ -182,7 +159,7 @@ void func_001BC8C0(void)
     for (k = 0; k < 0xD6; k++)
         func_00148130(g_006C3590[k]);
     f = func_001026D0(1, 0x68E, 0, 1, 0, 0, g_00425E70, 0x12E);
-    g_0045D308 = func_00107440(f, 0x2A20, 0x3ED0);
+    g_0045D308 = (void *)PS2_PTR(func_00107440(f, 0x2A20, 0x3ED0));
     func_00102EC0(f);
     func_001BC540();
     for (k = 0; k < 0xD6; k++) {
@@ -305,30 +282,30 @@ static inline void setup_slot(int k, int slot, int mode2)
     u32 *p;
 
     if (mode2)
-        func_00147D30((u8 *)f + (f[1] & ~3u), s + 0x10, 0x25A0, func_001BE8D0(k));
+        func_00147D30((unsigned int *)((u8 *)f + (f[1] & ~3u)), s + 0x10, 0x25A0, func_001BE8D0(k));
     else
-        func_00147D30((u8 *)f + (f[1] & ~3u), s + 0x10, func_001BE8B0(k), func_001BE8D0(k));
+        func_00147D30((unsigned int *)((u8 *)f + (f[1] & ~3u)), s + 0x10, func_001BE8B0(k), func_001BE8D0(k));
     if (slot == 0x3C)
-        func_001482F0((u8 *)f + (f[2] & ~3u), g_006D2EC0, (u64)(u32)g_0045D318);
+        func_001482F0((unsigned int *)((u8 *)f + (f[2] & ~3u)), g_006D2EC0, (u64)(u32)g_0045D318);
     else
-        func_001482F0((u8 *)f + (f[2] & ~3u), s + 0xB0, *(u64 *)(s + 0xA0));
+        func_001482F0((unsigned int *)((u8 *)f + (f[2] & ~3u)), s + 0xB0, *(u64 *)(s + 0xA0));
     p = f + 3;
     func_00148420(s + 0xB0, col);
     if (f[0] == 6) {
         if (slot == 0x3C)
-            func_001482F0((u8 *)f + (*p & ~3u), g_006D2EF0, (u64)(u32)g_0045D318);
+            func_001482F0((unsigned int *)((u8 *)f + (*p & ~3u)), g_006D2EF0, (u64)(u32)g_0045D318);
         else
-            func_001482F0((u8 *)f + (*p & ~3u), s + 0xE0, *(u64 *)(s + 0xA0));
+            func_001482F0((unsigned int *)((u8 *)f + (*p & ~3u)), s + 0xE0, *(u64 *)(s + 0xA0));
         p = f + 4;
         func_001483F0(s + 0xE0, col[0x96], col[0x97], 0, 0, 0, 0);
     }
     if (func_001BE910(k) != 0) {
-        func_001477E0((u8 *)f + (*p & ~3u), s + 0x110);
+        func_001477E0((unsigned int *)((u8 *)f + (*p & ~3u)), (unsigned int *)(s + 0x110));
         p++;
     }
     if (func_001BE930(k) != 0) {
-        func_00147BD0((u8 *)f + (p[0] & ~3u), s + 0x130);
-        func_00147BD0((u8 *)f + (p[1] & ~3u), s + 0x140);
+        func_00147BD0((u8 *)f + (p[0] & ~3u), (unsigned char **)(s + 0x130));
+        func_00147BD0((u8 *)f + (p[1] & ~3u), (unsigned char **)(s + 0x140));
     }
     *(u32 *)(s + 4) = 1;
 }
@@ -364,7 +341,7 @@ int func_001BD5D0(int k)
 
     if (*(u32 *)(s + 4) != 0 && func_001BD150(k) == 0) {
         if (*(u32 *)(s + 0x10) != 0)
-            func_00147D20(s + 0x10);
+            func_00147D20((unsigned int *)(s + 0x10));
         if (*(u32 *)(s + 0xB8) != 0)
             func_001483B0(s + 0xB0);
         if (*(u32 *)(s + 0xE8) != 0)
@@ -491,7 +468,7 @@ int func_001BDAE0(int k, int h, int bank)
             t = e->tex;
         }
     }
-    func_001482F0(f[2], g_006C3590[k], t);
+    func_001482F0((unsigned int *)(f[2]), g_006C3590[k], t);
     f[2] = 0;
     func_001483F0(g_006C3590[k], 0, d->colour, 0, 0, 0, 0);
     return 1;
@@ -524,7 +501,7 @@ int func_001BDDB0(int k, int h)
             t = e->tex;
         }
     }
-    func_001482F0(f[2], g_006C3590[k], t);
+    func_001482F0((unsigned int *)(f[2]), g_006C3590[k], t);
     f[2] = 0;
     func_001483F0(g_006C3590[k], 0, d->colour, 0, 0, 0, 0);
     return 1;
@@ -587,7 +564,7 @@ void func_001BE0F0(int k)
 
 /* Resets a pool of objects. */
 #define RESET_OBJECTS(pool, n) \
-    do { int i_; for (i_ = 0; i_ < (n); i_++) { func_0014F8B0(pool[i_], 0); pool[i_][0x168] &= 0xFE; } } while (0)
+    do { int i_; for (i_ = 0; i_ < (n); i_++) { func_0014F8B0((unsigned int *)(pool[i_]), 0); pool[i_][0x168] &= 0xFE; } } while (0)
 
 /* 0x001BE1A0, 0x348 bytes. Resets every pool (all free). */
 void func_001BE1A0(void)

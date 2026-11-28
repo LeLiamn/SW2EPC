@@ -11,6 +11,10 @@
  * effect bits shown last, +0x0C 4 auras, +0x1C 13 effects by part, +0x50 8 trails.
  */
 
+#define SW2E_FILE_UNIT_FX_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -30,15 +34,7 @@ extern u32 g_00410670[12];               /* the weapon element effects, by bit *
 
 #define g_70000D60 (*(int *)0x70000D60)  /* (scratchpad) the effect layer */
 
-int func_0016C040(u8 *a);
-void func_001C8BE0(int k, u8 *pos);
-u8 *func_001C87B0(int k, u8 *a, int c, u32 f);
-void func_0021A400(int k, u8 *a, u32 c);
 void func_0021A610(u8 *e);
-void func_00253250(void);
-void func_00253790(u8 *a);
-void func_002088C0(void);
-void func_00253EA0(u32 k, u8 c);
 void func_0023F730(u8 *a, FxSlots *s);
 void func_0023FA40(u8 *a, FxSlots *s);
 void func_0023FD60(u8 *a, FxSlots *s, u32 bits);
@@ -81,7 +77,7 @@ void func_0023EF90(u8 *a, FxSlots *s, u32 bits, char c1, char c2)
     func_0023EF50(&c2);
     if (c1 == '.')
         c1 = 0x12;
-    func_001C8BE0(5, a + 0x40);
+    func_001C8BE0(5, PS2_ADDR(a + 0x40));
     f |= 8;
     func_00240000(0x27, a, c1, s, 2, bits, 2, f, 0);
     func_00240000(0xB, a, c1, s, 3, bits, 0x10, f, 0);
@@ -115,7 +111,7 @@ void func_0023F2C0(u8 *a, FxSlots *s, u32 bits, char *c)
                 f[k] |= 0x100000;
         }
     }
-    func_001C8BE0(5, a + 0x40);
+    func_001C8BE0(5, PS2_ADDR(a + 0x40));
     r = func_00240000(0x48, a, c[0], s, 0xB, bits, 0x100000, f[0] | 0x10, 0);
     func_00240000(0x48, a, c[1], s, 0xC, bits, 0x100000, f[1] | 0x10, 0);
     if (r != 0)
@@ -170,7 +166,7 @@ int func_00240000(int k, u8 *a, u8 c, FxSlots *s, int part, u32 bits, u32 bit, u
     if (s->part[part] != 0)
         func_002401C0(a, s, part);
     g_70000D60 = 0;
-    s->part[part] = func_001C87B0(k, a, c, f | 1);
+    s->part[part] = (u8 *)PS2_PTR(func_001C87B0(k, PS2_ADDR(a), c, f | 1));
     return 1;
 }
 
@@ -190,7 +186,7 @@ int func_00240120(int k, u8 *a, FxSlots *s, u32 bits, u32 bit, u32 c)
             none = 0;
     }
     if (none && (c & 0xFF) < 0x2E) {
-        func_0021A400(k, a, c);
+        func_0021A400(k, PS2_ADDR(a), c);
         return 1;
     }
     return 0;
@@ -381,7 +377,7 @@ void func_002406D0(u32 k)
     func_00253790(a);
     for (j = 0; j < 10; j++, a += 0x30) {
         if (*(int *)(a + 0x478) != 0) {
-            func_002088C0();
+            func_002088C0((u8 *)PS2_PTR(*(int *)(a + 0x478)));
             *(int *)(a + 0x478) = 0;
         }
     }

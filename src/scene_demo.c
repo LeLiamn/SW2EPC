@@ -12,6 +12,10 @@
  * start it as a demo battle (scene 4), with one or two armies.
  */
 
+#define SW2E_FILE_SCENE_DEMO_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -98,48 +102,8 @@ extern FixedSides g_00408450;             /* the fixed pairing of the first demo
 typedef struct { u32 stage[24]; } StageList;
 extern StageList g_00408490;              /* stages a random demo can use */
 
-void func_00102EC0(u8 *data);
-u8 *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-void func_00118850(void *p, int size);
-void func_003630C0(void);
-void func_00362350(u32 stage);
-int func_00363BC0(int officer);
-void func_003620B0(int side, int slot, int officer);
-void func_00362220(int side, int slot, int value);
-void func_003621B0(int side, int slot, int value);
-u32 func_003620E0(int side, int slot);
-void func_003622F0(int side, int value);
-void func_00362550(int value);
-void func_00362590(int value);
-int func_0036F180(u32 value);
-int func_0036EFC0(void);
-int func_0036F090(u32 value);
-void func_003625D0(int side, int i, u32 value);
-void func_00362BD0(int side, int slot, int value);
-void func_00362CB0(int side, int value);
-void func_00362C50(int side, int value);
-void func_00362630(int side, int value);
-void func_003627C0(int value);
-void func_00362690(int a, int b, int c, int d);
-int func_003637D0(int side, int slot);
-void func_00362840(int side, int slot, int value);
-int func_00362160(int side, int slot);
-void func_00362990(int side, u16 value);
-void func_00362AD0(int value);
-void func_003638D0(void);
-void func_0030CE90(int value);
-u32 func_00362B60(int value);
-void func_0036D230(u32 value);
-u32 func_00363720(int value);
-u32 func_003638A0(void);
-void func_00101470(int value);
-void func_001D42E0(void);
 void func_001EE9C0(void *object, int value);
-void func_002F15E0(u32 a, u32 b);
-int func_00102960(int value);
 int func_0017D8E0(int cue);
-void func_00160020(int value);
-void func_00278870(void);
 
 /* 0x001BEAB0, 0x2C bytes. Puts back bit 4 of g_00669DB0 as it was before the demo. */
 void func_001BEAB0(void)
@@ -391,7 +355,7 @@ void func_001BF5E0(int two_armies)
         p[1] = random16() % 31;
         if (func_0036F180(p[0]) == 2 && func_0036F180(p[1]) == 2)
             p[1] = 31;
-        if (p[0] == p[1] && func_0036EFC0() == 0)
+        if (p[0] == p[1] && func_0036EFC0(p[0]) == 0)
             p[1] = 31;
         for (i = 0; i < 2; i++)
             if (func_0036F090(p[i]) != 0)

@@ -1492,7 +1492,7 @@ int func_002C4030(int param_1, int param_2)
 }
 
 /* 0x002C4AE0, 0x84 bytes. */
-void func_002C4AE0(u32 *param_1)
+void func_002C4AE0(u32 *param_1, int param_2)
 {
     int iVar1;
 
@@ -1725,7 +1725,7 @@ int func_002C54F0(int param_1, u8 *param_2, u8 *param_3, int param_4, int param_
     return uVar4;
 }
 
-/* 0x002C65C0, 0xD4 bytes. */
+/* 0x002C65C0, 0xD4 bytes, matching. */
 void func_002C65C0(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6)
 {
     int uVar1;
@@ -1742,7 +1742,7 @@ void func_002C65C0(int param_1, int param_2, int param_3, int param_4, int param
     func_00105230((u8 *)PS2_PTR(uVar1), param_5);
 }
 
-/* 0x002CA590, 0xA8 bytes, matching. */
+/* 0x002CA590, 0xA8 bytes. */
 void func_002CA590(int param_1, int *param_2)
 {
     int iVar2;

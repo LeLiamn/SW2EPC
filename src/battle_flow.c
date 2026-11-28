@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_BATTLE_FLOW_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -26,20 +30,10 @@ extern u8 g_005BC2A0[0x40][4];
 #define GAME_FLAGS (*(u32 *)(g_00669D60 + 0x200))
 #define BATTLE_END (*(int *)(g_00669D60 + 0x210))
 
-void func_00118850(void *p, int n);
-void func_001EE4A0(int a);
-int func_0023E840(u8 *e);
 void func_0018A290(u8 *c, u8 a, int b);
 void func_0022F510(void);
-void func_00183240(void);
-void func_00183130(void);
-void func_00186050(void);
-void func_0018BDE0(void);
 void func_00183A40(int a);
 void func_0018AF30(void);
-void func_00279380(u8 k, int a);
-void func_00279450(u8 k, int a);
-void func_002795A0(u8 k);
 
 /* 0x00180880, 0x140 bytes. A troop faces like its leader's unit (when the leader is down). */
 void func_00180880(u8 *t)
@@ -243,36 +237,12 @@ extern u32 g_006AA578;                   /* the next free battle officer */
 extern int g_005BD738;
 
 void func_001823A0(u8 *o);
-void func_002045E0(u8 *o);
 void func_002A69D0(int k);
-void func_00204D20(u8 *o);
-void func_00166160(u8 *u);
-void func_00118AC0(void *to, const void *from, u32 n);
-int func_00362F40(u32 s, u32 k);
 void func_00279240(void);
 void func_002796A0(u32 a);
-void func_0018C080(void);
-void func_0018BF10(void);
-void func_002C4BF0(void);
-void func_0023ED10(void);
-void func_00356050(void);
-void func_003577D0(void);
 void func_0022FF00(void);
-void func_0018BD40(void);
-void func_0018B890(void);
-void func_003E5DE0(void);
-void func_003E5D20(void);
-void func_00354560(void);
-void func_001BC280(void);
-void func_0036FEE0(void);
-void func_0035E0D0(void);
-void func_003F66B0(void);
-void func_003F81D0(void);
 void func_002D6FC0(void);
-void func_00184410(void);
 void func_001BB7F0(int a);
-void func_00184550(void);
-void func_003E5610(void);
 
 #define OFF_FL(o) (*(u32 *)((o) + 0xB8))
 
@@ -340,12 +310,12 @@ u8 *func_00182B40(u8 *p)
         u8 *o = g_006A3A30[k];
 
         if ((OFF_FL(o) & 1) != 0) {
-            func_00118AC0(p, *(u8 **)(o + 0x14) + 0x90, 0x10);
-            func_00118AC0(p + 0x10, *(u8 **)(o + 0x14) + 0x50, 0x10);
-            func_00118AC0(p + 0x20, o + 0x80, 0x18);
-            func_00118AC0(p + 0x38, o + 0x98, 0x20);
-            func_00118AC0(p + 0x58, o + 0xB8, 4);
-            func_00118AC0(p + 0x5C, o + 0xBC, 4);
+            func_00118AC0((unsigned int *)(p), *(u8 **)(o + 0x14) + 0x90, 0x10);
+            func_00118AC0((unsigned int *)(p + 0x10), *(u8 **)(o + 0x14) + 0x50, 0x10);
+            func_00118AC0((unsigned int *)(p + 0x20), o + 0x80, 0x18);
+            func_00118AC0((unsigned int *)(p + 0x38), o + 0x98, 0x20);
+            func_00118AC0((unsigned int *)(p + 0x58), o + 0xB8, 4);
+            func_00118AC0((unsigned int *)(p + 0x5C), o + 0xBC, 4);
             p += 0x60;
         }
     }

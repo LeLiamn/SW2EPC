@@ -11,6 +11,14 @@
  * queued at 0x007B6B20; 0x007B6C20 is the next one to run and 0x007B6C21 the number queued.
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_0033BA90   /* the original callers here see it this way */
+unsigned int func_0033BA90(unsigned char **);
+#endif
+#define SW2E_FILE_FLD_EVENT_CMD_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -47,26 +55,12 @@ extern const char g_004480B8[], g_004480C0[], g_004480E8[], g_004480F0[];
 #define UNIT_FLAGS(u) (*(u32 *)((u) + 0x80))
 #define TEXT(t, k) ((char *)(t) + *(int *)((t) + (k) * 4 + 4))
 
-void func_00118AC0(void *to, const void *from, int size);
-void func_00183670(float *pos);
-int func_0034EC80(int k);
-int func_0034EE50(u8 *b);
-void func_0034ED90(u8 *b, u8 *out);
 void func_0036F9D0(u32 a, u32 b, u32 c);
 void func_0036FAE0(u32 a, u32 b);
-void func_003F5610(u8 status);
-void func_003DD710(char *to, u32 id);
-void func_003DD730(char *out, u8 *group);
-const char *func_00362A20(u32 side);
-const char *func_003DD7D0(u32 id);
-const char *func_00372D30(u32 id);
 void func_00120928(char *to, const char *from);
 void func_001204B0(char *to, const char *format, ...);
 int func_001207E0(const char *a, const char *b);
-char *func_0019B170(char *out, u32 t, u32 n);
 void func_0022F120(u8 *f, char *out, const char *text, u32 ca, u32 cb);
-void func_002C4AE0(u32 *a, char *text);
-void func_0022EF90(u8 *box, u32 kind, int mode);
 
 EvCmd *func_00356060(u32 k);
 int func_00356EF0(void);
@@ -98,14 +92,14 @@ EvCmd *func_00356060(u32 k)
 /* 0x00356090, 0x38 bytes, matching. Loads the queue from a save image at `p`; the end of it. */
 u8 *func_00356090(u8 *p)
 {
-    func_00118AC0(g_007B6B20, p, 0x102);
+    func_00118AC0((unsigned int *)(g_007B6B20), p, 0x102);
     return p + 0x102;
 }
 
 /* 0x003560D0, 0x34 bytes, matching. Saves it. */
 u8 *func_003560D0(u8 *p)
 {
-    func_00118AC0(p, g_007B6B20, 0x102);
+    func_00118AC0((unsigned int *)(p), (unsigned char *)(g_007B6B20), 0x102);
     return p + 0x102;
 }
 
@@ -126,7 +120,7 @@ void func_00356110(EvCmd *c)
 
         t[0] = p[0];
         t[1] = p[1];
-        func_00183670((float *)t);
+        func_00183670(PS2_ADDR((float *)t));
     }
     g_005BD728[0] = t[0];
     g_005BD728[1] = t[1];
@@ -145,7 +139,7 @@ void func_003561D0(EvCmd *c)
             func_0034ED90(b, xy);
             t[0] = (float)xy[0] * 5000.0f + 2500.0f;
             t[1] = (float)xy[1] * 5000.0f + 2500.0f;
-            func_00183670(t);
+            func_00183670(PS2_ADDR(t));
             g_005BD728[0] = *(u32 *)&t[0];
             g_005BD728[1] = *(u32 *)&t[1];
         }
@@ -159,7 +153,7 @@ void func_00356290(EvCmd *c)
 
     t[0] = (float)(u8)c->a * 1000.0f + 500.0f;
     t[1] = (float)(u8)c->b * 1000.0f + 500.0f;
-    func_00183670(t);
+    func_00183670(PS2_ADDR(t));
     g_005BD728[0] = *(u32 *)&t[0];
     g_005BD728[1] = *(u32 *)&t[1];
 }
@@ -171,7 +165,7 @@ void func_00356310(EvCmd *c)
 
     t[0] = (float)(u8)c->a * 5000.0f + 2500.0f;
     t[1] = (float)(u8)c->b * 5000.0f + 2500.0f;
-    func_00183670(t);
+    func_00183670(PS2_ADDR(t));
     g_005BD728[0] = *(u32 *)&t[0];
     g_005BD728[1] = *(u32 *)&t[1];
 }
@@ -188,7 +182,7 @@ void func_003563C0(u32 v)
     func_0036FAE0(v & 0xF, (v & 0xF0) >> 4);
 }
 
-/* 0x003563F0, 0x1C bytes. */
+/* 0x003563F0, 0x1C bytes, matching. */
 void func_003563F0(u16 v)
 {
     func_003F5610(v);
@@ -207,11 +201,11 @@ void func_00356450(u32 kind, u16 id, u32 *colour, char *out)
     switch (kind) {
     case 0:
         *colour = UNIT(id)[0x79];
-        func_003DD710(out, id);
+        func_003DD710(PS2_ADDR(out), (unsigned char *)PS2_PTR(id));
         break;
     case 1:
         *colour = (*(u8 **)g_006A1D58[id])[0x79];
-        func_003DD730(out, g_006A1D58[id]);
+        func_003DD730(PS2_ADDR(out), (unsigned char **)(g_006A1D58[id]));
         break;
     case 2:
         *colour = id;
@@ -293,7 +287,7 @@ void func_00356750(EvCmd *c)
     func_0022F120(g_005BBF18, buf, TEXT(g_005BA6BC, k), ca, cb);
     func_001204B0(g_005BBF20, buf, a, b);
     if (func_003565C0(k) != 0)
-        func_002C4AE0(g_005BD728, g_005BBF20);
+        func_002C4AE0(g_005BD728, PS2_ADDR(g_005BBF20));
     g_005BC064 = 0;
     g_005BC04C = 0;
     func_0022EF90(g_005BC3A0, g_005BC020, 0);
@@ -315,7 +309,7 @@ void func_00356860(EvCmd *c)
     func_0022F120(g_005BBF18, buf, TEXT(g_005BA6BC, v & 0xFF), ca, cb);
     func_001204B0(g_005BBF20, buf, a, b);
     if (func_003565C0(v & 0xFF) != 0)
-        func_002C4AE0(g_005BD728, g_005BBF20);
+        func_002C4AE0(g_005BD728, PS2_ADDR(g_005BBF20));
     g_005BC064 = 2;
     g_005BC04C = 0;
     func_0022EF90(g_005BC3A0, kinds[(int)(v & 0xC000) >> 0xE], 2);
@@ -480,7 +474,7 @@ void func_00356F70(EvCmd *c)
     u32 k = func_00356F20();
 
     if (k < 0x20) {
-        func_00118AC0(func_00356060(k), c, 8);
+        func_00118AC0((unsigned int *)(func_00356060(k)), (unsigned char *)(c), 8);
         g_007B6C21++;
     }
 }
@@ -712,19 +706,6 @@ extern u32 g_7000015C;                   /* (scratchpad) the random seed */
 #define BATTLE_END (*(int *)(g_00669D60 + 0x210))
 
 EvCmd *func_003577E0(u32 k);
-u8 **func_0033EF80(u32 i);
-int func_0033CC20(u8 **g, u8 **h);
-int func_0036D2E0(void);
-int func_0033BD10(u8 **g);
-int func_002F9C90(int f, int g);
-int func_0033B3B0(u8 **g);
-int func_0033B440(u8 **g);
-int func_0033B4E0(u8 **g);
-int func_0033B140(u8 **g);
-u32 func_0033BA90(u8 **g);
-u32 func_0033B740(u8 **g);
-u8 **func_0035DD10(int p);
-u8 **func_0033F110(u8 kind);
 
 /* 0x00357770, 0x58 bytes. Empties the second queue. */
 void func_00357770(void)
@@ -750,14 +731,14 @@ EvCmd *func_003577E0(u32 k)
 /* 0x00357810, 0x38 bytes, matching. Loads it from a save image. */
 u8 *func_00357810(u8 *p)
 {
-    func_00118AC0(g_007B6C30, p, 0x100);
+    func_00118AC0((unsigned int *)(g_007B6C30), p, 0x100);
     return p + 0x100;
 }
 
 /* 0x00357850, 0x34 bytes, matching. Saves it. */
 u8 *func_00357850(u8 *p)
 {
-    func_00118AC0(p, g_007B6C30, 0x100);
+    func_00118AC0((unsigned int *)(p), (unsigned char *)(g_007B6C30), 0x100);
     return p + 0x100;
 }
 
@@ -925,28 +906,6 @@ extern int g_00669F9C;                   /* the battle's frame counter */
 /* Whether unit `u` is active (in use, not down or leaving, without flag 4). */
 #define UNIT_ACTIVE(u) ((UNIT_FLAGS(u) & 1) != 0 && (UNIT_FLAGS(u) & 0x8C40002) == 0 \
                         && (UNIT_FLAGS(u) & 4) == 0)
-
-u32 func_0035DCB0(int p);
-u32 func_0033BFD0(u8 **g);
-int func_0033B150(u8 **g);
-int func_0033CD90(u8 **g);
-int func_0033B050(u8 **g);
-int func_0033B090(u8 **g);
-u8 **func_0033D0B0(u8 **g);
-u8 *func_0034A740(u8 *u);
-int func_00362F40(u32 side, u32 k);
-u32 func_0035F520(u32 side);
-u32 func_0035F200(int side);
-void func_0033DDC0(u8 **g, u8 *cell);
-u32 func_0035F0C0(void);
-int func_0035D5A0(int side);
-void func_0033DF10(u8 **g, int side);
-int func_00361540(u32 side);
-void func_0035F560(u32 side, int n);
-u8 **func_0033F0C0(u32 side, u32 k);
-int func_0036F390(u32 side, int k);
-int func_0034B5D0(u8 *st, int a, int b);
-void func_003701E0(u32 g, int a, int b, int c);
 
 /* 0x00358020, 0x1B4 bytes. Player `p` meets side 1's group `g`: its leader's greeting (0xB, or
  * 0xB-0xD for officer kinds 0x1C-0x21), then the player's group comments (0x30, 0x38-0x3A). */
@@ -1381,19 +1340,7 @@ extern void (*g_00415720[10])(int side, u32 g);   /* order replies, by order 0x1
 extern void (*g_00415750[10])(int won);           /* side order replies */
 extern u32 g_00415780[4], g_00415790[3];
 
-u8 *func_00338410(u32 g);
-u32 func_0036DD30(u32 side, u32 order);
-void func_0036DF30(u32 side, u32 order);
-int func_0034EDB0(u8 *b);
-u8 *func_00352850(u8 *b, int side);
-int func_003B0370(u8 *o, u8 *b);
 void func_0024D3A0(int kind, int model, int first);
-u32 func_00362570(void);
-u32 func_00361F50(void);
-u32 func_00361E90(void);
-int func_0036D310(void);
-u32 func_003615C0(int side);
-u8 **func_0033F020(u32 side, u32 k);
 
 /* 0x00359A90, 0x98 bytes. The same with order 2 (lines 0x54, 0x61). */
 void func_00359A90(EvCmd *c)
@@ -1668,7 +1615,7 @@ void func_0035A760(EvCmd *c)
     t[3] = g_00415780[3];
     b = (u8 *)func_0034EC80(c->a);
     o = func_0034EDB0(b);
-    if (o < 2 && (u = func_00352850(b, o)) != 0)
+    if (o < 2 && (u = (u8 *)PS2_PTR(func_00352850(b, o))) != 0)
         func_003574E0(t[RANDOM() & 3], UNIT_INDEX(u), 2, 0);
 }
 
@@ -1679,7 +1626,7 @@ void func_0035A850(EvCmd *c)
     u8 *b = (u8 *)func_0034EC80(k), *u;
     u32 o = func_0034EDB0(b);
 
-    if (o < 2 && o == c->b && (u = func_00352850(b, o)) != 0) {
+    if (o < 2 && o == c->b && (u = (u8 *)PS2_PTR(func_00352850(b, o))) != 0) {
         func_00357070(k);
         func_003574E0(4, UNIT_INDEX(u), 2, 0);
     }
@@ -1692,7 +1639,7 @@ void func_0035A910(EvCmd *c)
     u8 *b = (u8 *)func_0034EC80(c->a), *u;
     u32 o = func_0034EDB0(b), k;
 
-    if (o >= 2 || (u = func_00352850(b, o)) == 0)
+    if (o >= 2 || (u = (u8 *)PS2_PTR(func_00352850(b, o))) == 0)
         return;
     func_003574E0(5, UNIT_INDEX(u), 2, 0);
     for (k = 0; k < 0x8F; k++) {
@@ -1700,7 +1647,7 @@ void func_0035A910(EvCmd *c)
         u32 f = *(u32 *)(r + 0xB8);
 
         if ((f & 1) != 0 && (f & 2) == 0 && *(u8 **)(r + 0x10) != 0
-            && o == (*(u8 **)(r + 0x10))[0x79] && func_003B0370(r, b) != 0) {
+            && o == (*(u8 **)(r + 0x10))[0x79] && func_003B0370(r, PS2_ADDR(b)) != 0) {
             short most = *(short *)(r + 0x80);
             int n = most * 0x32 / 100 + *(short *)(r + 0x82);
 
@@ -1728,7 +1675,7 @@ static void base_effect(u8 *b, u32 o, int kind)
         u32 f = *(u32 *)(r + 0xB8);
 
         if ((f & 1) != 0 && (f & 2) == 0 && *(u8 **)(r + 0x10) != 0
-            && o == (*(u8 **)(r + 0x10))[0x79] && func_003B0370(r, b) != 0
+            && o == (*(u8 **)(r + 0x10))[0x79] && func_003B0370(r, PS2_ADDR(b)) != 0
             && *(int *)(r + 0x14) != 0) {
             func_0024D3A0(kind, *(int *)(r + 0x14), first);
             first = 0;
@@ -1743,7 +1690,7 @@ void func_0035AB10(EvCmd *c)
     u8 *b = (u8 *)func_0034EC80(c->a), *u;
     u32 o = func_0034EDB0(b);
 
-    if (o < 2 && (u = func_00352850(b, o)) != 0) {
+    if (o < 2 && (u = (u8 *)PS2_PTR(func_00352850(b, o))) != 0) {
         func_003574E0(6, UNIT_INDEX(u), 2, 0);
         base_effect(b, o, 8);
     }
@@ -1755,7 +1702,7 @@ void func_0035AC60(EvCmd *c)
     u8 *b = (u8 *)func_0034EC80(c->a), *u;
     u32 o = func_0034EDB0(b);
 
-    if (o < 2 && (u = func_00352850(b, o)) != 0) {
+    if (o < 2 && (u = (u8 *)PS2_PTR(func_00352850(b, o))) != 0) {
         func_003574E0(7, UNIT_INDEX(u), 2, 0);
         base_effect(b, o, 9);
     }
@@ -1833,18 +1780,8 @@ extern u8 g_005BC2A0[0x40][4];           /* the timers (flags, ?, id, ?) */
 #define SETTINGS_B2 (g_00669D60[0x252])
 #define SETTINGS_FA0 (*(int *)(g_00669D60 + 0x240))
 
-int func_0033F4D0(u8 *b, int side, int *out, int max);
-int func_0034ED40(u8 *b);
-u32 func_0036F900(void);
 u32 func_003F55E0(void);
 u32 func_003F5600(void);
-int func_003F5650(void);
-u32 func_003F6C10(int side);
-int func_003F7090(u32 a, u32 b);
-u32 func_003F6CA0(int side, u16 k);
-void func_003F74E0(int side, u16 k);
-void func_003F75F0(u16 side);
-void func_00183410(int a, int id, int b, int delay, int c);
 
 /* 0x0035AF70, 0xF0 bytes. Side 0's first reserve announces itself (and, with event 0x14, a
  * second line). */
@@ -1872,7 +1809,7 @@ void func_0035B060(void)
     u8 *b = (u8 *)func_0034EC80(func_0035F200(0)), *g = 0;
     int list[16], n;
 
-    n = func_0033F4D0(b, 0, list, 0x10);
+    n = func_0033F4D0(PS2_ADDR(b), 0, (unsigned int *)(list), 0x10);
     if (n != 0) {
         g = g_006A1D58[list[n == 0 ? 0 : (int)RANDOM() % n]];
         if (g != 0)
@@ -2277,7 +2214,7 @@ void func_0035C560(EvCmd *c, int delay)
     u32 k = func_0035C510();
 
     if (k < 0x20) {
-        func_00118AC0(func_003577E0(k), c, 8);
+        func_00118AC0((unsigned int *)(func_003577E0(k)), (unsigned char *)(c), 8);
         func_00183410(1, k + 0x32, 3, delay, 0);
     }
 }
@@ -2290,7 +2227,7 @@ static void timer_remove(u32 k)
 
     *p &= 0xFC;
     for (j = k; j < 0x3F; j++) {
-        func_00118AC0(p, p + 4, 4);
+        func_00118AC0((unsigned int *)(p), p + 4, 4);
         p += 4;
     }
     p[0] = 0;
@@ -2601,7 +2538,7 @@ void func_0035CDB0(u16 a, u16 b, u16 c)
 }
 
 /* 0x0035CDF0, 0x34 bytes, matching. */
-void func_0035CDF0(u16 a, u16 b, u16 c)
+void func_0035CDF0(u32 a, u32 b, u32 c)
 {
     EvCmd e;
 
@@ -2613,7 +2550,7 @@ void func_0035CDF0(u16 a, u16 b, u16 c)
 }
 
 /* 0x0035CE30, 0x30 bytes, matching. */
-void func_0035CE30(u16 a, u16 b)
+void func_0035CE30(u32 a, u32 b)
 {
     EvCmd e;
 
@@ -2661,7 +2598,7 @@ void func_0035CEE0(u16 a, u16 b, u16 c)
 }
 
 /* 0x0035CF20, 0x44 bytes, matching. */
-void func_0035CF20(u16 a)
+void func_0035CF20(u32 a)
 {
     EvCmd e;
 
@@ -2818,7 +2755,7 @@ void func_0035D2A0(void)
 }
 
 /* 0x0035D2D0, 0x2C bytes, matching. */
-void func_0035D2D0(u16 a)
+void func_0035D2D0(u32 a)
 {
     EvCmd e;
 
@@ -2828,7 +2765,7 @@ void func_0035D2D0(u16 a)
 }
 
 /* 0x0035D300, 0x30 bytes, matching. */
-void func_0035D300(u16 a, u16 b)
+void func_0035D300(u32 a, u32 b)
 {
     EvCmd e;
 
@@ -2849,7 +2786,7 @@ void func_0035D330(u16 a)
 }
 
 /* 0x0035D360, 0x34 bytes, matching. */
-void func_0035D360(u16 a, u16 b, u16 c)
+void func_0035D360(u32 a, u32 b, u32 c)
 {
     EvCmd e;
 
@@ -2872,7 +2809,7 @@ void func_0035D3A0(void)
 }
 
 /* 0x0035D3E0, 0x2C bytes, matching. */
-void func_0035D3E0(u16 a)
+void func_0035D3E0(u32 a)
 {
     EvCmd e;
 
@@ -2882,7 +2819,7 @@ void func_0035D3E0(u16 a)
 }
 
 /* 0x0035D410, 0x2C bytes, matching. */
-void func_0035D410(u16 a)
+void func_0035D410(u32 a)
 {
     EvCmd e;
 
@@ -2890,8 +2827,6 @@ void func_0035D410(u16 a)
     e.a = a;
     func_0035C560(&e, 6);
 }
-
-int func_0023E840(u8 *t);
 
 /* 0x0035D440, 0x44 bytes. A plain timer's step (func_0023E840); stops it when it is done. */
 int func_0035D440(u8 *t)

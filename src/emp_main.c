@@ -10,6 +10,10 @@
  * then 0x197 words of choices (-1: none), then the pages' own states.
  */
 
+#define SW2E_FILE_EMP_MAIN_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -26,34 +30,8 @@ extern int g_0045D688, g_0045D68C, g_0045D690, g_0045D69C, g_0045D6A0;   /* (sma
 int func_0030AB90(void);
 int func_0030C1C0(int f, int g);
 int func_0030AD80(int f);
-int func_00328190(int k);
-int func_003280E0(void);
 void func_00388200(int a, u32 b);
-void func_003882C0(u32 *on);
-void func_00376100(int a, int b, int c);
-int func_003237C0(void);
-int func_00323730(int k);
-void func_001A7DC0(const char *s, int alpha, int layer);
-void func_003762C0(void);
-void func_003A9010(int a);
-int func_00375B90(void);
-u32 func_00390760(int k);
-void func_00375140(int a, int b, int c, u32 d);
-int func_003F1160(int a);
-int func_003F1070(int a);
-int func_00337E00(void);
-void func_003A9170(void);
 int func_002F7D90(int k, int (*keep)(u32, int, int), int a, int b, int sort, int p5);
-int func_002F8160(u32 i, int f);
-u32 *func_002F7B10(void);
-int func_002F3770(u32 i);
-int func_00327D50(void);
-int func_002F9190(int f);
-int func_00313B30(int i);
-int func_00313FC0(int a, int b, int f);
-int func_002FB2A0(int f);
-int func_00327C40(void);
-int func_00328570(void);
 
 /* 0x002FC220, 0x8C bytes. The sum of func_0030AD80 over the forces func_0030C1C0 lists for
  * `g`. */
@@ -85,18 +63,8 @@ int *func_002FC2C0(void)
 }
 
 void func_002FC560(void);
-u32 func_0031D6C0(void); void func_0031D830(u32 s);
-u32 func_00329890(void); void func_003298A0(u32 s);
-u32 func_00335050(void); void func_00335060(u32 s);
-u32 func_00335EE0(void); void func_00335EF0(u32 s);
-u32 func_00323F00(void); void func_00323E60(u32 s);
-u32 func_0039BA50(void); void func_0039BA60(u32 s);
-u32 func_0039BC10(void); void func_0039BC20(u32 s);
-u32 func_003C0070(void); void func_003C0080(u32 s);
 u32 func_002FCD60(void); void func_002FCD20(u32 *s);
 u32 func_00307230(void); void func_003071E0(u32 s);
-u32 func_00326490(void); void func_003263F0(u32 s);
-u32 func_00320F00(void); void func_00320EE0(u32 s);
 
 /* 0x002FC2D0, 0x1C4 bytes. Resets the turn: page 0, the choices cleared, each page's state
  * block found and reset, then the command list. */
@@ -110,30 +78,30 @@ void func_002FC2D0(void)
     g_007A2D60[0x1B1] = 0;
     for (k = 0; k < 0x19F; k++)
         g_007A2D60[3 + k] = -1;
-    g_007A33F4[0] = func_0031D6C0();
-    func_0031D830(g_007A33F4[0]);
-    g_007A33F4[1] = func_00329890();
-    func_003298A0(g_007A33F4[1]);
-    g_007A33F4[2] = func_00335050();
-    func_00335060(g_007A33F4[2]);
-    g_007A33F4[3] = func_00335EE0();
-    func_00335EF0(g_007A33F4[3]);
-    g_007A33F4[5] = func_00323F00();
-    func_00323E60(g_007A33F4[5]);
-    g_007A33F4[4] = func_0039BA50();
-    func_0039BA60(g_007A33F4[4]);
-    g_007A33F4[6] = func_0039BC10();
-    func_0039BC20(g_007A33F4[6]);
-    g_007A33F4[10] = func_003C0070();
-    func_003C0080(g_007A33F4[10]);
+    g_007A33F4[0] = PS2_ADDR(func_0031D6C0());
+    func_0031D830((void *)PS2_PTR(g_007A33F4[0]));
+    g_007A33F4[1] = PS2_ADDR(func_00329890());
+    func_003298A0((int *)PS2_PTR(g_007A33F4[1]));
+    g_007A33F4[2] = PS2_ADDR(func_00335050());
+    func_00335060((void *)PS2_PTR(g_007A33F4[2]));
+    g_007A33F4[3] = PS2_ADDR(func_00335EE0());
+    func_00335EF0((int *)PS2_PTR(g_007A33F4[3]));
+    g_007A33F4[5] = PS2_ADDR(func_00323F00());
+    func_00323E60((unsigned int *)PS2_PTR(g_007A33F4[5]));
+    g_007A33F4[4] = PS2_ADDR(func_0039BA50());
+    func_0039BA60((int *)PS2_PTR(g_007A33F4[4]));
+    g_007A33F4[6] = PS2_ADDR(func_0039BC10());
+    func_0039BC20((unsigned int *)PS2_PTR(g_007A33F4[6]));
+    g_007A33F4[10] = PS2_ADDR(func_003C0070());
+    func_003C0080((int *)PS2_PTR(g_007A33F4[10]));
     g_007A33F4[7] = func_002FCD60();
     func_002FCD20((u32 *)g_007A33F4[7]);
     g_007A33F4[8] = func_00307230();
     func_003071E0(g_007A33F4[8]);
-    g_007A33F4[9] = func_00326490();
-    func_003263F0(g_007A33F4[9]);
-    g_007A33F4[11] = func_00320F00();
-    func_00320EE0(g_007A33F4[11]);
+    g_007A33F4[9] = PS2_ADDR(func_00326490());
+    func_003263F0((unsigned int *)PS2_PTR(g_007A33F4[9]));
+    g_007A33F4[11] = PS2_ADDR(func_00320F00());
+    func_00320EE0((int *)PS2_PTR(g_007A33F4[11]));
     func_002FC560();
 }
 
@@ -183,7 +151,7 @@ void func_002FC560(void)
         on[3] = 0;
     if (func_002FC500() == 0)
         on[4] = 0;
-    func_003882C0(on);
+    func_003882C0((int *)(on));
     if (st[0x1B1] == 0)
         func_00376100(4, -1, -1);
 }
@@ -212,13 +180,11 @@ void func_002FC660(void)
         on[2] = 0;
     if (func_00323730(1) == 0)
         on[3] = 0;
-    func_003882C0(on);
+    func_003882C0((int *)(on));
     func_00376100(5, -1, -1);
 }
 
-void func_0031DA90(void); void func_00335DA0(void); void func_00329C20(void);
-void func_0031EA10(void); void func_003202B0(void); void func_003209D0(void);
-void func_0039BB40(void); void func_0039E380(void); void func_003C0190(void);
+void func_0039E380(void);
 
 /* 0x002FC6F0, 0xE0 bytes. Draws the current command page (page 0 also the caption, and as in
  * the original it falls through into page 1). */
@@ -276,9 +242,7 @@ int func_002FC800(void)
     return r;
 }
 
-int func_0031DDB0(void); int func_00335DE0(void); int func_00329C70(void);
-int func_0031FF80(void); int func_003206F0(void); int func_00320E40(void);
-int func_0039BB80(void); int func_0039D4A0(void); int func_003C01D0(void);
+int func_0039D4A0(void);
 
 /* 0x002FC860, 0x138 bytes. Steps the current command page; page 9 ends the turn (asking
  * first when commands are left). */
@@ -300,7 +264,7 @@ int func_002FC860(void)
         if (func_003280E0() == 0) {
             r = func_002FC7D0();
         } else {
-            func_00375140(0x100, 200, 1, func_00390760(0x111));
+            func_00375140(0x100, 200, 1, PS2_ADDR(func_00390760(0x111)));
             g_007A2D60[0] = 0xF;
         }
         break;
@@ -311,9 +275,7 @@ int func_002FC860(void)
     return r;
 }
 
-void func_003C0250(void); void func_0039E470(void); void func_003383B0(void);
-void func_00338250(void); void func_003380F0(void); void func_00337ED0(void);
-void func_00337D30(void);
+void func_0039E470(void);
 
 /* 0x002FC9A0, 0x118 bytes. Draws the current report page. */
 void func_002FC9A0(void)
@@ -362,8 +324,7 @@ int func_002FCAF0(void)
     return r;
 }
 
-int func_003C0290(void); int func_0039E500(void); int func_003382F0(void);
-int func_00338190(void); int func_00338030(void); int func_00337F30(void);
+int func_0039E500(void);
 
 /* 0x002FCB50, 0x1C8 bytes. Steps the current report page. */
 int func_002FCB50(void)
@@ -376,7 +337,7 @@ int func_002FCB50(void)
         if (func_003237C0() == 0) {
             r = func_002FCAC0();
         } else {
-            func_00375140(0x100, 200, 1, func_00390760(0xA9));
+            func_00375140(0x100, 200, 1, PS2_ADDR(func_00390760(0xA9)));
             g_007A2D60[0] = 0xE;
         }
     } else if (pg == 8) {
@@ -574,24 +535,14 @@ int func_002FD280(int f, int c)
 extern int g_00446500[4][2];             /* pairs of commands that cannot follow each other */
 extern int g_0045D6A4, g_0045D6A8;       /* (small data) two command counts */
 
-int func_00313CB0(int c);
-int func_002FB2D0(int f);
 void func_0030B540(int f);
 void func_0030B330(void);
 int func_0030B2F0(int f);
 int func_0030AFF0(int f);
 int func_0030C7F0(int f, int k);
-int func_002F8CB0(int f);
-int func_002FAFA0(int f, int g);
-int func_002FB500(int f, int r);
-int func_002FB320(int r, int *out);
 int func_0030AC50(int k);
-int func_002FB3B0(int r);
-int func_002FA490(u32 f);
-u16 func_002F8F20(int f);
 int func_0030CB50(int pct);
 int func_0011B740(int v);
-int func_002FB430(int f);
 int func_0030C6E0(int *out, int f, int n);
 
 /* Whether `f` is a force in play. */
@@ -869,9 +820,6 @@ int func_002FDE80(int f, int g)
     return 0;
 }
 
-void func_002F9E10(int f, int k);
-void func_002F9F40(int f, int v);
-
 /* 0x002FDF40, 0x34 bytes, matching. Force `f`'s plan becomes 3 (no target). */
 void func_002FDF40(int f)
 {
@@ -881,20 +829,12 @@ void func_002FDF40(int f)
 
 extern int g_00446520[][4];              /* per region kind: the traits wanted in order */
 
-int func_002F9EA0(u32 f);
-int func_00327C00(void);
-int func_002FA060(int f);
 int func_0030C7A0(int a, int b);
 int func_0030CB00(int n);
-int func_002F38F0(u32 i);
-int func_002F7EC0(u32 i, int f);
 int func_0030B090(int f);
 int func_0030ACE0(int f);
 int func_0030C440(int a, int f);
-void func_002FA0D0(int f, int plan);
-void func_002FA220(int f, int v);
 int func_0030C9C0(int r);
-int func_002FA390(u32 f);
 
 /* 0x002FDF80, 0x2B4 bytes. A computer force picks its next trait to gain: a missing one that
  * goes with those it has, else one of its regions' kinds, else at random; force plans above 4
@@ -1202,23 +1142,9 @@ extern void (*g_004147C0[7])(int f);     /* the plan steppers by plan kind */
 extern int g_004147E0[];                 /* command base values */
 extern int g_00414800[][2], g_00414830[][2];   /* by officer kind group: two values each */
 
-int func_002FA160(u32 f);
-int func_00313BF0(int c);
-int func_00313F40(int c);
-int func_00313F80(int c);
 int func_0030AD80(int f);
 int func_0030AE80(int f);
-int func_002FAD90(int f);
-int func_00313DB0(int a, int f);
-int func_002F9190(int f);
-int func_002F4080(u32 i);
-int func_00314C40(int c, u32 i, int a, int b);
-int func_00328190(int k);
-int func_002F9060(u32 f);
-int func_002F9480(int f, int k);
-u32 func_002F5890(u32 i);
 int func_0030AAD0(int g);
-int func_002F2EA0(u32 i);
 int func_002FD000(int i);
 int func_002FD3C0(int c);
 int func_002FD050(int i);
@@ -1396,7 +1322,7 @@ void func_002FF710(int *out, u32 i, int k, int a, int b)
     for (c = 0; c < 10; c++) {
         if (func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
             && func_002FD050(c) == 0 && func_002FD1D0(f, c, 0) != 0
-            && func_00314C40(c, i, a, b) != 0
+            && func_00314C40(c, i, (unsigned int *)PS2_PTR(a), b) != 0
             && (c != 5 || func_00327C00() == 1 || func_00328190(5) != 0)) {
             cmd[n] = c;
             val[n] = func_002FF230(c, i);
@@ -1441,20 +1367,9 @@ int func_002FF990(int f, int c, u32 *l, int n)
     return -1;
 }
 
-
 int func_0030C4E0(int r, int *out);
-int func_001A06D0(void);
-void func_002CAD90(u8 *out);
-u8 *func_0019FBC0(int k);
 void func_0030BBD0(int f, int a);
-int func_00327E50(void);
-int func_002F80C0(u32 i, int f);
-int func_002F8110(u32 i, int f);
-int func_002F8740(u32 i, int r);
-int func_002F8710(u32 i);
-int func_002F8570(u32 i);
 void func_0030B440(int f);
-int func_002F3F20(u32 i);
 
 /* 0x002FFA70, 0xF8 bytes. How many of region `r`'s neighbours its force can attack. */
 int func_002FFA70(int r)
@@ -1567,7 +1482,7 @@ void func_002FFF00(int *out, u32 i, int k, int a, int b)
     for (c = 10; c < 0x13; c++) {
         if (func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
             && func_002FD1D0(f, c, 0) != 0 && func_002FD050(c) == 0
-            && func_00314C40(c, i, a, b) != 0
+            && func_00314C40(c, i, (unsigned int *)PS2_PTR(a), b) != 0
             && (c != 0x12 || (g_0045D6A0 != 8 && g_0045D6A0 != 0x32 && g_0045D6A0 != 0x33))) {
             cmd[n] = c;
             val[n] = func_002FF230(c, i);
@@ -1736,15 +1651,7 @@ int func_00300600(int f, int named, int other)
 }
 
 int func_00308980(u32 i, int f);
-int func_002F41E0(u32 i);
-int func_002F8630(u32 i, int r);
-int func_002F8480(u32 i);
-int func_002F85E0(u32 i);
-int func_002F8430(u32 i, int f);
 void func_002F87D0(u32 *l, int n, int (*less)(u32, u32, int, int), int a, int b);
-int func_003297D0(void);
-int func_00329810(void);
-int func_00329790(void);
 
 /* Whether officer `i` is named or created (not a generic one). */
 #define SPECIAL(i) ((int)(i) < 0x1C || (int)(i) > 399)
@@ -1826,7 +1733,7 @@ void func_00300A90(int *out, u32 i, int k, int a, int b)
     for (c = 0x1D; c < 0x23; c++) {
         if (ok && func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
             && func_002FD050(c) == 0 && func_002FD1D0(f, c, 0) != 0
-            && func_00314C40(c, i, a, b) != 0
+            && func_00314C40(c, i, (unsigned int *)PS2_PTR(a), b) != 0
             && (c != 0x22 || func_00327C00() == 2 || func_00328190(0x22) != 0)) {
             cmd[n] = c;
             val[n] = func_002FF230(c, i);
@@ -1970,7 +1877,7 @@ void func_00301290(int *out, u32 i, int k, int a, int b)
     for (c = 0x23; c < 0x2B; c++) {
         if (func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
             && func_002FD050(c) == 0 && func_002FD1D0(f, c, 0) != 0
-            && func_00314C40(c, i, a, b) != 0
+            && func_00314C40(c, i, (unsigned int *)PS2_PTR(a), b) != 0
             && (c != 0x27 || func_00327C00() == 3 || func_00328190(0x27) != 0)) {
             cmd[n] = c;
             val[n] = func_002FF230(c, i);
@@ -2027,24 +1934,8 @@ int func_003015B0(int f)
     return 1;
 }
 
-int func_002FB120(int f);
-int func_002FB100(int f);
-int func_002FB5A0(int f, int *out);
-int func_002FB6D0(int f);
 int func_002FD120(int i);
-int func_002FB040(int f, int *out);
-int func_002FB220(int f);
-int func_002FB1A0(int f);
-int func_002F9C90(int f, int g);
-int func_002F9D50(int f, int g);
-u16 func_002F95C0(int f);
-int func_002F9550(u32 f);
 int func_002FC220(int g);
-u16 func_002F9690(short kind, int *out);
-int func_002F9730(int f, int k, short gold);
-int func_00327C70(void);
-int func_002FA210(int plan);
-int func_002FA5A0(int f);
 
 /* The value of force `g` by random rule `rule` (2: a leader with a low number, 1: +0x75,
  * 0: its regions). */
@@ -2222,8 +2113,6 @@ int func_00301D90(int f)
     return IS_FORCE(best) ? best : -1;
 }
 
-int func_00313DB0(int a, int f);
-
 /* 0x003020C0, 0x230 bytes. Whether force `f` can buy a better policy (it can pay command 0x30,
  * the next policy kind is free and affordable, and for the computer a tied ally of similar
  * policy and size); returns `f` or -1. */
@@ -2269,20 +2158,9 @@ extern int (*g_00414890[7])(int f);          /* targets of commands 0x34-0x3A */
 
 int func_002FD430(int c);
 int func_002FD460(int c);
-int func_002F9260(u32 i);
-int func_002FB470(int f);
-int func_002FB430(int f);
 int func_0030C660(int r);
 int func_00308BF0(u32 i, int f);
 int func_00309780(int f);
-int func_002FA790(u32 i);
-int func_002FA6B0(u32 f);
-int func_002F77A0(u32 i, u32 j);
-int func_002F77F0(u32 i, u32 j);
-int func_002F78C0(u32 i, u32 j);
-int func_002F8070(u32 i, int f);
-int func_002F8160(u32 i, int f);
-int func_002F8B60(u32 i, u32 j);
 
 /* Whether a computer force may give diplomacy or war commands this year (early in the game
  * only); the player's force always may. */
@@ -2312,7 +2190,7 @@ void func_00302360(int *out, u32 i, int k, int a, int b)
             continue;
         if (c == 0x2F && player == 0 && func_002F9C90(f, func_00327D50()) == 3)
             continue;
-        if (func_00314C40(c, i, a, b) == 0)
+        if (func_00314C40(c, i, (unsigned int *)PS2_PTR(a), b) == 0)
             continue;
         cmd[n] = c;
         val[n] = func_002FF230(c, i);
@@ -2631,7 +2509,7 @@ void func_003036B0(int *out, u32 i, int k, int a, int b)
     for (c = 0x34; c < 0x3B; c++) {
         if (func_002FD000(c) != 0 || func_002FD3C0(c) != 0 || func_002FD310(f, c) == 0
             || func_002FD050(c) != 0 || func_002FD1D0(f, c, 0) == 0 || func_002FD430(c) != 0
-            || func_002FD460(c) != 0 || func_00314C40(c, i, a, b) == 0)
+            || func_002FD460(c) != 0 || func_00314C40(c, i, (unsigned int *)PS2_PTR(a), b) == 0)
             continue;
         cmd[n] = c;
         val[n] = func_002FF230(c, i);
@@ -2660,7 +2538,6 @@ void func_003036B0(int *out, u32 i, int k, int a, int b)
 extern void (*g_004148B0[12])(int *out, u32 i, int k, int a, int b);   /* command group choosers */
 extern int g_004148E0[][12];             /* by officer mood: the groups to try in order (-1 end) */
 
-int func_002F3DC0(u32 i);
 int func_002FD280(int f, int c);
 
 /* Whether force `f`'s officer `i` may give command `c` now (lists `a`, `b`). */
@@ -2668,7 +2545,7 @@ static inline int command_ok(int f, u32 i, int c, int a, int b)
 {
     return func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
         && func_002FD050(c) == 0 && func_002FD1D0(f, c, 0) != 0 && func_002FD280(f, c) != 0
-        && func_00314C40(c, i, a, b) != 0;
+        && func_00314C40(c, i, (unsigned int *)PS2_PTR(a), b) != 0;
 }
 
 /* 0x00303930, 0x184 bytes. For the reinforcing commands 0x14-0x16: the officer of list `l`
@@ -2777,7 +2654,7 @@ void func_00303E60(int *out, u32 i, int k, int a, int b)
     for (c = 0x14; c < 0x1D; c++) {
         if (func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
             && func_002FD050(c) == 0 && func_002FD1D0(f, c, 0) != 0
-            && func_00314C40(c, i, a, b) != 0
+            && func_00314C40(c, i, (unsigned int *)PS2_PTR(a), b) != 0
             && (c != 0x1A || func_00327C00() == 4 || func_00328190(0x1A) != 0)) {
             cmd[n] = c;
             val[n] = func_002FF230(c, i);
@@ -2975,22 +2852,11 @@ void func_00304C80(int *out, u32 i, int k, int a, int b)
 extern u32 g_007A3430[];                 /* copy of the officer list for the command choice */
 extern int g_0045D694, g_0045D698;       /* (small data) the player was targeted this turn */
 
-void func_00315510(int *cmd, int f);
-void func_0031BD90(int *cmd, int a);
-int func_0030DFA0(void);
 int func_0030C250(int f);
 void func_002FD180(int c, int a);
 void func_002FCFC0(int i);
 void func_002FD0E0(int i);
 void func_002FD170(void);
-void func_002F5BE0(u32 i, int r);
-int func_002F5CC0(u32 i);
-int func_002F33F0(u32 i);
-int func_002F80C0(u32 i, int f);
-int func_002F9F10(int k);
-int func_002F9F20(int k);
-int func_002F3E30(u32 i);
-int func_002F9EA0(u32 f);
 
 /* 0x00304DE0, 0x254 bytes. Officer `i`'s command record `out` for this turn (one command, two
  * when `two`; with two, the first one's target and the diplomacy targets are marked as used,
@@ -3256,7 +3122,6 @@ int func_00305AC0(u32 *o, int m, u32 *l, int n)
     return 0;
 }
 
-int func_002F3E70(u32 i);
 int func_00309130(u32 i, int f, int r, int a);
 
 #define IS_OFFICER(i) ((int)(i) >= 0 && (int)(i) < 0x19F)
@@ -3422,17 +3287,9 @@ int func_00306140(int f, int large, int *r, int n, int *mark, int total, int hav
 
 extern int g_007A3B10[];                 /* the computer turn's state block */
 
-void func_002F3CF0(u32 i, int r);
-int func_002F8110(u32 i, int f);
-int func_002FBAC0(int *out);
 void func_002FD490(void);
-int func_003276A0(void);
-int func_002FB9D0(int r);
 void func_002FCFB0(void);
 int func_002FD580(int f);
-int func_00329160(int k, int *a, int *b);
-int func_002FA1D0(int plan);
-int func_002FA1F0(int plan);
 
 /* The computer turn's state block: 0 step, 1 command, 2 force index, 3 commands, 4 forces,
  * 5 force list. */
@@ -3827,21 +3684,7 @@ int func_0030B240(int r, int a);
 int func_0030B3B0(int *out);
 int func_0030C590(int r);
 int func_0030C320(int r, int t);
-int func_00329220(void);
-void func_00329090(int slot, int from, int to);
-int func_00323BD0(int r);
-void func_00323840(int entry);
-int func_003238D0(int r);
-int func_00328DE0(int f);
-int func_00328FA0(int f);
-int func_0030E1F0(void);
-void func_0030E100(void);
-void func_0030E140(int c, u32 i, int f, int a);
-void func_00328D00(int f, int v);
-void func_0032EA80(int k);
-const char *func_002F8DB0(int f);
 void func_001204B0(char *out, const char *format, ...);   /* sprintf */
-void func_00374EE0(const char *text);
 
 /* The computer attacks' state block: 0 step, 1 force index, 2 forces, 3 event slot, 4 and 5
  * the player's tied forces involved, 6 force list. */
@@ -4069,7 +3912,7 @@ void func_00308050(void)
         q[0] = 8;
 }
 
-/* 0x003081E0, 0xE8 bytes. Step 4: the attacker tied to the player asks for help (command 0x2F
+/* 0x003081E0, 0xE8 bytes, matching. Step 4: the attacker tied to the player asks for help (command 0x2F
  * message); once answered "no" (2), message 0x5F with its name. */
 void func_003081E0(void)
 {
@@ -4086,27 +3929,12 @@ void func_003081E0(void)
     } else if (func_0030E1F0() == 2) {
         func_0030E100();
         func_001204B0(text, (const char *)func_00390760(0x5F), func_002F8DB0(ga));
-        func_00374EE0(text);
+        func_00374EE0(PS2_ADDR(text));
         q[0] = 5;
     }
 }
 
-void func_00328EC0(int f, int v);
-void func_0030E4E0(int a);
-void func_002F91C0(int f, int i);
-int func_00327B10(u32 i);
-void func_00327A80(int i, int k);
-int func_00327870(void);
-void func_00327830(int i);
-int func_002F7900(u32 i, u32 j);
-int func_002F6FE0(u32 i, int k);
-int func_00327E90(void);
-int func_002F4450(u32 i);
-int func_002F45A0(u32 i);
-int func_002F3380(u32 i);
-int func_002F4A70(u32 i);
-
-/* 0x003082D0, 0xE4 bytes. Step 6: the defender tied to the player asks for help (message 0x60
+/* 0x003082D0, 0xE4 bytes, matching. Step 6: the defender tied to the player asks for help (message 0x60
  * once answered "no"). */
 void func_003082D0(void)
 {
@@ -4123,7 +3951,7 @@ void func_003082D0(void)
     } else if (func_0030E1F0() == 2) {
         func_0030E100();
         func_001204B0(text, (const char *)func_00390760(0x60), func_002F8DB0(gb));
-        func_00374EE0(text);
+        func_00374EE0(PS2_ADDR(text));
         q[0] = 7;
     }
 }
@@ -4315,11 +4143,6 @@ int func_00308B70(int v)
     return v;
 }
 
-void func_002F7C40(void);
-int func_002F34E0(u32 i);
-void func_002F7410(u32 i);
-void func_002F7300(u32 i, int f, int r, int k);
-int func_002F76B0(u32 i, int r);
 int func_0030C280(int r, int home);
 void func_0030C920(int *l, int n);
 
@@ -4331,7 +4154,7 @@ u32 func_00308F80(u32 *l, int n, int any)
     int a = 0xFFFF, b = 99999, c = 0, k;
     u32 best = 0x19F;
 
-    func_002F7C40();
+    func_002F7C40(l, n);
     for (k = 0; k < n; k++, l++) {
         u32 x = *l;
         int v1, v2, v3;
@@ -4479,8 +4302,6 @@ int func_00309A10(u32 i, int r)
     return IS_FORCE(r);
 }
 
-int func_002F3DC0(u32 i);
-
 /* 0x00309130, 0x410 bytes. Places officer `i` of force `f` in its region `r` with a role (its
  * own, else 2 for named and 1 for generic ones) where there is room (three per role; a named
  * officer may push a generic one down, a busy computer officer may push one out); with `msg`
@@ -4613,16 +4434,7 @@ int func_00308F50(u32 i, int f)
 extern struct { int step, most; } g_004149F0[];   /* by level: officers per region, at most */
 
 void func_003986E0(int r, int a, u32 *l, int n);
-void func_0030E390(int k, int a, int b, int c, int d, int e);
-int func_002F3070(u32 i);
-void func_002FAFC0(int f);
-void func_002FB7C0(int f);
-void func_002F8D20(int f);
-void func_002F8E80(int f, u32 i);
-void func_003A7D90(void);
 void func_0030AF20(int r, int f);
-void func_00320F10(void);
-int func_00327A10(void);
 
 /* 0x00309AC0, 0x84 bytes, matching. Officer `i` joins the player's force in region `r` (shown with the
  * join message). */
@@ -4887,32 +4699,13 @@ extern char g_007A3B30[10][10];          /* ten number strings, used in turn */
 extern int g_0045D6AC;                   /* (small data) the next one */
 extern int g_007B4E48, g_007B4E4C, g_007B4E50;
 
-Region *func_0030CCD0(void);
-void func_002F8F90(int f, int v);
-void func_002FA500(int f, int v);
-void func_002FA610(int f, int v);
-void func_002F92D0(int f, int k, int v);
 void func_0030B030(int r, int v);
-int func_002F57A0(u32 w);
-int func_002FB8B0(void);
-int func_002FB910(void);
-void func_002F94C0(int f, int v);
-void func_002F9900(int f, int v);
-void func_002F9A00(int f, int v);
-void func_002FA400(int f, int v);
-void func_002FA720(int f, int v);
-void func_002FA800(int f, int v);
-void func_002FA8E0(int f, int v);
-void func_003A7DA0(int r, int a);
 void func_0011ED38(void *to, int value, int size);
-int func_002F8250(u32 i, int f);
-void func_001B8F60(int a, int b, int c);
 void func_0017DF10(void);
 int func_0017DDA0(void);
-void func_0030CCE0(void);
-void func_0030CF70(void);
 
-#define REGION(r) (&func_0030CCD0()[r])
+#define REGIONS ((Region *)func_0030CCD0())   /* the region table */
+#define REGION(r) (&REGIONS[r])
 
 /* 0x0030A850, 0x1C bytes, matching. */
 void func_0030A850(int f)
@@ -5001,7 +4794,7 @@ int func_0030AB90(void)
 /* 0x0030ABC0, 0x24 bytes. Region 0x19 (none) belongs to no force. */
 void func_0030ABC0(void)
 {
-    func_0030CCD0()[0x19].owner = 0x19;
+    REGIONS[0x19].owner = 0x19;
 }
 
 char *func_0030AC20(int a, int k);
@@ -5039,7 +4832,7 @@ int func_0030ACE0(int r)
 /* 0x0030AD20, 0x58 bytes. Region `r`'s neighbour `k` (0x19 past six). */
 int func_0030AD20(int r, int k)
 {
-    Region *g = func_0030CCD0();
+    Region *g = REGIONS;
 
     if (k < 6)
         return g[r].next[k];
@@ -5084,7 +4877,7 @@ void func_0030AF20(int r, int f)
 /* 0x0030AF70, 0x7C bytes. The owner of region record `g` (0x19 for none). */
 int func_0030AF70(Region *g)
 {
-    int r = g - func_0030CCD0();
+    int r = g - REGIONS;
 
     if (r < 0)
         return 0x19;
@@ -5163,7 +4956,7 @@ int func_0030B2F0(int r)
 /* 0x0030B330, 0x78 bytes. Clears every region's mark. */
 void func_0030B330(void)
 {
-    Region *g = func_0030CCD0();
+    Region *g = REGIONS;
     int k;
 
     for (k = 0; k < 0x19; k++, g++)

@@ -11,6 +11,10 @@
  * picks random forces for the computer side (func_003909A0) and leaves the scene.
  */
 
+#define SW2E_FILE_SCENE_SETUP_EMP_MOGI_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 
@@ -76,66 +80,20 @@ typedef struct {
 extern MogiWork *g_0045D7E4;               /* (small data: reached through $gp) */
 extern const char g_00459A40[];            /* "StateSetupEmpMogi.c" (__FILE__ for the loader) */
 
-void *func_00102DB0(int align, int size);   /* allocate */
-void func_00102EC0(u32 handle);            /* free */
-u32 func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-void func_00102960(int value);
-void func_00376100(int a, int b, int c);
-void func_003BD710(void);
-void func_003625D0(int side, int slot, int value);
-int func_00362600(int side, int slot);
-int func_0036F090(int value);
-int func_0036F180(int value);
-void func_00364E00(void);
-int func_003623B0(void);
-int func_00363620(int side);
-int func_003620E0(int side, int slot);
-void func_00362840(int side, int slot, int value);
-int func_003637D0(int side, int slot);
-void func_003F8B30(int value);
-void func_001A2040(void);
-void func_001A1AC0(void);
-void func_003630C0(void);
-void func_00362630(u32 side, int value);
-void func_003621B0(u32 side, u32 slot, int value);
-void func_003622F0(int side, int value);
-void func_0038D0F0(void);
-void func_0038F4B0(void);
-void func_003E3100(void);
-void func_0030CEF0(void);
 void func_0038FBD0(void);
-void func_0038D2E0(void);
-void func_0038ECF0(void);
-void func_0038DF90(void);
-void func_0038F6F0(void);
 u32 func_0038F4A0(void);
-void func_00375D30(u32 value);
-void func_002C59F0(void);
-void func_002C5A30(void);
-void func_002C5A60(void);
-void func_0017E010(int track);
-void func_001B8F60(int a, int b, int c);
-void func_002789C0(void);
 void func_002787E0(void);
 void func_0038F560(void);
-void func_003E3150(void);
 void func_0038FDB0(void);
 void func_0038D330(void);
 void func_0038ED70(void);
 void func_0038E000(void);
-void func_003F8B80(void);
-void func_00376450(void);
-void func_003DC110(void);
 void func_0038FDD0(void);
-void func_0038D340(void);
 void func_0038ED90(void);
 void func_0038E020(void);
 int func_0017DDA0(void);
-void func_003638D0(void);
 void func_00278CF0(void);
-void func_003F8BB0(void);
 void func_0038F740(void);
-void func_003906F0(void);
 void func_0038DC20(void);
 void func_0038F480(void);
 void func_0038E710(void);
@@ -239,11 +197,11 @@ void func_00390C70(void)
     func_003622F0(1, 8);
     func_0038D0F0();
 
-    w = func_00102DB0(0x10, sizeof(MogiWork));
+    w = (MogiWork *)(func_00102DB0(0x10, sizeof(MogiWork)));
     w->mode = 0;
     g_0045D7E4 = w;
     w->data = 0;
-    w->data = func_001026D0(1, 0x88, 0, 1, 0, 0, g_00459A40, 206);
+    w->data = PS2_ADDR(func_001026D0(1, 0x88, 0, 1, 0, 0, g_00459A40, 206));
     func_0038F4B0();
     func_00102960(1);
     func_003E3100();
@@ -272,15 +230,15 @@ void func_00390E30(void)
     func_002787E0();
     func_0038F560();
     func_003E3150();
-    func_00102EC0(w->data);
-    func_00102EC0(w->data2);
+    func_00102EC0((unsigned char *)PS2_PTR(w->data));
+    func_00102EC0((unsigned char *)PS2_PTR(w->data2));
     w->data = 0;
     w->data2 = 0;
     func_0038FDB0();
     func_0038D330();
     func_0038ED70();
     func_0038E000();
-    func_00102EC0((u32)g_0045D7E4);
+    func_00102EC0((unsigned char *)PS2_PTR((u32)g_0045D7E4));
     func_003F8B80();
 }
 

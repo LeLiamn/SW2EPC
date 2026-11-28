@@ -13,6 +13,10 @@
  * created officers (two per slot), 0x2F1-0x2F8 the items' wearers; 0x2D2 stands for the player.
  */
 
+#define SW2E_FILE_SC_UBASE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -39,25 +43,10 @@ extern float g_004256A0[12], g_004256D0[12];   /* offsets around a unit (sides, 
 extern int g_00425700[8], g_00425720[8]; /* the eight directions (x, z) */
 extern u8 g_00428138[];
 
-void *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-void func_00118AC0(void *d, const void *s, u32 n);
 void func_00120928(char *to, const char *from);
 void func_001204B0(char *to, const char *format, ...);
 void vu0_sincos(float a, float *s, float *c);    /* VU0 micro subroutine 0x20 */
-int func_0018C0E0(float *p);
-int func_0018C2A0(float *p);
-int func_00215480(u8 *cell);
-short func_0018F6F0(u8 *from, u8 *to, int side);
-int func_00328230(void);
-int func_001AA320(float size, const void *font, u32 id);
-const char *func_0039E680(void);
-const char *func_0039E6A0(u32 slot);
 u8 *func_0019FBC0(int item);
-u32 func_002F27D0(u32 id);
-u32 func_0019A5A0(u32 code);
-u8 func_002F41E0(u32 kind);
-u32 func_002F5730(u32 id);
-u8 *func_0035DEC0(u32 a, u32 b);
 
 /* 0x0019A7B0, 0x50 bytes. Loads the officer table (LINKDATA entry 0x33). */
 void func_0019A7B0(void)
@@ -81,8 +70,8 @@ static inline int can_place(float *p, u8 *c, u8 *from)
 {
     c[0] = (u8)((int)p[0] / 5000);
     c[1] = (u8)((int)p[1] / 5000);
-    return func_0018C0E0(p) != 0 && func_0018C2A0(p) != 0 && func_00215480(c) == 0
-           && func_0018F6F0(from, c, 0) != 0xFFF;
+    return func_0018C0E0(p) != 0 && func_0018C2A0(p) != 0 && func_00215480(PS2_ADDR(c)) == 0
+           && func_0018F6F0((short unsigned int *)(from), (short unsigned int *)(c), 0) != 0xFFF;
 }
 
 /* 0x0019A800, 0x588 bytes. Places unit `u` (+0xE its facing) at spot `k` around the point
@@ -134,7 +123,7 @@ u8 *func_0019AD90(u8 *p)
     u8 *r = g_005BA7C8;
 
     for (k = 0; k < n; k++, p += 0x20, r += 0x20)
-        func_00118AC0(r, p, 0x20);
+        func_00118AC0((unsigned int *)(r), (u8 *)p, 0x20);
     return p;
 }
 
@@ -145,7 +134,7 @@ u8 *func_0019AE10(u8 *p)
     u8 *r = g_005BA7C8;
 
     for (k = 0; k < n; k++, p += 0x20, r += 0x20)
-        func_00118AC0(p, r, 0x20);
+        func_00118AC0((unsigned int *)(p), r, 0x20);
     return p;
 }
 
@@ -177,10 +166,10 @@ u32 func_0019AEF0(u32 t)
 int func_0019AF10(float size, u32 t, u32 n)
 {
     u32 a = func_0019AE90(t);
-    int w = func_001AA320(size, (const void *)0x4053F0, a);
+    int w = func_001AA320(size, (u8 *)0x4053F0, a);
 
     if (a != n)
-        w = w + func_001AA320(size, (const void *)0x4053F0, n) + (int)(size * 8.0f / 20.0f);
+        w = w + func_001AA320(size, (u8 *)0x4053F0, n) + (int)(size * 8.0f / 20.0f);
     return w + 1;
 }
 
@@ -194,8 +183,8 @@ const char *func_0019AFD0(u32 id, int blank)
         if (blank != 0)
             return g_00425740;
         if (((id - 0x2D3) & 1) == 0)
-            return func_0039E680();
-        return func_0039E6A0((id - 0x2D3) >> 1);
+            return (const char *)func_0039E680((id - 0x2D3) >> 1);
+        return (const char *)func_0039E6A0((id - 0x2D3) >> 1);
     }
     if (id < 0x2F9) {
         u8 *h = func_0019FBC0(((int)id - 0x2F1) / 2);
@@ -253,11 +242,11 @@ char *func_0019B240(char *out, u32 t)
 }
 
 /* 0x0019B280, 0x58 bytes. Officer `id`'s name and title (from its table record). */
-void func_0019B280(char *out, u32 id)
+char *func_0019B280(char *out, u32 id)
 {
     u16 *r = (u16 *)(g_005BA6A0 + func_002F27D0(id) * 0x2C);
 
-    func_0019B170(out, r[0], r[1]);
+    return func_0019B170(out, r[0], r[1]);
 }
 
 /* 0x0019B2E0, 0x58 bytes. The same with the player's title as 0x17. */
@@ -307,7 +296,7 @@ short func_0019B410(u32 a, u32 kind)
 }
 
 /* 0x0019B4E0, 0x8 bytes, matching. */
-int func_0019B4E0(void)
+int func_0019B4E0(int a, int b)
 {
     return 0;
 }
@@ -324,14 +313,6 @@ short func_001A2310(u32 id);
 short func_001A23B0(u32 id);
 short func_001A2450(u32 id);
 short func_001A24F0(u32 id);
-int func_002F5E80(u32 id);
-int func_002F4C40(u32 id);
-int func_0036DC80(u32 id, u32 skill);
-int func_0036DBA0(u32 id, u32 skill);
-u8 func_0016CCE0(u32 id, u8 weapon);
-void func_00347E70(int p);
-u32 func_002F6A60(u32 id);
-u8 func_0035DE00(u32 id);
 
 /* Player `p`'s settings word at `off`. */
 #define PSET(p, off) (*(u32 *)(g_00669D60 + (p) * 0x48 + (off)))
@@ -487,32 +468,11 @@ extern u8 g_00574DE0[][0x630];           /* the units */
 extern u32 g_00428348[0x14];             /* the experience needed per level */
 extern u8 g_00428257, g_004282EF;        /* skill bonuses per level */
 
-void func_002F67B0(void);
-void func_002F40F0(u32 id, u32 level);
-u32 func_00183840(void);
-int func_002F7040(u32 id, int stat);
-int func_002F59A0(u32 id);
 int func_002F6E00(u32 id, int k);
 u32 func_002F6EF0(u32 id, int k);
-int func_002F47A0(u32 id, int skill);
-void func_002F4820(u32 id, int skill, u32 level);
-u32 func_002F6B40(u32 id);
-u32 func_002F34E0(u32 id);
-void func_002F3440(u32 id, u32 exp);
-void func_001D1980(u8 *unit);
 void func_0025CD50(int p);
 void func_001F9AC0(int p, u32 level, int even, u32 learnt);
-void func_001C8780(int a, u8 *unit, int b, int c);
 
-
-int func_002F39F0(u32 id); int func_002F5D30(u32 id); void func_002F3960(u32 id, int v);
-int func_002F4C40(u32 id); int func_002F5E80(u32 id); void func_002F4BB0(u32 id, int v);
-int func_002F4DD0(u32 id); int func_002F5FD0(u32 id); void func_002F4D40(u32 id, int v);
-int func_002F4F60(u32 id); int func_002F6120(u32 id); void func_002F4ED0(u32 id, int v);
-int func_002F50F0(u32 id); int func_002F6270(u32 id); void func_002F5060(u32 id, int v);
-int func_002F5280(u32 id); int func_002F63C0(u32 id); void func_002F51F0(u32 id, int v);
-int func_002F5410(u32 id); int func_002F6510(u32 id); void func_002F5380(u32 id, int v);
-int func_002F55A0(u32 id); int func_002F6660(u32 id); void func_002F5510(u32 id, int v);
 
 /* Raises an officer's stat by `add`, up to its maximum (or, with func_002F59A0, up to `cap`). */
 static inline void raise_stat(u32 id, u32 add, int (*get)(u32), int (*max)(u32),
@@ -532,27 +492,27 @@ int func_0019C170(u32 id, u32 level, int learn)
     int learnt = 0;
     u32 add;
 
-    func_002F67B0();
+    func_002F67B0(id);
     level &= 0xFF;
     func_002F40F0(id, level);
     if (g_00669DB8[0] != 3 && g_00669DB8[0] != 0)
         g_00669F94 = func_00183840();
     add = (func_0036DC80(id, 10) == 0 ? 0 : func_0036DBA0(id, 10)) + func_002F7040(id, 0);
-    raise_stat(id, add, func_002F39F0, func_002F5D30, func_002F3960, 350);
+    raise_stat(id, add, func_002F39F0, func_002F5D30, (void (*)(u32,  int))(func_002F3960), 350);
     add = (func_0036DC80(id, 11) == 0 ? 0 : func_0036DBA0(id, 11)) + func_002F7040(id, 1);
-    raise_stat(id, add, func_002F4C40, func_002F5E80, func_002F4BB0, 350);
+    raise_stat(id, add, func_002F4C40, func_002F5E80, (void (*)(u32,  int))(func_002F4BB0), 350);
     add = (func_0036DC80(id, 12) == 0 ? 0 : func_0036DBA0(id, 12)) + func_002F7040(id, 2);
-    raise_stat(id, add, func_002F4DD0, func_002F5FD0, func_002F4D40, 250);
+    raise_stat(id, add, func_002F4DD0, func_002F5FD0, (void (*)(u32,  int))(func_002F4D40), 250);
     add = (func_0036DC80(id, 13) == 0 ? 0 : func_0036DBA0(id, 13)) + func_002F7040(id, 3);
-    raise_stat(id, add, func_002F4F60, func_002F6120, func_002F4ED0, 250);
+    raise_stat(id, add, func_002F4F60, func_002F6120, (void (*)(u32,  int))(func_002F4ED0), 250);
     add = (func_0036DC80(id, 14) == 0 ? 0 : func_0036DBA0(id, 14)) + func_002F7040(id, 4);
-    raise_stat(id, add, func_002F50F0, func_002F6270, func_002F5060, 250);
+    raise_stat(id, add, func_002F50F0, func_002F6270, (void (*)(u32,  int))(func_002F5060), 250);
     add = (func_0036DC80(id, 15) == 0 ? 0 : func_0036DBA0(id, 15)) + func_002F7040(id, 5);
-    raise_stat(id, add, func_002F5280, func_002F63C0, func_002F51F0, 250);
+    raise_stat(id, add, func_002F5280, func_002F63C0, (void (*)(u32,  int))(func_002F51F0), 250);
     add = (func_0036DC80(id, 16) == 0 ? 0 : func_0036DBA0(id, 16)) + func_002F7040(id, 6);
-    raise_stat(id, add, func_002F5410, func_002F6510, func_002F5380, 250);
+    raise_stat(id, add, func_002F5410, func_002F6510, (void (*)(u32,  int))(func_002F5380), 250);
     add = (func_0036DC80(id, 17) == 0 ? 0 : func_0036DBA0(id, 17)) + func_002F7040(id, 7);
-    raise_stat(id, add, func_002F55A0, func_002F6660, func_002F5510, 250);
+    raise_stat(id, add, func_002F55A0, func_002F6660, (void (*)(u32,  int))(func_002F5510), 250);
     if (learn != 0) {
         if (((level + 1) & 1) == 0) {
             int k = ((int)(level + 1) >> 1) - 1;
@@ -598,7 +558,7 @@ void func_0019CB90(int p)
     PSET(p, 0xA4) |= 8;
     if (PSET(p, 0xB4) < v)
         PSET(p, 0xB4) = v;
-    func_001D1980(g_00574DE0[p]);
+    func_001D1980(PS2_ADDR(g_00574DE0[p]));
 }
 
 /* 0x0019CD70, 0x464 bytes. Player `p` gains `exp` experience (more with skill 0x13; not in
@@ -645,7 +605,7 @@ int func_0019CD70(int p, u32 exp, int quiet)
             PSET(p, 0x98) = need < PSET(p, 0x98) ? PSET(p, 0x98) - need : 0;
             func_001F9AC0(p, level, (level & 1) == 0 && level < 0xD, learnt);
             *(u32 *)0x70000D60 = 0;
-            func_001C8780(0x25, g_00574DE0[p], 0, 0x204);
+            func_001C8780(0x25, PS2_ADDR(g_00574DE0[p]), 0, 0x204);
         }
         return 1;
     }
@@ -730,8 +690,6 @@ extern const float g_004069C0[3];        /* by study time and by study points */
 extern const float g_004069D0[4];        /* by the level of skill 0x23 */
 extern const float g_004069E0[4];        /* by stat 7 in 50s */
 extern u8 g_00669D81[0x10];              /* (settings) +0: a scenario value */
-
-void func_00247FA0(u8 a, int b, int c);
 
 /* 0x0019D480, 0x890 bytes. After beating battle officer `b` while it is studied, player `p`
  * may learn one of its skills (+0x22 ids, +0x25 levels, picked at random): special skills need
@@ -905,13 +863,7 @@ extern u8 g_00732584[2][0x1C];           /* per player boost icons (+0-+3) */
 extern u32 g_00669D6C;                   /* (settings) the time played */
 extern u32 g_00669F64[2];                /* (settings) battle flags to set (+0) and clear (+4) */
 
-u32 func_002F57F0(u8 kind);
-u8 func_002F5840(u32 w);
 void func_002695F0(int p);
-void func_00361640(void);
-void func_00361FB0(u32 now, u32 before);
-void func_003F7C60(u32 now, u32 before);
-void func_003276D0(void);
 
 /* Index of the first threshold of `t` (n of them) above `roll` (n when none is). */
 static inline int pick_by(const u8 *t, int n, u32 roll)
@@ -1211,15 +1163,10 @@ extern u8 *g_0045D2F8;                   /* (small data) the settings in use (0:
 extern u32 g_005DF9A0, g_006725B0;
 extern u8 g_0068DDE0[];
 
-void func_00118850(void *p, u32 n);
 void func_001A28F0(void);
 void func_001A1D10(void);
-u32 func_002EFB00(int k);
-void func_002EFB70(u8 *p);
-void func_0030D6B0(u8 *p);
 void func_0011EB80(void *d, const void *s, u32 n);
 u8 *func_001A1840(int k);
-int func_003270F0(u8 *slot);
 
 /* Resets player `p`'s boosts and study. */
 static inline void clear_boosts(int p)
@@ -1318,15 +1265,15 @@ void func_0019F550(void)
 /* 0x0019F670, 0xD4 bytes, matching. Saves the game settings to `p`; returns the end (0x148 bytes). */
 u8 *func_0019F670(u8 *p)
 {
-    func_00118AC0(p, g_00669D60 + 0x58, 4);
-    func_00118AC0(p + 4, g_00669D60 + 0x60, 0x14);
-    func_00118AC0(p + 0x18, g_00669D60 + 0x74, 0x14);
-    func_00118AC0(p + 0x2C, g_00669D60 + 0x88, 0x90);
-    func_00118AC0(p + 0xBC, g_00669D60 + 0x1C0, 0x40);
-    func_00118AC0(p + 0xFC, g_00669D60 + 0x200, 4);
-    func_00118AC0(p + 0x100, g_00669D60 + 0x204, 4);
-    func_00118AC0(p + 0x104, g_00669D60 + 0x208, 4);
-    func_00118AC0(p + 0x108, g_00669D60 + 0x214, 0x40);
+    func_00118AC0((unsigned int *)(p), g_00669D60 + 0x58, 4);
+    func_00118AC0((unsigned int *)(p + 4), g_00669D60 + 0x60, 0x14);
+    func_00118AC0((unsigned int *)(p + 0x18), g_00669D60 + 0x74, 0x14);
+    func_00118AC0((unsigned int *)(p + 0x2C), g_00669D60 + 0x88, 0x90);
+    func_00118AC0((unsigned int *)(p + 0xBC), g_00669D60 + 0x1C0, 0x40);
+    func_00118AC0((unsigned int *)(p + 0xFC), g_00669D60 + 0x200, 4);
+    func_00118AC0((unsigned int *)(p + 0x100), g_00669D60 + 0x204, 4);
+    func_00118AC0((unsigned int *)(p + 0x104), g_00669D60 + 0x208, 4);
+    func_00118AC0((unsigned int *)(p + 0x108), g_00669D60 + 0x214, 0x40);
     return p + 0x148;
 }
 
@@ -1337,15 +1284,15 @@ void func_0019F750(u8 *p)
 {
     u8 h[0xC];
 
-    func_00118AC0(g_00669D60 + 0x58, p, 4);
-    func_00118AC0(g_00669D60 + 0x60, p + 4, 0x14);
-    func_00118AC0(g_00669D60 + 0x74, p + 0x18, 0x14);
-    func_00118AC0(g_00669D60 + 0x88, p + 0x2C, 0x90);
-    func_00118AC0(g_00669D60 + 0x1C0, p + 0xBC, 0x40);
-    func_00118AC0(g_00669D60 + 0x200, p + 0xFC, 4);
-    func_00118AC0(g_00669D60 + 0x204, p + 0x100, 4);
-    func_00118AC0(g_00669D60 + 0x208, p + 0x104, 4);
-    func_00118AC0(g_00669D60 + 0x214, p + 0x108, 0x40);
+    func_00118AC0((unsigned int *)(g_00669D60 + 0x58), (u8 *)p, 4);
+    func_00118AC0((unsigned int *)(g_00669D60 + 0x60), p + 4, 0x14);
+    func_00118AC0((unsigned int *)(g_00669D60 + 0x74), p + 0x18, 0x14);
+    func_00118AC0((unsigned int *)(g_00669D60 + 0x88), p + 0x2C, 0x90);
+    func_00118AC0((unsigned int *)(g_00669D60 + 0x1C0), p + 0xBC, 0x40);
+    func_00118AC0((unsigned int *)(g_00669D60 + 0x200), p + 0xFC, 4);
+    func_00118AC0((unsigned int *)(g_00669D60 + 0x204), p + 0x100, 4);
+    func_00118AC0((unsigned int *)(g_00669D60 + 0x208), p + 0x104, 4);
+    func_00118AC0((unsigned int *)(g_00669D60 + 0x214), p + 0x108, 0x40);
     func_0019F920(h, (const u8 *)func_002EFB00(0));
     g_00669D81[0] = h[9];
 }
@@ -1367,14 +1314,14 @@ u8 *func_0019F850(u8 *p)
     h[9] = g_00669D81[0];
     h[10] = (u8)PSET(0, 0x88);
     h[11] = (u8)PSET(1, 0x88);
-    func_00118AC0(p, h, 0xC);
+    func_00118AC0((unsigned int *)(p), h, 0xC);
     return p + 0xC;
 }
 
 /* 0x0019F920, 0x1C bytes, matching. Copies a save header. */
 void func_0019F920(u8 *d, const u8 *s)
 {
-    func_00118AC0(d, s, 0xC);
+    func_00118AC0((unsigned int *)(d), (u8 *)s, 0xC);
 }
 
 /* 0x0019F940, 0x8 bytes, matching. Sets the settings in use. */
@@ -1397,7 +1344,7 @@ void func_0019F960(u8 *s)
 /* 0x0019F970, 0x1C bytes, matching. */
 void func_0019F970(u8 *p)
 {
-    func_002EFB70(p);
+    func_002EFB70(PS2_ADDR(p));
 }
 
 /* 0x0019F990, 0x20 bytes, matching. */
@@ -1533,7 +1480,6 @@ extern const u8 g_00425750[][8];         /* per horse kind: +0, +1, +3 its base 
 extern const u8 g_00425770[4];           /* per coat */
 
 void func_0011ED38(void *p, int c, u32 n);
-void func_00372E60(const char **name, int k);
 int func_001A0670(void);
 int func_001A06D0(void);
 
@@ -1678,7 +1624,7 @@ void func_001A03A0(u8 *h, u8 kind)
     for (k = 0; k < 5; k++)
         h[k + 0xE] = 0xFF;
     h[0x12] = 0xE;
-    func_00372E60(&name, 1);
+    func_00372E60((unsigned int *)(&name), 1);
     func_00120928((char *)h + 0x13, name);
     h[4] = 4;
 }
@@ -1894,18 +1840,6 @@ void func_001A1E00(u8 *img, int full);
 void func_001A1EB0(u8 *dst);
 void func_001A1FA0(u8 *dst);
 void func_001A1AC0(void);
-void func_0030D580(u8 *p);
-void func_003A4D70(void);
-void func_003A4D10(u32 a);
-u32 func_0036B310(void);
-void func_003A4BC0(void);
-void func_003A4C50(int a);
-void func_003A4BA0(void);
-void func_0039EB00(void);
-void func_003273E0(void);
-void func_0039E820(void);
-void func_003EA010(void);
-void func_003A3260(void);
 
 /* 0x001A1840, 0x28 bytes, matching. Save slot `k`'s state. */
 u8 *func_001A1840(int k)
@@ -2106,11 +2040,7 @@ void func_001A2040(void)
 
 extern u8 g_004281BF, g_004281CF, g_004281D7, g_004281DF, g_004281E7, g_004281EF, g_004281F7;
 
-void func_0023C050(int a);
 void func_0017E0C0(int v, int a);
-void func_0023B530(void);
-void func_0023AB70(void);
-void func_00100F90(u8 *x, u8 *y);
 
 /* Officer `id`'s stat `k`: its base, skill 9 (x `all`) and skill `k` (x `per`) and its weapon
  * bonuses. */
@@ -2266,11 +2196,11 @@ void func_001A2760(void)
     SET8(0x52) = 0xF;
     func_0017E0C0(0xF, 0);
     SET8(0x53) = 0xF;
-    func_0023B530();
+    func_0023B530(0xf);
     SET8(0x54) = 0xF;
-    func_0023AB70();
+    func_0023AB70(0xf);
     SET8(0x51) &= 0xEF;
-    func_00100F90(&x, &y);
+    func_00100F90((int *)(&x), (int *)(&y));
     SET8(0x55) = x;
     SET8(0x56) = y;
 }

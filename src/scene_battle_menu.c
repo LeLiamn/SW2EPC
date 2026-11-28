@@ -14,6 +14,10 @@
  * page's handler, 2-4 leaving (func_00230160).
  */
 
+#define SW2E_FILE_SCENE_BATTLE_MENU_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -204,40 +208,19 @@ extern struct {
 
 extern int g_0045D2C0, g_0045D4C0;        /* (small data) */
 
-int func_0036D2E0(void);
-void func_0023AD10(int a, int b, int c, int d, int e);
 void func_002DB990(int a);
-int func_002DB9F0(void);
 void func_002300B0(int page);
 void func_001204B0(char *to, const char *from);
-void func_001AE9F0(int box, const char *text, ...);
-void func_001AFC70(int box, int a);
-void func_001B8D10(void);
-void func_0023B3C0(int a, int b);
-void func_00118850(void *to, int size);
 void func_00231920(void);
 void func_00231040(void);
-void func_0028EFC0(u8 *grid);
 void func_00230090(void);
-void func_0028F4C0(u8 *map);
 void func_0028F860(u8 *frame);
 void func_002EBE40(void);
 void func_002EBD80(float distance, u8 *camera, const void *direction);
 void func_002EBAA0(float distance, u8 *camera, const void *direction, int frames);
-void func_002C59F0(void);
-void func_002C5A30(void);
-void func_002C5A60(void);
 
-void func_003F1580(void);
-void func_003E3D70(void);
-void func_00376100(int a, int b, int c);
-void func_001B8F60(int a, int b, int c);
-void func_00376450(void);
-int func_002DAC30(void);
-void func_002D8160(void);
 int func_0017DDA0(void);
 void func_00230160(void);
-int func_003F1400(int a);
 int func_00231180(void);
 int func_00231930(int a);
 int func_00231220(int a);
@@ -258,51 +241,14 @@ void func_00235460(int player);
 void func_00234430(int player);
 void func_002355B0(int player);
 void func_002EC0A0(void);
-void func_00280F30(void);
-u64 *func_001050F0(void);
-void func_00105390(u64 *packet);
-u64 *func_00105410(void);
-void func_00105560(u64 *packet);
-void func_003F11D0(void);
 int func_002ECA70(void);
 int func_002EC150(void);
-void func_00195C20(void);
-void func_001FCC50(void);
 void func_00292A90(u8 *grid);
 void func_002937E0(u8 *frame, u8 *map);
 void func_001FCC90(void);
 void func_002944D0(void);
-void func_00282020(u8 *state, u8 *frame, u8 *grid, int *value);
-void func_00282A80(int player);
-void func_00283F70(u8 *map, u8 *frame, int a);
-void func_00283FA0(int player, u8 *grid, u8 *page);
-void func_00284950(u8 *page);
-void func_00283CC0(int player);
-void func_00284A10(int a);
 void func_002DAE50(void);
-void func_00283600(int player, int a);
-void func_00284B60(int player, u8 *grid, u8 *page);
-void func_00284D40(int player, u8 *grid, u8 *page);
-void func_00284EF0(void);
-void func_00284F00(int player, int value);
-void func_00285000(int player);
-void func_00285010(void);
-void func_00285590(void);
-void func_00285610(int value);
-void func_00285680(void);
-void func_002856A0(void);
-void func_00281D20(int page, int player);
 void func_003765C0(void);
-int func_003F1160(int a);
-void func_001A7DC0(const char *text, int alpha, int a);
-u8 **func_0034A740(u8 *unit);         /* the group of a unit */
-int func_0033BD60(u8 **a);
-u32 func_0036F1E0(int a, int b);
-int func_003725A0(int a);
-void func_003838B0(int a, int b);
-u32 func_00362D70(int side);
-void func_001D2B60(void);
-void func_001D4150(void);
 
 /* ---- The pages (0x0022FF30-0x00235870) ---- */
 
@@ -404,55 +350,10 @@ extern int g_0040E9D0[4];                 /* page 12 line -> page */
 extern int g_0042A450[4];                 /* page 12 line -> entry */
 extern int g_0045CDD8[2];                 /* (small data) page 16 line -> page */
 
-int func_00362570(void);
-int func_0036F320(int a);
-u32 func_0033F7D0(int a, int b);
-int func_0036D310(void);
-u32 func_003F5560(void);
-int func_003F5620(void);
 void func_0017DF10(void);
-float (*func_001942C0(void))[4];
 void func_002EC0C0(u8 *camera, int a);
-void func_0027FE60(int layer);
-void func_001911A0(float *out, u8 *pos);
-void func_0028A510(void);
-int func_00281C40(void);
-int func_00281CD0(int page);
-void func_001D1E80(void);
 extern int g_0045D210;
-int func_003F1070(int a);
 void func_002ECB80(int port);
-int func_002C5220(int pad, u8 *cursor, u8 *stored, int count, int count2);
-int func_002C54F0(int pad, u8 *cursor, u8 *stored, int count, int count2);
-u8 *func_0033B700(u8 **group);
-void func_0034ED90(u32 target, u8 *cell);
-u32 func_0034EC80(u32 target);
-u8 *func_00338410(int group);
-u8 **func_0033C560(u8 **group);
-u32 func_0033C4E0(u8 **group);
-u8 **func_0033C3A0(u8 **group);
-u32 func_0033C320(u8 **group);
-u32 func_00352F20(u8 **group, u32 *out, int most);
-u32 func_00352F80(u8 **group, u32 *out, int most);
-u8 func_0035D5A0(u8 kind);
-u32 func_0033F580(u8 **group, int *out, int most);
-u32 func_0033F600(u8 **group, int *out, int most);
-int func_003385E0(void);
-void func_0035F6F0(int player, int order);
-int func_0036F390(int a, int b);
-void func_0028D5D0(int value);
-int func_0036F290(int a, int b);
-int func_0035DC70(int player);
-void func_0036F990(int a, int b, int c);
-u8 func_003F6BE0(int a);
-int func_003F78A0(int a, int b);
-u8 func_003F7AE0(int a);
-int func_003F77F0(int a, int b);
-void func_003F7920(int a, int b, int c);
-int func_0035F0C0(void);
-const char *func_00372BC0(int id);
-void func_0035CCB0(void);
-int func_003F5650(void);
 void func_00233E00(void);
 void func_00234A90(void);
 void func_00234D70(void);
@@ -547,7 +448,7 @@ void func_002300B0(int page)
  * 0x14 goes back to the battle, 0x15 quits to the title (or flags a reset in an Empire battle). */
 void func_00230160(void)
 {
-    float (*box)[4] = func_001942C0();
+    float (*box)[4] = (float (*)[4])PS2_PTR(func_001942C0());
     float dir[4], len;
     int i;
 
@@ -628,7 +529,7 @@ void func_00230160(void)
             g_007A1C24 = 0x0F;
             g_007A1C18 = 2048.0f;
             g_007A1C1C = 2048.0f;
-            func_001911A0(pos, (*(u32 *)(unit + 0x80) & 0x20000) ? unit + 0x30 : unit + 0x28);
+            func_001911A0(pos, (float *)((*(u32 *)(unit + 0x80) & 0x20000) ? unit + 0x30 : unit + 0x28));
             CAMERA_TARGET(pos);
         }
         func_002EBAA0(g_00443530[BATTLE_TYPE()].c, g_007A1BC0, g_00443140[BATTLE_TYPE()], 0x0F);
@@ -751,7 +652,7 @@ void func_00230160(void)
     g_0074B724 = g_0074B728;
     g_0074B72C = 0;
     g_007725F4 = 1;
-    func_00376100(0, func_00281C40(), func_00281CD0(g_0074B724));
+    func_00376100(0, func_00281C40(g_0074B728), func_00281CD0(g_0074B724));
 }
 
 /* 0x00230FB0, 0x8 bytes, matching. The main menu's lines. */
@@ -1100,7 +1001,7 @@ void func_00232230(u8 *pos)
 {
     float target[4];
 
-    func_001911A0(target, pos);
+    func_001911A0(target, (float *)(pos));
     g_007A1BA4 = 0;
     g_007A1B70[0] = s_007A1B70.g_007A1E00[0];
     g_007A1B70[1] = s_007A1B70.g_007A1E00[1];
@@ -1132,7 +1033,7 @@ void func_00232300(u32 target)
     float pos[2];
     u8 cell[4];
 
-    func_0034ED90(target, cell);
+    func_0034ED90((unsigned char *)PS2_PTR(target), cell);
     pos[0] = (float)cell[0] * 5000.0f + 2500.0f;
     pos[1] = (float)cell[1] * 5000.0f + 2500.0f;
     func_00232230((u8 *)pos);
@@ -1201,7 +1102,7 @@ void func_00232590(void)
 {
     u32 list[20];
     u8 **group = P3_GROUP;
-    u32 n = func_00352F20(group, list, 0x14);
+    u32 n = func_00352F20((unsigned char *)(group), list, 0x14);
 
     P3_TKIND = func_0035D5A0((*group)[0x79]);
     P3_TCURSOR = 0;
@@ -1220,7 +1121,7 @@ void func_002326E0(void)
 {
     u32 list[20];
     u8 **group = P3_GROUP;
-    u32 n = func_00352F80(group, list, 0x14);
+    u32 n = func_00352F80((unsigned char *)(group), list, 0x14);
 
     P3_TKIND = (*group)[0x79];
     P3_TCURSOR = 0;
@@ -1239,14 +1140,14 @@ void func_00232830(void)
 {
     int list[16];
     u8 **group = P3_GROUP;
-    u32 n = func_0033F580(group, list, 0x10);
+    u32 n = func_0033F580(PS2_ADDR(group), (unsigned int *)(list), 0x10);
     u32 k;
 
     P3_GKIND = func_0035D5A0((*group)[0x79]);
     P3_GCURSOR = 0;
     P3_GSCROLL = 0;
     g_0074B760[0xF] = 0;
-    func_00118850(P3_GLIST, 0x24);
+    func_00118850((void *)P3_GLIST, 0x24);
     for (k = 0; k < n; k++)
         P3_GLIST[k] = *GROUP(list[k]);
     P3_GCOUNT = (u8)n;
@@ -1260,14 +1161,14 @@ void func_00232B00(void)
 {
     int list[16];
     u8 **group = P3_GROUP;
-    u32 n = func_0033F600(group, list, 0x10);
+    u32 n = func_0033F600(PS2_ADDR(group), (unsigned int *)(list), 0x10);
     u32 k;
 
     P3_GKIND = (*group)[0x79];
     P3_GCURSOR = 0;
     P3_GSCROLL = 0;
     g_0074B760[0xF] = 0;
-    func_00118850(P3_GLIST, 0x24);
+    func_00118850((void *)P3_GLIST, 0x24);
     for (k = 0; k < n; k++)
         P3_GLIST[k] = *GROUP(list[k]);
     P3_GCOUNT = (u8)n;
@@ -1301,7 +1202,7 @@ void func_00232E50(u8 **group, int order, int target, int player)
     int i;
     u8 *rec;
 
-    if (func_003385E0() == 0)
+    if (func_003385E0(group, order, target) == 0)
         return;
     i = ((u8 *)group - g_006A1D58[0]) / 0x68;
     rec = func_00338410(i);
@@ -1349,14 +1250,14 @@ void func_00232F20(int player)
                 SE(4);
             } else {
                 SE(1);
-                func_00232540(func_0034A740(unit), 1);
+                func_00232540((u8 **)(func_0034A740(unit)), 1);
             }
         }
     } else if (pressed & BTN_CANCEL) {
         SE(2);
         func_002300B0(0);
     } else if (pressed & BTN_EXTRA) {
-        if (func_0033BD60(func_0034A740(unit)) == 0 || P3_VIEW != 0) {
+        if (func_0033BD60((unsigned char **)(func_0034A740(unit))) == 0 || P3_VIEW != 0) {
             SE(4);
         } else {
             SE(0);
@@ -1559,7 +1460,7 @@ void func_00233F80(int player)
 /* 0x00234070, 0x94 bytes. The camera on the middle of the map. */
 void func_00234070(void)
 {
-    float (*box)[4] = func_001942C0();
+    float (*box)[4] = (float (*)[4])PS2_PTR(func_001942C0());
     float centre[4];
     int i;
 
@@ -1587,7 +1488,7 @@ void func_00234110(void)
     if (0.0f < *(float *)(rec + 8) || 0.0f < *(float *)(rec + 0x0C)) {
         float pos[4];
 
-        func_001911A0(pos, rec + 8);
+        func_001911A0(pos, (float *)(rec + 8));
         g_007A1BA8 = 0x0F;
         g_007A1BA4 = 0;
         g_0074B750 = 1;
@@ -1794,7 +1695,7 @@ void func_00234E10(int player)
     if (g_006935DB == 0) {
         func_002300B0(0);
     } else if (g_006935DC == 4) {
-        func_0035CCB0();
+        func_0035CCB0(player);
         func_002300B0(0x14);
         g_0045D880.force_draw = 1;
         BACK_TO_SCENE(5);
@@ -2057,7 +1958,7 @@ void func_00235A70(void)
         func_00231920();
     else
         func_00231040();
-    func_0028EFC0(g_0074B420);
+    func_0028EFC0((int *)(g_0074B420));
     func_00230090();
     func_0028F4C0(g_0074B260);
     func_0028F860(g_0074B738);
@@ -2112,7 +2013,7 @@ void func_00235F70(void)
 }
 
 /* 0x00235FC0, 0x470 bytes. Scene 0x08 update. */
-int func_00235FC0(void)
+int func_00235FC0(float dt)
 {
     int r;
 
@@ -2248,19 +2149,19 @@ void func_00236450(void)
     u64 *packet;
 
     func_00280F30();
-    packet = func_001050F0();
+    packet = (u64 *)(func_001050F0());
     packet[2] = 0x32001;
     packet[3] = 0x48;
-    func_00105390(packet);
-    packet = func_00105410();
+    func_00105390((unsigned char *)(packet));
+    packet = (u64 *)(func_00105410());
     packet[4] = 0x79007000;
     packet[5] = 0x87009000;
     packet[3] = 0x3F80000080808080ULL;
-    func_00105560(packet);
-    packet = func_001050F0();
+    func_00105560((unsigned char *)(packet));
+    packet = (u64 *)(func_001050F0());
     packet[2] = 0x5000D;
     packet[3] = 0x48;
-    func_00105390(packet);
+    func_00105390((unsigned char *)(packet));
     func_003F11D0();
     if (g_00669DB8 != 2) {
         if (g_00669DB8 != 2) {
@@ -2291,7 +2192,7 @@ void func_00236450(void)
         func_00283FA0(g_0074B734, g_0074B420, g_0074B760);
         break;
     case 5:
-        func_00284950(g_0074B71C);
+        func_00284950((void *)g_0074B71C);
         break;
     case 6:
         func_00283CC0(g_0074B734);
@@ -2367,14 +2268,14 @@ void func_00236450(void)
             if ((*(u32 *)(unit + 0x80) & 0x30) != 0) {
                 func_001A7DC0(TEXT(0x0043C6F4), 0x80, 0);
             } else if (unit[0x79] == 0 && g_00669F6C != 1) {
-                if (func_0033BD60(func_0034A740(unit)) == 0)
+                if (func_0033BD60((unsigned char **)(func_0034A740(unit))) == 0)
                     func_001A7DC0(TEXT(0x0043C6F0), 0x80, 0);
                 else if (g_0074B764 == 1)
                     func_001A7DC0(TEXT(0x0043C84C), 0x80, 0);
                 else
                     func_001A7DC0(TEXT(0x0043C848), 0x80, 0);
             } else {
-                if (func_0033BD60(func_0034A740(unit)) == 0)
+                if (func_0033BD60((unsigned char **)(func_0034A740(unit))) == 0)
                     func_001A7DC0(TEXT(0x0043C6F4), 0x80, 0);
                 else if (g_0074B764 == 1)
                     func_001A7DC0(TEXT(0x0043C854), 0x80, 0);
@@ -2405,7 +2306,7 @@ void func_00236450(void)
             func_001A7DC0(TEXT(0x0043C724), 0x80, 0);
         break;
     case 10:
-        func_003838B0(func_003725A0(0x62), 0);
+        func_003838B0(PS2_ADDR(func_003725A0(0x62)), 0);
         if (func_00362D70(0) < 2)
             func_001A7DC0(TEXT(0x0043C560), 0x80, 0);
         else

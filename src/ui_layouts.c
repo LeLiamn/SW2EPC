@@ -8,6 +8,10 @@
  * neutral names (func_/g_ + address); comments with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_UI_LAYOUTS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -18,10 +22,6 @@ extern u8 g_00794E30[0x228];
 #define B16(a) (*(u16 *)(g_00794E30 + ((a) - 0x794E30)))
 #define B32(a) (*(u32 *)(g_00794E30 + ((a) - 0x794E30)))
 #define BPTR(a) (g_00794E30 + ((a) - 0x794E30))
-
-void func_0028D5D0(int k);
-void func_002C5A90(u8 *g);
-void func_002C5AC0(float f, u8 *g, int a, int b, int c, int d);
 
 /* 0x002B3CF0, 0xEB0 bytes. Sets the boxes of page `k`. */
 void func_002B3CF0(int k)

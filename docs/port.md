@@ -45,18 +45,36 @@ On the PS2 build these are plain casts, so the code CodeWarrior generates does n
    (`PS2_FUNC(addr)`, to be written).
 6. **Shared prototypes go in headers** (`src/sw2e_draw.h` for the drawing helpers), with full
    argument lists. See "Shared prototypes and stack arguments" in [code.md](code.md).
-7. **Generated files (`src/gen<N>_*.c`) include `src/sw2e_protos.h`**, the prototypes of every
-   function defined in `src/`, written by `py tools/make_protos.py` from the definitions (rerun it
-   after changing a definition; types local to a file appear as `void *`). Every call they make is
-   then checked against the callee's real parameters: an `int` holding a PS2 address is passed as
-   `(T *)PS2_PTR(x)`, a pointer passed to an `int` parameter as `PS2_ADDR(p)`, and a float
-   parameter gets a float value (never the bit pattern as an integer).
+7. **Every file in `src/` includes `src/sw2e_protos.h`**, the prototypes of every function
+   defined in `src/`. `py tools/make_protos.py` writes it from the definitions; rerun it after
+   changing a definition.
+   - **Types.** The header uses basic C types only. Types local to a file appear as `void *`.
+   - **A file's own functions.** The prototypes are grouped by defining file. Each group sits
+     behind a guard (`SW2E_FILE_UNIT_C` for `unit.c`). A hand-written file defines its guard
+     before including the header, so its own definitions are not declared twice. Generated files
+     do not define one, because they rely on the header for their own forward declarations.
+   - **No local declarations.** Files no longer declare functions defined in another file. Every
+     call is checked against the callee's real parameters:
+     - an `int` holding a PS2 address is passed as `(T *)PS2_PTR(x)`;
+     - a pointer passed to an `int` parameter is passed as `PS2_ADDR(p)`;
+     - a float parameter gets a float value, never the bit pattern as an integer.
+   - **When the original callers see a function differently.** Sometimes the callers of a file
+     see a function differently from its definition. For example, `func_00117C90` masks its
+     result to a byte, but `sound_front.c` does not mask it. That file then declares the function
+     itself, on the PS2 build only:
 
-   Checking the calls this way also found definitions that were wrong: wrappers declared `void`
-   whose result the original passes on (the officer name and title functions 0x2F2890..0x2F2A30,
-   region names 0x30ABF0/0x30AC20, 0x3DD7B0, 0x1F1790, 0x102360, 0x1C8780, 0x35D510), now fixed
-   with their callers' types. The older generated files (`src/gen_*.c`, before these rules) do not
-   include the header yet.
+     ```c
+     #ifndef SW2E_PC
+     #define SW2E_OWN_PROTO_func_00117C90   /* the original callers here see it this way */
+     int func_00117C90(int a);
+     #endif
+     ```
+
+     The header leaves out its own prototype of that function when `SW2E_OWN_PROTO_<name>` is
+     defined. The PC build always uses the definition's prototype.
+
+   Checking the calls this way found many definitions and calls that were wrong. They are listed
+   in "Prototypes checked against the definitions" in [code.md](code.md).
 
 ## The PC build of the sources
 

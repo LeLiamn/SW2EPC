@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_EMP_FLD_MAIN_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -54,44 +58,11 @@ extern u32 g_7000015C;                   /* (scratchpad) the random seed */
 #define SETTINGS_FLAGS (*(u32 *)(g_00669D60 + 0x200))
 #define PLAYER_ON(p) (*(int *)(g_00669D60 + (p) * 0x48 + 0xA0))
 
-int func_0032E7B0(void);
-void func_00351960(void);
-void func_00360170(void);
 void func_0035E0E0(void);
-void func_003701B0(void);
-void func_0036E3C0(void);
-void func_003F8480(void);
-void func_003F6A90(void);
-void func_003E1DD0(void);
 void func_0035D8E0(void);
-void func_0035F030(void);
-int func_001F2AD0(u8 **g);
-int func_0033B240(u8 **g);
 u8 *func_0034A9D0(u32 k);
-u8 **func_0033EF80(u32 k);
-void func_00253690(int a, u8 *m);
-void func_00253300(int a, u8 *m);
-int func_00362BB0(void);
 void func_0017E060(void);
-u8 *func_00328C80(int a, int b);
-u8 *func_00328B30(u8 *p);
-u32 func_00362320(int p);
 int func_0034A8D0(int i);
-int func_00363720(int x);
-int func_002F27D0(int v);
-int func_0039E7E0(void);
-int func_0039E800(int v);
-int func_0034EC80(int k);
-int func_0034EE50(u8 *b);
-int func_0034EE80(u8 *b);
-int func_0034EDB0(u8 *b);
-void func_0034ED90(u8 *b, u8 *out);
-void func_001911A0(u32 *out, float *xy);
-int func_00352780(u8 *b, int side);
-int func_0036F390(int side, int k);
-void func_0024D070(u32 id, BaseDrop *d);
-u8 *func_00338410(u32 g);
-u32 func_0035F100(void);
 
 int func_0035D5A0(int side);
 int func_0035D5E0(int k);
@@ -200,7 +171,7 @@ int func_0035D860(u8 **g)
 {
     u32 f;
 
-    if (func_001F2AD0(g) != 0)
+    if (func_001F2AD0() != 0)
         return 0;
     f = UNIT_FLAGS(*g);
     if ((f & 0x30) != 0)
@@ -341,7 +312,7 @@ int func_0035DD60(int x, int side)
     if (v < 400)
         return side + g_005BA6A0[func_002F27D0(v) * 0x2C + 6] * 2;
     if (side == 0)
-        return func_0039E7E0();
+        return func_0039E7E0(v - 400);
     return func_0039E800(v - 400);
 }
 
@@ -386,7 +357,7 @@ void func_0035DEE0(u32 k, int kind, int period)
     func_0034ED90(b, c);
     xy[0] = (float)c[0] * 5000.0f + 2500.0f;
     xy[1] = (float)c[1] * 5000.0f + 2500.0f;
-    func_001911A0(v, xy);
+    func_001911A0((float *)(v), xy);
     g_007B6D30[k].pos[0] = v[0];
     g_007B6D30[k].pos[1] = v[1];
     g_007B6D30[k].pos[2] = v[2];
@@ -497,7 +468,7 @@ int func_0035E370(u32 k, Pick *t, u32 n, int better)
         if (i > n - 1)
             i = n - 1;
     }
-    func_0024D070(t[i].id, &g_007B6D30[k]);
+    func_0024D070(t[i].id, (unsigned int *)(&g_007B6D30[k]));
     return 1;
 }
 
@@ -567,7 +538,7 @@ int func_0035E5C0(u32 k)
         n += 2;
     if (n > 4)
         n = 4;
-    func_0024D070(t[n], &g_007B6D30[k]);
+    func_0024D070(t[n], (unsigned int *)(&g_007B6D30[k]));
     return 1;
 }
 

@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_DRAW_LISTS_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -23,16 +27,7 @@ extern u8 g_00408510[], g_00408530[], g_00408550[];
 #define SP_LIST SP_INT(0x70000D60)       /* (scratchpad) the list being drawn */
 #define SP_COUNT SP_INT(0x70000D64)
 
-int func_001C7060(int a, int b, int c, int d, u32 e, int f);
-void func_001C6960(void);
-void func_001C6AC0(void);
-void func_001C6C80(void);
-void func_001C6E40(void);
-void func_001C6FA0(void);
-void func_002AF1B0(void);
-void func_001C10A0(u8 *p);
 void func_002EAB50(void);
-void func_00208FF0(void);
 void func_0020F690(void);
 void func_0021A4A0(void);
 void func_00229140(void);
@@ -46,8 +41,6 @@ void func_001CA620(void);
 u32 func_00100FE0(void);
 u32 *func_001CCC00(u32 *p);
 u32 *func_001CC580(u32 *p, u8 *a, u8 *b, u8 *c);
-u8 *func_00106F10(u8 *t);
-void func_001068F0(u8 *img, int a, int b, int c, int d, int e, int f, int g);
 
 /* 0x001C8780, 0x2C bytes, matching. */
 int func_001C8780(int a, int b, int c, u32 d)
@@ -322,7 +315,7 @@ typedef struct { u32 v[16]; } Mat16;
 /* Draws with a copy of the camera (field of view 15 degrees). */
 #define TEMP_CAMERA_BEGIN() do {                                        \
     g_0045D340 = g_0045D2C0;                                            \
-    func_00118AC0(g_006D3390, g_0045D2C0, 0x240);                       \
+    func_00118AC0((unsigned int *)(g_006D3390), g_0045D2C0, 0x240);                       \
     g_0045D2C0 = g_006D3390;                                            \
     *(u32 *)(g_006D3390 + 0x224) = 0x3E860A92;                          \
     *(u32 *)(g_006D3390 + 0x220) = 0;                                   \
@@ -333,8 +326,6 @@ typedef struct { u32 v[16]; } Mat16;
     func_0017AC50(g_0045D2C0);                                          \
 } while (0)
 
-void func_00118AC0(void *to, const void *from, u32 n);
-void func_00118850(void *p, int n);
 void func_0017AC50(u8 *cam);
 u8 *func_001CB3F0(void);
 void func_001C7560(int k, u8 *o, u32 f);
@@ -342,15 +333,6 @@ void func_001C6010(u8 *o);
 int func_001C72F0(int k, int a, int b, int c);
 u8 *func_001C7FC0(int k, int a, int b, u32 f);
 int func_001C8BE0(int k, int x);
-int func_0016C040(u8 *u);
-void func_001C1230(void);
-int func_00102360(int a, int b, int *flag);
-void func_00102340(int h);
-void func_001C0610(void);
-void func_001C06E0(void);
-void func_001C07A0(void);
-void func_001C08B0(void);
-void func_001C0940(void);
 int func_001C73A0(int a, int b, int x, int c);
 u32 *func_001CC9C0(u32 *p);
 void func_001C9CB0(void);
@@ -367,9 +349,6 @@ u32 *func_00229A40(u32 *p, int k);
 u32 *func_001CA720(u32 *p, u8 *o, int a);
 u32 *func_002A81C0(int a, u32 *p, u8 *m, int b);
 u32 *func_002A83C0(int a, u32 *p, u8 *m, int b);
-u32 *func_0024FA80(u32 *p);
-void func_0024FA00(void);
-void func_002AF340(int a, u8 *b);
 void func_002AF470(int a, u8 *b, u8 *c, u8 *d);
 void func_001C9AC0(void);
 void func_001C9BB0(void);
@@ -537,7 +516,7 @@ void func_001C8A00(void)
 {
     int kind = g_0045D374, flag = 0, h;
 
-    h = func_00102360(0x16E68, 0x1C9060, &flag);
+    h = func_00102360(0x16E68, (void *)PS2_PTR(0x1C9060), &flag);
     if (kind == 0)
         func_001C0610();
     else if (kind == 1)
@@ -548,7 +527,7 @@ void func_001C8A00(void)
         func_001C08B0();
     else if (kind == 4)
         func_001C0940();
-    func_00102340(h);
+    func_00102340((void *)PS2_PTR(h));
     if (1.0f <= g_0045D330)
         g_0045D37C = 0;
     else
@@ -715,7 +694,7 @@ void func_001C9BB0(void)
             p = func_002A81C0(*(int *)(o + 0x2C), p, m + SP_BUF * 0x130, *(int *)(m + 0x2A4));
         }
     }
-    SP_PKT = func_0024FA80(p);
+    SP_PKT = (u32 *)PS2_PTR(func_0024FA80(PS2_ADDR(p)));
 }
 
 /* 0x001C9CB0, 0x9C bytes. */
@@ -787,7 +766,7 @@ void func_001C9E20(int a)
     DRAW_LIST(1);
     DRAW_LIST5();
     func_0024FA00();
-    func_002AF340(a, g_006D35D0);
+    func_002AF340(a, (float *)(g_006D35D0));
     DRAW_LIST3(a);
     if (g_0072D0F0[13] != 0)
         func_001C9BB0();
@@ -805,10 +784,10 @@ void func_001C9FA0(int a)
     if (g_0072D0F0[9] != 0) {
         SP_LIST = 9;
         func_001CA620();
-        func_002AF340(a, g_006D35D0);
+        func_002AF340(a, (float *)(g_006D35D0));
     }
     func_0024FA00();
-    func_002AF340(a, g_006D35D0);
+    func_002AF340(a, (float *)(g_006D35D0));
     DRAW_LIST5();
     DRAW_LIST3(a);
     if (g_0072D0F0[13] != 0)
@@ -826,7 +805,7 @@ void func_001CA150(int a)
     DRAW_LIST(1);
     DRAW_LIST(9);
     func_0024FA00();
-    func_002AF340(a, g_006D35D0);
+    func_002AF340(a, (float *)(g_006D35D0));
     DRAW_LIST5();
     DRAW_LIST3(a);
     if (g_0072D0F0[13] != 0)
@@ -844,7 +823,7 @@ void func_001CA2F0(int a)
     DRAW_LIST(0);
     DRAW_LIST(1);
     func_0024FA00();
-    func_002AF340(a, g_006D35D0);
+    func_002AF340(a, (float *)(g_006D35D0));
     DRAW_LIST3(a);
     if (g_0072D0F0[13] != 0)
         func_001C9BB0();
@@ -858,7 +837,7 @@ void func_001CA410(int a)
     func_001C9A40();
     DRAW_LIST(2);
     DRAW_LIST(11);
-    func_002AF340(a, g_006D35D0);
+    func_002AF340(a, (float *)(g_006D35D0));
     SP_LIST = 0xC;
     TEMP_CAMERA_BEGIN();
     func_001C9070();
@@ -1074,12 +1053,6 @@ extern u8 g_003FCEB0[], g_003FFF70[], g_003FF550[], g_00400280[];
 extern u32 g_0040C770[4], g_0040C780[4];
 extern u32 g_007302E0[0x1C];
 extern u8 g_006A3A30[][0xC0];
-
-void func_00103000(int on);
-void func_00102EC0(void *p);
-void func_00107440(u8 *t, int size, int a);
-int func_00106F40(u8 *t);
-u8 func_002051A0(void);
 
 #define TEX_SIZE(k, n) ((int)(k) < (n) ? g_00426230[k] : 0x169)
 
@@ -1429,5 +1402,5 @@ void func_001CCFA0(u8 *u)
     if ((*(u32 *)(o + 0xB8) & 0x80) != 0)
         *(u32 *)(w + 0x80) |= 4;
     if ((GAME_FLAGS & 0x4000000) == 0 && w[0x79] != 0 && (*(u32 *)(w + 0x84) & 0x1000) == 0)
-        u[0x185] = func_002051A0();
+        u[0x185] = func_002051A0(o);
 }

@@ -9,9 +9,13 @@
  *
  * A background is LINKDATA entry 0x9B + n (n 0-4), loaded into g_0045D870 and drawn full-screen
  * (512 x 384) or as one sprite at its own size. The rest of the file is a picker over twelve
- * lists of up to ten entries (the object at func_002FC2C0() + 0x694), drawn in two sliding
+ * lists of up to ten entries (the object at ((u8 *)func_002FC2C0()) + 0x694), drawn in two sliding
  * windows (0x007BFF10, 0x007BFF30).
  */
+
+#define SW2E_FILE_BG_MANAGER_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -52,7 +56,7 @@ typedef struct {
 
 extern SlidingWindow g_007BFF10[2];
 
-/* The picker (func_002FC2C0() + 0x694): twelve lists of ten entries (100 = none; list 11 is
+/* The picker (((u8 *)func_002FC2C0()) + 0x694): twelve lists of ten entries (100 = none; list 11 is
  * the table at 0x0041DD60 then 0x65), their counts, the list shown, the cursor. */
 typedef struct {
     int list[12][10];        /* +0x000 */
@@ -64,7 +68,7 @@ typedef struct {
     int visible;             /* +0x220 */
 } Picker;
 
-#define PICKER() (*(Picker **)(func_002FC2C0() + 0x694))
+#define PICKER() (*(Picker **)(((u8 *)func_002FC2C0()) + 0x694))
 
 /* 0x00500700: the controllers' state, 0x88 bytes per controller (see scene_config.c). */
 typedef struct {
@@ -81,7 +85,6 @@ extern PadState g_00500700[2];
 #define pad1_pressed() ((unsigned short)(pad1_ready() ? g_00500700[0].pressed : 0))
 #define pad1_held() ((unsigned short)(pad1_ready() ? g_00500700[0].held : 0))
 
-void func_0023AD10(int a, int b, int c, int d, int e);
 #define SE(kind) func_0023AD10((kind), 0, 0x2CDC, 0x2CDC, 0x1000)
 
 #define g_70000154 (*(int *)0x70000154)    /* (scratchpad) the vertical scale */
@@ -93,24 +96,10 @@ void func_0023AD10(int a, int b, int c, int d, int e);
 
 extern int g_0041DD60[9];
 
-void *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-int func_00102960(int a);
-void func_00102EC0(void *data);
-u8 *func_00106F10(void);
-u64 func_00104ED0(u8 *picture, int a, int b);
-u64 *func_00105860(u64 tex, int a);
-void func_001059B0(u64 *packet);
-u8 *func_002FC2C0(void);
 void func_0011ED38(void *to, int value, int size);
-int func_003A01A0(int entry);
-int func_00313CB0(int entry);
 WindowAnim *func_002EE600(void);
 WindowAnim *func_002EE5F0(void);
-int func_001AE550(float speed, WindowAnim *window, short *pos, u8 *alpha, int a);
 int func_0030D7D0(void);
-void func_003821E0(int a, int cursor, int x, int y, u8 *entries, int n);
-int func_0031D690(Picker *picker);
-void func_0037EAA0(int a, int b, int x, int y, int alpha);
 
 /* 0x003F8B30, 0x50 bytes, matching. Loads background `n` (0-4). */
 void func_003F8B30(int n)
@@ -143,14 +132,14 @@ void func_003F8C00(void)
     u32 colour = g_0045D128;
 
     if (g_0045D870 != 0) {
-        u8 *header = func_00106F10();
+        u8 *header = func_00106F10(g_0045D870);
         u64 *p;
         u16 w, h;
 
         if (g_0045D1C8 == 1)
-            p = func_00105860(func_00104ED0(g_0045D870, 0x1320, 0x3FFC), 0);
+            p = (u64 *)(func_00105860(func_00104ED0(g_0045D870, 0x1320, 0x3FFC), 0));
         else
-            p = func_00105860(func_00104ED0(g_0045D870, 0x1D00, 0x3FFC), 0);
+            p = (u64 *)(func_00105860(func_00104ED0(g_0045D870, 0x1D00, 0x3FFC), 0));
         p[4] = (u64)colour | 0x3F80000080000000ULL;
         h = *(u16 *)(header + 0x16);
         w = *(u16 *)(header + 0x14);
@@ -160,7 +149,7 @@ void func_003F8C00(void)
         w = *(u16 *)(header + 0x14);
         p[6] = GS_XYZ(0, 0, 4);
         p[8] = GS_XYZ(w, SCALE_Y(h), 4);
-        func_001059B0(p);
+        func_001059B0((unsigned char *)(p));
     }
 }
 
@@ -221,7 +210,7 @@ int func_003F8E30(void)
 void func_003F90A0(void)
 {
     Picker *p = PICKER();
-    u8 *other = *(u8 **)(func_002FC2C0() + 0x6AC);
+    u8 *other = *(u8 **)(((u8 *)func_002FC2C0()) + 0x6AC);
     int i, g;
 
     func_0011ED38(p->count, 0, 0x30);
@@ -269,7 +258,7 @@ void func_003F93B0(void)
     for (i = 0; i < n; i++)
         entries[i] = p->list[11][i];
     if (p->visible == 1) {
-        func_003821E0(func_0030D7D0(), p->cursor, g_007BFF10[1].x, g_007BFF10[1].y, entries, n);
+        func_003821E0(func_0030D7D0(), p->cursor, g_007BFF10[1].x, g_007BFF10[1].y, PS2_ADDR(entries), n);
         func_0037EAA0(func_0030D7D0(), func_0031D690(p), g_007BFF10[0].x, 0x68, 0x80);
     }
 }

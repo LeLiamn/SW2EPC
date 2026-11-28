@@ -18,6 +18,10 @@
  *   the part's kind.
  */
 
+#define SW2E_FILE_MODEL_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -83,12 +87,6 @@ typedef struct {
 extern u8 g_004062F0[];                  /* the VU1 header for parts of kind 4 */
 extern u8 g_00406310[];                  /* the VU1 header for the others */
 
-void func_001185E0(void *to, u32 n, u8 c);   /* memset */
-void func_00118850(void *to, u32 n);          /* clear */
-void *func_00102DB0(int align, u32 size);
-void *func_00102D30(u32 size);
-void *func_0020EC50(u32 size);
-void func_00102EC0(void *data);
 void func_00148700(u32 *p);
 void func_001485C0(u8 *list, int n, int other);
 void func_00148660(u8 *list);
@@ -202,7 +200,7 @@ void func_001479D0(float t, MotionState *s, float *out)
     u32 i;
 
     if (t < (float)(int)m[2]) {
-        func_001185E0(out, 0x20, 0);
+        func_001185E0((unsigned char *)(out), 0x20, 0);
         for (i = 0; i < m[1]; i++) {
             u32 w = *(const u32 *)p++;
             u32 size = w >> 13 & 7;
@@ -406,7 +404,7 @@ void func_00148070(Tm3 *t, int frame)
 /* 0x00148130, 0x20 bytes, matching. Clears a model. */
 void func_00148130(Model *m)
 {
-    func_001185E0(m, 0x30, 0);
+    func_001185E0((unsigned char *)(m), 0x30, 0);
 }
 
 /* 0x00148150, 0x198 bytes. Sets a model's parts up: the file's offsets become pointers, each
@@ -422,7 +420,7 @@ void func_00148150(Model *m)
     list = (u32 *)(f[2] + (u32)f);
     f[2] = (u32)list;
     m->count = list[0];
-    part = func_00102DB0(0x10, list[0] << 4);
+    part = (ModelPart *)(func_00102DB0(0x10, list[0] << 4));
     m->parts = part;
     p = list + 4;
     n = 0;
@@ -471,9 +469,9 @@ void func_001482F0(u32 *file, Model *m, u64 tex0)
 /* 0x00148370, 0x40 bytes, matching. Frees a model and its file. */
 void func_00148370(Model *m)
 {
-    func_00102EC0(m->parts);
+    func_00102EC0((unsigned char *)(m->parts));
     m->parts = 0;
-    func_00102EC0(m->file);
+    func_00102EC0((unsigned char *)(m->file));
     m->file = 0;
     func_00148130(m);
 }
@@ -481,7 +479,7 @@ void func_00148370(Model *m)
 /* 0x001483B0, 0x34 bytes, matching. Frees a model (its file kept). */
 void func_001483B0(Model *m)
 {
-    func_00102EC0(m->parts);
+    func_00102EC0((unsigned char *)(m->parts));
     m->parts = 0;
     func_00148130(m);
 }
@@ -822,8 +820,8 @@ void func_001492A0(Actor *a, Model *m, u8 count, int n)
     a->model2 = 0;
     a->count = count;
     func_00148700(a->packets[0]);
-    a->slots = func_00102DB0(0x10, a->count << 4);
-    a->nodes = func_00102DB0(0x10, a->count * 0x70);
+    a->slots = (float **)(func_00102DB0(0x10, a->count << 4));
+    a->nodes = (Node *)(func_00102DB0(0x10, a->count * 0x70));
     a->nodes2 = 0;
     for (f = 0; f < 2; f++) {
         a->matrices[f] = func_00102DB0(0x10, a->count * 0x40 + 0x20);
@@ -846,12 +844,12 @@ void func_001493B0(Actor *a, Model *m, Model *m2, u8 count, int count2, int n)
     a->model2 = m2;
     a->count = count;
     func_00148700(a->packets[0]);
-    a->slots = func_00102DB0(0x10, a->count << 4);
-    a->nodes = func_00102DB0(0x10, a->count * 0x70);
+    a->slots = (float **)(func_00102DB0(0x10, a->count << 4));
+    a->nodes = (Node *)(func_00102DB0(0x10, a->count * 0x70));
     if (count2 == 0)
         a->nodes2 = 0;
     else
-        a->nodes2 = func_00102DB0(0x10, count2 * 0x70);
+        a->nodes2 = (Node *)(func_00102DB0(0x10, count2 * 0x70));
     for (f = 0; f < 2; f++) {
         a->matrices[f] = func_00102DB0(0x10, a->count * 0x40 + 0x20);
         func_001185E0(a->matrices[f], a->count * 0x40 + 0x20, 0);
@@ -871,12 +869,12 @@ void func_001494F0(Actor *a)
     u8 keep;
 
     func_00148660(a->transforms);
-    func_00102EC0(a->slots);
+    func_00102EC0((unsigned char *)(a->slots));
     a->slots = 0;
-    func_00102EC0(a->nodes);
+    func_00102EC0((unsigned char *)(a->nodes));
     a->nodes = 0;
     if (a->nodes2 != 0) {
-        func_00102EC0(a->nodes2);
+        func_00102EC0((unsigned char *)(a->nodes2));
         a->nodes2 = 0;
     }
     for (f = 0; f < 2; f++) {

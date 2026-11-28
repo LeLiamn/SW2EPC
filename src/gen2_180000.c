@@ -26,6 +26,7 @@ extern u8 g_00780310[0x18];
 extern u8 g_007B4E60[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_0029B5A0();
 int func_003A2940();
 int func_003ED480();
 int func_003EDD00();
@@ -803,7 +804,7 @@ void func_0029CEB0(int param_1, int param_2, int param_3, int param_4)
 }
 
 /* 0x0029D310, 0x118 bytes. */
-void func_0029D310(int param_1, int param_2, u8 *param_3)
+void func_0029D310(int param_1, int param_2, u8 *param_3, int param_4)
 {
     int lVar1;
     int sStack_10;
@@ -837,7 +838,7 @@ void func_002AA020(int param_1, int param_2, int param_3, int param_4, int param
 }
 
 /* 0x002AA150, 0x6C bytes. */
-void func_002AA150(int param_1)
+void func_002AA150(int param_1, int param_2, int param_3)
 {
     int uStack_1;
     int uStack_10;

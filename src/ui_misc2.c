@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_UI_MISC2_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -24,11 +28,6 @@ extern u8 g_00669D60[];
 extern u8 *g_00412680[];
 extern u8 g_00799A20[0x10], g_00799A38[0x10], g_00799A50[0x10];
 extern u8 *g_005BA6A0;
-
-void func_00118AC0(void *to, const void *from, u32 n);
-void func_0027E610(u8 *o);
-u8 *func_0027E8C0(u8 *o, u32 k);
-int func_002F27D0(int o);
 
 /* 0x002C3DC0, 0x3C bytes. The record of kind `k` (0: none). */
 u8 *func_002C3DC0(u8 k)
@@ -104,7 +103,7 @@ void func_002C45C0(void)
 /* 0x002C4600, 0x28 bytes, matching. */
 void func_002C4600(const void *p)
 {
-    func_00118AC0(g_00795460, p, 0x40);
+    func_00118AC0((unsigned int *)(g_00795460), (u8 *)p, 0x40);
 }
 
 /* 0x002C4630, 0x7C bytes. */
@@ -113,25 +112,25 @@ int func_002C4630(u8 *o, int a, u32 k)
     k &= 0xFF;
     if (k == 1 || k == 3) {
         func_002C45C0();
-        func_0027E610(o);
+        func_0027E610(PS2_ADDR(o));
         return 1;
     }
     if (k == 2 || k == 0)
-        return func_0027E8C0(o, k) != 0;
+        return func_0027E8C0(PS2_ADDR(o), k) != 0;
     return 0;
 }
 
 /* 0x002C4B70, 0x38 bytes, matching. Loads the message log from the save image `p`; its end. */
 u8 *func_002C4B70(u8 *p)
 {
-    func_00118AC0(g_005BC5A8, p, 0x1108);
+    func_00118AC0((unsigned int *)(g_005BC5A8), (u8 *)p, 0x1108);
     return p + 0x1108;
 }
 
 /* 0x002C4BB0, 0x34 bytes, matching. Saves it. */
 u8 *func_002C4BB0(u8 *p)
 {
-    func_00118AC0(p, g_005BC5A8, 0x1108);
+    func_00118AC0((unsigned int *)(p), (unsigned char *)(g_005BC5A8), 0x1108);
     return p + 0x1108;
 }
 
@@ -218,7 +217,7 @@ void func_002C5AC0(float f, u8 *g, int a, int b, int c, int d)
 }
 
 /* 0x002C5C10, 0x50 bytes. Officer `o`'s face. */
-u8 func_002C5C10(int o)
+u32 func_002C5C10(int o)
 {
     return g_005BA6A0[func_002F27D0(o) * 0x2C + 6];
 }
@@ -229,11 +228,6 @@ u8 func_002C5C10(int o)
 extern int g_0056CCA4[4], g_0056CCB4, g_0056CCB8;
 extern float g_0056CCC0, g_0056CCC4;
 extern u8 g_0056CCCF;
-
-int func_00146D00(char *t, int w);
-int func_00146D80(char *t, int *w, int *h);
-void func_00146B40(char *t, int x, int y, int w, int h, int a, int b);
-void func_00146270(char *t, int x, int y, int a, int b);
 
 #define FONT_COLOUR(c) (g_0056CCA4[0] = g_0056CCA4[1] = g_0056CCA4[2] = g_0056CCA4[3] = (c))
 #define FONT_RESET() do {                                               \
@@ -248,7 +242,7 @@ void func_002C4C50(float s, char *t, int x, int y, int w, int a, int b, int col)
     FONT_COLOUR(col);
     g_0056CCC0 = s;
     g_0056CCC4 = s;
-    func_00146B40(t, x + (w - func_00146D00(t, w)) / 2, y, w, (int)s, a, b);
+    func_00146B40((const unsigned char *)(t), x + (w - func_00146D00(s, (const unsigned char *)(t), w)) / 2, y, w, (int)s, a, b);
     FONT_RESET();
 }
 
@@ -258,7 +252,7 @@ void func_002C4D60(float s, char *t, int x, int y, int a, int b, int col)
     FONT_COLOUR(col);
     g_0056CCC0 = s;
     g_0056CCC4 = s;
-    func_00146270(t, x - func_00146D80(t, 0, 0), y, a, b);
+    func_00146270((const unsigned char *)(t), x - func_00146D80((const unsigned char *)(t), 0, 0), y, a, b);
     FONT_RESET();
 }
 
@@ -268,7 +262,7 @@ void func_002C4E40(float s, char *t, int x, int y, int w, int a, int b, int col)
     FONT_COLOUR(col);
     g_0056CCC0 = s;
     g_0056CCC4 = s;
-    func_00146B40(t, x - func_00146D00(t, w), y, w, (int)s, a, b);
+    func_00146B40((const unsigned char *)(t), x - func_00146D00(s, (const unsigned char *)(t), w), y, w, (int)s, a, b);
     FONT_RESET();
 }
 
@@ -281,7 +275,7 @@ void func_002C4F40(float s, char *t, int x, int y, int a, int b, int col)
     g_0056CCC0 = 20.0f;
     FONT_COLOUR(col);
     g_0056CCC4 = s;
-    func_00146270(t, x, y, a, b);
+    func_00146270((const unsigned char *)(t), x, y, a, b);
     g_0056CCC0 = 16.0f;
     g_0056CCCF = (g_0056CCCF & 0xFD) | (((f & 3) >> 1 != 0) << 1);
     g_0056CCC4 = 16.0f;
@@ -297,7 +291,7 @@ void func_002C5020(float s, char *t, int x, int y, int a, int b, int col)
     g_0056CCC0 = 20.0f;
     FONT_COLOUR(col);
     g_0056CCC4 = s;
-    func_00146270(t, x - func_00146D80(t, 0, 0), y, a, b);
+    func_00146270((const unsigned char *)(t), x - func_00146D80((const unsigned char *)(t), 0, 0), y, a, b);
     g_0056CCC0 = 16.0f;
     g_0056CCCF = (g_0056CCCF & 0xFD) | (((f & 3) >> 1 != 0) << 1);
     g_0056CCC4 = 16.0f;
@@ -312,7 +306,7 @@ void func_002C5160(float s, char *t, int x, int y, int w, int h, int a, int b)
     FONT_COLOUR(0x17);
     g_0056CCC0 = s;
     g_0056CCC4 = s;
-    func_00146B40(t, x, y, w, h, a, b);
+    func_00146B40((const unsigned char *)(t), x, y, w, h, a, b);
     g_0056CCC0 = 16.0f;
     g_0056CCC4 = 16.0f;
     g_0056CCB4 = 5;
@@ -321,7 +315,7 @@ void func_002C5160(float s, char *t, int x, int y, int w, int h, int a, int b)
 }
 
 /* 0x002C5AE0, 0x124 bytes. Steps gauge `g`'s pulse between its two values (30 steps). */
-u8 func_002C5AE0(u8 *g)
+u32 func_002C5AE0(u8 *g)
 {
     u8 lo = g[6], hi = g[5];
     u32 step = (u32)((float)(int)(hi - lo) / 30.0f) & 0xFF;

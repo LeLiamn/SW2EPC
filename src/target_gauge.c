@@ -8,6 +8,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_TARGET_GAUGE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -131,10 +135,9 @@ void func_0024A400(int k, u8 v)
     g_00732508.busy = 1;
 }
 
-extern u8 *g_0068F0F0;
+extern u64 g_0068F0F0;                   /* the TEX0 value of a texture set */
 extern u8 g_006A3A30[][0xC0];            /* the battle officers */
 
-u64 func_00106C90(u8 *pack, int k);
 void func_0024B330(int a, int k);
 
 /* 0x00249670, 0x198 bytes. Gauge `k`'s second bar (texture 0x3F0A; `alt`: its other half). */

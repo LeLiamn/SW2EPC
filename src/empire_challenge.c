@@ -15,6 +15,18 @@
  * free.
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_002F3CF0   /* the original callers here see it this way */
+void func_002F3CF0(int officer, int a);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_002F8E50   /* the original callers here see it this way */
+int func_002F8E50(int entry);
+#endif
+#define SW2E_FILE_EMPIRE_CHALLENGE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 
@@ -23,38 +35,7 @@ typedef unsigned int u32;
 
 extern char g_007B4E60[];                 /* a text buffer */
 
-int *func_003EA000(void);
-int func_00327820(void);
-int func_002F2840(int officer);
-int func_002F5CC0(int officer);
-int func_0030AB90(void);
-int func_0030AFF0(int entry);
-int func_002FB2A0(int entry);
-int func_002F3DC0(int officer);
-int func_002F34E0(int officer);
-int func_00327D50(void);
-void func_0030CF90(int side, int a, int officer);
-int func_002FB8B0(void);
-void func_002F3CF0(int officer, int a);
-void func_002F3F70(int officer, int a);
-void func_002F8E80(int entry, int officer);
-void func_002F69F0(int officer, int a);
-int func_002F8E50(int entry);
-void func_00362990(int side, int stage);
-void func_003EAA50(u8 *a);
-int func_00331010(void);
-void func_002F9130(int entry, int value);
-int func_0030E1F0(void);
-void func_0030E100(void);
-int func_0036B260(void);
-const char *func_00390760(int id);
-const char *func_0030CB80(int value);
 void func_001204B0(char *to, const char *from, ...);
-void func_00374EE0(const char *text);
-int func_003620E0(int side, int i);
-int func_002F4080(int officer);
-int func_00375BF0(void);
-int func_00375B90(void);
 
 /* 0x003F84B0, 0x284 bytes. The opponent: one of the officers with the highest func_002F34E0,
  * other than the player's ruler (func_00327820), drawn at random (0 when none). */
@@ -121,7 +102,7 @@ void func_003F8740(u8 *event)
     func_002F69F0(opponent, RANDOM() % 10);
     func_00362990(0, func_002F8E50(entry));
     func_00362990(1, 0x20E);
-    func_003EAA50(event + 0x10);
+    func_003EAA50(PS2_ADDR(event + 0x10));
 }
 
 /* 0x003F8840, 0x54 bytes, matching. The player's entry gets a tenth of func_00331010. */
@@ -149,12 +130,12 @@ void func_003F88D0(void)
     if (func_0030E1F0() == 2)
         func_0030E100();
     if (func_0036B260() == 0) {
-        func_001204B0(g_007B4E60, func_00390760(0x11E), func_0030CB80(value));
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(0x11E)), func_0030CB80(value));
         func_002F9130(func_00327D50(), value / 10);
     } else {
-        func_001204B0(g_007B4E60, func_00390760(0x11D));
+        func_001204B0(g_007B4E60, (const char *)(func_00390760(0x11D)));
     }
-    func_00374EE0(g_007B4E60);
+    func_00374EE0(PS2_ADDR(g_007B4E60));
     *state = 2;
 }
 

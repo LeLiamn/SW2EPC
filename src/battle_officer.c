@@ -13,6 +13,10 @@
  * +0x90 / +0x94 speeds, +0xB8 flags (1 used), +0xBC more flags.
  */
 
+#define SW2E_FILE_BATTLE_OFFICER_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -26,34 +30,12 @@ extern u32 g_006AA598;                   /* their count */
 extern int g_006AA5C8[2], g_006AA5D0[2]; /* per player: a timer and a record */
 extern u8 g_00693970[][0x88];
 
-int func_00190610(u8 *cell, int a);
-void func_001911A0(u8 *cell, float *pos);
-void func_00191200(u8 *out, float *pos);
-u8 *func_003DD3C0(u8 kind);
 void func_001BA3D0(u8 *b);
-void func_00166080(u8 *u, u8 side, u8 kind);
-void func_001660C0(u8 *u, u8 *cell);
 void func_002071F0(u8 *b, u8 *cell);
-void func_0016BD80(u8 *a, u8 *b, int c);
-u8 *func_0034AD10(void);
-u32 func_003489E0(int a, int b);
 void func_001F0CD0(u8 *u, u8 *cell);
-void func_00118AC0(void *d, const void *s, u32 n);
 void func_00347F20(u8 *rec, u8 *o, u32 k, u32 f);
-u32 func_0035DD10(int p);
-u8 func_0033B970(u32 a);
-void func_001F1A30(u8 *o);
 void func_001BAF20(u8 *o);
 void func_00180D10(u8 *o);
-void func_00180E90(u8 *o);
-u8 *func_0034A740(u8 *o);
-u8 *func_0033B050(u8 *b);
-u8 *func_00338410(int base);
-void func_003E18F0(u8 *b);
-void func_003E3050(u8 *b);
-void func_00182960(u8 *b);
-float func_001ECC10(u8 *o, int k);
-void func_001F11E0(u8 kind, float *f);
 u32 func_0034A570(u8 *o);
 u32 func_0034A590(u8 *o);
 u32 func_0034A490(u8 *o);
@@ -62,7 +44,6 @@ short func_0034A4D0(u8 *o);
 u32 func_0034A4F0(u8 *o);
 u32 func_0034A510(u8 *o);
 short func_0034A470(u8 *o);
-void func_0019BD90(int p);
 
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
 #define S16(o, off) (*(short *)((u8 *)(o) + (off)))
@@ -130,7 +111,7 @@ u8 *func_001B9430(u8 *o, u8 *from)
     short v;
 
     if (from == 0) {
-        func_001911A0(cell, (float *)((U32(o, 0x80) & 0x20000) ? o + 0x30 : o + 0x28));
+        func_001911A0((float *)(cell), (float *)((U32(o, 0x80) & 0x20000) ? o + 0x30 : o + 0x28));
         at = cell;
         busy = 0;
     } else {
@@ -173,7 +154,7 @@ u8 *func_001B9430(u8 *o, u8 *from)
     U32(u, 0x238) = U32(o, 0x20);
     u[0x27C] &= 0xFE;
     U32(u, 0x54) = U32(o, 0x20);
-    func_001660C0(u, at);
+    func_001660C0(u, (float *)(at));
     func_002071F0(b, at);
     *(u32 *)(b + 0x30) = *(u32 *)(b + 0x18);
     *(u32 *)(b + 0x34) = *(u32 *)(b + 0x1C);
@@ -218,7 +199,7 @@ int func_001B97E0(int p, u8 *u)
     func_001F0CD0(u, cell);
     if (cell[0] == 0 || cell[1] == 0)
         return 0;
-    func_00118AC0(rec, *(u8 **)(*(u8 **)(u + 0x10) + 4), 0x20);
+    func_00118AC0((unsigned int *)(rec), *(u8 **)(*(u8 **)(u + 0x10) + 4), 0x20);
     rec[0x17] = 1;
     *(u16 *)(rec + 6) = 500;
     *(short *)(rec + 2) = map_coord(((float)cell[0] * 1000.0f + 500.0f) / 100.0f);
@@ -244,16 +225,16 @@ void func_001B9A40(u8 *o)
     if ((U32(o, 0x80) & 0x800) && (U32(b, 0xB8) & 0x80)) {
         u8 *base = func_0034A740(o);
 
-        if (func_0033B050(base) != 0)
+        if (func_0033B050((unsigned char **)(base)) != 0)
             *(u16 *)(func_00338410((base - (g_00693970[0] + 0xE3E8)) / 0x68) + 0x20) = *(u16 *)(b + 0x88);
     }
-    func_00191200(pt, (float *)(*(u8 **)(b + 0x14) + 0x90));
+    func_00191200((float *)(pt), (float *)(*(u8 **)(b + 0x14) + 0x90));
     *(u32 *)(o + 0x30) = *(u32 *)pt;
     *(u32 *)(o + 0x34) = *(u32 *)(pt + 4);
     for (x = b; x != 0; x = *(u8 **)(x + 4)) {
         u8 *y;
 
-        func_003E18F0(x);
+        func_003E18F0(PS2_ADDR(x));
         func_003E3050(x);
         y = *(u8 **)(x + 0xC);
         func_00182960(x);
@@ -321,7 +302,7 @@ void func_001B9BE0(u8 *b, u8 *o, u8 *t, short max, short cur)
     if ((U32(o, 0x80) & 0x800) && (U32(b, 0xB8) & 0x80)) {
         u8 *base = func_0034A740(o);
 
-        if (func_0033B050(base) != 0) {
+        if (func_0033B050((unsigned char **)(base)) != 0) {
             short s = *(short *)(func_00338410((base - (g_00693970[0] + 0xE3E8)) / 0x68) + 0x20);
 
             s = s < S16(b, 0x86) ? s : S16(b, 0x86);
@@ -369,15 +350,8 @@ extern u8 g_00669D81[0x10];
 extern int g_00669F88[4];
 extern u8 *g_006AA59C[2];                /* the two sides' leading reinforcements */
 
-int func_003E6F90(u8 *b);
 u32 func_001F0540(u8 side);
-u8 func_002F6980(u16 k);
-void func_001656E0(u8 *u, u8 a, u8 b, u8 c, u32 d, u8 side, u8 f, int g);
-void func_00164DA0(u8 *u, int a);
 void func_002075A0(u32 a, u8 *b, u8 *cell, int c);
-void func_00253B50(u8 *u, u8 kind);
-int func_0032E7B0(void);
-void func_00355D60(u8 *a, u8 *b, int c);
 
 /* 0x001BA480, 0xAA0 bytes. Sets battle officer `b` up for record `o` with table record `t`
  * (life `max` / `cur`, `troop` for a troop): its links and random think rate, skills cleared,
@@ -506,9 +480,9 @@ void func_001BA480(u8 *o, u8 *b, u8 *t, short max, short cur, int troop)
         pt[0] = p[0];
         pt[1] = p[1];
     }
-    func_001911A0(cell, pt);
+    func_001911A0((float *)(cell), pt);
     func_002075A0(U32(o, 0x20), b, cell, 0);
-    func_001660C0(u, cell);
+    func_001660C0(u, (float *)(cell));
     func_002071F0(b, cell);
     *(u32 *)(b + 0x30) = *(u32 *)(b + 0x18);
     *(u32 *)(b + 0x34) = *(u32 *)(b + 0x1C);
@@ -530,8 +504,8 @@ void func_001BA480(u8 *o, u8 *b, u8 *t, short max, short cur, int troop)
 
                 at = cell;
                 if (*(u32 *)(b + 0xC) == 0) {
-                    func_00355D60(at, at, s);
-                    func_001660C0(*(u8 **)(r + 0x14), at);
+                    func_00355D60((float *)(at), at, s);
+                    func_001660C0(*(u8 **)(r + 0x14), (float *)(at));
                 }
                 if (g_006AA59C[s] != 0) {
                     U32(g_006AA59C[s], 0xB8) &= 0xFFF9FFFF;
@@ -545,8 +519,6 @@ void func_001BA480(u8 *o, u8 *b, u8 *t, short max, short cur, int troop)
     }
 }
 
-int func_0034A5F0(u8 *o);
-u8 *func_001828C0(void);
 void func_003E1880(u8 *b);
 
 /* 0x001BAF20, 0x5BC bytes. Brings record `o`'s group into the battle: its leader (the record's
@@ -677,16 +649,8 @@ extern Slot g_006AA9B0[0x12];
 extern Slot g_006AA630[0x38];
 extern u8 g_006AAAD0[0x10];
 
-void func_00180EC0(u8 *o, int b);
-void func_001D5AC0(int *base);
 void func_001817E0(void); void func_00204920(void); void func_001EC790(void);
-void func_00347790(void); void func_0034EBE0(void); void func_001827F0(void);
-void func_00180BF0(void); void func_001D58C0(void); void func_0033AFB0(void);
-void func_0034B9A0(void); void func_0033E820(void); int func_001902A0(void);
-void func_001902B0(void); void func_00182C20(void); void func_001D5DA0(void);
-void func_00182340(void); void func_0034B980(void); void func_00182350(void);
-void func_001D5DC0(void); void func_00182C30(void); void func_0034B8B0(void);
-void func_00118850(void *p, u32 n);
+void func_00182C30(void);
 
 /* 0x001BB4F0, 0xD0 bytes. Brings record `o` (a player's officer) in as battle officer `b`: flag
  * 4 or 8 by its side (+0x80 bit 4), a player, in use, linked to the record. */

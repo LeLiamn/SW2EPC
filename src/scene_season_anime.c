@@ -11,23 +11,11 @@
  * player run.
  */
 
-typedef unsigned int u32;
+#define SW2E_FILE_SCENE_SEASON_ANIME_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
 
-void func_002F1950(void);
-void func_002F19E0(void);
-u32 func_003C0070(void);
-void func_003C0080(u32 a);
-void func_0030CE90(int value);
-void func_002C59F0(void);
-void func_002C5A30(void);
-void func_002C5A60(void);
-void func_003EA010(void);
-void func_001B8F60(int a, int b, int c);
-void func_002F1A20(void);
-void func_002F19B0(void);
-void func_003C0610(void);
-void func_002F1A50(void);
-void func_003C05D0(void);
+typedef unsigned int u32;
 
 /* 0x003DAB30, 0x24 bytes, matching. Scene 0x16 draw. */
 void func_003DAB30(void)

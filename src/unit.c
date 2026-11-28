@@ -14,6 +14,13 @@
  * +0x280 / +0x288 linked units (rider, mount?).
  */
 
+#define SW2E_FILE_UNIT_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
+/* 0x002A5A60 (not decompiled yet): sets sound `h` up at a position (floats in f12-f16). */
+void func_002A5A60(float a, float b, float c, float d, float e, int h);
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -51,18 +58,8 @@ extern u32 g_0072C750[][2];
 extern u8 g_0072CEB0[][0x120];
 extern u8 g_005B4D80[][0x240];
 
-void func_001AE090(u8 *effect);
-void func_001185E0(void *to, u32 n, u8 c);
-void func_0016BD30(Unit *u);
-Unit *func_0016BE40(Unit *u);
-void func_001CF2A0(Unit *u, Unit *v, int a);
 void func_00156AF0(Unit *u, u16 id);
-void func_001CF000(Unit *u, Unit *v);
 void func_00158CD0(Unit *u, u32 kind);
-u32 func_001C8340(int a, u8 *b, int c, u32 d);
-void func_001C8620(u8 *a, int b, u8 *c, int d, u32 e);
-void func_001C8780(int a, Unit *u, int b, u32 c);
-void func_00253300(int a, Unit *u);
 #define g_70000D60 (*(int *)0x70000D60)
 
 /* 0x001508F0, 0x20 bytes, matching. Sets the low direction flags (bits 0-14). */
@@ -332,12 +329,12 @@ void func_001512F0(Unit *u)
     if (U8(u, 0x182) == 2) {
         a = 0x14E;
         b = 0x14F;
-        g_0072C750[p][0] = func_001C8340(0x168, tab, 0, mask | 0x4325);
-        g_0072C750[p][1] = func_001C8340(0x168, tab, 0, mask | 0x4325);
+        g_0072C750[p][0] = PS2_ADDR(func_001C8340(0x168, tab, 0, mask | 0x4325));
+        g_0072C750[p][1] = PS2_ADDR(func_001C8340(0x168, tab, 0, mask | 0x4325));
     } else if (U8(u, 0x182) == 1) {
         a = 0x14A;
         b = 0x14B;
-        g_0072C750[p][0] = func_001C8340(0x167, tab, 0, mask | 0x4325);
+        g_0072C750[p][0] = PS2_ADDR(func_001C8340(0x167, tab, 0, mask | 0x4325));
         g_0072C750[p][1] = 0;
     } else {
         a = 0x146;
@@ -346,7 +343,7 @@ void func_001512F0(Unit *u)
     g_70000D60 = 5;
     func_001C8620(g_0072CEB0[p], a, tab, 0, mask | 0x324);
     g_70000D60 = 0;
-    func_001C8780(b, u, 0, mask | 0x208);
+    func_001C8780(b, PS2_ADDR(u), 0, mask | 0x208);
     func_00253300(3, u);
 }
 
@@ -367,34 +364,12 @@ extern short g_004063F8[];
 extern u8 g_0072CEE8[][0x120];
 extern u8 g_005B49E0[][0xF0];
 
-int func_00271210(void);
-void func_00253690(int a, Unit *u);
-int func_002713A0(Unit *u);
 int func_001BE930(int state);
-int func_003E2000(void);
-Unit *func_003E1F60(u8 player, u32 k);
-void func_001D1A40(Unit *u);
-void func_00118850(void *to, u32 n);
-int func_001F2680(Unit *u);
-void func_001F2810(Unit *u);
-int func_001F2AD0(void);
-void func_001F1EC0(Unit **list, int n, int kind);
-void func_001C8950(int a);
-void func_001D0E60(Unit *u);
-float func_00271380(u8 level);
-void func_001D0F20(Unit *u);
-void func_00271870(void);
-void func_001F20E0(Unit *u, int a);
-void func_003E2D30(void);
-u32 func_00271540(void);
 void func_0029E3C0(u8 *a, u8 b);
 void func_0029EDF0(u8 *a);
-int func_003E2DC0(Unit *v);
-u32 func_003E2FE0(Unit *v);
 int func_001D0FF0(Unit *u, Unit *v, u8 *hit, float *dir);
 float func_003AFE50(u8 *officer);
 float func_003AFF70(u8 *officer);
-int func_00272E40(Unit *u);
 void func_001512F0(Unit *u);
 
 #define PLAYER(u) U8(u, 0x14E)
@@ -411,7 +386,7 @@ void func_001514C0(Unit *u)
 
     BIT(u, 0x19C, 6) = 0;
     if (g_00669DB8 != 4) {
-        u8 lv = (u8)(S16(rec, 0x88) / func_00271210());
+        u8 lv = (u8)(S16(rec, 0x88) / func_00271210(u));
 
         U8(u, 0x182) = lv;
         lv = U8(u, 0x182);
@@ -433,17 +408,17 @@ void func_001514C0(Unit *u)
         Unit *list[4];
         int players = 1, n = 1, with = 0;
 
-        func_00118850(list, 0x10);
+        func_00118850((unsigned char *)(list), 0x10);
         BIT(u, 0x19D, 4) = 0;
         list[0] = u;
         if (PLAYER(u) < 2) {
-            u32 cnt = func_003E2000();
+            u32 cnt = func_003E2000(PLAYER(u));
 
             if (cnt != 0) {
                 u32 k;
 
                 for (k = 0; k < cnt; k++) {
-                    Unit *v = func_003E1F60(PLAYER(u), k);
+                    Unit *v = (Unit *)PS2_PTR(func_003E1F60(PLAYER(u), k));
 
                     func_001D1A40(v);
                     list[k + 1] = v;
@@ -455,28 +430,28 @@ void func_001514C0(Unit *u)
             n = cnt + 1;
             with = players;
         }
-        if ((g_00669F60 & 0x14000000) == 0 && func_001F2680(u) != 0) {
-            func_001F2810(u);
+        if ((g_00669F60 & 0x14000000) == 0 && func_001F2680(PS2_ADDR(u)) != 0) {
+            func_001F2810(PS2_ADDR(u));
             g_0045D2C8 = 0;
             BIT(u, 0x19D, 5) = 1;
         } else if ((g_00669F60 & 0x14000000) == 0 && (U8(u, 0x19D) & 0x20)
                    && func_001F2AD0() == 0) {
             g_00669F60 |= 0x800000;
-            func_001F1EC0(list, n, with == 1 ? 3 : 4);
+            func_001F1EC0((unsigned int *)(list), n, with == 1 ? 3 : 4);
             g_0045D2C8 = 0;
             func_001C8950(1);
         } else if ((g_00669F60 & 0x14000002) == 0 && func_002713A0(u) != 0
                    && BIT(u, 0x19E, 2) == 0) {
             if (g_00669DB8 == 4) {
-                func_001D0E60(u);
+                func_001D0E60(PS2_ADDR(u));
             } else if (PLAYER(u) < 2) {
                 g_00669F60 |= 0x800000;
-                func_001F1EC0(list, n, 0);
+                func_001F1EC0((unsigned int *)(list), n, 0);
                 g_0045D2C8 = 0;
                 func_001C8950(1);
             }
         } else if (g_00669DB8 != 4) {
-            func_001D0E60(u);
+            func_001D0E60(PS2_ADDR(u));
             if (PLAYER(u) < 2)
                 func_001512F0(u);
         }
@@ -491,7 +466,7 @@ void func_001514C0(Unit *u)
         else if (mx < v)
             v = mx;
         S16(rec, 0x88) = v;
-        func_001D0E60(u);
+        func_001D0E60(PS2_ADDR(u));
         if (PLAYER(u) < 2)
             func_001512F0(u);
     }
@@ -508,7 +483,7 @@ void func_001514C0(Unit *u)
  * battle's reaction (or, with `quiet`, a flag for the player's aura). */
 void func_00151A90(Unit *u, int quiet)
 {
-    func_001D0F20(u);
+    func_001D0F20(PS2_ADDR(u));
     if (PLAYER(u) < 2 && func_001BE930(S32(u, 0x118)) != 0 && S32(u, 0x11C) != 0)
         S32(u, 0x1B4) = S32(u, 0x118) * 0x150 + 0x6CE090;
     if (g_00669DB8 != 4) {
@@ -518,7 +493,7 @@ void func_00151A90(Unit *u, int quiet)
                 && PLAYER(u) < 2 && (U32(ACT(u), 0x18) & 0x8000000) == 0
                 && (g_00669F60 & 0x14080002) == 0) {
                 g_00669F60 |= 0x2000000;
-                func_001F20E0(u, 1);
+                func_001F20E0(PS2_ADDR(u), 1);
                 g_0045D2C8 = 0;
                 func_001C8950(1);
             }
@@ -529,7 +504,7 @@ void func_00151A90(Unit *u, int quiet)
             g_0045CC7C = 1.0f;
         BIT(u, 0x19C, 6) = 0;
         if (PLAYER(u) < 2)
-            func_003E2D30();
+            func_003E2D30(PLAYER(u));
     }
 }
 
@@ -537,7 +512,7 @@ void func_00151A90(Unit *u, int quiet)
  * one). */
 int func_00151C60(Unit *u)
 {
-    u32 a = func_00271540() & 0xFFFF;
+    u32 a = func_00271540(u) & 0xFFFF;
     u8 *d = DESC(u);
 
     if (a < U32(PTR(d, 4), 8) && S16(PTR(d, 8), a * 0x20 + 2) != -1 && a != U16(ACT(u), 0))
@@ -759,8 +734,8 @@ int func_00152560(Unit *u, Unit *v, u8 *hit, float *dir, int *out)
         return 0;
     if ((U32(hit, 0x28) & 0x4000000) || BIT(u, 0x19D, 3))
         return 0;
-    if (func_003E2DC0(v) != 0) {
-        u32 p = func_003E2FE0(v);
+    if (func_003E2DC0(PS2_ADDR(v)) != 0) {
+        u32 p = func_003E2FE0(PS2_ADDR(v));
 
         if (RANDOM() % 100 < p)
             return 0;
@@ -795,17 +770,9 @@ extern u8 *g_005BA688;                   /* the shared motion records (+n * 0x20
 
 float fabsf(float x);
 float func_00136E00(float y, float x);   /* atan2f */
-void func_001CEA40(Unit *u);
-void func_001CEA60(Unit *u, Unit *v);
-void func_001649C0(Unit *u);
 void func_0029EE00(u8 *box, Unit *u);
 void func_0027A080(float a, u8 *pos, int b, int c);
-int func_00272ED0(Unit *u, Unit *v);
-int func_0016C040(Unit *u);
 void func_001C7FC0(int a, u8 *pos, float *dir, u32 f);
-int func_00273770(Unit *u, short damage, float *out);
-int func_0016C180(float amount, Unit *u);
-void func_001CCFA0(Unit *u);
 
 /* Wraps an angle into (-pi, pi]. */
 static inline float wrap_angle(float a)
@@ -1126,10 +1093,6 @@ int func_00153610(Unit *u, u8 *hit, u32 base, float *dir, u8 *other, int quiet, 
 extern u8 g_00574DE0[][0x630];           /* the units (0x630 bytes each); the players' bodyguards from 0x89 */
 extern u8 g_005B7120[];                  /* the description used once a unit's guard is broken */
 
-void func_00245360(Unit *u, u8 *hit);
-void func_0016E910(u8 *slot);
-void func_00164B40(Unit *u, int a);
-void func_0016A0D0(Unit *u, float *out, int a);
 void func_001C7F30(int a, float *pos, float *dir, int b);
 void func_002A6D20(u8 player, int message);
 void func_0015EA30(Unit *u, Unit *v, u8 *hit, short damage, int charged, int special, int quiet);
@@ -1304,7 +1267,7 @@ int func_00153E50(Unit *u, Unit *v, u8 *hit, int unused, float *dir, short damag
     if (U32(hit, 0x2C) & 0x400)
         S16(u, 0x172) = 0;
     if (U16(hit, 0x1C) & 8)
-        func_00245360(u, hit);
+        func_00245360(PS2_ADDR(u), PS2_ADDR(hit));
     if (BIT(u, 0x19D, 3))
         BIT(u, 0x19D, 3) = 0;
     if (func_00153DA0(u, v, rec) != 0) {
@@ -1423,10 +1386,7 @@ tail:
 extern u8 *g_0045D2FC;                   /* (small data) the effects' resources */
 
 void func_001D0970(Unit *u);
-void func_001D0B20(Unit *u);
-u32 func_00177ED0(void);
 void func_001ACA70(u32 a, u8 *effect, float *pos, u8 *dir, u32 b);
-float *func_0016A170(Unit *u, int node);
 void func_001CD060(Unit *h, Unit *u, u8 *hit, u8 *dir, u8 *pos, int a, int b, int c, int a8, int a9);
 
 #define VEC_ZERO ((float *)0x700000C0)   /* (0, 0, 0, 0) in the scratchpad */
@@ -1572,7 +1532,7 @@ int func_00155360(float dt, float g, Unit *u)
         if ((f & 0x800) && hard && U32(u, 0x16C) != 0) {
             float *pos = S32(u, 0x11C) == 0 ? &F32(u, 0x40) : &F32(u, 0x90);
 
-            func_001ACA70(func_00177ED0(), g_0045D2FC + 0x5F8, pos, u + 0x70, U32(u, 0x16C));
+            func_001ACA70(PS2_ADDR(func_00177ED0()), g_0045D2FC + 0x5F8, pos, u + 0x70, U32(u, 0x16C));
             U32(u, 0x16C) = 0;
         }
         if (S32(u, 0x118) == 0x3C && S32(u, 0x11C) != 0 && (s8)U8(u, 0x27C) >= 0
@@ -1584,7 +1544,7 @@ int func_00155360(float dt, float g, Unit *u)
 
             for (k = 0; k < 4; k++)
                 p[k] = m[k] * t[0] + m[4 + k] * t[1] + m[8 + k] * t[2] + m[12 + k] * t[3];
-            func_001ACA70(func_00177ED0(), g_0045D2FC + 0x5B0, p, u + 0x70, U32(u, 0x28C));
+            func_001ACA70(PS2_ADDR(func_00177ED0()), g_0045D2FC + 0x5B0, p, u + 0x70, U32(u, 0x28C));
         }
         U8(u, 0x27C) &= 0x7F;
         return 1;
@@ -1765,18 +1725,9 @@ float func_00155FD0(Unit *u, u8 *m)
 extern u8 g_00669E2A[][0x48];            /* per player: the controller's vibration level? */
 
 float func_00136E18(float x, float y);   /* fmodf */
-void func_001CE800(Unit *u);
-void func_001CE9A0(Unit *u);
-void func_001CEA20(Unit *u);
 int func_002A6910(int sound, int a, u8 *pos);
-void func_002A5A60(float a, float b, float c, float d, float e, int sound);
 void func_002A5B10(int sound);
-void func_001489F0(u8 *actor, u8 *model);
 void func_001589B0(Unit *u, u8 kind, u8 slot);
-void func_0029F3C0(Unit *u);
-void func_0016CB60(Unit *u, u8 level, int a, int b, int c);
-void func_0016A1C0(Unit *u);
-void func_00148B60(u8 *actor, int first, int last);
 
 /* An angle brought into (-pi, pi] after fmodf by 2 pi. */
 static inline float angle_mod(float a)
@@ -2151,13 +2102,6 @@ extern float g_00424D00[4];              /* the up vector */
 
 void vu0_rot_x(float m[4][4], float a);          /* VU0 micro subroutine 0x60: rotation about X */
 void func_001FAA60(u8 player);
-void func_001AD090(u8 *e);
-void func_001AE1A0(u8 *e);
-void func_001AC980(u32 e, u8 *a, u8 *b, float *dir, Unit *u);
-void func_00166160(Unit *e);
-void func_001656E0(Unit *e, int state, u8 kind, u8 a, u8 b, u8 c, u8 d, int f);
-void func_001660C0(Unit *e, u8 *pos);
-void func_00253CB0(Unit *e, u8 kind);
 
 /* The unit matrix from the scratchpad. */
 static inline void scratch_unit(float m[4][4])
@@ -2428,9 +2372,9 @@ static inline void fire_spread(Unit *u, u8 *a, u8 *b, const float *dir, const fl
         scratch_unit(m);
         vu0_rot_y(m, angles[i]);
         mat_vec(v, m, dir);
-        e = func_00177ED0();
+        e = PS2_ADDR(func_00177ED0());
         BIT(e, 0x8C, 3) = 1;
-        func_001AC980(e, a, b, v, u);
+        func_001AC980((unsigned char *)PS2_PTR(e), a, (float *)(b), v, u);
     }
 }
 
@@ -2476,9 +2420,8 @@ void func_00158660(Unit *u, int k)
     vu0_rot_x(m, F32(u, 0x240));
     vu0_rot_y(m, F32(u, 0x54));
     mat_vec(dir, m, g_00406410);
-    func_001ACA70(func_00177ED0(), g_0045D2FC + 0x10 + (k + kind) * 0x48, pos, (u8 *)dir, (u32)u);
+    func_001ACA70(PS2_ADDR(func_00177ED0()), g_0045D2FC + 0x10 + (k + kind) * 0x48, pos, (u8 *)dir, (u32)u);
 }
-
 
 /* 0x001589B0, 0x318 bytes. Calls bodyguard `slot` of the unit's player (units 0x89 + player * 3
  * + slot) as `kind` 0-3: placed at the unit, beside it (left, right, behind or ahead by the
@@ -2495,7 +2438,7 @@ void func_001589B0(Unit *u, u8 kind, u8 slot)
         func_00166160(e);
     func_001656E0(e, S32(u, 0x118), U8(DESC(u), 0x1C), U8(u, 0x158), U8(u, 0x156), U8(u, 0x154),
                   U8(u, 0x14F), 0);
-    func_001660C0(e, u + 0x40);
+    func_001660C0(e, (float *)(u + 0x40));
     F32(e, 0x238) = F32(u, 0x54);
     BIT(e, 0x27C, 0) = 0;
     for (i = 0; i < 4; i++)
@@ -2546,11 +2489,7 @@ void func_001589B0(Unit *u, u8 kind, u8 slot)
 
 extern u32 g_00669DE8[][0x12];           /* per player (0x48 bytes): +0 a level */
 
-float func_001F2B70(void);
 void func_001F2EF0(void *move);
-void func_00161520(float *out, Unit *u);
-u8 *func_0016C980(u8 player, int frames_back);
-u8 func_002F41E0(u32 level);
 
 /* A player's bodyguard `slot` (units 0x89 + player * 3 + slot), or 0. */
 #define BODYGUARD(p, slot) g_00574DE0[(slot) + (p) * 3 + 0x89]
@@ -2608,8 +2547,8 @@ void func_00158E00(Unit *e)
 
             for (i = 0; i < 4; i++)
                 pos[i] = F32(e, 0x40 + i * 4) + F32(e, 0xC0 + i * 4) * 4.0f;
-            pos[1] = func_001F2B70();
-            func_001660C0(e, (u8 *)pos);
+            pos[1] = func_001F2B70((u8 *)pos);
+            func_001660C0(e, (float *)((u8 *)pos));
             F32(e, 0x238) = F32(m, 0x54);
             BIT(e, 0x27C, 0) = 0;
             for (i = 0; i < 4; i++)
@@ -2766,7 +2705,6 @@ void func_00159650(float t, Unit *u, u8 *hit)
 
 extern u32 g_00406470[12][4];            /* the body nodes the hits come from (+0) */
 
-void func_001AE1D0(u32 e, u8 *eff);
 float (*func_0014F810(u8 *actor, u32 node))[4];
 
 /* Emits attack effect `eff` from node matrix `m` (its offset along the axis the effect names,
@@ -2809,10 +2747,10 @@ static inline void attack_effect(Unit *u, u8 *hit, u8 *eff, float (*m)[4])
         for (i = 0; i < 4; i++)
             dir[i] = F32(u, 0x70 + i * 4);
     }
-    e = func_00177ED0();
-    func_001AC980(e, eff, (u8 *)pos, dir, u);
+    e = PS2_ADDR(func_00177ED0());
+    func_001AC980((unsigned char *)PS2_PTR(e), eff, (float *)((u8 *)pos), dir, u);
     if ((s8)U8(u, 0x19C) >= 0)
-        func_001AE1D0(e, eff);
+        func_001AE1D0((unsigned char *)PS2_PTR(e), eff);
     if (U32(eff, 0x30) & 0x20000)
         func_00158420(u, eff, (u8 *)pos, dir);
     else if (U32(eff, 0x30) & 0x800)
@@ -2945,27 +2883,17 @@ extern int g_0045D37C;                   /* (small data) */
 extern u8 g_0074B870[][0x70];            /* per player: the hints shown (+0) */
 extern s8 g_00406430[0x1A][2];           /* per weapon kind: two frames of action 0xB4 */
 
-int func_00240C00(Unit *u);
 void func_001CF430(float dt, Unit *u, int a);
 void func_001D0C20(Unit *u, int a);
-int func_00190610(u8 *pos, int a);
-void func_00253D20(Unit *u);
-void func_00240790(u32 player, u32 flags);
 void func_002409B0(Unit *u);
-void func_00240A60(Unit *u, u32 flags);
 void func_002444A0(Unit *u, u8 *hit);
 void func_00244490(Unit *u, u8 *hit);
 void func_00245510(Unit *u, u8 *hit);
-void func_002453C0(Unit *u, u8 *hit);
 void func_002454E0(Unit *u, u8 *hit);
 void func_001D1B50(Unit *u);
 void func_00244D20(Unit *u, u8 *hit);
-void func_00244570(Unit *u, u8 *hit);
 void func_00244540(Unit *u);
-void func_002445A0(Unit *u, u8 *hit);
-void func_00243DF0(Unit *u, u8 *hit);
 void func_001D1610(Unit *u);
-void func_001CF3E0(Unit *u, int a);
 
 /* Whether frame `x` falls within this frame (t to t + dt). */
 #define AT_FRAME(x, t, dt) (!((float)(x) < (t) || (t) + (dt) <= (float)(x)))
@@ -3219,7 +3147,7 @@ int func_0015ABD0(float dt, Unit *u)
         else if (f2C & 0x80)
             func_00244540(u);
         else if (U32(hit, 0x28) & 0x20000)
-            func_00244570(u, hit);
+            func_00244570(PS2_ADDR(u), PS2_ADDR(hit));
         else if (f1C & 4)
             func_00244D20(u, hit);
         else if (f2C & 0x4000000)
@@ -3227,7 +3155,7 @@ int func_0015ABD0(float dt, Unit *u)
         else if (f1C & 0x10)
             func_002454E0(u, hit);
         else if (f2C & 0x40)
-            func_002453C0(u, hit);
+            func_002453C0(PS2_ADDR(u), PS2_ADDR(hit));
         else if (f1C & 0x80)
             func_00245510(u, hit);
         else if (f1C & 0x1000)
@@ -3284,9 +3212,6 @@ end:
 }
 
 u16 func_00241250(Unit *u, int *queue, int late);
-u16 func_00242C40(Unit *u, int *queue, int late);
-u16 func_002434F0(Unit *u);
-u16 func_00243C50(Unit *u);
 
 /* The action the controls (or the AI) ask for, by the unit's state. */
 static inline u16 unit_pick(Unit *u, int *queue, int late)
@@ -3294,7 +3219,7 @@ static inline u16 unit_pick(Unit *u, int *queue, int late)
     if (S32(u, 0x118) < 0x3C) {
         if ((U32(ACT(u), 0x18) & 0x8000000) == 0)
             return func_00241250(u, queue, late);
-        return func_00242C40(u, queue, late);
+        return func_00242C40(u, (unsigned int *)(queue), late);
     }
     if (S32(u, 0x118) == 0x3C)
         return func_002434F0(u);
@@ -3901,19 +3826,7 @@ extern int g_0045D2A4;                   /* (small data) slow motion on */
 extern int g_0045D2A8;                   /* (small data) timers frozen */
 
 void func_002A6A00(u8 player, int voice);
-int func_003E1F80(Unit *u);
-float func_00271360(u8 level);
-int func_00273A20(Unit *u);
-float func_0029FB30(Unit *u);
-void func_00244430(Unit *u);
-void func_002444B0(Unit *u);
-int func_0016C070(Unit *u);
 void func_002450D0(Unit *u);
-void func_003E9380(Unit *u);
-int func_0016C020(Unit *u);
-void func_00162130(u8 *box);
-void func_0016C7A0(u8 player);
-void func_0016C810(float t, u8 player, u8 *pos, u8 *angles, u8 *held, short action, int air);
 
 /* 0x0015EA30, 0x2F4 bytes. The messages and voices of a hit taken: the charged attacks' (by
  * level), a guard break, the hit's own message (+0x1E), and the player's pain voice by damage. */
@@ -3982,10 +3895,10 @@ int func_0015ED30(Unit *u, int m)
         return 1;
     if (U8(u, 0x154) != 0)
         return 1;
-    if (BIT(g_00574DE0[0], 0x19D, 5) && func_003E1F80(u) != 0)
+    if (BIT(g_00574DE0[0], 0x19D, 5) && func_003E1F80(PS2_ADDR(u)) != 0)
         return 0;
     if ((g_00669F60 & 2) == 0 || BIT(g_00574DE0[1], 0x19D, 5) == 0
-        || func_003E1F80(u) == 0)
+        || func_003E1F80(PS2_ADDR(u)) == 0)
         return 1;
     return 0;
 }
@@ -4103,7 +4016,7 @@ void func_0015EE10(float dt, float dt2, Unit *u)
         if (S16(u, 0x194) != 0 && --S16(u, 0x194) == 0)
             U8(u, 0x157) = 0;
         if (S16(u, 0x1CC) != -1 || S16(u, 0x1CE) != -1) {
-            func_002444B0(u);
+            func_002444B0(PS2_ADDR(u));
             if (BIT(u, 0x19C, 1) == 0) {
                 S16(u, 0x1CC) = -1;
                 S16(u, 0x1CE) = -1;
@@ -4190,11 +4103,11 @@ animate:
     }
     if (PLAYER(u) < 2) {
         if (((U32(u, 0x13C) & 0x10) || (U32(u, 0x13C) & 0x400)) && func_0016C020(u) != 0)
-            func_00162130(g_005B49E0[PLAYER(u)]);
+            func_00162130((int *)(g_005B49E0[PLAYER(u)]));
         if (func_00158D90(u) == 0)
             func_0016C7A0(PLAYER(u));
         else
-            func_0016C810(F32(u, 0x21C), PLAYER(u), u + 0x40, u + 0x50, u + 0x1D0,
+            func_0016C810(F32(u, 0x21C), PLAYER(u), (float *)(u + 0x40), (float *)(u + 0x50), (float *)(u + 0x1D0),
                           S16(ACT(u), 0), (U8(u, 0x27C) & 2) ? -1 : 0);
     }
     BIT(u, 0x27C, 6) = 0;

@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_WINDOW_BOXES3_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -16,9 +20,6 @@ typedef unsigned int u32;
 extern u8 g_007A22A0[0x18];
 extern u8 g_007A2034[0x28C];
 
-int func_0028D5D0();
-int func_002B3CF0();
-void func_002C5AC0(float f, u8 *g, int a, int b, int c, int d);
 void func_002ED190(int param_1);
 
 /* 0x002ED190, 0x1398 bytes. */

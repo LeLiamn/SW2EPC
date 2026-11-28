@@ -13,6 +13,26 @@
  * position code, +0x75 / +0x79 bytes, +0x80 flags (bit 0 = in use).
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_003F7780   /* the original callers here see it this way */
+int func_003F7780(int s, int k);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_00338410   /* the original callers here see it this way */
+unsigned short *func_00338410(int);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_00361D40   /* the original callers here see it this way */
+unsigned int func_00361D40(int);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_0018F6F0   /* the original callers here see a halfword result */
+unsigned short func_0018F6F0(unsigned short *, unsigned short *, unsigned int);
+#endif
+#define SW2E_FILE_EMP_FLD_BASE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -25,16 +45,8 @@ extern int g_005BA6A0;                   /* (pointer) the officer table */
 #define UNIT_FLAGS(u) (*(u32 *)((u8 *)(u) + 0x80))
 #define GROUP_INDEX(g) (((u8 *)(g) - g_006A1D58[0]) / 0x68)
 
-u8 *func_00347980(void);
-u8 *func_00347900(int a, int b);
 void func_0034ED90(u8 *b, u8 *out);
-int func_0035D560(int a, int b);
-u16 *func_00338410(int g);
-u8 *func_0033EFD0(int side, int k);
 int func_0034EC80(int k);
-int func_0036D310(void);
-int func_00362320(int side);
-int func_00362160(int a, int b);
 int func_0034AF30(u8 *u, int a, int b);
 
 /* 0x0034A430, 8 bytes, matching. */
@@ -46,43 +58,43 @@ void func_0034A430(u8 *u, u8 v)
 
 /* 0x0034A440, 8 bytes, matching. */
 /* 0x0034A440, 0x8 bytes, matching. */
-u8 func_0034A440(u8 *u)
+u32 func_0034A440(u8 *u)
 {
     return u[0x75];
 }
 
 /* 0x0034A450-0x0034A590, 0x20 bytes each. The halfwords of func_00347980's record. */
 /* 0x0034A450, 0x20 bytes, matching. */
-u16 func_0034A450(void) { return *(u16 *)(func_00347980() + 4); }
+u16 func_0034A450(u8 *u) { return *(u16 *)(func_00347980(u) + 4); }
 /* 0x0034A470, 0x20 bytes, matching. */
-u16 func_0034A470(void) { return *(u16 *)(func_00347980() + 0xC); }
+u16 func_0034A470(u8 *u) { return *(u16 *)(func_00347980(u) + 0xC); }
 /* 0x0034A490, 0x20 bytes, matching. */
-u16 func_0034A490(void) { return *(u16 *)(func_00347980() + 0xE); }
+u16 func_0034A490(u8 *u) { return *(u16 *)(func_00347980(u) + 0xE); }
 /* 0x0034A4B0, 0x20 bytes, matching. */
-u16 func_0034A4B0(void) { return *(u16 *)(func_00347980() + 0x10); }
+u16 func_0034A4B0(u8 *u) { return *(u16 *)(func_00347980(u) + 0x10); }
 /* 0x0034A4D0, 0x20 bytes, matching. */
-u16 func_0034A4D0(void) { return *(u16 *)(func_00347980() + 0x12); }
+u16 func_0034A4D0(u8 *u) { return *(u16 *)(func_00347980(u) + 0x12); }
 /* 0x0034A4F0, 0x20 bytes, matching. */
-u16 func_0034A4F0(void) { return *(u16 *)(func_00347980() + 0x14); }
+u16 func_0034A4F0(u8 *u) { return *(u16 *)(func_00347980(u) + 0x14); }
 /* 0x0034A510, 0x20 bytes, matching. */
-u16 func_0034A510(void) { return *(u16 *)(func_00347980() + 0x16); }
+u16 func_0034A510(u8 *u) { return *(u16 *)(func_00347980(u) + 0x16); }
 /* 0x0034A530, 0x20 bytes, matching. */
-u16 func_0034A530(void) { return *(u16 *)(func_00347980() + 0x18); }
+u16 func_0034A530(u8 *u) { return *(u16 *)(func_00347980(u) + 0x18); }
 /* 0x0034A550, 0x20 bytes, matching. */
-u16 func_0034A550(void) { return *(u16 *)(func_00347980() + 6); }
+u16 func_0034A550(u8 *u) { return *(u16 *)(func_00347980(u) + 6); }
 /* 0x0034A570, 0x20 bytes, matching. */
-u16 func_0034A570(void) { return *(u16 *)(func_00347980() + 0x1A); }
+u16 func_0034A570(u8 *u) { return *(u16 *)(func_00347980(u) + 0x1A); }
 /* 0x0034A590, 0x20 bytes, matching. */
-u16 func_0034A590(void) { return *(u16 *)(func_00347980() + 0x1C); }
+u16 func_0034A590(u8 *u) { return *(u16 *)(func_00347980(u) + 0x1C); }
 
 /* 0x0034A5B0, 0x34 bytes. Unit `u`'s record value +0x0A (func_00347900 of its +0x79 / +0x75). */
-u16 func_0034A5B0(u8 *u)
+u32 func_0034A5B0(u8 *u)
 {
     return *(u16 *)(func_00347900(u[0x79], func_0034A440(u)) + 10);
 }
 
 /* 0x0034A5F0, 0x34 bytes. The same record's byte +8. */
-u8 func_0034A5F0(u8 *u)
+u32 func_0034A5F0(u8 *u)
 {
     return func_00347900(u[0x79], func_0034A440(u))[8];
 }
@@ -135,7 +147,7 @@ u8 *func_0034A740(u8 *u)
 }
 
 /* 0x0034A790, 0x60 bytes, matching. The officer of unit `u`'s group (0x19F for none). */
-u16 func_0034A790(u8 *u)
+u32 func_0034A790(u8 *u)
 {
     u8 *g = func_0034A740(u);
 
@@ -156,7 +168,7 @@ u32 func_0034A7F0(u8 *u)
     g = func_0034A740(u);
     for (s = 0; s < 2; s++) {
         for (k = 0; k < 0x14; k++) {
-            if (func_0033EFD0(s, k) == g)
+            if ((u8 *)func_0033EFD0(s, k) == g)
                 return k;
         }
     }
@@ -363,20 +375,7 @@ extern int g_006AA624;
 #define g_7000015C (*(u32 *)0x7000015C)   /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
-void func_003385E0(u8 *g, int a, int b);
-u8 *func_00347880(u8 *g, int a, int b);
-u8 *func_003478A0(u8 *g);
-u8 *func_003478C0(u8 *g, int a, int b);
-u8 *func_003478E0(u8 *g);
 int func_0034ED40(u8 *u);
-u8 *func_0033EF80(int k);
-void func_00118AC0(void *to, const void *from, int n);
-void func_00118850(void *p, int n);
-int func_0035D5A0(int a);
-void func_00364E40(int a, int g);
-int func_00365050(int a);
-int func_0033B150(u8 *g);
-int func_0033B580(u8 *g);
 
 /* Whether a group's unit is active (in use, none of flags 0x8C40002 and 4). */
 #define UNIT_ACTIVE(f) (((f) & 1) != 0 && ((f) & 0x8C40002) == 0 && ((f) & 4) == 0)
@@ -396,19 +395,19 @@ void func_0034B190(u8 *g)
     if (st < 2)
         return;
     if (kind == 1) {
-        func_003385E0(g, 0, info[3]);
+        func_003385E0((unsigned char **)(g), 0, info[3]);
     } else if (kind == 2) {
-        func_003385E0(g, 1, info[3]);
+        func_003385E0((unsigned char **)(g), 1, info[3]);
     } else {
-        u = func_00347880(g, 1, info[3]);
+        u = (u8 *)PS2_PTR(func_00347880((unsigned char **)(g), 1, info[3]));
         if (u != 0) {
-            func_003385E0(g, 0, func_0034ED40(u));
+            func_003385E0((unsigned char **)(g), 0, func_0034ED40(u));
         } else {
-            u = func_003478A0(g);
+            u = (u8 *)PS2_PTR(func_003478A0((unsigned char **)(g)));
             if (u == 0)
-                func_003385E0(g, 4, 0xFF);
+                func_003385E0((unsigned char **)(g), 4, 0xFF);
             else
-                func_003385E0(g, 1, GROUP_INDEX(u));
+                func_003385E0((unsigned char **)(g), 1, GROUP_INDEX(u));
         }
     }
 }
@@ -424,17 +423,17 @@ void func_0034B2F0(u8 *g)
     if (st == 2)
         return;
     if (kind == 3) {
-        func_003385E0(g, 2, info[3]);
+        func_003385E0((unsigned char **)(g), 2, info[3]);
     } else {
-        u = func_003478C0(g, 2, info[3]);
+        u = (u8 *)PS2_PTR(func_003478C0((unsigned char **)(g), 2, info[3]));
         if (u != 0) {
-            func_003385E0(g, 2, func_0034ED40(u));
+            func_003385E0((unsigned char **)(g), 2, func_0034ED40(u));
         } else {
-            u = func_003478E0(g);
+            u = (u8 *)PS2_PTR(func_003478E0((unsigned char **)(g)));
             if (u == 0)
-                func_003385E0(g, 4, 0xFF);
+                func_003385E0((unsigned char **)(g), 4, 0xFF);
             else
-                func_003385E0(g, 3, GROUP_INDEX(u));
+                func_003385E0((unsigned char **)(g), 3, GROUP_INDEX(u));
         }
     }
 }
@@ -442,13 +441,13 @@ void func_0034B2F0(u8 *g)
 /* 0x0034B430, 0x40 bytes. Group `g` follows its side's target (order 3). */
 void func_0034B430(u8 *g)
 {
-    func_003385E0(g, 3, SIDE_STATE(GROUP_UNIT(g)[0x79])[1]);
+    func_003385E0((unsigned char **)(g), 3, SIDE_STATE(GROUP_UNIT(g)[0x79])[1]);
 }
 
 /* 0x0034B470, 0x20 bytes, matching. Group `g` has no order. */
 void func_0034B470(u8 *g)
 {
-    func_003385E0(g, 4, 0xFF);
+    func_003385E0((unsigned char **)(g), 4, 0xFF);
 }
 
 /* 0x0034B490, 0x140 bytes. Side state `st`'s active groups (not flagged 0x30) take its order. */
@@ -464,7 +463,7 @@ void func_0034B490(u8 *st)
     tbl[3] = g_004154E0[3];
     side = func_0034B160((int)st);
     for (k = 0; k < 0x10; k++) {
-        u8 *g = func_0033EF80(k);
+        u8 *g = (u8 *)(func_0033EF80(k));
 
         if (g != 0 && (*(int *)(g + 0x64) & 1) != 0) {
             u8 *u = GROUP_UNIT(g);
@@ -519,7 +518,7 @@ int func_0034B710(u8 *p)
 }
 
 /* 0x0034B720, 0x34 bytes. Bit 6 of `p[6]` when settings flag 2 is on. */
-u8 func_0034B720(u8 *p)
+u32 func_0034B720(u8 *p)
 {
     if ((g_00669F60 & 2) == 0)
         return 0;
@@ -538,7 +537,7 @@ u8 *func_0034B7D0(u8 *p)
     u32 k;
 
     for (k = 0; k < 2; k++, p += 0x10)
-        func_00118AC0(p, SIDE_STATE(k), 0x10);
+        func_00118AC0((unsigned int *)(p), SIDE_STATE(k), 0x10);
     return p;
 }
 
@@ -548,7 +547,7 @@ u8 *func_0034B840(u8 *p)
     u32 k;
 
     for (k = 0; k < 2; k++, p += 0x10)
-        func_00118AC0(SIDE_STATE(k), p, 0x10);
+        func_00118AC0((void *)SIDE_STATE(k), p, 0x10);
     return p;
 }
 
@@ -616,7 +615,7 @@ void func_0034BAE0(u8 *g)
 }
 
 /* 0x0034BB20, 0x2C bytes, matching. The same as func_0034BAB0. */
-void func_0034BB20(void)
+void func_0034BB20(u8 **g)
 {
     SIDE_STATE(0)[8] |= 1;
     SIDE_STATE(1)[8] |= 1;
@@ -628,12 +627,12 @@ int func_0034BB50(int a, int (*test)(u8 *, int, int), int x, int y)
     u32 k;
 
     for (k = 0; k < 0x10; k++) {
-        u8 *g = func_0033EF80(k);
+        u8 *g = (u8 *)(func_0033EF80(k));
 
         if (g != 0 && (*(u32 *)(g + 100) & 1) != 0 && (test == 0 || test(g, x, y) != 0))
-            func_00364E40(a, GROUP_INDEX(g));
+            func_00364E40((void *)PS2_PTR(a), GROUP_INDEX(g));
     }
-    return func_00365050(a);
+    return func_00365050((void *)PS2_PTR(a));
 }
 
 /* 0x0034BC40, 0xD8 bytes. Whether group `g` is an active, free group of side `side`. */
@@ -643,9 +642,9 @@ int func_0034BC40(u8 *g, u32 side)
 
     if (!UNIT_ACTIVE(f) || (f & 0x30) != 0 || side != GROUP_UNIT(g)[0x79])
         return 0;
-    if (func_0033B150(g) != 0)
+    if (func_0033B150((unsigned char **)(g)) != 0)
         return 0;
-    return func_0033B580(g) == 0;
+    return func_0033B580((unsigned char **)(g)) == 0;
 }
 
 /* 0x0034BD20, 0x28 bytes, matching. Side `side`'s free groups into list `a`. */
@@ -691,24 +690,14 @@ int func_0034BFE0(int a, int side, int k, u32 j)
     return func_0034BB50(a, (int (*)(u8 *, int, int))func_0034BEB0, side, k << 0x10 | j);
 }
 
-void func_00365230(int list);
 int func_00365350(int list, int (*score)(int, int), int a, int b);
 u32 func_0034EEF0(u8 *b);
 u8 *func_0034EF60(u8 *b, u32 k);
 int func_0034EDB0(u8 *b);
 int func_0034EE50(u8 *b);
 int func_0034EE80(u8 *b);
-int func_0033C320(u8 *g);
-int func_0033C3A0(u8 *g);
-int func_0033CB60(u8 *g, u8 *b);
 int func_003521B0(u8 *b, int side);
 int func_003522F0(u8 *b, int side);
-int func_00347800(u8 *g, int b);
-int func_00347820(u8 *g, int h);
-int func_00347840(u8 *g, int b);
-int func_003DCE70(u8 *g, u8 *b);
-u32 func_003DCE30(u8 *g, u8 *h);
-int func_0035F200(int s);
 u32 func_00352B00(u8 *b, int c);
 
 #define BASE(k) ((u8 *)func_0034EC80(k))
@@ -718,15 +707,15 @@ int func_0034C010(int l, u8 *b, int skip)
 {
     u32 n, k;
 
-    func_00365230(l);
+    func_00365230((void *)PS2_PTR(l));
     n = func_0034EEF0(b);
     for (k = 0; k < n; k++) {
         u8 *x = func_0034EF60(b, k);
 
         if (skip != func_0034EDB0(x))
-            func_00364E40(l, func_0034ED40(x));
+            func_00364E40((void *)PS2_PTR(l), func_0034ED40(x));
     }
-    return func_00365050(l);
+    return func_00365050((void *)PS2_PTR(l));
 }
 
 /* 0x0034C0D0, 0x198 bytes. Side `side`'s bases where one of its groups is (a kind 1 group's own
@@ -736,14 +725,14 @@ int func_0034C0D0(int l, int side)
     int s = func_0035D5A0(side);
     u32 b, k;
 
-    func_00365230(l);
+    func_00365230((void *)PS2_PTR(l));
     for (b = 0; b < 0x14; b++) {
         u8 *B = BASE(b);
 
         if (B == 0 || func_0034EE50(B) == 0 || func_0034EDB0(B) != side)
             continue;
         for (k = 0; k < 0x10; k++) {
-            u8 *g = func_0033EF80(k), *u;
+            u8 *g = (u8 *)(func_0033EF80(k)), *u;
 
             if (g == 0 || (*(int *)(g + 0x64) & 1) == 0)
                 continue;
@@ -751,17 +740,17 @@ int func_0034C0D0(int l, int side)
             if (s != u[0x79])
                 continue;
             if ((UNIT_FLAGS(u) & 0x30) == 0) {
-                if (GROUP_INFO(g)[2] == 1 && (u8 *)func_0033C320(g) == B) {
-                    func_00364E40(l, b);
+                if (GROUP_INFO(g)[2] == 1 && (u8 *)func_0033C320((unsigned char **)(g)) == B) {
+                    func_00364E40((void *)PS2_PTR(l), b);
                     break;
                 }
-            } else if (func_0033CB60(g, B) != 0) {
-                func_00364E40(l, b);
+            } else if (func_0033CB60((unsigned char **)(g), PS2_ADDR(B)) != 0) {
+                func_00364E40((void *)PS2_PTR(l), b);
                 break;
             }
         }
     }
-    return func_00365050(l);
+    return func_00365050((void *)PS2_PTR(l));
 }
 
 /* 0x0034C270, 0xF0 bytes, matching. The bases side `side` does not own and may take (func_003521B0; only
@@ -770,7 +759,7 @@ int func_0034C270(int l, int side, int free)
 {
     u32 b;
 
-    func_00365230(l);
+    func_00365230((void *)PS2_PTR(l));
     for (b = 0; b < 0x14; b++) {
         u8 *B = BASE(b);
 
@@ -782,9 +771,9 @@ int func_0034C270(int l, int side, int free)
                 continue;
         }
         if (func_0034EE80(B) != side && func_003521B0(B, side) != 0)
-            func_00364E40(l, b);
+            func_00364E40((void *)PS2_PTR(l), b);
     }
-    return func_00365050(l);
+    return func_00365050((void *)PS2_PTR(l));
 }
 
 /* 0x0034C360, 0x104 bytes. How much group `g` wants base `B` (0 when it cannot go; kind 1's own
@@ -793,12 +782,12 @@ int func_0034C360(u8 *g, u8 *B)
 {
     int v, d;
 
-    if (func_00347800(g, func_0034ED40(B)) == 0)
+    if (func_00347800((unsigned char **)(g), func_0034ED40(B)) == 0)
         return 0;
     v = 1;
-    if (GROUP_INFO(g)[2] == 1 && (u8 *)func_0033C320(g) == B)
+    if (GROUP_INFO(g)[2] == 1 && (u8 *)func_0033C320((unsigned char **)(g)) == B)
         v = 0x2711;
-    d = func_003DCE70(g, B);
+    d = func_003DCE70((unsigned char **)(g), PS2_ADDR(B));
     if (d < 0x14)
         v += (0x14 - d) * 1000 / 0x14;
     return v;
@@ -811,14 +800,14 @@ int func_0034C470(u8 *g, u8 *h)
     int v;
     u32 d;
 
-    if (func_00347820(g, GROUP_INDEX(h)) == 0)
+    if (func_00347820((unsigned char **)(g), GROUP_INDEX(h)) == 0)
         return 0;
-    if (func_0033B150(g) != 0)
+    if (func_0033B150((unsigned char **)(g)) != 0)
         return 0;
     v = 1;
-    if (GROUP_INFO(g)[2] == 2 && (u8 *)func_0033C3A0(g) == h)
+    if (GROUP_INFO(g)[2] == 2 && (u8 *)func_0033C3A0((unsigned char **)(g)) == h)
         v = 0x2711;
-    d = func_003DCE30(g, h);
+    d = func_003DCE30((unsigned char **)(g), (unsigned char **)(h));
     if (d < 0x14)
         v += (20000 - d) / 0x14;
     return v;
@@ -830,12 +819,12 @@ int func_0034C590(u8 *g, u8 *B)
     int v;
     u32 d;
 
-    if (func_00347840(g, func_0034ED40(B)) == 0)
+    if (func_00347840((unsigned char **)(g), func_0034ED40(B)) == 0)
         return 0;
     v = 1;
-    if (GROUP_INFO(g)[2] == 3 && (u8 *)func_0033C320(g) == B)
+    if (GROUP_INFO(g)[2] == 3 && (u8 *)func_0033C320((unsigned char **)(g)) == B)
         v = 0x2711;
-    d = func_003DCE70(g, B);
+    d = func_003DCE70((unsigned char **)(g), PS2_ADDR(B));
     if (d < 0x14)
         v += (u32)((0x14 - d) * 1000) / 0x14;
     return v;
@@ -906,17 +895,9 @@ int func_0034C9E0(u8 *B, int side)
     return 1000 + near_main(B, side);
 }
 
-int func_003653D0(int l);
-void func_003651F0(int l, int i);
-int func_00365030(int l, int k);
-void func_003653F0(int l, void *buf, int cap);
-u8 *func_0035DD10(int which);
-int func_0036D300(void);
-int func_0033CEA0(u8 *g, int side);
 int func_00352240(u8 *b, int s);
 int func_003531F0(int k);
-u8 func_003519E0(void);
-int func_0035F0C0(void);
+u32 func_003519E0(void);
 
 /* 0x0034CAB0, 0x30 bytes, matching. func_0034C910 by number. */
 int func_0034CAB0(int b, int side)
@@ -951,11 +932,11 @@ u32 func_0034CB70(int l, u8 *B, u32 n)
     for (k = 0; k < n; k++) {
         u8 *g;
 
-        if (func_003653D0(l) == 0)
+        if (func_003653D0((void *)PS2_PTR(l)) == 0)
             return k;
         g = func_0034C6F0(l, B);
-        func_003651F0(l, GROUP_INDEX(g));
-        func_003385E0(g, 0, func_0034ED40(B));
+        func_003651F0((void *)PS2_PTR(l), GROUP_INDEX(g));
+        func_003385E0((unsigned char **)(g), 0, func_0034ED40(B));
     }
     return k;
 }
@@ -968,11 +949,11 @@ u32 func_0034CC40(int l, u8 *B, u32 n)
     for (k = 0; k < n; k++) {
         u8 *g;
 
-        if (func_003653D0(l) == 0)
+        if (func_003653D0((void *)PS2_PTR(l)) == 0)
             return k;
         g = func_0034C8A0(l, B);
-        func_003651F0(l, GROUP_INDEX(g));
-        func_003385E0(g, 2, func_0034ED40(B));
+        func_003651F0((void *)PS2_PTR(l), GROUP_INDEX(g));
+        func_003385E0((unsigned char **)(g), 2, func_0034ED40(B));
     }
     return k;
 }
@@ -981,19 +962,19 @@ u32 func_0034CC40(int l, u8 *B, u32 n)
  * (order 1), unless func_0036D300 or func_0033CEA0. */
 u32 func_0034CD10(int l, int which, u32 n)
 {
-    u8 *h = func_0035DD10(which);
+    u8 *h = (u8 *)(func_0035DD10(which));
     u32 k;
 
-    if (func_0036D300() != 0 || func_0033CEA0(h, GROUP_UNIT(h)[0x79]) != 0)
+    if (func_0036D300() != 0 || func_0033CEA0((unsigned char **)(h), GROUP_UNIT(h)[0x79]) != 0)
         return 0;
     for (k = 0; k < n; k++) {
         u8 *g;
 
-        if (func_003653D0(l) == 0)
+        if (func_003653D0((void *)PS2_PTR(l)) == 0)
             return k;
         g = func_0034C7C0(l, h);
-        func_003651F0(l, GROUP_INDEX(g));
-        func_003385E0(g, 1, GROUP_INDEX(h));
+        func_003651F0((void *)PS2_PTR(l), GROUP_INDEX(g));
+        func_003385E0((unsigned char **)(g), 1, GROUP_INDEX(h));
     }
     return k;
 }
@@ -1006,11 +987,11 @@ u32 func_0034CE40(int l, u32 n)
     for (k = 0; k < n; k++) {
         int i;
 
-        if (func_003653D0(l) == 0)
+        if (func_003653D0((void *)PS2_PTR(l)) == 0)
             return k;
-        i = func_00365030(l, 0);
-        func_003651F0(l, i * 0x68 / 0x68);
-        func_003385E0(g_006A1D58[i], 4, 0xFF);
+        i = func_00365030((void *)PS2_PTR(l), 0);
+        func_003651F0((void *)PS2_PTR(l), i * 0x68 / 0x68);
+        func_003385E0((unsigned char **)(g_006A1D58[i]), 4, 0xFF);
     }
     return k;
 }
@@ -1021,16 +1002,16 @@ u32 func_0034CF20(int l, u32 n, int bl, u32 per, int side)
 {
     u32 k, c;
 
-    for (k = 0; func_003653D0(l) != 0 && func_003653D0(bl) != 0 && k < n; k += c) {
+    for (k = 0; func_003653D0((void *)PS2_PTR(l)) != 0 && func_003653D0((void *)PS2_PTR(bl)) != 0 && k < n; k += c) {
         u8 *B = func_0034CAE0(bl, side);
 
-        c = func_00365050(l);
+        c = func_00365050((void *)PS2_PTR(l));
         if (per < c)
             c = per;
         if (c > n - k)
             c = n - k;
         func_0034CB70(l, B, c);
-        func_003651F0(bl, func_0034ED40(B));
+        func_003651F0((void *)PS2_PTR(bl), func_0034ED40(B));
     }
     return k;
 }
@@ -1040,16 +1021,16 @@ u32 func_0034D040(int l, u32 n, int bl, u32 per, int side)
 {
     u32 k, c;
 
-    for (k = 0; func_003653D0(l) != 0 && func_003653D0(bl) != 0 && k < n; k += c) {
+    for (k = 0; func_003653D0((void *)PS2_PTR(l)) != 0 && func_003653D0((void *)PS2_PTR(bl)) != 0 && k < n; k += c) {
         u8 *B = func_0034CB40(bl, side);
 
-        c = func_00365050(l);
+        c = func_00365050((void *)PS2_PTR(l));
         if (per < c)
             c = per;
         if (c > n - k)
             c = n - k;
         func_0034CC40(l, B, c);
-        func_003651F0(bl, func_0034ED40(B));
+        func_003651F0((void *)PS2_PTR(bl), func_0034ED40(B));
     }
     return k;
 }
@@ -1093,9 +1074,9 @@ void func_0034D280(u8 *st)
 {
     u8 buf[64], list[16];
 
-    func_003653F0((int)list, buf, 0x10);
+    func_003653F0((void *)PS2_PTR((int)list), (int *)(buf), 0x10);
     func_0034BD20((int)list, func_0034B160((int)st));
-    func_0034CE40((int)list, func_00365050((int)list));
+    func_0034CE40((int)list, func_00365050((void *)PS2_PTR((int)list)));
 }
 
 /* The attack plans: free groups go to the side's target group, hold the bases where they are,
@@ -1106,28 +1087,28 @@ static void attack_plan(u8 *st, u32 per)
     u32 lim = func_0034D160(), c;
     int side = func_0034B160((int)st), w;
 
-    func_003653F0((int)l1, b1, 0x10);
-    func_003653F0((int)l2, b2, 0x14);
+    func_003653F0((void *)PS2_PTR((int)l1), (int *)(b1), 0x10);
+    func_003653F0((void *)PS2_PTR((int)l2), (int *)(b2), 0x14);
     func_0034BD20((int)l1, side);
-    if (func_003653D0((int)l1) == 0)
+    if (func_003653D0((void *)PS2_PTR((int)l1)) == 0)
         return;
     w = func_0034B720(st);
     if (w >= 0 && w < 2) {
-        c = func_00365050((int)l1);
+        c = func_00365050((void *)PS2_PTR((int)l1));
         if (lim < c)
             c = lim;
         func_0034CD10((int)l1, w, c);
     }
     if (func_0034C0D0((int)l2, side) != 0) {
-        c = func_00365050((int)l2);
-        if (func_00365050((int)l1) < c)
-            c = func_00365050((int)l1);
+        c = func_00365050((void *)PS2_PTR((int)l2));
+        if (func_00365050((void *)PS2_PTR((int)l1)) < c)
+            c = func_00365050((void *)PS2_PTR((int)l1));
         func_0034D040((int)l1, c, (int)l2, 1, side);
     }
     if (func_0034C270((int)l2, side, 0) != 0)
-        func_0034CF20((int)l1, func_00365050((int)l1), (int)l2, per, side);
-    if (func_003653D0((int)l1) != 0)
-        func_0034CE40((int)l1, func_00365050((int)l1));
+        func_0034CF20((int)l1, func_00365050((void *)PS2_PTR((int)l1)), (int)l2, per, side);
+    if (func_003653D0((void *)PS2_PTR((int)l1)) != 0)
+        func_0034CE40((int)l1, func_00365050((void *)PS2_PTR((int)l1)));
 }
 
 /* 0x0034D2E0, 0x188 bytes. Attack plan, three groups per base. */
@@ -1188,45 +1169,34 @@ void func_0034D6C0(u8 *st)
     u32 lim = func_0034D160(), c;
     int side = func_0034B160((int)st), w;
 
-    func_003653F0((int)l1, b1, 0x10);
-    func_003653F0((int)l2, b2, 0x14);
+    func_003653F0((void *)PS2_PTR((int)l1), (int *)(b1), 0x10);
+    func_003653F0((void *)PS2_PTR((int)l2), (int *)(b2), 0x14);
     func_0034BD20((int)l1, side);
-    if (func_003653D0((int)l1) == 0)
+    if (func_003653D0((void *)PS2_PTR((int)l1)) == 0)
         return;
     main = BASE(func_0035F200(side));
-    c = (u32)(func_00365050((int)l1) * 0x22) / 100;
+    c = (u32)(func_00365050((void *)PS2_PTR((int)l1)) * 0x22) / 100;
     if (c < 2)
         c = 1;
     func_0034CC40((int)l1, main, c);
     w = func_0034B720(st);
     if (w >= 0 && w < 2) {
-        c = func_00365050((int)l1);
+        c = func_00365050((void *)PS2_PTR((int)l1));
         if (lim < c)
             c = lim;
         func_0034CD10((int)l1, w, c);
     }
     func_0034C010((int)l2, main, side);
-    if (func_003653D0((int)l2) != 0)
-        func_0034CF20((int)l1, func_00365050((int)l1), (int)l2, 3, side);
-    if (func_003653D0((int)l1) != 0)
-        func_0034CE40((int)l1, func_00365050((int)l1));
+    if (func_003653D0((void *)PS2_PTR((int)l2)) != 0)
+        func_0034CF20((int)l1, func_00365050((void *)PS2_PTR((int)l1)), (int)l2, 3, side);
+    if (func_003653D0((void *)PS2_PTR((int)l1)) != 0)
+        func_0034CE40((int)l1, func_00365050((void *)PS2_PTR((int)l1)));
 }
 
 extern void (*g_004154F0[11])(u8 *st);   /* by side plan */
 extern void (*g_0045D060[2])(u8 *st);    /* (small data) more side steps */
 extern u8 g_00669D60[];                  /* the settings */
 extern u8 g_006A3A30[];                  /* the officers (0xC0 each) */
-
-int func_0033C160(u8 *g);
-int func_0033C4E0(u8 *g);
-void func_0033E850(u8 *g, u8 *h);
-int func_0036F4B0(int s, int x);
-void func_0036F990(int s, int k, int g);
-int func_0036F520(int s, int k);
-int func_0033C1E0(u8 *g);
-int func_0033CC20(u8 *g, int b);
-int func_0033D2C0(int b);
-u32 func_00361CE0(int s);
 
 /* 0x0034D860, 0xC4 bytes. Plan: the free groups take the unowned bases (one each), the rest
  * wait. */
@@ -1235,16 +1205,16 @@ void func_0034D860(u8 *st)
     u8 b1[64], b2[80], l1[16], l2[16];
     int side = func_0034B160((int)st);
 
-    func_003653F0((int)l1, b1, 0x10);
-    func_003653F0((int)l2, b2, 0x14);
+    func_003653F0((void *)PS2_PTR((int)l1), (int *)(b1), 0x10);
+    func_003653F0((void *)PS2_PTR((int)l2), (int *)(b2), 0x14);
     func_0034BD20((int)l1, side);
-    if (func_003653D0((int)l1) == 0)
+    if (func_003653D0((void *)PS2_PTR((int)l1)) == 0)
         return;
     func_0034C270((int)l2, side, 1);
-    if (func_003653D0((int)l2) != 0)
-        func_0034CF20((int)l1, func_00365050((int)l1), (int)l2, 1, side);
-    if (func_003653D0((int)l1) != 0)
-        func_0034CE40((int)l1, func_00365050((int)l1));
+    if (func_003653D0((void *)PS2_PTR((int)l2)) != 0)
+        func_0034CF20((int)l1, func_00365050((void *)PS2_PTR((int)l1)), (int)l2, 1, side);
+    if (func_003653D0((void *)PS2_PTR((int)l1)) != 0)
+        func_0034CE40((int)l1, func_00365050((void *)PS2_PTR((int)l1)));
 }
 
 /* 0x0034D930, 0xEC bytes. Runs side state `st`'s plan once it was marked. */
@@ -1266,19 +1236,19 @@ void func_0034D930(u8 *st)
  * group `g`, into list `l`; their count. */
 int func_0034DA20(int l, u8 *g)
 {
-    int b = func_0033C160(g);
+    int b = func_0033C160((unsigned char **)(g));
     u32 k;
 
-    func_00365230(l);
+    func_00365230((void *)PS2_PTR(l));
     for (k = 0; k < 0x10; k++) {
-        u8 *h = func_0033EF80(k);
+        u8 *h = (u8 *)(func_0033EF80(k));
 
         if (h == 0 || (*(int *)(h + 0x64) & 1) == 0 || !UNIT_ACTIVE(UNIT_FLAGS(GROUP_UNIT(h))) || h == g)
             continue;
-        if (GROUP_INFO(h)[8] == 2 && func_0033C4E0(h) == b && GROUP_INFO(h)[5] == 3)
-            func_00364E40(l, GROUP_INDEX(h));
+        if (GROUP_INFO(h)[8] == 2 && func_0033C4E0((unsigned char **)(h)) == b && GROUP_INFO(h)[5] == 3)
+            func_00364E40((void *)PS2_PTR(l), GROUP_INDEX(h));
     }
-    return func_00365050(l);
+    return func_00365050((void *)PS2_PTR(l));
 }
 
 /* 0x0034DBA0, 0x118 bytes. The side's kind 6 groups on a base that others hold hand over to the
@@ -1289,17 +1259,17 @@ void func_0034DBA0(u8 *st)
     int side = func_0034B160((int)st);
     u32 n, k;
 
-    func_003653F0((int)l1, b1, 0x10);
-    func_003653F0((int)l2, b2, 0x10);
+    func_003653F0((void *)PS2_PTR((int)l1), (int *)(b1), 0x10);
+    func_003653F0((void *)PS2_PTR((int)l2), (int *)(b2), 0x10);
     if (func_0034BE80((int)l1, side, 6, 0xFF) == 0)
         return;
-    n = func_00365050((int)l1);
+    n = func_00365050((void *)PS2_PTR((int)l1));
     for (k = 0; k < n; k++) {
-        u8 *g = g_006A1D58[func_00365030((int)l1, k)];
-        int b = func_0033C160(g);
+        u8 *g = g_006A1D58[func_00365030((void *)PS2_PTR((int)l1), k)];
+        int b = func_0033C160((unsigned char **)(g));
 
-        if (func_0033CB60(g, (u8 *)b) != 0 && func_0034DA20((int)l2, g) != 0)
-            func_0033E850(g, func_0034C8A0((int)l2, (u8 *)func_0033C160(g)));
+        if (func_0033CB60((unsigned char **)(g), PS2_ADDR((u8 *)b)) != 0 && func_0034DA20((int)l2, g) != 0)
+            func_0033E850((unsigned char **)(g), (unsigned char **)(func_0034C8A0((int)l2, (u8 *)func_0033C160((unsigned char **)(g)))));
     }
 }
 
@@ -1310,15 +1280,15 @@ void func_0034DCC0(u8 *st)
     int side = func_0034B160((int)st);
     u32 n, k;
 
-    func_003653F0((int)l1, b1, 0x10);
+    func_003653F0((void *)PS2_PTR((int)l1), (int *)(b1), 0x10);
     if (func_0034BFE0((int)l1, side, 0, 0xFF) == 0)
         return;
-    n = func_00365050((int)l1);
+    n = func_00365050((void *)PS2_PTR((int)l1));
     for (k = 0; k < n; k++) {
-        u8 *g = g_006A1D58[func_00365030((int)l1, k)];
+        u8 *g = g_006A1D58[func_00365030((void *)PS2_PTR((int)l1), k)];
 
-        if (func_00352240((u8 *)func_0033C4E0(g), side) == 0)
-            func_003385E0(g, 4, 0xFF);
+        if (func_00352240((u8 *)func_0033C4E0((unsigned char **)(g)), side) == 0)
+            func_003385E0((unsigned char **)(g), 4, 0xFF);
     }
 }
 
@@ -1355,7 +1325,7 @@ u8 *func_0034DE70(u8 *st)
     sides[1] = func_0035D5A0(func_0034B160((int)st));
     for (j = 0; j < 2; j++) {
         for (k = 0; k < 8; k++) {
-            u8 *g = func_0033EF80(sides[j] * 8 + k);
+            u8 *g = (u8 *)(func_0033EF80(sides[j] * 8 + k));
 
             if ((*(int *)(g + 0x64) & 1) != 0 && UNIT_ACTIVE(UNIT_FLAGS(GROUP_UNIT(g)))
                 && GROUP_UNIT(g)[0x79] == (u32)func_0034B160((int)st))
@@ -1423,14 +1393,14 @@ int func_0034E1B0(u8 *g)
     if (func_0036F520(s, 0x15) != 0)
         return 0;
     for (k = 0; k < 0x10; k++) {
-        u8 *h = func_0033EF80(k);
+        u8 *h = (u8 *)(func_0033EF80(k));
 
         if ((*(int *)(h + 0x64) & 1) == 0 || !UNIT_ACTIVE(UNIT_FLAGS(GROUP_UNIT(h))))
             continue;
         if (s == GROUP_UNIT(h)[0x79] && GROUP_INFO(h)[5] == 2) {
-            int b = func_0033C1E0(h);
+            int b = PS2_ADDR(func_0033C1E0((unsigned char **)(h)));
 
-            if (h != 0 && func_0033CC20(h, b) != 0 && func_0033D2C0(b) != 0 && RANDOM() % 100 < 0x1E)
+            if (h != 0 && func_0033CC20((unsigned char **)(h), (unsigned char **)PS2_PTR(b)) != 0 && func_0033D2C0((unsigned char **)PS2_PTR(b)) != 0 && RANDOM() % 100 < 0x1E)
                 return 1;
         }
     }
@@ -1452,15 +1422,6 @@ int func_0034E370(u8 *g)
 
 extern u8 *g_0045D2F0;                   /* (small data) the battle map (bases at +0x110) */
 
-u32 func_00361D40(int s);
-u32 func_0033F430(int s, int a, int *out, int max);
-u32 func_00361E20(int s);
-u32 func_0033F7D0(int s, int a);
-int func_003F6C10(int s);
-int func_003F7090(int a, int b);
-u32 func_003F6CA0(int s, int k);
-int func_003F77F0(int s, int k);
-void func_003F7920(int s, int k, int g);
 void func_0034E760(u8 *st);
 u8 func_0034F330(u8 *b, u8 m);
 void func_0034F300(u8 *b, u8 m);
@@ -1495,9 +1456,9 @@ int func_0034E490(u8 *g)
 
     if (func_00361D40(s) >= 0x2BD)
         return 0;
-    n = func_0033F430(s, 1, l, 0x10);
+    n = func_0033F430(s, 1, (unsigned int *)(l), 0x10);
     for (k = 0; k < n; k++) {
-        if (func_0033CEA0(g_006A1D58[l[k]], func_0035D5A0(s)) != 0)
+        if (func_0033CEA0((unsigned char **)(g_006A1D58[l[k]]), func_0035D5A0(s)) != 0)
             m++;
     }
     if (n >> 1 < m)
@@ -1721,7 +1682,7 @@ u32 func_0034EEF0(u8 *b)
 }
 
 /* 0x0034EF50, 0xC bytes, matching. */
-u8 func_0034EF50(u8 *b, int k)
+u32 func_0034EF50(u8 *b, int k)
 {
     return b[k + 2];
 }
@@ -1736,11 +1697,6 @@ u8 *func_0034EF60(u8 *b, u32 k)
 
 extern const char g_004480A8[];          /* "emp_FldBase.c" */
 
-u8 *func_0035DCD0(int p);
-u8 *func_002EFB00(int k);
-void *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-void func_00102EC0(void *data);
-u32 func_003623B0(void);
 void func_0011EB80(void *to, const void *from, int size);
 
 /* A base's unit slot `k` (0x1AD = none). */
@@ -1852,7 +1808,7 @@ void func_0034F2E0(u8 *b)
 }
 
 /* 0x0034F2F0, 0x8 bytes, matching. */
-u8 func_0034F2F0(u8 *b)
+u32 func_0034F2F0(u8 *b)
 {
     return b[0x30];
 }
@@ -1916,7 +1872,7 @@ u8 *func_0034F3C0(u8 *b)
 }
 
 /* 0x0034F3D0, 0xC bytes, matching. */
-void func_0034F3D0(u8 *b, int k, u8 v)
+void func_0034F3D0(u8 *b, int k, u32 v)
 {
     b[k + 0x3A] = v;
 }
@@ -1946,7 +1902,7 @@ void func_0034F440(u8 *p)
  * them. */
 void func_0034F480(void)
 {
-    u8 *d = func_002EFB00(9), *map, n = 0;
+    u8 *d = (u8 *)PS2_PTR(func_002EFB00(9)), *map, n = 0;
     u32 k;
 
     func_0011EB80(BASE(0), d + 0xBE, 0x4B0);
@@ -2019,12 +1975,7 @@ void func_0034F660(u8 *map)
 extern int g_00415470[10];               /* the default action weights */
 extern u8 g_00448088[12], g_00448098[14];   /* (action, weight) pairs */
 
-int func_0035DB50(int *w, int n);
-u32 func_003E6D30(void);
-int func_0036F390(u8 *u, int k);
-u32 func_0035F100(void);
 int func_001EF900(u8 *u, u8 *v);
-short *func_0033B730(int x);
 
 /* 0x00348890, 0x98 bytes. A random action by the default weights. */
 int func_00348890(u8 *u, int x)
@@ -2064,7 +2015,7 @@ u32 func_003489E0(u8 *u, int x)
 
     if (m > 0x24 || p <= RANDOM() % 100) {
         m = func_00348890(u, x);
-        if (func_0036F390(u, 0x14) != 0)
+        if (func_0036F390(PS2_ADDR(u), 0x14) != 0)
             m = func_00348930(m);
         return m;
     }
@@ -2084,19 +2035,19 @@ int func_00348AE0(void)
 /* 0x00348BA0, 0xE4 bytes, matching. Unit `u`'s event action (events 0xD-0x13), else 0x25. */
 u32 func_00348BA0(u8 *u)
 {
-    if (func_0036F390(u, 0xD) != 0)
+    if (func_0036F390(PS2_ADDR(u), 0xD) != 0)
         return 0x1B;
-    if (func_0036F390(u, 0xE) != 0)
+    if (func_0036F390(PS2_ADDR(u), 0xE) != 0)
         return 0x1C;
-    if (func_0036F390(u, 0xF) != 0)
+    if (func_0036F390(PS2_ADDR(u), 0xF) != 0)
         return 0x1D;
-    if (func_0036F390(u, 0x10) != 0)
+    if (func_0036F390(PS2_ADDR(u), 0x10) != 0)
         return 0x1F;
-    if (func_0036F390(u, 0x11) != 0)
+    if (func_0036F390(PS2_ADDR(u), 0x11) != 0)
         return 0x20;
-    if (func_0036F390(u, 0x12) != 0)
+    if (func_0036F390(PS2_ADDR(u), 0x12) != 0)
         return 0x21;
-    if (func_0036F390(u, 0x13) != 0)
+    if (func_0036F390(PS2_ADDR(u), 0x13) != 0)
         return 0x22;
     return 0x25;
 }
@@ -2194,7 +2145,7 @@ int func_00349010(u8 *u)
 static int on_base_or(u8 *u, u8 *v, int lim)
 {
     u8 *g = func_0034A740(u);
-    int b = func_0033C160(g);
+    int b = func_0033C160((unsigned char **)(g));
 
     if (func_0034A660(u, (u8 *)b) != 0 && func_0034A660(v, (u8 *)b) != 0)
         return 1;
@@ -2207,9 +2158,9 @@ static int on_base_or(u8 *u, u8 *v, int lim)
 static int at_spot_or(u8 *u, u8 *v, int lim)
 {
     u8 *g = func_0034A740(u);
-    int x = func_0033C1E0(g);
+    int x = PS2_ADDR(func_0033C1E0((unsigned char **)(g)));
 
-    if (*(short *)(u + 0x40) == *func_0033B730(x) && *(short *)(v + 0x40) == *func_0033B730(x))
+    if (*(short *)(u + 0x40) == *((short *)func_0033B730((unsigned char **)PS2_PTR(x))) && *(short *)(v + 0x40) == *((short *)func_0033B730((unsigned char **)PS2_PTR(x))))
         return 1;
     if (GROUP_INFO(g)[10] < lim)
         return 1;
@@ -2244,7 +2195,7 @@ int func_003492D0(u8 *u, u8 *v)
 int func_003493C0(u8 *u, u8 *v)
 {
     u8 *g = func_0034A740(u);
-    int b = func_0033C160(g);
+    int b = func_0033C160((unsigned char **)(g));
 
     if (func_0034A660(u, (u8 *)b) != 0 && func_0034A660(v, (u8 *)b) != 0)
         return 1;
@@ -2253,14 +2204,8 @@ int func_003493C0(u8 *u, u8 *v)
 
 extern int (*g_004154A0[13])(u8 *u, u8 *v);   /* by group kind: whether a unit may act */
 
-int func_0033B050(u8 *g);
-int func_0033B090(u8 *g);
 int func_001EFD50(u8 *u, u8 *v);
 void func_001EABE0(u8 *u, int v, int a);
-int func_003F7780(int s, int k);
-void func_001F11E0(int w, float *out);
-void func_00253B50(int a, int w);
-int func_0018C160(u8 *cell);
 
 #define OFFICER(i) (g_006A3A30 + (i) * 0xC0)
 
@@ -2268,7 +2213,7 @@ int func_0018C160(u8 *cell);
 int func_00349450(u8 *u, u8 *v)
 {
     u8 *g = func_0034A740(u);
-    int b = func_0033C160(g);
+    int b = func_0033C160((unsigned char **)(g));
 
     if (func_0034A660(u, (u8 *)b) != 0 && func_0034A660(v, (u8 *)b) != 0)
         return 1;
@@ -2278,7 +2223,7 @@ int func_00349450(u8 *u, u8 *v)
 /* 0x003494E0, 0x78 bytes. Whether unit `v` belongs to the group unit `u`'s group follows. */
 int func_003494E0(u8 *u, u8 *v)
 {
-    int x = func_0033C1E0(func_0034A740(u));
+    int x = PS2_ADDR(func_0033C1E0((unsigned char **)(func_0034A740(u))));
 
     if (x == 0)
         return 0;
@@ -2293,7 +2238,7 @@ int func_003494E0(u8 *u, u8 *v)
 int func_00349560(u8 *u, u8 *v)
 {
     u8 *g = func_0034A740(u);
-    int b = func_0033C160(g);
+    int b = func_0033C160((unsigned char **)(g));
 
     if (func_0034A660(u, (u8 *)b) != 0 && func_0034A660(v, (u8 *)b) != 0)
         return 1;
@@ -2349,8 +2294,8 @@ int func_003498B0(u8 *u, u8 *v)
     u8 *g = func_0034A740(u);
 
     if (g != 0) {
-        if (func_0033B050(g) == 0) {
-            if (func_0033B090(g) != 0 && func_00349800(u, v) == 0)
+        if (func_0033B050((unsigned char **)(g)) == 0) {
+            if (func_0033B090((unsigned char **)(g)) != 0 && func_00349800(u, v) == 0)
                 return 0;
         } else if (func_003496E0(u, v) == 0) {
             return 0;
@@ -2406,7 +2351,7 @@ short func_00349B30(u8 *u)
     short v = *(short *)(u + 0x54);
     u8 *g = func_0034A740(u);
 
-    if (g != 0 && func_0033B050(g) != 0 && GROUP_INFO(g)[0x27] == 0)
+    if (g != 0 && func_0033B050((unsigned char **)(g)) != 0 && GROUP_INFO(g)[0x27] == 0)
         v = (short)(int)((float)v * 3.0f);
     return v;
 }
@@ -2417,7 +2362,7 @@ short func_00349BE0(u8 *u)
     short v = *(short *)(u + 0x56);
     u8 *g = func_0034A740(u);
 
-    if (g != 0 && func_0033B050(g) != 0 && GROUP_INFO(g)[0x27] == 1)
+    if (g != 0 && func_0033B050((unsigned char **)(g)) != 0 && GROUP_INFO(g)[0x27] == 1)
         v = (short)(int)((float)v * 3.0f);
     return v;
 }
@@ -2438,7 +2383,7 @@ float func_00349CA0(u8 *u)
     if (func_0036F520(func_0035D5A0(s), 0x1C) != 0)
         f *= 0.5f;
     g = func_0034A740(u);
-    if (g != 0 && func_0033B050(g) != 0 && GROUP_INFO(g)[0x27] == 2)
+    if (g != 0 && func_0033B050((unsigned char **)(g)) != 0 && GROUP_INFO(g)[0x27] == 2)
         f *= 3.0f;
     return f;
 }
@@ -2473,7 +2418,7 @@ void func_0034A020(u8 *u, u8 w)
             *(short *)(o + 0x8A) = clamp1000(x);
             *(short *)(o + 0x8C) = clamp1000(y);
         }
-        func_00253B50(*(int *)(o + 0x14), w);
+        func_00253B50((unsigned char *)PS2_PTR(*(int *)(o + 0x14)), w);
     }
 }
 
@@ -2523,14 +2468,11 @@ void func_0034A250(u8 *u, u8 *cell, float *out)
 
 extern int g_00669F6C;                   /* settings: 1 = load a saved battle */
 
-int func_0035ECF0(u32 f, u32 k);
 void func_00350820(u8 *b);
 void func_0034F730(u8 *map);
 void func_003516B0(void);
-int func_00190480(u8 *cell);
 u32 func_00353390(u8 *cell);
 u8 *func_00353400(u8 *cell, u32 k);
-u32 func_0035DC70(int p);
 
 /* 0x0034FCA0, 0x80 bytes. Sets each base's plan byte from the battlefield table (2 becomes 1). */
 void func_0034FCA0(u8 *map)
@@ -2726,23 +2668,10 @@ u8 *func_003502B0(u8 *b, u32 side)
 extern int g_00415550[];                 /* by difficulty */
 extern u8 g_00669D81;                    /* settings: difficulty */
 
-void func_0019CD70(int side, int v, int a);
 u8 *func_003519F0(u8 *b, int side);
 void func_00352060(u8 *b);
-void func_0035E210(int b);
-void func_0035E290(int b);
-void func_0024C0D0(u8 *b);
-void func_003F7CF0(int b, int old);
-void func_0035CAF0(int b, int old, int side, int u);
 int func_00352780(u8 *b, int side);
-int func_0035F2D0(int side);
-int func_0035F640(int side);
-int func_0035D570(int a, int b);
 u32 func_00352930(u8 *a, u8 *b);
-void func_001F1910(u8 *u);
-void func_001F1640(u8 *code, u8 *out);
-void func_001F1A30(u8 *u);
-void func_0033D920(u8 *u, int a, int b);
 void func_001EE3B0(u8 *u);
 u32 func_003527A0(u8 *b, int side);
 
@@ -2770,7 +2699,7 @@ void func_00350470(u8 *b, u8 *u)
         func_0035E290(func_0034ED40(b));
     else
         func_0024C0D0(b);
-    if (func_0033B050(g) != 0) {
+    if (func_0033B050((unsigned char **)(g)) != 0) {
         u32 v = GROUP_INFO(g)[0x19];
 
         if (v != 0xFF) {
@@ -2971,7 +2900,7 @@ void func_00350CE0(u8 *b, u8 *to)
 
         func_001F1910(n);
         func_0034ED90(to, (u8 *)c);
-        func_001F1640((u8 *)c, xy);
+        func_001F1640((u8 *)c, (short int *)(xy));
         *(u16 *)(n + 0x40) = a40;
         *(u16 *)(n + 0x46) = a46;
         *(unsigned long long *)(n + 0x28) = v;
@@ -3012,14 +2941,6 @@ extern int g_0045D758, g_0045D75C, g_0045D760;   /* (small data) main base timer
 
 int func_00352850(u8 *b, int side);
 int func_00352BB0(u8 *b);
-void func_0035CF20(int b);
-void func_0035CF70(int b, int side);
-void func_0035D070(int b);
-void func_0035D020(int b);
-void func_0035CFD0(int b);
-void func_0035D150(void);
-void func_0035D190(void);
-void func_0035D1D0(void);
 u32 func_00352690(u8 *b, int side);
 
 /* 0x00350F80, 0x60 bytes. Whether a side's base `b` (side byte `k` at 0) is threatened. */
@@ -3098,7 +3019,7 @@ static void send_to(u8 *u, short c)
     u8 xy[2];
 
     cc[0] = c;
-    func_001F1640((u8 *)cc, xy);
+    func_001F1640((u8 *)cc, (short int *)(xy));
     *(short *)(u + 0x44) = cc[0];
     *(float *)(u + 0x38) = (float)xy[0] * 1000.0f + 500.0f;
     *(float *)(u + 0x3C) = (float)xy[1] * 1000.0f + 500.0f;
@@ -3274,7 +3195,7 @@ void func_00351960(void)
 }
 
 /* 0x003519E0, 0xC bytes, matching. The number of bases. */
-u8 func_003519E0(void)
+u32 func_003519E0(void)
 {
     return g_0045D2F0[0x5C0];
 }
@@ -3283,8 +3204,6 @@ extern int g_006AA5B0[2], g_006AA5BC[2];   /* per side: the most units, the unit
 extern int g_005BD730, g_005BD738;
 
 void func_00347F20(int a, u8 *u, int act, u32 flags);
-void func_001BB5C0(int a, u8 *u, u8 *g);
-u8 func_0033B970(u8 *g);
 void func_00353850(int x0, int y0, int x1, int y1);
 
 /* 0x003519F0, 0x1FC bytes. A new guard unit for side `side` at base `b` (when its group has
@@ -3310,14 +3229,14 @@ u8 *func_003519F0(u8 *b, int side)
     func_00347F20(off, u, func_00348AE0(), 0x10000000);
     if (g_006AA5B0[side] < ++g_006AA5BC[side])
         g_006AA5B0[side] = g_006AA5BC[side];
-    func_001BB5C0(off, u, g);
+    func_001BB5C0((unsigned char *)PS2_PTR(off), u, (int *)(g));
     *(int *)(g + 0x34) = 0;
     *(int *)(g + 0x38) = 0;
     *(int *)(g + 0x3C) = 0;
     *(int *)(g + 0x40) = 0;
     g_005BD738 = 1;
     *(int *)(g + 0x44) = 0;
-    u[0x7F] = func_0033B970(g);
+    u[0x7F] = func_0033B970((unsigned char **)(g));
     func_001F1A30(u);
     if (side != 0) {
         u32 f = UNIT_FLAGS(u);
@@ -3368,7 +3287,7 @@ void func_00351BF0(u8 *b)
     func_0034F3A0(b, v);
 }
 
-/* 0x00351DD0, 0x110 bytes. Whether base `b` reaches a flagged (1) base through its side's bases
+/* 0x00351DD0, 0x110 bytes, matching. Whether base `b` reaches a flagged (1) base through its side's bases
  * (`mask`: those seen). */
 int func_00351DD0(u8 *b, u32 *mask)
 {
@@ -3417,7 +3336,7 @@ int func_00351F00(u8 *b)
     return 0;
 }
 
-/* 0x00351F80, 0xD4 bytes. Updates the cut-off flags from base `b` on through the bases it
+/* 0x00351F80, 0xD4 bytes, matching. Updates the cut-off flags from base `b` on through the bases it
  * changes (all of `b`'s links when `force`). */
 void func_00351F80(u8 *b, u32 *mask, int force)
 {
@@ -3467,8 +3386,6 @@ typedef struct {
 extern BaseSearch g_0045D748, g_0045D750;
 
 void func_003538F0(void);
-u32 func_0018F650(u8 *map, BaseSearch *s);
-u16 func_0018F6F0(u8 *a, u8 *b, int c);
 
 /* 0x00352100, 0xAC bytes. Updates every base's cut-off flag and front value, then the map. */
 void func_00352100(void)
@@ -3490,7 +3407,7 @@ void func_00352100(void)
     func_003538F0();
 }
 
-/* 0x003521B0, 0x90 bytes. Whether base `b` links to a base of side `side`. */
+/* 0x003521B0, 0x90 bytes, matching. Whether base `b` links to a base of side `side`. */
 int func_003521B0(u8 *b, int side)
 {
     u32 n = func_0034EEF0(b), k;
@@ -3502,7 +3419,7 @@ int func_003521B0(u8 *b, int side)
     return 0;
 }
 
-/* 0x00352240, 0xAC bytes. Whether it links to a base of side `side` without flag 2. */
+/* 0x00352240, 0xAC bytes, matching. Whether it links to a base of side `side` without flag 2. */
 int func_00352240(u8 *b, int side)
 {
     u32 n = func_0034EEF0(b), k;
@@ -3516,7 +3433,7 @@ int func_00352240(u8 *b, int side)
     return 0;
 }
 
-/* 0x003522F0, 0x90 bytes. Whether it links to a base not of side `side`. */
+/* 0x003522F0, 0x90 bytes, matching. Whether it links to a base not of side `side`. */
 int func_003522F0(u8 *b, int side)
 {
     u32 n = func_0034EEF0(b), k;
@@ -3685,7 +3602,7 @@ u32 func_00352930(u8 *a, u8 *b)
         return 0;
     func_0034ED90(a, ca);
     func_0034ED90(b, cb);
-    return func_0018F6F0(ca, cb, 0);
+    return func_0018F6F0((short unsigned int *)(ca), (short unsigned int *)(cb), 0);
 }
 
 /* 0x00352990, 0x16C bytes. The fewest links from base `from` to base `to` (through bases of side
@@ -3734,7 +3651,7 @@ int func_00352B50(u8 *b, int p)
 {
     if (*(int *)(g_00669D60 + p * 0x48 + 0xA0) == 0)
         return 0;
-    return func_0033CB60(func_0035DD10(p), b);
+    return func_0033CB60(func_0035DD10(p), PS2_ADDR(b));
 }
 
 /* 0x00352BB0, 0x64 bytes. Whether a player is at base `b`. */
@@ -3774,12 +3691,6 @@ int func_00352CA0(u8 *cell)
 }
 
 extern int g_0045D068[2];                /* (small data) the front value of each side's cells */
-
-int func_003DCF00(int x, u8 *b);
-int func_00364E70(int l, int d);
-void func_00364F00(int l, int p, int k);
-void func_00191200(float *out, float *v);
-void func_0020FF60(u8 *cell);
 
 /* A map cell's record (0x00 bytes of data, then +0x80: bases count, four bases, front value). */
 #define CELL_AT(map, x, y) (((u8 **)*(int *)((map) + 4))[(x) + (y) * 0x20])
@@ -3828,7 +3739,7 @@ u32 func_00352E10(u32 *out, u32 max, int (*test)(u8 *, int, int), int a, int b)
 /* 0x00352EF0, 0x30 bytes, matching. */
 int func_00352EF0(u8 *b, u8 *g)
 {
-    return func_00347800(g, func_0034ED40(b));
+    return func_00347800((unsigned char **)(g), func_0034ED40(b));
 }
 
 /* 0x00352F20, 0x30 bytes, matching. The bases group `g` can go to. */
@@ -3840,7 +3751,7 @@ u32 func_00352F20(u8 *g, u32 *out, u32 max)
 /* 0x00352F50, 0x30 bytes, matching. */
 int func_00352F50(u8 *b, u8 *g)
 {
-    return func_00347840(g, func_0034ED40(b));
+    return func_00347840((unsigned char **)(g), func_0034ED40(b));
 }
 
 /* 0x00352F80, 0x30 bytes, matching. The bases group `g` can hold. */
@@ -3880,12 +3791,12 @@ void func_00353090(int x, int d, int l)
 {
     u32 k;
 
-    func_00365230(l);
+    func_00365230((void *)PS2_PTR(l));
     for (k = 0; k < 0x14; k++) {
         u8 *b = BASE(k);
 
-        if (func_0034EE50(b) != 0 && d == func_003DCF00(x, b))
-            func_00364E40(l, k);
+        if (func_0034EE50(b) != 0 && d == func_003DCF00(x, PS2_ADDR(b)))
+            func_00364E40((void *)PS2_PTR(l), k);
     }
 }
 
@@ -3895,14 +3806,14 @@ void func_00353130(int x, int l)
     u8 buf[80], tmp[16];
     u32 k;
 
-    func_003653F0((int)tmp, buf, 0x14);
-    func_00365230((int)tmp);
-    func_00365230(l);
+    func_003653F0((void *)PS2_PTR((int)tmp), (int *)(buf), 0x14);
+    func_00365230((void *)PS2_PTR((int)tmp));
+    func_00365230((void *)PS2_PTR(l));
     for (k = 0; k < 0x14; k++) {
         u8 *b = BASE(k);
 
         if (func_0034EE50(b) != 0)
-            func_00364F00(l, func_00364E70((int)tmp, func_003DCF00(x, b)), k);
+            func_00364F00((void *)PS2_PTR(l), func_00364E70((void *)PS2_PTR((int)tmp), func_003DCF00(x, PS2_ADDR(b))), k);
     }
 }
 
@@ -4034,7 +3945,7 @@ void func_003535D0(void)
                 if (b == 0 || func_0034EE50(b) == 0)
                     continue;
                 func_0034ED90(b, bc);
-                d = func_0018F6F0(c, bc, 0) & 0xFFFF;
+                d = func_0018F6F0((short unsigned int *)(c), (short unsigned int *)(bc), 0) & 0xFFFF;
                 w = 0x10000 / (d < 2 ? 1 : (int)(d * d));
                 if (best < w) {
                     q[1] = 0x14;
@@ -4148,13 +4059,6 @@ typedef struct {
 extern u8 *g_0045D764;                   /* (small data) the placement records */
 extern u8 *g_005BA7C4[2];                /* their header and first record */
 extern u32 g_006AA570;
-
-void *func_00102DB0(int align, int size);
-u32 func_00362570(void);
-int func_00363690(int side, int k);
-int func_0035EB10(u32 f, int side, int k);
-int func_003637D0(int side, int k);
-int func_00363800(int side, int k);
 
 /* 0x00353A10, 0x3C bytes, matching. Unit `u`'s cell front value from its side's view (0 when unused). */
 int func_00353A10(u8 *u)
@@ -4464,8 +4368,6 @@ void func_00354600(u8 *u)
 /* Placement record `k` (through the pointer kept at 0x005BA7C8). */
 #define SPAWN(k) ((Spawn *)g_005BA7C4[1] + (k))
 
-int func_0019A800(short *out, u32 slot, int x, int z);
-int func_0032E7B0(void);
 extern u8 *g_006AA580[6];                /* the units placed with an officer */
 extern int g_006AA598;                   /* their number */
 extern u8 g_004155E0[16], g_004155F0[50];  /* cells kept free on maps 6 and 0x13 */
@@ -4473,22 +4375,6 @@ extern int g_00415580[15], g_004155C0[7];  /* the reserve actions (two kinds of 
 
 u32 func_003555C0(Spawn *r, int id, int officer);
 void func_00355510(void);
-u32 func_0033EF10(int k);
-u32 func_0033EF20(int s, int k);
-u8 *func_0033F020(int s, int j);
-u8 *func_0033F070(int s, int k);
-u8 *func_0033F0C0(int s, int k);
-u32 func_0035DCB0(int p);
-int func_003E6CD0(void);
-int func_0018F680(u8 *out, u8 *from, u8 *to, int c);
-u32 func_0018C320(u8 *cell, u8 *dir);
-int func_0018F7D0(u8 *cell, u32 d, int c);
-u32 func_003DD300(u8 *cell);
-int func_00215480(u8 *cell);
-int func_00190590(u8 *cell, int c);
-u32 func_001F1C00(u8 *cell, int side);
-int func_003650D0(int l);
-u8 **func_0033F110(u8 kind);
 
 /* 0x00354620, 0xA0 bytes. Places officer `u` of record `r` (player `p`: 0, 1, else none). */
 void func_00354620(Spawn *r, u8 *u, u8 *g, int p, u32 act)
@@ -4503,7 +4389,7 @@ void func_00354620(Spawn *r, u8 *u, u8 *g, int p, u32 act)
         f |= 0x40;
     func_00347F20((int)r, u, act, f);
     u[0x7D] = 0;
-    func_001BB5C0((int)r, u, g);
+    func_001BB5C0((unsigned char *)PS2_PTR((int)r), u, (int *)(g));
     func_001F1A30(u);
 }
 
@@ -4515,7 +4401,7 @@ void func_003546C0(Spawn *r, u8 *u, u8 *g, int hidden, u32 act)
     if (hidden != 0)
         f |= 0x40000;
     func_00347F20((int)r, u, act, f);
-    func_001BB5C0((int)r, u, g);
+    func_001BB5C0((unsigned char *)PS2_PTR((int)r), u, (int *)(g));
     func_001F1A30(u);
     func_00354580(u);
 }
@@ -4534,7 +4420,7 @@ void func_00354760(Spawn *r, u8 *lead, u8 *u, u32 n, u8 *g, int hidden, u32 act)
     y = r->y;
     x = r->x;
     for (k = 0; k < n; k++, u += 0x88) {
-        if (func_0019A800((short *)r, k, x, y) == 0) {
+        if (func_0019A800((unsigned char *)((short *)r), k, x, y) == 0) {
             func_0032E7B0();
             continue;
         }
@@ -4542,7 +4428,7 @@ void func_00354760(Spawn *r, u8 *lead, u8 *u, u32 n, u8 *g, int hidden, u32 act)
         if (g_006AA5B0[side] < ++g_006AA5BC[side])
             g_006AA5B0[side] = g_006AA5BC[side];
         if (g != 0) {
-            func_001BB5C0((int)r, u, g);
+            func_001BB5C0((unsigned char *)PS2_PTR((int)r), u, (int *)(g));
             func_001F1A30(u);
         }
         func_00354580(u);
@@ -4706,7 +4592,7 @@ void func_00355000(void)
             m = 0x1E;
         if (m < 0x25) {
             Spawn *r = SPAWN(s + 0x3A);
-            u8 *g = func_0033F020(s, 0), *lead = func_0034AAD0(s, 0, 0);
+            u8 *g = (u8 *)func_0033F020(s, 0), *lead = func_0034AAD0(s, 0, 0);
 
             func_003546C0(r, lead, g, 0, m);
             func_00354760(r, lead, func_0034AAD0(s, 0, 1), n - 1, g, 0, m);
@@ -4722,7 +4608,7 @@ void func_00355130(void)
     for (s = 0; s < 2; s++) {
         for (k = 0; k < 3; k++) {
             Spawn *r = SPAWN(k + 0x3C + s * 2);
-            u8 *g = func_0033F070(s, k), *lead = func_0034AB10(s, k, 0), *u;
+            u8 *g = (u8 *)func_0033F070(s, k), *lead = func_0034AB10(s, k, 0), *u;
             u32 j;
 
             func_003546C0(r, lead, g, 1, func_00348C90((u8 *)s));
@@ -4741,7 +4627,7 @@ void func_00355270(void)
     for (s = 0; s < 2; s++) {
         for (k = 0; k < 3; k++) {
             Spawn *r = SPAWN(k + 0x40 + s * 3);
-            u8 *g = func_0033F0C0(s, k), *lead = func_0034AB50(s, k, 0);
+            u8 *g = (u8 *)func_0033F0C0(s, k), *lead = func_0034AB50(s, k, 0);
 
             func_003546C0(r, lead, g, 1, 0x1A);
             func_00354760(r, lead, func_0034AB50(s, k, 1), 4, g, 1, 0x1A);
@@ -4764,7 +4650,7 @@ void func_00355370(void)
             if (g == 0)
                 g = (u8 *)func_0033F110(u[0x79]);
             if (g != 0)
-                u[0x7F] = func_0033B970(g);
+                u[0x7F] = func_0033B970((unsigned char **)(g));
         }
     }
 }
@@ -4778,7 +4664,7 @@ void func_00355410(void)
         if (*(int *)(g_00669D60 + p * 0x48 + 0xA0) != 0) {
             u8 *u = func_0035DCD0(p);
 
-            u[0x7F] = func_0033B970(func_0034A740(u));
+            u[0x7F] = func_0033B970((unsigned char **)(func_0034A740(u)));
         }
     }
 }
@@ -4888,7 +4774,7 @@ int func_003557C0(u8 *c, int side)
 {
     u8 *b;
 
-    if (func_00190480(c) == 0 || func_00215480(c) != 0)
+    if (func_00190480(c) == 0 || func_00215480(PS2_ADDR(c)) != 0)
         return 0;
     b = func_0034ECA0(c);
     if (b != 0) {
@@ -4909,18 +4795,18 @@ int func_003558F0(u8 *from, u32 d, int l)
 {
     int x, y;
 
-    func_00365230(l);
+    func_00365230((void *)PS2_PTR(l));
     for (y = 0; y < 0x19; y++) {
         for (x = 0; x < 0x19; x++) {
             u8 c[2];
 
             c[0] = x;
             c[1] = y;
-            if (d == (func_0018F6F0(from, c, 0) & 0xFFFF))
-                func_00364E40(l, x + y * 0x19);
+            if (d == (func_0018F6F0((short unsigned int *)(from), (short unsigned int *)(c), 0) & 0xFFFF))
+                func_00364E40((void *)PS2_PTR(l), x + y * 0x19);
         }
     }
-    return func_00365050(l);
+    return func_00365050((void *)PS2_PTR(l));
 }
 
 /* 0x003559B0, 0x17C bytes. The nearest cell to `from` side `side` may place units on (into
@@ -4930,11 +4816,11 @@ int func_003559B0(u8 *from, u8 *out, int side)
     u8 buf[2512], l[12];
     int found = 0x271, d;
 
-    func_003653F0((int)l, buf, 0x271);
+    func_003653F0((void *)PS2_PTR((int)l), (int *)(buf), 0x271);
     for (d = 0; d < 0x271 && found == 0x271; d++) {
         func_003558F0(from, d, (int)l);
-        while (func_00365050((int)l) > 0) {
-            int k = func_003650D0((int)l);
+        while (func_00365050((void *)PS2_PTR((int)l)) > 0) {
+            int k = func_003650D0((void *)PS2_PTR((int)l));
             u8 c[2];
 
             c[0] = k % 0x19;
@@ -4959,7 +4845,7 @@ void func_00355B30(u8 *from, float *out, int side)
 
     if (func_003559B0(from, c, side) == 0)
         *(short *)c = *(short *)from;
-    func_001F1640(c, xy);
+    func_001F1640(c, (short int *)(xy));
     out[0] = (float)xy[0] * 1000.0f + 500.0f;
     out[1] = (float)xy[1] * 1000.0f + 500.0f;
 }
@@ -4981,9 +4867,9 @@ u32 func_00355C20(u8 *u, u8 *cell)
     u32 d;
 
     func_0034ED90(BASE(func_0035F200(func_0035D5A0(u[0x79]))), c);
-    func_0018F680(dir, cell, c, 0);
+    func_0018F680((short unsigned int *)(dir), (short unsigned int *)(cell), (short unsigned int *)(c), 0);
     d = func_0018C320(cell, dir);
-    if ((d == 8 || func_0018F7D0(cell, d, 0) == 0) && (d = func_003DD300(cell)) == 8)
+    if ((d == 8 || func_0018F7D0(cell, d, 0) == 0) && (d = func_003DD300(PS2_ADDR(cell))) == 8)
         d = RANDOM() & 7;
     return d;
 }
@@ -4991,14 +4877,10 @@ u32 func_00355C20(u8 *u, u8 *cell)
 /* 0x00355D00, 0x60 bytes. Whether cell `c` is open. */
 int func_00355D00(u8 *c)
 {
-    if (func_00190480(c) == 0 || func_00215480(c) != 0)
+    if (func_00190480(c) == 0 || func_00215480(PS2_ADDR(c)) != 0)
         return 0;
     return func_00190590(c, 8) == 0;
 }
-
-u32 func_00190C30(void);
-void func_00190C00(u8 *out, u32 i);
-void func_001911A0(u8 *out, float *pos);
 
 /* 0x00355D60, 0x270 bytes. Moves object `o` to the open cell nearest to position `pos` (side
  * `side`), else to its side's default place. */
@@ -5013,11 +4895,11 @@ void func_00355D60(float *pos, u8 *o, int side)
     func_00191200(v, pos);
     c[0] = (int)v[0] / 5000;
     c[1] = (int)v[1] / 5000;
-    func_003653F0((int)l, buf, 0x271);
+    func_003653F0((void *)PS2_PTR((int)l), (int *)(buf), 0x271);
     for (d = 0; d < 0x271 && found == 0x271; d++) {
         func_003558F0(c, d, (int)l);
-        while (func_00365050((int)l) > 0) {
-            int k = func_003650D0((int)l);
+        while (func_00365050((void *)PS2_PTR((int)l)) > 0) {
+            int k = func_003650D0((void *)PS2_PTR((int)l));
             u8 t[2];
 
             t[0] = k % 0x19;
@@ -5029,13 +4911,13 @@ void func_00355D60(float *pos, u8 *o, int side)
         }
     }
     if (found == 0x271) {
-        func_00190C00(o, func_00190C30() + side - 2);
+        func_00190C00((unsigned int *)(o), func_00190C30() + side - 2);
         return;
     }
     c[0] = found % 0x19;
     c[1] = found / 0x19;
-    func_001F1640(c, xy);
+    func_001F1640(c, (short int *)(xy));
     at[0] = (float)xy[0] * 1000.0f + 500.0f;
     at[1] = (float)xy[1] * 1000.0f + 500.0f;
-    func_001911A0(o, at);
+    func_001911A0((float *)(o), at);
 }

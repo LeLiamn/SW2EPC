@@ -22,6 +22,10 @@
  * to the 448 lines of the display (y * 640 / 480 * 448 / 512) and halved for a field.
  */
 
+#define SW2E_FILE_TEXT_DRAW_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -85,27 +89,6 @@ extern Font g_004053C0;                  /* the font */
 extern u8 g_004248F0[][4];               /* the palette */
 extern void (*g_00424950[6])(Glyph *g);  /* the styles */
 extern int g_00405420[8][2];             /* the outline's eight offsets */
-
-u8 *func_00105860(u64 tex0, int mode);
-u8 *func_00105B40(u64 tex0, int mode);
-void func_00105900(u8 *packet, int layer);
-void func_00105BE0(u8 *packet, int layer);
-u8 *func_001050F0(void);
-void func_00105230(u8 *packet, int layer);
-void func_001A5890(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A5B50(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A55D0(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A5E10(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A6910(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A6BD0(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A6E90(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A7150(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A7410(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A74D0(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A6650(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A6390(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A60D0(int x, int y, int depth, u8 alpha, int layer, int w, int h);
-void func_001A76E0(int x, int y, int depth, u8 alpha, int layer, int w, int h);
 
 int func_00146D80(const u8 *text, int *w, int *h);
 

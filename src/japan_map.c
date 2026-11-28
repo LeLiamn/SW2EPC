@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_JAPAN_MAP_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -29,40 +33,14 @@ extern u8 *g_0043C55C, *g_0043C5EC;
 #define MAP_TEX (*(u8 **)(g_007BAC40 + 0x84))
 
 void func_003A34C0(void);
-void func_003A2810(int k, int on);
-void func_003A54A0(int o);
-void func_003A4F40(void);
-void func_003A5010(void);
-void func_003A5650(int o);
-u8 *func_0039FB00(int o);
-void func_00118AC0(void *to, const void *from, int n);
-int func_0030AB90(void);
-int func_0030AFF0(int p);
-void func_003A78E0(int p, int a, int b);
 void func_003A80B0(int p, int v);
 void func_003A80F0(int p, int v);
-void func_003A6110(int p, int v);
-int func_002F8F20(int f);
-u8 func_002F6850(int o);
-int func_002F9990(int f);
-int func_00329160(int k, int *a, int *b);
-void func_003A97C0(int *list, int n, int x);
 void func_003A92D0(void);
-int func_0036B980(int s);
-int func_003625B0(void);
 void func_003ABC80(void);
-void func_003AB800(void);
-void func_003AC220(void);
 void func_003AAD30(void);
-int func_00327A60(void);
-void func_0039B700(void);
-void func_002B7BA0(int o);
-void func_001A7DC0(u8 *text, int a, int b);
-int *func_003DB900(int k);
 int func_0030D7D0(void);
 void func_00380E80(int a, int o, int x, int y);
 void func_003986E0(int a, int b, int *c, int d);
-void func_003AE8E0(int k);
 
 /* 0x003A4E20, 0x28 bytes, matching. */
 void func_003A4E20(void)
@@ -95,13 +73,13 @@ void func_003A5240(void)
 /* 0x003A5320, 0x38 bytes, matching. Stores officer `o`'s unlock record from `src`. */
 void func_003A5320(const u8 *src, int o)
 {
-    func_00118AC0(func_0039FB00(o), src, 0x48);
+    func_00118AC0((unsigned int *)(func_0039FB00(o)), (u8 *)src, 0x48);
 }
 
 /* 0x003A5360, 0x38 bytes, matching. */
 void func_003A5360(u8 *dst, int o)
 {
-    func_00118AC0(dst, func_0039FB00(o), 0x48);
+    func_00118AC0((unsigned int *)(dst), func_0039FB00(o), 0x48);
 }
 
 /* 0x003A5BA0, 0x34 bytes, matching. Keeps the view (before a zoom). */
@@ -414,7 +392,7 @@ void func_003AEC60(void)
     int *p = func_003DB900(0xD);
 
     func_00380E80(func_0030D7D0(), g_007BAE94[g_007BAE7C], p[0], p[1]);
-    func_001A7DC0(g_0043C5EC, 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C5EC), 0x80, 1);
 }
 
 /* 0x003AF1B0, 0x1C bytes, matching. */
@@ -427,7 +405,7 @@ void func_003AF1B0(void)
 void func_003AF1D0(void)
 {
     func_002B7BA0(g_007BAE94[g_007BAE7C]);
-    func_001A7DC0(g_0043C55C, 0x80, 1);
+    func_001A7DC0((const char *)(g_0043C55C), 0x80, 1);
 }
 
 /* 0x003AF8D0, 0x44 bytes. */
@@ -440,13 +418,7 @@ void func_003AF8D0(void)
 
 /* Province colours, alliance lines and blinking provinces (0x003A7A10-0x003A9AE4). */
 
-int func_0030C660(int p);
-int func_0030C250(int p);
-int func_00327D50(void);
 void func_003A9060(int v);
-int func_0023A760(int k);
-void func_00102960(int a);
-void func_0023A7D0(int k);
 void func_003A8460(int p, int a, int b);
 void func_003A86F0(int p);
 

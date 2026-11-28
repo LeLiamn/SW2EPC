@@ -14,6 +14,10 @@
  * +0x1234 five items, +0x1239 28 nibble pairs, +0x1278 five more items.
  */
 
+#define SW2E_FILE_EMP_GAME_STATE_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -32,19 +36,6 @@ extern u8 g_0045D6C8[];                  /* (small data) */
 
 void func_0011EB80(u8 *to, const u8 *from, int n);
 void func_0011ED38(u8 *p, int v, int n);
-u8 *func_002F2890(u32 o);
-int func_0030AB90(void);
-int func_002F8F20(int f);
-int func_002F5CC0(int o);
-int func_00327140(int s, int t);
-int func_00327170(int t);
-int func_002F57F0(int k);
-u8 func_002F5840(int v);
-int func_002F5890(int o);
-void func_00328470(void);
-void func_00328820(void);
-void func_00328D00(int i, int v);
-void func_00328EC0(int i, int v);
 
 /* 0x00327710, 0x34 bytes. */
 void func_00327710(int v)
@@ -67,7 +58,7 @@ void func_00327780(u32 o)
         return;
     GS16(0x1204) = o;
     if (o < 0x19F)
-        func_0011EB80(GS(0x125F), func_002F2890(o), 0x19);
+        func_0011EB80(GS(0x125F), (const u8 *)(func_002F2890(o)), 0x19);
     else
         func_0011ED38(GS(0x125F), 0, 0x19);
 }
@@ -86,7 +77,7 @@ void func_00327830(u32 o)
 }
 
 /* 0x00327870, 0xC bytes, matching. */
-u16 func_00327870(void)
+u32 func_00327870(void)
 {
     return GS16(0x1206);
 }
@@ -185,14 +176,14 @@ void func_00327A80(u32 o, int k)
 }
 
 /* 0x00327AE0, 0x30 bytes. */
-u16 func_00327AE0(int k)
+u32 func_00327AE0(int k)
 {
     if (k < 4)
         return ((u16 *)GS(0x1212))[k];
     return 0x19F;
 }
 
-/* 0x00327B10, 0x58 bytes. Officer `o`'s player slot (4: none). */
+/* 0x00327B10, 0x58 bytes, matching. Officer `o`'s player slot (4: none). */
 int func_00327B10(int o)
 {
     int k;
@@ -205,7 +196,7 @@ int func_00327B10(int o)
 }
 
 /* 0x00327B70, 0x60 bytes. Whether a player slot is used. */
-int func_00327B70(void)
+int func_00327B70(int f)
 {
     int k;
 
@@ -237,7 +228,7 @@ void func_00327C10(int v)
 }
 
 /* 0x00327C40, 0xC bytes, matching. */
-u8 func_00327C40(void)
+u32 func_00327C40(void)
 {
     return GS8(0x121B);
 }
@@ -255,13 +246,13 @@ u32 func_00327C70(void)
     return GS16(0x1208);
 }
 
-/* 0x00327C80, 0x34 bytes. The current year. */
+/* 0x00327C80, 0x34 bytes, matching. The current year. */
 int func_00327C80(void)
 {
     return func_00327140(func_00327C00(), func_00327C70());
 }
 
-/* 0x00327CC0, 0x24 bytes. The current season. */
+/* 0x00327CC0, 0x24 bytes, matching. The current season. */
 int func_00327CC0(void)
 {
     return func_00327170(func_00327C70());
@@ -317,7 +308,7 @@ void func_00327DF0(int v)
 }
 
 /* 0x00327E20, 0xC bytes, matching. */
-u8 func_00327E20(void)
+u32 func_00327E20(void)
 {
     return GS8(0x121E);
 }
@@ -330,7 +321,7 @@ void func_00327E30(int v)
 }
 
 /* 0x00327E50, 0xC bytes, matching. */
-u8 func_00327E50(void)
+u32 func_00327E50(void)
 {
     return GS8(0x121F);
 }
@@ -367,7 +358,7 @@ void func_00327F00(int v)
 }
 
 /* 0x00327F60, 0xC bytes, matching. */
-u8 func_00327F60(void)
+u32 func_00327F60(void)
 {
     return GS8(0x1221);
 }
@@ -380,7 +371,7 @@ void func_00327F70(int v)
 }
 
 /* 0x00327FD0, 0xC bytes, matching. */
-u8 func_00327FD0(void)
+u32 func_00327FD0(void)
 {
     return GS8(0x1222);
 }
@@ -393,7 +384,7 @@ void func_00327FE0(int v)
 }
 
 /* 0x00328040, 0xC bytes, matching. */
-u8 func_00328040(void)
+u32 func_00328040(void)
 {
     return GS8(0x1223);
 }
@@ -406,7 +397,7 @@ void func_00328050(int v)
 }
 
 /* 0x003280B0, 0xC bytes, matching. */
-u8 func_003280B0(void)
+u32 func_003280B0(void)
 {
     return GS8(0x1224);
 }
@@ -434,7 +425,7 @@ void func_003281F0(int v)
 }
 
 /* 0x00328230, 0x10 bytes, matching. */
-u8 func_00328230(void)
+u32 func_00328230(void)
 {
     return FLAGS2 & 1;
 }
@@ -477,7 +468,7 @@ void func_003282F0(int v, int k)
 }
 
 /* 0x00328330, 0x2C bytes. */
-u8 func_00328330(int k)
+u32 func_00328330(int k)
 {
     if (k < 5)
         return GS8(0x1234 + k);
@@ -498,7 +489,7 @@ void func_00328360(int v)
     func_00328470();
 }
 
-/* 0x003283D0, 0x6C bytes. Removes item `v`. */
+/* 0x003283D0, 0x6C bytes, matching. Removes item `v`. */
 void func_003283D0(int v)
 {
     int k;
@@ -532,7 +523,7 @@ int func_00328570(void)
 }
 
 /* 0x003285D0, 0x24 bytes, matching. Whether all are full. */
-int func_003285D0(void)
+int func_003285D0(int c)
 {
     return func_00328570() == 5;
 }
@@ -545,7 +536,7 @@ void func_00328600(int v, int k)
 }
 
 /* 0x00328640, 0x2C bytes. */
-u8 func_00328640(int k)
+u32 func_00328640(int k)
 {
     if (k < 5)
         return GS8(0x1278 + k);
@@ -566,7 +557,7 @@ void func_00328670(int v)
     func_00328820();
 }
 
-/* 0x003286E0, 0x6C bytes. */
+/* 0x003286E0, 0x6C bytes, matching. */
 void func_003286E0(int v)
 {
     int k;
@@ -658,7 +649,7 @@ void func_00328AA0(int k, int v)
 }
 
 /* 0x00328B00, 0x30 bytes. */
-u8 func_00328B00(int k)
+u32 func_00328B00(int k)
 {
     if (k < 0x1C)
         return GS8(0x1239 + k) & 0xF;
@@ -772,7 +763,7 @@ void func_00329450(int s, int v)
 }
 
 /* 0x003294A0, 0x34 bytes. */
-u8 func_003294A0(int s)
+u32 func_003294A0(int s)
 {
     if (s < 0 || s > 1)
         return 4;
@@ -860,7 +851,7 @@ static short clamp1000(int v)
 }
 
 /* 0x00329790, 0xC bytes, matching. */
-u16 func_00329790(void)
+u32 func_00329790(void)
 {
     return GS16(0x120A);
 }
@@ -872,7 +863,7 @@ void func_003297A0(int v)
 }
 
 /* 0x003297D0, 0xC bytes, matching. */
-u16 func_003297D0(void)
+u32 func_003297D0(void)
 {
     return GS16(0x120C);
 }
@@ -884,7 +875,7 @@ void func_003297E0(int v)
 }
 
 /* 0x00329810, 0xC bytes, matching. */
-u16 func_00329810(void)
+u32 func_00329810(void)
 {
     return GS16(0x120E);
 }
@@ -908,7 +899,7 @@ u8 *func_00329860(void)
 }
 
 /* 0x00329870, 0xC bytes, matching. */
-u8 func_00329870(void)
+u32 func_00329870(void)
 {
     return GS8(0x127D);
 }

@@ -10,6 +10,26 @@
  * below come from their button help lines (buy skills or mounts, hire or dismiss guards, sell...).
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_002F3F20   /* the original callers here see it this way */
+int func_002F3F20(int officer);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_00327E50   /* the original callers here see it this way */
+int func_00327E50(void);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_002C5220   /* the original callers here see it this way */
+int func_002C5220(int, unsigned char *, unsigned char *, unsigned char, unsigned char);
+#endif
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_0019FD50   /* the original callers here see it this way */
+void func_0019FD50(unsigned int, void *);
+#endif
+#define SW2E_FILE_SCENE_SHOP_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned int u32;
 
@@ -277,7 +297,6 @@ extern struct {
 #define g_00799A2C (s_00799A24.g_00799A2C)
 #define g_00799A68 (s_00799A24.g_00799A68)
 
-
 /* 0x7000015C: random seed in the scratchpad (set to 12345 at start-up, see main.c). */
 #define g_7000015C (*(u32 *)0x7000015C)
 
@@ -313,40 +332,17 @@ extern int g_0045D56C;               /* (gp - 0x7684) officer shown by the skill
 
 #define OFFICER_NONE 0x19F
 
-void func_00376100(int a, int b, int c);
 void func_002A86A0(int value);
-int func_0036DC30(u32 officer, int skill);
 
 /* Button help lines (0xF0 + letter = a button icon). */
 
 #define SHOP_BGM 0x2C
 
 void func_002A5000(int reload);
-u32 func_001026D0(int a, int b, int c, int d, int e, int f, void *g, int h);
-void func_0030D8D0(void);
-char func_002D6890(void);
-int func_00102960(int value);
-void func_002CAD60(void *data);
-void func_002CAD90(void *data);
-void func_0023A290(int bank);
-void func_002C59F0(void);
-void func_002C5A30(void);
-void func_0039FA40(void *dst, void *src);
 void func_002A86A0(int value);
-void func_0017E010(int track);
-void func_001B8F60(int a, int b, int c);
-int func_0023A260(void);
-void func_0023AA40(void);
-void func_0030DB70(void);
 void func_002D68F0(void);
-void func_00102EC0(u32 handle);
-void func_00375D60(void);
-void func_00375C20(int a, u32 b, int c, void *d, int e);
-void func_00376100(int a, int b, int c);
-void func_00376450(void);
 int func_0017DDA0(void);
 void func_0017DF10(void);
-void func_0023AD10(int a, int b, int c, int d, int e);
 void func_002A01D0(int reload);
 void func_002A0920(int reload);
 void func_002A1380(void);
@@ -362,12 +358,7 @@ void func_002A0B40(int officer);
 void func_002A3920(int officer);
 void func_002A1E90(int officer);
 void func_002A3300(int officer);
-void func_002AA0C0(u32 layout, int screen, int c);
-void func_002AA150(u32 layout, int screen, int officer);
 void func_00375F90(void);
-u32 func_00105E10(void);
-void func_00105EB0(u32 a, int b);
-void func_00105F70(u32 a);
 void func_002ABFD0(u32 layout, void *data, int keeper);
 void func_002AC330(u32 a, u32 b, int mode, void *slots, void *states, u8 slot, u8 c);
 void func_002AD0B0(u32 a, int b, u32 c, void *d, u8 e, u8 f, u8 g);
@@ -377,7 +368,6 @@ void func_002ACEC0(u32 a, u32 b, u32 c, u8 d, void *e, int f);
 u32 func_0029FD70(void);
 void func_0029C140(u32 a, u8 b, int c);
 static int func_0029FD10(void);
-void func_001A7DC0(const char *text, int alpha, int b);
 
 /* Inlined in the original: a macro. */
 #define pad1_ready() ((g_00500764 & 1) ? (g_00500765 & 1) == 1 : 0)
@@ -567,10 +557,10 @@ void func_0029FE50(void)
     g_00773148 = g_0077314C;
 }
 
-/* 0x002A41D0, 0x40 bytes, matching. Places the shop's layout layers. */
+/* 0x002A41D0, 0x40 bytes. Places the shop's layout layers. */
 void func_002A41D0(void)
 {
-    func_00375C20(0, g_00773168, 2, g_0045CEA8, 1);
+    func_00375C20(0, g_00773168, 2, PS2_ADDR(g_0045CEA8), 1);
     func_00376100(3, 4, -1);
 }
 
@@ -581,9 +571,9 @@ void func_002A4210(void)
     func_002A5000(0);
     g_00773158 = g_0045D894;
     g_0077315C = 0;
-    g_00773168 = func_001026D0(1, 0x3A, 0, 1, 0, 0, g_00440CD8, 0x85E);
-    g_0077316C = func_001026D0(1, 0x36, 0, 1, 0, 0, g_00440CD8, 0x85F);
-    g_00773170 = func_001026D0(1, 0x37, 0, 1, 0, 0, g_00440CD8, 0x860);
+    g_00773168 = PS2_ADDR(func_001026D0(1, 0x3A, 0, 1, 0, 0, (const char *)(g_00440CD8), 0x85E));
+    g_0077316C = PS2_ADDR(func_001026D0(1, 0x36, 0, 1, 0, 0, (const char *)(g_00440CD8), 0x85F));
+    g_00773170 = PS2_ADDR(func_001026D0(1, 0x37, 0, 1, 0, 0, (const char *)(g_00440CD8), 0x860));
     func_0030D8D0();
     g_0077318B = func_002D6890();
     func_00102960(1);
@@ -624,7 +614,7 @@ void func_002A4210(void)
     func_002A41D0();
     g_0045CE98 = 1;
     g_0045CE9C = 0;
-    func_0039FA40(&g_0045CE98, &g_0045CE98);
+    func_0039FA40((unsigned int *)(&g_0045CE98), (unsigned int *)(&g_0045CE98));
     func_002A86A0(0);
     g_00780494 = 0;
     func_0017E010(SHOP_BGM);
@@ -636,15 +626,15 @@ void func_002A4550(void)
 {
     int saved[2];
 
-    func_0039FA40(saved, &g_0045CE98);
+    func_0039FA40((unsigned int *)(saved), (unsigned int *)(&g_0045CE98));
     if (func_0023A260() != 0)
         func_0023AA40();
     func_0030DB70();
     if (g_0077318B != 0)
         func_002D68F0();
-    func_00102EC0(g_00773170);
-    func_00102EC0(g_0077316C);
-    func_00102EC0(g_00773168);
+    func_00102EC0(PS2_PTR(g_00773170));
+    func_00102EC0(PS2_PTR(g_0077316C));
+    func_00102EC0(PS2_PTR(g_00773168));
     func_00375D60();
 }
 
@@ -748,9 +738,9 @@ void func_002A4950(void)
 
     func_002AA0C0(g_00773168, g_00773144, 0);
     func_00375F90();
-    view = func_00105E10();
-    func_00105EB0(view, 0);
-    func_00105F70(view);
+    view = PS2_ADDR(func_00105E10());
+    func_00105EB0((unsigned char *)PS2_PTR(view), 0);
+    func_00105F70((unsigned char *)PS2_PTR(view));
 
     switch (g_00773144) {
     case 0: func_002ABFD0(g_00773168, g_0077317E, g_00773160); break;
@@ -1125,28 +1115,9 @@ int func_002A3DB0(int player)
 #define BOX_NONE 5
 #define BOX_YES  4
 
-
 void func_001204B0(char *dst, const char *format, ...);   /* sprintf */
-void func_001AE9F0(int box, const char *text, int c);     /* open a message box */
-void func_001AFC70(int box, int player);                  /* give the box to a player's controller */
-void func_001AFFB0(void);                                 /* close the yes / no box */
-u32 func_00327D50(void);                                  /* the player's force? */
-int func_002F9190(u32 force);                             /* its gold */
-void func_002F90D0(u32 force, int amount);                /* add gold (in tens) */
-void func_002F9130(u32 force, int amount);                /* remove gold (in tens) */
-void func_0039F960(void);
-u8 *func_0019FBC0(int item);                              /* item record (name at +0x13) */
-int func_002F3F20(int officer);
-int func_00300560(int *slot_a, int *slot_b);
-void func_002F7300(int officer, u32 force, int slot, int kind);
 void func_002A85C0(int officer);
 const char *func_002A85D0(int officer);                   /* officer name */
-int func_002C5220(int player, u8 *top, u8 *cursor, u8 rows, u8 count);   /* scrolling list */
-u32 func_001A0670(void);
-int func_001A06D0(void);
-void func_0019FD50(u32 a, void *mount);
-int func_003DD680(int player);                            /* mount the player rides */
-void func_003DD660(int player, int mount);
 
 /* Which message box is open (0, 1 or BOX_NONE), and its answer. */
 static inline int open_box(int *answer)
@@ -1221,7 +1192,6 @@ int func_0029FC40(int mount)
 
 /* ---- Mode 3: buy mounts ------------------------------------------------------------------------ */
 
-
 /* 0x002A1740, 0x1C bytes, matching. Copies a mount offer. */
 static void func_002A1740(MountOffer *dst, const MountOffer *src)
 {
@@ -1289,7 +1259,7 @@ void func_002A18D0(int player)
             else
                 func_002A1760();
         } else if (pressed & BTN_CANCEL) {
-            func_001AFFB0();
+            func_001AFFB0(1);
             func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         }
         return;
@@ -1551,7 +1521,7 @@ int func_002A2EF0(int player)
             return 1;
         }
         if (pressed & BTN_CANCEL) {
-            func_001AFFB0();
+            func_001AFFB0(1);
             func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         }
         return 0;
@@ -1601,9 +1571,6 @@ typedef struct {
 
 extern const char *g_0042D3E0[];     /* skill names ("Vitality", "Focus", "Potence"...) */
 extern u8 g_004281B8[];              /* skill table, 8 bytes per skill (+5: kind) */
-
-int func_002F47A0(u32 officer, int skill);                /* skill level */
-void func_002F4820(u32 officer, int skill, int level);
 
 /* Back to the slot choice (mode 1). */
 static inline void back_to_slots(void)
@@ -1666,7 +1633,7 @@ void func_002A0B40(int player)
             if (*count <= 0)
                 back_to_slots();
         } else if (pressed & BTN_CANCEL) {
-            func_001AFFB0();
+            func_001AFFB0(1);
             func_0023AD10(2, 0, SE_CURSOR, SE_CURSOR, 0x1000);
         }
         return;
@@ -1738,20 +1705,8 @@ void func_002A0B40(int player)
 typedef struct { u8 type[6]; } MountTypes;
 extern MountTypes g_0045CEA0;         /* (gp - 0x7D50) the six mounts on sale by default */
 
-int func_002F67B0(u32 officer);                           /* officer type (1 or 2) */
-void func_001A0630(void *record, u8 mount);
-void func_00372E60(const char **names, int count);
 void func_00120928(char *dst, const char *src);           /* strcpy */
-int func_003003C0(int *slot_a, int *slot_b, int *room, int *d);
 int func_002F7D90(int a, void *filter, int c, int d, int e, int f);
-int *func_002F7B10(void);
-void func_002F7C40(int *list, int count);
-void func_002F85E0(void);
-int func_002F41E0(int officer);                           /* officer level */
-int func_00327E50(void);
-int func_002FB3B0(u32 force);
-int func_002FB430(u32 force);
-int func_00309FB0(void);
 
 /* The level-4 "ultimate" form of skills 9, 0x13 and 0x25: fixed price, never a bargain. */
 static inline int is_ultimate(const SkillOffer *o)
@@ -1934,7 +1889,7 @@ void func_002A1380(void)
     }
     for (i = 0; i < 6; i++)
         func_001A0630(&g_007731D0[i * 0x24], order.type[i]);
-    func_00372E60(names, 6);
+    func_00372E60((unsigned int *)(names), 6);
     for (i = 0; i < 6; i++)
         func_00120928((char *)&g_007731D0[i * 0x24] + 0x13, names[i]);
 
@@ -2044,8 +1999,8 @@ void func_002A2770(void)
     wanted = func_002A2640();
     if (found > 0 && wanted > 0) {
         count = func_002F7D90(0, (void *)func_002F85E0, 0, 0, 0, 0);
-        list = func_002F7B10();
-        func_002F7C40(list, count);
+        list = (int *)(func_002F7B10());
+        func_002F7C40((unsigned int *)(list), count);
         for (i = 0; i < count; i++) {
             officer = list[i];
             if ((func_002F3F20(officer) == 0 || (room > 0 && slot_a >= 0 && slot_a < SLOT_COUNT))

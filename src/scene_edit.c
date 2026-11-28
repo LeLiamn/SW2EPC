@@ -15,6 +15,14 @@
  * shown on the right (unit 0x00574DE0) and follows the record.
  */
 
+#ifndef SW2E_PC
+#define SW2E_OWN_PROTO_func_00165C60   /* the original callers here see it this way */
+void func_00165C60(unsigned char *, int, int, int, int, int, unsigned char, int);
+#endif
+#define SW2E_FILE_SCENE_EDIT_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -111,64 +119,22 @@ extern void (*g_004169A0[12])(void);        /* the page handlers */
 
 int func_00377330(int i);
 int func_00377380(int i);
-void func_001BE1A0(void);
-void func_001BD2C0(int model);
-void func_0017C7D0(int motion);
-void func_001BE030(void);
-void func_0016D060(int a, int b, int c);
-void func_001BC540(void);
 u8 *func_003766C0(void);
-void func_00166160(u8 *unit);
-void func_00165C60(u8 *unit, int body, int kind, int model, int a, int b, u8 colour, int c);
-void func_00165180(u8 *unit, int a, int b);
 void func_001BE4F0(void);
-void func_001646C0(u8 *unit, int a);
 int func_003773F0(int weapon);
 int func_003774A0(int model, int a);
-void func_0017A920(u8 *unit);
 void func_003774E0(int value);
-void func_0019F550(void);
-void func_00101470(int value);
 void func_00182C30(void);
-void func_00178460(void);
-void func_00182C20(void);
-void func_003D4770(u8 *list);
 int func_00120A40(const u8 *text);
 void func_0011EB80(void *dst, const void *src, int size);
 void func_003767A0(int value);
-void func_001BD180(int model, int a, int b, int c);
-void func_0017CC40(int motion, int a);
-void func_0016CFB0(int a, int b);
-void func_001037F0(int value);
-void func_003F8B30(int value);
-u8 *func_00102DB0(int align, int size);
-void func_00118850(void *p, int size);
-void func_002F15E0(u32 unused, int stage);
-int func_00102960(int value);
-void func_002F1660(void);
-void func_001A2040(void);
-void func_003A5360(u8 *a, int b);
 void func_003776D0(void);
-void func_003D8280(void);
 int func_0017DDA0(void);
-void func_0017E010(int value);
-void func_001B8F60(int a, int b, int c);
-void func_0023AA40(void);
 void func_0017DF10(void);
-void func_00375D60(void);
 void func_003767E0(void);
-void func_00102EC0(void *data);
-void func_003F8B80(void);
-void func_00376450(void);
-void func_003D8DF0(void);
-void func_003D93F0(void);
-void func_001AE550(float scale, void *view, short *out, u8 *b, int c);
 void func_001784E0(float dt);
 void func_00179320(void);
 void func_00278A20(void);
-void func_003F8C00(void);
-void func_003D8230(void);
-void func_001796D0(void);
 
 /* The motion slot of entry `i` of the model lists (26 of 4 bytes, then three more). */
 static int motion_slot(int i)
@@ -240,7 +206,6 @@ extern PadState g_00500700[2];
 #define BTN_DOWN   0x4000
 #define BTN_LEFT   0x8000
 
-void func_0023AD10(int a, int b, int c, int d, int e);
 #define SE(kind) func_0023AD10((kind), 0, 0x2CDC, 0x2CDC, 0x1000)   /* 0 move, 1 OK, 2 back, 4 refused */
 
 /* The message boxes' object (0x0068F3E0, see scene_shop.c): box n's state at +0x40D3 +
@@ -304,34 +269,12 @@ extern int g_00416670[8], g_00416690[12], g_004166C0[12], g_004166F0[11];
     } while (0)
 
 extern u8 *g_0045D7C4;                    /* (small data) the editor's file */
-void *func_001026D0(int a, int b, int c, int d, int e, int f, const void *file, int line);
-void func_00102EC0(void *data);
 void func_00120928(char *to, const char *from);
-int func_00147070(const char *text);
 void func_003A53D0(u8 *a, u8 b);
-int func_0039E880(int weapon, int i);
-int func_0039E8A0(int weapon, int i);
 void func_003A53A0(u8 *a, int b, int c, int d);
 int func_0011EAE8(const void *a, const void *b, int size);
-int func_0019FB80(void);
-void func_001A1CD0(void);
-void func_00362E20(void);
-int func_003620E0(u32 side, u32 i);
 void func_0011ED38(void *to, int value, int size);
 void func_001204B0(char *to, const char *from, ...);
-void func_001AE9F0(int box, const char *text, ...);
-void func_001AFC50(int box);
-void func_001AFE20(int box);
-void func_001AEE10(int box, int a, int b);
-void func_001AEDB0(int box, int a, int b, int c);
-int func_0023A8B0(void);
-int func_0023A900(int voice, int a);
-void func_0023AA40(void);
-int func_002DAC30(void);
-void func_002D8160(void);
-void func_003A5320(u8 *a, int officer);
-void func_003A5360(u8 *a, int officer);
-void func_001037F0(int a);
 void func_002DBAA0(void);
 void func_002D8060(int a);
 
@@ -461,7 +404,7 @@ int func_00376B20(char *name, u8 *cursor)
 /* 0x00376D20, 0x80 bytes. The cursor right in a name (up to its end, at most 7). */
 void func_00376D20(const char *name, u8 *cursor)
 {
-    int end = func_00147070(name) < 8 ? func_00147070(name) : 7;
+    int end = func_00147070((const unsigned char *)(name)) < 8 ? func_00147070((const unsigned char *)(name)) : 7;
 
     if (*cursor < end) {
         (*cursor)++;
@@ -882,7 +825,7 @@ int func_00377E20(void)
     return func_0011EAE8(func_00376820(), func_00376840(), 0x38) != 0;
 }
 
-/* 0x00377E70, 0x9C bytes. Whether edited officer `slot` is free (not placed in the battle's
+/* 0x00377E70, 0x9C bytes, matching. Whether edited officer `slot` is free (not placed in the battle's
  * sides). */
 int func_00377E70(int slot)
 {
@@ -1164,7 +1107,7 @@ int func_00378960(void)
 {
     u8 *rec = func_00376820();
 
-    if (func_00147070((char *)rec + 1) < 1 || func_00147070((char *)rec + 10) < 1)
+    if (func_00147070((const unsigned char *)((char *)rec + 1)) < 1 || func_00147070((const unsigned char *)((char *)rec + 10)) < 1)
         return 0;
     return 1;
 }
@@ -1248,14 +1191,14 @@ int func_003789B0(void)
                 SE(1);
                 SHOW_LIST(es);
                 P0_MODE(s) = 0;
-            } else if (func_00147070(name) < 8) {
+            } else if (func_00147070((const unsigned char *)(name)) < 8) {
                 func_003768B0(name, P0_CURSOR(s), grid[col - 1 + row * 0x11]);
                 SE(1);
             } else {
                 SE(4);
             }
         } else if (pressed & BTN_EXTRA2) {
-            if (func_00147070(name) > 0) {
+            if (func_00147070((const unsigned char *)(name)) > 0) {
                 SE(2);
                 func_00376B20(name, P0_CURSOR(s));
             }
@@ -1469,7 +1412,7 @@ int func_003798A0(void)
         list = female;
         base = 0x20;
     }
-    if (s[1] > 0xF90 && s[1] < 0x151E && func_0023A8B0() != 0)
+    if (s[1] > 0xF90 && s[1] < 0x151E && func_0023A8B0(s[1]) != 0)
         s[1] = 0;
     held = pad1_held();
     pressed = pad1_pressed();
@@ -2016,7 +1959,7 @@ void func_0037BB60(void)
         func_0017C7D0(func_00377380(i));
     func_001BE030();
     for (i = 0; i < 0x1E; i++)
-        func_0016D060(motion_slot(i), -1, 0);
+        func_0016D060(motion_slot(i), (void *)PS2_PTR(-1), 0);
     func_001BC540();
 }
 

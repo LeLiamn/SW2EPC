@@ -9,6 +9,10 @@
  * with a question mark are hypotheses.
  */
 
+#define SW2E_FILE_UNIT_STATES_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -45,9 +49,6 @@ extern u32 g_7000015C;
     }                                                                   \
 } while (0)
 
-void func_00253300(int k, u8 *u);
-void func_00253690(int k, u8 *u);
-int func_001F1280(void);
 void func_002A6D20(u8 side, int v);
 
 /* 0x001CE800, 0x19C bytes. Unit `u` is knocked down. */
@@ -104,7 +105,7 @@ void func_001CEA40(u8 *u)
 }
 
 /* 0x001CEA60, 0xCC bytes. */
-void func_001CEA60(u8 *u)
+void func_001CEA60(u8 *u, u8 *v)
 {
     u8 *o = OFF(u);
 

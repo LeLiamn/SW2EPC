@@ -14,6 +14,12 @@
  * textures of g_0068F0F8 / g_0068F0F0, and use the font state at 0x0056CCA4 for text.
  */
 
+#define SW2E_FILE_BATTLE_MENU_DRAW_C
+#include "sw2e_mem.h"
+#include "sw2e_protos.h"
+
+void func_0029B5A0(short x, short y, int a, int b, int c);   /* not decompiled yet */
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -96,7 +102,7 @@ extern struct {
 #define DRAW_TEXT(text, x, y, a) do {                                   \
         FONT_COLOUR(6);                                                 \
         FONT_SIZE(16.0f);                                               \
-        func_00146270((text), (x), (y), (a), 0);                        \
+        func_00146270((const unsigned char *)((text)), (x), (y), (a), 0);                        \
         FONT_SIZE(16.0f);                                               \
         FONT_COLOUR(5);                                                 \
     } while (0)
@@ -116,20 +122,20 @@ extern struct {
 /* A sprite of texture `tex` of `ctx` (inlined): p[3] TEX0, p[4] RGBAQ, p[5] / p[7] UV, p[6] /
  * p[8] XYZ2. */
 #define SPRITE_BEGIN(p, ctx, tex) do {                                  \
-        (p) = func_00105860(func_00106C90((ctx), (tex)), 0);            \
+        (p) = (u64 *)func_00105860(func_00106C90((ctx), (tex)), 0);     \
         (p)[3] = func_00106C90((ctx), (tex));                           \
     } while (0)
 /* The blending register (0x8000000044: normal, 0x48: additive?). */
 #define SET_BLEND(value, arg) do {                                      \
-        u64 *b_ = func_001050F0();                                      \
+        u64 *b_ = (u64 *)(func_001050F0());                                      \
         b_[2] = (value);                                                \
         b_[3] = 0x43;                                                   \
-        func_00105230(b_, (arg));                                       \
+        func_00105230((unsigned char *)(b_), (arg));                                       \
     } while (0)
 #define BLEND_NORMAL 0x8000000044ULL
 #define BLEND_ADD    0x48ULL
 
-extern void *g_0068F0F0, *g_0068F0F8;     /* texture sets */
+extern u64 g_0068F0F0, g_0068F0F8;     /* the TEX0 values of the texture sets */
 
 /* Icon rectangles (u, v, w, h) of the menu textures (0x00440450). */
 extern struct { int u, v, w, h; } g_00440450[];
@@ -139,42 +145,18 @@ extern MenuLine g_00410E60[4], g_00410E90[8], g_00410EF0[2], g_00410F10[4];
 extern int g_00410F40[22], g_00410FA0[22];            /* per page: help kinds */
 extern struct { int x, y, tex; } g_00442030[2];       /* per player: a marker */
 
-u64 *func_001050F0(void);
-void func_00105230(u64 *packet, int a);
-void func_00105390(u64 *packet);
-u64 *func_00105860(u64 tex, int a);
-u64 func_00106C90(void *ctx, int tex);
-void func_001059B0(u64 *packet);
-void func_00105900(u64 *packet, int a);
 void func_00290F90(const void *a);
 void func_002911C0(void);
-int func_001AE550(float speed, WindowAnim *window, short *pos, u8 *alpha, int a);
-void func_002C5AC0(float speed, u8 *gauge, int a, int b, int c, int d);
-u8 func_002C5AE0(u8 *gauge);
-void func_002C65C0(int x, int y, int w, int h, int a, u8 alpha);
 void func_002C5C60(int x, int y, int w, int h, int a, int b, int c, int d);
-int func_0022FF30(void);
-int func_0022FF90(void);
-int func_00230010(void);
-int func_00230050(void);
-int func_0036D310(void);
-void func_0028D5D0(int value);
-void func_0028FBD0(int x, int y, int a, int b, u8 alpha);
-void func_0028FE20(int x, int y, int a, int b, u8 alpha);
 void func_00290390(int x, int y, int a, int b);
 void func_00290770(int x, int y, int a, int b);
-u8 func_003DCB30(void);
-u8 func_003DCB70(void);
-u8 func_002F47A0(u32 officer, int i);
-int func_002F6A60(u32 officer);
-void func_00146270(const char *text, int x, int y, int a, int b);
 void func_001204B0(char *to, const char *format, ...);
 
 /* 0x0027FD20, 0x64 bytes. Whether player `player`'s item `i` is above func_003DCB30's level. */
 int func_0027FD20(int player, int i)
 {
     u32 officer = PLAYER_OFFICER(player);
-    u8 level = func_003DCB30();
+    u8 level = func_003DCB30(player, i);
 
     return level < func_002F47A0(officer, i);
 }
@@ -183,7 +165,7 @@ int func_0027FD20(int player, int i)
 int func_0027FD90(int player)
 {
     u32 officer = PLAYER_OFFICER(player);
-    u8 level = func_003DCB70();
+    u8 level = func_003DCB70(player);
 
     return level < func_002F47A0(officer, func_002F6A60(officer));
 }
@@ -653,7 +635,6 @@ void func_0027FE60(int layer)
     }
 }
 
-
 extern u8 g_00411350[], g_00411360[], g_00411370[];
 
 /* 0x00280F30, 0x158 bytes. The menu's background (texture 0x3F63) between func_00290F90 layers. */
@@ -662,17 +643,17 @@ void func_00280F30(void)
     u64 *b, *p;
 
     func_00290F90(g_00411350);
-    b = func_001050F0();
+    b = (u64 *)(func_001050F0());
     b[2] = BLEND_NORMAL;
     b[3] = 0x43;
-    func_00105390(b);
+    func_00105390((unsigned char *)(b));
     SPRITE_BEGIN(p, g_0068F0F8, 0x3F63);
     p[4] = GREY(0x80);
     p[5] = 0x0B081708;
     p[7] = 0x10F81CF8;
     p[6] = GS_XYZ(13, 57, 0xFFFE);
     p[8] = GS_XYZ(166, 236, 0xFFFE);
-    func_001059B0(p);
+    func_001059B0((unsigned char *)(p));
     func_002911C0();
     func_00290F90(g_00411360);
     func_00290F90(g_00411370);
@@ -700,7 +681,7 @@ static void draw_line(const MenuLine *line, int i, int bright, int offered, int 
                  g_00440450[icon].v + g_00440450[icon].h - 1);
     p[6] = GS_XY((int)x, line->y);
     p[8] = GS_XY((int)x + g_00440450[icon].w, line->y + g_00440450[icon].h);
-    func_00105900(p, arg);
+    func_00105900((unsigned char *)(p), arg);
 }
 
 /* 0x00281090, 0x534 bytes. Draws `n` lines of a menu with the cursor's bar on line `cursor`. */
@@ -776,7 +757,7 @@ void func_00281D20(int page, int player)
         p[7] = GS_UV(u + 0x1E, v + 0x16);
         p[6] = GS_XY(pos[0], pos[1]);
         p[8] = GS_XY(pos[0] + 0x20, pos[1] + 0x18);
-        func_00105900(p, 0);
+        func_00105900((unsigned char *)(p), 0);
     }
 }
 
@@ -818,25 +799,8 @@ extern int g_00411000[10], g_00411030[5], g_00411050[10], g_00411080[5];
 extern const char *g_0042DC10[];          /* weapon kind names ("Cross Spear", ...) */
 extern const char g_00440540[];           /* "%d"? */
 void func_002C7310(int x, int y, int z, int w, int h, int alpha, int a);
-const char *func_0019B280(char *text, u32 officer);
-u64 *func_001A93A0(int x, int y, int a, int b, int c, int d, int e, int f);
-int func_002C5C10(u32 officer);
-void func_001A9B30(u64 *a, int b, int c);
-void func_001AA2C0(u64 *a, int b);
-void func_002D67E0(int icon, int x, int y, int a, int b, int alpha);
-void func_002F39F0(u32 officer);
-void func_002F4C40(u32 officer);
-void func_002F4DD0(u32 officer);
-void func_002F4F60(u32 officer);
-char func_002F41E0(u32 officer);
-int func_002F34E0(u32 officer);
 int func_002CAA90(u32 officer, int a);
-const char *func_0019B340(u32 officer);
 void func_00120928(char *to, const char *from);
-void func_002CA490(int x, int y, int a, int b, int c, int alpha, int d);
-int func_002F5730(u32 officer);
-u8 *func_0035DEC0(u32 officer, int i);
-void func_002C5160(float size, const char *text, int x, int y, int w, int a, int b);
 int func_002CA730(u32 officer, int stat);
 
 /* 0x002821F0, 0x890 bytes. Page 1, the officer: window frame, then (unless `hidden`) name,
@@ -866,12 +830,12 @@ void func_002821F0(int x, int y, int w, int h, int a, int player, int hidden)
         return;
     FONT_COLOUR(6);
     FONT_SIZE(20.0f);
-    func_00146270(func_0019B280(text, officer), x + 0x10, y + 0x16, a, 0);
+    func_00146270((const unsigned char *)(func_0019B280(text, officer)), x + 0x10, y + 0x16, a, 0);
     FONT_SIZE(16.0f);
     FONT_COLOUR(5);
-    portrait = func_001A93A0(x + 0x10, y + 0x2E, 0, 0x3C, 0x44, 0x80, 0, 1);
-    func_001A9B30(portrait, func_002C5C10(officer), 1);
-    func_001AA2C0(portrait, 0);
+    portrait = (u64 *)(func_001A93A0(x + 0x10, y + 0x2E, 0, 0x3C, 0x44, 0x80, 0, 1));
+    func_001A9B30((unsigned char *)(portrait), func_002C5C10(officer), 1);
+    func_001AA2C0((unsigned char *)(portrait), 0);
     for (i = 0; i < 10; i++)
         func_002D67E0(icons[i], x + 0x50, y + icon_y[i], 0, a, 0x80);
     func_002F39F0(officer);
@@ -886,14 +850,14 @@ void func_002821F0(int x, int y, int w, int h, int a, int player, int hidden)
         func_001204B0(text, g_00440540, level + 1);
         FONT_SIZE(14.0f);
         FONT_COLOUR(colour);
-        func_00146270(text, x + 0x94, y + 0x2E, a, 0);
+        func_00146270((const unsigned char *)(text), x + 0x94, y + 0x2E, a, 0);
         FONT_SIZE(16.0f);
         FONT_COLOUR(5);
         colour = func_002CAA90(officer, 8) == 0 ? 6 : 1;
         func_001204B0(text, g_00440540, exp);
         FONT_SIZE(14.0f);
         FONT_COLOUR(colour);
-        func_00146270(text, x + 0x94, y + 0x40, a, 0);
+        func_00146270((const unsigned char *)(text), x + 0x94, y + 0x40, a, 0);
         FONT_SIZE(16.0f);
         FONT_COLOUR(5);
         func_001204B0(text, g_00440540, exp);
@@ -901,7 +865,7 @@ void func_002821F0(int x, int y, int w, int h, int a, int player, int hidden)
     func_00120928(text, func_0019B340(officer));
     FONT_COLOUR(6);
     FONT_SIZE(16.0f);
-    func_00146270(text, x + 0x94, y + 0x5C, a, 0);
+    func_00146270((const unsigned char *)(text), x + 0x94, y + 0x5C, a, 0);
     FONT_SIZE(16.0f);
     FONT_COLOUR(5);
     func_002CA490(x + 0x40, y + 0xBB, 0, 0xC4, 8, 0x80, a);
@@ -912,7 +876,8 @@ void func_002821F0(int x, int y, int w, int h, int a, int player, int hidden)
     if (kind < 3) {
         DRAW_TEXT(g_0042DC10[weapon[0]], x + 0x94, y + 0xC0, a);
     } else {
-        func_002C5160(16.0f, g_0042DC10[weapon[0]], x + 0x94, y + 0xC0, 0x70, a, 0);
+        func_002C5160(16.0f, (char *)g_0042DC10[weapon[0]], x + 0x94, y + 0xC0, 0x70, a, 0,
+                      0);   /* t2: not set by the original */
     }
     FONT_COLOUR(5);
     for (i = 5; i < 10; i++)
@@ -954,7 +919,7 @@ extern struct { int u, v, w; } g_004405C8, g_004405D4, g_00440550[];
         p[2][6] = GS_XYZ(x + 0x5E, y + 2, 0xFFFE - z);                  \
         p[2][8] = GS_XYZ(x + 0x5E + (int)((float)g_00440550[kind].w * 1.2f), y + 0x15, 0xFFFE - z); \
         for (i = 0; i < 3; i++)                                         \
-            func_00105900(p[i], arg);                                   \
+            func_00105900((unsigned char *)(p[i]), arg);                                   \
     } while (0)
 
 /* 0x00282B00, 0x774 bytes. Page 8's title; with a kind, drawn again additively at `alpha`. */
@@ -980,7 +945,7 @@ void func_00282B00(int x, int y, int z, int arg, u8 alpha, int kind)
         p[6] = GS_XY(x, y);                                             \
         p[8] = GS_XY(x + 0x20, y + 0x10);                               \
         p[4] = (rgba);                                                  \
-        func_00105900(p, arg);                                          \
+        func_00105900((unsigned char *)(p), arg);                                          \
     } while (0)
 
 /* 0x00283280, 0x374 bytes. A mark, then the same added at `alpha`. */
@@ -995,7 +960,6 @@ void func_00283280(int x, int y, int w, int h, u8 alpha, int arg)
 }
 
 void func_0029C140(u32 officer, int cursor, int a);
-int func_002F4900(u32 officer, int i);
 
 /* An item's slot (texture `tex`, u 0x100-0x16F, v 0xC0-0xD3) lit when func_002F4900 is 1
  * (inlined). */
@@ -1010,7 +974,7 @@ int func_002F4900(u32 officer, int i);
         p[8] = (xy1);                                                   \
         g_ = (lit) == 1 ? 0x80 : 0x4A;                                  \
         p[4] = GS_RGBAQ(g_, g_, g_, alpha);                             \
-        func_00105900(p, 0);                                            \
+        func_00105900((unsigned char *)(p), 0);                                            \
         SET_BLEND(BLEND_NORMAL, 0);                                     \
     } while (0)
 
@@ -1056,13 +1020,9 @@ void func_00283600(int player, int cursor)
 
 extern u8 g_00440430[7], g_00440437[7], g_0044043E[7];   /* per level: a picture */
 extern struct { int x, y; } g_00410DE0[][4];             /* per kind: four icons */
-u8 func_0035DE00(u32 officer);
-int func_003DCB00(int player);
-void func_002D2A80(int a, int b, int c, int d, int e, int alpha);
 void func_0028B730(int a, u32 level, u32 n, int player);
 void func_0028B1D0(int a, u32 level, u32 n, int player);
 void func_0028AD00(int a, u32 level, u32 n, int player);
-void func_002D32B0(int a, int b, int alpha, int c, u32 officer, int kind);
 void func_002D15C0(int x, int y, int a, int alpha, int b, int kind);
 
 /* 0x00283CC0, 0x2AC bytes. Page 6 (the bodyguards): by the officer's kind (func_0035DE00), a
@@ -1122,12 +1082,8 @@ void func_00283FA0(int player, u8 *grid, u8 *page)
 
 extern float g_004110A0[4][4];            /* the marker's matrix (3 rows, then a position) */
 void func_0028EED0(float *out);
-void func_001911A0(float *out, u8 *pos);
 void vu0_rotate(float out[4][4], float in[4][4], float angle);   /* stand-in for VU0 micro 0x70 */
-void func_001FCAA0(int a, float matrix[4][4]);
-void func_002C99F0(int x, int y, int a, int w, int h, int alpha, int layer);
 void func_002CDB70(float time, int x, int y, int a, int layer, int col);
-void func_00147160(const u8 *text, char *out, int size, int a, int b);
 
 /* Page 5's record `i` (0x110 bytes: +0 its time, +8 its position, +0x10 its text). */
 #define RECORD(records, i) ((records) + (i) * 0x110)
@@ -1162,7 +1118,7 @@ void func_00283FD0(int x, int y, int z, int w, int h, int blend, int a, u8 **rec
             if (!FOLLOW_OFF(g_007725E8)) {
                 float pos[4], m[4][4];
 
-                func_001911A0(pos, RECORD(*records, k) + 8);
+                func_001911A0(pos, (float *)(RECORD(*records, k) + 8));
                 base[3][0] = pos[0];
                 base[3][1] = pos[1];
                 base[3][2] = pos[2];
@@ -1170,7 +1126,7 @@ void func_00283FD0(int x, int y, int z, int w, int h, int blend, int a, u8 **rec
                 vu0_rotate(m, base, g_007725E0);       /* (VU0) turned by the angle */
                 for (i = 0; i < 4; i++)
                     m[3][i] += pos[i];
-                func_001FCAA0(7, m);
+                func_001FCAA0(7, PS2_ADDR(m));
                 g_007725E0 += 0.05f;
             }
         }
@@ -1179,7 +1135,7 @@ void func_00283FD0(int x, int y, int z, int w, int h, int blend, int a, u8 **rec
     s_0056CCA4.g_0056CCCC = 0x12;
     if (shown == 1) {
         func_002CDB70((float)*(int *)*records, x + 0x10, y + 0x3A, 0x0C, blend, 6);
-        func_00147160(*records + 0x10, text, 400, 0, 0);
+        func_00147160(*records + 0x10, (unsigned char *)(text), 400, 0, 0);
         DRAW_TEXT(text, x + 0x10, y + 0x48, blend);
     } else if (*(u32 *)(*records + 0x1100) < 0x10) {
         for (i = 0; i < 3; i++) {
@@ -1188,7 +1144,7 @@ void func_00283FD0(int x, int y, int z, int w, int h, int blend, int a, u8 **rec
 
             if ((int)j >= 0 && j < total) {
                 func_002CDB70((float)*(int *)RECORD(*records, j), x + 0x10, y + 8 + (2 - i) * 0x32, 0x0C, blend, 6);
-                func_00147160(RECORD(*records, j) + 0x10, text, 400, 0, 0);
+                func_00147160(RECORD(*records, j) + 0x10, (unsigned char *)(text), 400, 0, 0);
                 DRAW_TEXT(text, x + 0x10, y + 0x16 + (2 - i) * 0x32, blend);
             }
         }
@@ -1199,7 +1155,7 @@ void func_00283FD0(int x, int y, int z, int w, int h, int blend, int a, u8 **rec
             if ((int)j >= 0 && j < *(u32 *)(*records + 0x1100)) {
                 j = (*(int *)(*records + 0x1104) - j + 0x0F) & 0x0F;
                 func_002CDB70((float)*(int *)RECORD(*records, j), x + 0x10, y + 8 + (2 - i) * 0x32, 0x0C, blend, 6);
-                func_00147160(RECORD(*records, j) + 0x10, text, 400, 0, 0);
+                func_00147160(RECORD(*records, j) + 0x10, (unsigned char *)(text), 400, 0, 0);
                 DRAW_TEXT(text, x + 0x10, y + 0x16 + (2 - i) * 0x32, blend);
             }
         }
@@ -1239,8 +1195,6 @@ void func_00284A10(u8 cursor)
     func_00281090(g_00410EF0, n & 0xFF, cursor, 0);
 }
 
-u32 func_0036DD30(int a, u32 i);
-int func_0036F290(int a, int b);
 void func_0029A1C0(int x, int y, int a, int b, u32 *values, int n, u8 cursor, int *offered, int p8, int p9, int p10);
 void func_0029A8F0(int x, int y, int a, int b, u32 value, int refused);
 
@@ -1273,15 +1227,7 @@ void func_00284B60(int player, u8 *grid, u8 *page)
         func_0029A8F0(0x154, 0x68, 0, 0, value, func_0036F290(0, page[0]) == 0);
 }
 
-u8 func_00234B50(int i);
-u32 func_003F6CA0(int a, u32 entry);
-int func_003F77F0(int a, int b);
-u8 func_003F7AE0(int a);
 void func_0029ABA0(int x, int y, int a, int b, u32 *values, u8 n, u8 cursor, int *offered, int p8);
-void func_0029B5A0(int x, int y, int a, int b, int c);
-u32 func_003F6C10(int a);
-int func_003F7090(u32 a, u32 b);
-u8 func_003F6BE0(int a);
 void func_0029B1C0(int x, int y, int a, int b, u32 value, int c, int d, int e);
 
 /* 0x00284C40, 0xF8 bytes. Page 10's list: its entries' values and whether each can be used. */
@@ -1332,7 +1278,6 @@ void func_00284EF0(void)
 }
 
 void func_002989E0(int player, int x, int y, int a);
-int func_003DD680(int player);
 void func_002966C0(int a, int b, int x, int y, int c, int player, int d);
 
 /* 0x00284F00, 0xF4 bytes. Page 12's drawer: four lines and two windows. */
@@ -1354,7 +1299,7 @@ void func_00284F00(int player, u8 cursor)
 }
 
 /* 0x00285000, 0x8 bytes, matching. Page 13's drawer: empty. */
-void func_00285000(void)
+void func_00285000(int k)
 {
 }
 
@@ -1365,16 +1310,9 @@ void func_00285010(void)
 
 extern char g_007B4E60[], g_007B5062[];   /* text buffers */
 extern const char g_004405F0[];
-int func_003F5650(void);
-int func_003F5560(void);
 u32 func_003F55E0(void);
 int func_003F55F0(void);
 int func_003F5600(void);
-void func_003DD730(char *out, u8 **group);
-void func_003E41A0(int x, int y, int a, int b, int c);
-const char *func_00372CF0(int id);
-const char *func_0030CB80(int entry);
-void func_003E3270(int x, int y, int a, int alpha, int b, u32 t);
 extern u8 g_006A1D58[][0x68];             /* the soldier groups */
 
 /* 0x00285020, 0x564 bytes. Page 15 (a mission?): the window, the group's name in messages 0-3,
@@ -1395,7 +1333,7 @@ void func_00285020(int x, int y, int w, int h, u8 alpha, int a, int hidden)
     state = func_003F55E0();
     limit = func_003F55F0();
     entry = func_003F5600();
-    func_003DD730(name, group);
+    func_003DD730(PS2_ADDR(name), group);
     func_003E41A0(x + 0x10, y + 0x48, 0, a, 0);
     func_003E41A0(x + 0x10, y + 0x88, 0, a, 1);
     func_003E41A0(x + 0x10, y + 0xAC, 0, a, 2);
@@ -1403,13 +1341,13 @@ void func_00285020(int x, int y, int w, int h, u8 alpha, int a, int hidden)
         func_001204B0(g_007B4E60, func_00372CF0(2), name, name);
     else
         func_001204B0(g_007B4E60, func_00372CF0(0), name, name);
-    func_00147160((u8 *)g_007B4E60, g_007B5062, 400, 0, 0);
+    func_00147160((u8 *)g_007B4E60, (unsigned char *)(g_007B5062), 400, 0, 0);
     DRAW_TEXT(g_007B5062, x + 0x18, y + 8, a);
     if ((*group)[0x79] == 0)
         func_001204B0(g_007B4E60, func_00372CF0(3), name);
     else
         func_001204B0(g_007B4E60, func_00372CF0(1), name);
-    func_00147160((u8 *)g_007B4E60, g_007B5062, 400, 0, 0);
+    func_00147160((u8 *)g_007B4E60, (unsigned char *)(g_007B5062), 400, 0, 0);
     DRAW_TEXT(g_007B5062, x + 0x18, y + 0xC0, a);
     switch (state) {
     case 0:
@@ -1440,7 +1378,7 @@ void func_00285020(int x, int y, int w, int h, u8 alpha, int a, int hidden)
         func_001204B0(g_007B4E60, g_004405F0);
         break;
     }
-    func_00147160((u8 *)g_007B4E60, g_007B5062, 400, 0, 0);
+    func_00147160((u8 *)g_007B4E60, (unsigned char *)(g_007B5062), 400, 0, 0);
     DRAW_TEXT(g_007B5062, x + 0x18, y + 0x5C, a);
     if (limit * 3000 - g_00669F9C >= 0)
         func_003E3270(x + 0x18, y + 0x9C, 0, 0x80, a, limit * 3000 - g_00669F9C);
@@ -1471,8 +1409,6 @@ void func_00285610(u8 cursor)
         g_007725E4++;
     func_00281090(g_00410EF0, n & 0xFF, cursor, 0);
 }
-
-void func_002DB9A0(void);
 
 /* 0x00285680, 0x1C bytes, matching. Page 17's drawer. */
 void func_00285680(void)
