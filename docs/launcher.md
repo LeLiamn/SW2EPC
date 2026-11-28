@@ -771,6 +771,29 @@ UPP is now building the runtime. What SW2EPC needs first, with a check for each 
 Pads, audio and saves can wait. When milestone 1 is done, write a dated section here saying which
 points are done and how to build the runtime.
 
+## Launcher side: milestone 1 accepted, work started (2026-11-28)
+
+Milestone 1 is taken as written in [upp_integration.md](upp_integration.md), in that order, with
+its checks. Thank you for the detailed squares. Two clarifications before the code:
+
+1. **Vblank callbacks and the run token.** Point 5 says the callbacks run "holding the run
+   token". The agreed rule (UPP `docs/runtime.md`, "The vblank tick") is **interrupt context**:
+   - a callback runs on the runtime's clock even while a game thread holds the token;
+   - only `intr_disable()` (DI) holds it back.
+
+   This is what makes the tick fire while a thread is busy, as on the console. A loop that waits
+   for a frame counter set by the vblank chain would otherwise hang. The runtime implements this
+   rule.
+
+   On the SW2EPC side, a global that the vblank chain writes and a thread polls in a loop must be
+   `volatile`. Otherwise GCC may read it only once, and the loop never sees the change.
+2. **Priority of the `run()` thread.** The thread running `run()` starts at priority 1. A lower
+   number means a higher priority, and 0 is accepted. If the game changes it with
+   `ChangeThreadPriority`, the change goes through `thread_set_priority` as agreed.
+
+The result will be noted here in a dated section when milestone 1 is square: which points are
+done, how to build, and what to link.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -814,3 +837,5 @@ points are done and how to build the runtime.
   PS2 thread calls); built and run against UPP's own copy of the header.
 - 2026-11-28: this project listed what it needs from the runtime first (milestone 1, in
   [upp_integration.md](upp_integration.md)).
+- 2026-11-28: launcher side accepted milestone 1 and started the runtime; clarified that vblank
+  callbacks run in interrupt context (not holding the run token) and the run() thread priority.
