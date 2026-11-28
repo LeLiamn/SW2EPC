@@ -205,13 +205,13 @@ u8 *func_0023C410(int p, u8 *u)
                 if ((((u32 *)g)[0x19] & 1) == 0)
                     continue;
                 x = *g;
-                if (UNIT_ACTIVE(x) && (UNIT_FLAGS(x) & 4) == 0 && x[0x79] == 0 && o == (*(u8 **)(x + 8))[6])
+                if (UNIT_ACTIVE(x) && (UNIT_FLAGS(x) & 4) == 0 && x[0x79] == 0 && o == (PS2_LOADP(u8 *, (x + 8)))[6])
                     return x;
             }
         }
     } else {
         for (k = 0; k < 2; k++) {
-            if ((*(u8 **)(u + 8))[6] == g_0043D300[kind][k])
+            if ((PS2_LOADP(u8 *, (u + 8)))[6] == g_0043D300[kind][k])
                 return u;
         }
     }
@@ -238,7 +238,7 @@ void func_0023C6A0(u8 *t, u16 *a)
     u32 f = UNIT_FLAGS(u);
 
     if (UNIT_ACTIVE(u) && (f & 4) == 0 && u[0x79] != 0) {
-        if (func_002D6F90(a[0], *(u8 **)(u + 8), unit_pos(u), u[0x79], f & 0x200) != 0)
+        if (func_002D6F90(a[0], PS2_LOADP(u8 *, (u + 8)), unit_pos(u), u[0x79], f & 0x200) != 0)
             *t |= 0x10;
     }
 }
@@ -251,7 +251,7 @@ void func_0023C770(u8 *box, u8 *w, char *text)
 
     func_0022F120(w, fmt, TEXT(g_005BA6BC, 0x13), 0, 0);
     u = func_0035DCD0(0);
-    func_0019B170(name, **(u16 **)(u + 8), (*(u16 **)(u + 8))[1]);
+    func_0019B170(name, *PS2_LOADP(u16 *, (u + 8)), (PS2_LOADP(u16 *, (u + 8)))[1]);
     func_001204B0(text, fmt, name);
     show_sys(box, w, 1);
 }
@@ -271,7 +271,7 @@ void func_0023C890(u8 *box, u8 *w, char *text, u16 *a)
 
     if (!UNIT_ACTIVE(u) || (UNIT_FLAGS(u) & 4) != 0 || u[0x79] == 0)
         return;
-    o = *(u8 **)(u + 8);
+    o = PS2_LOADP(u8 *, (u + 8));
     k = line_kind(o);
     if (k < 0x2A) {
         u32 r = RANDOM();
@@ -292,8 +292,8 @@ void func_0023CA50(u8 *box, u8 *w, char *text, u16 *a)
 
     if (!UNIT_ACTIVE(u) || (UNIT_FLAGS(u) & 4) != 0 || u[0x79] != 0)
         return;
-    o = *(u8 **)(u + 8);
-    p = *(u8 **)(func_0035DCD0(a[0]) + 8);
+    o = PS2_LOADP(u8 *, (u + 8));
+    p = PS2_LOADP(u8 *, (func_0035DCD0(a[0]) + 8));
     k = line_kind(o);
     if (k >= 0x2A)
         return;
@@ -327,7 +327,7 @@ void func_0023CC50(u8 *box, u8 *w, char *text, u16 *a)
 /* 0x0023CD30, 0x128 bytes. Request 0xD: unit `a`'s officer's reply (one of two). */
 void func_0023CD30(u8 *box, u8 *w, char *text, u16 *a)
 {
-    u8 *o = *(u8 **)(UNIT(a[0]) + 8);
+    u8 *o = PS2_LOADP(u8 *, (UNIT(a[0]) + 8));
     u8 *t = g_005BA76C[func_0023C190(o)];
 
     func_0022F120(w, text, TEXT(t, (RANDOM() & 1) != 0), 0, 0);
@@ -348,7 +348,7 @@ void func_0023CE60(u8 *box, u8 *w, char *text, u16 *a)
     u32 pos[2];
 
     func_0022F120(w, fmt, TEXT(g_005BA6BC, 5), 0, 0);
-    func_0019B170(name, **(u16 **)(u + 8), (*(u16 **)(u + 8))[1]);
+    func_0019B170(name, *PS2_LOADP(u16 *, (u + 8)), (PS2_LOADP(u16 *, (u + 8)))[1]);
     func_001204B0(text, fmt, name);
     pos[0] = ((u32 *)unit_pos(u))[0];
     pos[1] = ((u32 *)unit_pos(u))[1];
@@ -361,7 +361,7 @@ void func_0023CE60(u8 *box, u8 *w, char *text, u16 *a)
  * merit `a[1]` (lines 1-3, 0xE). */
 void func_0023CF60(u8 *box, u8 *w, char *text, u16 *a)
 {
-    u8 *pu = func_0035DCD0(a[0]), *po = *(u8 **)(pu + 8), *o = po;
+    u8 *pu = func_0035DCD0(a[0]), *po = PS2_LOADP(u8 *, (pu + 8)), *o = po;
     int line;
     u32 k;
 
@@ -370,7 +370,7 @@ void func_0023CF60(u8 *box, u8 *w, char *text, u16 *a)
             u8 *x = func_0023C410(a[0], 0);
 
             if (x != 0) {
-                o = *(u8 **)(x + 8);
+                o = PS2_LOADP(u8 *, (x + 8));
                 line = 0xE;
                 func_0023C300(&line, o, po);
                 goto speak;
@@ -383,7 +383,7 @@ void func_0023CF60(u8 *box, u8 *w, char *text, u16 *a)
                 } else {
                     line = 2;
                     pu = q;
-                    o = *(u8 **)(q + 8);
+                    o = PS2_LOADP(u8 *, (q + 8));
                 }
             }
         } else {
@@ -409,7 +409,7 @@ void func_0023D190(u8 *box, u8 *w, char *text, u16 *a)
 {
     char fmt[256], name[256];
     u8 *u = func_0035DCD0(a[0]);
-    u16 *n = *(u16 **)(u + 8);
+    u16 *n = PS2_LOADP(u16 *, (u + 8));
 
     func_0022F120(w, fmt, TEXT(g_005BA6BC, 6), 0, 0);
     func_0019B170(name, n[0], n[1]);
@@ -440,8 +440,8 @@ void func_0023D2B0(u8 *box, u8 *w, char *text, u16 *a)
     else
         return;
     func_0022F120(w, fmt, TEXT(g_005BA6C0, k), 0, 0);
-    n0 = (*(u16 **)(u + 8))[0];
-    n1 = (*(u16 **)(u + 8))[1];
+    n0 = (PS2_LOADP(u16 *, (u + 8)))[0];
+    n1 = (PS2_LOADP(u16 *, (u + 8)))[1];
     func_0019B170(name, n0, n1);
     v = a[1] / 0x32 * 0x32;
     func_001204B0(text, fmt, name, v);
@@ -476,7 +476,7 @@ void func_0023D500(u8 *box, u8 *w, char *text, u16 *a)
 
     if (!UNIT_ACTIVE(u) || (UNIT_FLAGS(u) & 4) != 0 || u[0x79] != 0)
         return;
-    o = *(u8 **)(u + 8);
+    o = PS2_LOADP(u8 *, (u + 8));
     k = line_kind(o);
     if (k >= 0x2A || g_005BD740[0] != 0)
         return;
@@ -503,7 +503,7 @@ void func_0023D710(u8 *box, u8 *w, char *text, u16 *a)
 
     if (!UNIT_ACTIVE(u) || (f & 4) != 0 || u[0x79] != 0)
         return;
-    n = *(u16 **)(u + 8);
+    n = PS2_LOADP(u16 *, (u + 8));
     if ((*(u32 *)(u + 0x84) & 0x8000) == 0) {
         pos[0] = ((u32 *)unit_pos(u))[0];
         pos[1] = ((u32 *)unit_pos(u))[1];
@@ -537,7 +537,7 @@ void func_0023D8D0(u8 *box, u8 *w, char *text, u16 *a)
     if ((((u32 *)g)[0x19] & 1) == 0 || (u = *g) == 0 || !UNIT_ACTIVE(u))
         return;
     side = u[0x79];
-    n = *(u16 **)(u + 8);
+    n = PS2_LOADP(u16 *, (u + 8));
     if (side == 2)
         k = a[1] == 0 ? 0xF : 0xC;
     else if (side == 1)
@@ -662,10 +662,10 @@ void func_0023DDE0(u8 *box, u8 *w, char *text, short *a)
         return;
     }
     func_0022F120(w, fmt, TEXT(g_005BA6BC, k), 0, 0);
-    n = *(u16 **)(u + 8);
+    n = PS2_LOADP(u16 *, (u + 8));
     if ((UNIT_FLAGS(t) & 0x180) != 0)
         t = func_0035DCD0((UNIT_FLAGS(t) & 0x80) == 0);
-    m = *(u16 **)(t + 8);
+    m = PS2_LOADP(u16 *, (t + 8));
     func_0019B170(na, n[0], n[1]);
     func_0019B170(nb, m[0], m[1]);
     switch (k) {
@@ -737,7 +737,7 @@ void func_0023E620(u8 *box, u8 *w, char *text, u16 *a)
     pos[0] = ((u32 *)unit_pos(u))[0];
     pos[1] = ((u32 *)unit_pos(u))[1];
     func_0022F120(f, fmt, TEXT(g_005BA6C0, u[0x79] != 1), 0, 0);
-    func_0019B170(name, (*(u16 **)(u + 8))[0], (*(u16 **)(u + 8))[1]);
+    func_0019B170(name, (PS2_LOADP(u16 *, (u + 8)))[0], (PS2_LOADP(u16 *, (u + 8)))[1]);
     func_001204B0(out, fmt, name);
     func_002C4AE0(pos, PS2_ADDR(out));
     show_line(box, w, o, 1, 0, p[0x79]);

@@ -287,8 +287,8 @@ void func_00116B40(void *arg)
     u8 *work = arg;
 
     func_0011EB80(work + 0x1000, (void *)PS2_PTR(0x70000000), 0x4000);
-    *(int *)(work + 0x5010) = func_00107578(*(u8 **)(work + 0x5004), *(u32 *)(work + 0x5008), 0,
-                                            *(int **)(work + 0x500C));
+    *(int *)(work + 0x5010) = func_00107578(PS2_LOADP(u8 *, (work + 0x5004)), *(u32 *)(work + 0x5008), 0,
+                                            PS2_LOADP(int *, (work + 0x500C)));
     func_0011EB80((void *)PS2_PTR(0x70000000), work + 0x1000, 0x4000);
     WakeupThread(*(int *)(work + 0x5000));
     ExitThread();
@@ -303,7 +303,7 @@ int func_00116BB0(u8 *data, int *entry)
     int thread;
 
     *(int *)(work + 0x5000) = GetThreadId();
-    *(u8 **)(work + 0x5004) = data + entry[0];
+    PS2_STOREP(u8 *, (work + 0x5004), data + entry[0]);
     *(int *)(work + 0x5008) = entry[1];
     *(int *)(work + 0x500C) = 0;
     t.entry = func_00116B40;

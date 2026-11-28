@@ -237,7 +237,7 @@ void func_00356450(u32 kind, u16 id, u32 *colour, char *out)
         func_003DD710(PS2_ADDR(out), (unsigned char *)PS2_PTR(id));
         break;
     case 1:
-        *colour = (*(u8 **)g_006A1D58[id])[0x79];
+        *colour = (PS2_LOADP(u8 *, g_006A1D58[id]))[0x79];
         func_003DD730(PS2_ADDR(out), (unsigned char **)(g_006A1D58[id]));
         break;
     case 2:
@@ -353,7 +353,7 @@ void func_00356860(EvCmd *c)
 void func_003569A0(EvCmd *c)
 {
     u32 fl = c->c;
-    u8 *u = UNIT(c->b), *o = *(u8 **)(u + 8);
+    u8 *u = UNIT(c->b), *o = PS2_LOADP(u8 *, (u + 8));
     int off = o - g_005BA6A0;
     u32 kind = o[5];
     char buf[256];
@@ -525,7 +525,7 @@ void func_00356FD0(u16 i)
 /* 0x00357000, 0x68 bytes. Queues "look at group `g`'s leader". */
 void func_00357000(int g)
 {
-    func_00356FD0(UNIT_INDEX(*(u8 **)g_006A1D58[g]));
+    func_00356FD0(UNIT_INDEX(PS2_LOADP(u8 *, g_006A1D58[g])));
 }
 
 /* 0x00357070, 0x28 bytes, matching. Queues "look at base `b`". */
@@ -663,7 +663,7 @@ void func_003573A0(u16 k, int i, u16 fl, int side, short e)
 /* 0x00357420, 0x68 bytes. The same by group `g`'s leader. */
 void func_00357420(u16 k, int g, u16 fl, int side, short e)
 {
-    func_003573A0(k, UNIT_INDEX(*(u8 **)g_006A1D58[g]), fl, side, e);
+    func_003573A0(k, UNIT_INDEX(PS2_LOADP(u8 *, g_006A1D58[g])), fl, side, e);
 }
 
 /* 0x00357490, 0x44 bytes. Queues line `k` of table 0x005BA7B4 by officer `o`. */
@@ -685,7 +685,7 @@ void func_003574E0(u16 k, int i, int side, short e)
 
     if (side == 2)
         side = s != 0;
-    func_00357490(k, (*(u8 **)(UNIT(i) + 8) - g_005BA6A0) / 0x2C, s, side, e);
+    func_00357490(k, (PS2_LOADP(u8 *, (UNIT(i) + 8)) - g_005BA6A0) / 0x2C, s, side, e);
 }
 
 /* 0x00357570, 0x44 bytes. Queues line `k` of table 0x005BA7B8 by officer `o`. */
@@ -707,13 +707,13 @@ void func_003575C0(u16 k, int i, int side, short e)
 
     if (side == 2)
         side = s != 0;
-    func_00357570(k, (*(u8 **)(UNIT(i) + 8) - g_005BA6A0) / 0x2C, s, side, e);
+    func_00357570(k, (PS2_LOADP(u8 *, (UNIT(i) + 8)) - g_005BA6A0) / 0x2C, s, side, e);
 }
 
 /* 0x00357650, 0x68 bytes. The same by group `g`'s leader. */
 void func_00357650(u16 k, int g, int side, short e)
 {
-    func_003575C0(k, UNIT_INDEX(*(u8 **)g_006A1D58[g]), side, e);
+    func_003575C0(k, UNIT_INDEX(PS2_LOADP(u8 *, g_006A1D58[g])), side, e);
 }
 
 /* 0x003576C0, 0xAC bytes. Formats battle message `k` with two subjects into `out`. */
@@ -1679,8 +1679,8 @@ void func_0035A910(EvCmd *c)
         u8 *r = OFFICER(k);
         u32 f = *(u32 *)(r + 0xB8);
 
-        if ((f & 1) != 0 && (f & 2) == 0 && *(u8 **)(r + 0x10) != 0
-            && o == (*(u8 **)(r + 0x10))[0x79] && func_003B0370(r, PS2_ADDR(b)) != 0) {
+        if ((f & 1) != 0 && (f & 2) == 0 && PS2_LOADP(u8 *, (r + 0x10)) != 0
+            && o == (PS2_LOADP(u8 *, (r + 0x10)))[0x79] && func_003B0370(r, PS2_ADDR(b)) != 0) {
             short most = *(short *)(r + 0x80);
             int n = most * 0x32 / 100 + *(short *)(r + 0x82);
 
@@ -1707,8 +1707,8 @@ static void base_effect(u8 *b, u32 o, int kind)
         u8 *r = OFFICER(k);
         u32 f = *(u32 *)(r + 0xB8);
 
-        if ((f & 1) != 0 && (f & 2) == 0 && *(u8 **)(r + 0x10) != 0
-            && o == (*(u8 **)(r + 0x10))[0x79] && func_003B0370(r, PS2_ADDR(b)) != 0
+        if ((f & 1) != 0 && (f & 2) == 0 && PS2_LOADP(u8 *, (r + 0x10)) != 0
+            && o == (PS2_LOADP(u8 *, (r + 0x10)))[0x79] && func_003B0370(r, PS2_ADDR(b)) != 0
             && *(int *)(r + 0x14) != 0) {
             func_0024D3A0(kind, *(int *)(r + 0x14), first);
             first = 0;

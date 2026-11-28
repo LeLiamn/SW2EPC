@@ -33,15 +33,20 @@ typedef struct {
     int unknown_1c;          /* +0x1C set to 0x18 on reset */
     int requested;           /* +0x20 requested state (0x18 = none) */
     int running;             /* +0x24 the per-frame loop runs while current == running */
-    void (*enter)(void);     /* +0x28 */
-    void (*leave)(void);     /* +0x2C */
-    int (*update)(float dt); /* +0x30 non-zero: run step() */
-    void (*step)(void);      /* +0x34 */
-    void (*draw)(void);      /* +0x38 */
-    void (*enter_alt)(void); /* +0x3C used instead of enter when set */
-    void (*leave_alt)(void); /* +0x40 used instead of leave when set */
-    void (*on_reset)(void);  /* +0x44 called when a reset is requested */
+    /* the scene's functions: PS2 code addresses (ps2ptr), called through SCENE_CALL */
+    ps2ptr enter;            /* +0x28 void (void) */
+    ps2ptr leave;            /* +0x2C void (void) */
+    ps2ptr update;           /* +0x30 int (float dt), non-zero: run step() */
+    ps2ptr step;             /* +0x34 void (void) */
+    ps2ptr draw;             /* +0x38 void (void) */
+    ps2ptr enter_alt;        /* +0x3C used instead of enter when set */
+    ps2ptr leave_alt;        /* +0x40 used instead of leave when set */
+    ps2ptr on_reset;         /* +0x44 called when a reset is requested */
 } SceneManager;
+
+/* Calls a scene function kept as a code address (the C function with that address on the PC). */
+#define SCENE_CALL(f) ((void (*)(void))PS2_FUNC(g_0045D880.f))()
+#define SCENE_UPDATE(dt) ((int (*)(float))PS2_FUNC(g_0045D880.update))(dt)
 
 extern SceneManager g_0045D880;
 
@@ -54,14 +59,7 @@ extern SceneManager g_0045D880;
  */
 typedef struct {
     int running;             /* always the entry's own state number */
-    void (*enter)(void);
-    void (*leave)(void);
-    int (*update)(float dt);
-    void (*step)(void);
-    void (*draw)(void);
-    void (*enter_alt)(void);
-    void (*leave_alt)(void);
-    void (*on_reset)(void);
+    ps2ptr enter, leave, update, step, draw, enter_alt, leave_alt, on_reset;   /* as in the manager */
 } SceneEntry;
 
 #define SCENE_COUNT 0x18
@@ -201,11 +199,11 @@ int func_001005A0(void)
         if (g_0045D880.requested < 0x18 && g_0045D880.current == g_0045D880.requested) {
             g_0045D880.requested = 0x18;
             if (g_0045D880.enter_alt != 0)
-                g_0045D880.enter_alt();
+                SCENE_CALL(enter_alt);
             else
-                g_0045D880.enter();
+                SCENE_CALL(enter);
         } else {
-            g_0045D880.enter();
+            SCENE_CALL(enter);
         }
         func_001014D0(1);
 
@@ -213,13 +211,13 @@ int func_001005A0(void)
         if (g_0045D880.current == g_0045D880.running) {
             do {
                 if (g_0045D880.skip_update_test != 0)
-                    g_0045D880.step();
-                else if (g_0045D880.update(g_0045D880.update_arg) != 0)
-                    g_0045D880.step();
+                    SCENE_CALL(step);
+                else if (SCENE_UPDATE(g_0045D880.update_arg) != 0)
+                    SCENE_CALL(step);
 
                 if ((g_0045D880.current == g_0045D880.running || g_0045D880.force_draw != 0) &&
                     g_0045D20C == 0 && g_0045D210 == 0) {
-                    g_0045D880.draw();
+                    SCENE_CALL(draw);
                     g_0045D880.force_draw = 0;
                 } else {
                     func_001014D0(0);
@@ -230,7 +228,7 @@ int func_001005A0(void)
                     func_001020E0();
                     func_001020E0();
                     if (g_0045D880.on_reset != 0)
-                        g_0045D880.on_reset();
+                        SCENE_CALL(on_reset);
                     g_0045D20C = 0;
                     g_0045D210 = 0;
                     g_0045D880.previous = g_0045D880.current;
@@ -244,11 +242,11 @@ int func_001005A0(void)
         /* Leave the scene. */
         if (g_0045D880.requested < 0x18) {
             if (g_0045D880.leave_alt != 0)
-                g_0045D880.leave_alt();
+                SCENE_CALL(leave_alt);
             else
-                g_0045D880.leave();
+                SCENE_CALL(leave);
         } else {
-            g_0045D880.leave();
+            SCENE_CALL(leave);
         }
     }
     func_001014D0(0);

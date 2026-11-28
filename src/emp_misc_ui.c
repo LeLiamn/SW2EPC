@@ -467,7 +467,7 @@ void func_003DD6E0(int a, u16 *p)
 /* 0x003DD710, 0x1C bytes, matching. */
 void func_003DD710(int a, u8 *q)
 {
-    func_003DD6E0(a, *(u16 **)(q + 8));
+    func_003DD6E0(a, PS2_LOADP(u16 *, (q + 8)));
 }
 
 /* 0x003DD730, 0x1C bytes, matching. */

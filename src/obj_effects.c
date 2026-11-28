@@ -254,7 +254,7 @@ void func_002AF120(u32 k)
         SLOT(s)[0x5B] = 1;
         a[0xD] = 0x40;
     } else {
-        u8 *o = *(u8 **)(a + 0x14);
+        u8 *o = PS2_LOADP(u8 *, (a + 0x14));
 
         if (o != 0)
             FL38(o) |= 8;
@@ -282,7 +282,7 @@ void func_002AF1B0(void)
 
         if (a[0xC] == 0)
             continue;
-        o = *(u8 **)(a + 0x14);
+        o = PS2_LOADP(u8 *, (a + 0x14));
         if (o == 0) {
             u8 s = a[0xD];
 

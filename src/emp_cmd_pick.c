@@ -64,7 +64,8 @@ typedef struct {
 } PickCmd;
 
 #define PROVINCE_OK_F(p) ((p) >= 0 && (p) < func_0030AB90())
-#define PICK() (*(PickCmd **)((u8 *)((u8 *)func_002FC2C0()) + 0x69C))
+#define PICK() PS2_LOADP(PickCmd *, ((u8 *)((u8 *)func_002FC2C0()) + 0x69C))
+#define PICK_SET(v) PS2_STOREP(PickCmd *, ((u8 *)((u8 *)func_002FC2C0()) + 0x69C), v)
 #define REC_COUNT(r) ((r)[0x1C])
 #define REC_CHOSEN(r) ((r)[0x1D])
 
@@ -847,7 +848,8 @@ void func_003375A0(int mode, int a, int b, u32 *mine)
 
 /* ---- The battle command (command state +0x6A0 = {step, a, b}; slots 0x007B5F00). ---- */
 
-#define BCMD() (*(int **)(((u8 *)func_002FC2C0()) + 0x6A0))
+#define BCMD() PS2_LOADP(int *, (((u8 *)func_002FC2C0()) + 0x6A0))
+#define BCMD_SET(v) PS2_STOREP(int *, (((u8 *)func_002FC2C0()) + 0x6A0), v)
 
 int func_00374250(void);
 int func_00337D50(int a);
@@ -866,7 +868,7 @@ void func_003378A0(void)
 void func_003378E0(void)
 {
     u8 *st = (u8 *)(func_002FC2C0());
-    int *c = *(int **)(st + 0x6A0);
+    int *c = PS2_LOADP(int *, (st + 0x6A0));
     int a;
 
     func_00327D50();
@@ -932,7 +934,7 @@ void func_00337AB0(void)
 {
     u8 *st = (u8 *)(func_002FC2C0());
     int t = g_007B5F00[0][0], from = 0x19, to = 0x19, k;
-    int *c = *(int **)(st + 0x6A0);
+    int *c = PS2_LOADP(int *, (st + 0x6A0));
     u32 kind = *(u32 *)(st + 8), lord, o;
     int s[9];
 

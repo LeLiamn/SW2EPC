@@ -311,7 +311,7 @@ int func_001BD180(int k, int alt, int a, int v)
 static inline void setup_slot(int k, int slot, int mode2)
 {
     u8 *s = g_006CDF50[slot];
-    u32 *f = *(u32 **)s;
+    u32 *f = PS2_LOADP(u32 *, s);
     u8 *col = g_0045D300 + k * 0xA0;
     u32 *p;
 
@@ -386,7 +386,7 @@ int func_001BD5D0(int k)
             func_00147BB0(s + 0x130);
         if (*(u32 *)(s + 0x140) != 0)
             func_00147BB0(s + 0x140);
-        func_00102EC0(*(void **)s);
+        func_00102EC0(PS2_LOADP(void *, s));
         *(u32 *)s = 0;
         *(u32 *)(s + 4) = 0;
     }

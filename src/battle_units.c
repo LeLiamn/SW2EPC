@@ -22,7 +22,8 @@ typedef unsigned int u32;
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
 #define S32(o, off) (*(int *)((u8 *)(o) + (off)))
 #define F32(o, off) (*(float *)((u8 *)(o) + (off)))
-#define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
+#define PTR(o, off) PS2_LOADP(u8 *, ((u8 *)(o) + (off)))
+#define PTR_SET(o, off, v) PS2_STOREP(u8 *, ((u8 *)(o) + (off)), v)
 
 typedef u8 Unit;
 
@@ -138,6 +139,87 @@ u8 *func_00177ED0(void)
     if (g_0045D2BC > 0x3F)
         g_0045D2BC = 0;
     return r;
+}
+
+extern u8 g_005B4BC0[2][0x240];          /* the two players' cursors (bit 0 of +0x230: on) */
+extern u8 g_005AD490[0x8F][0x10], g_005ACBA0[0x8F][0x10];   /* per unit: two cleared pairs */
+extern u8 g_005B0D80[];                  /* the battlefield's second grid */
+extern u32 g_0045D2A4, g_0045D2A8, g_0045D2AC, g_0045D2B0, g_0045D2B4;   /* (small data) */
+extern u32 g_0045D2C4;                   /* (small data) 0x33 at start */
+extern float g_0045CC7C;                 /* (small data) a speed scale, 1.0 at start */
+extern int g_0045CC84;                   /* (small data) 0xF at start */
+#define SP_168 (*(u32 *)PS2_PTR(0x70000168))   /* (scratchpad) copy of g_0045D2C4 */
+extern u32 g_0045D2B8;                   /* (small data) the number of units drawn */
+extern Unit *g_00574DA0[];               /* the units to draw */
+extern int g_0045D2C8;                   /* (small data) the side in the duel view */
+void func_0017A920(u8 *c);
+
+/* 0x00177F80, 0x238 bytes. Starts the battlefield managers: the sub-managers, the 64 effect
+ * records, both players' cursors, the 143 units (reset and given their slot numbers), the two
+ * grids, then the counters and the draw list. */
+void func_00177F80(void)
+{
+    int i;
+    u8 *e;
+    u32 *q;
+
+    func_0024BCA0();
+    func_001BC8C0();
+    func_0017C4A0();
+    func_0016CD30();
+    func_002A79C0();
+    func_001AE4F0();
+    for (i = 0, e = g_005ADD80[0]; i < 0x40; i++, e += 0xC0) {
+        U32(e, 0x70) = 0;
+        U32(e, 0x88) = 0;
+        BIT(e, 0x8C, 0) = 0;
+        BIT(e, 0x8C, 1) = 0;
+        BIT(e, 0x8C, 2) = 0;
+        BIT(e, 0x8C, 3) = 0;
+        U32(e, 0x90) = 0;
+        U32(e, 0xA4) = 0;
+        U16(e, 0x96) = 3;
+        *(unsigned long long *)(e + 0xB0) = 0;
+        U32(e, 0xAC) = 0;
+        U32(e, 0xA0) = 0;
+        U32(e, 0x98) = 0;
+        U32(e, 0x9C) = 0;
+        U32(e, 0xB8) = 0;
+        S16(e, 0x94) = (short)i;
+    }
+    g_0045D2BC = 0;
+    for (i = 0; i < 2; i++) {
+        func_0017A920(g_005B4BC0[i]);
+        BIT(g_005B4BC0[i], 0x230, 0) = 0;
+    }
+    for (i = 0; i < 0x8F; i++) {
+        func_00164680(g_00574DE0[i]);
+        U32(g_005AD490[i], 0) = 0;
+        U32(g_005AD490[i], 4) = 0;
+        func_001646C0(g_00574DE0[i], (u8)i);
+        U32(g_005ACBA0[i], 0) = 0;
+        U32(g_005ACBA0[i], 4) = 0;
+    }
+    g_0045D2AC = 0;
+    g_0045D2B0 = 0;
+    g_0045D2B4 = 0;
+    func_0017E140((u32 *)g_005B2BB0);
+    func_0017E140((u32 *)g_005B0D80);
+    g_0045CC7C = 1.0f;
+    g_0045D2A4 = 0;
+    g_0045D2C8 = 0;
+    g_0045D2C4 = 0x33;
+    SP_168 = 0x33;
+    g_0045CC84 = 0xF;
+    g_0045D2A8 = 0;
+    g_0045D2B8 = 0;
+    for (i = 0, q = (u32 *)g_00574DA0; i < 0xF; i += 5, q += 5) {
+        q[0] = 0;
+        q[1] = 0;
+        q[2] = 0;
+        q[3] = 0;
+        q[4] = 0;
+    }
 }
 
 /* 0x001781C0, 0x88 bytes, matching. Shuts the battlefield managers down. */

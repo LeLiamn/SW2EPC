@@ -250,7 +250,7 @@ void func_0030CEF0(void)
 {
     void *d = func_001026D0(1, 0xAA, 0, 1, 0, 0, g_004467F8, 0x143);
 
-    *(void **)((u8 *)((u8 *)func_00390940()) + 0x8EC0) = d;
+    PS2_STOREP(void *, ((u8 *)((u8 *)func_00390940()) + 0x8EC0), d);
     func_00102960(1);
 }
 

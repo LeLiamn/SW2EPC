@@ -331,7 +331,8 @@ extern int g_00772D4C, g_00799A68;
 
 /* Page 5's state: g_0074B71C points to 16 records of 0x110 bytes (+0x1100 their count, +0x1104
  * the newest); g_0074B720 the cursor, g_0074B721 the scroll. */
-#define P5_RECORDS   (*(u8 **)&g_0074B71C[0])
+#define P5_RECORDS PS2_LOADP(u8 *, &g_0074B71C[0])
+#define P5_RECORDS_SET(v) PS2_STOREP(u8 *, &g_0074B71C[0], v)
 #define P5_CURSOR    (g_0074B71C[4])
 #define P5_SCROLL    (g_0074B71C[5])
 
@@ -411,7 +412,7 @@ int func_00230050(void)
 /* 0x00230090, 0x14 bytes, matching. */
 void func_00230090(void)
 {
-    P5_RECORDS = g_005BC5A8;
+    P5_RECORDS_SET(g_005BC5A8);
 }
 
 /* 0x002300B0, 0xB0 bytes. Requests page `page`: 0x14 leaves for the battle, 0x15 quits (stops

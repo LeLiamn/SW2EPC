@@ -174,7 +174,7 @@ void func_003E8560(void)
     func_00165C60(UNIT1, *q, *(int *)(p + 0x15C), func_003E7EC0(*q, *(int *)(p + 0x158), 0), 0x11,
                   0, 0, 1);
     func_00165180(UNIT1, 1, 0);
-    m = *(u8 **)(UNIT1 + 0x11C);
+    m = PS2_LOADP(u8 *, (UNIT1 + 0x11C));
     if (m != 0) {
         int keep;
 
@@ -246,7 +246,7 @@ void func_003E8820(int k)
 }
 
 /* The two motions' lengths (-1: none). */
-#define MOTION_LEN(u, o) (*(u8 **)((u) + (o)) == 0 ? (u32)-1 : *(u16 *)(*(u8 **)((u) + (o)) + 2))
+#define MOTION_LEN(u, o) (PS2_LOADP(u8 *, ((u) + (o))) == 0 ? (u32)-1 : *(u16 *)(PS2_LOADP(u8 *, ((u) + (o))) + 2))
 
 /* Whether unit `u`'s motion is over (first kind of wait). */
 static int motion_over_a(u8 *p, u8 *u)
@@ -328,7 +328,7 @@ void func_003E8B80(u8 *u)
 void func_003E8C60(u8 *u, int k)
 {
     u8 *p = func_00391250();
-    u16 *m = *(u16 **)(u + 0x210);
+    u16 *m = PS2_LOADP(u16 *, (u + 0x210));
     u32 a0 = m == 0 ? (u32)-1 : m[0], a1 = m == 0 ? (u32)-1 : m[1];
     u32 b = MOTION_LEN(u, 0x214);
     int done;

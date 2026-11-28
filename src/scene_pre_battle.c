@@ -654,7 +654,7 @@ void func_002209E0(void)
             g_007A1BD0[3] = ((float *)g_00443140[BATTLE_TYPE()])[3];
             func_002EC0C0(g_007A1BC0, 1);
         } else {
-            u8 *unit = *(u8 **)(g_00749530 + 0x340 + g_007499E9 * 0x78);
+            u8 *unit = PS2_LOADP(u8 *, (g_00749530 + 0x340 + g_007499E9 * 0x78));
             float pos[4];
 
             g_007A1C28 = 1;
@@ -1025,7 +1025,8 @@ void func_00221F70(int player)
 #define P3_TCOUNT      (g_00749B10[0x50])
 #define P3_GROUP       (*(u8 ***)&g_00749B10[0x54])
 #define P3_VIEW        (g_00749B10[0x59])
-#define P3_UNIT(side, i) (*(u8 **)(g_00749530 + 0x340 + (side) * 0x78 + (i) * 4))
+#define P3_UNIT(side, i) PS2_LOADP(u8 *, (g_00749530 + 0x340 + (side) * 0x78 + (i) * 4))
+#define P3_UNIT_SET(side, i, v) PS2_STOREP(u8 *, (g_00749530 + 0x340 + (side) * 0x78 + (i) * 4), v)
 #define P3_COUNT(side) (((int *)g_007496F0)[side])
 
 extern void (*g_0040DF30[4])(int pad);    /* page 3 handlers by mode (1 and 2 empty) */
@@ -2725,7 +2726,7 @@ void func_002275C0(void)
         if (g_00749B68 == 3) {
             func_001A7DC0(g_0043C7A4, 0x80, 1);
         } else if (g_00749B68 == 0) {
-            u8 *s = *(u8 **)(g_00749530 + 0x340 + g_00749B10[0] * 0x78 + g_00749B10[1] * 4);
+            u8 *s = PS2_LOADP(u8 *, (g_00749530 + 0x340 + g_00749B10[0] * 0x78 + g_00749B10[1] * 4));
             if (s != 0) {
                 if ((*(u32 *)(s + 0x80) & 0x30) == 0) {
                     if (func_0036D780() == 0 || s[0x79] != 0)

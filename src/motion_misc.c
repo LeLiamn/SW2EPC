@@ -27,7 +27,8 @@ typedef struct {
 #define U8(o, off)  (*(u8 *)((u8 *)(o) + (off)))
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
 #define F32(o, off) (*(float *)((u8 *)(o) + (off)))
-#define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
+#define PTR(o, off) PS2_LOADP(u8 *, ((u8 *)(o) + (off)))
+#define PTR_SET(o, off, v) PS2_STOREP(u8 *, ((u8 *)(o) + (off)), v)
 
 extern u8 g_005B5060[][0xD0];            /* the weapon kinds' records (motions at +0x18) */
 

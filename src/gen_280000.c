@@ -135,7 +135,6 @@ int func_002E52E0();
 int func_002E52F0();
 int func_002E5300();
 int func_002E5810();
-int func_002E6370();
 int func_002E6E40();
 int func_002E74E0();
 int func_002E7570();
@@ -2693,8 +2692,25 @@ void func_002E5ED0(void)
 /* 0x002E6210, 0x50 bytes. */
 void func_002E6210(void)
 {
-    func_002E6370(g_007A05A0);
+    func_002E6370((u32 *)g_007A05A0);
     *(u32 *)(g_007A05B8) = PS2_ADDR(func_001026D0(1, 0x3E, 0, 1, 0, 0, (char *)PS2_PTR(0x442DF0), 0x4F));
+}
+
+/* 0x002E6370, 0x1C bytes. Clears a 6-word record. */
+void func_002E6370(u32 *p)
+{
+    p[0] = 0;
+    p[1] = 0;
+    p[2] = 0;
+    p[3] = 0;
+    p[4] = 0;
+    p[5] = 0;
+}
+
+/* 0x002E6390, 0x1C bytes. */
+void func_002E6390(void)
+{
+    func_002E6370((u32 *)g_007A05A0);
 }
 
 /* 0x002EA950, 0x48 bytes. */

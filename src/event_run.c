@@ -69,7 +69,8 @@ extern u8 *g_005BA6A0;
 extern EvFn g_0040CA30[0xD], g_0040CA70[9], g_0040CB30[5], g_0040CB48[3], g_0040CB58[3];
 extern EvFn g_0040CB70[8];
 
-#define CMD(p) (*(u8 **)((p) + 8))
+#define CMD(p) PS2_LOADP(u8 *, ((p) + 8))
+#define CMD_SET(p, v) PS2_STOREP(u8 *, ((p) + 8), v)
 
 void func_001D7760(void);
 void func_001D7BD0(void);
@@ -409,8 +410,8 @@ void func_001DC430(void)
 
     for (k = 0; k < 3; k++) {
         if (g_00730DA0[k][0xE] != 0) {
-            func_002E9B70(*(u8 **)g_00730DA0[k]);
-            func_002E9B70(*(u8 **)(g_00730DA0[k] + 4));
+            func_002E9B70(PS2_LOADP(u8 *, g_00730DA0[k]));
+            func_002E9B70(PS2_LOADP(u8 *, (g_00730DA0[k] + 4)));
         }
     }
 }

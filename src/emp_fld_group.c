@@ -42,7 +42,8 @@ extern u8 g_00693970[];                  /* the game state (units first, 0x88 by
 #define GROUP(i) ((u8 **)g_006A1D58[i])
 #define GI(g) (((u8 *)(g) - g_006A1D58[0]) / 0x68)
 #define INFO(g) func_00338410(GI(g))
-#define LEADER(g) (*(u8 **)(g))
+#define LEADER(g) PS2_LOADP(u8 *, (g))
+#define LEADER_SET(g, v) PS2_STOREP(u8 *, (g), v)
 #define UNIT_FLAGS(u) (*(u32 *)((u) + 0x80))
 
 int func_0033C6A0(u8 **g);
@@ -698,7 +699,7 @@ void func_0033A2B0(u8 **g)
         } else {
             u8 *o;
 
-            for (o = OFFICER(*(int *)(u + 0x14)); o != 0; o = *(u8 **)(o + 4)) {
+            for (o = OFFICER(*(int *)(u + 0x14)); o != 0; o = PS2_LOADP(u8 *, (o + 4))) {
                 short n = clamp0(*(short *)(o + 0x82) + add, *(short *)(o + 0x80));
 
                 *(short *)(o + 0x82) = n;
@@ -772,8 +773,8 @@ void func_0033AA60(u8 **g)
     if ((char)func_00338410(k)[0x2C] == -1) {
         u8 **h;
 
-        if (l[0x7A] == 2 && *(u8 **)(l + 0x18) != 0
-            && (h = (u8 **)(func_0034A740(*(u8 **)(l + 0x18)))) != 0
+        if (l[0x7A] == 2 && PS2_LOADP(u8 *, (l + 0x18)) != 0
+            && (h = (u8 **)(func_0034A740(PS2_LOADP(u8 *, (l + 0x18))))) != 0
             && func_0033B050(g) != 0 && func_0033B050(h) != 0 && l[0x79] == 0) {
             func_0035CB60(k, GI(h));
             func_00338410(k)[0x2C] = 0;
@@ -848,7 +849,7 @@ void func_0033ADC0(u8 **g)
             *(short *)(u + 0x44) = *(short *)(t + 0x40);
             *(unsigned long long *)(u + 0x38) = 0;
             *(u32 *)(u + 0x84) |= 0x10;
-            *(u8 **)(u + 0x1C) = t;
+            PS2_STOREP(u8 *, (u + 0x1C), t);
             *(u32 *)(u + 0x84) |= 0x10;
         }
     }
@@ -1275,7 +1276,7 @@ void func_0033BE80(u32 side, int pct, int d)
 /* 0x0033BFD0, 0x10 bytes, matching. */
 u32 func_0033BFD0(u8 **g)
 {
-    return (*(u8 **)(LEADER(g) + 8))[5];
+    return (PS2_LOADP(u8 *, (LEADER(g) + 8)))[5];
 }
 
 /* 0x0033BFE0, 0xC bytes, matching. */
@@ -2269,9 +2270,9 @@ u8 **func_0033F1A0(u8 *a)
     if (a == 0)
         return 0;
     o = OFFICER(*(short *)(a + 0x178));
-    if (o == 0 || *(u8 **)(o + 0x10) == 0)
+    if (o == 0 || PS2_LOADP(u8 *, (o + 0x10)) == 0)
         return 0;
-    return (u8 **)func_0034A740(*(u8 **)(o + 0x10));
+    return (u8 **)func_0034A740(PS2_LOADP(u8 *, (o + 0x10)));
 }
 
 /* 0x0033F350, 0xD8 bytes. Whether group `g` is an officer group of side `side` (any past 1;
@@ -4787,7 +4788,7 @@ void func_003460B0(u8 **g)
     f = UNIT_FLAGS(l);
     if ((f & 0x30) != 0 || (f & 0x20000) == 0)
         return;
-    a = *(u8 **)(OFFICER(*(int *)(l + 0x14)) + 0x14);
+    a = PS2_LOADP(u8 *, (OFFICER(*(int *)(l + 0x14)) + 0x14));
     for (p = 0; p < 2; p++) {
         if (func_0033CC80(g, p) != 0) {
             u8 *o = OFFICER(p);
@@ -5019,7 +5020,7 @@ void func_0033DAB0(u8 **g)
 
     if ((f & 2) == 0 || (f & 8) == 0)
         return;
-    b = *(u8 **)(l + 4);
+    b = PS2_LOADP(u8 *, (l + 4));
     if (b == 0 || b[0x18] != 0)
         return;
     UNIT_FLAGS(l) = f & 0xFFFFFFF9;
@@ -5059,7 +5060,7 @@ void func_00345D60(u8 **g)
 
         if (u == 0 || !ACTIVE(UNIT_FLAGS(u)))
             continue;
-        t = *(u8 **)(u + 0x18);
+        t = PS2_LOADP(u8 *, (u + 0x18));
         if (t != 0 && func_0034A710(u, t) != 0) {
             u32 r = (t - g_00693970) / 0x88;
 
@@ -5078,7 +5079,7 @@ void func_00345D60(u8 **g)
             if (b != 0) {
                 u16 c = *(u16 *)(b + 0x40);
 
-                *(u8 **)(u + 0x1C) = b;
+                PS2_STOREP(u8 *, (u + 0x1C), b);
                 *(u32 *)(u + 0x84) |= 0x10;
                 *(unsigned long long *)(u + 0x38) = 0;
                 *(u32 *)(u + 0x84) |= 0x10;

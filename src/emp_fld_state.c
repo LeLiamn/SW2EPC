@@ -1361,7 +1361,7 @@ int func_00361D40(int s)
 
         if ((*(u32 *)(g_00669D60 + 0x200) & 0xC) == 0)
             v = *(int *)(g_006A1D58[list[k]] + 0x4C);
-        else if ((*(u8 **)g_006A1D58[list[k]])[0x79] == 0)
+        else if ((PS2_LOADP(u8 *, g_006A1D58[list[k]]))[0x79] == 0)
             v = 0x15E;
         else
             v = 0x28A;

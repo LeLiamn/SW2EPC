@@ -33,7 +33,8 @@ typedef signed char s8;
 #define U32(o, off) (*(u32 *)((u8 *)PS2_ANYPTR(o) + (off)))
 #define S32(o, off) (*(int *)((u8 *)(o) + (off)))
 #define F32(o, off) (*(float *)((u8 *)PS2_ANYPTR(o) + (off)))
-#define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
+#define PTR(o, off) PS2_LOADP(u8 *, ((u8 *)(o) + (off)))
+#define PTR_SET(o, off, v) PS2_STOREP(u8 *, ((u8 *)(o) + (off)), v)
 
 #define PI     3.1415927f
 #define TWO_PI 6.2831855f
@@ -225,7 +226,7 @@ int func_00161790(float scale, Unit *u, int *cam, float *eye, float *target, int
         c3 = 0;
     }
     if (BIT(cam, 0x3C, 1)) {
-        eye[1] = F32(*(u8 **)cam, 0x1C4);
+        eye[1] = F32(PS2_LOADP(u8 *, cam), 0x1C4);
         for (k = 0; k < 4; k++)
             v[k] = eye[k] - target[k];
         len = sqrtf(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3]);
@@ -1006,7 +1007,7 @@ void func_00163F00(float dt, int *cam)
             BIT(PTR(u, 0x270), 0x199, 3) = 1;
     }
     *(float *)&cam[0xC] = *(float *)&cam[0xC] + dt;
-    if (cut || (float)(S32(*(u8 **)PS2_PTR(cam[0xA]), 8) - 1) < *(float *)&cam[0xC]) {
+    if (cut || (float)(S32(PS2_LOADP(u8 *, PS2_PTR(cam[0xA])), 8) - 1) < *(float *)&cam[0xC]) {
         cam[0xA] = 0;
         cam[0xC] = 0;
     }

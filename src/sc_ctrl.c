@@ -23,7 +23,8 @@ typedef unsigned int u32;
 #define U16(o, off) (*(u16 *)((u8 *)(o) + (off)))
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
 #define S32(o, off) (*(int *)((u8 *)(o) + (off)))
-#define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
+#define PTR(o, off) PS2_LOADP(u8 *, ((u8 *)(o) + (off)))
+#define PTR_SET(o, off, v) PS2_STOREP(u8 *, ((u8 *)(o) + (off)), v)
 
 #pragma opt_unroll_loops on
 
@@ -331,10 +332,10 @@ void func_001864B0(float yaw, u8 *o, float *pos, int keep)
     func_001EE9C0(o, U8(o, 0x7B));
     if (PTR(o, 0x18) != 0) {
         func_001ED160(PS2_ADDR(o), PS2_ADDR(PTR(o, 0x18)), 0);
-        PTR(o, 0x18) = 0;
+        PTR_SET(o, 0x18, 0);
         U32(o, 0x84) |= 0x10;
     }
-    PTR(o, 0x1C) = 0;
+    PTR_SET(o, 0x1C, 0);
     U32(o, 0x84) |= 0x10;
     U8(o, 0x42) = 0;
     U8(o, 0x43) = 0;
@@ -1308,7 +1309,7 @@ void func_00189A60(short *cmd, int player)
     if (cmd[0] == 0 && U32(o, 0x10) < 0x47) {
         func_001D4F60(BASE68(U32(o, 0x10)), PS2_ADDR(target));
     } else {
-        PTR(o, 0x1C) = target;
+        PTR_SET(o, 0x1C, target);
         U32(o, 0x84) |= 0x10;
     }
 }

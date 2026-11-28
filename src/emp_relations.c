@@ -110,7 +110,7 @@ void func_003E0450(void)
     u8 *p = func_0021A630();
     char buf[32];
 
-    func_001ABE40(*(u8 **)(p + 0x24), 0xF, 0x144, 0x20, 0, -1, -1, 0x80, 0, 0);
+    func_001ABE40(PS2_LOADP(u8 *, (p + 0x24)), 0xF, 0x144, 0x20, 0, -1, -1, 0x80, 0, 0);
     func_001204B0(buf, g_0045C588, *(int *)(p + 0x1AEC));
     func_002C4F40(16.0f, buf, 0x1A4, 0x20, 0, 0, 6);
     func_003B5480(0xFC, 0x2E, 0, 0x200, 0x80, 0);
@@ -170,7 +170,7 @@ void func_003E0730(void)
         for (i = 0; i < *(int *)(p + 0x15DC); i++) {
             if (*(int *)(e + i * 0x24 + 0xD0) != 0) {
                 func_001AE550(1.0f, (WindowAnim *)(e + i * 0x14), pos, &alpha, 0);
-                func_001ABE40(*(u8 **)(p + 0x24), 0, pos[0], pos[1], 0, pos[2], pos[3], 0x80, 2, 0);
+                func_001ABE40(PS2_LOADP(u8 *, (p + 0x24)), 0, pos[0], pos[1], 0, pos[2], pos[3], 0x80, 2, 0);
             }
         }
     }

@@ -553,13 +553,13 @@ void func_001485C0(u8 *list, int n, int other)
 
     list[0xC] = n;
     if (other == 0) {
-        *(void **)(list + 8) = func_00102D30(n << 5);
+        PS2_STOREP(void *, (list + 8), func_00102D30(n << 5));
         list[0xF] = 0;
     } else {
-        *(void **)(list + 8) = func_0020EC50(n << 5);
+        PS2_STOREP(void *, (list + 8), func_0020EC50(n << 5));
         list[0xF] = 1;
     }
-    p = *(u32 **)(list + 8);
+    p = PS2_LOADP(u32 *, (list + 8));
     for (i = 0; i < list[0xC]; i++, p += 8) {
         p[4] = 0;
         p[5] = 0;
@@ -575,7 +575,7 @@ void func_001485C0(u8 *list, int n, int other)
 /* 0x00148660, 0x38 bytes, matching. Frees the list. */
 void func_00148660(u8 *list)
 {
-    func_00102EC0(*(void **)(list + 8));
+    func_00102EC0(PS2_LOADP(void *, (list + 8)));
     func_001185E0(list, 0x10, 0);
 }
 
@@ -1019,10 +1019,10 @@ void func_00149730(Actor *a, char mode, int frame)
         return;
     for (i = 0, n = a->e; i < m->nodes; i++, n++)
         NODE_DONE(n) = 0;
-    if (*(Actor **)((u8 *)a + 0x1FC) == 0) {
+    if (PS2_LOADP(Actor *, ((u8 *)a + 0x1FC)) == 0) {
         mat_mul(base, a->world, (float (*)[4])0x70000080);
     } else {
-        Actor *parent = *(Actor **)((u8 *)a + 0x1FC);
+        Actor *parent = PS2_LOADP(Actor *, ((u8 *)a + 0x1FC));
 
         attached = NODE_WORLD(&parent->e[a->a], frame);
         for (i = 0; i < 4; i++) {
@@ -1346,7 +1346,7 @@ void func_0014E380(Actor *a)
     u8 *t = a->transforms;
     float k = 1.0f - *(float *)(t + 0) / *(float *)(t + 4);
     Node *n = (a->flags.b.f1 && a->nodes2 != 0) ? a->nodes2 : a->nodes;
-    float *saved = *(float **)(t + 8);
+    float *saved = PS2_LOADP(float *, (t + 8));
     int i;
 
     if (t[0xE] == 0) {
@@ -1726,7 +1726,7 @@ void func_0014F950(u8 *o)
 static inline void simple_begin(u8 *o)
 {
     u8 *p = o + g_70000150 * 0x90;
-    Model *m = *(Model **)(o + 0x160);
+    Model *m = PS2_LOADP(Model *, (o + 0x160));
 
     *(u64 *)(p + 0x20) = m->tex0;
     *(u32 *)(p + 0x44) = (u32)(m->tex0 >> 32) & 0x7FFE0;
@@ -1745,14 +1745,14 @@ static inline void simple_begin(u8 *o)
 void func_0014F970(u8 *o)
 {
     simple_begin(o);
-    func_00148460(*(Model **)(o + 0x160));
+    func_00148460(PS2_LOADP(Model *, (o + 0x160)));
 }
 
 /* 0x0014FA50, 0xD8 bytes. The same, each part after its VU1 header. */
 void func_0014FA50(u8 *o)
 {
     simple_begin(o);
-    func_001484E0(*(Model **)(o + 0x160));
+    func_001484E0(PS2_LOADP(Model *, (o + 0x160)));
 }
 
 /* 0x0014FB30, 0x104 bytes. Sends the lights (directions, colours and ambient) to VU1. */
@@ -1777,7 +1777,7 @@ void func_0014FC40(const u32 *v)
 /* 0x0014FCA0, 0x8 bytes, matching. */
 void func_0014FCA0(u8 *o, Model *m)
 {
-    *(Model **)(o + 0x160) = m;
+    PS2_STOREP(Model *, (o + 0x160), m);
 }
 
 extern u32 g_00406340[];                 /* a VU1 set-up packet (4 quadwords) */

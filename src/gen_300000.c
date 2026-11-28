@@ -1245,7 +1245,7 @@ void func_0032B7B0(void)
         *(int *)PS2_PTR((iVar3 + 4)) = *(int *)PS2_PTR((iVar3 + 4)) + iVar3;
         *(int *)PS2_PTR((iVar3 + 0xC)) = *(int *)PS2_PTR((iVar3 + 0xC)) + iVar3;
         *(int *)PS2_PTR((iVar3 + 0x14)) = *(int *)PS2_PTR((iVar3 + 0x14)) + iVar3;
-        piVar1 = *(int **)PS2_PTR((iVar3 + 4));
+        piVar1 = PS2_LOADP(int *, PS2_PTR((iVar3 + 4)));
         iVar3 = *piVar1;
         iVar6 = 0;
         if (0 < iVar3) {
@@ -1304,7 +1304,7 @@ void func_0032B990(void)
         *(int *)PS2_PTR((iVar3 + 4)) = *(int *)PS2_PTR((iVar3 + 4)) + iVar3;
         *(int *)PS2_PTR((iVar3 + 0xC)) = *(int *)PS2_PTR((iVar3 + 0xC)) + iVar3;
         *(int *)PS2_PTR((iVar3 + 0x14)) = *(int *)PS2_PTR((iVar3 + 0x14)) + iVar3;
-        piVar1 = *(int **)PS2_PTR((iVar3 + 4));
+        piVar1 = PS2_LOADP(int *, PS2_PTR((iVar3 + 4)));
         iVar3 = *piVar1;
         iVar6 = 0;
         if (0 < iVar3) {
@@ -1500,7 +1500,7 @@ int func_00338030(void)
 
     uVar2 = 5;
     iVar1 = PS2_ADDR(func_002FC2C0());
-    iVar1 = **(int **)PS2_PTR((iVar1 + 0x6A0));
+    iVar1 = *PS2_LOADP(int *, PS2_PTR((iVar1 + 0x6A0)));
     if (iVar1 == 4) {
         func_00337A70();
     }
@@ -1529,10 +1529,10 @@ void func_003380F0(void)
     int iVar1;
 
     iVar1 = PS2_ADDR(func_002FC2C0());
-    if (**(int **)PS2_PTR((iVar1 + 0x6A0)) == 2) {
+    if (*PS2_LOADP(int *, PS2_PTR((iVar1 + 0x6A0))) == 2) {
         func_0036A560();
     }
-    else if (**(int **)PS2_PTR((iVar1 + 0x6A0)) == 1) {
+    else if (*PS2_LOADP(int *, PS2_PTR((iVar1 + 0x6A0))) == 1) {
         func_00373B60();
     }
 }
@@ -1545,7 +1545,7 @@ int func_00338190(void)
 
     uVar2 = 5;
     iVar1 = PS2_ADDR(func_002FC2C0());
-    iVar1 = **(int **)PS2_PTR((iVar1 + 0x6A0));
+    iVar1 = *PS2_LOADP(int *, PS2_PTR((iVar1 + 0x6A0)));
     if (iVar1 == 4) {
         func_00337A70();
     }
@@ -1574,10 +1574,10 @@ void func_00338250(void)
     int iVar1;
 
     iVar1 = PS2_ADDR(func_002FC2C0());
-    if (**(int **)PS2_PTR((iVar1 + 0x6A0)) == 2) {
+    if (*PS2_LOADP(int *, PS2_PTR((iVar1 + 0x6A0))) == 2) {
         func_0036A560();
     }
-    else if (**(int **)PS2_PTR((iVar1 + 0x6A0)) == 1) {
+    else if (*PS2_LOADP(int *, PS2_PTR((iVar1 + 0x6A0))) == 1) {
         func_00373B60();
     }
 }
@@ -1590,7 +1590,7 @@ int func_003382F0(void)
 
     uVar2 = 5;
     iVar1 = PS2_ADDR(func_002FC2C0());
-    iVar1 = **(int **)PS2_PTR((iVar1 + 0x6A0));
+    iVar1 = *PS2_LOADP(int *, PS2_PTR((iVar1 + 0x6A0)));
     if (iVar1 == 4) {
         func_00337A70();
     }
@@ -1619,10 +1619,10 @@ void func_003383B0(void)
     int iVar1;
 
     iVar1 = PS2_ADDR(func_002FC2C0());
-    if (**(int **)PS2_PTR((iVar1 + 0x6A0)) == 2) {
+    if (*PS2_LOADP(int *, PS2_PTR((iVar1 + 0x6A0))) == 2) {
         func_0036A560();
     }
-    else if (**(int **)PS2_PTR((iVar1 + 0x6A0)) == 1) {
+    else if (*PS2_LOADP(int *, PS2_PTR((iVar1 + 0x6A0))) == 1) {
         func_00373B60();
     }
 }

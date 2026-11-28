@@ -251,6 +251,51 @@ int func_0024BC60(int k)
     return 0;
 }
 
+extern unsigned long long g_0045D4F0;    /* (small data) the item textures (func_00107440) */
+extern int g_0045D500;                   /* (small data) */
+extern const char g_0043D518[];          /* this file's name, for the loader's messages */
+extern float g_00752F50[4][4];           /* the items' turn per frame: 2 degrees about Y */
+void vu0_rotate(float out[4][4], float in[4][4], float angle);   /* stand-in for VU0 micro 0x70 */
+
+/* 0x0024BCA0, 0x1EC bytes. Starts the items: their textures (LINKDATA 0x7EB) and models (0x7EA:
+ * a count, then each model's offset), the 16 item slots, the saved drops, and the turn matrix
+ * (the unit matrix kept in the scratchpad, turned by 2 degrees). */
+void func_0024BCA0(void)
+{
+    u8 *tex;
+    u32 *t;
+    int k;
+
+    tex = (u8 *)func_001026D0(1, 0x7EB, 0, 1, 0, 0, (const char *)g_0043D518, 0x72);
+    g_0045D4F0 = func_00107440(tex, 0x28A0, 0x3FA3);
+    func_00102EC0(tex);
+    t = (u32 *)func_001026D0(1, 0x7EA, 0, 1, 0, 0, (const char *)g_0043D518, 0x7C);
+    g_0045D4F8 = t[0];
+    g_0045D4FC_SET((u8 *)t);
+    for (k = 0; k < g_0045D4F8; k++) {
+        if (func_0024BC60(k) == 0) {
+            u32 *m = (u32 *)((u8 *)t + (t[1 + k] & ~3u));
+
+            func_00148130(g_00754B90[k]);
+            func_001482F0(m, g_00754B90[k], g_0045D4F0);
+        }
+    }
+    for (k = 0; k < 0x10; k++) {
+        u8 *it = g_00753190[k];
+
+        func_0014F850(it);
+        func_0014F8B0((u32 *)it, 0);
+        it[0x19C] = (u8)k;
+        it[0x19F] &= ~1;
+        *(u32 *)(it + 0x198) = 0;
+        it[0x19D] = 0x17;
+        ((u32 *)g_00754FE0)[k] = 0;
+    }
+    func_0024E440();
+    g_0045D500 = 0;
+    vu0_rotate(g_00752F50, (float (*)[4])PS2_PTR(0x70000000), 0.034906585f);
+}
+
 /* 0x0024BE90, 0x90 bytes. Frees the items and their models. */
 void func_0024BE90(void)
 {

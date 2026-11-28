@@ -170,7 +170,7 @@ float func_002B9DC0(float a, float b)
 /* 0x002BAF70, 0x20 bytes, matching. */
 void func_002BAF70(float f, u8 *p)
 {
-    float *v = (float *)(*(u8 **)(p + 0x110) + 0x24);
+    float *v = (float *)(PS2_LOADP(u8 *, (p + 0x110)) + 0x24);
 
     *v = *(float *)(p + 0x120) * f + *v + 0.0f;
 }
@@ -201,8 +201,8 @@ void func_002BBE70(void)
 
     g_0045D5E4_SET(g_00799520[0]);
     for (k = 0; k < 0x1F; k++)
-        *(u8 **)g_00799520[k] = g_00799520[k + 1];
-    *(u8 **)g_00799520[0x1F] = 0;
+        PS2_STOREP(u8 *, g_00799520[k], g_00799520[k + 1]);
+    PS2_STOREP(u8 *, g_00799520[0x1F], 0);
 }
 
 /* 0x002BBF00, 0x34 bytes, matching. Gives slot `k` back. */
@@ -211,7 +211,7 @@ void func_002BBF00(u32 k)
     if ((k & 0xFF) != 0xFF) {
         u8 *e = g_00799520[k & 0xFF];
 
-        *(u8 **)e = g_0045D5E4;
+        PS2_STOREP(u8 *, e, g_0045D5E4);
         g_0045D5E4_SET(e);
     }
 }
@@ -267,8 +267,8 @@ void func_002BF990(void)
 {
     func_00118850(g_00796040, 0x3180);
     g_0045D5D4_SET(g_00796040);
-    *(u8 **)g_00796040 = g_00796040 + 0xC60;
+    PS2_STOREP(u8 *, g_00796040, g_00796040 + 0xC60);
     *(int *)(g_00796040 + 0x2520) = 0;
-    *(u8 **)(g_00796040 + 0xC60) = g_00796040 + 0x18C0;
-    *(u8 **)(g_00796040 + 0x18C0) = g_00796040 + 0x2520;
+    PS2_STOREP(u8 *, (g_00796040 + 0xC60), g_00796040 + 0x18C0);
+    PS2_STOREP(u8 *, (g_00796040 + 0x18C0), g_00796040 + 0x2520);
 }

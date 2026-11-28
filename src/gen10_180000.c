@@ -1731,7 +1731,7 @@ int func_00243C50(u8 *param_1)
     u32 uVar2;
 
     iVar4 = param_1;
-    sVar3 = **(short **)(iVar4 + 0x210);
+    sVar3 = *PS2_LOADP(short *, (iVar4 + 0x210));
     if ((1 < *(u8 *)(iVar4 + 0x14E)) && (-1 < (long long)*(char *)(iVar4 + 0x19E) << 0x3D)) {
         if ((*(u32 *)(iVar4 + 0x13C) & 0x8000) != 0) {
             sVar3 = func_002431F0(param_1, sVar3, 0xFFFFFFFFFFFFFFFF);
@@ -1746,7 +1746,7 @@ int func_00243C50(u8 *param_1)
             sVar3 = func_002431F0(param_1, sVar3, 2);
         }
     }
-    sVar1 = **(short **)(iVar4 + 0x210);
+    sVar1 = *PS2_LOADP(short *, (iVar4 + 0x210));
     if ((sVar3 == sVar1) &&
           ((((sVar1 == 4 || (sVar1 == 3)) || (sVar1 == 2)) || ((sVar1 == 1 || (sVar1 == 0)))))) {
         uVar2 = *(u32 *)(iVar4 + 0x13C);

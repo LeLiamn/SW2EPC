@@ -298,7 +298,7 @@ void func_001E7290(void)
     case 4: {
         u32 *screen;
         func_003BD5C0();
-        screen = *(u32 **)((char *)((void *)func_002FC2C0()) + 0x6AC);
+        screen = PS2_LOADP(u32 *, ((char *)((void *)func_002FC2C0()) + 0x6AC));
         screen[2] = 0xFFFFFFFF;
         *(unsigned short *)((char *)screen + 0x1E) = 0;
         *(unsigned short *)((char *)screen + 0x1C) = 0;
@@ -957,7 +957,7 @@ void func_001E9150(void)
     case 8:
     case 9: {
         char *game = (char *)(func_002FC2C0());
-        int kind = *(int *)(*(char **)(game + 0x694) + 0x220);
+        int kind = *(int *)(PS2_LOADP(char *, (game + 0x694)) + 0x220);
         switch (kind) {
         case 0: func_001A7DC0(g_0043C578, 0x80, 2); break;
         case 1: func_001A7DC0(g_0043C648, 0x80, 2); break;

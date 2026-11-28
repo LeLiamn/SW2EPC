@@ -295,7 +295,8 @@ void func_00392440(int o, int i)
 #define LW_D(b) (*(short *)((b) + 4))
 #define LW_SPEED(b) (*(float *)((b) + 8))
 #define LW_FLAGS(b) ((b)[0xD])
-#define LW_WIN(b) (*(u8 **)((b) + 0x10))
+#define LW_WIN(b) PS2_LOADP(u8 *, ((b) + 0x10))
+#define LW_WIN_SET(b, v) PS2_STOREP(u8 *, ((b) + 0x10), v)
 
 static int slide_x(u8 *b, int i)
 {
@@ -307,7 +308,7 @@ static int slide_x(u8 *b, int i)
 /* Steps list window `b` (`last`: the last line's frame count). */
 #define LW_STEP(b, w, last, rest) do {                                  \
     int r_;                                                             \
-    LW_WIN(b) = (w);                                                    \
+    LW_WIN_SET(b, (w));                                                    \
     r_ = func_001AE550(LW_SPEED(b), (w), (short *)(b), (b) + 0xC, 0);   \
     LW_FLAGS(b) = (LW_FLAGS(b) & 0xFE) | (r_ & 1);                      \
     if ((r_ & 1) != 0) {                                                \
@@ -420,7 +421,7 @@ void func_00392EB0(void)
     int r;
 
     LW_STEP(g_007BA810, func_002EE570(), 0xC, 0xE);
-    LW_WIN(g_007BA7F0) = func_002EE5D0();
+    LW_WIN_SET(g_007BA7F0, func_002EE5D0());
     r = func_001AE550(LW_SPEED(g_007BA7F0), LW_WIN(g_007BA7F0), (short *)g_007BA7F0,
                       g_007BA7F0 + 0xC, 0);
     g_007BA7FD = (g_007BA7FD & 0xFE) | (r & 1);
@@ -479,7 +480,7 @@ void func_00395330(void)
     u8 *p = func_00391250();
 
     func_00118850(p, 0x1CC);
-    *(u8 **)(p + 0x2C) = func_001026D0(1, 0x84, 0, 1, 0, 0, g_00459AE0, 0x74D);
+    PS2_STOREP(u8 *, (p + 0x2C), func_001026D0(1, 0x84, 0, 1, 0, 0, g_00459AE0, 0x74D));
     func_003914C0();
     g_007BA838 = 1.0f;
     g_007BA83D &= 0xFE;
@@ -496,9 +497,9 @@ void func_00395420(void)
 {
     u8 *p = func_00391250();
 
-    if (*(u8 **)(p + 0x2C) != 0) {
-        func_00102EC0(*(u8 **)(p + 0x2C));
-        *(u8 **)(p + 0x2C) = 0;
+    if (PS2_LOADP(u8 *, (p + 0x2C)) != 0) {
+        func_00102EC0(PS2_LOADP(u8 *, (p + 0x2C)));
+        PS2_STOREP(u8 *, (p + 0x2C), 0);
     }
 }
 
@@ -567,7 +568,7 @@ void func_003957E0(void)
         for (c = 0; c < 5; c++) {
             u8 a = g_007BA85C;
 
-            func_001ABE40(*(u8 **)(q + 0x14), 0, g_007BA850 + c * 0x28, g_007BA852 + r * 0x18, 0,
+            func_001ABE40(PS2_LOADP(u8 *, (q + 0x14)), 0, g_007BA850 + c * 0x28, g_007BA852 + r * 0x18, 0,
                           0x28, 0x18, g_007BA85C, 0, 0);
             if (*(int *)(q + 0x28) == c && *(int *)(q + 0x2C) == r) {
                 u8 *g = func_002EE530();
@@ -577,7 +578,7 @@ void func_003957E0(void)
                 b = g[4];
                 if ((g_007BA85D & 1) == 0)
                     b = a;
-                func_001ABE40(*(u8 **)(q + 0x14), 1, g_007BA850 + c * 0x28, g_007BA852 + r * 0x18,
+                func_001ABE40(PS2_LOADP(u8 *, (q + 0x14)), 1, g_007BA850 + c * 0x28, g_007BA852 + r * 0x18,
                               0, 0x28, 0x18, b, 1, 0);
             }
         }
@@ -621,11 +622,11 @@ void func_00395E20(u8 *p, int k)
     u8 *q;
 
     if (k == 0) {
-        *(u8 **)(p + 0x14) = func_001026D0(1, 0x86, 0, 1, 0, 0, g_00459B20, 0x118);
-        *(void **)(p + 0xC) = func_00102DB0(0x40, 0x24);
+        PS2_STOREP(u8 *, (p + 0x14), func_001026D0(1, 0x86, 0, 1, 0, 0, g_00459B20, 0x118));
+        PS2_STOREP(void *, (p + 0xC), func_00102DB0(0x40, 0x24));
     }
     q = func_001026D0(1, 0x83, 0, 0, 0, 0, g_00459B20, 0x11C);
-    *(u8 **)(p + 0x10) = q;
+    PS2_STOREP(u8 *, (p + 0x10), q);
     func_0011EB80(q, g_0045D0B0, 4);
 }
 
@@ -856,7 +857,7 @@ void func_00397540(void)
     int r;
 
     LW_STEP(b, func_002EE570(), 0xC, 0xE);
-    LW_WIN(c) = func_002EE5D0();
+    LW_WIN_SET(c, func_002EE5D0());
     r = func_001AE550(LW_SPEED(c), LW_WIN(c), (short *)c, c + 0xC, 0);
     LW_FLAGS(c) = (LW_FLAGS(c) & 0xFE) | (r & 1);
     func_00392790(1);

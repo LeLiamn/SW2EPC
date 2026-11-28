@@ -369,12 +369,12 @@ int func_00242C40(u8 *param_1, u32 *param_2, int param_3)
     u32 uVar5;
 
     iVar8 = param_1;
-    psVar2 = *(short **)(iVar8 + 0x210);
+    psVar2 = PS2_LOADP(short *, (iVar8 + 0x210));
     sVar6 = *psVar2;
     iVar3 = *(int *)(psVar2 + 10);
     lVar7 = func_001BEA30(*(u8 *)PS2_PTR((*(int *)(iVar8 + 0x110) + 0x1C)));
     *param_2 = 0;
-    psVar4 = *(short **)PS2_PTR((*(int *)(iVar8 + 0x288) + 0x210));
+    psVar4 = PS2_LOADP(short *, PS2_PTR((*(int *)(iVar8 + 0x288) + 0x210)));
     if (sVar6 != 0x60) {
         uVar5 = *(u32 *)(iVar8 + 0x13C);
         if (((uVar5 & 0x20) != 0) && ((*(u32 *)(psVar2 + 0xC) & 2) != 0)) {
@@ -435,7 +435,7 @@ int func_00242C40(u8 *param_1, u32 *param_2, int param_3)
                 *(u8 *)(iVar8 + 0x182) = 0;
             }
         }
-        if (sVar6 != **(short **)(iVar8 + 0x210)) {
+        if (sVar6 != *PS2_LOADP(short *, (iVar8 + 0x210))) {
             *(u32 *)(iVar8 + 0x228) = 0;
         }
         if (sVar6 == 0x6E) {
@@ -443,10 +443,10 @@ int func_00242C40(u8 *param_1, u32 *param_2, int param_3)
             if ((lVar7 == 0) && ((*(u32 *)(iVar8 + 0x13C) & 0x20000) != 0)) {
                 return 0x6E;
             }
-            sVar6 = **(short **)(iVar8 + 0x210);
+            sVar6 = *PS2_LOADP(short *, (iVar8 + 0x210));
         }
-        if ((((sVar6 == **(short **)(iVar8 + 0x210)) && (iVar3 == 0)) &&
-                ((*(u32 *)(psVar2 + 0xC) & 0x800) == 0)) && (**(short **)(iVar8 + 0x210) != 0x5D)) {
+        if ((((sVar6 == *PS2_LOADP(short *, (iVar8 + 0x210))) && (iVar3 == 0)) &&
+                ((*(u32 *)(psVar2 + 0xC) & 0x800) == 0)) && (*PS2_LOADP(short *, (iVar8 + 0x210)) != 0x5D)) {
             sVar1 = *psVar4;
             if (((sVar1 == 0x9A) || (sVar1 == 0x99)) || (sVar1 == 0x98)) {
                 sVar6 = 0x58;

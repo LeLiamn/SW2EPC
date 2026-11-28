@@ -491,7 +491,7 @@ u32 func_003B0430(u8 *o)
 
     if (o == 0 || (*(u32 *)(o + 0xB8) & 1) == 0)
         return 3;
-    u = *(u8 **)(o + 0x10);
+    u = PS2_LOADP(u8 *, (o + 0x10));
     if (u == 0)
         return 3;
     return u[0x79];
@@ -668,7 +668,7 @@ void func_003B9D80(void)
     int k;
 
     for (k = 0; k < 2; k++)
-        func_001ABE40(*(u8 **)(p + 8), 0x41, 0, k * 0x170, 0, 0x200, 0x10, 0x80, 2, 0);
+        func_001ABE40(PS2_LOADP(u8 *, (p + 8)), 0x41, 0, k * 0x170, 0, 0x200, 0x10, 0x80, 2, 0);
 }
 
 /* 0x003BA4A0, 0x7C bytes. */
@@ -722,7 +722,7 @@ void func_003BAE90(void)
     } else {
         v = func_003C1850() == 0 ? 1 : 3;
     }
-    func_001ABE40(*(u8 **)(p + 8), v, 0, 0, 0, 0x200, 0x48, 0x80, 2, 0);
+    func_001ABE40(PS2_LOADP(u8 *, (p + 8)), v, 0, 0, 0, 0x200, 0x48, 0x80, 2, 0);
 }
 
 /* 0x003BB5F0, 0x64 bytes. The next report page (closing after the fifth). */
@@ -798,9 +798,9 @@ u8 *func_003BD290(void)
 void func_003BD3F0(u8 *p)
 {
     func_0023AA40();
-    if (*(u8 **)(p + 0x30) != 0) {
-        func_00102EC0(*(u8 **)(p + 0x30));
-        *(u8 **)(p + 0x30) = 0;
+    if (PS2_LOADP(u8 *, (p + 0x30)) != 0) {
+        func_00102EC0(PS2_LOADP(u8 *, (p + 0x30)));
+        PS2_STOREP(u8 *, (p + 0x30), 0);
     }
 }
 
@@ -859,7 +859,7 @@ void func_003BD600(void)
 /* 0x003BD640, 0xAC bytes. Draws a pair of arrows. */
 void func_003BD640(int x1, int x2, int y, int k)
 {
-    u8 *t = *(u8 **)(func_003BD290() + 0x30);
+    u8 *t = PS2_LOADP(u8 *, (func_003BD290() + 0x30));
 
     func_001ABE40(t, k, x1, y, 0, 0x10, 0x10, 0x80, 2, 0);
     func_001ABE40(t, k + 2, x2, y, 0, 0x10, 0x10, 0x80, 2, 0);
@@ -1049,7 +1049,7 @@ void func_003B9E00(void)
     } else if (s == 1 && l != 0 && v == e[0x29]) {
         a = 0x80;
     }
-    func_001ABE40(*(u8 **)(p + 8), v + 5, 0x118, 0xE0, 0, 0xD8, 0x90, a, 0, 0);
+    func_001ABE40(PS2_LOADP(u8 *, (p + 8)), v + 5, 0x118, 0xE0, 0, 0xD8, 0x90, a, 0, 0);
 }
 
 /* 0x003B9ED0, 0xFC bytes. Draws the line's officer portrait. */
@@ -1352,9 +1352,9 @@ void func_003BB7B0(int x, int y, int h, int alpha)
 {
     u8 *p = func_003B5E90();
 
-    func_001ABEA0(*(u8 **)(p + 8), 4, x, y, 0, 0x1C0, 8, 0, 0, 0x1c0, 8, alpha & 0xFF, 2, 0);
-    func_001ABEA0(*(u8 **)(p + 8), 4, x, y + 8, 0, 0x1C0, h - 0x10, 0, 8, 0x1c0, 0x10, alpha & 0xFF, 2, 0);
-    func_001ABEA0(*(u8 **)(p + 8), 4, x, y + 8 + h - 0x10, 0, 0x1C0, 8, 0, 0x18, 0x1c0, 8, alpha & 0xFF, 2, 0);
+    func_001ABEA0(PS2_LOADP(u8 *, (p + 8)), 4, x, y, 0, 0x1C0, 8, 0, 0, 0x1c0, 8, alpha & 0xFF, 2, 0);
+    func_001ABEA0(PS2_LOADP(u8 *, (p + 8)), 4, x, y + 8, 0, 0x1C0, h - 0x10, 0, 8, 0x1c0, 0x10, alpha & 0xFF, 2, 0);
+    func_001ABEA0(PS2_LOADP(u8 *, (p + 8)), 4, x, y + 8 + h - 0x10, 0, 0x1C0, 8, 0, 0x18, 0x1c0, 8, alpha & 0xFF, 2, 0);
 }
 
 /* 0x003BBFD0, 0x17C bytes. Draws the page's officer portrait. */
@@ -1368,7 +1368,7 @@ void func_003BBFD0(void)
     if (p == 0)
         return;
     l = p[0x763];
-    t = *(u8 **)(p + l * 4 + 0xC);
+    t = PS2_LOADP(u8 *, (p + l * 4 + 0xC));
     if (t == 0)
         return;
     r = (int *)(q + l * 0x18 + 0x5A8);
@@ -1400,7 +1400,7 @@ void func_003BC450(void)
     p[0x763] = 0;
     *(int *)(p + 0x748) = 0;
     *(int *)(p + 0x74C) = 0;
-    *(u8 **)(p + 8) = func_001026D0(1, 0xD83, 0, 1, 0, 0, g_0045BB50, 0x432);
+    PS2_STOREP(u8 *, (p + 8), func_001026D0(1, 0xD83, 0, 1, 0, 0, g_0045BB50, 0x432));
     for (k = 1; k < 5; k++) {
         u8 *r = q + k * 0x18;
 
@@ -1433,14 +1433,14 @@ void func_003BC5E0(void)
     u8 *p = func_003B5E90();
     int k;
 
-    if (*(u8 **)(p + 8) != 0) {
-        func_00102EC0(*(u8 **)(p + 8));
-        *(u8 **)(p + 8) = 0;
+    if (PS2_LOADP(u8 *, (p + 8)) != 0) {
+        func_00102EC0(PS2_LOADP(u8 *, (p + 8)));
+        PS2_STOREP(u8 *, (p + 8), 0);
     }
     for (k = 0; k < 5; k++) {
-        if (*(u8 **)(p + 0xC + k * 4) != 0) {
-            func_00102EC0(*(u8 **)(p + 0xC + k * 4));
-            *(u8 **)(p + 0xC + k * 4) = 0;
+        if (PS2_LOADP(u8 *, (p + 0xC + k * 4)) != 0) {
+            func_00102EC0(PS2_LOADP(u8 *, (p + 0xC + k * 4)));
+            PS2_STOREP(u8 *, (p + 0xC + k * 4), 0);
         }
     }
     func_003A93A0(0);

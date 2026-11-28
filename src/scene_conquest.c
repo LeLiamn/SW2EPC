@@ -164,7 +164,7 @@ void func_002F1A20(void)
  * sprite over the screen. */
 void func_002F1A50(void)
 {
-    u8 *anim = *(u8 **)(g_0045D680 + 8);   /* +8 width, +0xA height, +0xC frames */
+    u8 *anim = PS2_LOADP(u8 *, (g_0045D680 + 8));   /* +8 width, +0xA height, +0xC frames */
     u8 *packet;
 
     if ((func_001020C0() & 1) == 0)

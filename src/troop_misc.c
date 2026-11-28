@@ -277,7 +277,7 @@ u8 func_001F0FC0(u8 *o)
     char d;
 
     if ((*(u32 *)(o + 0x80) & 0x30) == 0)
-        return (*(u8 **)(o + 8))[0x1F];
+        return (PS2_LOADP(u8 *, (o + 8)))[0x1F];
     d = g_00669D60[0x21];
     if (d == 4)
         return 3;
@@ -463,7 +463,7 @@ int func_001F02F0(u8 *t)
     u8 *e;
     short c;
 
-    if ((*(u32 *)(t + 0x84) & 1) != 0 || (e = *(u8 **)(t + 0x18)) == 0)
+    if ((*(u32 *)(t + 0x84) & 1) != 0 || (e = PS2_LOADP(u8 *, (t + 0x18))) == 0)
         return 0;
     if (ALIVE(e) && (*(u32 *)(e + 0x84) & 2) == 0 && e[0x7A] != 3 && t[0x79] != e[0x79]) {
         c = *(short *)(e + 0x40);
@@ -491,11 +491,11 @@ int func_001F03E0(u8 *t)
         *(int *)(t + 0x3C) = 0;
         *(u32 *)(t + 0x84) |= 0x10;
     }
-    e = *(u8 **)(t + 0x1C);
+    e = PS2_LOADP(u8 *, (t + 0x1C));
     if (e != 0) {
         if (ALIVE(e) && e[0x7A] != 3)
             return 1;
-        *(u8 **)(t + 0x1C) = 0;
+        PS2_STOREP(u8 *, (t + 0x1C), 0);
         *(u32 *)(t + 0x84) |= 0x10;
     }
     return 0;
@@ -569,11 +569,11 @@ void func_001F1370(u8 *t, int k, u32 *out)
 
     if ((*(u32 *)(t + 0xB8) & 0x2000) == 0) {
         if (k == 0)
-            s = g_004295A0[(*(u8 **)(t + 0x68))[0x1C]];
+            s = g_004295A0[(PS2_LOADP(u8 *, (t + 0x68)))[0x1C]];
         else
             s = g_00429678;
     } else {
-        u32 f = *(u32 *)(*(u8 **)(t + 0x68) + 0x28);
+        u32 f = *(u32 *)(PS2_LOADP(u8 *, (t + 0x68)) + 0x28);
         int i;
 
         if ((f & 4) != 0)
@@ -959,7 +959,7 @@ int func_001F2C60(u8 *u)
     if (u == 0)
         return 0;
     if (*(int *)(u + 0x118) == 0x3C) {
-        u8 *w = *(u8 **)(u + 0x28C);
+        u8 *w = PS2_LOADP(u8 *, (u + 0x28C));
 
         if (w == 0)
             return 1;

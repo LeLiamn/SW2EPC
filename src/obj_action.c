@@ -550,7 +550,7 @@ void func_0027F460(void)
     u32 k;
 
     for (k = 0; k < n; k++) {
-        if ((char)(*(u8 **)(g_0045D2F0 + 0x10C))[k * 0xC + 0xB] != -1) {
+        if ((char)(PS2_LOADP(u8 *, (g_0045D2F0 + 0x10C)))[k * 0xC + 0xB] != -1) {
             u8 b = 1 << (k & 7);
 
             g_0073DC98[(int)k >> 3] |= b;

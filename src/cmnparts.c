@@ -262,7 +262,7 @@ int func_001AA320(float size, u8 *font, u32 c)
 {
     if (c <= 0x2D0) {
         if (c < *(u32 *)(font + 0x14))
-            return (int)((float)(*(u16 *)(font + 0x24) * (*(u8 **)(font + 0x18))[c]
+            return (int)((float)(*(u16 *)(font + 0x24) * (PS2_LOADP(u8 *, (font + 0x18)))[c]
                                  / *(u16 *)(font + 0x20)) * size / 20.0f);
         return 0;
     }

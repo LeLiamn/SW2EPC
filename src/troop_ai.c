@@ -95,11 +95,11 @@ void func_0027B730(u8 *s)
     if (func_00236F30(s) == 0)
         return;
     func_00236ED0(s);
-    f = *(u32 *)(*(u8 **)(*(u8 **)(*(u8 **)(s + 8) + 0x14) + 0x210) + 0x18);
+    f = *(u32 *)(PS2_LOADP(u8 *, (*(u8 **)(*(u8 **)(s + 8) + 0x14) + 0x210)) + 0x18);
     if ((f & 0x800) != 0 || (f & 0x2000) != 0)
         return;
-    a = *(u8 **)(s + 0x14);
-    m = *(u8 **)(a + 0x110);
+    a = PS2_LOADP(u8 *, (s + 0x14));
+    m = PS2_LOADP(u8 *, (a + 0x110));
     w = m == 0 ? 'j' : m[0x1C];
     if (w == ',' || w == 0x1F) {
         k = 1.0f;
@@ -302,7 +302,7 @@ void func_0027CAF0(u8 *s)
 /* 0x0027CC10, 0xD8 bytes. Its guard choice. */
 void func_0027CC10(u8 *s)
 {
-    u8 *l = *(u8 **)(s + 8), *t;
+    u8 *l = PS2_LOADP(u8 *, (s + 8)), *t;
 
     if (l == 0)
         return;
@@ -345,7 +345,7 @@ int func_0027D050(u8 *s, u8 *t)
         lim = 0x32;
     if (*(short *)(c + 0x82) >= lim)
         return 0;
-    func_0024D380((RANDOM() & 1) == 0 ? 8 : 9, PS2_ADDR(*(u8 **)(s + 0x14)));
+    func_0024D380((RANDOM() & 1) == 0 ? 8 : 9, PS2_ADDR(PS2_LOADP(u8 *, (s + 0x14))));
     func_00206080(s);
     return 1;
 }
@@ -491,7 +491,7 @@ int func_0027B050(u8 *s, u8 *t)
         return 0;
     if (RANDOM() % 100 >= (u32)(int)(((50.0f - life / most * 100.0f) * 0.01f + 1.0f) * (float)t[9]))
         return 0;
-    func_0024D380(0xC, PS2_ADDR(*(u8 **)(s + 0x14)));
+    func_0024D380(0xC, PS2_ADDR(PS2_LOADP(u8 *, (s + 0x14))));
     func_00206080(s);
     return 1;
 }
@@ -547,7 +547,7 @@ void func_002A6D20(int k, int snd);
  * plane (a VU0 vector subtraction in the original). */
 void func_00204BB0(u8 *s)
 {
-    u8 *m = *(u8 **)(s + 0x14);
+    u8 *m = PS2_LOADP(u8 *, (s + 0x14));
     float d[4];
     int k;
 
@@ -560,7 +560,7 @@ void func_00204BB0(u8 *s)
 /* 0x00204C50, 0x40 bytes. The same, turning away from it. */
 void func_00204C50(u8 *s)
 {
-    u8 *m = *(u8 **)(s + 0x14);
+    u8 *m = PS2_LOADP(u8 *, (s + 0x14));
     float d[4];
     int k;
 
@@ -573,25 +573,25 @@ void func_00204C50(u8 *s)
 /* 0x00204C90, 0x1C bytes, matching. */
 void func_00204C90(u8 *s, void *pos, u32 f)
 {
-    func_00150290(*(u8 **)(s + 0x14), pos, f);
+    func_00150290(PS2_LOADP(u8 *, (s + 0x14)), pos, f);
 }
 
 /* 0x00204CB0, 0x1C bytes, matching. */
 void func_00204CB0(u8 *s, const float *dir)
 {
-    func_001505B0(*(u8 **)(s + 0x14), dir);
+    func_001505B0(PS2_LOADP(u8 *, (s + 0x14)), dir);
 }
 
 /* 0x00204CD0, 0x28 bytes, matching. Soldier `s`'s attack flags. */
 void func_00204CD0(u8 *s, u32 f)
 {
-    func_00150910(*(u8 **)(s + 0x14), f & 0x3FFF8000);
+    func_00150910(PS2_LOADP(u8 *, (s + 0x14)), f & 0x3FFF8000);
 }
 
 /* 0x00204D00, 0x20 bytes, matching. Its charge. */
 void func_00204D00(u8 *s, int f)
 {
-    func_001508F0(*(u8 **)(s + 0x14), f & 0x7FFF);
+    func_001508F0(PS2_LOADP(u8 *, (s + 0x14)), f & 0x7FFF);
 }
 
 /* 0x00204D20, 0x90 bytes, matching. Stops soldier `s`'s marching sounds. */
@@ -614,7 +614,7 @@ void func_00204DB0(u8 *s, int alt)
     if ((*(u32 *)(s + 0xBC) & 0x40000000) != 0)
         return;
     k = (s - g_006A3A30[0]) / 0xC0;
-    o = (*(u8 **)(s + 0x68) - g_005BA6A0) / 0x2C;
+    o = (PS2_LOADP(u8 *, (s + 0x68)) - g_005BA6A0) / 0x2C;
     if (o == 0x23B || o == 0x23A)
         func_002A6D20(k, 0x717);
     else if (o == 0x239)
@@ -629,13 +629,13 @@ void func_00204EA0(u8 *s)
 
     if ((*(u32 *)(s + 0xB8) & 0x180) != 0)
         return;
-    for (p = g_006A3A30[*(int *)(*(u8 **)(s + 0x10) + 0x14)]; p != 0; p = *(u8 **)(p + 4)) {
+    for (p = g_006A3A30[*(int *)(PS2_LOADP(u8 *, (s + 0x10)) + 0x14)]; p != 0; p = PS2_LOADP(u8 *, (p + 4))) {
         u8 *a;
 
         *(u32 *)(p + 0xB8) &= 0xFFFF9FFF;
         *(u32 *)(p + 0xBC) &= 0xFFDEFFFF;
         func_00206080(p);
-        a = *(u8 **)(p + 0x14);
+        a = PS2_LOADP(u8 *, (p + 0x14));
         *(u32 *)(a + 0x13C) = 0;
         *(u32 *)(a + 0x1D0) = *(u32 *)PS2_PTR(0x700000C0);
         *(u32 *)(a + 0x1D4) = *(u32 *)PS2_PTR(0x700000C4);
@@ -649,14 +649,14 @@ u32 func_002051A0(u8 *s)
 {
     if ((*(u32 *)(s + 0xB8) & 0x80) == 0 || (*(u32 *)(g_00669D60 + 0x200) & 0x4000000) != 0)
         return 0x17;
-    return func_001F0520(*(u8 **)(s + 0x10));
+    return func_001F0520(PS2_LOADP(u8 *, (s + 0x10)));
 }
 
 /* 0x002051F0, 0x16C bytes. Soldier `s`'s guard chance (`hit`: when struck), less when hurt for
  * kind 0x10, a third for kinds below 8. */
 int func_002051F0(u8 *s, int hit)
 {
-    u8 kind = (*(u8 **)(s + 0x68))[0x1C];
+    u8 kind = (PS2_LOADP(u8 *, (s + 0x68)))[0x1C];
     u32 c;
     int v;
 
@@ -691,7 +691,7 @@ int func_00205360(int a, int k, int p, u8 *o, u8 *t, int *down)
 
     if ((*(u32 *)(t + 0xB8) & 0x846C) != 0)
         return 0;
-    if ((*(u32 *)(t + 0xB8) & 0x80) != 0 && (*(u32 *)(*(u8 **)(t + 0x10) + 0x80) & 0x800) != 0)
+    if ((*(u32 *)(t + 0xB8) & 0x80) != 0 && (*(u32 *)(PS2_LOADP(u8 *, (t + 0x10)) + 0x80) & 0x800) != 0)
         return 0;
     if (a == 2)
         return 1;
@@ -715,7 +715,7 @@ int func_00205480(u8 *s)
 {
     if ((*(u32 *)(s + 0xB8) & 0x80) == 0)
         return 0;
-    return (*(u32 *)(*(u8 **)(s + 0x10) + 0x84) & 0x800) != 0;
+    return (*(u32 *)(PS2_LOADP(u8 *, (s + 0x10)) + 0x84) & 0x800) != 0;
 }
 
 /* The soldiers' running orders (0x002018B0-0x00201F7C). */
@@ -739,7 +739,7 @@ void func_002018B0(u8 *s)
 {
     if (*(short *)(s + 0x78) == 0) {
         *(u32 *)(s + 0xBC) &= ~0x10000;
-        stop_target(*(u8 **)(s + 0x14));
+        stop_target(PS2_LOADP(u8 *, (s + 0x14)));
     } else {
         func_00204C50(s);
     }
@@ -748,7 +748,7 @@ void func_002018B0(u8 *s)
 /* 0x00201910, 0x78 bytes. Order 0x4000 (follow): ends with its timer or its target. */
 void func_00201910(u8 *s)
 {
-    u8 *a = *(u8 **)(s + 0x14);
+    u8 *a = PS2_LOADP(u8 *, (s + 0x14));
 
     if (*(short *)(s + 0x78) == 0 || func_00271E70(s) == 0) {
         *(u32 *)(s + 0xBC) &= ~0x4000;
@@ -762,9 +762,9 @@ void func_00201910(u8 *s)
  * struck. */
 void func_00201780(u8 *s)
 {
-    u8 *a = *(u8 **)(s + 0x14);
+    u8 *a = PS2_LOADP(u8 *, (s + 0x14));
 
-    if ((*(u32 *)(*(u8 **)(a + 0x210) + 0x18) & 0x800) != 0) {
+    if ((*(u32 *)(PS2_LOADP(u8 *, (a + 0x210)) + 0x18) & 0x800) != 0) {
         *(u32 *)(s + 0xBC) &= ~0x20000;
         func_00253690(0xB, a);
         stop_target(a);
@@ -782,9 +782,9 @@ void func_00201780(u8 *s)
 void func_00201C30(u8 *s)
 {
     func_00204B60(s, 0x20004);
-    if (((*(u8 **)(s + 0x14))[0x19C] & 2) == 0) {
+    if (((PS2_LOADP(u8 *, (s + 0x14)))[0x19C] & 2) == 0) {
         *(u32 *)(s + 0xBC) &= ~0x100;
-        stop_target(*(u8 **)(s + 0x14));
+        stop_target(PS2_LOADP(u8 *, (s + 0x14)));
     }
 }
 
@@ -794,7 +794,7 @@ void func_00201CA0(u8 *s)
 {
     if (*(short *)(s + 0x78) != 0)
         return;
-    if ((*(u32 *)(*(u8 **)(*(u8 **)(s + 0x14) + 0x210) + 0x18) & 0x400000) == 0) {
+    if ((*(u32 *)(PS2_LOADP(u8 *, (*(u8 **)(s + 0x14) + 0x210)) + 0x18) & 0x400000) == 0) {
         *(u32 *)(s + 0xBC) &= ~0x80;
     } else {
         *(u32 *)(s + 0xBC) &= ~0x80;
@@ -808,9 +808,9 @@ void func_00201CA0(u8 *s)
  * when struck. */
 void func_00201D30(u8 *s)
 {
-    u8 *a = *(u8 **)(s + 0x14);
+    u8 *a = PS2_LOADP(u8 *, (s + 0x14));
 
-    if ((*(u32 *)(*(u8 **)(a + 0x210) + 0x18) & 0x800) != 0) {
+    if ((*(u32 *)(PS2_LOADP(u8 *, (a + 0x210)) + 0x18) & 0x800) != 0) {
         *(u32 *)(s + 0xBC) &= ~0x40;
         func_00253690(0xB, a);
         stop_target(a);
@@ -831,7 +831,7 @@ void func_00201E30(u8 *s)
     u32 f = *(u32 *)(s + 0xBC);
 
     if ((f & 0x7FFC0) == 0) {
-        if (*(int *)(*(u8 **)(*(u8 **)(s + 0x14) + 0x210) + 0x14) == 0)
+        if (*(int *)(PS2_LOADP(u8 *, (*(u8 **)(s + 0x14) + 0x210)) + 0x14) == 0)
             func_00206080(s);
     } else if ((f & 0x200) != 0) {
         func_00201990(s);
@@ -870,18 +870,18 @@ void func_002B31A0(u8 *s); void func_002B27F0(u8 *s);
 /* 0x00202B00, 0x14C bytes. Whether soldier `s` counters its attacker (by the difficulty). */
 int func_00202B00(u8 *s)
 {
-    u8 *a = *(u8 **)(s + 0x14), *st = *(u8 **)(a + 0x210), *o;
+    u8 *a = PS2_LOADP(u8 *, (s + 0x14)), *st = PS2_LOADP(u8 *, (a + 0x210)), *o;
 
     if (2.0f <= *(float *)(a + 0x23C) || (st != 0 && (*(u32 *)(st + 0x18) & 0x10) != 0))
         return 0;
-    if (*(u8 **)(a + 0x214) != 0 && (*(u32 *)(*(u8 **)(a + 0x214) + 0x18) & 0x10) == 0)
+    if (PS2_LOADP(u8 *, (a + 0x214)) != 0 && (*(u32 *)(PS2_LOADP(u8 *, (a + 0x214)) + 0x18) & 0x10) == 0)
         return 0;
     if ((*(u32 *)(s + 0xBC) & 0x80000) == 0)
         return 0;
-    o = *(u8 **)(s + 8);
+    o = PS2_LOADP(u8 *, (s + 8));
     if (o == 0 || (*(u32 *)(o + 0xB8) & 0xC) == 0)
         return 0;
-    if ((*(u8 **)(s + 0x10))[0x79] == (*(u8 **)(o + 0x10))[0x79])
+    if ((PS2_LOADP(u8 *, (s + 0x10)))[0x79] == (PS2_LOADP(u8 *, (o + 0x10)))[0x79])
         return 0;
     if ((*(u32 *)(st + 0x18) & 4) == 0)
         return 0;
@@ -915,7 +915,7 @@ int func_00202F40(u8 *s)
  * 80-175 frames over the soldier's rank each time it ends. */
 void func_002034F0(u8 *s)
 {
-    if ((*(u32 *)(*(u8 **)(*(u8 **)(s + 0x14) + 0x210) + 0x18) & 0x200000) == 0) {
+    if ((*(u32 *)(PS2_LOADP(u8 *, (*(u8 **)(s + 0x14) + 0x210)) + 0x18) & 0x200000) == 0) {
         order2(s);
         s[0x7D] = 0;
     } else if (*(short *)(s + 0x78) == 0) {
@@ -934,7 +934,7 @@ void func_002034F0(u8 *s)
 /* 0x00203600, 0x5C bytes. Order 3 (keep walking) while the actor walks. */
 void func_00203600(u8 *s)
 {
-    if ((*(u32 *)(*(u8 **)(*(u8 **)(s + 0x14) + 0x210) + 0x18) & 0x40) == 0) {
+    if ((*(u32 *)(PS2_LOADP(u8 *, (*(u8 **)(s + 0x14) + 0x210)) + 0x18) & 0x40) == 0) {
         order2(s);
         s[0x7D] = 0;
     } else if (*(short *)(s + 0x78) == 0) {
@@ -985,7 +985,7 @@ void func_002036F0(u8 *s)
 /* 0x002037D0, 0x15C bytes, matching. Soldier `s`'s choice by its kind. */
 void func_002037D0(u8 *s)
 {
-    switch ((*(u8 **)(s + 0x68))[0x1C]) {
+    switch ((PS2_LOADP(u8 *, (s + 0x68)))[0x1C]) {
     case 0: func_002398A0(s); break;
     case 1: func_00237200(s); break;
     case 2: func_002E1820(s); break;
@@ -1010,7 +1010,7 @@ void func_002037D0(u8 *s)
 /* 0x00203930, 0xBC bytes, matching. The special soldiers' step by their officer's kind bits. */
 void func_00203930(u8 *s)
 {
-    u32 f = *(u32 *)(*(u8 **)(s + 0x68) + 0x28);
+    u32 f = *(u32 *)(PS2_LOADP(u8 *, (s + 0x68)) + 0x28);
 
     if ((f & 4) != 0)
         func_002B3820(s);
@@ -1034,7 +1034,7 @@ void func_00203F90(u8 *s)
     if ((f & 0x10) != 0)
         func_00203C70(s);
     else if ((f & 8) != 0 && (f & 0x4000000) != 0)
-        stop_target(*(u8 **)(s + 0x14));
+        stop_target(PS2_LOADP(u8 *, (s + 0x14)));
 }
 
 /* Target distances (0x00206480-0x00206DE8). */
@@ -1052,17 +1052,17 @@ static float dist2(u8 *a, u8 *b)
  * is a friend; `far` doubles the distance). */
 void func_00206480(u8 *s, u8 *t, int far)
 {
-    u8 *o = *(u8 **)(s + 8);
+    u8 *o = PS2_LOADP(u8 *, (s + 8));
     float d, lim[4];
     u32 k;
 
     if (o == 0)
         return;
-    if ((*(u8 **)(s + 0x10))[0x79] == (*(u8 **)(o + 0x10))[0x79]) {
+    if ((PS2_LOADP(u8 *, (s + 0x10)))[0x79] == (PS2_LOADP(u8 *, (o + 0x10)))[0x79]) {
         s[0x7C] = 3;
         return;
     }
-    d = dist2(*(u8 **)(s + 0x14), *(u8 **)(o + 0x14));
+    d = dist2(PS2_LOADP(u8 *, (s + 0x14)), PS2_LOADP(u8 *, (o + 0x14)));
     if (far != 0)
         d *= 2.0f;
     func_001F1470(s, PS2_ADDR(t), *(u32 *)(o + 0xB8) & 0x8000, lim);
@@ -1077,16 +1077,16 @@ void func_00206480(u8 *s, u8 *t, int far)
  * active and not in state 3, the target not in the way of kind 2). */
 int func_00206B80(u8 *s)
 {
-    u8 *o = *(u8 **)(s + 8), *g;
+    u8 *o = PS2_LOADP(u8 *, (s + 8)), *g;
 
     if (o == 0 || (*(u32 *)(o + 0xB8) & 1) == 0 || (*(u32 *)(o + 0xB8) & 2) != 0)
         return 0;
-    g = *(u8 **)(*(u8 **)(s + 0x10) + 0x18);
+    g = PS2_LOADP(u8 *, (*(u8 **)(s + 0x10) + 0x18));
     if (g == 0 || (*(u32 *)(g + 0x80) & 1) == 0 || (*(u32 *)(g + 0x80) & 0x8C40002) != 0)
         return 0;
     if (g[0x7A] == 3)
         return 0;
-    return func_00190610(*(u8 **)(o + 0x14) + 0x40, 2) == 0;
+    return func_00190610(PS2_LOADP(u8 *, (o + 0x14)) + 0x40, 2) == 0;
 }
 
 /* 0x00206C70, 0x178 bytes. Whether soldier `s`'s target is within its reach (by its kind and
@@ -1107,5 +1107,5 @@ int func_00206C70(u8 *s)
     } else {
         r = (f & 0x8000) == 0 ? 90000.0f : 10000.0f;
     }
-    return dist2(*(u8 **)(s + 0x14), *(u8 **)(*(u8 **)(s + 8) + 0x14)) < r;
+    return dist2(PS2_LOADP(u8 *, (s + 0x14)), PS2_LOADP(u8 *, (*(u8 **)(s + 8) + 0x14))) < r;
 }

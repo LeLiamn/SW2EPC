@@ -47,7 +47,8 @@ extern u8 *g_0043C5EC;
 
 #define M32(o) (*(int *)(g_007BAC40 + (o)))
 #define M8(o) (g_007BAC40[o])
-#define MAP_TEX (*(u8 **)(g_007BAC40 + 0x84))
+#define MAP_TEX PS2_LOADP(u8 *, (g_007BAC40 + 0x84))
+#define MAP_TEX_SET(v) PS2_STOREP(u8 *, (g_007BAC40 + 0x84), v)
 
 void func_003A34C0(void);
 void func_003A80B0(int p, int v);

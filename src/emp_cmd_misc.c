@@ -58,7 +58,7 @@ void func_003C0080(int *p)
 /* 0x003C0090, 0x3C bytes, matching. Step 0: starts fade 6. */
 void func_003C0090(void)
 {
-    int *st = *(int **)(((u8 *)func_002FC2C0()) + 0x6BC);
+    int *st = PS2_LOADP(int *, (((u8 *)func_002FC2C0()) + 0x6BC));
 
     func_003A9070(1);
     func_002DB570(6);
@@ -68,7 +68,7 @@ void func_003C0090(void)
 /* 0x003C00D0, 0x38 bytes, matching. Step 1: waits for the fade. */
 void func_003C00D0(void)
 {
-    int *st = *(int **)(((u8 *)func_002FC2C0()) + 0x6BC);
+    int *st = PS2_LOADP(int *, (((u8 *)func_002FC2C0()) + 0x6BC));
 
     if (func_002DB750() == 0)
         *st = 2;
@@ -99,14 +99,14 @@ void func_003C0150(void)
 /* 0x003C0190, 0x40 bytes. */
 void func_003C0190(void)
 {
-    if (**(int **)(((u8 *)func_002FC2C0()) + 0x6BC) == 1)
+    if (*PS2_LOADP(int *, (((u8 *)func_002FC2C0()) + 0x6BC)) == 1)
         func_002DB700();
 }
 
 /* 0x003C01D0, 0x78 bytes. */
 int func_003C01D0(void)
 {
-    int k = **(int **)(((u8 *)func_002FC2C0()) + 0x6BC);
+    int k = *PS2_LOADP(int *, (((u8 *)func_002FC2C0()) + 0x6BC));
 
     if (k == 2)
         func_003C0110();
@@ -120,14 +120,14 @@ int func_003C01D0(void)
 /* 0x003C0250, 0x40 bytes. */
 void func_003C0250(void)
 {
-    if (**(int **)(((u8 *)func_002FC2C0()) + 0x6BC) == 1)
+    if (*PS2_LOADP(int *, (((u8 *)func_002FC2C0()) + 0x6BC)) == 1)
         func_002DB700();
 }
 
 /* 0x003C0290, 0x78 bytes. */
 int func_003C0290(void)
 {
-    int k = **(int **)(((u8 *)func_002FC2C0()) + 0x6BC);
+    int k = *PS2_LOADP(int *, (((u8 *)func_002FC2C0()) + 0x6BC));
 
     if (k == 2)
         func_003C0150();

@@ -979,7 +979,7 @@ int func_00215480(int param_1)
         piVar3 = (int *)0;
     }
     else {
-        piVar3 = *(int **)PS2_PTR((*(int *)PS2_PTR((g_0045D2F0 + 4)) + ((u32)bVar1 + (u32)bVar2 * 0x20) * 4));
+        piVar3 = PS2_LOADP(int *, PS2_PTR((*(int *)PS2_PTR((g_0045D2F0 + 4)) + ((u32)bVar1 + (u32)bVar2 * 0x20) * 4)));
     }
     if (piVar3 == (int *)0) {
         iVar4 = 0;
@@ -1883,7 +1883,7 @@ int func_00240E20(int param_1)
 
     if (*(int *)PS2_PTR((param_1 + 0x118)) < 0x3C) {
         bVar1 = false;
-        if (**(short **)PS2_PTR((param_1 + 0x210)) == 5) {
+        if (*PS2_LOADP(short *, PS2_PTR((param_1 + 0x210))) == 5) {
             bVar1 = 2 < *(int *)PS2_PTR((param_1 + 0x220));
         }
     }

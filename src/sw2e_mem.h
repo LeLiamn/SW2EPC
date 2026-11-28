@@ -10,6 +10,7 @@
  *   ps2ptr          a 32-bit PS2 address stored in game data (a field, a global, a table entry)
  *   PS2_PTR(a)      the native pointer for PS2 address `a`
  *   PS2_ADDR(p)     the PS2 address of native pointer `p` (which must point into PS2 memory)
+ *   PS2_LOADP(T, p) / PS2_STOREP(T, p, v)  a pointer field at native address p, read / stored
  *   PS2_FUNC(a)     the PC function for code address `a`; PS2_CODE(f) the code address of function f
  *   PS2_GETP(T, a)  the pointer stored at PS2 address `a`, as type T; PS2_SETP(a, v) stores one
  *
@@ -107,6 +108,12 @@ void *const *sw2e_fntab(unsigned int a, int n);
 unsigned int sw2e_code_addr(void *fn);
 /* For macros that receive either a native pointer or a PS2 address held in an integer. */
 #define PS2_ANYPTR(o) _Generic((o),     int: sw2e_ptr((unsigned int)(sw2e_uptr)(o)), unsigned int: sw2e_ptr((unsigned int)(sw2e_uptr)(o)),     long long: sw2e_ptr((unsigned int)(sw2e_uptr)(o)), unsigned long long: sw2e_ptr((unsigned int)(sw2e_uptr)(o)),     default: (void *)(sw2e_uptr)(o))
+/* A pointer field in PS2 memory at native address `p` (4 bytes): read as type T / store `v`
+ * (a pointer, or an integer already holding a PS2 address). The PS2 build reads and writes the
+ * field as the original code did. */
+#define PS2_ADDR_ANY(v) _Generic((v),     int: (unsigned int)(sw2e_uptr)(v), unsigned int: (unsigned int)(sw2e_uptr)(v),     long long: (unsigned int)(sw2e_uptr)(v), unsigned long long: (unsigned int)(sw2e_uptr)(v),     default: sw2e_addr((const void *)(sw2e_uptr)(v)))
+#define PS2_LOADP(T, p) ((T)PS2_PTR(*(ps2ptr *)(p)))
+#define PS2_STOREP(T, p, v) (*(ps2ptr *)(p) = PS2_ADDR_ANY(v))
 #define PS2_FUNC(a) sw2e_func((unsigned int)(a))
 #define PS2_CODE(f) sw2e_code_addr((void *)(f))
 
@@ -115,6 +122,8 @@ unsigned int sw2e_code_addr(void *fn);
 #define PS2_PTR(a) ((void *)(a))
 #define PS2_ADDR(p) ((unsigned int)(p))
 #define PS2_ANYPTR(o) ((void *)(o))
+#define PS2_LOADP(T, p) (*(T *)(p))
+#define PS2_STOREP(T, p, v) (*(T *)(p) = (v))
 #define PS2_FUNC(a) ((void *)(a))
 #define PS2_CODE(f) ((unsigned int)(f))
 

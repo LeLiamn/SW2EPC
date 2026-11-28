@@ -29,7 +29,8 @@ typedef unsigned int u32;
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
 #define S32(o, off) (*(int *)((u8 *)(o) + (off)))
 #define F32(o, off) (*(float *)((u8 *)(o) + (off)))
-#define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
+#define PTR(o, off) PS2_LOADP(u8 *, ((u8 *)(o) + (off)))
+#define PTR_SET(o, off, v) PS2_STOREP(u8 *, ((u8 *)(o) + (off)), v)
 
 typedef u8 Unit;
 
@@ -377,7 +378,7 @@ int func_0016E300(u8 *slot, int kind, u8 node, int actor, int pair, int no_parts
         for (i = 0; i < n; i++, rec += 6) {
             u8 *w = take_weapon();
 
-            PTR(slot, 0x50 + i * 4) = w;
+            PTR_SET(slot, 0x50 + i * 4, w);
             weapon_use(w);
             func_0016D180(PTR(slot, 0x50 + i * 4), rec);
         }
@@ -392,7 +393,7 @@ int func_0016E300(u8 *slot, int kind, u8 node, int actor, int pair, int no_parts
             for (i = 0; i < n; i++, rec += 6) {
                 u8 *w = take_weapon();
 
-                PTR(slot, 0x58 + i * 4) = w;
+                PTR_SET(slot, 0x58 + i * 4, w);
                 weapon_use(w);
                 func_0016D180(PTR(slot, 0x58 + i * 4), rec);
             }
@@ -400,14 +401,14 @@ int func_0016E300(u8 *slot, int kind, u8 node, int actor, int pair, int no_parts
         if ((u32)(U8(slot, 0x48) - 0x30) < 8 || (u32)(U8(slot, 0x48) - 0x14) < 8) {
             u8 *w = take_weapon();
 
-            PTR(slot, 0x58) = w;
+            PTR_SET(slot, 0x58, w);
             weapon_use(w);
             func_0016D180(PTR(slot, 0x58), g_0056DBE0);
         }
     }
     if (actor == 0) {
         o = func_001BE5E0();
-        PTR(slot, 0x44) = o;
+        PTR_SET(slot, 0x44, o);
         if (o == 0) {
             func_0016E910(slot);
             return 0;
@@ -417,7 +418,7 @@ int func_0016E300(u8 *slot, int kind, u8 node, int actor, int pair, int no_parts
         U8(o, 0x165) = U8(slot, 0x49);
     } else {
         o = func_001BE630();
-        PTR(slot, 0x44) = o;
+        PTR_SET(slot, 0x44, o);
         if (o == 0) {
             func_0016E910(slot);
             return 0;
@@ -441,7 +442,7 @@ void func_0016E860(u8 *slot)
 
         if (p != 0 && PTR(p, 0x68) != 0) {
             func_002088C0(PTR(p, 0x68));
-            PTR(PTR(slot, 0x50 + i * 4), 0x68) = 0;
+            PTR_SET(PTR(slot, 0x50 + i * 4), 0x68, 0);
         }
     }
     for (i = 0; i < 2; i++) {
@@ -449,7 +450,7 @@ void func_0016E860(u8 *slot)
 
         if (p != 0 && PTR(p, 0x68) != 0) {
             func_002088C0(PTR(p, 0x68));
-            PTR(PTR(slot, 0x58 + i * 4), 0x68) = 0;
+            PTR_SET(PTR(slot, 0x58 + i * 4), 0x68, 0);
         }
     }
 }
@@ -473,14 +474,14 @@ void func_0016E910(u8 *slot)
 
     if (o != 0) {
         if (BIT(slot, 0x4C, 2)) {
-            PTR(o, 0x1E8) = 0;
+            PTR_SET(o, 0x1E8, 0);
             BIT(PTR(slot, 0x44), 0x20C, 0) = 0;
         } else {
-            PTR(o, 0x160) = 0;
+            PTR_SET(o, 0x160, 0);
             BIT(PTR(slot, 0x44), 0x168, 0) = 0;
         }
     }
-    PTR(slot, 0x44) = 0;
+    PTR_SET(slot, 0x44, 0);
     if (BIT(slot, 0x4D, 0))
         func_0016E860(slot);
     for (i = 0; i < 2; i++) {
@@ -498,7 +499,7 @@ void func_0016E910(u8 *slot)
  * plus the length (lengthened by `grow`) times the scale +0x64. */
 void func_0016EAB0(float grow, float *e)
 {
-    u8 *t = *(u8 **)&e[0x1A];
+    u8 *t = PS2_LOADP(u8 *, &e[0x1A]);
     float *s = (float *)PS2_PTR(0x70000030), len;
     int k;
 
@@ -514,7 +515,7 @@ void func_0016EAB0(float grow, float *e)
 /* 0x0016EB20, 0x6C bytes. The same without the scale, when the part has a trail. */
 void func_0016EB20(float grow, float *e)
 {
-    u8 *t = *(u8 **)&e[0x1A];
+    u8 *t = PS2_LOADP(u8 *, &e[0x1A]);
     float *s = (float *)PS2_PTR(0x70000030), len;
     int k;
 
@@ -609,7 +610,7 @@ int func_0016F8E0(float grow, float *e, int player)
     b[0] = e[0];
     a[0] = len * e[0x19] + b[0];
     t = func_002087A0();
-    *(u8 **)&e[0x1A] = t;
+    PS2_STOREP(u8 *, &e[0x1A], t);
     if (t == 0)
         return 0;
     func_00208820(t, (unsigned int *)(a), (unsigned int *)(b), player);

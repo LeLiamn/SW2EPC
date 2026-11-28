@@ -691,7 +691,7 @@ int func_003E1800(u8 *o)
     f = *(u32 *)(o + 0xB8);
     if ((f & 1) == 0 || (f & 2) != 0 || (f & 0x200) == 0)
         return 0;
-    u = *(u8 **)(o + 0x10);
+    u = PS2_LOADP(u8 *, (o + 0x10));
     if (u == 0)
         return 0;
     return u[0x79] == 0;
@@ -853,9 +853,9 @@ void func_003E4700(void)
 /* 0x003E4740, 0x38 bytes, matching. */
 void func_003E4740(u8 *p)
 {
-    if (*(u8 **)(p + 4) != 0) {
-        func_00102EC0(*(u8 **)(p + 4));
-        *(u8 **)(p + 4) = 0;
+    if (PS2_LOADP(u8 *, (p + 4)) != 0) {
+        func_00102EC0(PS2_LOADP(u8 *, (p + 4)));
+        PS2_STOREP(u8 *, (p + 4), 0);
     }
 }
 
@@ -881,7 +881,7 @@ void func_003E47D0(int k, int x, int y, int big)
     }
     if (func_003E4780(k) == 0)
         t = 0x24;
-    func_001ABE40(*(u8 **)(p + 4), t, x, y, 0, w, h, 0x80, 2, 0);
+    func_001ABE40(PS2_LOADP(u8 *, (p + 4)), t, x, y, 0, w, h, 0x80, 2, 0);
 }
 
 /* 0x003E4CD0, 0xAC bytes. */
@@ -890,7 +890,7 @@ void func_003E4CD0(void)
     u8 *p = func_003E46F0();
 
     func_00118850(p, 0x14);
-    *(u8 **)(p + 4) = func_001026D0(1, 0x87, 0, 1, 0, 0, g_0045C610, 0x118);
+    PS2_STOREP(u8 *, (p + 4), func_001026D0(1, 0x87, 0, 1, 0, 0, g_0045C610, 0x118));
     func_003E4700();
     g_007BF768 = 1.0f;
     g_007BF76D &= 0xFE;
@@ -1112,8 +1112,8 @@ u32 func_003E1930(float r, u8 *u, u32 *out);
 void func_003E27A0(int a, int k);
 
 #define UNIT_OFF(u) g_006A3A30[*(short *)((u) + 0x178)]
-#define LINKABLE(u) ((*(u32 *)(*(u8 **)((u) + 0x210) + 0x18) & 0x8000000) == 0)
-#define COMBO_FLAG(u) ((*(u32 *)(*(u8 **)((u) + 0x210) + 0x18) & 0x400000) != 0)
+#define LINKABLE(u) ((*(u32 *)(PS2_LOADP(u8 *, ((u) + 0x210)) + 0x18) & 0x8000000) == 0)
+#define COMBO_FLAG(u) ((*(u32 *)(PS2_LOADP(u8 *, ((u) + 0x210)) + 0x18) & 0x400000) != 0)
 
 /* 0x003E1DD0, 0x18C bytes. Finds the units near each player (up to three, within 300). */
 void func_003E1DD0(void)
@@ -1413,7 +1413,7 @@ void func_003E48A0(void)
                 func_002C80A0(x, y, 0, 0x108, 0x24, 0x80, 0);
                 k = first + i;
                 if (func_003E4780(k) != 0)
-                    func_001ABE40(*(u8 **)(p + 4), k, x + 0x2C, y + 6, 0, 0xD0, 0x18, 0x80, 1, 0);
+                    func_001ABE40(PS2_LOADP(u8 *, (p + 4)), k, x + 0x2C, y + 6, 0, 0xD0, 0x18, 0x80, 1, 0);
                 func_003E47D0(k, x + 8, y + 6, 0);
                 if (i == *(short *)(p + 0xC))
                     func_002C8500(x, y, 0, 0x108, 0x24, 0x80, 0);

@@ -321,8 +321,10 @@ extern u8 g_0072CEB0[2][0x120];
 
 #define SP_BUF SP_INT(0x70000150)
 #define LIST(l) (g_0072D130 + (l) * 0x350)
-#define HEAD(l, o) (*(u8 **)(LIST(l) + (o)))
-#define NEXT(p, o) (*(u8 **)((p) + (o)))
+#define HEAD(l, o) PS2_LOADP(u8 *, (LIST(l) + (o)))
+#define HEAD_SET(l, o, v) PS2_STOREP(u8 *, (LIST(l) + (o)), v)
+#define NEXT(p, o) PS2_LOADP(u8 *, ((p) + (o)))
+#define NEXT_SET(p, o, v) PS2_STOREP(u8 *, ((p) + (o)), v)
 #define FL34(p) (*(u32 *)((p) + 0x34))
 #define FL38(p) (*(u32 *)((p) + 0x38))
 #define GAME_FLAGS (*(u32 *)(g_00669D60 + 0x200))
@@ -377,10 +379,10 @@ void func_001C9BB0(void);
 /* Adds object `o` to the current list's chain of new objects. */
 #define LINK_NEW(o) do {                                                \
     u8 *l_ = LIST(SP_LIST);                                             \
-    NEXT(*(u8 **)(l_ + 0x344), 0x11C) = (o);                            \
-    NEXT(o, 0x118) = *(u8 **)(l_ + 0x344);                              \
-    *(u8 **)(l_ + 0x344) = (o);                                         \
-    NEXT(o, 0x11C) = 0;                                                 \
+    NEXT_SET(PS2_LOADP(u8 *, (l_ + 0x344)), 0x11C, (o));                            \
+    NEXT_SET(o, 0x118, PS2_LOADP(u8 *, (l_ + 0x344)));                              \
+    PS2_STOREP(u8 *, (l_ + 0x344), (o));                                         \
+    NEXT_SET(o, 0x11C, 0);                                                 \
 } while (0)
 
 /* 0x001C8340, 0x170 bytes. A new object drawing model `m` of file `k` (part `a`). */
@@ -389,7 +391,7 @@ u8 *func_001C8340(int k, u8 *m, int a, u32 f)
     u8 *o = 0;
 
     if (m != 0 && g_0072C870[k] != 0 && (o = func_001CB3F0()) != 0) {
-        *(u8 **)(o + 0xF0) = m;
+        PS2_STOREP(u8 *, (o + 0xF0), m);
         *(int *)(o + 0xF4) = a;
         *(int *)(o + 0xF8) = 0;
         *(int *)(o + 0x110) = 0x40;
@@ -413,7 +415,7 @@ u8 *func_001C84B0(int k, u8 *m, int a, u32 f)
     u8 *o = 0;
 
     if (m != 0 && g_0072C870[k] != 0 && (o = func_001CB3F0()) != 0) {
-        *(u8 **)(o + 0xF0) = m;
+        PS2_STOREP(u8 *, (o + 0xF0), m);
         *(int *)(o + 0xF4) = 0;
         *(int *)(o + 0xF8) = a;
         *(int *)(o + 0x110) = 0x40;
@@ -440,7 +442,7 @@ void func_001C8620(u8 *o, int k, u8 *m, int a, u32 f)
     }
     if (m != 0 && g_0072C870[k] != 0 && o != 0) {
         *(int *)(o + 0xFC) = 1;
-        *(u8 **)(o + 0xF0) = m;
+        PS2_STOREP(u8 *, (o + 0xF0), m);
         *(int *)(o + 0xF4) = a;
         *(int *)(o + 0xF8) = 0;
         *(int *)(o + 0x110) = 0x40;
@@ -492,7 +494,7 @@ void func_001C8130(int k, int a, int b, u32 f, int u)
             FL34(p) |= 0x800;
         p = (u8 *)&g_006D3370[g_0045D328];
         g_0045D328 = (g_0045D328 + 1) % 5;
-        *(u8 **)p = o;
+        PS2_STOREP(u8 *, p, o);
     }
 }
 
@@ -587,7 +589,7 @@ void func_001C8ED0(u8 s)
             FL38(o) |= 0x10;
     }
     for (o = HEAD(0, 0x33C); o != 0; o = NEXT(o, 0x10C)) {
-        u = *(u8 **)(o + 0xF0);
+        u = PS2_LOADP(u8 *, (o + 0xF0));
         if (u != 0 && u[0x14E] == s) {
             v = *(int *)(o + 0x24);
             if (v == 0x42 || v == 0x41 || v == 0x40 || v == 0x3F || v == 0x3E || v == 0x3D
@@ -600,7 +602,7 @@ void func_001C8ED0(u8 s)
         }
     }
     for (o = HEAD(3, 0x33C); o != 0; o = NEXT(o, 0x10C)) {
-        u = *(u8 **)(o + 0xF0);
+        u = PS2_LOADP(u8 *, (o + 0xF0));
         if (u != 0 && u[0x14E] == s)
             FL38(o) |= 0x10;
     }
@@ -659,7 +661,7 @@ u32 *func_001C98D0(u32 *p, u8 *o)
 
     if ((FL38(o) & 0xC) != 0)
         return p;
-    for (m = *(u8 **)(o + 0x18); m != 0; m = NEXT(m, 0x264)) {
+    for (m = PS2_LOADP(u8 *, (o + 0x18)); m != 0; m = NEXT(m, 0x264)) {
         p[0] = 0x30000005;
         p[1] = (u32)PS2_ADDR((o + SP_BUF * 0x50 + 0x50));
         p[2] = 0;
@@ -706,7 +708,7 @@ void func_001C9BB0(void)
         return;
     p = func_001CC880(SP_PKT, g_00408530, g_00408510, g_00408550);
     for (o = HEAD(13, 0x22C); o != 0; o = NEXT(o, 0x11C)) {
-        if ((FL34(o) & 0x20000000) == 0 && (m = *(u8 **)(o + 0x18)) != 0) {
+        if ((FL34(o) & 0x20000000) == 0 && (m = PS2_LOADP(u8 *, (o + 0x18))) != 0) {
             p = func_001CCD20(p, *(int *)(m + 0x27C), *(u32 *)(m + 0x270));
             p = func_002A81C0(*(int *)(o + 0x2C), p, m + SP_BUF * 0x130, *(int *)(m + 0x2A4));
         }
@@ -738,7 +740,7 @@ void func_001C9D50(void)
     if (HEAD(14, 0x22C) != 0) {
         p = func_001CCAE0(p);
         for (o = HEAD(14, 0x22C); o != 0; o = NEXT(o, 0x11C)) {
-            m = *(u8 **)(o + 0x18);
+            m = PS2_LOADP(u8 *, (o + 0x18));
             if (m != 0) {
                 q = func_001CCD20(p, *(int *)(m + 0x27C), *(u32 *)(m + 0x270));
                 p = func_002A83C0(*(int *)(o + 0x2C), q, m + SP_BUF * 0x130, *(int *)(m + 0x2A4));
@@ -1089,7 +1091,7 @@ extern u8 g_00426070[];                  /* texture id -> kind (0x11: none) */
 extern int g_00426230[0x11], g_00426280[0x3F];
 extern u8 g_004261C0[0x6F];
 extern u64 g_0040C3F0[0x6F];             /* TEX0 values */
-extern u8 *g_0072C760[0x3F];
+extern ps2ptr g_0072C760[0x3F];         /* u8 *: the model textures */
 extern u8 *g_0072C82C[0x11];
 extern u8 g_00426420[], g_00426560[], g_00426580[], g_00426380[], g_004263F0[];
 extern u8 g_003FCEB0[], g_003FFF70[], g_003FF550[], g_00400280[];
@@ -1103,18 +1105,18 @@ extern u8 g_006A3A30[][0xC0];
 void func_001CB9E0(void)
 {
     u32 k;
-    u8 **e;
+    ps2ptr *e;                           /* the file's offsets, made into addresses */
 
     func_00103000(0);
     if (g_0045D38C != 0) {
-        e = (u8 **)(g_0045D38C + 4);
+        e = (ps2ptr *)(g_0045D38C + 4);
         for (k = 0; k < 9; k++)
             e[k * 2] += (u32)PS2_ADDR(g_0045D38C);
-        e = (u8 **)(g_0045D38C + 4);
+        e = (ps2ptr *)(g_0045D38C + 4);
         for (k = 2; k < 9; k++, e += 2)
-            func_00107440(*e, TEX_SIZE(k, 0x11) << 5, 0);
+            func_00107440((u8 *)PS2_PTR(*e), TEX_SIZE(k, 0x11) << 5, 0);
         for (k = 0; k < 2; k++, e += 2)
-            func_00107440(*e, TEX_SIZE(k, 0x11) << 5, 0);
+            func_00107440((u8 *)PS2_PTR(*e), TEX_SIZE(k, 0x11) << 5, 0);
         func_00102EC0(g_0045D38C);
         g_0045D38C_SET(0);
     }
@@ -1134,29 +1136,29 @@ void func_001CBCE0(void)
 {
     u32 *keep = SP_PKT;
     u32 k;
-    u8 **e;
+    ps2ptr *e;                           /* the files' offsets, made into addresses */
 
     func_00103000(0);
     if (g_0045D388 != 0) {
-        e = (u8 **)(g_0045D388 + 4);
+        e = (ps2ptr *)(g_0045D388 + 4);
         for (k = 0; k < 0x18; k++)
             e[k * 2] += (u32)PS2_ADDR(g_0045D388);
-        e = (u8 **)(g_0045D388 + 4);
+        e = (ps2ptr *)(g_0045D388 + 4);
         for (k = 0; k < 0x18; k++, e += 2) {
             if ((int)k < 0x3F)
                 g_0072C760[k] = *e;
-            func_001CB970(*e, (int)k < 0x3F ? g_00426280[k] : 0x14, 8, 2);
+            func_001CB970((u8 *)PS2_PTR(*e), (int)k < 0x3F ? g_00426280[k] : 0x14, 8, 2);
         }
     }
     if (g_0045D384 != 0) {
-        e = (u8 **)(g_0045D384 + 4);
+        e = (ps2ptr *)(g_0045D384 + 4);
         for (k = 0; k < 0x27; k++)
             e[k * 2] += (u32)PS2_ADDR(g_0045D384);
-        e = (u8 **)(g_0045D384 + 4);
+        e = (ps2ptr *)(g_0045D384 + 4);
         for (k = 0x18; k < 0x3F; k++, e += 2) {
             if ((int)k < 0x3F)
                 g_0072C760[k] = *e;
-            func_001CB970(*e, (int)k < 0x3F ? g_00426280[k] : 0x14, 0x10, 0x10);
+            func_001CB970((u8 *)PS2_PTR(*e), (int)k < 0x3F ? g_00426280[k] : 0x14, 0x10, 0x10);
         }
     }
     SP_PKT_SET(keep);
@@ -1439,7 +1441,7 @@ void func_001CCFA0(u8 *u)
     u8 *o = g_006A3A30[*(short *)(u + 0x178)], *w;
 
     *(u32 *)(o + 0xB8) |= 2;
-    w = *(u8 **)(o + 0x10);
+    w = PS2_LOADP(u8 *, (o + 0x10));
     if (w == 0)
         return;
     if ((*(u32 *)(o + 0xB8) & 0x80) != 0)

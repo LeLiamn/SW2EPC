@@ -65,7 +65,7 @@ void func_00180880(u8 *t)
     u8 *o = g_006A3A30[*(int *)(t + 0x14)];
 
     if ((*(u32 *)(o + 0xB8) & 0xC) != 0) {
-        float f = *(float *)(*(u8 **)(o + 0x14) + 0x54);
+        float f = *(float *)(PS2_LOADP(u8 *, (o + 0x14)) + 0x54);
 
         if (3.1415927f < f)
             f -= 6.2831855f;
@@ -320,7 +320,7 @@ void func_00182960(u8 *o)
         func_002A69D0((o - g_006A3A30[0]) / 0xC0);
     else
         func_00204D20(o);
-    func_00166160(*(u8 **)(o + 0x14));
+    func_00166160(PS2_LOADP(u8 *, (o + 0x14)));
     *(u32 *)(o + 0xBC) = 0;
     OFF_FL(o) = 0;
 }
@@ -334,8 +334,8 @@ u8 *func_00182B40(u8 *p)
         u8 *o = g_006A3A30[k];
 
         if ((OFF_FL(o) & 1) != 0) {
-            func_00118AC0((unsigned int *)(p), *(u8 **)(o + 0x14) + 0x90, 0x10);
-            func_00118AC0((unsigned int *)(p + 0x10), *(u8 **)(o + 0x14) + 0x50, 0x10);
+            func_00118AC0((unsigned int *)(p), PS2_LOADP(u8 *, (o + 0x14)) + 0x90, 0x10);
+            func_00118AC0((unsigned int *)(p + 0x10), PS2_LOADP(u8 *, (o + 0x14)) + 0x50, 0x10);
             func_00118AC0((unsigned int *)(p + 0x20), o + 0x80, 0x18);
             func_00118AC0((unsigned int *)(p + 0x38), o + 0x98, 0x20);
             func_00118AC0((unsigned int *)(p + 0x58), o + 0xB8, 4);
@@ -355,8 +355,8 @@ void func_00183F00(u8 *t)
 
     if ((f & 0x400) == 0 || func_00362F40(i >> 3, i & 7) == 0)
         return;
-    a = *(u8 **)(t + 0xC);
-    b = *(u8 **)(t + 8);
+    a = PS2_LOADP(u8 *, (t + 0xC));
+    b = PS2_LOADP(u8 *, (t + 8));
     if ((f & 0x10) != 0)
         kind = 0;
     else if ((f & 0x20) != 0)

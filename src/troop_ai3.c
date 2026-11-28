@@ -30,13 +30,16 @@ extern int g_00441660[][4];
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 #define FL_B8(o) (*(u32 *)((o) + 0xB8))
 #define FL_BC(o) (*(u32 *)((o) + 0xBC))
-#define TARGET(o) (*(u8 **)((o) + 8))
-#define UNIT(o) (*(u8 **)((o) + 0x14))
-#define NEXT(o) (*(u8 **)((o) + 4))
+#define TARGET(o) PS2_LOADP(u8 *, ((o) + 8))
+#define TARGET_SET(o, v) PS2_STOREP(u8 *, ((o) + 8), v)
+#define UNIT(o) PS2_LOADP(u8 *, ((o) + 0x14))
+#define UNIT_SET(o, v) PS2_STOREP(u8 *, ((o) + 0x14), v)
+#define NEXT(o) PS2_LOADP(u8 *, ((o) + 4))
+#define NEXT_SET(o, v) PS2_STOREP(u8 *, ((o) + 4), v)
 #define S16(o, k) (*(short *)((o) + (k)))
 #define SET_STATE(o, s) do { FL_BC(o) &= 0xFFF8003F; (o)[0x7D] = (s); } while (0)
 /* The officer leading `o`'s troop (itself when it is a leader). */
-#define LEADER(o) ((FL_B8(o) & 0x180) == 0 ? g_006A3A30[*(int *)(*(u8 **)((o) + 0x10) + 0x14)] : (o))
+#define LEADER(o) ((FL_B8(o) & 0x180) == 0 ? g_006A3A30[*(int *)(PS2_LOADP(u8 *, ((o) + 0x10)) + 0x14)] : (o))
 
 /* Stops the unit's move. */
 #define STOP_MOVE(u) do {                                               \
@@ -77,7 +80,7 @@ void func_002B1040(u8 *o, int a);
 /* 0x002B00D0, 0xAC bytes. A counter attack (action 0x19) when the unit can and the dice say so. */
 int func_002B00D0(u8 *o)
 {
-    if ((*(u32 *)(*(u8 **)(UNIT(o) + 0x210) + 0x18) & 8) && *(int *)(TARGET(o) + 0xC) == 0) {
+    if ((*(u32 *)(PS2_LOADP(u8 *, (UNIT(o) + 0x210)) + 0x18) & 8) && *(int *)(TARGET(o) + 0xC) == 0) {
         u8 *c = func_001F14E0(o);
 
         if (CHANCE(c[7] >> 1)) {
@@ -153,7 +156,7 @@ int func_002B0460(u8 *o)
     if (S16(o, 0xA4) != 0)
         return 0;
     u = UNIT(o);
-    f = *(u32 *)(*(u8 **)(u + 0x210) + 0x18);
+    f = *(u32 *)(PS2_LOADP(u8 *, (u + 0x210)) + 0x18);
     if (!((f & 8) && !(f & 0x20)))
         return 0;
     if (S16(o, 0x80) < S16(o, 0x82) * 2)
@@ -519,7 +522,7 @@ void func_002B1BB0(u8 *o)
                 m[0x7F] = s;
             }
         }
-    } else if ((*(u32 *)(*(u8 **)(u + 0x210) + 0x18) & 1) && *(int *)(u + 0x13C) == 0) {
+    } else if ((*(u32 *)(PS2_LOADP(u8 *, (u + 0x210)) + 0x18) & 1) && *(int *)(u + 0x13C) == 0) {
         func_00204EA0(o);
     }
 }
@@ -558,7 +561,7 @@ void func_002B27A0(u8 *o)
 void func_002B3360(u8 *o, u8 *l);
 void func_002B3740(u8 *o, u8 *l);
 
-#define HORSE_READY(o) (*(u32 *)(*(u8 **)(*(u8 **)(*(u8 **)((o) + 0xC) + 0x14) + 0x210) + 0x18) & 1)
+#define HORSE_READY(o) (*(u32 *)(PS2_LOADP(u8 *, (PS2_LOADP(u8 *, (PS2_LOADP(u8 *, ((o) + 0xC)) + 0x14)) + 0x210)) + 0x18) & 1)
 
 /* 0x002B3740, 0xD8 bytes. */
 void func_002B3740(u8 *o, u8 *l)

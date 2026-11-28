@@ -99,7 +99,7 @@ u32 func_0024FA80(u32 v)
     for (k = 0; k < 0x40; k++) {
         u8 *g = g_00755060[k], *m;
 
-        if (g[0x1D] != 0 && *(u32 *)(g + 0x14) < 0x30 && (m = *(u8 **)(g_00755020[g[0x1F]] + 0x18)) != 0) {
+        if (g[0x1D] != 0 && *(u32 *)(g + 0x14) < 0x30 && (m = PS2_LOADP(u8 *, (g_00755020[g[0x1F]] + 0x18))) != 0) {
             u32 c = PS2_ADDR(func_001CCD20((unsigned int *)PS2_PTR(v), *(u32 *)(m + 0x27C), *(u32 *)(m + 0x270)));
 
             v = func_002A81C0(*(u32 *)(g + 8), c, m + g_70000150 * 0x130, *(u32 *)(g + 0x14));
@@ -250,7 +250,7 @@ void func_00250190(u8 *a, u32 *st, int level)
                 stop_glows(st);
                 st[0xA] = 1;
             } else {
-                *(float **)((u8 *)PS2_PTR(st[0xC + k]) + 0xF0) = NODE_POS(a, g_00410A60[k]);
+                PS2_STOREP(float *, ((u8 *)PS2_PTR(st[0xC + k]) + 0xF0), NODE_POS(a, g_00410A60[k]));
             }
         }
         return;
@@ -433,7 +433,7 @@ void func_00250A60(u8 *a, u32 *st)
     }
     for (k = 0; k < 0xB; k++) {
         if (st[0xC + k] != 0)
-            *(float **)((u8 *)PS2_PTR(st[0xC + k]) + 0xF0) = NODE_POS(a, g_00410A70[k]);
+            PS2_STOREP(float *, ((u8 *)PS2_PTR(st[0xC + k]) + 0xF0), NODE_POS(a, g_00410A70[k]));
     }
 }
 
@@ -485,11 +485,11 @@ void func_00250D00(u8 *a, u32 *st)
     float *p = NODE_POS(a, 0);
 
     if ((SETTINGS_FLAGS & 2) == 0 && st[0xC] != 0) {
-        *(float **)((u8 *)PS2_PTR(st[0xC]) + 0xF0) = p;
+        PS2_STOREP(float *, ((u8 *)PS2_PTR(st[0xC]) + 0xF0), p);
         *(float *)((u8 *)PS2_PTR(st[0xC]) + 0x2C) = (float)a[0x14D] / 128.0f;
     }
     if (st[0xD] != 0) {
-        *(float **)((u8 *)PS2_PTR(st[0xD]) + 0xF0) = p;
+        PS2_STOREP(float *, ((u8 *)PS2_PTR(st[0xD]) + 0xF0), p);
         *(float *)((u8 *)PS2_PTR(st[0xD]) + 0x2C) = (float)a[0x14D] / 128.0f;
     }
 }
@@ -518,7 +518,7 @@ void func_00250DE0(u8 *a, u32 *st)
  * an effect halfway between their chests (0xC with a player, else 0xCD). */
 int func_00250E30(u8 *a, u32 *st)
 {
-    u8 *o = *(u8 **)(a + 0x284);
+    u8 *o = PS2_LOADP(u8 *, (a + 0x284));
     float *p = (float *)(st + 0x1C);
     u32 k, f;
 
@@ -615,7 +615,7 @@ void func_002514E0(u8 *a, u32 *st)
             st[0xC] = 0;
         }
     } else {
-        *(float **)((u8 *)PS2_PTR(st[0xC]) + 0xF0) = h;
+        PS2_STOREP(float *, ((u8 *)PS2_PTR(st[0xC]) + 0xF0), h);
     }
 }
 
@@ -661,10 +661,10 @@ void func_00251680(u8 *a, u32 *st)
 
     if ((SETTINGS_FLAGS & 2) == 0) {
         *(float *)((u8 *)PS2_PTR(st[0xC]) + 0x2C) = (float)a[0x14D] / 128.0f;
-        *(float **)((u8 *)PS2_PTR(st[0xC]) + 0xF0) = p;
+        PS2_STOREP(float *, ((u8 *)PS2_PTR(st[0xC]) + 0xF0), p);
     }
     *(float *)((u8 *)PS2_PTR(st[0xD]) + 0x2C) = (float)a[0x14D] / 128.0f;
-    *(float **)((u8 *)PS2_PTR(st[0xD]) + 0xF0) = p;
+    PS2_STOREP(float *, ((u8 *)PS2_PTR(st[0xD]) + 0xF0), p);
 }
 
 /* 0x00251730, 0x124 bytes. Starts effect `k` on seven body nodes. */
@@ -702,7 +702,7 @@ void func_00251860(u8 *a, u32 *st)
         return;
     }
     for (k = 0; k < 7; k++)
-        *(float **)((u8 *)PS2_PTR(st[0xC + k]) + 0xF0) = NODE_POS(a, g_0045CDE8[k]);
+        PS2_STOREP(float *, ((u8 *)PS2_PTR(st[0xC + k]) + 0xF0), NODE_POS(a, g_0045CDE8[k]));
 }
 
 int func_00251A00(u8 *a, u32 *st, int k);
@@ -767,13 +767,13 @@ void func_00251B20(u8 *a, u32 *st)
             q[1] = p[1];
             q[2] = p[2];
             q[3] = p[3];
-            *(float **)((u8 *)PS2_PTR(st[0xC]) + 0xF0) = q;
+            PS2_STOREP(float *, ((u8 *)PS2_PTR(st[0xC]) + 0xF0), q);
             st[0xC] = 0;
         }
     } else if (st[0xC] == 0) {
         func_002519A0(a, st, st[1]);
     } else {
-        *(float **)((u8 *)PS2_PTR(st[0xC]) + 0xF0) = p;
+        PS2_STOREP(float *, ((u8 *)PS2_PTR(st[0xC]) + 0xF0), p);
         *(float *)((u8 *)PS2_PTR(st[0xC]) + 0x2C) = (float)a[0x14D] / 128.0f;
     }
 }
@@ -919,11 +919,11 @@ static void ground_pair_step(u8 *a, u32 *st)
     float *p = NODE_POS(a, 0);
 
     if ((SETTINGS_FLAGS & 2) == 0 && st[0xC] != 0) {
-        *(float **)((u8 *)PS2_PTR(st[0xC]) + 0xF0) = p;
+        PS2_STOREP(float *, ((u8 *)PS2_PTR(st[0xC]) + 0xF0), p);
         *(float *)((u8 *)PS2_PTR(st[0xC]) + 0x2C) = (float)a[0x14D] / 128.0f;
     }
     if (st[0xD] != 0) {
-        *(float **)((u8 *)PS2_PTR(st[0xD]) + 0xF0) = p;
+        PS2_STOREP(float *, ((u8 *)PS2_PTR(st[0xD]) + 0xF0), p);
         *(float *)((u8 *)PS2_PTR(st[0xD]) + 0x2C) = (float)a[0x14D] / 128.0f;
     }
 }
@@ -967,7 +967,7 @@ void func_00252340(u8 *a, u32 *st)
 /* 0x00252400, 0xA8 bytes. Starts the target status: a marker in the partner player's corner. */
 int func_00252400(u8 *a)
 {
-    u8 *o = *(u8 **)(a + 0x28C);
+    u8 *o = PS2_LOADP(u8 *, (a + 0x28C));
 
     if (o != 0 && (o[0x19C] & 2) == 0) {
         g_70000D60 = 0;
@@ -984,7 +984,7 @@ int func_00252400(u8 *a)
 /* 0x002524B0, 0xF0 bytes. The target status ends with the partner. */
 void func_002524B0(u8 *a, u32 *st)
 {
-    if (*(u8 **)(a + 0x28C) == 0 || func_00240DB0(PS2_ADDR(a)) == 0)
+    if (PS2_LOADP(u8 *, (a + 0x28C)) == 0 || func_00240DB0(PS2_ADDR(a)) == 0)
         status_end(a, st);
 }
 
@@ -1082,7 +1082,7 @@ void func_002528D0(u8 *a, u32 *st)
 /* 0x00252940, 0xC4 bytes. It follows the actor on the ground (left behind in states 0xA5-0xA6). */
 void func_00252940(u8 *a, u32 *st)
 {
-    u16 *s = *(u16 **)(a + 0x210);
+    u16 *s = PS2_LOADP(u16 *, (a + 0x210));
 
     NODE_POS(a, 0);
     if ((a[0x19D] & 8) != 0 && st[0xC] != 0) {

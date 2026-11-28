@@ -23,7 +23,8 @@ typedef unsigned int u32;
 #define U16(o, off) (*(u16 *)((u8 *)(o) + (off)))
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
 #define S32(o, off) (*(int *)((u8 *)(o) + (off)))
-#define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
+#define PTR(o, off) PS2_LOADP(u8 *, ((u8 *)(o) + (off)))
+#define PTR_SET(o, off, v) PS2_STOREP(u8 *, ((u8 *)(o) + (off)), v)
 
 float fabsf(float x);
 
@@ -155,18 +156,18 @@ void func_0018C870(u8 *map, u32 *blk)
     U8(map, 0x55) = 0;
     U8(map, 0xF9) = 0;
     n = U8(map, 0x54) * 0x88;
-    PTR(map, 0x50) = func_00102D30(n);
+    PTR_SET(map, 0x50, func_00102D30(n));
     func_00118850(PTR(map, 0x50), n);
     for (i = 0; i < U8(map, 0x54); i = (i + 1) & 0xFF) {
         u8 *r = d + i * 0x40;
         u8 *e = PTR(map, 0x50) + i * 0x88;
         int k;
 
-        PTR(e, 0) = r;
+        PTR_SET(e, 0, r);
         U32(e, 0x10) = U32(r, 0);
         func_00118AC0((unsigned int *)(e + 0x18), PTR(e, 0) + 0x10, 8);
         func_00118850(e + 0x14, 3);
-        PTR(e, 4) = PTR(map, 0x5C) + U16(PTR(e, 0), 0x1E) * 0x10;
+        PTR_SET(e, 4, PTR(map, 0x5C) + U16(PTR(e, 0), 0x1E) * 0x10);
         if (U8(PTR(e, 0), 8) != 0xFF) {
             U8(map, U8(PTR(e, 0), 8) * 4 + 0x10) = (u8)i;
             U8(map, 0x55) += 1;
@@ -219,7 +220,7 @@ void func_0018CAB0(u8 *map, u32 *d, u32 size)
 {
     u32 *t, h, n2, i;
 
-    PTR(map, 0) = (u8 *)d;
+    PTR_SET(map, 0, (u8 *)d);
     h = func_00103000(0);
     func_0018C7B0(&t, d, size);
     h = func_00103000(h);
@@ -233,9 +234,9 @@ void func_0018CAB0(u8 *map, u32 *d, u32 size)
     n2 = U8(map, 0x54) * U8(map, 0x54);
     U8(map, 0x56) = 0;
     func_00118850(map + 0xA0, 0x50);
-    PTR(map, 8) = func_00102D30(n2 * 4);
-    PTR(map, 0xF4) = func_00102D30(0x14000);
-    PTR(map, 0xC) = PTR(map, 8) + n2 * 2;
+    PTR_SET(map, 8, func_00102D30(n2 * 4));
+    PTR_SET(map, 0xF4, func_00102D30(0x14000));
+    PTR_SET(map, 0xC, PTR(map, 8) + n2 * 2);
     func_0018D100(map);
     func_00118850(map + 0x70, 0x30);
     for (i = 0; i < U8(map, 0x54); i = (i + 1) & 0xFF) {
@@ -248,7 +249,7 @@ void func_0018CAB0(u8 *map, u32 *d, u32 size)
             U32(p, 0) = 1;
         }
     }
-    PTR(map, 4) = func_00102D30(0x1000);
+    PTR_SET(map, 4, func_00102D30(0x1000));
     func_00118850(PTR(map, 4), 0x1000);
     for (i = 0; i < U8(map, 0x54); i = (i + 1) & 0xFF) {
         u8 *e = PTR(map, 0x50) + i * 0x88;
@@ -278,15 +279,15 @@ void func_0018CDA0(u8 *map)
 {
     func_0018D140(map);
     func_00102EC0(PTR(map, 8));
-    PTR(map, 8) = 0;
+    PTR_SET(map, 8, 0);
     func_00102EC0(PTR(map, 0xF4));
-    PTR(map, 0xF4) = 0;
+    PTR_SET(map, 0xF4, 0);
     func_00102EC0(PTR(map, 4));
-    PTR(map, 4) = 0;
+    PTR_SET(map, 4, 0);
     func_00102EC0(PTR(map, 0x50));
-    PTR(map, 0x50) = 0;
+    PTR_SET(map, 0x50, 0);
     func_00102EC0(PTR(map, 0));
-    PTR(map, 0) = 0;
+    PTR_SET(map, 0, 0);
 }
 
 /* 0x0018CE00, 0x204 bytes. Saves the map's provinces: the named ones' owners (+0x17 from the
@@ -330,8 +331,8 @@ int func_0018D0A0(u32 **a, u32 **b)
 /* 0x0018D100, 0x40 bytes, matching. Allocates the map's two work tables (+0x100, +0x104). */
 void func_0018D100(u8 *map)
 {
-    PTR(map, 0x100) = func_00102D30(0x800);
-    PTR(map, 0x104) = func_00102D30(0x57);
+    PTR_SET(map, 0x100, func_00102D30(0x800));
+    PTR_SET(map, 0x104, func_00102D30(0x57));
     func_0018D460(map);
 }
 
@@ -339,9 +340,9 @@ void func_0018D100(u8 *map)
 void func_0018D140(u8 *map)
 {
     func_00102EC0(PTR(map, 0x100));
-    PTR(map, 0x100) = 0;
+    PTR_SET(map, 0x100, 0);
     func_00102EC0(PTR(map, 0x104));
-    PTR(map, 0x104) = 0;
+    PTR_SET(map, 0x104, 0);
 }
 
 void func_0018DA60(u8 *map, u8 *e, int side);
@@ -359,10 +360,10 @@ void func_0018D460(u8 *map)
     U8(map, 0x108) = 0;
     U8(map, 0x109) = 0x3F;
     e = PTR(map, 0x100);
-    PTR(e, 4) = map + 0x108;
+    PTR_SET(e, 4, map + 0x108);
     for (k = 1; k < 0x40; k++, e += 0x20) {
         U8(e, 0xD) = (u8)k;
-        PTR(e, 0x24) = e + 0xD;
+        PTR_SET(e, 0x24, e + 0xD);
     }
     U8(e, 0xD) = 0xFF;
 }
@@ -442,17 +443,17 @@ void func_0018E210(u8 *map, int m)
         }
         if (k < 0 || k > 0x13) {
             U8(map, 0x10A) = 0;
-            PTR(map, 0x10C) = 0;
+            PTR_SET(map, 0x10C, 0);
         } else {
             U8(map, 0x10A) = g_00446330[k];
-            PTR(map, 0x10C) = g_00414180[k];
+            PTR_SET(map, 0x10C, g_00414180[k]);
         }
     } else if (m < 0 || m > 0x26) {
         U8(map, 0x10A) = 0;
-        PTR(map, 0x10C) = 0;
+        PTR_SET(map, 0x10C, 0);
     } else {
         U8(map, 0x10A) = g_00445AA0[m];
-        PTR(map, 0x10C) = g_004140B0[m];
+        PTR_SET(map, 0x10C, g_004140B0[m]);
     }
 }
 

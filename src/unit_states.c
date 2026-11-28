@@ -161,8 +161,8 @@ void func_001CF000(u8 *u, u8 *w)
     u8 *a = OFF(u), *b = OFF(w);
     short m = LIFE_MAX(b);
 
-    *(u8 **)(a + 0xC) = b;
-    *(u8 **)(b + 0xC) = a;
+    PS2_STOREP(u8 *, (a + 0xC), b);
+    PS2_STOREP(u8 *, (b + 0xC), a);
     LIFE(b) = m < 1 ? 0 : m;
     if (LIFE_SHOWN(b) < LIFE(b))
         LIFE_SHOWN(b) = LIFE(b);
@@ -203,8 +203,8 @@ void func_001CF2A0(u8 *u, u8 *w, int k)
     b = OFF(w);
     if ((FL_B8(a) & 0xC) != 0)
         b[0xA6] = 0;
-    *(u8 **)(a + 0xC) = 0;
-    *(u8 **)(b + 0xC) = 0;
+    PS2_STOREP(u8 *, (a + 0xC), 0);
+    PS2_STOREP(u8 *, (b + 0xC), 0);
     SET_STATE(b, 1);
     *(short *)(b + 0x78) = 0xFA;
     if (*(int *)(b + 8) != 0) {
@@ -217,7 +217,7 @@ void func_001CF2A0(u8 *u, u8 *w, int k)
     FL_BC(a) &= 0xFFF8003F;
     *(short *)(a + 0x78) = 0xFA;
     if (k != 0)
-        *(u32 *)(*(u8 **)(a + 0x10) + 0x80) &= ~0x80000;
+        *(u32 *)(PS2_LOADP(u8 *, (a + 0x10)) + 0x80) &= ~0x80000;
     *(int *)(u + 0x13C) = 0;
     *(u32 *)(u + 0x1D0) = *(u32 *)PS2_PTR(0x700000C0);
     *(u32 *)(u + 0x1D4) = *(u32 *)PS2_PTR(0x700000C4);

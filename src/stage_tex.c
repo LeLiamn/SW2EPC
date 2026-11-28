@@ -21,8 +21,10 @@ typedef unsigned long long u64;
 
 #define SPAD(off) ((u8 *)PS2_PTR(0x70000000) + (off))
 #define SP32(off) (*(u32 *)SPAD(off))
-#define SPP(off)  (*(u8 **)SPAD(off))
-#define SP_PKT    (*(u32 **)SPAD(0x158))
+#define SPP(off) PS2_LOADP(u8 *, SPAD(off))
+#define SPP_SET(off, v) PS2_STOREP(u8 *, SPAD(off), v)
+#define SP_PKT PS2_LOADP(u32 *, SPAD(0x158))
+#define SP_PKT_SET(v) PS2_STOREP(u32 *, SPAD(0x158), v)
 #define GAME_FLAGS (*(u32 *)(g_00669D60 + 0x200))
 
 extern u8 g_00669D60[];
@@ -101,7 +103,7 @@ void func_001F48A0(u64 *v)
     *(u64 *)(p + 10) = 0x14;
     *(u64 *)(p + 12) = v[0];
     *(u64 *)(p + 14) = 6;
-    SP_PKT = p + 16;
+    SP_PKT_SET(p + 16);
 }
 
 /* 0x001F4940, 0x54 bytes. Frees the stage's texture set. */
@@ -109,7 +111,7 @@ void func_001F4940(void)
 {
     if (SPP(0x760) != 0) {
         func_00102EC0(SPP(0x760));
-        SPP(0x760) = 0;
+        SPP_SET(0x760, 0);
     }
     if (g_00732210 != 0) {
         func_00102EC0(g_00732210);
@@ -127,7 +129,7 @@ void func_001F4B10(u8 *f, int n)
     if (n != 0) {
         SP32(0x764) = n;
         g_00732210_SET(f);
-        SPP(0x760) = func_00102D30(SP32(0x764) << 4);
+        SPP_SET(0x760, func_00102D30(SP32(0x764) << 4));
         func_00118850(SPP(0x760), SP32(0x764) << 4);
     }
 }

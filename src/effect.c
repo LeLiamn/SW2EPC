@@ -91,9 +91,9 @@ void func_001C0340(void)
         *(u32 *)(r + 0x100) = 0;
         *(u32 *)(r + 0x238) = 0;
         *(u32 *)(r + 0x348) = 0;
-        *(u8 **)(r + 0x350) = r + 0x10;
-        *(u8 **)(r + 0x354) = r + 0x120;
-        *(u8 **)(r + 0x358) = r + 0x240;
+        PS2_STOREP(u8 *, (r + 0x350), r + 0x10);
+        PS2_STOREP(u8 *, (r + 0x354), r + 0x120);
+        PS2_STOREP(u8 *, (r + 0x358), r + 0x240);
     }
     func_001CAFF0();
     func_001F1D50();
@@ -210,7 +210,7 @@ void func_001C0940(void)
 void func_001C09C0(u8 *r, u8 *e)
 {
     float step = *(float *)(e + 0x10), t0;
-    u32 *p = *(u32 **)(e + 0x14), n = *(u32 *)(e + 4), done = *(u32 *)(r + 0x3C), k;
+    u32 *p = PS2_LOADP(u32 *, (e + 0x14)), n = *(u32 *)(e + 4), done = *(u32 *)(r + 0x3C), k;
     u8 *shared = g_0045D324 == 0 ? (u8 *)g_0040BDC0[*(int *)(r + 0x24)] : 0;
     float s = step * g_70000D6C;
 
@@ -261,7 +261,7 @@ void func_001C0B80(u8 *r)
 {
     float *p;
 
-    for (p = *(float **)r; p != 0; p = *(float **)(p + 5)) {
+    for (p = PS2_LOADP(float *, r); p != 0; p = PS2_LOADP(float *, (p + 5))) {
         if (*p > 1.0f) {
             if (((u8 *)p)[0x2CC] & 1)
                 func_001C39A0(PS2_ADDR(r), PS2_ADDR(p));
@@ -278,7 +278,7 @@ void func_001C0C50(u8 *r)
 {
     float *p;
 
-    for (p = *(float **)(r + 0x10); p != 0; p = *(float **)(p + 7)) {
+    for (p = PS2_LOADP(float *, (r + 0x10)); p != 0; p = PS2_LOADP(float *, (p + 7))) {
         if (*p > 1.0f)
             func_001C4F60(PS2_ADDR(r), PS2_ADDR(p));
         else
@@ -291,7 +291,7 @@ void func_001C0CE0(u8 *r)
 {
     float *p;
 
-    for (p = *(float **)(r + 8); p != 0; p = *(float **)(p + 6)) {
+    for (p = PS2_LOADP(float *, (r + 8)); p != 0; p = PS2_LOADP(float *, (p + 6))) {
         if (*p > 1.0f) {
             if (((u8 *)p)[0x2DC] & 1)
                 func_001C4A00(r, PS2_ADDR(p));
@@ -395,7 +395,7 @@ int func_001C0ED0(u8 *r)
  * its three part lists and its time. Whether it lives on. */
 int func_001C10A0(u8 *r)
 {
-    u8 *e = *(u8 **)(r + 0x20);
+    u8 *e = PS2_LOADP(u8 *, (r + 0x20));
 
     if (W32(r, 0x34) & 0x800) {
         F32(r, 0x2C) = F32(r, 0x2C) - 0.0626f;
@@ -429,18 +429,18 @@ void func_001C1530(u8 *e);
 void func_001C1230(void)
 {
     u8 *l = g_0072D120[g_70000D60] - 0x30;
-    u8 *a = *(u8 **)(l + 0x134), *b = *(u8 **)(l + 0x26C), *c = *(u8 **)(l + 0x37C);
+    u8 *a = PS2_LOADP(u8 *, (l + 0x134)), *b = PS2_LOADP(u8 *, (l + 0x26C)), *c = PS2_LOADP(u8 *, (l + 0x37C));
 
     g_0072D0F0[g_70000D60] = !(a == 0 && b == 0 && c == 0);
-    for (; a != 0; a = *(u8 **)(a + 0xF4)) {
+    for (; a != 0; a = PS2_LOADP(u8 *, (a + 0xF4))) {
         if (func_001C10A0(a) == 0)
             func_001C1360(a);
     }
-    for (; b != 0; b = *(u8 **)(b + 0x11C)) {
+    for (; b != 0; b = PS2_LOADP(u8 *, (b + 0x11C))) {
         if (func_001C10A0(b) == 0)
             func_001C1440(b);
     }
-    for (; c != 0; c = *(u8 **)(c + 0x10C)) {
+    for (; c != 0; c = PS2_LOADP(u8 *, (c + 0x10C))) {
         if (func_001C10A0(c) == 0)
             func_001C1530(c);
     }
@@ -464,11 +464,11 @@ void func_001C1360(u8 *e)
         func_002AF070(W32(e, 0x100));
     if (W32(e, 0x108) < 5 && g_006D3370[W32(e, 0x108)] == e)
         g_006D3370[W32(e, 0x108)] = 0;
-    *(u8 **)(*(u8 **)(e + 0xF0) + 0xF4) = *(u8 **)(e + 0xF4);
-    if (*(u8 **)(l + 0x380) == e)
-        *(u8 **)(l + 0x380) = *(u8 **)(e + 0xF0);
-    if (*(u8 **)(e + 0xF4) != 0)
-        *(u8 **)(*(u8 **)(e + 0xF4) + 0xF0) = *(u8 **)(e + 0xF0);
+    PS2_STOREP(u8 *, (*(u8 **)(e + 0xF0) + 0xF4), *(u8 **)(e + 0xF4));
+    if (PS2_LOADP(u8 *, (l + 0x380)) == e)
+        PS2_STOREP(u8 *, (l + 0x380), *(u8 **)(e + 0xF0));
+    if (PS2_LOADP(u8 *, (e + 0xF4)) != 0)
+        PS2_STOREP(u8 *, (*(u8 **)(e + 0xF4) + 0xF0), *(u8 **)(e + 0xF0));
     free_parts(e);
     func_001CB3D0(e);
 }
@@ -483,11 +483,11 @@ void func_001C1440(u8 *e)
         func_0024F850(*(int *)(e + 0x110));
     if (*(int *)(e + 0x114) != 0x40)
         func_0024F850(*(int *)(e + 0x114));
-    *(u8 **)(*(u8 **)(e + 0x118) + 0x11C) = *(u8 **)(e + 0x11C);
-    if (*(u8 **)(l + 0x384) == e)
-        *(u8 **)(l + 0x384) = *(u8 **)(e + 0x118);
-    if (*(u8 **)(e + 0x11C) != 0)
-        *(u8 **)(*(u8 **)(e + 0x11C) + 0x118) = *(u8 **)(e + 0x118);
+    PS2_STOREP(u8 *, (*(u8 **)(e + 0x118) + 0x11C), *(u8 **)(e + 0x11C));
+    if (PS2_LOADP(u8 *, (l + 0x384)) == e)
+        PS2_STOREP(u8 *, (l + 0x384), *(u8 **)(e + 0x118));
+    if (PS2_LOADP(u8 *, (e + 0x11C)) != 0)
+        PS2_STOREP(u8 *, (*(u8 **)(e + 0x11C) + 0x118), *(u8 **)(e + 0x118));
     free_parts(e);
     if ((W32(e, 0x34) & 0x8000000) == 0) {
         func_001CB4A0(e);
@@ -504,12 +504,12 @@ void func_001C1530(u8 *e)
     u8 *l = g_0072D120[g_70000D60] - 0x30;
 
     if (*(u32 *)(e + 0xFC) != 0)
-        func_002404F0((*(u8 **)(e + 0xF0))[0x14E], e);
-    *(u8 **)(*(u8 **)(e + 0x108) + 0x10C) = *(u8 **)(e + 0x10C);
-    if (*(u8 **)(l + 0x388) == e)
-        *(u8 **)(l + 0x388) = *(u8 **)(e + 0x108);
-    if (*(u8 **)(e + 0x10C) != 0)
-        *(u8 **)(*(u8 **)(e + 0x10C) + 0x108) = *(u8 **)(e + 0x108);
+        func_002404F0((PS2_LOADP(u8 *, (e + 0xF0)))[0x14E], e);
+    PS2_STOREP(u8 *, (*(u8 **)(e + 0x108) + 0x10C), *(u8 **)(e + 0x10C));
+    if (PS2_LOADP(u8 *, (l + 0x388)) == e)
+        PS2_STOREP(u8 *, (l + 0x388), *(u8 **)(e + 0x108));
+    if (PS2_LOADP(u8 *, (e + 0x10C)) != 0)
+        PS2_STOREP(u8 *, (*(u8 **)(e + 0x10C) + 0x108), *(u8 **)(e + 0x108));
     free_parts(e);
     func_001CB570(e);
 }
@@ -552,19 +552,19 @@ void func_001C15E0(u8 *p, u8 *d, u32 flags)
  * two more from the part's colour set (+0x268, entry +0x26C) or the description. */
 void func_001C1810(u8 *p, u8 *d)
 {
-    u8 *set = *(u8 **)(p + 0x268);
+    u8 *set = PS2_LOADP(u8 *, (p + 0x268));
 
     COPY16(p + 0x2B0, d + 0x50);
     COPY16(p + 0x2C0, d + 0x60);
     COPY16(p + 0x2D0, d + 0xA0);
     COPY16(p + 0x2E0, d + 0xB0);
-    if (set == 0 || *(u8 **)(set + 8) == 0)
+    if (set == 0 || PS2_LOADP(u8 *, (set + 8)) == 0)
         COPY16(p + 0x2F0, d + 0xF0);
     else
-        COPY16(p + 0x2F0, *(u8 **)(set + 8) + *(int *)(p + 0x26C) * 0x10);
-    set = *(u8 **)(p + 0x268);
-    if (set == 0 || *(u8 **)(set + 0xC) == 0)
+        COPY16(p + 0x2F0, PS2_LOADP(u8 *, (set + 8)) + *(int *)(p + 0x26C) * 0x10);
+    set = PS2_LOADP(u8 *, (p + 0x268));
+    if (set == 0 || PS2_LOADP(u8 *, (set + 0xC)) == 0)
         COPY16(p + 0x300, d + 0x100);
     else
-        COPY16(p + 0x300, *(u8 **)(set + 0xC) + *(int *)(p + 0x26C) * 0x10);
+        COPY16(p + 0x300, PS2_LOADP(u8 *, (set + 0xC)) + *(int *)(p + 0x26C) * 0x10);
 }

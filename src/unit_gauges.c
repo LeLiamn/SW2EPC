@@ -25,7 +25,7 @@ extern int g_0045D3E0;                   /* (small data) the player */
 extern u8 *g_0045D530[2], *g_0045D538[2];
 
 #define OFF(u) g_006A3A30[*(short *)((u) + 0x178)]
-#define KIND_FLAGS(u, o) (*(u32 *)(*(u8 **)((u) + 0x210) + (o)))
+#define KIND_FLAGS(u, o) (*(u32 *)(PS2_LOADP(u8 *, ((u) + 0x210)) + (o)))
 
 int func_002A6910(int v, int a, u8 *r);
 void func_002A5B10(u32 h);
@@ -228,9 +228,14 @@ void func_00272310(void)
 extern u8 g_00730730[2][0x240];          /* the players' cameras, from +0x1C0 */
 extern void (*g_00410CE0[9])(u8 *p);
 
+#ifdef SW2E_PC
+#define ARG_NEXT(f) ({ u8 *q_ = PS2_LOADP(u8 *, (f)); PS2_STOREP(u8 *, (f), q_ + 1); *q_; })
+#else
+#define ARG_NEXT(f) (*(*(u8 **)(f))++)
+#endif
 #define ARG(p, out) do {                                                \
-    u8 t_ = *(*(u8 **)((p) + 0x10))++;                                  \
-    u8 s_ = *(*(u8 **)((p) + 0x14))++;                                  \
+    u8 t_ = ARG_NEXT((p) + 0x10);                                       \
+    u8 s_ = ARG_NEXT((p) + 0x14);                                       \
     *(u32 *)((p) + 0xC) = func_001D6BD0((void *)(out), (unsigned int *)PS2_PTR(*(u32 *)((p) + 0xC)), t_, s_); \
 } while (0)
 
@@ -311,7 +316,7 @@ void func_002729E0(u8 *p)
 void func_00272B60(u8 *p)
 {
     u8 *l = LISTENER();
-    u32 *t = *(u32 **)(l + 0x10), *s = 0;
+    u32 *t = PS2_LOADP(u32 *, (l + 0x10)), *s = 0;
 
     if (*(short *)(l + 0x14) == 0)
         s = (u32 *)(g_00730730[g_0045D3E0] + 0);
@@ -358,7 +363,7 @@ void func_00272C80(u8 *e)
     l = (u32 *)LISTENER();
     *(short *)(l + 5) = 0;
     if (l[4] == 0)
-        l[4] = (u32)PS2_ADDR((*(u8 **)(g_006A3A30[g_0045D3E0 == 0 ? 0 : 1] + 0x14) + 0x40));
+        l[4] = (u32)PS2_ADDR((PS2_LOADP(u8 *, (g_006A3A30[g_0045D3E0 == 0 ? 0 : 1] + 0x14)) + 0x40));
     t = (u32 *)PS2_PTR(l[4]);
     l[0] = t[0];
     l[1] = t[1];
@@ -369,7 +374,7 @@ void func_00272C80(u8 *e)
 /* 0x00272D00, 0x4C bytes, matching. Runs the event command by its kind. */
 void func_00272D00(u8 *p)
 {
-    u8 k = (*(u8 **)(p + 8))[5];
+    u8 k = (PS2_LOADP(u8 *, (p + 8)))[5];
 
     if (k < 9 && g_00410CE0[k] != 0)
         g_00410CE0[k](p);
@@ -384,7 +389,7 @@ int func_00272D50(u8 *u)
         return 0;
     if (func_002F6A60(*(u32 *)(g_00669D60 + 0x88 + u[0x14E] * 0x48)) != 0x28)
         return 0;
-    s = **(short **)(u + 0x210);
+    s = *PS2_LOADP(short *, (u + 0x210));
     if (s == 0x10 || s == 0x11 || s == 0x12)
         return (KIND_FLAGS(u, 0x18) & 0x8000000) == 0;
     return 0;
@@ -428,7 +433,7 @@ int func_00272ED0(u8 *u, u8 *w)
 
     if (player_weapon(u) != 0x2A)
         return 0;
-    m = *(u8 **)(u + 0x214);
+    m = PS2_LOADP(u8 *, (u + 0x214));
     if (m == 0)
         return 0;
     f = *(u32 *)(m + 0x18);
@@ -471,7 +476,7 @@ int func_002731E0(u8 *u)
 
     if (player_weapon(u) != 0x2D || (u[0x27C] & 8) == 0 || (KIND_FLAGS(u, 0x18) & 0x400000) == 0)
         return 0;
-    m = *(u8 **)(*(u8 **)(u + 0x210) + 0x14);
+    m = PS2_LOADP(u8 *, (*(u8 **)(u + 0x210) + 0x14));
     return m != 0 && (*(u32 *)(m + 0x28) & 1) != 0;
 }
 
@@ -482,7 +487,7 @@ int func_002732F0(u8 *u)
 
     if (player_weapon(u) != 0x2E)
         return 0;
-    m = *(u8 **)(*(u8 **)(u + 0x210) + 0x14);
+    m = PS2_LOADP(u8 *, (*(u8 **)(u + 0x210) + 0x14));
     if ((KIND_FLAGS(u, 0x18) & 0x400000) == 0)
         return 0;
     if (m == 0 || (*(u32 *)(m + 0x28) & 1) == 0)
@@ -498,7 +503,7 @@ int func_00273420(u8 *u)
 
     if (player_weapon(u) != 0x2F)
         return 0;
-    m = *(u8 **)(*(u8 **)(u + 0x210) + 0x14);
+    m = PS2_LOADP(u8 *, (*(u8 **)(u + 0x210) + 0x14));
     f = KIND_FLAGS(u, 0x18);
     if ((f & 0x400000) == 0 || (f & 0x40000) != 0)
         return 0;
@@ -541,7 +546,7 @@ int func_00273940(u8 *u)
 
     if (player_weapon(u) != 0x33)
         return 0;
-    s = **(short **)(u + 0x210);
+    s = *PS2_LOADP(short *, (u + 0x210));
     return s == 0x10 || s == 0x11 || s == 0x12;
 }
 

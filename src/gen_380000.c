@@ -1971,7 +1971,7 @@ int func_0039BB80(void)
     int iVar1;
 
     iVar1 = PS2_ADDR(func_002FC2C0());
-    iVar1 = **(int **)PS2_PTR((iVar1 + 0x6A4));
+    iVar1 = *PS2_LOADP(int *, PS2_PTR((iVar1 + 0x6A4)));
     func_003F1070(3);
     if (iVar1 == 2) {
         func_0039BB00();

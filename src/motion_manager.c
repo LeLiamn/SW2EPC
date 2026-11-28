@@ -25,7 +25,8 @@ typedef unsigned int u32;
 
 #define U8(o, off)  (*(u8 *)((u8 *)(o) + (off)))
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
-#define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
+#define PTR(o, off) PS2_LOADP(u8 *, ((u8 *)(o) + (off)))
+#define PTR_SET(o, off, v) PS2_STOREP(u8 *, ((u8 *)(o) + (off)), v)
 
 /* A flag byte: the original tests its bits as signed one-bit fields (LSB first). */
 typedef struct {
@@ -125,9 +126,9 @@ int func_0017C6D0(int k, int mounted, int now)
     u8 *r = g_005B5060[k];
 
     if (PTR(r, 0) == 0 && !BIT(r, 0x50, 0)) {
-        PTR(r, 0) = func_001026D0(1, func_001BE990(k), 0, now, 0, 0, g_00424D10, 0xC3);
+        PTR_SET(r, 0, func_001026D0(1, func_001BE990(k), 0, now, 0, 0, g_00424D10, 0xC3));
         if (mounted != 0)
-            PTR(r, 4) = func_001026D0(1, func_001BE9B0(k), 0, now, 0, 0, g_00424D10, 199);
+            PTR_SET(r, 4, func_001026D0(1, func_001BE9B0(k), 0, now, 0, 0, g_00424D10, 199));
     }
     return 1;
 }
@@ -178,10 +179,10 @@ void func_0017C970(void)
     for (k = 0; k < 0x6A; k++, r += 0xD0) {
         if (func_001BEA10(k) == 0 && !BIT(r, 0x50, 0) && PTR(r, 0) != 0) {
             func_00102EC0(PTR(r, 0));
-            PTR(r, 0) = 0;
+            PTR_SET(r, 0, 0);
             if (PTR(r, 4) != 0) {
                 func_00102EC0(PTR(r, 4));
-                PTR(r, 4) = 0;
+                PTR_SET(r, 4, 0);
             }
         }
     }
@@ -246,6 +247,6 @@ int func_0017CC40(int k, int now)
     u8 *r = g_005B5060[k];
 
     if (PTR(r, 0) == 0 && !BIT(r, 0x50, 0))
-        PTR(r, 0) = func_001026D0(1, func_0017CBD0(k), 0, now, 0, 0, g_00424D10, 0x243);
+        PTR_SET(r, 0, func_001026D0(1, func_0017CBD0(k), 0, now, 0, 0, g_00424D10, 0x243));
     return 1;
 }

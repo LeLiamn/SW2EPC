@@ -321,7 +321,7 @@ u8 *func_002C3D90(u8 v)
         return 0;
     p[0] = v;
     p[1] = 0;
-    g_0045D5A8_SET(*(u8 **)(p + 4));
+    g_0045D5A8_SET(PS2_LOADP(u8 *, (p + 4)));
     return p;
 }
 
@@ -330,7 +330,7 @@ void func_002C3E00(u8 *p)
 {
     if (p != 0) {
         p[0] = 0;
-        *(u8 **)(p + 4) = g_0045D5A8;
+        PS2_STOREP(u8 *, (p + 4), g_0045D5A8);
         g_0045D5A8_SET(p);
     }
 }

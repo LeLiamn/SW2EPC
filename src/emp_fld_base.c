@@ -380,7 +380,8 @@ int func_0034ED40(u8 *u);
 /* Whether a group's unit is active (in use, none of flags 0x8C40002 and 4). */
 #define UNIT_ACTIVE(f) (((f) & 1) != 0 && ((f) & 0x8C40002) == 0 && ((f) & 4) == 0)
 /* A group's unit record and info record. */
-#define GROUP_UNIT(g) (*(u8 **)(g))
+#define GROUP_UNIT(g) PS2_LOADP(u8 *, (g))
+#define GROUP_UNIT_SET(g, v) PS2_STOREP(u8 *, (g), v)
 #define GROUP_INFO(g) ((u8 *)func_00338410(GROUP_INDEX(g)))
 
 /* 0x0034B190, 0x154 bytes. Side 0's soldier group `g` picks its order (by its kind: 1 and 2 fixed,
@@ -3090,7 +3091,7 @@ void func_00351480(u8 *b)
                 *(float *)(u + 0x38) = 0.0f;
                 *(float *)(u + 0x3C) = 0.0f;
                 *(u32 *)(u + 0x84) |= 0x10;
-                *(u8 **)(u + 0x1C) = p;
+                PS2_STOREP(u8 *, (u + 0x1C), p);
                 *(u32 *)(u + 0x84) |= 0x10;
             }
             u[0x7B] = 0;

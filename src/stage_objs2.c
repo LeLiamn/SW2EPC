@@ -58,7 +58,7 @@ int func_002B8790(u8 *t)
 float func_002BA6E0(u8 *o)
 {
     if ((*(u32 *)(o + 0x12C) & 1) == 0) {
-        float f = (*(float (**)(u8 *))(*(u8 **)(o + 0x11C) + 4))(o);
+        float f = (*(float (**)(u8 *))(PS2_LOADP(u8 *, (o + 0x11C)) + 4))(o);
 
         *(float *)(o + 0x128) = f < 1.0f ? 1.0f : f;
         *(u32 *)(o + 0x12C) |= 1;
@@ -70,7 +70,7 @@ float func_002BA6E0(u8 *o)
 u8 *func_002BA740(u8 *o)
 {
     if ((*(u32 *)(o + 0x12C) & 2) == 0) {
-        (*(void (**)(u8 *, u8 *))(*(u8 **)(o + 0x11C) + 8))(o, o + 0x80);
+        (*(void (**)(u8 *, u8 *))(PS2_LOADP(u8 *, (o + 0x11C)) + 8))(o, o + 0x80);
         *(u32 *)(o + 0x12C) |= 2;
     }
     return o + 0x80;
@@ -158,7 +158,7 @@ int func_002BC680(u8 *a, int *b)
         return 0;
     c = ((u8 *)b)[9];
     i = (c == 2 || c == 0) ? 1 : 3;
-    (*(u8 **)b)[0x68] = 0;
+    (PS2_LOADP(u8 *, b))[0x68] = 0;
     if ((signed char)((u8 *)b)[10] != -1 && (q = func_002BBF40(((u8 *)b)[10])) != 0) {
         func_002A5B10(*(u32 *)(q + 4));
         func_002BBF00(((u8 *)b)[10]);
@@ -209,7 +209,7 @@ void func_002BC9B0(u8 *p)
 /* 0x002BC9F0, 0x78 bytes. Adds cell `c` to list `l` (21 at most) when it is in the area. */
 int func_002BC9F0(short *c, int *l)
 {
-    if (func_00190C40((unsigned char *)(c), (*(u8 **)l)[0x13]) != 0) {
+    if (func_00190C40((unsigned char *)(c), (PS2_LOADP(u8 *, l))[0x13]) != 0) {
         u16 n = *(u16 *)(l + 1);
 
         if (n == 0x15)
@@ -229,8 +229,8 @@ void func_002BCA70(void)
     func_00118850(g_00799920, 0x100);
     g_0045D5E8_SET(g_00799920);
     for (k = 0; k < 0xF; k++, p += 0x10)
-        *(u8 **)p = p + 0x10;
-    *(u8 **)p = 0;
+        PS2_STOREP(u8 *, p, p + 0x10);
+    PS2_STOREP(u8 *, p, 0);
 }
 
 /* ---- Moving stage objects: their switch records by map (0x007994E0, 0x20 bytes each), their
@@ -501,11 +501,11 @@ void func_002C2E50(u8 *u)
         float y = *(float *)(u + 4);
 
         if (*(float *)(a + 0x10) < y && y <= *(float *)(a + 0x10) + *(float *)(a + 0x14)) {
-            u8 *o = *(u8 **)(b + 8);
+            u8 *o = PS2_LOADP(u8 *, (b + 8));
 
             if (o != 0)
                 *(u32 *)(o + 0x38) |= 8;
-            o = *(u8 **)(b + 0xC);
+            o = PS2_LOADP(u8 *, (b + 0xC));
             if (o != 0)
                 *(u32 *)(o + 0x38) |= 8;
         }

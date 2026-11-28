@@ -48,7 +48,8 @@ extern ps2ptr g_0043C77C;
 
 #define ST_INT(s, o) (*(int *)((s) + (o)))
 #define ST_SHORT(s, o) (*(short *)((s) + (o)))
-#define ST_PTR(s, o) (*(u8 **)((s) + (o)))
+#define ST_PTR(s, o) PS2_LOADP(u8 *, ((s) + (o)))
+#define ST_PTR_SET(s, o, v) PS2_STOREP(u8 *, ((s) + (o)), v)
 
 u8 *func_002EE5B0(void);
 u8 *func_002EE5C0(void);
@@ -748,7 +749,7 @@ int func_003B5F70(void)
     short t;
 
     if (ST_INT(s, 0x718) == 0) {
-        ST_PTR(s, 0x20) = func_001026D0(1, 0xD84, 0, 1, 0, 0, g_0045B6E8, 0x44);
+        ST_PTR_SET(s, 0x20, func_001026D0(1, 0xD84, 0, 1, 0, 0, g_0045B6E8, 0x44));
         ST_INT(s, 0x718) = 1;
         func_0017E010(0x22);
     }
@@ -930,8 +931,8 @@ void func_003B67F0(void)
     u8 *s = func_003B5E90();
     int k;
 
-    ST_PTR(s, 0x24) = func_001026D0(1, 0x36, 0, 1, 0, 0, g_0045B6E8, 0x132);
-    ST_PTR(s, 0x28) = func_001026D0(1, 0x37, 0, 1, 0, 0, g_0045B6E8, 0x133);
+    ST_PTR_SET(s, 0x24, func_001026D0(1, 0x36, 0, 1, 0, 0, g_0045B6E8, 0x132));
+    ST_PTR_SET(s, 0x28, func_001026D0(1, 0x37, 0, 1, 0, 0, g_0045B6E8, 0x133));
     for (k = 0; k < 4; k++)
         func_00118AC0((unsigned int *)(s + 0x65C + k * 0x24), func_0019FBC0(k), 0x24);
     ST_INT(s, 0x750) = func_003F0A00(s + 0x514);
@@ -1013,15 +1014,15 @@ void func_003B6E80(void)
     func_003B9760();
     if (ST_PTR(s, 0x20) != 0) {
         func_00102EC0(ST_PTR(s, 0x20));
-        ST_PTR(s, 0x20) = 0;
+        ST_PTR_SET(s, 0x20, 0);
     }
     if (ST_PTR(s, 0x24) != 0) {
         func_00102EC0(ST_PTR(s, 0x24));
-        ST_PTR(s, 0x24) = 0;
+        ST_PTR_SET(s, 0x24, 0);
     }
     if (ST_PTR(s, 0x28) != 0) {
         func_00102EC0(ST_PTR(s, 0x28));
-        ST_PTR(s, 0x28) = 0;
+        ST_PTR_SET(s, 0x28, 0);
     }
     g_0056CCC8[0] = g_0056CCC8[1] = g_0056CCC8[2] = g_0056CCC8[3] = 0x80;
 }

@@ -190,7 +190,8 @@ int func_0035D860(u8 **g)
 }
 
 /* The model of unit `u`'s officer. */
-#define UNIT_MODEL(u) (*(u8 **)(g_00693970 + 0x100C0 + 0x14 + *(int *)((u) + 0x14) * 0xC0))
+#define UNIT_MODEL(u) PS2_LOADP(u8 *, (g_00693970 + 0x100C0 + 0x14 + *(int *)((u) + 0x14) * 0xC0))
+#define UNIT_MODEL_SET(u, v) PS2_STOREP(u8 *, (g_00693970 + 0x100C0 + 0x14 + *(int *)((u) + 0x14) * 0xC0), v)
 
 /* 0x0035D8E0, 0xF8 bytes. Shows or hides the markers of the 16 officers' groups. */
 void func_0035D8E0(void)

@@ -58,7 +58,7 @@ void func_0023EF50(char *c)
  * `c2` (swapped by weapon kind). */
 void func_0023EF90(u8 *a, FxSlots *s, u32 bits, char c1, char c2)
 {
-    u8 *m = *(u8 **)(a + 0x110);
+    u8 *m = PS2_LOADP(u8 *, (a + 0x110));
     u32 f = func_0016C040(a) != 0 ? 0x200 : 0;
     char k = m[0x1C];
 
@@ -94,7 +94,7 @@ void func_0023EF90(u8 *a, FxSlots *s, u32 bits, char c1, char c2)
  * two element colours `c`. */
 void func_0023F2C0(u8 *a, FxSlots *s, u32 bits, char *c)
 {
-    u8 *m = *(u8 **)(a + 0x110);
+    u8 *m = PS2_LOADP(u8 *, (a + 0x110));
     u32 f[2], k;
     int r;
     char w;
@@ -127,7 +127,7 @@ void func_0023F2C0(u8 *a, FxSlots *s, u32 bits, char *c)
     w = m[0x1C];
     if (w != 0x19 && w != 0x18 && w != 0x17 && w != 10) {
         if (w == 0x14) {
-            if ((*(u32 *)(*(u8 **)(a + 0x210) + 0x18) & 0x8000000) == 0) {
+            if ((*(u32 *)(PS2_LOADP(u8 *, (a + 0x210)) + 0x18) & 0x8000000) == 0) {
                 if (*c == 0x14)
                     *c = 0x15;
                 else if (*c == 0x15)
@@ -399,7 +399,7 @@ void func_00240790(u32 k, u32 bits)
     if (*(int *)(a + 0x11C) == 0)
         return;
     s = &g_0074B868[k];
-    wp = *(u8 **)(*(u8 **)(a + 0x210) + 0x14);
+    wp = PS2_LOADP(u8 *, (*(u8 **)(a + 0x210) + 0x14));
     if (wp == 0) {
         c[0] = 0x2E;
         c[1] = 0x2E;

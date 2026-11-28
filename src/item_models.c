@@ -22,7 +22,7 @@ typedef unsigned int u32;
 extern u8 g_0078DF70[];                  /* the item models' shared skeleton? */
 extern u8 g_0078DC40[0x11][0x30];        /* the item model files */
 extern u8 g_007804A0[0x96][0x170];       /* the model actors */
-extern int g_00411F70[0x11];
+extern u16 g_00411F70[0x11];            /* the models' LINKDATA entries */
 extern u8 g_00411F10[0x10], g_00411F20[0x10][5];
 extern u8 g_004412D8[];
 #ifdef SW2E_PC
@@ -267,7 +267,7 @@ void func_002AD920(u8 *m, int v)
 /* 0x002AD960, 0x34 bytes. */
 void func_002AD960(u8 *p)
 {
-    func_002AD920(*(u8 **)(p + 0x130), func_002AD700(p[0x180]));
+    func_002AD920(PS2_LOADP(u8 *, (p + 0x130)), func_002AD700(p[0x180]));
 }
 
 /* 0x002AD9A0, 0x54 bytes. Draws them. */

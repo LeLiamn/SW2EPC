@@ -28,7 +28,8 @@ typedef unsigned int u32;
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
 #define S32(o, off) (*(int *)((u8 *)(o) + (off)))
 #define F32(o, off) (*(float *)((u8 *)(o) + (off)))
-#define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
+#define PTR(o, off) PS2_LOADP(u8 *, ((u8 *)(o) + (off)))
+#define PTR_SET(o, off, v) PS2_STOREP(u8 *, ((u8 *)(o) + (off)), v)
 
 typedef u8 Unit;
 
@@ -280,7 +281,7 @@ int func_00164B40(Unit *u, int set)
             if (BIT(s, 0x2DC, 2)) {
                 u8 *o = PTR(s, 0x2D4);
 
-                PTR(o, 0x1FC) = PTR(u, 0x11C);
+                PTR_SET(o, 0x1FC, PTR(u, 0x11C));
                 U8(o, 0x201) = p[1];
             }
         }
@@ -300,8 +301,8 @@ static inline int drop_actor(Unit *u)
     int k;
 
     BIT(PTR(u, 0x11C), 0x20C, 0) = 0;
-    PTR(u, 0x11C) = 0;
-    PTR(u, 0x130) = 0;
+    PTR_SET(u, 0x11C, 0);
+    PTR_SET(u, 0x130, 0);
     for (k = 0; k < 4; k++) {
         if (BIT(u + k * 0x70, 0x2DC, 0))
             func_0016E910(u + k * 0x70 + 0x290);
@@ -318,7 +319,7 @@ static inline void setup_rest(Unit *u, int keep, int dispatch)
     if (U8(u, 0x156) < 0x11) {
         u8 *w = (u8 *)PS2_PTR(func_002A7E70());
 
-        PTR(u, 0x134) = w;
+        PTR_SET(u, 0x134, w);
         if (w != 0) {
             BIT(w, 0x168, 0) = 1;
             U8(PTR(u, 0x134), 0x165) = 9;
@@ -359,13 +360,13 @@ int func_00164DA0(Unit *u, int keep)
     u8 *t = g_006CDF60[S32(u, 0x118)];
 
     if (U32(t, 0xD8) == 0)
-        PTR(u, 0x11C) = func_00164A80(S32(u, 0x118));
+        PTR_SET(u, 0x11C, func_00164A80(S32(u, 0x118)));
     else
-        PTR(u, 0x11C) = func_00164AE0(S32(u, 0x118));
+        PTR_SET(u, 0x11C, func_00164AE0(S32(u, 0x118)));
     if (PTR(u, 0x11C) == 0)
         return 0;
     BIT(PTR(u, 0x11C), 0x20C, 0) = 1;
-    PTR(PTR(u, 0x11C), 0x208) = 0;
+    PTR_SET(PTR(u, 0x11C), 0x208, 0);
     BIT(PTR(u, 0x11C), 0x20C, 2) = 1;
     if (U32(t, 0xD8) == 0) {
         func_00149620(PTR(u, 0x11C), t + 0xA0, 0);
@@ -374,12 +375,12 @@ int func_00164DA0(Unit *u, int keep)
 
         if (PTR(a, 0x1F4) == 0) {
             BIT(a, 0x20C, 0) = 0;
-            PTR(u, 0x11C) = 0;
+            PTR_SET(u, 0x11C, 0);
             return 0;
         }
         func_00149620(a, t + 0xA0, t + 0xD0);
     }
-    PTR(u, 0x130) = t;
+    PTR_SET(u, 0x130, t);
     if (U8(u, 0x158) < 0x8D) {
         if (func_00164B40(u, 0) == 0)
             return drop_actor(u);
@@ -397,13 +398,13 @@ int func_00165180(Unit *u, int keep, int add)
     u8 *t2 = g_006CDF60[S32(u, 0x118) + add];
 
     if (U32(t, 0xD8) == 0)
-        PTR(u, 0x11C) = func_00164A80(S32(u, 0x118));
+        PTR_SET(u, 0x11C, func_00164A80(S32(u, 0x118)));
     else
-        PTR(u, 0x11C) = func_00164AE0(S32(u, 0x118));
+        PTR_SET(u, 0x11C, func_00164AE0(S32(u, 0x118)));
     if (PTR(u, 0x11C) == 0)
         return 0;
     BIT(PTR(u, 0x11C), 0x20C, 0) = 1;
-    PTR(PTR(u, 0x11C), 0x208) = 0;
+    PTR_SET(PTR(u, 0x11C), 0x208, 0);
     BIT(PTR(u, 0x11C), 0x20C, 2) = 1;
     if (U32(t, 0xD8) == 0) {
         func_00149620(PTR(u, 0x11C), t2 + 0xA0, 0);
@@ -412,12 +413,12 @@ int func_00165180(Unit *u, int keep, int add)
 
         if (PTR(a, 0x1F4) == 0) {
             BIT(a, 0x20C, 0) = 0;
-            PTR(u, 0x11C) = 0;
+            PTR_SET(u, 0x11C, 0);
             return 0;
         }
         func_00149620(a, t2 + 0xA0, t + 0xD0);
     }
-    PTR(u, 0x130) = t2;
+    PTR_SET(u, 0x130, t2);
     if (U8(u, 0x158) < 0x8D) {
         if (func_00164B40(u, 0) == 0)
             return drop_actor(u);
@@ -454,15 +455,15 @@ void func_00165560(Unit *u)
     u8 *a = PTR(u, 0x11C), *v;
     int k;
 
-    PTR(a, 0x1FC) = 0;
+    PTR_SET(a, 0x1FC, 0);
     U8(a, 0x201) = 0;
     BIT(PTR(u, 0x11C), 0x20C, 0) = 0;
-    PTR(PTR(u, 0x11C), 0x1E8) = 0;
-    PTR(u, 0x11C) = 0;
+    PTR_SET(PTR(u, 0x11C), 0x1E8, 0);
+    PTR_SET(u, 0x11C, 0);
     v = PTR(u, 0x270);
     if (v != 0) {
-        PTR(u, 0x270) = 0;
-        PTR(v, 0x270) = 0;
+        PTR_SET(u, 0x270, 0);
+        PTR_SET(v, 0x270, 0);
     }
     v = PTR(u, 0x280);
     if (v != 0) {
@@ -475,11 +476,11 @@ void func_00165560(Unit *u)
         if (BIT(u + k * 0x70, 0x2DC, 0))
             func_0016E910(u + k * 0x70 + 0x290);
     }
-    PTR(u, 0x130) = 0;
+    PTR_SET(u, 0x130, 0);
     if (PTR(u, 0x134) != 0) {
         func_0014FCA0(PTR(u, 0x134), 0);
         BIT(PTR(u, 0x134), 0x168, 0) = 0;
-        PTR(u, 0x134) = 0;
+        PTR_SET(u, 0x134, 0);
     }
     func_001649C0(u);
     func_002AD8B0((unsigned char **)(u + 0x1A0));
@@ -617,8 +618,8 @@ int func_001656E0(Unit *u, int state, int kind, u8 slot_kind, u8 weapon, u8 b154
         kind = (g_005B50A0[0x26][0x10] & 1) ? 0x26 : 0x24;
         slot_kind = 0x6F;
     }
-    PTR(u, 0x114) = g_0045D300 + state * 0xA0;
-    PTR(u, 0x110) = g_005B50A0[kind];
+    PTR_SET(u, 0x114, g_0045D300 + state * 0xA0);
+    PTR_SET(u, 0x110, g_005B50A0[kind]);
     unit_init(u, state, slot_kind, weapon, b154, b14f, coloured, 0);
     return 1;
 }
@@ -629,8 +630,8 @@ int func_00165C60(Unit *u, int state, int kind, u32 slot_kind, u32 weapon, u32 b
                   int coloured)
 {
     S32(u, 0x118) = state;
-    PTR(u, 0x114) = g_0045D300 + state * 0xA0;
-    PTR(u, 0x110) = g_005B50A0[kind];
+    PTR_SET(u, 0x114, g_0045D300 + state * 0xA0);
+    PTR_SET(u, 0x110, g_005B50A0[kind]);
     unit_init(u, state, slot_kind, weapon, b154, b14f, coloured, 1);
     return 1;
 }
@@ -651,7 +652,7 @@ void func_001660C0(Unit *u, float *pos)
 
     for (k = 0; k < 4; k++)
         F32(u, 0x40 + k * 4) = pos[k];
-    PTR(u, 0xD0) = u + 0x40;
+    PTR_SET(u, 0xD0, u + 0x40);
     func_001F2BF0(u + 0xD0);
     if (BIT(u, 0x19E, 6) == 0)
         F32(u, 0x44) = F32(u, 0xE0);
@@ -721,8 +722,8 @@ void func_00166160(Unit *u)
         func_00151A90(u, 1);
         BIT(u, 0x19C, 1) = 0;
     }
-    PTR(u, 0x114) = 0;
-    PTR(u, 0x110) = 0;
+    PTR_SET(u, 0x114, 0);
+    PTR_SET(u, 0x110, 0);
     S32(u, 0x118) = 0x40;
     U8(u, 0x156) = 0x11;
     U8(u, 0x154) = 3;
@@ -802,7 +803,7 @@ void func_00166510(float dt, Unit *u)
     if (U32(PTR(u, 0x210), 0x18) & 0x2014)
         U8(u, 0x17D) = 0;
     if (PTR(u, 0x144) != 0 && U8(PTR(u, 0x144), 0x17D) == 0)
-        PTR(u, 0x144) = 0;
+        PTR_SET(u, 0x144, 0);
     func_0029F930(dt, u);
     if (n < U16(u, 0x176))
         U16(u, 0x176) = U16(u, 0x176) - n;
@@ -1020,7 +1021,7 @@ void func_00166A00(Unit *u)
         func_0014DFC0(0.0f, PTR(u, 0x11C), rec, (void *)PTR(u, 0x1B4), 0);
         func_0014DFC0(0.0f, PTR(u, 0x11C), rec, (void *)PTR(u, 0x1B4), 1);
         func_0014DFC0(0.0f, PTR(u, 0x11C), rec, (void *)PTR(u, 0x1B4), 2);
-        PTR(u, 0x1B4) = 0;
+        PTR_SET(u, 0x1B4, 0);
     }
     if (still) {
         r = root_node(PTR(u, 0x11C));
@@ -1247,7 +1248,7 @@ void func_00167730(Unit *u)
         F32(u, 0x88) = 0.0f;
         F32(u, 0x8C) = 0.0f;
     } else {
-        u32 *m = *(u32 **)act_motion(u, act);
+        u32 *m = PS2_LOADP(u32 *, act_motion(u, act));
         float t = F32(u, 0x21C);
         const float *p = (const float *)(m + 3);
 
@@ -1292,7 +1293,7 @@ void func_00167730(Unit *u)
 void func_00167AB0(Unit *u)
 {
     u32 n = S32(u, 0x118) == 0x3E ? 6 : 8;
-    u32 *m = *(u32 **)act_motion(u, PTR(u, 0x210));
+    u32 *m = PS2_LOADP(u32 *, act_motion(u, PTR(u, 0x210)));
     u8 *nodes = (u8 *)root_node(PTR(u, 0x11C));
     float t = F32(u, 0x21C);
     const float *p = (const float *)(m + 3);
@@ -1334,7 +1335,7 @@ void func_00167AB0(Unit *u)
     if (PTR(u, 0x11C) != 0)
         scale_root(u, PTR(u, 0x210), &((float *)root_node(PTR(u, 0x11C)))[1]);
     nodes = (u8 *)root_node(PTR(u, 0x11C));
-    PTR(PTR(u, 0x11C), 0x208) = nodes;
+    PTR_SET(PTR(u, 0x11C), 0x208, nodes);
     for (i = 0; i < n; i++) {
         if (U8(nodes, 0x68) != 0) {
             U8(nodes, 0x68) = 0;
@@ -1404,12 +1405,12 @@ void func_00168400(float f, int player, u8 *part, int on)
                 U32(t, 0x10) = 0;
             } else {
                 func_002088C0(t);
-                PTR(part, 0x68) = 0;
+                PTR_SET(part, 0x68, 0);
             }
         }
     } else if (t != 0 && U32(t, 0x10) == 0) {
         func_002088C0(t);
-        PTR(part, 0x68) = 0;
+        PTR_SET(part, 0x68, 0);
     }
 }
 
@@ -1477,7 +1478,7 @@ int func_00168730(Unit *u, u8 *slot, int c)
         return 0;
     func_00209190(a, b, U8(u, 0x14E), c);
     t = func_002087A0();
-    PTR(slot, 0x28) = t;
+    PTR_SET(slot, 0x28, t);
     if (t != 0) {
         func_00208820(t, (unsigned int *)(a), (unsigned int *)(b), U8(u, 0x14E));
         return 1;
@@ -1497,7 +1498,7 @@ void func_001687C0(Unit *u, u8 *slot, int c, int on, int colour)
         if (t != 0) {
             if (U8(t, 10) == 0) {
                 func_002088C0(t);
-                PTR(slot, 0x28) = 0;
+                PTR_SET(slot, 0x28, 0);
             } else {
                 U32(t, 0x10) = 0;
                 func_00209190((float *)(t + 0x20), (float *)(t + 0x30), U8(u, 0x14E), c);
@@ -1608,17 +1609,17 @@ void func_001688D0(Unit *u)
     if ((U32(PTR(u, 0x210), 0x18) & 0x8000000) == 0) {
         if (PTR(u, 0x284) != 0 && (char)U8(u, 0x275) != -1) {
             identity(&F32(a, 0x1A0));
-            PTR(PTR(u, 0x11C), 0x1FC) = PTR(PTR(u, 0x284), 0x11C);
+            PTR_SET(PTR(u, 0x11C), 0x1FC, PTR(PTR(u, 0x284), 0x11C));
             U8(PTR(u, 0x11C), 0x201) = U8(u, 0x275);
         } else {
             for (k = 0; k < 16; k++)
                 F32(a, 0x1A0 + k * 4) = F32(u, k * 4);
-            PTR(PTR(u, 0x11C), 0x1FC) = 0;
+            PTR_SET(PTR(u, 0x11C), 0x1FC, 0);
             U8(PTR(u, 0x11C), 0x201) = 0;
         }
     } else {
         identity(&F32(a, 0x1A0));
-        PTR(PTR(u, 0x11C), 0x1FC) = PTR(PTR(u, 0x288), 0x11C);
+        PTR_SET(PTR(u, 0x11C), 0x1FC, PTR(PTR(u, 0x288), 0x11C));
         U8(PTR(u, 0x11C), 0x201) = U8(u, 0x274);
     }
     U8(PTR(u, 0x11C), 0x20C) = (U8(PTR(u, 0x11C), 0x20C) & ~0x10) | (U8(u, 0x19C) & 1) << 4;
@@ -2128,7 +2129,7 @@ void func_0016A8A0(Unit *u, Unit *v, u8 *hit, int counted, void *x)
         else if (BIT(u, 0x19C, 7))
             func_001D2260(U8(u, 0x15B), 1);
     }
-    PTR(u, 0x144) = v;
+    PTR_SET(u, 0x144, v);
     if (prev != 0 && (U32(prev, 0x1C) & 0x80000))
         func_00151D60(u);
     if (v == 0 || (U32(hit, 0x2C) & 0x400) == 0 || BIT(u, 0x19C, 7))
@@ -2169,7 +2170,7 @@ int func_0016AA60(Unit *u, Unit *v, u8 *hit, void *pos, short *damage, u8 alpha)
             BIT(u, 0x19C, 1) = 0;
         }
         func_00152EE0(u, v);
-        PTR(u, 0x140) = v;
+        PTR_SET(u, 0x140, v);
     } else {
         if (r == 2) {
             func_00151D60(v);
@@ -2233,7 +2234,7 @@ int func_0016AA60(Unit *u, Unit *v, u8 *hit, void *pos, short *damage, u8 alpha)
             }
             got = 1;
         }
-        PTR(u, 0x140) = v;
+        PTR_SET(u, 0x140, v);
     }
     if (U32(hit, 0x28) & 0x80000000)
         U8(u, 0x14C) = alpha;
@@ -2515,8 +2516,8 @@ void func_0016BD30(Unit *u)
     for (k = 0; k < 4; k++)
         F32(g, 0xA0 + k * 4) = F32(u, 0x40 + k * 4);
     g = PTR(u, 0x280);
-    PTR(u, 0x280) = 0;
-    PTR(g, 0x284) = 0;
+    PTR_SET(u, 0x280, 0);
+    PTR_SET(g, 0x284, 0);
     U8(g, 0x275) = 0xFF;
     U8(g, 0x276) = 0xFF;
 }
@@ -2528,9 +2529,9 @@ void func_0016BD80(Unit *u, Unit *m, u8 node)
     int k;
 
     func_00150BB0(u);
-    PTR(u, 0x288) = m;
+    PTR_SET(u, 0x288, m);
     U8(u, 0x274) = node;
-    PTR(m, 0x28C) = u;
+    PTR_SET(m, 0x28C, u);
     func_0015FB50(u, 0x57);
     for (k = 0; k < 4; k++)
         F32(u, 0x40 + k * 4) = F32(m, 0x40 + k * 4);
@@ -2549,8 +2550,8 @@ Unit *func_0016BE40(Unit *u)
 {
     u8 *m = PTR(u, 0x288);
 
-    PTR(u, 0x288) = 0;
-    PTR(m, 0x28C) = 0;
+    PTR_SET(u, 0x288, 0);
+    PTR_SET(m, 0x28C, 0);
     return m;
 }
 

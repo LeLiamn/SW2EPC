@@ -44,7 +44,7 @@ void func_001AC980(u8 *b, u8 *kind, float *pos, float *dir, u8 *unit)
 {
     func_001ACA70(b, kind, pos, dir, unit);
     if (unit != 0) {
-        float r = *(float *)(*(u8 **)(unit + 0x114) + 0x88);
+        float r = *(float *)(PS2_LOADP(u8 *, (unit + 0x114)) + 0x88);
         float d = *(float *)(b + 0x78);
         int k;
 
@@ -62,7 +62,7 @@ void func_001AC980(u8 *b, u8 *kind, float *pos, float *dir, u8 *unit)
 /* 0x001AD090, 0x54 bytes. Stops projectile `b`'s effect (when its kind has one). */
 void func_001AD090(u8 *b)
 {
-    u8 *kind = *(u8 **)(b + 0x70);
+    u8 *kind = PS2_LOADP(u8 *, (b + 0x70));
 
     if (kind != 0 && (signed char)kind[0x45] != -1) {
         func_0024F6B0(*(u32 *)(b + 0x98), *(u32 *)(b + 0x9C), *(u32 *)(b + 0xB8));
@@ -80,14 +80,14 @@ void func_001AE090(u8 *b)
 {
     u8 f;
 
-    if (*(u8 **)(b + 0x88) != 0)
-        func_0016BFD0(*(u8 **)(b + 0x88), b);
-    if (*(u8 **)(b + 0x70) != 0 && (*(u32 *)(*(u8 **)(b + 0x70) + 0x30) & 0x2000000))
+    if (PS2_LOADP(u8 *, (b + 0x88)) != 0)
+        func_0016BFD0(PS2_LOADP(u8 *, (b + 0x88)), b);
+    if (PS2_LOADP(u8 *, (b + 0x70)) != 0 && (*(u32 *)(PS2_LOADP(u8 *, (b + 0x70)) + 0x30) & 0x2000000))
         func_0024D070(5, (unsigned int *)(b + 0x30));
     func_001AE1A0(b);
     func_001AD090(b);
-    *(u8 **)(b + 0x70) = 0;
-    *(u8 **)(b + 0x88) = 0;
+    PS2_STOREP(u8 *, (b + 0x70), 0);
+    PS2_STOREP(u8 *, (b + 0x88), 0);
     f = b[0x8C];
     b[0x8C] = f & 0xFE;     /* (four writes of the same byte in the original) */
     b[0x8C] = f & 0xFC;
@@ -108,11 +108,11 @@ void func_001AE090(u8 *b)
 /* 0x001AE1A0, 0x30 bytes. Lets projectile `b`'s model go. */
 void func_001AE1A0(u8 *b)
 {
-    u8 *m = *(u8 **)(b + 0xA0);
+    u8 *m = PS2_LOADP(u8 *, (b + 0xA0));
 
     if (m != 0) {
         m[0x168] &= 0xFE;
-        *(u8 **)(b + 0xA0) = 0;
+        PS2_STOREP(u8 *, (b + 0xA0), 0);
     }
 }
 

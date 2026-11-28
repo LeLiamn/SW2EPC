@@ -22,7 +22,8 @@ extern u32 g_7000015C;
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 #define FL_B8(o) (*(u32 *)((o) + 0xB8))
 #define FL_BC(o) (*(u32 *)((o) + 0xBC))
-#define TARGET(o) (*(u8 **)((o) + 8))
+#define TARGET(o) PS2_LOADP(u8 *, ((o) + 8))
+#define TARGET_SET(o, v) PS2_STOREP(u8 *, ((o) + 8), v)
 #define SET_STATE(o, s) do { FL_BC(o) &= 0xFFF8003F; (o)[0x7D] = (s); } while (0)
 
 void func_00206080(u8 *o);
@@ -93,8 +94,8 @@ int func_00238670(u8 *t)
         u8 *o = g_006A3A30[4 + k];
 
         if ((FL_B8(o) & 1) != 0 && (FL_B8(o) & 0x80) != 0 && TARGET(o) != 0 && TARGET(o) == t
-            && o[0x7C] == 0 && (*(u32 *)(*(u8 **)(o + 0x10) + 0x80) & 0x1800) != 0
-            && (*(u8 **)(t + 0x10))[0x79] != (*(u8 **)(o + 0x10))[0x79])
+            && o[0x7C] == 0 && (*(u32 *)(PS2_LOADP(u8 *, (o + 0x10)) + 0x80) & 0x1800) != 0
+            && (PS2_LOADP(u8 *, (t + 0x10)))[0x79] != (PS2_LOADP(u8 *, (o + 0x10)))[0x79])
             n++;
     }
     return n;
@@ -106,7 +107,7 @@ int func_00238DE0(u8 *o, int k)
     if ((FL_B8(o) & 0x10200) == 0) {
         int lim = k == 0 ? 7 : 10;
 
-        if (func_00174A40(100.0f, *(u8 **)(o + 0x14) + 0x40, o + 0x20) >= lim)
+        if (func_00174A40(100.0f, PS2_LOADP(u8 *, (o + 0x14)) + 0x40, o + 0x20) >= lim)
             return 0;
         if (func_00238C90(PS2_ADDR(o), 1) == 0)
             return 0;
@@ -168,7 +169,7 @@ void func_00239980(u8 *o)
     u8 *u;
 
     SET_STATE(o, 2);
-    u = *(u8 **)(o + 0x14);
+    u = PS2_LOADP(u8 *, (o + 0x14));
     *(int *)(u + 0x13C) = 0;
     *(u32 *)(u + 0x1D0) = *(u32 *)PS2_PTR(0x700000C0);
     *(u32 *)(u + 0x1D4) = *(u32 *)PS2_PTR(0x700000C4);

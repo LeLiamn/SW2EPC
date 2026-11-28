@@ -76,7 +76,8 @@ typedef struct {
     int visible;             /* +0x220 */
 } Picker;
 
-#define PICKER() (*(Picker **)(((u8 *)func_002FC2C0()) + 0x694))
+#define PICKER() PS2_LOADP(Picker *, (((u8 *)func_002FC2C0()) + 0x694))
+#define PICKER_SET(v) PS2_STOREP(Picker *, (((u8 *)func_002FC2C0()) + 0x694), v)
 
 /* 0x00500700: the controllers' state, 0x88 bytes per controller (see scene_config.c). */
 typedef struct {
@@ -218,7 +219,7 @@ int func_003F8E30(void)
 void func_003F90A0(void)
 {
     Picker *p = PICKER();
-    u8 *other = *(u8 **)(((u8 *)func_002FC2C0()) + 0x6AC);
+    u8 *other = PS2_LOADP(u8 *, (((u8 *)func_002FC2C0()) + 0x6AC));
     int i, g;
 
     func_0011ED38(p->count, 0, 0x30);

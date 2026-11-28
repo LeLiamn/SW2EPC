@@ -20,7 +20,8 @@ typedef unsigned int u32;
 
 #define U8(o, off)  (*(u8 *)((u8 *)(o) + (off)))
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
-#define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
+#define PTR(o, off) PS2_LOADP(u8 *, ((u8 *)(o) + (off)))
+#define PTR_SET(o, off, v) PS2_STOREP(u8 *, ((u8 *)(o) + (off)), v)
 
 extern u8 g_00693970[][0x88];            /* the officer records (+0x10 base, +0x80 flags) */
 #define BASE68(v) (g_00693970[0] + 0xE3E8 + (v) * 0x68)

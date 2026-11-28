@@ -24,9 +24,12 @@ typedef unsigned int u32;
 #define SPAD(off) ((u8 *)PS2_PTR(0x70000000) + (off))
 #define SP32(off) (*(u32 *)SPAD(off))
 #define SPF(off)  (*(float *)SPAD(off))
-#define SPP(off)  (*(u8 **)SPAD(off))
-#define PTR4(o)   (*(u8 **)((u8 *)(o) + 4))
-#define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
+#define SPP(off) PS2_LOADP(u8 *, SPAD(off))
+#define SPP_SET(off, v) PS2_STOREP(u8 *, SPAD(off), v)
+#define PTR4(o) PS2_LOADP(u8 *, ((u8 *)(o) + 4))
+#define PTR4_SET(o, v) PS2_STOREP(u8 *, ((u8 *)(o) + 4), v)
+#define PTR(o, off) PS2_LOADP(u8 *, ((u8 *)(o) + (off)))
+#define PTR_SET(o, off, v) PS2_STOREP(u8 *, ((u8 *)(o) + (off)), v)
 
 extern u32 g_00669DB8[4];                /* (settings) +0: the game mode */
 extern u32 g_00669F60[4];                /* (settings) +0: the battle flags */
@@ -231,23 +234,23 @@ void func_00193AA0(void)
         for (k = 0; k < 5; k++) {
             if (SPP(0xB68 + k * 4) != 0) {
                 func_00102EC0(SPP(0xB68 + k * 4));
-                SPP(0xB68 + k * 4) = 0;
+                SPP_SET(0xB68 + k * 4, 0);
             }
         }
         for (k = 1; k < 5; k++) {
             if (SPP(0xB58 + k * 4) != 0) {
                 func_00102EC0(SPP(0xB58 + k * 4));
-                SPP(0xB58 + k * 4) = 0;
+                SPP_SET(0xB58 + k * 4, 0);
             }
         }
     }
     if (SPP(0x884) != 0) {
         func_00102EC0(SPP(0x884));
-        SPP(0x884) = 0;
+        SPP_SET(0x884, 0);
     }
     if (SPP(0x880) != 0) {
         func_00102EC0(SPP(0x880));
-        SPP(0x880) = 0;
+        SPP_SET(0x880, 0);
     }
 }
 
@@ -298,11 +301,11 @@ void func_00193B90(void)
     if (ev == -1) {
         u32 m = *(unsigned short *)(g_005BA694 + SCENARIO() * 100 + 2);
 
-        SPP(0x880) = func_001026D0(1, m + 0x8FC, 0, 1, 0, 0, g_004253D0, 0x49A);
-        SPP(0x884) = func_001026D0(1, m + 0x9B6, 0, 1, 0, 0, g_004253D0, 0x49B);
+        SPP_SET(0x880, func_001026D0(1, m + 0x8FC, 0, 1, 0, 0, g_004253D0, 0x49A));
+        SPP_SET(0x884, func_001026D0(1, m + 0x9B6, 0, 1, 0, 0, g_004253D0, 0x49B));
     } else {
-        SPP(0x880) = func_001026D0(1, ev + 0x917, 0, 1, 0, 0, g_004253D0, 0x495);
-        SPP(0x884) = func_001026D0(1, ev + 0x9D1, 0, 1, 0, 0, g_004253D0, 0x496);
+        SPP_SET(0x880, func_001026D0(1, ev + 0x917, 0, 1, 0, 0, g_004253D0, 0x495));
+        SPP_SET(0x884, func_001026D0(1, ev + 0x9D1, 0, 1, 0, 0, g_004253D0, 0x496));
     }
 }
 
@@ -334,7 +337,7 @@ void func_00193EA0(void)
         r = PTR4(g_0045D2F4) + 4 + *(unsigned short *)(g_005BA694 + SCENARIO() * 100 + 2) * 0x10;
     func_00118850(SPAD(0x870), 0x330);
     func_00118850((u8 *)PS2_PTR(0x5BF440), 0x131A0);
-    SPP(0xB50) = r;
+    SPP_SET(0xB50, r);
     SPF(0x874) = 50.0f;
     SPF(0x878) = 0.02f;
 }
@@ -765,11 +768,11 @@ void func_00195D20(void)
     for (k = 0; k < 2; k++) {
         if (SPP(0x7E0 + k * 8) != 0) {
             func_00102EC0(SPP(0x7E0 + k * 8));
-            SPP(0x7E0 + k * 8) = 0;
+            SPP_SET(0x7E0 + k * 8, 0);
         }
         if (SPP(0x7E4 + k * 8) != 0) {
             func_00102EC0(SPP(0x7E4 + k * 8));
-            SPP(0x7E4 + k * 8) = 0;
+            SPP_SET(0x7E4 + k * 8, 0);
         }
     }
 }
@@ -899,14 +902,14 @@ u32 func_00196540(u8 *h)
     int k;
 
     func_00118AC0((void *)SPAD(0x770), h, 0x100);
-    SPP(0x7F0) = h + *(int *)(h + 0x80);
+    SPP_SET(0x7F0, h + *(int *)(h + 0x80));
     if (SP32(0x84C) != 0) {
         for (k = 0; k < 5; k++)
-            SPP(0x7F4 + k * 4) = h + *(int *)(h + 0x84 + k * 4);
+            SPP_SET(0x7F4 + k * 4, h + *(int *)(h + 0x84 + k * 4));
     }
-    SPP(0x808) = h + *(int *)(h + 0x98);
-    SPP(0x80C) = h + *(int *)(h + 0x9C);
-    SPP(0x810) = h + *(int *)(h + 0xA0);
+    SPP_SET(0x808, h + *(int *)(h + 0x98));
+    SPP_SET(0x80C, h + *(int *)(h + 0x9C));
+    SPP_SET(0x810, h + *(int *)(h + 0xA0));
     SPF(0x830) = (float)(int)(GRID_W - 1) + 0.0001f;
     SPF(0x838) = (float)(int)(GRID_H - 1) + 0.0001f;
     SPF(0x834) = SPF(0x830);
@@ -914,10 +917,10 @@ u32 func_00196540(u8 *h)
     for (k = 0; k < 2; k++) {
         u8 *b = func_00102D30(0x17290);
 
-        SPP(0x7E0 + k * 8) = b;
+        SPP_SET(0x7E0 + k * 8, b);
         func_00195DC0(b, 0x34F);
         b = func_00102D30(0x17290);
-        SPP(0x7E4 + k * 8) = b;
+        SPP_SET(0x7E4 + k * 8, b);
         func_00195DC0(b, 0x34F);
     }
     return SP32(0x84C);
@@ -929,7 +932,7 @@ static inline void open_list(u8 *l)
 {
     u32 *e = (u32 *)(l + *(int *)(l + 0x3C) * 0x10), k;
 
-    *(u32 **)(l + 0x3C) = e;
+    PS2_STOREP(u32 *, (l + 0x3C), e);
     for (k = 0; k < *(u32 *)(l + 0x38); k++, e += 4) {
         u8 *o = l + e[0] * 0x10;
 
@@ -946,8 +949,8 @@ void func_001966C0(u8 *a, u8 *b, u32 c)
     open_list(a);
     open_list(b);
     SP32(0x81C) = c;
-    SPP(0x814) = a;
-    SPP(0x818) = b;
+    SPP_SET(0x814, a);
+    SPP_SET(0x818, b);
     func_00107440((unsigned char *)PS2_PTR(c), 0x1320, 0x3ED8);
 }
 

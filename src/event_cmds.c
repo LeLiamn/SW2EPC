@@ -55,9 +55,14 @@ extern u8 *g_005BA6A0;
 #define FL38(o) (*(u32 *)((o) + 0x38))
 
 /* Reads the command's next argument into `out`. */
+#ifdef SW2E_PC
+#define ARG_NEXT(f) ({ u8 *q_ = PS2_LOADP(u8 *, (f)); PS2_STOREP(u8 *, (f), q_ + 1); *q_; })
+#else
+#define ARG_NEXT(f) (*(*(u8 **)(f))++)
+#endif
 #define ARG(p, out) do {                                                \
-    u8 t_ = *(*(u8 **)((p) + 0x10))++;                                  \
-    u8 s_ = *(*(u8 **)((p) + 0x14))++;                                  \
+    u8 t_ = ARG_NEXT((p) + 0x10);                                       \
+    u8 s_ = ARG_NEXT((p) + 0x14);                                       \
     *(u32 *)((p) + 0xC) = func_001D6BD0((unsigned int *)((out)), (unsigned int *)PS2_PTR(*(u32 *)((p) + 0xC)), t_, s_); \
 } while (0)
 
@@ -101,9 +106,9 @@ void func_001D8170(u8 *p)
 
         SP_LIST = 0xB;
         if (f == 0)
-            *(u8 **)(o + 0x14) = func_001C7DB0(g_0040C940[b], part, PLAYER_FLAGS(g_0040C9F0[c]));
+            PS2_STOREP(u8 *, (o + 0x14), func_001C7DB0(g_0040C940[b], part, PLAYER_FLAGS(g_0040C9F0[c])));
         else
-            *(u8 **)(o + 0x18) = (u8 *)PS2_PTR(func_001C8810(g_0040C940[b], PS2_ADDR(m), d, PLAYER_FLAGS(g_0040C9F0[c])));
+            PS2_STOREP(u8 *, (o + 0x18), (u8 *)PS2_PTR(func_001C8810(g_0040C940[b], PS2_ADDR(m), d, PLAYER_FLAGS(g_0040C9F0[c]))));
     }
 }
 
@@ -119,10 +124,10 @@ void func_001D83D0(u8 *p)
     if (o == 0)
         return;
     for (k = 0; k < 3; k++) {
-        m = *(u8 **)(o + 0x14 + k * 4);
+        m = PS2_LOADP(u8 *, (o + 0x14 + k * 4));
         if (m != 0) {
             FL38(m) |= 8;
-            *(u8 **)(o + 0x14 + k * 4) = 0;
+            PS2_STOREP(u8 *, (o + 0x14 + k * 4), 0);
         }
     }
 }
@@ -141,7 +146,7 @@ void func_001D8490(u8 *p)
     a = g_0040C940[a];
     slot = &g_0072C870[a];
     if (*slot == 0 && a < 0x18B) {
-        *slot = *(u8 **)(p + 4) + b + 4;
+        *slot = PS2_LOADP(u8 *, (p + 4)) + b + 4;
         func_001C8CF0(a);
     }
 }
@@ -211,7 +216,7 @@ void func_001D8C50(u8 *p)
             f = f0 | 0x80064;
         else if (g_0045D3E0 == 1)
             f = f0 | 0x800A4;
-        *(u8 **)(o + 0x1C) = func_001C8340(g_0040C940[a], g_00730730 + g_0045D3E0 * 0x240, 0, f);
+        PS2_STOREP(u8 *, (o + 0x1C), func_001C8340(g_0040C940[a], g_00730730 + g_0045D3E0 * 0x240, 0, f));
     }
     SP_LIST = 0xB;
 }
@@ -435,10 +440,10 @@ void func_002E9840(u8 *p);
 
 /* The next command of event `e` (file + its offset). */
 #define EV_SEEK(e, c) do {                                              \
-    *(u8 **)((e) + 8) = (c);                                            \
-    *(u8 **)((e) + 0xC) = (c) + (c)[(c)[6] + 7] + 7;                    \
-    *(u8 **)((e) + 0x10) = (c) + 7;                                     \
-    *(u8 **)((e) + 0x14) = (c) + (c)[6] + 8;                            \
+    PS2_STOREP(u8 *, ((e) + 8), (c));                                            \
+    PS2_STOREP(u8 *, ((e) + 0xC), (c) + (c)[(c)[6] + 7] + 7);                    \
+    PS2_STOREP(u8 *, ((e) + 0x10), (c) + 7);                                     \
+    PS2_STOREP(u8 *, ((e) + 0x14), (c) + (c)[6] + 8);                            \
 } while (0)
 
 /* Tests the word at file offset `off` against the event's value (mode +0x50: 0 bits, 1 equal). */
@@ -448,7 +453,7 @@ void func_002E9840(u8 *p);
 /* 0x001DA200, 0x140 bytes. Whether every condition of the command holds. */
 void func_001DA200(u8 *p)
 {
-    u32 n = (*(u8 **)(p + 8))[6] / 3, k;
+    u32 n = (PS2_LOADP(u8 *, (p + 8)))[6] / 3, k;
     u8 r = 1;
 
     for (k = 0; k < n; k = (k + 1) & 0xFF) {
@@ -469,7 +474,7 @@ void func_001DA200(u8 *p)
 /* 0x001DA340, 0x140 bytes. Whether one of them holds. */
 void func_001DA340(u8 *p)
 {
-    u32 n = (*(u8 **)(p + 8))[6] / 3, k;
+    u32 n = (PS2_LOADP(u8 *, (p + 8)))[6] / 3, k;
     u8 r = 0;
 
     for (k = 0; k < n; k = (k + 1) & 0xFF) {
@@ -507,7 +512,7 @@ void func_001DAD50(u32 *e, u8 *f)
 /* 0x001DADC0, 0xD8 bytes. Runs the commands due (up to a wait not reached or the end). */
 void func_001DADC0(u8 *e)
 {
-    u8 *c = *(u8 **)(e + 8);
+    u8 *c = PS2_LOADP(u8 *, (e + 8));
 
     for (;;) {
         if ((signed char)c[4] == -1)
@@ -515,9 +520,9 @@ void func_001DADC0(u8 *e)
         if (c[4] == 0 && c[5] == 0 && *(float *)(e + 0x40) < func_001D6C70(c))
             break;
         func_001DA7E0(e);
-        c = *(u8 **)(e + 4) + **(int **)(e + 8);
+        c = PS2_LOADP(u8 *, (e + 4)) + *PS2_LOADP(int *, (e + 8));
         EV_SEEK(e, c);
-        c = *(u8 **)(e + 8);
+        c = PS2_LOADP(u8 *, (e + 8));
     }
 }
 
@@ -527,17 +532,17 @@ void func_001DB0A0(u8 *p, u32 *x)
     u8 i = 0;
     u32 v;
 
-    if ((*(u8 **)(p + 8))[6] == 0)
+    if ((PS2_LOADP(u8 *, (p + 8)))[6] == 0)
         return;
     do {
         int off;
 
         ARG(p, &off);
-        x = (u32 *)(*(u8 **)(p + 4) + off);
+        x = (u32 *)(PS2_LOADP(u8 *, (p + 4)) + off);
         v = EV_TEST(p, x);
-    } while (v == 0 && (i = i + 1) < (*(u8 **)(p + 8))[6]);
-    if (i != (*(u8 **)(p + 8))[6])
-        *(u32 **)(p + 0x20) = x + 1;
+    } while (v == 0 && (i = i + 1) < (PS2_LOADP(u8 *, (p + 8)))[6]);
+    if (i != (PS2_LOADP(u8 *, (p + 8)))[6])
+        PS2_STOREP(u32 *, (p + 0x20), x + 1);
 }
 
 /* 0x001DB1E0, 0xD8 bytes. */
@@ -549,9 +554,9 @@ void func_001DB1E0(u8 *p)
 
     ARG(p, a);
     ARG(p, &off);
-    x = (u32 *)(*(u8 **)(p + 4) + off);
+    x = (u32 *)(PS2_LOADP(u8 *, (p + 4)) + off);
     if (EV_TEST(p, x) != 0)
-        *(u32 **)(p + 0x24) = x + 1;
+        PS2_STOREP(u32 *, (p + 0x24), x + 1);
 }
 
 /* 0x001DB520, 0x138 bytes. Plays officer `b`'s line `c` (and its voice). */
@@ -565,7 +570,7 @@ void func_001DB520(u8 *p)
     ARG(p, &c);
     func_0032FDD0(PS2_ADDR(func_001D9610(func_0032F7D0(func_0032F420(b)), c)), g_00730D10, (unsigned int *)(&r));
     func_002723B0(p, (r - 0xA6) & 0xFFFF, 1);
-    *(u8 **)(p + 0x20) = g_00730D10;
+    PS2_STOREP(u8 *, (p + 0x20), g_00730D10);
     if (r > 0x11CE && r < 0x151E)
         func_001DF1C0((unsigned int *)(p), a, PS2_ADDR(func_001D9670(r)));
 }
@@ -640,9 +645,9 @@ void func_001DC3C0(void)
         u32 *e = (u32 *)g_00730DA0[k];
 
         if (g_00730DA0[k][0xE] != 0) {
-            *(u32 **)PS2_PTR((e[0] + 0x28)) = e;
+            PS2_STOREP(u32 *, PS2_PTR((e[0] + 0x28)), e);
             func_002E9840((u8 *)PS2_PTR(e[0]));
-            *(u32 **)PS2_PTR((e[1] + 0x28)) = e;
+            PS2_STOREP(u32 *, PS2_PTR((e[1] + 0x28)), e);
             func_002E9840((u8 *)PS2_PTR(e[1]));
         }
     }
@@ -747,7 +752,7 @@ void func_001DB6B0(u32 *ev)
     if (g_00669D60[0x50] >> 6 == 0)
         return;
     g_0056CCC0 = g_0056CCC4 = 20.0f;
-    s = *(u8 **)(e + 0x24);
+    s = PS2_LOADP(u8 *, (e + 0x24));
     if (s != 0) {
         func_00147160(s, buf, 0x200, 0, 0);
         func_001B8920((const char *)(buf), &w, &h);
@@ -755,8 +760,8 @@ void func_001DB6B0(u32 *ev)
                       ((((0x330 - (0x1C0 - ((0x330 - h) >> 1))) - h) >> 1 << 9) / 0x280 * 0x1E0)
                           / 0x1C0, 0, h);
     }
-    if (*(u8 **)(e + 0x20) != 0) {
-        func_00147160(*(u8 **)(e + 0x20), buf, 0x200, 0, 0);
+    if (PS2_LOADP(u8 *, (e + 0x20)) != 0) {
+        func_00147160(PS2_LOADP(u8 *, (e + 0x20)), buf, 0x200, 0, 0);
         func_001B8920((const char *)(buf), &w, &h);
         func_001B8800((const char *)(buf), (0x200 - w) >> 1,
                       (s == 0 ? 0 : 4) + (((0x330 - h) >> 1 << 9) / 0x280 * 0x1E0) / 0x1C0, 0,
@@ -773,18 +778,18 @@ void func_001DC9A0(void)
 
     if (n == 0)
         return;
-    *(void **)(b + 0x00) = func_0020EC50(n << 2);
-    *(void **)(b + 0x04) = func_0020EC50(n << 5);
-    *(void **)(b + 0x08) = func_0020EC50(n << 4);
-    *(void **)(b + 0x0C) = func_0020EC50(n << 2);
-    *(void **)(b + 0x10) = func_0020EC50(n << 2);
-    *(void **)(b + 0x20) = func_0020EC50(n << 1);
-    *(void **)(b + 0x14) = func_0020EC50(n << 2);
-    *(void **)(b + 0x18) = func_0020EC50(n << 1);
-    *(void **)(b + 0x1C) = func_0020EC50(n);
-    *(void **)(b + 0x30) = func_0020EC50(n << 3);
-    *(void **)(b + 0x24) = func_0020EC50(n << 2);
+    PS2_STOREP(void *, (b + 0x00), func_0020EC50(n << 2));
+    PS2_STOREP(void *, (b + 0x04), func_0020EC50(n << 5));
+    PS2_STOREP(void *, (b + 0x08), func_0020EC50(n << 4));
+    PS2_STOREP(void *, (b + 0x0C), func_0020EC50(n << 2));
+    PS2_STOREP(void *, (b + 0x10), func_0020EC50(n << 2));
+    PS2_STOREP(void *, (b + 0x20), func_0020EC50(n << 1));
+    PS2_STOREP(void *, (b + 0x14), func_0020EC50(n << 2));
+    PS2_STOREP(void *, (b + 0x18), func_0020EC50(n << 1));
+    PS2_STOREP(void *, (b + 0x1C), func_0020EC50(n));
+    PS2_STOREP(void *, (b + 0x30), func_0020EC50(n << 3));
+    PS2_STOREP(void *, (b + 0x24), func_0020EC50(n << 2));
     for (k = 0; k < 2; k++)
-        *(void **)(b + 0x28 + k * 4) = func_0020EC50(n << 3);
+        PS2_STOREP(void *, (b + 0x28 + k * 4), func_0020EC50(n << 3));
     func_001DC6E0();
 }

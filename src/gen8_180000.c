@@ -933,7 +933,7 @@ int func_00242900(u8 *param_1, int param_2, int param_3)
                             else {
                                 bVar5 = true;
                             }
-                            if ((bVar5) && (sVar1 == **(short **)(param_1 + 0x210))) {
+                            if ((bVar5) && (sVar1 == *PS2_LOADP(short *, (param_1 + 0x210)))) {
                                 param_2 = (unsigned long long)*(u16 *)((u8 *)PS2_PTR(iVar8) + 2);
                                 break;
                             }
@@ -952,7 +952,7 @@ int func_00242900(u8 *param_1, int param_2, int param_3)
                         else {
                             bVar5 = true;
                         }
-                        if ((bVar5) && (*(short *)((u8 *)PS2_PTR(iVar8) + 0x26) == **(short **)(param_1 + 0x210))) {
+                        if ((bVar5) && (*(short *)((u8 *)PS2_PTR(iVar8) + 0x26) == *PS2_LOADP(short *, (param_1 + 0x210)))) {
                             param_2 = (unsigned long long)*(u16 *)((u8 *)PS2_PTR(iVar8) + 2);
                             break;
                         }
@@ -1033,7 +1033,7 @@ int func_002431F0(u8 *param_1, int param_2, int param_3)
                             else {
                                 bVar5 = true;
                             }
-                            if ((bVar5) && (*(short *)((u8 *)PS2_PTR(iVar8) + 0x26) == **(short **)(param_1 + 0x210))) {
+                            if ((bVar5) && (*(short *)((u8 *)PS2_PTR(iVar8) + 0x26) == *PS2_LOADP(short *, (param_1 + 0x210)))) {
                                 param_2 = (unsigned long long)*(u16 *)((u8 *)PS2_PTR(iVar8) + 2);
                                 break;
                             }
@@ -1052,7 +1052,7 @@ int func_002431F0(u8 *param_1, int param_2, int param_3)
                         else {
                             bVar5 = true;
                         }
-                        if ((bVar5) && (*(short *)((u8 *)PS2_PTR(iVar8) + 0x26) == **(short **)(param_1 + 0x210))) {
+                        if ((bVar5) && (*(short *)((u8 *)PS2_PTR(iVar8) + 0x26) == *PS2_LOADP(short *, (param_1 + 0x210)))) {
                             param_2 = (unsigned long long)*(u16 *)((u8 *)PS2_PTR(iVar8) + 2);
                             break;
                         }

@@ -874,7 +874,7 @@ void func_001D2530(float dt)
                     vec[2] = vec[2] * -1.0f;
                 }
                 if (xz_dist2(vec, g_700000C0) > 0.0001f) {
-                    if ((*(u32 *)(*(u8 **)(UNIT(i) + 0x210) + 0x18) & 0x20100) != 0 && vec[2] < 0.0f)
+                    if ((*(u32 *)(PS2_LOADP(u8 *, (UNIT(i) + 0x210)) + 0x18) & 0x20100) != 0 && vec[2] < 0.0f)
                         vec[2] = vec[2] * 0.25f;
                     func_0029E070(*(u32 *)g_005B49E0[i], vec);
                 }
@@ -901,9 +901,9 @@ void func_001D28E0(void)
             if (other != 0)
                 func_00249390(i, other[0x14E]);
             if (unit[0x19D] & 4)
-                func_00249670(i, unit[0x14E], *(u32 *)(*(u8 **)(unit + 0x210) + 0x18) & 0x8000000);
+                func_00249670(i, unit[0x14E], *(u32 *)(PS2_LOADP(u8 *, (unit + 0x210)) + 0x18) & 0x8000000);
             if (func_0016CA00(unit) != 0) {
-                u8 kind = *(u8 **)(unit + 0x110) == 0 ? 0x6A : (*(u8 **)(unit + 0x110))[0x1C];
+                u8 kind = PS2_LOADP(u8 *, (unit + 0x110)) == 0 ? 0x6A : (PS2_LOADP(u8 *, (unit + 0x110)))[0x1C];
                 if (func_001BEA90(kind) != 0 && skill != 0)
                     func_00249AD0(i, unit[0x14E]);
             }

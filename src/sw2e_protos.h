@@ -474,6 +474,7 @@ void *func_001BC830(unsigned int);
 void func_00173970(void);
 void *func_001748B0(float, float, void *, unsigned int);
 unsigned char *func_00177ED0(void);
+void func_00177F80(void);
 void func_001781C0(void);
 void func_00178460(void);
 void func_001796D0(void);
@@ -5580,6 +5581,8 @@ void func_002E5DA0(int);
 void func_002E5E10(int, int);
 void func_002E5ED0(void);
 void func_002E6210(void);
+void func_002E6370(unsigned int *);
+void func_002E6390(void);
 void func_002EA950(unsigned int *);
 #ifndef SW2E_OWN_PROTO_func_002EFB00
 int func_002EFB00(int);
@@ -5919,6 +5922,7 @@ void func_00143FF0(void);
 
 #ifndef SW2E_FILE_ITEM_GLOW_C
 int func_0024BC60(int);
+void func_0024BCA0(void);
 void func_0024BE90(void);
 void func_0024BF20(void);
 void func_0024C070(unsigned char *, int);

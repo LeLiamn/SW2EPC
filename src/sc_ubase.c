@@ -662,7 +662,7 @@ void func_0019D1E0(int p, int b)
         return;
     if ((*(short *)(o + 0x80) * 0x50) / 100 > *(short *)(o + 0x84))
         return;
-    r = *(u8 **)(o + 0x68);
+    r = PS2_LOADP(u8 *, (o + 0x68));
     i = (r - g_005BA6A0) / 0x2C;
     if (i == (int)PSET(p, 0xBC))
         return;
@@ -686,7 +686,7 @@ void func_0019D360(int p, int b, short n)
     if (g_00669F60[0] & 0x1C)
         return;
     if ((int)PSET(p, 0xBC) != -1
-        && (int)PSET(p, 0xBC) == (*(u8 **)(g_006A3A30[b] + 0x68) - g_005BA6A0) / 0x2C)
+        && (int)PSET(p, 0xBC) == (PS2_LOADP(u8 *, (g_006A3A30[b] + 0x68)) - g_005BA6A0) / 0x2C)
         U16(g_00669D60, p * 0x48 + 0xC2) += n;
 }
 
@@ -742,7 +742,7 @@ int func_0019D480(int b, int p)
             PSET(i, 0xBC) = -1;
             U16(g_00669D60, i * 0x48 + 0xC0) = 0;
             U16(g_00669D60, i * 0x48 + 0xC2) = 0;
-        } else if ((int)PSET(i, 0xBC) == (*(u8 **)(g_006A3A30[b] + 0x68) - tab) / 0x2C) {
+        } else if ((int)PSET(i, 0xBC) == (PS2_LOADP(u8 *, (g_006A3A30[b] + 0x68)) - tab) / 0x2C) {
             found = 1;
         }
     }
@@ -764,7 +764,7 @@ int func_0019D480(int b, int p)
     if (i >= 8)
         return 0;
 
-    r = *(u8 **)(g_006A3A30[b] + 0x68);
+    r = PS2_LOADP(u8 *, (g_006A3A30[b] + 0x68));
     n = 0;
     o = offers;
     for (k = 0; k < 3; k++) {
@@ -817,7 +817,7 @@ int func_0019D480(int b, int p)
 
         f = base * g_004069B0[d < 3 ? d : 3];
         t = named ? U16(g_00669D60, p * 0x48 + 0xC0) / 1000 : U16(g_00669D60, p * 0x48 + 0xC0) / 750;
-        if (named || (U32(*(u8 **)(g_006A3A30[b] + 0x10), 0x80) & 0x200))
+        if (named || (U32(PS2_LOADP(u8 *, (g_006A3A30[b] + 0x10)), 0x80) & 0x200))
             pt = U16(g_00669D60, p * 0x48 + 0xC2) / 50;
         else
             pt = U16(g_00669D60, p * 0x48 + 0xC2) / 25;
@@ -941,7 +941,7 @@ void func_0019E1E0(int p)
     if ((k < 2 && g_00669F84 > 1) || (k < 1 && g_00669F84 < 2)) {
         int s = func_0036DBA0(PSET(p, 0x88), 0x24);
 
-        if ((int)(RANDOM() % 100) < *(short *)(*(u8 **)(b + 0x68) + 0x1A) / 10 + s * g_004282DF)
+        if ((int)(RANDOM() % 100) < *(short *)(PS2_LOADP(u8 *, (b + 0x68)) + 0x1A) / 10 + s * g_004282DF)
             k++;
     }
     w[0] = (u8)(k + PSET(p, 0x88) * 4);
@@ -950,7 +950,7 @@ void func_0019E1E0(int p)
     if (w[0x12] < 8) {
         int s = func_0036DBA0(PSET(p, 0x88), 0x24);
 
-        if ((int)(RANDOM() % 100) < *(short *)(*(u8 **)(b + 0x68) + 0x1A) / 10 + s * g_004282DF)
+        if ((int)(RANDOM() % 100) < *(short *)(PS2_LOADP(u8 *, (b + 0x68)) + 0x1A) / 10 + s * g_004282DF)
             w[0x12]++;
     }
     w[0x12] = func_002F5840(func_002F57F0(w[0]));

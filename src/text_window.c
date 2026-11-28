@@ -737,8 +737,8 @@ static inline u64 glyph_texels(Glyph *g, u32 *u, u32 *v)
             return *(u64 *)f;
         return *(u64 *)(f + 8);
     }
-    *u = (*(u16 **)(f + 0x10))[c * 2];
-    *v = (*(u16 **)(f + 0x10))[c * 2 + 1];
+    *u = (PS2_LOADP(u16 *, (f + 0x10)))[c * 2];
+    *v = (PS2_LOADP(u16 *, (f + 0x10)))[c * 2 + 1];
     return (c & 0x7FFFFFFF) <= 400 ? *(u64 *)f : *(u64 *)(f + 8);
 }
 
@@ -1295,7 +1295,7 @@ void func_001B5400(TextWindow *w, int k)
         left = digits * 0x10 + 0x24;
     }
     if (kind == 0 || kind == 6 || kind == 7)
-        w->w = func_001AB3A0(16.0f, (u8 *)PS2_PTR(0x4053F0), *(u8 **)(st + 0x2F0));
+        w->w = func_001AB3A0(16.0f, (u8 *)PS2_PTR(0x4053F0), PS2_LOADP(u8 *, (st + 0x2F0)));
     else
         w->w = func_0019AF10(16.0f, *(u16 *)(st + 0x2E8), *(u16 *)(st + 0x2EA));
     w->x = 0x1F0 - w->w - left;
@@ -1335,7 +1335,7 @@ void func_001B5400(TextWindow *w, int k)
     pos[2] = 0.0f;
     pos[3] = 0.0f;
     if (kind == 0 || kind == 6 || kind == 7)
-        n = func_001AB430(16.0f, 16.0f, p + 0x160, *(u8 **)(st + 0x2F0), pos, col, 0x80, 1, 0);
+        n = func_001AB430(16.0f, 16.0f, p + 0x160, PS2_LOADP(u8 *, (st + 0x2F0)), pos, col, 0x80, 1, 0);
     else
         n = func_001AB1D0(16.0f, 16.0f, p + 0x160, *(u16 *)(st + 0x2E8), *(u16 *)(st + 0x2EA), pos,
                           col, 0x80, 1, 0);
