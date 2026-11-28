@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 204128,
-    "non_matching": 1688656
+    "non_matching": 1693704
   },
   "data": {
     "total": 2155890688,
@@ -137,14 +137,14 @@
         },
         {
           "name": "StateShop.c",
-          "description": "Estimated range 0x299DB8-0x2A5E80; 74 function(s) decompiled",
+          "description": "Estimated range 0x299DB8-0x2A5E80; 75 function(s) decompiled",
           "code": {
             "total": 49352,
             "matching": 15056,
-            "non_matching": 14664
+            "non_matching": 15612
           },
           "decompiled_functions": {
-            "count": 74,
+            "count": 75,
             "matching": 39
           }
         },
@@ -163,14 +163,14 @@
         },
         {
           "name": "StateEdit.c",
-          "description": "Estimated range 0x36DE68-0x382E28; 322 function(s) decompiled",
+          "description": "Estimated range 0x36DE68-0x382E28; 323 function(s) decompiled",
           "code": {
             "total": 85952,
             "matching": 6304,
-            "non_matching": 57956
+            "non_matching": 59044
           },
           "decompiled_functions": {
-            "count": 322,
+            "count": 323,
             "matching": 107
           }
         },
@@ -742,14 +742,14 @@
         },
         {
           "name": "ev_message.c",
-          "description": "Estimated range 0x1DA818-0x1E10A0; 56 function(s) decompiled",
+          "description": "Estimated range 0x1DA818-0x1E10A0; 58 function(s) decompiled",
           "code": {
             "total": 26760,
             "matching": 1072,
-            "non_matching": 11844
+            "non_matching": 13128
           },
           "decompiled_functions": {
-            "count": 56,
+            "count": 58,
             "matching": 17
           }
         },
@@ -768,14 +768,14 @@
         },
         {
           "name": "sc_sysmsg.c",
-          "description": "Estimated range 0x23CED8-0x245518; 54 function(s) decompiled",
+          "description": "Estimated range 0x23CED8-0x245518; 55 function(s) decompiled",
           "code": {
             "total": 34368,
             "matching": 288,
-            "non_matching": 18592
+            "non_matching": 19904
           },
           "decompiled_functions": {
-            "count": 54,
+            "count": 55,
             "matching": 5
           }
         },
@@ -807,14 +807,14 @@
         },
         {
           "name": "SeasonAnime.c",
-          "description": "Estimated range 0x3D70F0-0x3DEC78; 167 function(s) decompiled",
+          "description": "Estimated range 0x3D70F0-0x3DEC78; 168 function(s) decompiled",
           "code": {
             "total": 31624,
             "matching": 5600,
-            "non_matching": 15648
+            "non_matching": 16064
           },
           "decompiled_functions": {
-            "count": 167,
+            "count": 168,
             "matching": 91
           }
         },
