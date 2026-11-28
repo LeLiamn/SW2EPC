@@ -1357,7 +1357,7 @@ int func_003F1B50(int param_1);
 
 /* MISSING ['0x406940', '0x406944', '0x406948', '0x40694c', '0x406950', '0x406954', '0x406958', '0x40695c', '0x406960', '0x406964', '0x406968'] */
 
-/* 0x001C39A0, 0xC0 bytes. */
+/* 0x001C39A0, 0xC0 bytes, matching. */
 void func_001C39A0(int param_1, int param_2)
 {
     u8 * iVar1;

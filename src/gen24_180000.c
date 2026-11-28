@@ -1582,7 +1582,7 @@ int func_001BBEA0(int p0)
   return (int)uVar2 + 4;
 }
 
-/* 0x001C4A00, 0xC0 bytes. */
+/* 0x001C4A00, 0xC0 bytes, matching. */
 void func_001C4A00(u8 *param_1, int param_2)
 {
     u8 * iVar1;
@@ -2607,7 +2607,7 @@ void func_00279010(int param_1, short *param_2, int param_3, int param_4, int pa
 
 /* MISSING ['0x43fe50'] */
 
-/* 0x002863E0, 0x3C bytes. */
+/* 0x002863E0, 0x3C bytes, matching. */
 void func_002863E0(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int p6)
 {
   func_002CC190((unsigned char *)PS2_PTR(param_2),param_1,param_3,param_4,0,param_5,param_6,0x80, p6, 0);
@@ -3053,28 +3053,28 @@ void func_00382770(int param_1, int param_2, int *param_3)
   return;
 }
 
-/* 0x00383270, 0x40 bytes. */
+/* 0x00383270, 0x40 bytes, matching. */
 void func_00383270(int param_1, int param_2, int param_3, int p3)
 {
   func_001ABE40((unsigned char *)PS2_PTR(param_1),0xd1,param_2,param_3,0,0x160,0x38,0x80, p3, 0);
   return;
 }
 
-/* 0x003832E0, 0x44 bytes. */
+/* 0x003832E0, 0x44 bytes, matching. */
 void func_003832E0(int param_1, int param_2, int param_3, int param_4, int p4)
 {
   func_001ABE40((unsigned char *)PS2_PTR(param_1),param_4 + 0x5f,param_2,param_3,0,200,0x28,0x80, p4, 0);
   return;
 }
 
-/* 0x00383330, 0x30 bytes. */
+/* 0x00383330, 0x30 bytes, matching. */
 void func_00383330(int param_1, int param_2, int p2, int p3, int p4, int p5)
 {
   func_001ABE40((unsigned char *)PS2_PTR(param_1),param_2 + 0xa4, p2, p3, p4, 0xe8, 0x20, 0x80, p5, 0);
   return;
 }
 
-/* 0x00383610, 0x40 bytes. */
+/* 0x00383610, 0x40 bytes, matching. */
 void func_00383610(int param_1, int param_2, int param_3, int param_4, int p4)
 {
   func_001ABE40((unsigned char *)PS2_PTR(param_1),0x14d,param_2,param_3,0,0xe0,0x98,param_4, p4, 0);
@@ -3158,7 +3158,7 @@ void func_00383650(int param_1, int param_2, int param_3, int param_4, int param
   return;
 }
 
-/* 0x00383AB0, 0x40 bytes. */
+/* 0x00383AB0, 0x40 bytes, matching. */
 void func_00383AB0(int param_1, int param_2, int param_3, int param_4, int param_5, int p5)
 {
   func_001ABE40((unsigned char *)PS2_PTR(param_1),0xda,param_2,param_3,0,param_4,param_5,0x80, p5, 0);
@@ -3300,7 +3300,7 @@ void func_003A5E20(void)
   return;
 }
 
-/* 0x003A6450, 0x48 bytes. */
+/* 0x003A6450, 0x48 bytes, matching. */
 void func_003A6450(int *param_1, int *param_2, int p2)
 {
   func_003A6060(param_1, param_2, p2);

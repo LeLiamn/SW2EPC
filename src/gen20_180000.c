@@ -266,7 +266,7 @@ void func_001F63A0(u8 *param_1, int param_2, int param_3, int param_4, int param
     }
 }
 
-/* 0x00201F80, 0x80 bytes. */
+/* 0x00201F80, 0x80 bytes, matching. */
 void func_00201F80(u8 *param_1)
 {
     switch(*(u8 *)(*(int *)(param_1 + 0x68) + 0x1C)) {
@@ -936,7 +936,7 @@ switchD_00391a9c_default:
     ;
 }
 
-/* 0x0039C540, 0xE8 bytes. */
+/* 0x0039C540, 0xE8 bytes, matching. */
 void func_0039C540(int param_1)
 {
     u8 * iVar2;

@@ -20,7 +20,7 @@ typedef unsigned int u32;
 extern u8 g_0074A0A0[];                   /* records of 0x98 bytes (per card port?) */
 extern u8 g_0074A140[];                   /* records of 0x14 bytes */
 
-/* 0x0022D590, 0x40 bytes. Resets record `i` of the 0x98-byte table: three -1 words, three 0. */
+/* 0x0022D590, 0x40 bytes, matching. Resets record `i` of the 0x98-byte table: three -1 words, three 0. */
 void func_0022D590(int i)
 {
     u8 *r = g_0074A0A0 + i * 0x98;
@@ -33,7 +33,7 @@ void func_0022D590(int i)
     *(int *)(r + 0x14) = 0;
 }
 
-/* 0x0022D5D0, 0x2C bytes. Resets record `i` of the 0x14-byte table (all but its second word). */
+/* 0x0022D5D0, 0x2C bytes, matching. Resets record `i` of the 0x14-byte table (all but its second word). */
 void func_0022D5D0(int i)
 {
     u8 *r = g_0074A140 + i * 0x14;
