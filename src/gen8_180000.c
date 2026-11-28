@@ -147,11 +147,9 @@ int func_002C7310();
 void *func_0030D7D0();
 int func_0032F420();
 void *func_0038C6E0();
-int func_003914C0();
 int func_00391FA0();
 void func_001EDE10(u8 *param_1, int param_2);
 void func_001EDFB0(u8 *param_1, int param_2);
-void func_002C24B0(int param_1, u8 *param_2);
 
 /* 0x00180BF0, 0x11C bytes. */
 void func_00180BF0(void)

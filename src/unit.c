@@ -17,6 +17,7 @@
 #define SW2E_FILE_UNIT_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_003B00A0();
 
 /* 0x002A5A60 (not decompiled yet): sets sound `h` up at a position (floats in f12-f16). */
 void func_002A5A60(float a, float b, float c, float d, float e, int h);
@@ -3285,7 +3286,6 @@ void func_0015BEA0(float dt, Unit *u)
 
 extern float g_00406380[0x3E];           /* speed multipliers by weapon kind / item */
 
-float func_003B00A0(void);
 short func_001BE9B0(u8 kind);
 
 /* The flat length (squared) of +0x1D0, the direction held. */

@@ -37,7 +37,6 @@ void vu0_sincos(float a, float *s, float *c);     /* VU0 micro subroutine 0x20 *
 
 extern int g_0040669C[4];                /* +0: a setting in 0x4123-0x1046B (or 0) */
 
-void func_0029F790(Unit *u, Unit *v, u8 *hit, u8 alpha);
 
 /* 0x00171FA8, 0x34 bytes. Sets g_0040669C to `v` (0, or 0x4123-0x1046B); whether it was
  * accepted. */

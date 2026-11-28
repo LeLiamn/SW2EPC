@@ -13,6 +13,7 @@
 #define SW2E_FILE_SCENE_TREASURES_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_002EF180();
 
 typedef unsigned char u8;
 typedef unsigned int u32;
@@ -179,7 +180,6 @@ void func_002EF8F0(void);
 void func_002EF970(void);
 void func_002EF9F0(void);
 void func_002EF330(u32 a, void *b, u32 c, u8 d, u8 e, u8 f);
-void func_002EF180(u32 a);
 void func_002EF200(u32 a, u32 b, int c, void *d, u32 e, u8 f, u8 g, u8 h);
 void func_002EF280(void);
 

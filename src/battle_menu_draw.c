@@ -18,7 +18,6 @@
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
 
-void func_0029B5A0(short x, short y, int a, int b, int c);   /* not decompiled yet */
 
 typedef unsigned char u8;
 typedef unsigned short u16;

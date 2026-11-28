@@ -4886,6 +4886,47 @@ void func_003BE750(float *);
 void func_003EFCB0(int, int);
 #endif
 
+#ifndef SW2E_FILE_GEN22_180000_C
+void func_00182C30(void);
+void func_00183FF0(void);
+void func_00187DA0(unsigned short *);
+void func_001C5230(unsigned char *);
+void func_001DCF10(int, int, int);
+void func_001EA230(int);
+void func_001EC900(unsigned char *, int, int);
+void func_002098E0(int);
+float func_0020A2F0(int);
+void func_0020FA70(void);
+void func_002180F0(int);
+void func_00218790(int, int);
+void func_00218C40(int, int);
+void func_00239520(int);
+void func_00239C80(unsigned char *);
+void func_0024AC00(int, int, float *, int, int);
+void func_00262AD0(void);
+void func_00263BD0(int, int);
+void func_00270C90(int, int);
+void func_0027A0C0(unsigned int *, unsigned int *, int);
+void func_0027A1B0(unsigned int *, int);
+void func_00294C30(unsigned char *, int *, int, int, int);
+void func_0029B5A0(int, int, int, int, int);
+void func_0029F790(unsigned char *, unsigned char *, unsigned char *, int);
+void func_002A5790(void);
+void func_002A5D00(void);
+void func_002A5ED0(void);
+void func_002C24B0(int, unsigned char *);
+int func_002D6A40(int);
+int func_002D6AE0(int, int);
+void func_003298B0(void);
+int func_00343670(int);
+void func_00349DF0(unsigned char *, unsigned char *, int, int);
+int func_00372C80(int, int);
+void func_003914C0(void);
+void func_0039F340(void);
+void func_003AAD30(void);
+void func_003DE3A0(int, int);
+#endif
+
 #ifndef SW2E_FILE_GEN2_180000_C
 void func_00183240(void);
 void func_001EB860(unsigned char *);

@@ -12,6 +12,7 @@
 #define SW2E_FILE_EMP_SCREENS_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_003B4A40();
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -35,7 +36,6 @@ extern u8 g_007BAEFD, g_007BAEDD;
 #define TEX g_0045D7FC
 
 int func_0039B980(void);
-void func_003B4A40(u8 *t, int k, int x, int y, int a, int w, int h, int b, int p8, int p9, int p10, int p11, int p12, int p13, int p14);
 void func_003B9D80(void);
 void func_003B9E00(void);
 void func_003B9ED0(void);

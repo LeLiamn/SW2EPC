@@ -10,6 +10,7 @@
 #define SW2E_FILE_SCENE_CONFIG_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_002B7EC0();
 
 typedef unsigned char u8;
 typedef unsigned int u32;
@@ -266,7 +267,6 @@ void func_001E5750(void);
 void func_001E5EF0(void);
 void func_00278CF0(void);
 void func_002B4BE0(u32 handle, int page, int a, int b, int c, int d, int e, int f, int p8);
-int func_002B7EC0(u32 handle, void *data, char cursor);
 int func_002B89E0(u32 handle);
 int func_002B8BC0(u32 handle, void *data, char cursor);
 int func_002B9190(u32 handle, void *data, u8 cursor, u8 b, int c);

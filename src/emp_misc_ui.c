@@ -30,7 +30,6 @@ void func_003D6F90(void);
 void func_00375F90(void);
 int func_003DC2D0(int k);
 void func_003DA890(void);
-void func_00372C80(int a, int b);
 
 /* 0x003D8000, 0x24 bytes, matching. */
 void func_003D8000(void)

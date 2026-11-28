@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 208000,
-    "non_matching": 1691328
+    "non_matching": 1712712
   },
   "data": {
     "total": 2155890688,
@@ -137,14 +137,14 @@
         },
         {
           "name": "StateShop.c",
-          "description": "Estimated range 0x299DB8-0x2A5E80; 72 function(s) decompiled",
+          "description": "Estimated range 0x299DB8-0x2A5E80; 76 function(s) decompiled",
           "code": {
             "total": 49352,
             "matching": 14992,
-            "non_matching": 14588
+            "non_matching": 16220
           },
           "decompiled_functions": {
-            "count": 72,
+            "count": 76,
             "matching": 38
           }
         },
@@ -163,40 +163,40 @@
         },
         {
           "name": "StateEdit.c",
-          "description": "Estimated range 0x36DE68-0x382E28; 321 function(s) decompiled",
+          "description": "Estimated range 0x36DE68-0x382E28; 322 function(s) decompiled",
           "code": {
             "total": 85952,
             "matching": 6832,
-            "non_matching": 57660
+            "non_matching": 57772
           },
           "decompiled_functions": {
-            "count": 321,
+            "count": 322,
             "matching": 111
           }
         },
         {
           "name": "StateSetupEmpMogi.c",
-          "description": "Estimated range 0x390A10-0x392FD0; 35 function(s) decompiled",
+          "description": "Estimated range 0x390A10-0x392FD0; 36 function(s) decompiled",
           "code": {
             "total": 9664,
             "matching": 1488,
-            "non_matching": 6064
+            "non_matching": 6640
           },
           "decompiled_functions": {
-            "count": 35,
+            "count": 36,
             "matching": 11
           }
         },
         {
           "name": "SceneTitle.c",
-          "description": "Estimated range 0x268448-0x27BF40; 107 function(s) decompiled",
+          "description": "Estimated range 0x268448-0x27BF40; 110 function(s) decompiled",
           "code": {
             "total": 80632,
             "matching": 608,
-            "non_matching": 24356
+            "non_matching": 26056
           },
           "decompiled_functions": {
-            "count": 107,
+            "count": 110,
             "matching": 11
           }
         },
@@ -215,14 +215,14 @@
         },
         {
           "name": "ScenePreBattle.c",
-          "description": "Estimated range 0x2877B8-0x299DB8; 36 function(s) decompiled",
+          "description": "Estimated range 0x2877B8-0x299DB8; 37 function(s) decompiled",
           "code": {
             "total": 75264,
             "matching": 784,
-            "non_matching": 21352
+            "non_matching": 22440
           },
           "decompiled_functions": {
-            "count": 36,
+            "count": 37,
             "matching": 10
           }
         },
@@ -246,14 +246,14 @@
       "children": [
         {
           "name": "emp_FldBase.c",
-          "description": "Estimated range 0x33F608-0x357160; 555 function(s) decompiled",
+          "description": "Estimated range 0x33F608-0x357160; 557 function(s) decompiled",
           "code": {
             "total": 97112,
             "matching": 14752,
-            "non_matching": 76488
+            "non_matching": 77716
           },
           "decompiled_functions": {
-            "count": 555,
+            "count": 557,
             "matching": 207
           }
         },
@@ -337,14 +337,14 @@
         },
         {
           "name": "emp_ev_still.c",
-          "description": "Estimated range 0x31C840-0x32D7E0; 337 function(s) decompiled",
+          "description": "Estimated range 0x31C840-0x32D7E0; 338 function(s) decompiled",
           "code": {
             "total": 69536,
             "matching": 7808,
-            "non_matching": 40312
+            "non_matching": 40648
           },
           "decompiled_functions": {
-            "count": 337,
+            "count": 338,
             "matching": 127
           }
         },
@@ -511,14 +511,14 @@
         },
         {
           "name": "StgAmbient.c",
-          "description": "Estimated range 0x2132D8-0x219898; 22 function(s) decompiled",
+          "description": "Estimated range 0x2132D8-0x219898; 25 function(s) decompiled",
           "code": {
             "total": 26048,
             "matching": 96,
-            "non_matching": 3056
+            "non_matching": 4996
           },
           "decompiled_functions": {
-            "count": 22,
+            "count": 25,
             "matching": 3
           }
         },
@@ -615,27 +615,27 @@
         },
         {
           "name": "MiniMap.c",
-          "description": "Estimated range 0x20F408-0x2132D8; 16 function(s) decompiled",
+          "description": "Estimated range 0x20F408-0x2132D8; 17 function(s) decompiled",
           "code": {
             "total": 16080,
             "matching": 16,
-            "non_matching": 4304
+            "non_matching": 4768
           },
           "decompiled_functions": {
-            "count": 16,
+            "count": 17,
             "matching": 1
           }
         },
         {
           "name": "effect.c",
-          "description": "Estimated range 0x1C3080-0x1CDFC8; 95 function(s) decompiled",
+          "description": "Estimated range 0x1C3080-0x1CDFC8; 96 function(s) decompiled",
           "code": {
             "total": 44872,
             "matching": 3616,
-            "non_matching": 18320
+            "non_matching": 18768
           },
           "decompiled_functions": {
-            "count": 95,
+            "count": 96,
             "matching": 30
           }
         }
@@ -685,27 +685,27 @@
         },
         {
           "name": "FlagModel.c",
-          "description": "Estimated range 0x2A5E80-0x2AA7D8; 28 function(s) decompiled",
+          "description": "Estimated range 0x2A5E80-0x2AA7D8; 29 function(s) decompiled",
           "code": {
             "total": 18776,
             "matching": 224,
-            "non_matching": 6864
+            "non_matching": 7120
           },
           "decompiled_functions": {
-            "count": 28,
+            "count": 29,
             "matching": 2
           }
         },
         {
           "name": "ItemModel.c",
-          "description": "Estimated range 0x245518-0x24FF58; 59 function(s) decompiled",
+          "description": "Estimated range 0x245518-0x24FF58; 60 function(s) decompiled",
           "code": {
             "total": 43584,
             "matching": 272,
-            "non_matching": 11440
+            "non_matching": 12336
           },
           "decompiled_functions": {
-            "count": 59,
+            "count": 60,
             "matching": 5
           }
         }
@@ -729,40 +729,40 @@
         },
         {
           "name": "ev_config.c",
-          "description": "Estimated range 0x201B40-0x20F408; 130 function(s) decompiled",
+          "description": "Estimated range 0x201B40-0x20F408; 132 function(s) decompiled",
           "code": {
             "total": 55496,
             "matching": 2720,
-            "non_matching": 19840
+            "non_matching": 21124
           },
           "decompiled_functions": {
-            "count": 130,
+            "count": 132,
             "matching": 39
           }
         },
         {
           "name": "ev_message.c",
-          "description": "Estimated range 0x1DA818-0x1E10A0; 55 function(s) decompiled",
+          "description": "Estimated range 0x1DA818-0x1E10A0; 56 function(s) decompiled",
           "code": {
             "total": 26760,
             "matching": 1072,
-            "non_matching": 11156
+            "non_matching": 11636
           },
           "decompiled_functions": {
-            "count": 55,
+            "count": 56,
             "matching": 17
           }
         },
         {
           "name": "sc_ctrl.c",
-          "description": "Estimated range 0x1814A8-0x1890D0; 86 function(s) decompiled",
+          "description": "Estimated range 0x1814A8-0x1890D0; 89 function(s) decompiled",
           "code": {
             "total": 31784,
             "matching": 2144,
-            "non_matching": 19180
+            "non_matching": 20348
           },
           "decompiled_functions": {
-            "count": 86,
+            "count": 89,
             "matching": 22
           }
         },
@@ -794,40 +794,40 @@
         },
         {
           "name": "MovieTelop.c",
-          "description": "Estimated range 0x1E9208-0x1EF238; 39 function(s) decompiled",
+          "description": "Estimated range 0x1E9208-0x1EF238; 41 function(s) decompiled",
           "code": {
             "total": 24624,
             "matching": 336,
-            "non_matching": 11668
+            "non_matching": 13252
           },
           "decompiled_functions": {
-            "count": 39,
+            "count": 41,
             "matching": 4
           }
         },
         {
           "name": "SeasonAnime.c",
-          "description": "Estimated range 0x3D70F0-0x3DEC78; 168 function(s) decompiled",
+          "description": "Estimated range 0x3D70F0-0x3DEC78; 169 function(s) decompiled",
           "code": {
             "total": 31624,
             "matching": 5712,
-            "non_matching": 15952
+            "non_matching": 16432
           },
           "decompiled_functions": {
-            "count": 168,
+            "count": 169,
             "matching": 93
           }
         },
         {
           "name": "BriefingCmnParts.c",
-          "description": "Estimated range 0x2C1EA8-0x2DE550; 161 function(s) decompiled",
+          "description": "Estimated range 0x2C1EA8-0x2DE550; 164 function(s) decompiled",
           "code": {
             "total": 116392,
             "matching": 2528,
-            "non_matching": 37952
+            "non_matching": 38416
           },
           "decompiled_functions": {
-            "count": 161,
+            "count": 164,
             "matching": 35
           }
         }
@@ -877,40 +877,40 @@
         },
         {
           "name": "SeManager.c",
-          "description": "Estimated range 0x234490-0x23CED8; 145 function(s) decompiled",
+          "description": "Estimated range 0x234490-0x23CED8; 147 function(s) decompiled",
           "code": {
             "total": 35400,
             "matching": 2816,
-            "non_matching": 25184
+            "non_matching": 26064
           },
           "decompiled_functions": {
-            "count": 145,
+            "count": 147,
             "matching": 55
           }
         },
         {
           "name": "JapanMap.c",
-          "description": "Estimated range 0x39DD30-0x3ACA98; 316 function(s) decompiled",
+          "description": "Estimated range 0x39DD30-0x3ACA98; 318 function(s) decompiled",
           "code": {
             "total": 60776,
             "matching": 5024,
-            "non_matching": 43020
+            "non_matching": 44188
           },
           "decompiled_functions": {
-            "count": 316,
+            "count": 318,
             "matching": 80
           }
         },
         {
           "name": "SecretSorts.c",
-          "description": "Estimated range 0x24FF58-0x268448; 110 function(s) decompiled",
+          "description": "Estimated range 0x24FF58-0x268448; 112 function(s) decompiled",
           "code": {
             "total": 99568,
             "matching": 1744,
-            "non_matching": 23792
+            "non_matching": 26992
           },
           "decompiled_functions": {
-            "count": 110,
+            "count": 112,
             "matching": 29
           }
         }

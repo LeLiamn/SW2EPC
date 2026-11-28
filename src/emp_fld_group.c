@@ -1659,7 +1659,6 @@ void func_0033EDC0(u8 **g);
 void func_0033DAB0(u8 **g);
 void func_0033E1E0(u8 *u);
 void func_0033E470(void);
-void func_00349DF0(u8 **g, int a, int b, int c);
 
 /* 0x0033D050, 0x5C bytes. The route length between groups `g` and `h`. */
 short func_0033D050(u8 **g, u8 **h)
@@ -2020,7 +2019,7 @@ void func_0033E290(int p, int d)
 /* 0x0033E400, 0x60 bytes, matching. */
 int func_0033E400(u8 **g, int a, int b)
 {
-    func_00349DF0(g, a, func_003489E0((unsigned char *)PS2_PTR(LEADER(g)[0x79]), 0), b);
+    func_00349DF0((unsigned char *)(g), (unsigned char *)PS2_PTR(a), func_003489E0((unsigned char *)PS2_PTR(LEADER(g)[0x79]), 0), b);
     return 1;
 }
 

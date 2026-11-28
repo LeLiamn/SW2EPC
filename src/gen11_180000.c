@@ -26,6 +26,7 @@ extern u8 g_007BFB3C[0x18];
 int func_00180D10();
 int func_0022A200();
 int func_0022A5E0();
+int func_00382770();
 int func_001EE3B0();
 
 #define true 1
@@ -249,7 +250,6 @@ int func_0034A450();
 int func_0034A550();
 int func_0037EB40();
 int func_00380E80();
-int func_00382770();
 int func_00388710();
 int func_003890A0();
 int func_003986E0();

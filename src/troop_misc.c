@@ -433,9 +433,7 @@ void func_001023B0(int fn);
 int func_001F29E0(void);
 int func_001F24C0(void);
 float func_002E38D0(void);
-float func_0020A2F0(u8 *u);
 void func_002E3D90(u8 *p);
-void func_002098E0(u8 *p);
 
 /* 0x001F02F0, 0xE4 bytes. Whether troop `t` can attack its target. */
 int func_001F02F0(u8 *t)
@@ -910,7 +908,7 @@ float func_001F2B70(u8 *u)
 /* 0x001F2BB0, 0x3C bytes. */
 float func_001F2BB0(u8 *u)
 {
-    float a = func_002E38D0(), b = func_0020A2F0(u);
+    float a = func_002E38D0(), b = func_0020A2F0(PS2_ADDR(u));
 
     return a < b ? a : b;    /* min.s */
 }
@@ -930,7 +928,7 @@ void func_001F2BF0(u8 *p)
     *(u32 *)(p + 0x3C) = *(u32 *)0x7000013C;
     func_002E3D90(p);
     *(u32 *)(p + 0x14) = *(u32 *)(p + 0x10);
-    func_002098E0(p);
+    func_002098E0(PS2_ADDR(p));
 }
 
 /* 0x001F2C60, 0x80 bytes. */

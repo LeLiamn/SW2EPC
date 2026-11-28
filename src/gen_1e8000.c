@@ -28,7 +28,6 @@ extern int g_0045D404;   /* (small data) */
 extern int g_0045D408;   /* (small data) */
 
 int func_001E9960();
-int func_001EA230();
 int func_001EB630();
 int func_001EB970();
 int func_001ED580();

@@ -1012,7 +1012,6 @@ void func_00188E90(u16 *cmd)
     }
 }
 
-void func_001EC900(u8 *o, u16 v, int on);
 void func_0018ACA0(u8 *cell);
 void func_0018AD30(int id);
 

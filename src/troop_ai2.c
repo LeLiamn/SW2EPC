@@ -30,7 +30,6 @@ void func_00238AE0(u8 *o, int t);
 int func_00238200(u8 *o);
 void func_00204BF0(u8 *o);
 int func_00174A40(float r, u8 *a, u8 *b);
-void func_00239520(u8 *o);
 void func_00204B60(u8 *o, int k);
 void func_00271A10(u8 *o, int k);
 
@@ -153,7 +152,7 @@ void func_002398A0(u8 *o)
     } else if (k == 1) {
         func_002396B0(PS2_ADDR(o), 0);
     } else if (k == 0) {
-        func_00239520(o);
+        func_00239520(PS2_ADDR(o));
     }
 }
 
