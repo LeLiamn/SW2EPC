@@ -148,7 +148,7 @@ void func_00128928(int a);
 void func_001289F8(int a);
 void func_0010B158(void);
 void func_00133D50(void);
-void func_00133B30(void);
+u32 func_00133B30(int budget, void *fn, int *stop);
 
 void func_00101470(int mode);
 void func_00101C90(int flip, int in_interrupt);
@@ -809,9 +809,9 @@ void func_00102340(void)
 }
 
 /* 0x00102360, 0x1C bytes, matching. */
-void func_00102360(void)
+u32 func_00102360(int budget, void *fn, int *stop)
 {
-    func_00133B30();
+    return func_00133B30(budget, fn, stop);
 }
 
 /* 0x00102380, 0x28 bytes, matching. */

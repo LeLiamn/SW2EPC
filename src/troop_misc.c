@@ -28,7 +28,7 @@ extern int (*g_00429410[0x1D])(void);
 void func_00348D20(void);
 int func_002F67B0(int v);
 void func_003DCF20(void);
-void func_003DD0C0(void);
+int func_003DD0C0(u8 *c, u8 *o);
 void func_003DD1D0(void);
 void func_00102EC0(u8 *p);
 void func_001F3150(int a, int b, int c);
@@ -137,9 +137,9 @@ void func_001F1770(void)
 }
 
 /* 0x001F1790, 0x1C bytes, matching. */
-void func_001F1790(void)
+int func_001F1790(u8 *c, u8 *o)
 {
-    func_003DD0C0();
+    return func_003DD0C0(c, o);
 }
 
 /* 0x001F17B0, 0x1C bytes, matching. */

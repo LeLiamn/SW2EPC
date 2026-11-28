@@ -53,7 +53,7 @@ int func_00363B90(void);
 int func_0034ED40(int c);
 void func_00372C80(int a, int b);
 void func_00372B40(void);
-void func_00372B80(void);
+char *func_00372B80(int k);
 void func_00372250(u8 *p);
 void func_00372580(u8 *p);
 void func_0019F750(u8 *p);
@@ -509,9 +509,9 @@ void func_003DD790(void)
 }
 
 /* 0x003DD7B0, 0x1C bytes, matching. */
-void func_003DD7B0(void)
+char *func_003DD7B0(int k)
 {
-    func_00372B80();
+    return func_00372B80(k);
 }
 
 /* 0x003DD7D0, 0x1C bytes, matching. */

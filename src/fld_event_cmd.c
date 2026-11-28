@@ -2920,11 +2920,14 @@ int func_0035D490(u8 *t)
     return 1;
 }
 
-/* 0x0035D510, 0x50 bytes. A timer's step. */
-void func_0035D510(u8 *t)
+/* 0x0035D510, 0x50 bytes. A timer's step (returns the step's result). */
+int func_0035D510(u8 *t)
 {
+    int r;
+
     if (t[2] < 0x32)
-        func_0035D440(t);
+        r = func_0035D440(t);
     else if (t[2] > 0x31)
-        func_0035D490(t);
+        r = func_0035D490(t);
+    return r;
 }

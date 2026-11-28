@@ -45,6 +45,18 @@ On the PS2 build these are plain casts, so the code CodeWarrior generates does n
    (`PS2_FUNC(addr)`, to be written).
 6. **Shared prototypes go in headers** (`src/sw2e_draw.h` for the drawing helpers), with full
    argument lists. See "Shared prototypes and stack arguments" in [code.md](code.md).
+7. **Generated files (`src/gen<N>_*.c`) include `src/sw2e_protos.h`**, the prototypes of every
+   function defined in `src/`, written by `py tools/make_protos.py` from the definitions (rerun it
+   after changing a definition; types local to a file appear as `void *`). Every call they make is
+   then checked against the callee's real parameters: an `int` holding a PS2 address is passed as
+   `(T *)PS2_PTR(x)`, a pointer passed to an `int` parameter as `PS2_ADDR(p)`, and a float
+   parameter gets a float value (never the bit pattern as an integer).
+
+   Checking the calls this way also found definitions that were wrong: wrappers declared `void`
+   whose result the original passes on (the officer name and title functions 0x2F2890..0x2F2A30,
+   region names 0x30ABF0/0x30AC20, 0x3DD7B0, 0x1F1790, 0x102360, 0x1C8780, 0x35D510), now fixed
+   with their callers' types. The older generated files (`src/gen_*.c`, before these rules) do not
+   include the header yet.
 
 ## The PC build of the sources
 

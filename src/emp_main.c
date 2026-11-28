@@ -4880,7 +4880,7 @@ typedef struct {
 
 extern int g_00414A20[];                 /* by weapon kind: its group */
 extern int g_004467C0[];                 /* by scenario: number of regions */
-extern void (*g_00414AA0[])(int a);      /* by scenario */
+extern char *(*g_00414AA0[])(int a);     /* region names, by scenario */
 extern int g_00414AD0[][4];              /* per region kind: the traits that go with it */
 extern char g_004467F0[];                /* number format */
 extern char g_007A3B30[10][10];          /* ten number strings, used in turn */
@@ -5004,18 +5004,18 @@ void func_0030ABC0(void)
     func_0030CCD0()[0x19].owner = 0x19;
 }
 
-void func_0030AC20(int a, int k);
+char *func_0030AC20(int a, int k);
 
-/* 0x0030ABF0, 0x30 bytes, matching. */
-void func_0030ABF0(int a)
+/* 0x0030ABF0, 0x30 bytes, matching. Region `a`'s name. */
+char *func_0030ABF0(int a)
 {
-    func_0030AC20(a, func_00327C00());
+    return func_0030AC20(a, func_00327C00());
 }
 
-/* 0x0030AC20, 0x30 bytes, matching. The scenario's set-up `k`. */
-void func_0030AC20(int a, int k)
+/* 0x0030AC20, 0x30 bytes, matching. Region `a`'s name in scenario `k`. */
+char *func_0030AC20(int a, int k)
 {
-    g_00414AA0[k](a);
+    return g_00414AA0[k](a);
 }
 
 /* 0x0030AC50, 0x38 bytes, matching. Region `r`'s kind. */

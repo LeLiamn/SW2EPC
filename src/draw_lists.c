@@ -50,10 +50,13 @@ u8 *func_00106F10(u8 *t);
 void func_001068F0(u8 *img, int a, int b, int c, int d, int e, int f, int g);
 
 /* 0x001C8780, 0x2C bytes, matching. */
-void func_001C8780(int a, int b, int c, u32 d)
+int func_001C8780(int a, int b, int c, u32 d)
 {
+    int r;
+
     if (b != 0)
-        func_001C7060(a, b, 0, c, d, 1);
+        r = func_001C7060(a, b, 0, c, d, 1);
+    return r;                   /* undefined when b == 0, as in the original */
 }
 
 /* 0x001C87B0, 0x54 bytes. */

@@ -14,6 +14,7 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 #include "sw2e_mem.h"
+#include "sw2e_protos.h"
 
 #define true 1
 #define false 0
@@ -28,9 +29,6 @@ extern int g_0045D2D0;   /* (small data) */
 extern int g_0045D2D4;   /* (small data) */
 extern int g_0045D2D8;   /* (small data) */
 
-int func_00114E30();
-int func_001153F0();
-int func_00115450();
 int func_0017DCE0();
 int func_0017DD60();
 int func_0017DD80();
@@ -38,19 +36,6 @@ int func_0017DDA0();
 int func_0017DE60();
 int func_0017DF10();
 int func_0017DF30();
-int func_001F2BF0();
-int func_0023AD10();
-void func_00178AC0(u8 *param_1);
-int func_0017D7B0(void);
-int func_0017D860(int param_1);
-int func_0017DBC0(int param_1);
-int func_0017DCF0(int param_1);
-void func_0017DDE0(void);
-void func_0017DE70(int param_1);
-int func_0017DEA0(int param_1);
-void func_0017E010(int param_1);
-void func_0017E0C0(int param_1);
-void func_0017E140(u32 *param_1);
 
 /* 0x00178AC0, 0x1F4 bytes. */
 void func_00178AC0(u8 *param_1)
@@ -253,12 +238,6 @@ int func_0017DEA0(int param_1)
 void func_0017E010(int param_1)
 {
     func_0017DF30(param_1, *(u8 *)(g_00424D20 + param_1));
-}
-
-/* 0x0017E0C0, 0x48 bytes, matching. */
-void func_0017E0C0(int param_1)
-{
-    func_00115450(((param_1 & 0xFF) * 0x1F72) / 0xF);
 }
 
 /* 0x0017E140, 0x58 bytes. */

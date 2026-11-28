@@ -14,6 +14,7 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 #include "sw2e_mem.h"
+#include "sw2e_protos.h"
 
 extern u8 g_00669D81[0x1];
 extern u8 g_00669DB8[0x4];
@@ -35,37 +36,7 @@ extern int g_0045D810;   /* (small data) */
 #define g_700001DC (*(int *)PS2_PTR(0x700001DC))   /* (scratchpad) */
 #define g_70000D60 (*(int *)PS2_PTR(0x70000D60))   /* (scratchpad) */
 
-void *func_00102D30();
-void *func_00102DB0();
-int func_00102EC0();
-int func_00106C90();
-void *func_00106F10();
-int func_00118850();
-int func_001C6830();
-void *func_001F14E0();
-int func_00206080();
 int func_00238AE0();
-int func_00239980();
-int func_002399E0();
-int func_00253480();
-void func_001C6960(void);
-void func_001C6AC0(void);
-void func_001C6C80(void);
-void func_001C6E40(void);
-void func_001C6FA0(void);
-void func_001F6FF0(void);
-void func_001F70A0(int param_1, int param_2, int param_3);
-void func_00239AD0(u8 *param_1);
-void func_002A9660(int param_1, u8 *param_2, int param_3, int param_4, int param_5, int param_6, int param_7, int param_8);
-void func_002B55E0(u8 *param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7, int param_8);
-void func_002B59D0(u8 *param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7);
-void func_002B5D70(u8 *param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7);
-void func_002C66A0(u8 *param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7);
-void func_002C7410(u8 *param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7);
-void func_002C81D0(u8 *param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7);
-void func_002C8BC0(u8 *param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7);
-void func_002C9D30(u8 *param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7);
-void func_002CA160(u8 *param_1, int param_2, int param_3, int param_4, int param_5, int param_6, int param_7);
 
 /* 0x001C6960, 0x158 bytes, matching. */
 void func_001C6960(void)
@@ -300,31 +271,6 @@ void func_001C6FA0(void)
     }
 }
 
-/* 0x001F6FF0, 0xAC bytes. */
-void func_001F6FF0(void)
-{
-    if (g_0045D410 != 0) {
-        func_00102EC0();
-        g_0045D410 = 0;
-    }
-    if (g_700001DC != 0) {
-        func_00102EC0();
-        g_700001DC = 0;
-    }
-    if (g_700001D8 != 0) {
-        func_00102EC0();
-        g_700001D8 = 0;
-    }
-    if (g_700001D4 != 0) {
-        func_00102EC0();
-        g_700001D4 = 0;
-    }
-    if (g_700001D0 != 0) {
-        func_00102EC0();
-        g_700001D0 = 0;
-    }
-}
-
 /* 0x001F70A0, 0x118 bytes. */
 void func_001F70A0(int param_1, int param_2, int param_3)
 {
@@ -338,11 +284,11 @@ void func_001F70A0(int param_1, int param_2, int param_3)
         g_700001DC = PS2_ADDR(func_00102D30(0x9C4));
         g_0045D410 = PS2_ADDR(func_00102DB0(0x10, uVar1));
     }
-    func_00118850(g_700001D0, param_1 * 0x70);
-    func_00118850(g_700001D8, param_2 << 3);
-    func_00118850(g_700001D4, param_3 << 5);
-    func_00118850(g_700001DC, 0x9C4);
-    func_00118850(g_0045D410, uVar1);
+    func_00118850((u8 *)PS2_PTR(g_700001D0), param_1 * 0x70);
+    func_00118850((u8 *)PS2_PTR(g_700001D8), param_2 << 3);
+    func_00118850((u8 *)PS2_PTR(g_700001D4), param_3 << 5);
+    func_00118850((u8 *)PS2_PTR(g_700001DC), 0x9C4);
+    func_00118850((u8 *)PS2_PTR(g_0045D410), uVar1);
 }
 
 /* 0x00239AD0, 0x1A4 bytes. */
@@ -351,7 +297,7 @@ void func_00239AD0(u8 *param_1)
     u8 * iVar2;
     u8 * pbVar1;
 
-    pbVar1 = (u8 *)func_001F14E0();
+    pbVar1 = (u8 *)func_001F14E0(param_1);
     iVar2 = param_1;
     if ((long long)*(char *)(*(int *)(iVar2 + 0x14) + 0x19D) << 0x3C < 0) {
         if ((*(u8 *)(*(int *)(iVar2 + 0x14) + 0xE8) & 1) != 0) {
@@ -376,11 +322,11 @@ void func_00239AD0(u8 *param_1)
     else {
         g_7000015C = g_7000015C * 0x41C64E6D + 0x3039;
         if ((g_7000015C >> 0x10) % 100 < (*(u8 *)g_00669D81 + 2) * (*(u8 *)g_00669D81 + 2) * 2) {
-            func_002399E0(param_1);
+            func_002399E0(PS2_ADDR(param_1));
             return;
         }
     }
-    func_00206080(param_1);
+    func_00206080(PS2_ADDR(param_1));
 }
 
 /* 0x002A9660, 0x6AC bytes. */
@@ -396,7 +342,7 @@ void func_002A9660(int param_1, u8 *param_2, int param_3, int param_4, int param
     unsigned long long uVar7;
     unsigned long long uVar9;
 
-    func_00106F10();
+    func_00106F10((u8 *)PS2_PTR(param_1));
     uVar9 = (long long)param_8 << 0x18 | 0x3F80000000808080;
     *(unsigned long long *)(param_2 + 0x20) = uVar9;
     *(unsigned long long *)(param_2 + 0x28) = 0x80008;

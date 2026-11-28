@@ -40,7 +40,7 @@ int func_0036F5E0(int s);
 int func_0034A790(u8 *o);
 int func_0032BC30(void);
 void func_0032D150(void);
-void func_002F2970(int k);
+char *func_002F2970(int k);
 void func_00372740(int k);
 void func_002ED190(int k);
 void func_0032BB70(void);

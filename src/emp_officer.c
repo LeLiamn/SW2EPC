@@ -97,48 +97,44 @@ char *func_002F2880(void)
     return g_007A2CD0;
 }
 
-void func_002F2970(u32 i);
+char *func_002F2970(u32 i);
 
-/* 0x002F2890, 0xDC bytes. Writes officer `i`'s name and title to the name buffer. */
-void func_002F2890(u32 i)
+/* 0x002F2890, 0xDC bytes. Writes officer `i`'s name and title to the name buffer; returns it. */
+char *func_002F2890(u32 i)
 {
     u16 *r;
 
-    if (PLAYER_NAME(i)) {
-        func_002F2970(i);
-        return;
-    }
+    if (PLAYER_NAME(i))
+        return func_002F2970(i);
     r = (u16 *)(g_005BA6A0 + *(u16 *)ofc(i) * 0x2C);
-    func_0019B170(g_007A2CD0, r[0], r[1]);
+    return func_0019B170(g_007A2CD0, r[0], r[1]);
 }
 
 /* 0x002F2970, 0x98 bytes. The same with the player's title as 0x17. */
-void func_002F2970(u32 i)
+char *func_002F2970(u32 i)
 {
     u16 *r = (u16 *)(g_005BA6A0 + *(u16 *)ofc(i) * 0x2C);
 
-    func_0019B200(g_007A2CD0, r[0], r[1]);
+    return func_0019B200(g_007A2CD0, r[0], r[1]);
 }
 
 /* 0x002F2A10, 0x1C bytes, matching. */
-void func_002F2A10(u32 i)
+char *func_002F2A10(u32 i)
 {
-    func_002F2890(i);
+    return func_002F2890(i);
 }
 
-/* 0x002F2A30, 0x17C bytes. Writes officer `i`'s title (its name when the title is empty). */
-void func_002F2A30(u32 i)
+/* 0x002F2A30, 0x17C bytes. Writes officer `i`'s title (its name when the title is empty); returns it. */
+char *func_002F2A30(u32 i)
 {
     u16 *r = (u16 *)(g_005BA6A0 + *(u16 *)ofc(i) * 0x2C);
 
-    if (PLAYER_NAME(i)) {
-        func_0019B240(g_007A2CD0, r[0]);
-        return;
-    }
+    if (PLAYER_NAME(i))
+        return func_0019B240(g_007A2CD0, r[0]);
     if (func_00120A40(func_0019B0E0(g_007A2CD0, r[0])) == 0)
-        func_0019B130(g_007A2CD0, r[1]);
+        return func_0019B130(g_007A2CD0, r[1]);
     else
-        func_0019B0E0(g_007A2CD0, r[0]);
+        return func_0019B0E0(g_007A2CD0, r[0]);
 }
 
 /* 0x002F2BB0, 0x94 bytes. Writes officer `i`'s name. */
