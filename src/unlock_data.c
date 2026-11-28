@@ -121,7 +121,7 @@ void func_003A05F0(int k, u16 v)
 }
 
 /* 0x003A0630, 0x38 bytes. */
-u16 func_003A0630(int k)
+u32 func_003A0630(int k)
 {
     if (k < 0 || k > 0x19E)
         return 0;
@@ -136,7 +136,7 @@ void func_003A0670(int k, u16 v)
 }
 
 /* 0x003A06B0, 0x38 bytes. */
-u16 func_003A06B0(int k)
+u32 func_003A06B0(int k)
 {
     if (k < 0 || k > 0x19E)
         return 0;
@@ -151,7 +151,7 @@ void func_003A06F0(int k, u8 v)
 }
 
 /* 0x003A0730, 0x38 bytes. */
-u8 func_003A0730(int k)
+u32 func_003A0730(int k)
 {
     if (k < 0 || k > 0x19E)
         return 0;
@@ -166,7 +166,7 @@ void func_003A0770(int k, u8 v)
 }
 
 /* 0x003A07B0, 0x38 bytes. */
-u8 func_003A07B0(int k)
+u32 func_003A07B0(int k)
 {
     if (k < 0 || k > 0x19E)
         return 0;
@@ -181,7 +181,7 @@ void func_003A07F0(int k, u8 v)
 }
 
 /* 0x003A0830, 0x38 bytes. */
-u8 func_003A0830(int k)
+u32 func_003A0830(int k)
 {
     if (k < 0 || k > 0x19E)
         return 0;
@@ -196,7 +196,7 @@ void func_003A0870(int k, u8 v)
 }
 
 /* 0x003A08B0, 0x38 bytes. */
-u8 func_003A08B0(int k)
+u32 func_003A08B0(int k)
 {
     if (k < 0 || k > 0x19E)
         return 0;
@@ -211,7 +211,7 @@ void func_003A08F0(int k, u8 v)
 }
 
 /* 0x003A0930, 0x38 bytes. */
-u8 func_003A0930(int k)
+u32 func_003A0930(int k)
 {
     if (k < 0 || k > 0x19E)
         return 0;
@@ -226,7 +226,7 @@ void func_003A0970(int k, u8 v)
 }
 
 /* 0x003A09B0, 0x38 bytes. */
-u8 func_003A09B0(int k)
+u32 func_003A09B0(int k)
 {
     if (k < 0 || k > 0x19E)
         return 0;
@@ -241,7 +241,7 @@ void func_003A09F0(int k, u8 v)
 }
 
 /* 0x003A0A30, 0x38 bytes. */
-u8 func_003A0A30(int k)
+u32 func_003A0A30(int k)
 {
     if (k < 0 || k > 0x19E)
         return 0;
@@ -271,7 +271,7 @@ void func_003A0D10(int k, u8 v)
 }
 
 /* 0x003A0D50, 0x38 bytes. */
-u8 func_003A0D50(int k)
+u32 func_003A0D50(int k)
 {
     if (k < 0 || k > 0x19E)
         return 0;

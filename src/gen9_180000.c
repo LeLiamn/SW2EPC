@@ -15,6 +15,7 @@ typedef unsigned int u32;
 
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_00206080();
 
 extern u8 g_00669D81[0x1];
 extern u8 g_00669DB8[0x4];

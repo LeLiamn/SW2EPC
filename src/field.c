@@ -1044,7 +1044,7 @@ int func_00190590(u8 *cell, u32 flags)
 }
 
 /* 0x00190610, 0x94 bytes, matching. The same for the 5000-unit cell of a point (func_00191200). */
-void func_00190610(void *a, u32 flags)
+int func_00190610(void *a, u32 flags)
 {
     float p[2];
     u8 c[2];
@@ -1052,7 +1052,7 @@ void func_00190610(void *a, u32 flags)
     func_00191200(p, a);
     c[0] = (u8)((int)p[0] / 5000);
     c[1] = (u8)((int)p[1] / 5000);
-    func_00190590(c, flags);
+    return func_00190590(c, flags);
 }
 
 /* 0x001906B0, 0x128 bytes. Sets (`on`) or puts back to the file state `flags` of the provinces

@@ -73,7 +73,7 @@ void func_00253690(int a, u8 *m);
 void func_00253300(int a, u8 *m);
 int func_00362BB0(void);
 void func_0017E060(void);
-u8 *func_00328C80(void);
+u8 *func_00328C80(int a, int b);
 u8 *func_00328B30(u8 *p);
 u32 func_00362320(int p);
 int func_0034A8D0(int i);
@@ -263,15 +263,15 @@ u32 func_0035DAE0(void)
 }
 
 /* 0x0035DAF0, 0x24 bytes, matching. */
-u8 *func_0035DAF0(void)
+u8 *func_0035DAF0(int a, int b)
 {
-    return func_00328B30(func_00328C80());
+    return func_00328B30(func_00328C80(a, b));
 }
 
 /* 0x0035DB20, 0x30 bytes. */
-u8 func_0035DB20(void)
+u8 func_0035DB20(int a, int b)
 {
-    u8 *p = func_0035DAF0();
+    u8 *p = func_0035DAF0(a, b);
 
     return p == 0 ? 0x7F : *p;
 }
@@ -365,9 +365,9 @@ u32 func_0035DE00(int v)
 }
 
 /* 0x0035DEC0, 0x1C bytes, matching. */
-void func_0035DEC0(void)
+u8 *func_0035DEC0(int a, int b)
 {
-    func_0035DAF0();
+    return func_0035DAF0(a, b);
 }
 
 /* 0x0035DEE0, 0x130 bytes. Sets up base `k`'s drop (every `period` counts). */

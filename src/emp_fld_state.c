@@ -314,7 +314,7 @@ void func_0035F0A0(u8 v)
 }
 
 /* 0x0035F0C0, 0x20 bytes, matching. The player's side. */
-u8 func_0035F0C0(void)
+u32 func_0035F0C0(void)
 {
     return func_0035F090()->side;
 }
@@ -1555,7 +1555,7 @@ void func_003620B0(int s, int k, u16 v)
 }
 
 /* 0x003620E0, 0x30 bytes. */
-u16 func_003620E0(int s, int k)
+u32 func_003620E0(int s, int k)
 {
     return func_003620A0()->officer[s][k];
 }
@@ -1622,7 +1622,7 @@ void func_003622F0(int p, u8 v)
 }
 
 /* 0x00362320, 0x28 bytes. Player `p`'s slot. */
-u8 func_00362320(int p)
+u32 func_00362320(int p)
 {
     return func_003620A0()->player_slot[p];
 }

@@ -88,7 +88,7 @@ void func_002F8C80(void)
     *(u16 *)(func_0030CCC0() + 3000) = 0x19F;
 }
 
-u16 func_002F8F20(int f);
+u32 func_002F8F20(int f);
 
 /* 0x002F8CB0, 0x6C bytes. Whether force `f` is in play and has a leader. */
 int func_002F8CB0(int f)
@@ -136,7 +136,7 @@ void func_002F8E80(int f, u32 i)
 }
 
 /* 0x002F8F20, 0x64 bytes, matching. Force `f`'s leader. */
-u16 func_002F8F20(int f)
+u32 func_002F8F20(int f)
 {
     return *(u16 *)frc(f);
 }

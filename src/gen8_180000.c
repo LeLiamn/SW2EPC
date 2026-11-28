@@ -17,6 +17,7 @@ extern u8 g_007B9E74[0x18];
 extern u8 g_007B9E84[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_00206080();
 int func_00330650();
 
 #define true 1

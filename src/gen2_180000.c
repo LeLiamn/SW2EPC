@@ -26,6 +26,7 @@ extern u8 g_00780310[0x18];
 extern u8 g_007B4E60[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_003A2940();
 int func_003ED480();
 int func_003EDD00();
 

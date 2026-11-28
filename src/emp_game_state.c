@@ -73,7 +73,7 @@ void func_00327780(u32 o)
 }
 
 /* 0x00327820, 0xC bytes, matching. The ruler. */
-u16 func_00327820(void)
+u32 func_00327820(void)
 {
     return GS16(0x1204);
 }
@@ -224,7 +224,7 @@ void func_00327BD0(int v)
 }
 
 /* 0x00327C00, 0xC bytes, matching. */
-u8 func_00327C00(void)
+u32 func_00327C00(void)
 {
     return GS8(0x121A);
 }
@@ -250,7 +250,7 @@ void func_00327C50(u32 v)
 }
 
 /* 0x00327C70, 0xC bytes, matching. */
-u16 func_00327C70(void)
+u32 func_00327C70(void)
 {
     return GS16(0x1208);
 }
@@ -287,7 +287,7 @@ void func_00327CF0(int v)
 }
 
 /* 0x00327D50, 0xC bytes, matching. */
-u8 func_00327D50(void)
+u32 func_00327D50(void)
 {
     return GS8(0x121C);
 }
@@ -419,7 +419,7 @@ void func_003280C0(int v)
 }
 
 /* 0x003280E0, 0xC bytes, matching. */
-u8 func_003280E0(void)
+u32 func_003280E0(void)
 {
     return GS8(0x1226);
 }
@@ -446,7 +446,7 @@ void func_00328240(char v)
 }
 
 /* 0x00328270, 0x18 bytes. */
-u8 func_00328270(void)
+u32 func_00328270(void)
 {
     return FLAGS2 >> 1 & 7;
 }
@@ -458,7 +458,7 @@ void func_00328290(char v)
 }
 
 /* 0x003282C0, 0x18 bytes. */
-u8 func_003282C0(void)
+u32 func_003282C0(void)
 {
     return FLAGS2 >> 4 & 1;
 }

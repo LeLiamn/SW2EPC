@@ -23,6 +23,7 @@ extern u8 g_007BFB20[0x18];
 extern u8 g_007BFB3C[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_001EE3B0();
 
 #define true 1
 #define false 0

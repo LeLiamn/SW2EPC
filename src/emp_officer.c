@@ -137,10 +137,10 @@ char *func_002F2A30(u32 i)
         return func_0019B0E0(g_007A2CD0, r[0]);
 }
 
-/* 0x002F2BB0, 0x94 bytes. Writes officer `i`'s name. */
-void func_002F2BB0(u32 i)
+/* 0x002F2BB0, 0x94 bytes. Writes officer `i`'s name; returns it. */
+char *func_002F2BB0(u32 i)
 {
-    func_0019B130(g_007A2CD0, ((u16 *)(g_005BA6A0 + *(u16 *)ofc(i) * 0x2C))[1]);
+    return func_0019B130(g_007A2CD0, ((u16 *)(g_005BA6A0 + *(u16 *)ofc(i) * 0x2C))[1]);
 }
 
 /* 0x002F2C50, 0x150 bytes. Officer `i`'s shown name id (its title, or its name when the title is
@@ -165,7 +165,7 @@ u32 func_002F2DA0(u32 i)
 }
 
 /* 0x002F2E20, 0x80 bytes. Officer `i`'s +0xC (0x19F for created officers). */
-u16 func_002F2E20(u32 i)
+u32 func_002F2E20(u32 i)
 {
     if (CREATED(i))
         return 0x19F;

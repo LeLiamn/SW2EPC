@@ -22,13 +22,14 @@ def norm_type(t):
     """basic type text, or None when the type is local to a file"""
     t = ' '.join(t.replace('*', ' * ').split())
     stars = t.count('*')
+    const = 'const ' if re.match(r'^const\b', t) else ''
     base = t.replace('*', '').replace('const', '').strip()
     base = ' '.join(base.split())
     base = {'u64': 'unsigned long long', 's8': 'signed char'}.get(base, base)
     if base in BASIC:
-        return base + (' ' + '*' * stars if stars else '')
+        return (const if stars else '') + base + (' ' + '*' * stars if stars else '')
     if stars:
-        return 'void ' + '*' * stars if stars == 1 else 'void *'
+        return const + ('void ' + '*' * stars if stars == 1 else 'void *')
     return None
 
 
