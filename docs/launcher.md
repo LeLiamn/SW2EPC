@@ -933,6 +933,80 @@ here once the game reaches its title screen and its first battle. Until then, th
 2 that do not depend on it (the GPU device, indexed textures, the GS colour scale and blend
 formula, the internal resolution) can go ahead as planned.
 
+## Launcher side: questions for the 3D path, platform version 2 (2026-11-28)
+
+The next big piece of the runtime is drawing: today the game can only hand over a finished
+picture (`video_present`). UPP's `docs/runtime.md`, "Video, version 2 (sketch)", has a first idea:
+textures, palettes and `draw_triangles` with the GS's own conventions, run by the runtime on
+SDL_GPU (Direct3D 12, Vulkan or Metal). Before that interface is fixed, it has to fit what SW2E
+really sends to the GS, and `ps2_gs.c` only counts the packets so far. The answers can come in
+pieces, as the GS work goes on. "Not known yet" is a good answer too.
+
+Meanwhile, UPP builds the parts that do not depend on the answers: SDL_GPU start-up, textures
+and palettes, plain triangles, the internal resolution (`display.render_scale`), checked with the
+runtime's self-test.
+
+### 1. The level of the interface (the main question)
+
+- **A. Draw calls (the sketch).** SW2EPC turns its GIF packets into `texture_upload`,
+  `palette_upload` and `draw_triangles` calls. The runtime knows nothing about GS memory. The
+  interface is smaller and faster, but every PS2 port writes its own translation.
+- **B. GS level.** SW2EPC hands over the GIF packets as the GS would receive them, after the
+  VU1 work. The runtime keeps a model of GS memory (textures, palettes, frame buffers at their
+  addresses) and draws them. Render-to-texture and frame-buffer tricks come for free, and later
+  PS2 ports reuse it, but it is much more work on the UPP side and harder to make fast.
+
+Which one fits the code you see? Is there a reason to mix them (for example B for start-up and
+menus, A for battles)?
+
+### 2. Vertices and VU1
+
+- Is the transform done by VU1 microcode? If so, how many programs, and do you plan to rewrite
+  them in C (in `pc_hw.c` or elsewhere)?
+- After the transform, are the vertices in GS screen space (XYZ in 12.4 fixed point, XYOFFSET,
+  Z as a 24- or 32-bit integer)?
+- Which primitives: triangles, strips, fans, sprites, lines, points?
+
+### 3. Textures and palettes
+
+- Which pixel formats: PSMCT32/24/16, PSMT8 or PSMT4 with a palette (CSM1 or CSM2,
+  CPSM 32 or 16), PSMT8H/4HL/4HH?
+- Where do they come from (TIM2, `tm3`, other formats in LINKDATA)? Are they uploaded once per
+  scene, or streamed into GS memory every frame (the 4 MB of GS memory reused within a frame)?
+- Texture modes: TFX and TCC, mipmaps (MXL, LOD, MIPTBP), filtering, wrap modes (CLAMP, and
+  REGION_CLAMP or REGION_REPEAT)?
+
+### 4. Frame buffer
+
+- **Render-to-texture.** Does the game draw into a buffer and then sample it (glow, blur, heat
+  haze, shadows, a minimap)? Does it copy from one part of GS memory to another (GS to GS
+  transfers)?
+- Does it read pictures back to the EE (save thumbnails, screen captures)?
+- Frame size and display: `sceGsSetDefDBuff` gives 640 x 512. Does it draw whole frames or one
+  field at a time (the `field` mode seen in `sceGsResetGraph`)? Does it use the PCRTC's two read
+  circuits (merging two buffers, for fades)?
+
+### 5. Blending and tests
+
+- Which ALPHA settings (A, B, C, D, FIX), PABE, FBA?
+- Alpha test (ATST, AFAIL), destination alpha test (DATE), depth test (ZTST), Z formats, draws
+  that write only depth or only colour (FBMSK, ZMSK)?
+- **Fog:** FOGCOL with a per-vertex F value? Anything else the sketch does not cover?
+- SCISSOR and dithering (DTHE)?
+
+### 6. 2D, movies and volume
+
+- Are the menus, fonts and 2D overlays drawn with the same GS path?
+- Movies (PSS): decoded on the EE (IPU) and drawn as an RGBA picture, or uploaded as a texture?
+- Rough volume per frame in a battle: draw packets, triangles, texture changes? It decides how
+  the runtime groups draws.
+
+### 7. Order and QoL
+
+- What would you need first: the title screen and menus (2D), then battles?
+- QoL later: higher internal resolution, texture filtering, widescreen. Is the projection done in
+  game code (so widescreen would be a game option, not a runtime one)?
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -988,3 +1062,5 @@ formula, the internal resolution) can go ahead as planned.
 - 2026-11-28: this project checked milestone 2 (nothing to adjust) and wrote what is known of the
   game's drawing ahead of the 3D questions (display, textures, VU1 geometry, fog; blend modes and
   render-to-texture still open).
+- 2026-11-28: launcher side: questions for the 3D path (platform version 2): interface level
+  (draw calls or GS packets), VU1, textures, frame buffer, blending, fog, volume, order.
