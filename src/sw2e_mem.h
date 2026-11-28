@@ -24,6 +24,9 @@ typedef unsigned int ps2ptr;
 
 #ifdef SW2E_PC
 
+/* the EE kernel calls under PC names (some PS2 names are also Windows kernel32 functions) */
+#include "sw2e_ee_kernel.h"
+
 #define PS2_RAM_SIZE 0x02000000u         /* 32 MB of EE RAM */
 #define PS2_SPR_BASE 0x70000000u         /* the scratchpad, 16 KB */
 #define PS2_SPR_SIZE 0x4000u

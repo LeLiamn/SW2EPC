@@ -99,7 +99,7 @@ def main():
          sorted(glob.glob(os.path.join(ROOT, 'port', 'stub', '*.c'))))
     for s in port:
         o = os.path.join(obj, 'port_' + os.path.basename(s)[:-2] + '.o')
-        r = run([cc] + flags + ['-I', a.upp_include, '-c', s, '-o', o])
+        r = run([cc] + flags + ['-I', a.upp_include, '-I', os.path.join(B, 'src'), '-c', s, '-o', o])
         if r.returncode:
             failed['port/' + os.path.basename(s)] = [l for l in r.stderr.split('\n') if 'error' in l][:5]
         else:

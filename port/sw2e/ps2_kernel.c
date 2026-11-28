@@ -12,6 +12,7 @@
  */
 #include <string.h>
 #include "upp.h"
+#include "sw2e_ee_kernel.h"   /* the ee_ names: CreateThread etc. are also kernel32 functions */
 
 extern const upp_platform *sw2e_platform;
 #define P sw2e_platform

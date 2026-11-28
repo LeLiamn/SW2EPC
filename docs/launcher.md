@@ -860,6 +860,24 @@ Pads (keyboard and gamepads), then audio (`audio_push`, `audio_queued`), then th
 calls. Until then they are safe placeholders: no pad connected, sound dropped, saves refused,
 and each one is logged once.
 
+## This project: milestone 1 checked (2026-11-28)
+
+The runtime of UPP commit 5e411f7 is checked from this side. SW2EPC links against
+`build/release/upp_runtime.rsp` and runs on the EU disc:
+
+- the disc is identified as `eu-1.00`;
+- the game thread starts and the boot executable is loaded;
+- the program stops through `fatal()` at the first function SW2EPC has not written yet
+  (`func_0011DFB0`).
+
+The kernel32 name clash noted in UPP's `docs/runtime.md` is fixed here: the EE kernel calls are
+`ee_` names on the PC build (`src/sw2e_ee_kernel.h`). How to build and run is in
+[upp_integration.md](upp_integration.md).
+
+Nothing more is needed from UPP for milestone 1. Milestone 2 (pads, audio, saves) will be needed
+when the game reaches its title screen. This side now works on the PC replacements of the Sony
+libraries, starting with CD and IOP.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -908,3 +926,5 @@ and each one is logged once.
 - 2026-11-28: launcher side: milestone 1 of `upp_runtime` built and checked; how to link
   (`upp_runtime.rsp`); `CreateThread`, `ExitThread`, `TerminateThread` and `GetThreadId` clash
   with kernel32 and need a prefix here.
+- 2026-11-28: this project checked UPP milestone 1 (commit 5e411f7): SW2EPC links and runs with
+  the real runtime; EE kernel calls renamed `ee_*` on the PC build (kernel32 clash).

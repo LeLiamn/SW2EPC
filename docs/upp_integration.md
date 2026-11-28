@@ -197,6 +197,32 @@ In this order:
 Report progress, questions or changes in [launcher.md](launcher.md) (dated section plus a line
 in its changes log), as before.
 
+## Milestone 1 checked with SW2EPC (2026-11-28, UPP commit 5e411f7)
+
+SW2EPC links and runs with the real `upp_runtime`.
+
+```sh
+py tools/pc_build.py --runtime @<UPP>/build/release/upp_runtime.rsp --upp-include <UPP>/include/upp
+cp <UPP>/build/release/bin/libwinpthread-1.dll build/pc/
+build/pc/sw2epc.exe --disc "Iso/<image>.iso" --games <UPP>/games --data-dir build/pc/data [--headless]
+```
+
+- The runtime identifies the disc itself (`eu-1.00`, SLES-54624 1.00, boot `SLES_546.24`) and
+  starts `run()` on its game thread. No `--run` is needed: that flag belongs to the stand-in.
+- The game loads its boot executable and stops where expected, through `fatal()` (exit code 3,
+  also written to `log.txt` in the data folder):
+  `[fatal] not decompiled yet: func_0011DFB0`.
+- **Changed on this side for it:** the EE kernel calls now have PC names (`ee_CreateThread`...,
+  in `src/sw2e_ee_kernel.h`, included by `src/sw2e_mem.h` on the PC build). As UPP pointed out,
+  `CreateThread`, `ExitThread`, `TerminateThread` and `GetThreadId` are also kernel32 functions on
+  Windows.
+- Without `--runtime`, `tools/pc_build.py` still links the stand-in in `port/stub/`, so the port
+  builds without the UPP repository.
+
+Nothing more is needed from UPP for now. The threads and the vblank tick get their first real use
+once SW2EPC has replaced the Sony CD and IOP libraries (the disc reader thread). Pads, audio and
+saves (milestone 2) are needed when the game reaches its title screen.
+
 ## What SW2EPC needs from the UPP runtime: milestone 1 (2026-11-28)
 
 The smallest runtime that lets SW2EPC go on. It is the target for the work starting on the UPP
