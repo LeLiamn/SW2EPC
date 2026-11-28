@@ -82,7 +82,6 @@ void *func_0038E730();
 void *func_0038E750();
 int func_0038E770();
 int func_0038E880();
-int func_0038E8F0();
 int func_00397F40();
 int func_003D96A0();
 void func_00290390(int param_1, int param_2, int param_3, int param_4);

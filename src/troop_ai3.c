@@ -14,6 +14,7 @@
 #define SW2E_FILE_TROOP_AI3_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_00271A10();
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -57,7 +58,6 @@ extern int g_00441660[][4];
     }                                                                   \
 } while (0)
 
-void func_00271A10(u8 *o, int k);
 void func_002AFF50(u8 *o, int k);
 void func_002AFDD0(u8 *o);
 void func_002AFC20(u8 *o);
@@ -82,7 +82,7 @@ int func_002B00D0(u8 *o)
         u8 *c = func_001F14E0(o);
 
         if (CHANCE(c[7] >> 1)) {
-            func_00271A10(o, 0x19);
+            func_00271A10(PS2_ADDR(o), 0x19);
             return 1;
         }
     }
@@ -255,7 +255,7 @@ void func_002B0A20(u8 *o, u8 *c)
     SET_STATE(o, 2);
     r1 = (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039);
     hit = RANDOM() % 100 < c[1];
-    func_00271A10(o, ((r1 >> 0x10) & 1) == 0 ? hit + 0x15 : hit + 0x17);
+    func_00271A10(PS2_ADDR(o), ((r1 >> 0x10) & 1) == 0 ? hit + 0x15 : hit + 0x17);
 }
 
 /* float to unsigned as the original does it. */
@@ -353,7 +353,7 @@ void func_002B0EE0(u8 *o)
         b += 0x11;
     }
     if (func_00240E20(PS2_ADDR(UNIT(o))) == 0) {
-        func_00271A10(o, b);
+        func_00271A10(PS2_ADDR(o), b);
     } else {
         u = UNIT(o);
         STOP_MOVE(u);

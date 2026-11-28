@@ -1063,7 +1063,6 @@ void func_00283CC0(int player)
 }
 
 void func_0029C690(u8 *map, u8 *frame, int a);
-void func_0029CC10(int player, u8 *grid, u8 *page);
 
 /* 0x00283F70, 0x2C bytes. Page 2's drawer (the map). */
 void func_00283F70(u8 *map, u8 *frame, int a)
@@ -1075,7 +1074,7 @@ void func_00283F70(u8 *map, u8 *frame, int a)
 /* 0x00283FA0, 0x2C bytes. Page 3's drawer (the units). */
 void func_00283FA0(int player, u8 *grid, u8 *page)
 {
-    func_0029CC10(player, grid, page);
+    func_0029CC10(player, PS2_ADDR(grid), page);
     g_007725F4 = g_00772D54;
 }
 

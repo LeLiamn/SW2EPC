@@ -4927,6 +4927,25 @@ void func_003AAD30(void);
 void func_003DE3A0(int, int);
 #endif
 
+#ifndef SW2E_FILE_GEN23_180000_C
+void func_001C39A0(int, int);
+void func_001D7420(unsigned char *);
+void func_001E3260(unsigned char *);
+void func_001E32B0(unsigned char *);
+void func_0020DDF0(int, int);
+void func_00256580(unsigned char *);
+void func_00259670(int);
+void func_0027F610(void);
+void func_00290770(int, int, int, int);
+void func_0029CC10(int, int, unsigned char *);
+int func_0032D9C0(void);
+int func_00383BB0(int);
+int func_0038C420(unsigned char *);
+int func_0038E8F0(int);
+void func_003AFD90(void);
+void func_003EA470(int, int, unsigned int *, int, int, int, int, int);
+#endif
+
 #ifndef SW2E_FILE_GEN2_180000_C
 void func_00183240(void);
 void func_001EB860(unsigned char *);

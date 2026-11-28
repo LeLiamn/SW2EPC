@@ -24,6 +24,7 @@ extern u8 g_007BFB3C[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
 int func_00180D10();
+int func_00229E50();
 int func_0022A200();
 int func_0022A5E0();
 int func_00382770();
@@ -220,7 +221,6 @@ int func_00204B60();
 int func_002054C0();
 int func_002071F0();
 void func_002075A0(float yaw, u8 *r, float *out, int a);
-int func_00229E50();
 int func_0022A480();
 int func_00238AE0();
 int func_00246610();

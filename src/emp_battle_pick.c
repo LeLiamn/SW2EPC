@@ -25,7 +25,6 @@ extern int g_0045D100, g_0045D104;       /* (small data) */
 void func_003EAA50(int k);
 int func_002F7D90(int a, int (*fn)(), int b, int c, int d, int e);
 int func_0011B740(int v);
-void func_003EA470(int a, int b, int *c, int n, int d, int e, int f, int g);
 void func_003EA820(int s, int k, int f, int lv);
 void func_003EAA20(int s, int k, int f, int lv, int *a, int b);
 void func_003EA430(int a, int b, int c, int d, int e, int f, int g);
@@ -118,7 +117,7 @@ void func_003EA430(int a, int b, int c, int d, int e, int f, int g)
 {
     int t = c;
 
-    func_003EA470(a, b, &t, 1, d, e, f, g);
+    func_003EA470(a, b, (unsigned int *)(&t), 1, d, e, f, g);
 }
 
 int func_003EBD10(void);
@@ -165,7 +164,7 @@ void func_003EA850(int s, int k, int f, int lv, int a, int b)
 /* 0x003EA880, 0x2C bytes, matching. */
 void func_003EA880(int s, int k, int *l, int n, int lv, int a, int b)
 {
-    func_003EA470(s, k, l, n, lv, (int)func_003EA660, a, b);
+    func_003EA470(s, k, (unsigned int *)(l), n, lv, (int)func_003EA660, a, b);
 }
 
 /* 0x003EA8B0, 0x16C bytes. The same order without the free officers rule. */

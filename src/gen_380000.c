@@ -93,7 +93,6 @@ int func_0021A630();
 int func_002C7310();
 int func_002F7D90();
 int func_0030D7D0();
-int func_0032D9C0();
 int func_00374250();
 int func_0037FD50();
 int func_00380E80();

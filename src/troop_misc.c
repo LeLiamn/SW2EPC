@@ -417,8 +417,6 @@ void func_002554B0(int *d);
 void func_00256310(int *d);
 void func_00258920(int *d);
 void func_00259400(int *d);
-void func_00256580(int *d);
-void func_00259670(int *d);
 void func_00255620(int *d);
 void func_00255EA0(int *d);
 void func_00256620(int *d);
@@ -786,11 +784,11 @@ void func_001F2130(void)
     else if (DUEL(0) == 1)
         func_00255E00(PS2_ADDR(g_007315E0));
     else if (DUEL(0) == 2)
-        func_00256580(g_007315E0);
+        func_00256580((unsigned char *)(g_007315E0));
     else if (DUEL(0) == 3)
         func_00258A40(PS2_ADDR(g_007315E0));
     else if (DUEL(0) == 4)
-        func_00259670(g_007315E0);
+        func_00259670(PS2_ADDR(g_007315E0));
     g_0073164D = 0;
     DUEL(9) = 0;
     DUEL(10) = 0;

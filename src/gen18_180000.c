@@ -19,6 +19,7 @@ extern u8 g_007BFB20[0x18];
 extern u8 g_007BFB3C[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_00229E50();
 int func_0022A200();
 int func_00383C10();
 int func_001EC650();
@@ -63,7 +64,6 @@ extern int g_0045D810;   /* (small data) */
 
 int func_001EC5C0();
 int func_001FF100();
-int func_00229E50();
 int func_0022A000();
 int func_0022A010();
 int func_0022A1F0();

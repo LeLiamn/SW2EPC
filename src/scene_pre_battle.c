@@ -420,7 +420,6 @@ void func_001FCC90(void);
 void func_002944D0(void);
 void func_0029BBC0(void *a, u8 *b, void *c, u8 d, int e, u8 *f);
 void func_0029C690(u8 *a, u8 *b, int c);
-void func_0029CC10(int a, u8 *b, u8 *c);
 void func_0029CC70(u32 officer);
 void func_0029BEC0(void *a, u8 *b, u8 c, int d, u8 *e);
 void func_0029C140(u32 officer, u8 b, int c);
@@ -2658,7 +2657,7 @@ void func_002275C0(void)
     case 0:  func_0029B900(PS2_ADDR(g_00749A20), PS2_ADDR(&g_00749AEC), PS2_ADDR(g_00749AD8), PS2_ADDR(g_007496F0), &g_00749B08); break;
     case 1:  func_0029BBC0(g_00749A20, g_007499EC, g_00749A24, g_00749AEE, g_00749A1C, g_00749AE4); break;
     case 2:  func_0029C690(g_00749530, g_00749AD8, 0); break;
-    case 3:  func_0029CC10(g_00749A1C, g_007496F0, g_00749B10); break;
+    case 3:  func_0029CC10(g_00749A1C, PS2_ADDR(g_007496F0), g_00749B10); break;
     case 5:  func_0029CC70(PLAYER_OFFICER(g_00749A1C)); break;
     case 6:
         func_0029BEC0(g_00749A20, g_007499EC + g_00749A1C * 0x10, g_00749AF0, g_00749AEF,

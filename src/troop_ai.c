@@ -19,6 +19,7 @@ unsigned int func_001F0520(unsigned char *);
 #define SW2E_FILE_TROOP_AI_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_00271A10();
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -37,7 +38,6 @@ void func_00204D00(u8 *s, int a);
 void func_00206080(u8 *s);
 void func_002AFC20(u8 *s);
 void func_00204B60(u8 *s, u32 f);
-void func_00271A10(u8 *s, int a);
 void func_00238AE0(u8 *s, int t);
 void func_00204BB0(u8 *s);
 u32 func_001FF100(u16 v, int k);
@@ -199,7 +199,7 @@ void func_0027C3E0(u8 *s)
 void func_0027C420(u8 *s)
 {
     order2(s);
-    func_00271A10(s, 7);
+    func_00271A10(PS2_ADDR(s), 7);
 }
 
 /* 0x0027C460, 0xF0 bytes. A spearman's choice: thrust, attack, close in or wait. */
@@ -263,7 +263,7 @@ void func_0027C9C0(u8 *s)
 
     if (RANDOM() % 100 < t[4]) {
         order2(s);
-        func_00271A10(s, 0);
+        func_00271A10(PS2_ADDR(s), 0);
     } else {
         func_00238AE0(s, 0x28);
     }
@@ -309,7 +309,7 @@ void func_0027CC10(u8 *s)
     t = func_001F14E0(s);
     if (*(int *)(l + 0xC) == 0 && RANDOM() % 100 < t[6]) {
         order2(s);
-        func_00271A10(s, 0);
+        func_00271A10(PS2_ADDR(s), 0);
     } else {
         func_00204BB0(s);
         *(u32 *)(s + 0xBC) &= 0xFFF8003F;
@@ -460,7 +460,7 @@ void func_0027AE70(u8 *s)
 void func_0027AEF0(u8 *s, int k)
 {
     order2(s);
-    func_00271A10(s, k);
+    func_00271A10(PS2_ADDR(s), k);
 }
 
 /* 0x0027AF30, 0x114 bytes. A healer's choice (orders 0x1B-0x1D or going to its commander). */

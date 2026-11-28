@@ -11,6 +11,7 @@
 #define SW2E_FILE_STAGE_UNITS_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_002E18C0();
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -224,7 +225,6 @@ u8 *func_001FF140(u16 v);
 u32 func_001FF100(u16 v, int k);
 u8 *func_001FF230(u8 *part);
 void func_00247530(u8 *u, u8 *a, int b, int c);
-void func_002E18C0(u8 *q, u8 *box, int side);
 void func_0020A970(u8 *q, u8 *box, int side);
 void func_0020AB00(u8 *q, u8 *box, int side);
 void func_0020AD40(u8 *q, u8 *box);
@@ -262,7 +262,7 @@ u8 *func_0020B530(u8 *q, u8 *box, u8 *u, u16 *p)
     u8 *kinds = func_00207DA0(*p);
 
     for (k = 0; k < n; k++, box += 0x20)
-        func_002E18C0(q, box, BOX_SIDE((u8 *)p, (char)kinds[k], u));
+        func_002E18C0(q, (float *)(box), BOX_SIDE((u8 *)p, (char)kinds[k], u));
     return box;
 }
 

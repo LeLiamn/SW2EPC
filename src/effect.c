@@ -14,6 +14,7 @@
 #define SW2E_FILE_EFFECT_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_001C4A00();
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -240,9 +241,9 @@ void func_001C09C0(u8 *r, u8 *e)
 extern u32 g_0045D2A8;                   /* (small data) the game paused */
 extern float g_0045CC7C;                 /* (small data) the battle's slow motion factor */
 
-void func_001C39A0(u8 *r, float *p); void func_001C3890(float *p, int *list);
+void func_001C3890(float *p, int *list);
 void func_001C4D10(u8 *r, float *p);
-void func_001C4A00(u8 *r, float *p); void func_001C46F0(u8 *r, float *p);
+void func_001C46F0(u8 *r, float *p);
 
 #define F32(o, off) (*(float *)((u8 *)(o) + (off)))
 #define W32(o, off) (*(u32 *)((u8 *)(o) + (off)))
@@ -256,7 +257,7 @@ void func_001C0B80(u8 *r)
     for (p = *(float **)r; p != 0; p = *(float **)(p + 5)) {
         if (*p > 1.0f) {
             if (((u8 *)p)[0x2CC] & 1)
-                func_001C39A0(r, p);
+                func_001C39A0(PS2_ADDR(r), PS2_ADDR(p));
             else
                 ((u8 *)p)[0x2CC] |= 1;
         } else {
@@ -286,7 +287,7 @@ void func_001C0CE0(u8 *r)
     for (p = *(float **)(r + 8); p != 0; p = *(float **)(p + 6)) {
         if (*p > 1.0f) {
             if (((u8 *)p)[0x2DC] & 1)
-                func_001C4A00(r, p);
+                func_001C4A00(r, PS2_ADDR(p));
             else
                 ((u8 *)p)[0x2DC] |= 1;
         } else {

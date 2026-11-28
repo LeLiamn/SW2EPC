@@ -11,6 +11,7 @@
 #define SW2E_FILE_TROOP_AI2_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_00271A10();
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -31,7 +32,6 @@ int func_00238200(u8 *o);
 void func_00204BF0(u8 *o);
 int func_00174A40(float r, u8 *a, u8 *b);
 void func_00204B60(u8 *o, int k);
-void func_00271A10(u8 *o, int k);
 
 int func_00239830(u8 *o);
 void func_00239780(u8 *o, int k);
@@ -175,5 +175,5 @@ void func_00239980(u8 *o)
     *(u32 *)(u + 0x1D4) = *(u32 *)0x700000C4;
     *(u32 *)(u + 0x1D8) = *(u32 *)0x700000C8;
     *(u32 *)(u + 0x1DC) = *(u32 *)0x700000CC;
-    func_00271A10(o, 0x21);
+    func_00271A10(PS2_ADDR(o), 0x21);
 }
