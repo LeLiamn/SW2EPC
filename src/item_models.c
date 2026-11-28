@@ -25,7 +25,24 @@ extern u8 g_007804A0[0x96][0x170];       /* the model actors */
 extern int g_00411F70[0x11];
 extern u8 g_00411F10[0x10], g_00411F20[0x10][5];
 extern u8 g_004412D8[];
-extern u8 *g_0045D310, *g_0045D318;      /* (small data) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D310_a;      /* (small data) */
+#define g_0045D310 ((u8 *)PS2_PTR(g_0045D310_a))
+#define g_0045D310_SET(v) (g_0045D310_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D310;
+#define g_0045D310_a (*(ps2ptr *)&g_0045D310)
+#define g_0045D310_SET(v) (g_0045D310 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D318_a;      /* (small data) */
+#define g_0045D318 ((u8 *)PS2_PTR(g_0045D318_a))
+#define g_0045D318_SET(v) (g_0045D318_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D318;
+#define g_0045D318_a (*(ps2ptr *)&g_0045D318)
+#define g_0045D318_SET(v) (g_0045D318 = (v))
+#endif
 
 void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
 

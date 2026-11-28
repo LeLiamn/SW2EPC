@@ -157,6 +157,18 @@ void *sw2e_func(unsigned int a)
     sw2e_last_bad_code = a;
     return (void *)no_function;
 }
+/* the PS2 code address of PC function fn (PS2_CODE), 0 for an unknown function */
+unsigned int sw2e_code_addr(void *fn)
+{
+    size_t i;
+    if (fn == 0)
+        return 0;
+    for (i = 0; i < sizeof(g_fns) / sizeof(g_fns[0]); i++)
+        if (g_fns[i].fn == fn)
+            return g_fns[i].addr;
+    sw2e_missing("PS2_CODE of a function with no PS2 address");
+    return 0;
+}
 /* a view of n table entries at PS2 address a, built once per table */
 void *const *sw2e_fntab(unsigned int a, int n)
 {

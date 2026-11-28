@@ -111,7 +111,8 @@ extern u32 g_0040D020[];
 extern int g_0045D378;                   /* (small data) the screen being drawn (two players) */
 extern u8 g_00733551;
 
-#define PACKET (*(u32 **)PS2_PTR(0x70000158))     /* (scratchpad) the current GIF packet */
+#define PACKET PS2_GETP(u32 *, 0x70000158)     /* (scratchpad) the current GIF packet */
+#define PACKET_SET(v) PS2_SETP(0x70000158, v)
 
 u32 *func_00208470(u32 *p);
 u32 *func_00208270(u32 *p, u8 *t);
@@ -124,7 +125,7 @@ void func_00208FF0(void)
     if ((u32)g_0045CD98 >= 6)
         return;
     p[0] = 0x30000002;
-    p[1] = (u32)g_0040D020;
+    p[1] = (u32)PS2_ADDR(g_0040D020);
     p[2] = 0x13000000;
     p[3] = 0x51000002;
     p = func_00208470(p + 4);
@@ -141,7 +142,7 @@ void func_00208FF0(void)
         if (!hidden)
             p = func_00208270(p, t);
     }
-    PACKET = p;
+    PACKET_SET(p);
 }
 
 /* 0x00209160, 0x28 bytes. Whether both players' actors have trails. */

@@ -28,9 +28,9 @@ typedef unsigned int u32;
 typedef signed char s8;
 
 #define U8(o, off)  (*(u8 *)((u8 *)(o) + (off)))
-#define S16(o, off) (*(short *)((u8 *)(o) + (off)))
+#define S16(o, off) (*(short *)((u8 *)PS2_ANYPTR(o) + (off)))
 #define U16(o, off) (*(u16 *)((u8 *)(o) + (off)))
-#define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
+#define U32(o, off) (*(u32 *)((u8 *)PS2_ANYPTR(o) + (off)))
 #define S32(o, off) (*(int *)((u8 *)(o) + (off)))
 #define F32(o, off) (*(float *)((u8 *)(o) + (off)))
 #define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
@@ -45,7 +45,7 @@ typedef struct {
     signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
 } Bits8;
 
-#define BIT(o, off, n) (((Bits8 *)((u8 *)(o) + (off)))->f##n)
+#define BIT(o, off, n) (((Bits8 *)((u8 *)PS2_ANYPTR(o) + (off)))->f##n)
 
 float sqrtf(float x);
 float vu0_angle(float x, float z);
@@ -766,7 +766,15 @@ int func_00152560(Unit *u, Unit *v, u8 *hit, float *dir, int *out)
            + F32(u, 0x7C) * dir[3] > 0.0f;
 }
 
-extern u8 *g_005BA688;                   /* the shared motion records (+n * 0x20) */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA688_a;                   /* the shared motion records (+n * 0x20) */
+#define g_005BA688 ((u8 *)PS2_PTR(g_005BA688_a))
+#define g_005BA688_SET(v) (g_005BA688_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA688;
+#define g_005BA688_a (*(ps2ptr *)&g_005BA688)
+#define g_005BA688_SET(v) (g_005BA688 = (v))
+#endif
 #define OFFICER(u) (g_00693970 + S16(u, 0x178) * 0xC0 + 0x100C0)
 
 float fabsf(float x);
@@ -1384,7 +1392,15 @@ tail:
     return ret;
 }
 
-extern u8 *g_0045D2FC;                   /* (small data) the effects' resources */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2FC_a;                   /* (small data) the effects' resources */
+#define g_0045D2FC ((u8 *)PS2_PTR(g_0045D2FC_a))
+#define g_0045D2FC_SET(v) (g_0045D2FC_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2FC;
+#define g_0045D2FC_a (*(ps2ptr *)&g_0045D2FC)
+#define g_0045D2FC_SET(v) (g_0045D2FC = (v))
+#endif
 
 void func_001D0970(Unit *u);
 void func_001ACA70(u32 a, u8 *effect, float *pos, u8 *dir, u32 b);
@@ -2339,7 +2355,7 @@ void func_00158270(Unit *u, u8 *b, u8 *hit)
             func_002A6910(0x231, 0, (u8 *)pos);
             func_001AD090(e);
             func_001AE1A0(e);
-            func_001ACA70((u32)e, b, pos, (u8 *)dir, (u32)u);
+            func_001ACA70((u32)PS2_ADDR(e), b, pos, (u8 *)dir, (u32)PS2_ADDR(u));
             fired++;
             any = 1;
             slot[i] = -1;
@@ -2421,7 +2437,7 @@ void func_00158660(Unit *u, int k)
     vu0_rot_x(m, F32(u, 0x240));
     vu0_rot_y(m, F32(u, 0x54));
     mat_vec(dir, m, g_00406410);
-    func_001ACA70(PS2_ADDR(func_00177ED0()), g_0045D2FC + 0x10 + (k + kind) * 0x48, pos, (u8 *)dir, (u32)u);
+    func_001ACA70(PS2_ADDR(func_00177ED0()), g_0045D2FC + 0x10 + (k + kind) * 0x48, pos, (u8 *)dir, (u32)PS2_ADDR(u));
 }
 
 /* 0x001589B0, 0x318 bytes. Calls bodyguard `slot` of the unit's player (units 0x89 + player * 3

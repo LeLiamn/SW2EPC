@@ -99,7 +99,6 @@ void func_002DA2C0(void);
 void func_0017DE50(void);
 void func_001023B0(int value);
 int func_0017DDA0(void);
-void func_0017E0C0(int volume, int b);
 
 /* ---- Scene 0x00 ------------------------------------------------------------------------------- */
 

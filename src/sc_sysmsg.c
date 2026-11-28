@@ -25,8 +25,42 @@ typedef unsigned int u32;
 
 extern u8 g_00693970[];                  /* the game state (unit records first, 0x88 bytes) */
 extern u8 g_006A1D58[][0x68];            /* the soldier groups */
-extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each) */
-extern u8 *g_005BA6BC, *g_005BA6C0, *g_005BA7B0;   /* message text tables */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;                   /* the officer table (0x2C bytes each) */
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6BC_a;   /* message text tables */
+#define g_005BA6BC ((u8 *)PS2_PTR(g_005BA6BC_a))
+#define g_005BA6BC_SET(v) (g_005BA6BC_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6BC;
+#define g_005BA6BC_a (*(ps2ptr *)&g_005BA6BC)
+#define g_005BA6BC_SET(v) (g_005BA6BC = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6C0_a;   /* message text tables */
+#define g_005BA6C0 ((u8 *)PS2_PTR(g_005BA6C0_a))
+#define g_005BA6C0_SET(v) (g_005BA6C0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6C0;
+#define g_005BA6C0_a (*(ps2ptr *)&g_005BA6C0)
+#define g_005BA6C0_SET(v) (g_005BA6C0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7B0_a;   /* message text tables */
+#define g_005BA7B0 ((u8 *)PS2_PTR(g_005BA7B0_a))
+#define g_005BA7B0_SET(v) (g_005BA7B0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA7B0;
+#define g_005BA7B0_a (*(ps2ptr *)&g_005BA7B0)
+#define g_005BA7B0_SET(v) (g_005BA7B0 = (v))
+#endif
 extern u8 *g_005BA6C4[];                 /* the officers' line texts, by kind */
 extern u8 *g_005BA76C[];                 /* more line texts, by func_0023C190's group */
 extern u8 g_005BD740[8];                 /* scenario switches */
@@ -816,8 +850,33 @@ void func_0023EB40(short *r, int delay, int c)
     func_00183410(1, k, 3, delay, c);
 }
 
-extern u8 *g_005BA6B8;                   /* the battle text file */
-extern u8 *g_005BA7B4, *g_005BA7B8;
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6B8_a;                   /* the battle text file */
+#define g_005BA6B8 ((u8 *)PS2_PTR(g_005BA6B8_a))
+#define g_005BA6B8_SET(v) (g_005BA6B8_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6B8;
+#define g_005BA6B8_a (*(ps2ptr *)&g_005BA6B8)
+#define g_005BA6B8_SET(v) (g_005BA6B8 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7B4_a;
+#define g_005BA7B4 ((u8 *)PS2_PTR(g_005BA7B4_a))
+#define g_005BA7B4_SET(v) (g_005BA7B4_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA7B4;
+#define g_005BA7B4_a (*(ps2ptr *)&g_005BA7B4)
+#define g_005BA7B4_SET(v) (g_005BA7B4 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7B8_a;
+#define g_005BA7B8 ((u8 *)PS2_PTR(g_005BA7B8_a))
+#define g_005BA7B8_SET(v) (g_005BA7B8_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA7B8;
+#define g_005BA7B8_a (*(ps2ptr *)&g_005BA7B8)
+#define g_005BA7B8_SET(v) (g_005BA7B8 = (v))
+#endif
 extern const char g_0043D478[];
 
 /* 0x0023EC30, 0x64 bytes. Loads the requests from a save image; its end. */
@@ -868,17 +927,17 @@ void func_0023ED90(void)
     int *t;
     u32 k;
 
-    g_005BA6BC = f + *(int *)(f + 4);
-    g_005BA6C0 = f + *(int *)(f + 0xC);
-    g_005BA6B8 = f;
+    g_005BA6BC_SET(f + *(int *)(f + 4));
+    g_005BA6C0_SET(f + *(int *)(f + 0xC));
+    g_005BA6B8_SET(f);
     t = (int *)(f + *(int *)(f + 0x14));
     for (k = 0; k < 0x2A; k++)
         g_005BA6C4[k] = (u8 *)t + t[k * 2];
     t = (int *)(f + *(int *)(f + 0x1C));
     for (k = 0; k < 0x11; k++)
         g_005BA76C[k] = (u8 *)t + t[k * 2];
-    g_005BA7B0 = f + *(int *)(f + 0x24);
-    g_005BA7B4 = f + *(int *)(f + 0x2C);
+    g_005BA7B0_SET(f + *(int *)(f + 0x24));
+    g_005BA7B4_SET(f + *(int *)(f + 0x2C));
     g_005BA7BC = 0x40;
-    g_005BA7B8 = f + *(int *)(f + 0x34);
+    g_005BA7B8_SET(f + *(int *)(f + 0x34));
 }

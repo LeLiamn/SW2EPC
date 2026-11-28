@@ -21,9 +21,33 @@ extern u8 g_00669D60[];
 extern u8 g_006A3A30[][0xC0];
 extern u8 g_00693970[];
 extern int g_006AA574;
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
 extern u8 *g_005BA6A0;
-extern u32 *g_005BA7CC;                  /* the stage's script file */
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7CC_a;                  /* the stage's script file */
+#define g_005BA7CC ((u32 *)PS2_PTR(g_005BA7CC_a))
+#define g_005BA7CC_SET(v) (g_005BA7CC_a = PS2_ADDR(v))
+#else
+extern u32 *g_005BA7CC;
+#define g_005BA7CC_a (*(ps2ptr *)&g_005BA7CC)
+#define g_005BA7CC_SET(v) (g_005BA7CC = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7E0_a;
+#define g_005BA7E0 ((u8 **)PS2_PTR(g_005BA7E0_a))
+#define g_005BA7E0_SET(v) (g_005BA7E0_a = PS2_ADDR(v))
+#else
 extern u8 **g_005BA7E0;
+#define g_005BA7E0_a (*(ps2ptr *)&g_005BA7E0)
+#define g_005BA7E0_SET(v) (g_005BA7E0 = (v))
+#endif
 extern u8 g_005BC3A0[4], g_005BC3A4[4];
 extern u8 g_005BC2A0[0x40][4];
 

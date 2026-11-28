@@ -23,7 +23,15 @@ typedef unsigned int u32;
 extern int g_007A2D60[0x1B2];            /* the turn state (+0 the page) */
 extern u8 g_007A2CF0[], g_007A3AF0[];
 extern u32 g_007A33F4[0xD];              /* each page's state block */
-extern const char *g_0043C5F0;           /* a caption */
+#ifdef SW2E_PC
+extern ps2ptr g_0043C5F0_a;           /* a caption */
+#define g_0043C5F0 ((const char *)PS2_PTR(g_0043C5F0_a))
+#define g_0043C5F0_SET(v) (g_0043C5F0_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C5F0;
+#define g_0043C5F0_a (*(ps2ptr *)&g_0043C5F0)
+#define g_0043C5F0_SET(v) (g_0043C5F0 = (v))
+#endif
 extern int g_007A3AD0[8], g_007A3AB0[8]; /* two short lists of officers */
 extern int g_0045D688, g_0045D68C, g_0045D690, g_0045D69C, g_0045D6A0;   /* (small data) */
 
@@ -94,7 +102,7 @@ void func_002FC2D0(void)
     g_007A33F4[10] = PS2_ADDR(func_003C0070());
     func_003C0080((int *)PS2_PTR(g_007A33F4[10]));
     g_007A33F4[7] = func_002FCD60();
-    func_002FCD20((u32 *)g_007A33F4[7]);
+    func_002FCD20((u32 *)PS2_PTR(g_007A33F4[7]));
     g_007A33F4[8] = func_00307230();
     func_003071E0(g_007A33F4[8]);
     g_007A33F4[9] = PS2_ADDR(func_00326490());
@@ -375,14 +383,14 @@ void func_002FCD20(u32 *s)
     s[2] = 0;
     s[3] = 0;
     s[4] = 0;
-    s[5] = (u32)func_002FC2B0();
+    s[5] = (u32)PS2_ADDR(func_002FC2B0());
     func_002FD490();
 }
 
 /* 0x002FCD60, 0xC bytes, matching. */
 u32 func_002FCD60(void)
 {
-    return (u32)g_007A3AF0;
+    return (u32)PS2_ADDR(g_007A3AF0);
 }
 
 /* 0x002FCD70, 0xC8 bytes, matching. Sorts officer list `l` of `n` by soldiers, most first. */
@@ -1496,7 +1504,7 @@ void func_002FFF00(int *out, u32 i, int k, int a, int b)
 
         switch (cmd[j]) {
         case 10: case 11: case 12:
-            t = func_002FF990(f, cmd[j], (u32 *)a, b);
+            t = func_002FF990(f, cmd[j], (u32 *)PS2_PTR(a), b);
             break;
         case 0xD:
             for (m = 0, g = 0; g < 3; g++) {
@@ -1890,9 +1898,9 @@ void func_00301290(int *out, u32 i, int k, int a, int b)
         int t = -1;
 
         if (cmd[j] == 0x23)
-            t = func_00300D80((u32 *)a, b);
+            t = func_00300D80((u32 *)PS2_PTR(a), b);
         else if (cmd[j] >= 0x24 && cmd[j] <= 0x27)
-            t = func_00301040(f, cmd[j], (u32 *)a, b, &second);
+            t = func_00301040(f, cmd[j], (u32 *)PS2_PTR(a), b, &second);
         if (t != -1) {
             out[k + 1] = cmd[j];
             out[k + 3] = t;
@@ -2648,7 +2656,7 @@ int func_00303D90(u32 *l, int n)
  * for soldiers wanted more when the officers are under 80% full). */
 void func_00303E60(int *out, u32 i, int k, int a, int b)
 {
-    int avg = func_002FE240((u32 *)a, b), f = func_002F4080(i), cmd[100], val[100], n = 0, c, j;
+    int avg = func_002FE240((u32 *)PS2_PTR(a), b), f = func_002F4080(i), cmd[100], val[100], n = 0, c, j;
 
     for (c = 0x14; c < 0x1D; c++) {
         if (func_002FD000(c) == 0 && func_002FD3C0(c) == 0 && func_002FD310(f, c) != 0
@@ -2670,16 +2678,16 @@ void func_00303E60(int *out, u32 i, int k, int a, int b)
 
         switch (cmd[j]) {
         case 0x14: case 0x15: case 0x16:
-            t = func_00303930(cmd[j], (u32 *)a, b);
+            t = func_00303930(cmd[j], (u32 *)PS2_PTR(a), b);
             break;
         case 0x17: case 0x18: case 0x19: case 0x1A:
-            t = func_00303AC0(cmd[j], (u32 *)a, b);
+            t = func_00303AC0(cmd[j], (u32 *)PS2_PTR(a), b);
             break;
         case 0x1B:
-            t = func_00303CF0((u32 *)a, b);
+            t = func_00303CF0((u32 *)PS2_PTR(a), b);
             break;
         case 0x1C:
-            t = func_00303D90((u32 *)a, b);
+            t = func_00303D90((u32 *)PS2_PTR(a), b);
             break;
         }
         if (t != -1) {
@@ -2881,7 +2889,7 @@ void func_00304DE0(int *out, u32 i, int two)
     slots = two == 0 ? 1 : 2;
     out[0] = i;
     for (j = 0; j < slots; j++) {
-        func_00304C80(out, i, j, (int)g_007A3430, n);
+        func_00304C80(out, i, j, (int)PS2_ADDR(g_007A3430), n);
         if (two != 0) {
             if (j == 0)
                 func_002FD180(out[1], out[3]);
@@ -3292,7 +3300,7 @@ int func_002FD580(int f);
 
 /* The computer turn's state block: 0 step, 1 command, 2 force index, 3 commands, 4 forces,
  * 5 force list. */
-#define CPU_TURN() ((int *)func_002FC2C0()[0x1AC])
+#define CPU_TURN() ((int *)PS2_PTR(func_002FC2C0()[0x1AC]))
 
 /* 0x00306520, 0x74 bytes. The average soldiers of officers `l` (`n`). */
 int func_00306520(u32 *l, int n)
@@ -3462,11 +3470,11 @@ void func_00306DD0(void)
 {
     int *p = CPU_TURN();
 
-    p[4] = func_002FBAC0((int *)p[5]);
+    p[4] = func_002FBAC0((int *)PS2_PTR(p[5]));
     p[2] = 0;
     p[3] = 0;
     p[1] = 0;
-    func_00306CE0((int *)p[5], p[4]);
+    func_00306CE0((int *)PS2_PTR(p[5]), p[4]);
     func_002FD490();
     p[0] = 1;
 }
@@ -3476,7 +3484,7 @@ void func_00306DD0(void)
 void func_00306E30(void)
 {
     u32 seed = g_7000015C;
-    int *p = CPU_TURN(), g = ((int *)p[5])[p[2]], d;
+    int *p = CPU_TURN(), g = ((int *)PS2_PTR(p[5]))[p[2]], d;
 
     if (!IS_FORCE(g)) {
         p[0] = 5;
@@ -3504,7 +3512,7 @@ void func_00306E30(void)
  * done). */
 int func_00306F80(void)
 {
-    int *p = CPU_TURN(), g = ((int *)p[5])[p[2]];
+    int *p = CPU_TURN(), g = ((int *)PS2_PTR(p[5]))[p[2]];
 
     if (!IS_FORCE(g) || func_002F8CB0(g) == 0)
         p[0] = 5;
@@ -3530,7 +3538,7 @@ int func_00307090(void)
 {
     int *p = CPU_TURN(), r;
 
-    func_00306970(((int *)p[5])[p[2]]);
+    func_00306970(((int *)PS2_PTR(p[5]))[p[2]]);
     r = func_0030DFA0();
     if (r == 0) {
         if (++p[2] < p[4])
@@ -3578,7 +3586,7 @@ void func_003071D0(void)
 /* 0x003071E0, 0x44 bytes, matching. Resets the computer turn's state block `s`. */
 void func_003071E0(u32 s)
 {
-    int *p = (int *)s;
+    int *p = (int *)PS2_PTR(s);
 
     p[0] = 0;
     p[1] = 0;
@@ -3586,13 +3594,13 @@ void func_003071E0(u32 s)
     p[3] = -1;
     p[4] = 0;
     p[5] = 0;
-    p[6] = (int)func_002FC2B0();
+    p[6] = (int)PS2_ADDR(func_002FC2B0());
 }
 
 /* 0x00307230, 0xC bytes, matching. The computer turn's state block. */
 u32 func_00307230(void)
 {
-    return (u32)g_007A3B10;
+    return (u32)PS2_ADDR(g_007A3B10);
 }
 
 /* 0x00307240, 0xF0 bytes. An ally of force `f` without a relation with it (the player's force
@@ -3687,7 +3695,7 @@ void func_001204B0(char *out, const char *format, ...);   /* sprintf */
 
 /* The computer attacks' state block: 0 step, 1 force index, 2 forces, 3 event slot, 4 and 5
  * the player's tied forces involved, 6 force list. */
-#define CPU_ATTACK() ((int *)func_002FC2C0()[0x1AD])
+#define CPU_ATTACK() ((int *)PS2_PTR(func_002FC2C0()[0x1AD]))
 
 /* 0x00307610, 0x34C bytes. The region force `f` would attack this turn among those near its
  * home not already in an event: an unowned one, its ally's or its envoy's first, then its plan
@@ -3853,7 +3861,7 @@ void func_00307F00(void)
 {
     int *q = CPU_ATTACK();
 
-    q[2] = func_002FBAC0((int *)q[6]);
+    q[2] = func_002FBAC0((int *)PS2_PTR(q[6]));
     q[1] = 0;
     q[3] = -1;
     q[4] = 0;
@@ -3865,7 +3873,7 @@ void func_00307F00(void)
 void func_00307F50(void)
 {
     u32 seed = g_7000015C;
-    int *q = CPU_ATTACK(), g = ((int *)q[6])[q[1]];
+    int *q = CPU_ATTACK(), g = ((int *)PS2_PTR(q[6]))[q[1]];
 
     if (!IS_FORCE(g) || func_002F8CB0(g) == 0) {
         q[0] = 2;

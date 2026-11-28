@@ -302,7 +302,7 @@ int func_00115E00(int fd, u32 source, int offset, u32 count, u32 dest)
         if (func_0012D570(fd, size, 0) != size)
             return -1;
         size = count * 0x800;
-        if (func_0012D7B0(fd, (void *)to, size) < size - 0x7FF)
+        if (func_0012D7B0(fd, PS2_PTR(to), size) < size - 0x7FF)
             return -1;
     }
     return 1;
@@ -318,9 +318,9 @@ int func_00115EC0(u32 lsn, int offset, u32 count, u32 dest)
         if (r == 2) {
             g_00561000.reading = 1;
             if ((dest & 1) == 0)
-                r = func_0011A3E8(offset + lsn, count, (void *)(dest & ~3), g_00561000.mode);
+                r = func_0011A3E8(offset + lsn, count, PS2_PTR(dest & ~3), g_00561000.mode);
             else
-                r = func_0011A5C8(offset + lsn, count, (void *)(dest & ~3), g_00561000.mode);
+                r = func_0011A5C8(offset + lsn, count, PS2_PTR(dest & ~3), g_00561000.mode);
             if (r != 0)
                 func_001199B0(0);
             g_00561000.reading = 0;
@@ -434,7 +434,7 @@ void func_00116300(void *arg)
             if ((source & 0x80000000) == 0) {
                 lsn = source;
             } else if (source != last) {
-                const char *path = (const char *)(source & 0x7FFFFFFF);
+                const char *path = (const char *)PS2_PTR(source & 0x7FFFFFFF);
                 DiscFile file;
 
                 while (*path++ != ':')

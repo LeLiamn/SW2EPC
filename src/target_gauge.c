@@ -32,7 +32,15 @@ typedef struct {
 extern Gauges g_00732508;
 extern u8 *g_00732500[2];                /* the two screens' packet buffers */
 extern u8 g_00574DE0[][0x630];           /* the actors */
-extern u8 *g_0045D2C0;                   /* (small data) the camera */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2C0_a;                   /* (small data) the camera */
+#define g_0045D2C0 ((u8 *)PS2_PTR(g_0045D2C0_a))
+#define g_0045D2C0_SET(v) (g_0045D2C0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2C0;
+#define g_0045D2C0_a (*(ps2ptr *)&g_0045D2C0)
+#define g_0045D2C0_SET(v) (g_0045D2C0 = (v))
+#endif
 extern u8 g_005B4BC0[], g_005B4E00[];    /* the two players' cameras */
 extern u8 g_00669D60[];
 
@@ -96,10 +104,10 @@ void func_002492C0(void)
         for (k = 0; k < 10; k++)
             func_002490A0(k, 2);
     } else {
-        g_0045D2C0 = g_005B4BC0;
+        g_0045D2C0_SET(g_005B4BC0);
         for (k = 0; k < 5; k++)
             func_002490A0(k, 0);
-        g_0045D2C0 = g_005B4E00;
+        g_0045D2C0_SET(g_005B4E00);
         for (k = 5; k < 10; k++)
             func_002490A0(k, 1);
     }

@@ -183,3 +183,19 @@ int (*sw2e_dmac_handler(int channel))(int)
 
 /* The game's _gp (the MIPS global pointer): only stored in thread parameters, unused on the PC. */
 unsigned char _gp[16];
+
+/* 0x00128F20: StartThread(thread, arg) as the game calls it, by address (Sony's wrapper) */
+void func_00128F20(int thread, void *arg)
+{
+    StartThread(thread, arg);
+}
+
+/* SetAlarm(ticks, handler, arg) / ReleaseAlarm(id): the game only uses alarms as time limits for
+ * long searches (the handler sets a stop flag). The PC is fast enough: they never go off. */
+unsigned int func_00133B30(int ticks, void *handler, int *arg)
+{
+    (void)ticks; (void)handler; (void)arg;
+    return 1;
+}
+
+void func_00133D50(void *id) { (void)id; }

@@ -45,8 +45,24 @@ typedef struct {
 float fabsf(float x);
 float sqrtf(float x);
 
-extern u8 *g_0045D294;                   /* (small data) the kinds' slot table (entry 0x56B) */
-extern u8 *g_0045D298;                   /* (small data) the weapon records (entry 0x56C) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D294_a;                   /* (small data) the kinds' slot table (entry 0x56B) */
+#define g_0045D294 ((u8 *)PS2_PTR(g_0045D294_a))
+#define g_0045D294_SET(v) (g_0045D294_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D294;
+#define g_0045D294_a (*(ps2ptr *)&g_0045D294)
+#define g_0045D294_SET(v) (g_0045D294 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D298_a;                   /* (small data) the weapon records (entry 0x56C) */
+#define g_0045D298 ((u8 *)PS2_PTR(g_0045D298_a))
+#define g_0045D298_SET(v) (g_0045D298_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D298;
+#define g_0045D298_a (*(ps2ptr *)&g_0045D298)
+#define g_0045D298_SET(v) (g_0045D298 = (v))
+#endif
 extern u32 g_0045D29C;                   /* (small data) their count */
 extern int g_0045D898;                   /* (small data) the current scene */
 extern u8 g_0056DC00[0xA0][0xB0];        /* the weapon objects */
@@ -62,9 +78,9 @@ void func_0016CD30(void)
     int k;
 
     func_00102680(1, 0x56B);
-    g_0045D294 = func_001026D0(1, 0x56B, 0, 1, 0, 0, g_00424BB8, 0x61);
+    g_0045D294_SET(func_001026D0(1, 0x56B, 0, 1, 0, 0, g_00424BB8, 0x61));
     g_0045D29C = func_00102680(1, 0x56C) / 0x30;
-    g_0045D298 = func_001026D0(1, 0x56C, 0, 1, 0, 0, g_00424BB8, 0x68);
+    g_0045D298_SET(func_001026D0(1, 0x56C, 0, 1, 0, 0, g_00424BB8, 0x68));
     for (k = 0; k < 0xA0; k++)
         func_0016D160(g_0056DC00[k]);
     for (k = 0; k < 0x8D; k++)
@@ -75,9 +91,9 @@ void func_0016CD30(void)
 void func_0016CE80(void)
 {
     func_00102EC0(g_0045D294);
-    g_0045D294 = 0;
+    g_0045D294_SET(0);
     func_00102EC0(g_0045D298);
-    g_0045D298 = 0;
+    g_0045D298_SET(0);
     g_0045D29C = 0;
 }
 
@@ -538,7 +554,8 @@ void func_0016EBB0(u8 *slot, void *m, int colour)
 
 typedef unsigned long long u64;
 
-#define g_70000158 (*(u32 **)PS2_PTR(0x70000158))         /* the DMA chain's write cursor */
+#define g_70000158 PS2_GETP(u32 *, 0x70000158)         /* the DMA chain's write cursor */
+#define g_70000158_SET(v) PS2_SETP(0x70000158, v)
 #define SCRATCH_W ((const float *)PS2_PTR(0x70000030))   /* (scratchpad) the point (0, 0, 0, 1) */
 
 extern float g_00406580[0x38];           /* per kind: the reach of a two-handed weapon's end */
@@ -654,8 +671,8 @@ void func_00170300(u8 *slot, float *ma, float *mb, float *mc)
     q[2] = 0;
     q[3] = 8;
     d = func_0016FD00((u32 *)(q + 4), a, b, 0x80, 0x80, 0x80, 0x80);
-    g_70000158 = d;
-    g_70000158 = func_0016FD00(d, a, c, 0x80, 0x80, 0x80, 0x80);
+    g_70000158_SET(d);
+    g_70000158_SET(func_0016FD00(d, a, c, 0x80, 0x80, 0x80, 0x80));
 }
 
 /* 0x00170510, 0x18C bytes. The edge of the kinds held at both ends (0x14-0x1B): from 16 along
@@ -682,7 +699,7 @@ void func_001706A0(u8 *slot, float *ma, float *mb)
 
     place_x(a, ma, 16.0f);
     place_x(b, mb, 14.0f);
-    g_70000158 = func_0016F9B0(g_70000158, a, b, 0xBE, 0x80, 0x80, 0x42);
+    g_70000158_SET(func_0016F9B0(g_70000158, a, b, 0xBE, 0x80, 0x80, 0x42));
 }
 
 /* 0x001707A0, 0x104 bytes. The entry for weapon kind `k` in a table at `base` (kinds 0-0x19

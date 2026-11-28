@@ -69,7 +69,15 @@ extern struct {
 #define OFFICER_NONE 0x19F
 
 /* Scene state, small data ($gp). */
-extern u8 *g_0045CCB8;                    /* the demo picture (LINKDATA entry 8), 0 = not loaded */
+#ifdef SW2E_PC
+extern ps2ptr g_0045CCB8_a;                    /* the demo picture (LINKDATA entry 8), 0 = not loaded */
+#define g_0045CCB8 ((u8 *)PS2_PTR(g_0045CCB8_a))
+#define g_0045CCB8_SET(v) (g_0045CCB8_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045CCB8;
+#define g_0045CCB8_a (*(ps2ptr *)&g_0045CCB8)
+#define g_0045CCB8_SET(v) (g_0045CCB8 = (v))
+#endif
 extern u8 g_0045CCBC;                     /* demo entry 0-2 */
 extern u8 g_0045CCBD;                     /* phase */
 extern u8 g_0045CCBE;                     /* set when the scene is left */
@@ -77,7 +85,15 @@ extern u8 g_0045CCBF;                     /* bit 4 of g_00669DB0 before the demo
 extern u32 g_0045D320;                    /* demos played */
 
 extern u8 g_006D3350[30];                 /* stages in a shuffled order */
-extern u8 *g_005BA6A0;                    /* base records, 0x2C bytes (see scene_post_battle.c) */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;                    /* base records, 0x2C bytes (see scene_post_battle.c) */
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 extern u8 g_0073DCA3, g_0073DF33;         /* flag bytes of two records 0x290 bytes apart */
 extern u8 g_00693970[], g_006939F8[];     /* two objects passed to func_001EE9C0 */
 extern const char g_00425E80[];           /* "StateDemo.c" */
@@ -115,7 +131,7 @@ void func_001BEAB0(void)
 void func_001BEAE0(void)
 {
     if (g_0045CCB8 == 0)
-        g_0045CCB8 = func_001026D0(1, 8, 0, 1, 0, 0, g_00425E80, 0x59);
+        g_0045CCB8_SET(func_001026D0(1, 8, 0, 1, 0, 0, g_00425E80, 0x59));
 }
 
 /* 0x001BEB30, 0x2C bytes, matching. Frees the demo picture. */
@@ -123,7 +139,7 @@ void func_001BEB30(void)
 {
     if (g_0045CCB8 != 0) {
         func_00102EC0(g_0045CCB8);
-        g_0045CCB8 = 0;
+        g_0045CCB8_SET(0);
     }
 }
 

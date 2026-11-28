@@ -43,8 +43,24 @@ extern struct {
 #define g_0045D8A0 (g_0045D880.requested)
 
 /* The editor's state (small data: two blocks of 0xBA0 and 0x780 bytes). */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D7C8_a;
+#define g_0045D7C8 ((u8 *)PS2_PTR(g_0045D7C8_a))
+#define g_0045D7C8_SET(v) (g_0045D7C8_a = PS2_ADDR(v))
+#else
 extern u8 *g_0045D7C8;
+#define g_0045D7C8_a (*(ps2ptr *)&g_0045D7C8)
+#define g_0045D7C8_SET(v) (g_0045D7C8 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D7CC_a;
+#define g_0045D7CC ((u8 *)PS2_PTR(g_0045D7CC_a))
+#define g_0045D7CC_SET(v) (g_0045D7CC_a = PS2_ADDR(v))
+#else
 extern u8 *g_0045D7CC;
+#define g_0045D7CC_a (*(ps2ptr *)&g_0045D7CC)
+#define g_0045D7CC_SET(v) (g_0045D7CC = (v))
+#endif
 #define ES(off, type) (*(type *)(g_0045D7C8 + (off)))
 #define ES_RECORD     (g_0045D7C8 + 0x404)          /* the officer being edited */
 #define ES_BACKUP     (g_0045D7C8 + 0x43C)          /* its copy when the page opened */
@@ -104,7 +120,15 @@ extern struct {
 /* Units (see scene_battle_initialize.c): the player unit and the model's battle unit. */
 extern u8 g_005B4BC0[2][0x240];
 extern u8 g_00574DE0[2][0x630];
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2C0_a;
+#define g_0045D2C0 ((u8 *)PS2_PTR(g_0045D2C0_a))
+#define g_0045D2C0_SET(v) (g_0045D2C0_a = PS2_ADDR(v))
+#else
 extern u8 *g_0045D2C0;
+#define g_0045D2C0_a (*(ps2ptr *)&g_0045D2C0)
+#define g_0045D2C0_SET(v) (g_0045D2C0 = (v))
+#endif
 
 /* The game state's officer records (0x00669D60 + 0x254, 15 of 0x38 bytes). */
 extern u8 g_00669D60[];
@@ -225,7 +249,15 @@ extern const char *g_0043CC54[];          /* "Saving data. Proceed?", "Deleting 
 #define TEXT_OFFICER  (g_0043CC54[8])     /* 0x0043CC74 "Officer" */
 #define TEXT_NEW      (g_0043CC54[9])     /* 0x0043CC78 "New" */
 extern const char g_004594C8[];           /* an empty name */
-extern const char *g_0045C478;            /* the name grid: 17 characters a row, '@' = none */
+#ifdef SW2E_PC
+extern ps2ptr g_0045C478_a;            /* the name grid: 17 characters a row, '@' = none */
+#define g_0045C478 ((const char *)PS2_PTR(g_0045C478_a))
+#define g_0045C478_SET(v) (g_0045C478_a = PS2_ADDR(v))
+#else
+extern const char *g_0045C478;
+#define g_0045C478_a (*(ps2ptr *)&g_0045C478)
+#define g_0045C478_SET(v) (g_0045C478 = (v))
+#endif
 extern int g_00416460[64];                /* voices: 8 per voice kind */
 extern int g_00416560[13], g_004165A0[16], g_004165E0[18], g_00416630[15];
 extern int g_00416670[8], g_00416690[12], g_004166C0[12], g_004166F0[11];
@@ -268,7 +300,15 @@ extern int g_00416670[8], g_00416690[12], g_004166C0[12], g_004166F0[11];
         g_00799A2C = 1;                                                 \
     } while (0)
 
-extern u8 *g_0045D7C4;                    /* (small data) the editor's file */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D7C4_a;                    /* (small data) the editor's file */
+#define g_0045D7C4 ((u8 *)PS2_PTR(g_0045D7C4_a))
+#define g_0045D7C4_SET(v) (g_0045D7C4_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D7C4;
+#define g_0045D7C4_a (*(ps2ptr *)&g_0045D7C4)
+#define g_0045D7C4_SET(v) (g_0045D7C4 = (v))
+#endif
 void func_00120928(char *to, const char *from);
 void func_003A53D0(u8 *a, u8 b);
 void func_003A53A0(u8 *a, int b, int c, int d);
@@ -312,7 +352,7 @@ u8 *func_00376790(void) { return g_0045D7C8 + 0xA4; }   /* 0x00376790, 0xC bytes
 /* 0x003767A0, 0x40 bytes, matching. Loads the editor's file (LINKDATA entry 0x8A). */
 void func_003767A0(int value)
 {
-    g_0045D7C4 = func_001026D0(1, 0x8A, 0, value, 0, 0, "StateEdit.c", 0xEA);
+    g_0045D7C4_SET(func_001026D0(1, 0x8A, 0, value, 0, 0, "StateEdit.c", 0xEA));
 }
 
 /* 0x003767E0, 0x2C bytes, matching. */
@@ -320,7 +360,7 @@ void func_003767E0(void)
 {
     if (g_0045D7C4 != 0) {
         func_00102EC0(g_0045D7C4);
-        g_0045D7C4 = 0;
+        g_0045D7C4_SET(0);
     }
 }
 
@@ -2062,7 +2102,7 @@ void func_0037C0B0(void)
     func_0037BF00();
     func_00182C30();
     func_0017A920(g_005B4BC0[0]);
-    g_0045D2C0 = g_005B4BC0[0];
+    g_0045D2C0_SET(g_005B4BC0[0]);
     g_005B4BC0[0][0x230] = (g_005B4BC0[0][0x230] & 0xFE) | 1;
     func_0037C020();
 }
@@ -2405,8 +2445,8 @@ void func_0037D060(void)
 {
     func_001037F0(0);
     func_003F8B30(3);
-    g_0045D7C8 = func_00102DB0(0x10, 0xBA0);
-    g_0045D7CC = func_00102DB0(0x10, 0x780);
+    g_0045D7C8_SET(func_00102DB0(0x10, 0xBA0));
+    g_0045D7CC_SET(func_00102DB0(0x10, 0x780));
     func_00118850(g_0045D7C8, 0xBA0);
     func_00118850(g_0045D7CC, 0x780);
     func_0037CF40();
@@ -2461,10 +2501,10 @@ void func_0037D250(void)
     func_003767E0();
     if (g_0045D7CC != 0)
         func_00102EC0(g_0045D7CC);
-    g_0045D7CC = 0;
+    g_0045D7CC_SET(0);
     if (g_0045D7C8 != 0)
         func_00102EC0(g_0045D7C8);
-    g_0045D7C8 = 0;
+    g_0045D7C8_SET(0);
     func_003F8B80();
 }
 
@@ -2595,7 +2635,7 @@ void func_0037DA10(void)
     func_003F8C00();
     func_003D8230();
     if (*(int *)(es + 0xB98) != 0) {
-        g_0045D2C0 = g_005B4BC0[0];
+        g_0045D2C0_SET(g_005B4BC0[0]);
         func_001796D0();
     }
 }

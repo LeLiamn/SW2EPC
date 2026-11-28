@@ -14,6 +14,8 @@
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
 
+int func_002F7D90(int k, int (*keep)(), int a, int b, int sort, int unused);   /* (emp_officer.c) */
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -398,7 +400,6 @@ extern EventFn g_0041C470[0x1BE];        /* event starters */
 extern EventFn g_0041CB70[10];           /* story event conditions 6..15 */
 extern u32 g_7000015C;                   /* (scratchpad) the random seed */
 
-int func_002F7D90(int a, int fn, int b, int c, int d, int e);
 
 /* 0x003D2F80, 0x60 bytes. Starts event `k`. */
 int func_003D2F80(int k)
@@ -429,7 +430,7 @@ int func_003D2FE0(void)
         return -1;
     if (func_002F9060(func_00327D50()) * 10 < 2000)
         return -1;
-    if (func_002F7D90(0, (int)func_002F8630, func_00327D50(), 0, 0, 0) < 1)
+    if (func_002F7D90(0, func_002F8630, func_00327D50(), 0, 0, 0) < 1)
         return -1;
     if (func_00327E90() >= 1)
         return -1;

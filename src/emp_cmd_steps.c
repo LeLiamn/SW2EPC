@@ -381,11 +381,36 @@ void func_0038B9B0(u8 *m)
 extern u8 g_007B9EA0[], g_007B9ED0[];
 extern int g_007B9F3C;
 extern void (*g_004176D0[0x16])(void);
-extern u8 *g_0045D7D4, *g_0045D7D8;      /* (small data) the list screen textures */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D7D4_a;      /* (small data) the list screen textures */
+#define g_0045D7D4 ((u8 *)PS2_PTR(g_0045D7D4_a))
+#define g_0045D7D4_SET(v) (g_0045D7D4_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D7D4;
+#define g_0045D7D4_a (*(ps2ptr *)&g_0045D7D4)
+#define g_0045D7D4_SET(v) (g_0045D7D4 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D7D8_a;      /* (small data) the list screen textures */
+#define g_0045D7D8 ((u8 *)PS2_PTR(g_0045D7D8_a))
+#define g_0045D7D8_SET(v) (g_0045D7D8_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D7D8;
+#define g_0045D7D8_a (*(ps2ptr *)&g_0045D7D8)
+#define g_0045D7D8_SET(v) (g_0045D7D8 = (v))
+#endif
 extern char g_00459A10[];                /* the allocations' source name */
 extern u8 *g_0043C120[];                 /* message texts ("Checking the memory card ...") */
 extern short g_007BA830, g_007BA7F0, g_007BA7D0, g_007BA7D4;
+#ifdef SW2E_PC
+extern ps2ptr g_007BA7E0_a;
+#define g_007BA7E0 ((u8 *)PS2_PTR(g_007BA7E0_a))
+#define g_007BA7E0_SET(v) (g_007BA7E0_a = PS2_ADDR(v))
+#else
 extern u8 *g_007BA7E0;
+#define g_007BA7E0_a (*(ps2ptr *)&g_007BA7E0)
+#define g_007BA7E0_SET(v) (g_007BA7E0 = (v))
+#endif
 
 int func_0030D810(void);
 void func_003DFD80(int a, int b, int c, int x, int y, int d, u8 *e, u8 *f);
@@ -481,11 +506,11 @@ int func_0038D180(int a, int b)
 /* 0x0038F4B0, 0xA8 bytes, matching. Loads the officer list screen. */
 void func_0038F4B0(void)
 {
-    g_0045D7D4 = 0;
-    g_0045D7D8 = 0;
-    g_0045D7D4 = func_001026D0(1, 0x81, 0, 1, 0, 0, g_00459A10, 0x2F);
+    g_0045D7D4_SET(0);
+    g_0045D7D8_SET(0);
+    g_0045D7D4_SET(func_001026D0(1, 0x81, 0, 1, 0, 0, g_00459A10, 0x2F));
     func_00102960(1);
-    g_0045D7D8 = func_001026D0(1, 0x82, 0, 1, 0, 0, g_00459A10, 0x33);
+    g_0045D7D8_SET(func_001026D0(1, 0x82, 0, 1, 0, 0, g_00459A10, 0x33));
     func_00102960(1);
     func_003A5C40(10);
     func_003A5FA0(1, 1, 0, 1);
@@ -630,7 +655,7 @@ static void text_style(int col, float size)
 /* 0x00381DF0, 0x1F8 bytes. Draws an item row with its target's name (items 0x2D, 0x34, 0x37). */
 void func_00381DF0(int a, int x, int y, int item, int sel, int w)
 {
-    u8 *m = (u8 *)func_002FC2C0()[0x1AB];
+    u8 *m = (u8 *)PS2_PTR(func_002FC2C0()[0x1AB]);
     char buf[64];
 
     if (sel == 0)
@@ -854,7 +879,15 @@ void func_0038DE60(void)
 }
 
 extern int g_004169D0[];
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
 extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 void func_0037E480(int a, int k, int x, int y, int z, char *t, int b, int c, int p8);
 
 /* 0x0037DA70, 0x40 bytes. Officer `o`'s look kind. */

@@ -35,7 +35,15 @@ typedef struct {
 #define UBIT(lv, n) (((UBits8 *)&(lv))->f##n)
 typedef unsigned long long u64;
 
-extern u8 *g_0045D870;                    /* (small data) the background */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D870_a;                    /* (small data) the background */
+#define g_0045D870 ((u8 *)PS2_PTR(g_0045D870_a))
+#define g_0045D870_SET(v) (g_0045D870_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D870;
+#define g_0045D870_a (*(ps2ptr *)&g_0045D870)
+#define g_0045D870_SET(v) (g_0045D870 = (v))
+#endif
 extern u32 g_0045D128;                    /* (small data) its colour */
 extern int g_0045D1C8;                    /* (small data) 1: a half-height mode? */
 
@@ -105,7 +113,7 @@ int func_0030D7D0(void);
 void func_003F8B30(int n)
 {
     if (n < 5) {
-        g_0045D870 = func_001026D0(1, n + 0x9B, 0, 1, 0, 0, "BgManager.c", 0x1A);
+        g_0045D870_SET(func_001026D0(1, n + 0x9B, 0, 1, 0, 0, "BgManager.c", 0x1A));
         func_00102960(1);
     }
 }
@@ -115,7 +123,7 @@ void func_003F8B80(void)
 {
     if (g_0045D870 != 0) {
         func_00102EC0(g_0045D870);
-        g_0045D870 = 0;
+        g_0045D870_SET(0);
     }
 }
 

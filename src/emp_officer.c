@@ -26,13 +26,20 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
-extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each) */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;                   /* the officer table (0x2C bytes each) */
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 extern char g_007A2CD0[];                /* a name buffer */
 extern u32 g_00446410[];
 extern u32 g_004141D0[][3];
 extern u16 g_004463E0[];                 /* soldiers by level */
 
-u8 *func_0030CCB0(void);
 int func_00120A40(const char *s);
 int func_002F59A0(u32 id);
 int func_002F5D30(u32 id);

@@ -39,7 +39,8 @@ typedef unsigned long long u64;
 /* The scratchpad words (constant addresses). */
 #define g_70000150 (*(int *)PS2_PTR(0x70000150))          /* frame index: 0 or 1 */
 #define g_70000154 (*(int *)PS2_PTR(0x70000154))          /* 1 or 2 (field mode?) */
-#define g_70000158 (*(u32 **)PS2_PTR(0x70000158))         /* the DMA chain's write cursor */
+#define g_70000158 PS2_GETP(u32 *, 0x70000158)         /* the DMA chain's write cursor */
+#define g_70000158_SET(v) PS2_SETP(0x70000158, v)
 
 /* A queued packet. */
 typedef struct Node {
@@ -121,7 +122,7 @@ static inline void send(u32 addr, u32 qwc)
     d[1] = addr;
     d[2] = 0x13000000;
     d[3] = 0x51000000 | qwc;
-    g_70000158 = d + 4;
+    g_70000158_SET(d + 4);
 }
 
 /* 0x00104250, 0x88 bytes. Takes `size` bytes (rounded up to 16) from the frame's buffer. */
@@ -258,7 +259,7 @@ void func_00104600(u8 *packet, u8 *data, u32 size, int dbp, int psm, int dbw, in
     q[9] = 0x53;
     q[10] = (u64)(int)(size >> 4) | 0x0800000000008000;             /* IMAGE tag */
     q[11] = 0;
-    *(u32 *)(packet + 0x80) = (u32)data;
+    *(u32 *)(packet + 0x80) = (u32)PS2_ADDR(data);
     *(u32 *)(packet + 0x84) = (size + 0xF) >> 4;
 }
 
@@ -268,7 +269,7 @@ void func_001046E0(u8 *packet, int layer)
 {
     u32 addr, qwc;
 
-    queue((u32)packet, 6, layer);
+    queue((u32)PS2_ADDR(packet), 6, layer);
     addr = *(u32 *)(packet + 0x80);
     qwc = *(u32 *)(packet + 0x84);
     queue(addr | 1, qwc, layer);
@@ -281,14 +282,14 @@ void func_00104860(u8 *packet)
     u32 *d;
     u32 addr;
 
-    send((u32)packet, 6);
+    send((u32)PS2_ADDR(packet), 6);
     d = g_70000158;
     addr = *(u32 *)(packet + 0x80);
     d[0] = *(u32 *)(packet + 0x84) | 0x30000000;
     d[1] = addr;
     d[2] = 0;
     d[3] = *(u32 *)(packet + 0x84) | 0x51000000;
-    g_70000158 = d + 4;
+    g_70000158_SET(d + 4);
     func_00105390(packet + 0x60);
 }
 
@@ -436,15 +437,15 @@ u64 func_00104F20(u8 *pack, int index, int dbp, int cbp, int layer)
 /* 0x00104F60, 0xB4 bytes. Queues `size` bytes at `data` in layer `layer`. */
 void func_00104F60(u8 *data, int size, int layer)
 {
-    queue((u32)data, (size + 0xF) >> 4, layer);
+    queue((u32)PS2_ADDR(data), (size + 0xF) >> 4, layer);
 }
 
 /* 0x00105020, 0x88 bytes. Sends `size` bytes at `data` at once, with the header and tail. */
 void func_00105020(u8 *data, u32 size)
 {
-    g_70000158 = func_00104470(g_70000158);
-    send((u32)data, (size + 0xF) >> 4);
-    g_70000158 = func_00104410(g_70000158);
+    g_70000158_SET(func_00104470(g_70000158));
+    send((u32)PS2_ADDR(data), (size + 0xF) >> 4);
+    g_70000158_SET(func_00104410(g_70000158));
 }
 
 /* 0x001050B0, 0x20 bytes, matching. A GIF tag for one A+D register write. */
@@ -482,19 +483,19 @@ u8 *func_00105190(void)
 /* 0x00105230, 0xB0 bytes. Queues a packet of one register write. */
 void func_00105230(u8 *packet, int layer)
 {
-    queue((u32)packet, 2, layer);
+    queue((u32)PS2_ADDR(packet), 2, layer);
 }
 
 /* 0x001052E0, 0xB0 bytes. Queues a packet of four register writes. */
 void func_001052E0(u8 *packet, int layer)
 {
-    queue((u32)packet, 5, layer);
+    queue((u32)PS2_ADDR(packet), 5, layer);
 }
 
 /* 0x00105390, 0x4C bytes. Sends a packet of one register write at once (no header). */
 void func_00105390(u8 *packet)
 {
-    send((u32)packet, 2);
+    send((u32)PS2_ADDR(packet), 2);
 }
 
 /* 0x001053E0, 0x28 bytes, matching. A flat sprite (0x30 bytes): a GIF tag in register-list mode, then
@@ -518,15 +519,15 @@ u8 *func_00105410(void)
 /* 0x001054B0, 0xB0 bytes. Queues a flat sprite. */
 void func_001054B0(u8 *packet, int layer)
 {
-    queue((u32)packet, 3, layer);
+    queue((u32)PS2_ADDR(packet), 3, layer);
 }
 
 /* 0x00105560, 0x7C bytes. Sends a flat sprite at once. */
 void func_00105560(u8 *packet)
 {
-    g_70000158 = func_00104470(g_70000158);
-    send((u32)packet, 3);
-    g_70000158 = func_00104410(g_70000158);
+    g_70000158_SET(func_00104470(g_70000158));
+    send((u32)PS2_ADDR(packet), 3);
+    g_70000158_SET(func_00104410(g_70000158));
 }
 
 /* 0x001055E0, 0x3C bytes, matching. A sprite with a colour per corner (0x60 bytes, ten values). */
@@ -549,15 +550,15 @@ u8 *func_00105620(void)
 /* 0x001056C0, 0xB0 bytes. Queues it. */
 void func_001056C0(u8 *packet, int layer)
 {
-    queue((u32)packet, 6, layer);
+    queue((u32)PS2_ADDR(packet), 6, layer);
 }
 
 /* 0x00105770, 0x7C bytes. Sends it at once. */
 void func_00105770(u8 *packet)
 {
-    g_70000158 = func_00104470(g_70000158);
-    send((u32)packet, 6);
-    g_70000158 = func_00104410(g_70000158);
+    g_70000158_SET(func_00104470(g_70000158));
+    send((u32)PS2_ADDR(packet), 6);
+    g_70000158_SET(func_00104410(g_70000158));
 }
 
 /* 0x001057F0, 0x68 bytes. A textured sprite (0x50 bytes, eight values) with texture `tex0`:
@@ -591,15 +592,15 @@ u8 *func_00105860(u64 tex0, int mode)
 /* 0x00105900, 0xB0 bytes. Queues it. */
 void func_00105900(u8 *packet, int layer)
 {
-    queue((u32)packet, 5, layer);
+    queue((u32)PS2_ADDR(packet), 5, layer);
 }
 
 /* 0x001059B0, 0x7C bytes. Sends it at once. */
 void func_001059B0(u8 *packet)
 {
-    g_70000158 = func_00104470(g_70000158);
-    send((u32)packet, 5);
-    g_70000158 = func_00104410(g_70000158);
+    g_70000158_SET(func_00104470(g_70000158));
+    send((u32)PS2_ADDR(packet), 5);
+    g_70000158_SET(func_00104410(g_70000158));
 }
 
 /* 0x00105A30, 0x78 bytes. A textured sprite with a colour per corner (0x70 bytes, twelve values). */
@@ -650,15 +651,15 @@ u8 *func_00105B40(u64 tex0, int mode)
 /* 0x00105BE0, 0xB0 bytes. Queues it. */
 void func_00105BE0(u8 *packet, int layer)
 {
-    queue((u32)packet, 8, layer);
+    queue((u32)PS2_ADDR(packet), 8, layer);
 }
 
 /* 0x00105C90, 0x7C bytes. Sends it at once. */
 void func_00105C90(u8 *packet)
 {
-    g_70000158 = func_00104470(g_70000158);
-    send((u32)packet, 8);
-    g_70000158 = func_00104410(g_70000158);
+    g_70000158_SET(func_00104470(g_70000158));
+    send((u32)PS2_ADDR(packet), 8);
+    g_70000158_SET(func_00104410(g_70000158));
 }
 
 /* 0x00105D10, 0x40 bytes, matching. A quad with a colour per corner (0x80 bytes, fourteen values). */
@@ -766,7 +767,7 @@ void func_00105F90(void)
             d += 4;
         }
     }
-    g_70000158 = func_001042E0(d);
+    g_70000158_SET(func_001042E0(d));
     layers_reset();
 }
 

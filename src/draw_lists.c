@@ -22,8 +22,9 @@ extern int g_0045D344, g_0045D34C, g_0045D354, g_0045D35C, g_0045D364, g_0045D37
 extern int g_0072D100;
 extern u8 g_00408510[], g_00408530[], g_00408550[];
 
-#define SP_INT(a) (*(int *)(a))
-#define SP_PKT (*(u32 **)PS2_PTR(0x70000158))      /* (scratchpad) the packet pointer */
+#define SP_INT(a) (*(int *)PS2_PTR(a))
+#define SP_PKT PS2_GETP(u32 *, 0x70000158)      /* (scratchpad) the packet pointer */
+#define SP_PKT_SET(v) PS2_SETP(0x70000158, v)
 #define SP_LIST SP_INT(0x70000D60)       /* (scratchpad) the list being drawn */
 #define SP_COUNT SP_INT(0x70000D64)
 
@@ -168,13 +169,13 @@ u32 *func_001C99B0(u32 *p)
 /* 0x001C9A40, 0x48 bytes, matching. Writes the start-of-list packets. */
 void func_001C9A40(void)
 {
-    SP_PKT = func_001CC580(func_001CCC00(SP_PKT), g_00408530, g_00408510, g_00408550);
+    SP_PKT_SET(func_001CC580(func_001CCC00(SP_PKT), g_00408530, g_00408510, g_00408550));
 }
 
 /* 0x001C9A90, 0x28 bytes, matching. */
 void func_001C9A90(void)
 {
-    SP_PKT = func_001C99B0(SP_PKT);
+    SP_PKT_SET(func_001C99B0(SP_PKT));
 }
 
 /* 0x001CB3D0, 0x14 bytes, matching. Gives back an entry of the first pool (0x110 bytes). */
@@ -232,7 +233,7 @@ u32 *func_001CC7C0(u32 *p, u8 *q)
 {
     *(u32 *)(q + 0xC) = SP_COUNT * 0x12 | 0x6C128000;
     p[0] = 0x30000013;
-    p[1] = (u32)q;
+    p[1] = (u32)PS2_ADDR(q);
     p[2] = 0;
     p[3] = 0;
     SP_COUNT++;
@@ -263,7 +264,7 @@ u32 *func_001CC970(u32 *p, u8 *q)
 {
     *(u32 *)(q + 0xC) = 0x6C128004;
     p[0] = 0x30000013;
-    p[1] = (u32)q;
+    p[1] = (u32)PS2_ADDR(q);
     p[2] = 0;
     p[3] = 0;
     return p + 4;
@@ -289,8 +290,24 @@ extern u8 g_0072D130[];
 extern int g_0072D0F0[16];               /* the lists switched on */
 extern u8 *g_0072C870[];                 /* the loaded model files */
 extern u8 g_00669D60[];
-extern u8 *g_0045D2C0;                   /* (small data) the camera */
-extern u8 *g_0045D340;                   /* (small data) the camera kept aside */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2C0_a;                   /* (small data) the camera */
+#define g_0045D2C0 ((u8 *)PS2_PTR(g_0045D2C0_a))
+#define g_0045D2C0_SET(v) (g_0045D2C0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2C0;
+#define g_0045D2C0_a (*(ps2ptr *)&g_0045D2C0)
+#define g_0045D2C0_SET(v) (g_0045D2C0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D340_a;                   /* (small data) the camera kept aside */
+#define g_0045D340 ((u8 *)PS2_PTR(g_0045D340_a))
+#define g_0045D340_SET(v) (g_0045D340_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D340;
+#define g_0045D340_a (*(ps2ptr *)&g_0045D340)
+#define g_0045D340_SET(v) (g_0045D340 = (v))
+#endif
 extern float g_0045D330;                 /* (small data) a fade */
 extern int g_0045D37C;
 extern int g_0045D328;                   /* (small data) the next trail slot */
@@ -314,15 +331,15 @@ typedef struct { u32 v[16]; } Mat16;
 
 /* Draws with a copy of the camera (field of view 15 degrees). */
 #define TEMP_CAMERA_BEGIN() do {                                        \
-    g_0045D340 = g_0045D2C0;                                            \
+    g_0045D340_SET(g_0045D2C0);                                            \
     func_00118AC0((unsigned int *)(g_006D3390), g_0045D2C0, 0x240);                       \
-    g_0045D2C0 = g_006D3390;                                            \
+    g_0045D2C0_SET(g_006D3390);                                            \
     *(u32 *)(g_006D3390 + 0x224) = 0x3E860A92;                          \
     *(u32 *)(g_006D3390 + 0x220) = 0;                                   \
     func_0017AC50(g_0045D2C0);                                          \
 } while (0)
 #define TEMP_CAMERA_END() do {                                          \
-    g_0045D2C0 = g_0045D340;                                            \
+    g_0045D2C0_SET(g_0045D340);                                            \
     func_0017AC50(g_0045D2C0);                                          \
 } while (0)
 
@@ -597,9 +614,9 @@ void func_001C9390(void)
     int paused = BATTLE_PAUSED();
 
     if (!paused && (GAME_FLAGS & 0x100000) == 0 && (g_0072D0F0[6] != 0 || g_0072D0F0[14] != 0)) {
-        SP_PKT = func_001CCC00(SP_PKT);
+        SP_PKT_SET(func_001CCC00(SP_PKT));
         if (g_0072D0F0[6] != 0) {
-            SP_PKT = func_001CC9C0(SP_PKT);
+            SP_PKT_SET(func_001CC9C0(SP_PKT));
             SP_LIST = 6;
             func_001C9CB0();
         }
@@ -644,7 +661,7 @@ u32 *func_001C98D0(u32 *p, u8 *o)
         return p;
     for (m = *(u8 **)(o + 0x18); m != 0; m = NEXT(m, 0x264)) {
         p[0] = 0x30000005;
-        p[1] = (u32)(o + SP_BUF * 0x50 + 0x50);
+        p[1] = (u32)PS2_ADDR((o + SP_BUF * 0x50 + 0x50));
         p[2] = 0;
         p[3] = 0;
         p = func_001CCD20(p + 4, *(int *)(m + 0x27C), *(u32 *)(m + 0x270));
@@ -675,7 +692,7 @@ void func_001C9AC0(void)
         p = func_001CA720(p, o, 0);
         p = func_00229A40(p, *(int *)(o + 0x24));
     }
-    SP_PKT = func_001CCCD0(p);
+    SP_PKT_SET(func_001CCCD0(p));
 }
 
 /* 0x001C9BB0, 0xF8 bytes. Draws list 13. */
@@ -694,7 +711,7 @@ void func_001C9BB0(void)
             p = func_002A81C0(*(int *)(o + 0x2C), p, m + SP_BUF * 0x130, *(int *)(m + 0x2A4));
         }
     }
-    SP_PKT = (u32 *)PS2_PTR(func_0024FA80(PS2_ADDR(p)));
+    SP_PKT_SET((u32 *)PS2_PTR(func_0024FA80(PS2_ADDR(p))));
 }
 
 /* 0x001C9CB0, 0x9C bytes. */
@@ -707,7 +724,7 @@ void func_001C9CB0(void)
         p = func_001C98D0(p, o);
     for (o = HEAD(SP_LIST, 0x22C); o != 0; o = NEXT(o, 0x11C))
         p = func_001C98D0(p, o);
-    SP_PKT = p;
+    SP_PKT_SET(p);
 }
 
 /* 0x001C9D50, 0xC4 bytes. Draws list 14. */
@@ -728,7 +745,7 @@ void func_001C9D50(void)
             }
         }
     }
-    SP_PKT = p;
+    SP_PKT_SET(p);
 }
 
 #define DRAW_LIST(l) do {                                               \
@@ -864,7 +881,7 @@ void func_001CA620(void)
     }
     for (o = HEAD(SP_LIST, 0x33C); o != 0; o = NEXT(o, 0x10C))
         p = func_001CA720(p, o, 0);
-    SP_PKT = p;
+    SP_PKT_SET(p);
 }
 
 /* 0x001CAF50, 0x98 bytes. Draws object `o` alone with its own camera. */
@@ -873,7 +890,7 @@ void func_001CAF50(u8 *o)
     TEMP_CAMERA_BEGIN();
     func_001C9070();
     func_001C9A40();
-    SP_PKT = func_001CA720(SP_PKT, o, *(int *)(o + 0xF4));
+    SP_PKT_SET(func_001CA720(SP_PKT, o, *(int *)(o + 0xF4)));
     func_001C9A90();
     TEMP_CAMERA_END();
 }
@@ -1041,7 +1058,33 @@ int func_001CB880(int f, int w, int h)
  * (0x0045CD90) to skip repeated state. ---- */
 
 extern int g_0045CD88, g_0045CD8C, g_0045CD90, g_0045CD94;
-extern u8 *g_0045D384, *g_0045D388, *g_0045D38C;      /* (small data) texture files being set up */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D384_a;      /* (small data) texture files being set up */
+#define g_0045D384 ((u8 *)PS2_PTR(g_0045D384_a))
+#define g_0045D384_SET(v) (g_0045D384_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D384;
+#define g_0045D384_a (*(ps2ptr *)&g_0045D384)
+#define g_0045D384_SET(v) (g_0045D384 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D388_a;      /* (small data) texture files being set up */
+#define g_0045D388 ((u8 *)PS2_PTR(g_0045D388_a))
+#define g_0045D388_SET(v) (g_0045D388_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D388;
+#define g_0045D388_a (*(ps2ptr *)&g_0045D388)
+#define g_0045D388_SET(v) (g_0045D388 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D38C_a;      /* (small data) texture files being set up */
+#define g_0045D38C ((u8 *)PS2_PTR(g_0045D38C_a))
+#define g_0045D38C_SET(v) (g_0045D38C_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D38C;
+#define g_0045D38C_a (*(ps2ptr *)&g_0045D38C)
+#define g_0045D38C_SET(v) (g_0045D38C = (v))
+#endif
 extern u8 g_00426070[];                  /* texture id -> kind (0x11: none) */
 extern int g_00426230[0x11], g_00426280[0x3F];
 extern u8 g_004261C0[0x6F];
@@ -1066,14 +1109,14 @@ void func_001CB9E0(void)
     if (g_0045D38C != 0) {
         e = (u8 **)(g_0045D38C + 4);
         for (k = 0; k < 9; k++)
-            e[k * 2] += (u32)g_0045D38C;
+            e[k * 2] += (u32)PS2_ADDR(g_0045D38C);
         e = (u8 **)(g_0045D38C + 4);
         for (k = 2; k < 9; k++, e += 2)
             func_00107440(*e, TEX_SIZE(k, 0x11) << 5, 0);
         for (k = 0; k < 2; k++, e += 2)
             func_00107440(*e, TEX_SIZE(k, 0x11) << 5, 0);
         func_00102EC0(g_0045D38C);
-        g_0045D38C = 0;
+        g_0045D38C_SET(0);
     }
     for (k = 0; k < 0x6F; k++) {
         u8 b = g_004261C0[k];
@@ -1097,7 +1140,7 @@ void func_001CBCE0(void)
     if (g_0045D388 != 0) {
         e = (u8 **)(g_0045D388 + 4);
         for (k = 0; k < 0x18; k++)
-            e[k * 2] += (u32)g_0045D388;
+            e[k * 2] += (u32)PS2_ADDR(g_0045D388);
         e = (u8 **)(g_0045D388 + 4);
         for (k = 0; k < 0x18; k++, e += 2) {
             if ((int)k < 0x3F)
@@ -1108,7 +1151,7 @@ void func_001CBCE0(void)
     if (g_0045D384 != 0) {
         e = (u8 **)(g_0045D384 + 4);
         for (k = 0; k < 0x27; k++)
-            e[k * 2] += (u32)g_0045D384;
+            e[k * 2] += (u32)PS2_ADDR(g_0045D384);
         e = (u8 **)(g_0045D384 + 4);
         for (k = 0x18; k < 0x3F; k++, e += 2) {
             if ((int)k < 0x3F)
@@ -1116,14 +1159,14 @@ void func_001CBCE0(void)
             func_001CB970(*e, (int)k < 0x3F ? g_00426280[k] : 0x14, 0x10, 0x10);
         }
     }
-    SP_PKT = keep;
+    SP_PKT_SET(keep);
     if (g_0045D388 != 0) {
         func_00102EC0(g_0045D388);
-        g_0045D388 = 0;
+        g_0045D388_SET(0);
     }
     if (g_0045D384 != 0) {
         func_00102EC0(g_0045D384);
-        g_0045D384 = 0;
+        g_0045D384_SET(0);
     }
     func_00103000(1);
 }
@@ -1172,7 +1215,7 @@ u32 *func_001CC3B0(u32 *p, u32 f)
     if (k != (u32)g_0045CD88) {
         g_0045CD88 = k;
         p[0] = 0x30000002;
-        p[1] = (u32)(g_00426420 + k * 0x20);
+        p[1] = (u32)PS2_ADDR((g_00426420 + k * 0x20));
         p[2] = 0x13000000;
         p[3] = 0x51000002;
         p += 4;
@@ -1186,7 +1229,7 @@ u32 *func_001CC450(u32 *p, u32 f)
     f &= 0x10;
     if ((f != 0 && g_0045CD90 == 0) || (f == 0 && g_0045CD90 != 0)) {
         p[0] = 0x30000002;
-        p[1] = f == 0 ? (u32)g_00426580 : (u32)g_00426560;
+        p[1] = f == 0 ? (u32)PS2_ADDR(g_00426580) : (u32)PS2_ADDR(g_00426560);
         p[2] = 0x13000000;
         p[3] = 0x51000002;
         p += 4;
@@ -1230,11 +1273,11 @@ void func_001CC500(u32 *a, u32 *b)
 u32 *func_001CC580(u32 *p, u8 *a, u8 *b, u8 *c)
 {
     p[0] = 0x50000000;
-    p[1] = (u32)g_003FCEB0;
+    p[1] = (u32)PS2_ADDR(g_003FCEB0);
     p[2] = 0x11000000;
     p[3] = 0;
     p[4] = 0x30000007;
-    p[5] = (u32)g_007302E0;
+    p[5] = (u32)PS2_ADDR(g_007302E0);
     p[6] = 0;
     p[7] = 0;
     p[8] = 0x1000000D;
@@ -1256,7 +1299,7 @@ u32 *func_001CC580(u32 *p, u8 *a, u8 *b, u8 *c)
 u32 *func_001CC880(u32 *p, u8 *a, u8 *b, u8 *c)
 {
     p[0] = 0x50000000;
-    p[1] = (u32)g_003FFF70;
+    p[1] = (u32)PS2_ADDR(g_003FFF70);
     p[2] = 0x11000000;
     p[3] = 0;
     p[4] = 0x1000000B;
@@ -1276,7 +1319,7 @@ u32 *func_001CC880(u32 *p, u8 *a, u8 *b, u8 *c)
 u32 *func_001CC9C0(u32 *p)
 {
     p[0] = 0x50000000;
-    p[1] = (u32)g_003FF550;
+    p[1] = (u32)PS2_ADDR(g_003FF550);
     p[2] = 0x11000000;
     p[3] = 0;
     p[4] = 0x10000001;
@@ -1293,7 +1336,7 @@ u32 *func_001CCA90(u32 *p, u8 *m)
 {
     *(u32 *)(m + 0xC) = 0x6C128000;
     p[0] = 0x30000013;
-    p[1] = (u32)m;
+    p[1] = (u32)PS2_ADDR(m);
     p[2] = 0;
     p[3] = 0;
     return p + 4;
@@ -1313,7 +1356,7 @@ u32 *func_001CCAC0(u32 *p)
 u32 *func_001CCAE0(u32 *p)
 {
     p[0] = 0x50000000;
-    p[1] = (u32)g_00400280;
+    p[1] = (u32)PS2_ADDR(g_00400280);
     p[2] = 0x11000000;
     p[3] = 0;
     p[4] = 0x10000001;
@@ -1330,7 +1373,7 @@ u32 *func_001CCBB0(u32 *p, u8 *m)
 {
     *(u32 *)(m + 0xC) = 0x6C128004;
     p[0] = 0x30000013;
-    p[1] = (u32)m;
+    p[1] = (u32)PS2_ADDR(m);
     p[2] = 0;
     p[3] = 0;
     return p + 4;
@@ -1350,7 +1393,7 @@ u32 *func_001CCBE0(u32 *p)
 u32 *func_001CCC00(u32 *p)
 {
     p[0] = 0x30000007;
-    p[1] = (u32)g_00426380;
+    p[1] = (u32)PS2_ADDR(g_00426380);
     p[2] = 0x11000000;
     p[3] = 0x50000007;
     p[4] = 0x10000002;
@@ -1372,7 +1415,7 @@ u32 *func_001CCC00(u32 *p)
 u32 *func_001CCCD0(u32 *p)
 {
     p[0] = 0x30000003;
-    p[1] = (u32)g_004263F0;
+    p[1] = (u32)PS2_ADDR(g_004263F0);
     p[2] = 0x11000000;
     p[3] = 0x50000003;
     g_0045CD8C = 0x6F;

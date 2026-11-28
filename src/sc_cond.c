@@ -430,7 +430,15 @@ u32 func_001987A0(u16 *cmd)
     return AGREE(r, cmd[2]);
 }
 
-extern u8 *g_005BA7CC;                   /* the scenario's commands */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7CC_a;                   /* the scenario's commands */
+#define g_005BA7CC ((u8 *)PS2_PTR(g_005BA7CC_a))
+#define g_005BA7CC_SET(v) (g_005BA7CC_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA7CC;
+#define g_005BA7CC_a (*(ps2ptr *)&g_005BA7CC)
+#define g_005BA7CC_SET(v) (g_005BA7CC = (v))
+#endif
 extern u32 g_005BA7D4;                   /* the commands of the current part start here */
 extern int g_005BC260[0x10];             /* the scenario variables (scenario object +0x1BD0) */
 extern u8 g_005BD740[8];                 /* scenario switches (+5: a count compared by 198AB0) */
@@ -650,7 +658,15 @@ u32 func_00199120(u16 *cmd)
 
 extern u8 g_0073DF33[];                  /* the second player's record (bit 2) */
 extern u8 g_00669FA9[0x10];              /* (settings) switches 2, 3 (+0, +1), 6-8 (+8-+0xA) */
+#ifdef SW2E_PC
+extern ps2ptr g_005BD724_a;
+#define g_005BD724 ((u8 *)PS2_PTR(g_005BD724_a))
+#define g_005BD724_SET(v) (g_005BD724_a = PS2_ADDR(v))
+#else
 extern u8 *g_005BD724;
+#define g_005BD724_a (*(ps2ptr *)&g_005BD724)
+#define g_005BD724_SET(v) (g_005BD724 = (v))
+#endif
 extern u32 g_00669F74;                   /* (settings) a count of the values at +0x18 */
 extern int g_00669F78[0x40];
 extern int g_005BC1A0[24][2];            /* the scenario timers (+4: the time) */
@@ -862,8 +878,24 @@ u32 func_00199AF0(u16 *cmd)
     return func_001987A0(c);
 }
 
-extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each) */
-extern u8 *g_005BA69C;                   /* the scenario file */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;                   /* the officer table (0x2C bytes each) */
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA69C_a;                   /* the scenario file */
+#define g_005BA69C ((u8 *)PS2_PTR(g_005BA69C_a))
+#define g_005BA69C_SET(v) (g_005BA69C_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA69C;
+#define g_005BA69C_a (*(ps2ptr *)&g_005BA69C)
+#define g_005BA69C_SET(v) (g_005BA69C = (v))
+#endif
 
 int func_0019A4F0(u8 *c, int mode);
 

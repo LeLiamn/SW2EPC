@@ -144,3 +144,53 @@ int func_0010B158(void) { return 0; }
 
 int func_00128928(int cause) { (void)cause; return 0; }   /* EnableIntc */
 int func_001289F8(int channel) { (void)channel; return 0; }   /* EnableDmac */
+
+/* ---- more of libgraph: to be written with the renderer ---- */
+
+void func_00126178(void *draw) { (void)draw; once("sceGsPutDrawEnv"); }
+void func_001264F8(void *db, int field) { (void)db; (void)field; once("sceGsSwapDBuff"); }
+void func_00126AF0(void *load, void *data) { (void)load; (void)data; once("sceGsExecLoadImage (texture upload)"); }
+
+/* sceGsSetDefLoadImage(load, dbp, dbw, psm, x, y, w, h): fills the 0x60-byte packet that uploads
+ * w x h pixels to GS memory (GIF tag A+D, BITBLTBUF, TRXPOS, TRXREG, TRXDIR, then the GIF tag of
+ * the IMAGE data); returns 6, its size in quadwords. 0 when the image is over 0x7FFF quadwords. */
+int func_00126908(void *load, short dbp, short dbw, short psm, short x, short y, short w, short h)
+{
+    unsigned long long *q = (unsigned long long *)load;
+    long long qwc;
+
+    switch (psm) {
+    case 0x00: case 0x30: qwc = (long long)w * h >> 2; break;              /* 32 bits */
+    case 0x01: case 0x31: qwc = (long long)w * h * 3 >> 4; break;          /* 24 bits */
+    case 0x02: case 0x0A: case 0x32: case 0x3A: qwc = (long long)w * h >> 3; break;   /* 16 bits */
+    case 0x13: case 0x1B: qwc = (long long)w * h >> 4; break;              /* 8 bits */
+    case 0x14: case 0x24: case 0x2C: qwc = (long long)w * h >> 5; break;   /* 4 bits */
+    default: qwc = 0; break;
+    }
+    if (qwc > 0x7FFF) {
+        P->log(1, "sceGsSetDefLoadImage: image too big (%lld quadwords)", qwc);
+        return 0;
+    }
+    q[0] = 4 | 0x8000ull | (1ull << 60);                          /* NLOOP 4, EOP, NREG 1 */
+    q[1] = 0x0E;                                                  /* A+D */
+    q[2] = ((unsigned long long)(dbp & 0x3FFF) << 32) | ((unsigned long long)(dbw & 0x3F) << 48)
+         | ((unsigned long long)(psm & 0x3F) << 56);
+    q[3] = 0x50;                                                  /* BITBLTBUF */
+    q[4] = ((unsigned long long)(x & 0x7FF) << 32) | ((unsigned long long)(y & 0x7FF) << 48);
+    q[5] = 0x51;                                                  /* TRXPOS */
+    q[6] = (unsigned long long)(w & 0xFFF) | ((unsigned long long)(h & 0xFFF) << 32);
+    q[7] = 0x52;                                                  /* TRXREG */
+    q[8] = 0;                                                     /* host to local */
+    q[9] = 0x53;                                                  /* TRXDIR */
+    q[10] = (unsigned long long)(qwc & 0x7FFF) | 0x8000ull | (2ull << 58);   /* IMAGE, EOP */
+    q[11] = 0;
+    return 6;
+}
+
+/* sceGsSetDefDBuff(db, psm, w, h, ztest, zpsm, clear): the double buffer set-up; the renderer
+ * will take the frame size from here (640 x 512 here) */
+void func_00126260(void *db, int psm, int w, int h, int ztest, int zpsm, int clear)
+{
+    (void)db; (void)ztest; (void)zpsm; (void)clear;
+    P->log(0, "GS double buffer: %d x %d, format 0x%X", w, h, psm);
+}

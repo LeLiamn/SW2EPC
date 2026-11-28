@@ -26,10 +26,34 @@ typedef unsigned long long u64;
 #define GAME_FLAGS (*(u32 *)(g_00669D60 + 0x200))
 
 extern u8 g_00669D60[];
-extern u8 *g_0045D2C0;                   /* (small data) the camera */
-extern u8 *g_00732210;                   /* the stage's texture file */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2C0_a;                   /* (small data) the camera */
+#define g_0045D2C0 ((u8 *)PS2_PTR(g_0045D2C0_a))
+#define g_0045D2C0_SET(v) (g_0045D2C0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2C0;
+#define g_0045D2C0_a (*(ps2ptr *)&g_0045D2C0)
+#define g_0045D2C0_SET(v) (g_0045D2C0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_00732210_a;                   /* the stage's texture file */
+#define g_00732210 ((u8 *)PS2_PTR(g_00732210_a))
+#define g_00732210_SET(v) (g_00732210_a = PS2_ADDR(v))
+#else
+extern u8 *g_00732210;
+#define g_00732210_a (*(ps2ptr *)&g_00732210)
+#define g_00732210_SET(v) (g_00732210 = (v))
+#endif
 extern u32 g_00732214, g_00732218, g_0073221C;   /* GS memory cursors */
-extern u8 *g_005BA694;                   /* the scenario table's entries (100 bytes each) */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA694_a;                   /* the scenario table's entries (100 bytes each) */
+#define g_005BA694 ((u8 *)PS2_PTR(g_005BA694_a))
+#define g_005BA694_SET(v) (g_005BA694_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA694;
+#define g_005BA694_a (*(ps2ptr *)&g_005BA694)
+#define g_005BA694_SET(v) (g_005BA694 = (v))
+#endif
 extern u8 g_004298E8[];
 extern float g_0045D468[];               /* (small data) */
 
@@ -89,7 +113,7 @@ void func_001F4940(void)
     }
     if (g_00732210 != 0) {
         func_00102EC0(g_00732210);
-        g_00732210 = 0;
+        g_00732210_SET(0);
     }
 }
 
@@ -102,7 +126,7 @@ void func_001F4B10(u8 *f, int n)
     SP32(0x768) = 0;
     if (n != 0) {
         SP32(0x764) = n;
-        g_00732210 = f;
+        g_00732210_SET(f);
         SPP(0x760) = func_00102D30(SP32(0x764) << 4);
         func_00118850(SPP(0x760), SP32(0x764) << 4);
     }
@@ -193,7 +217,7 @@ void func_001F4DC0(void)
 /* 0x001F50C0, 0x88 bytes. The first object of list `l` of kind 0x18 (its +0x5A; 0xFF none). */
 u8 func_001F50C0(int *l)
 {
-    for (; l != 0; l = (int *)l[1]) {
+    for (; l != 0; l = (int *)PS2_PTR(l[1])) {
         u8 *o = SPP(0x1D0) + l[0] * 0x70;
         char c = func_001FF100(*(short *)(o + 0x54), 7);
 

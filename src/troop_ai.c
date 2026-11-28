@@ -30,7 +30,8 @@ extern u8 g_00440418[];
 extern u32 g_7000015C;                   /* (scratchpad) the random seed */
 
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
-#define UNITS (*(u8 **)PS2_PTR(0x700001D0))       /* (scratchpad) the stage units (0x70 bytes each) */
+#define UNITS PS2_GETP(u8 *, 0x700001D0)       /* (scratchpad) the stage units (0x70 bytes each) */
+#define UNITS_SET(v) PS2_SETP(0x700001D0, v)
 #define g_700001E0 ((u8 *)PS2_PTR(0x700001E0))    /* (scratchpad) a unit bit set */
 
 void func_00204D00(u8 *s, int a);
@@ -406,7 +407,7 @@ void func_0027DC90(u8 *c)
         for (x = x0; (int)x < (int)x1; x++) {
             u32 *p;
 
-            for (p = (u32 *)PS2_PTR(func_001945E0(0, x, y)); p != 0; p = (u32 *)p[1]) {
+            for (p = (u32 *)PS2_PTR(func_001945E0(0, x, y)); p != 0; p = (u32 *)PS2_PTR(p[1])) {
                 u32 b = 1 << (*p & 7);
 
                 if ((b & 0xFF & g_700001E0[*p >> 3]) == 0) {
@@ -529,7 +530,15 @@ void func_0027B2D0(u8 *s)
  * (0xC0 bytes at 0x006A3A30) of foot soldiers; +0x04 the next in the group, +0x10 the unit,
  * +0x68 its officer table entry. */
 
-extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each) */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;                   /* the officer table (0x2C bytes each) */
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 extern u8 g_00669D60[];
 
 void func_002A6D20(int k, int snd);

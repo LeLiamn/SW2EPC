@@ -342,7 +342,7 @@ void func_0036E430(u32 s)
     for (k = 0; k < 0x10; k++) {
         int *g = (int *)(func_0033EF80(k));
 
-        if ((g[0x19] & 1) != 0 && s == ((u8 *)g[0])[0x79]) {
+        if ((g[0x19] & 1) != 0 && s == ((u8 *)PS2_PTR(g[0]))[0x79]) {
             u8 *r = func_00338410(GROUP_INDEX(g));
 
             if (r[0x25] == 'G' && func_0033B1E0((unsigned char **)(g)) != 0) {
@@ -365,7 +365,7 @@ void func_0036E550(void)
     for (k = 0; k < 0x10; k++) {
         int *g = (int *)(func_0033EF80(k));
 
-        if ((g[0x19] & 1) != 0 && s == ((u8 *)g[0])[0x79]) {
+        if ((g[0x19] & 1) != 0 && s == ((u8 *)PS2_PTR(g[0]))[0x79]) {
             u8 *r = func_00338410(GROUP_INDEX(g));
 
             if (r[0x25] == 'G' && func_0033B1E0((unsigned char **)(g)) != 0) {
@@ -401,9 +401,9 @@ extern u32 g_7000015C;
 extern u8 g_0045D7B8[5];                 /* (small data) */
 
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
-#define GROUP_ALIVE(g) ((*(u32 *)((u8 *)(g)[0] + 0x80) & 1) != 0 &&                       \
-                        (*(u32 *)((u8 *)(g)[0] + 0x80) & 0x8C40002) == 0 &&               \
-                        (*(u32 *)((u8 *)(g)[0] + 0x80) & 4) == 0)
+#define GROUP_ALIVE(g) ((*(u32 *)((u8 *)PS2_PTR((g)[0]) + 0x80) & 1) != 0 &&                       \
+                        (*(u32 *)((u8 *)PS2_PTR((g)[0]) + 0x80) & 0x8C40002) == 0 &&               \
+                        (*(u32 *)((u8 *)PS2_PTR((g)[0]) + 0x80) & 4) == 0)
 
 void func_0036FD30(u32 k, u32 v);
 
@@ -415,7 +415,7 @@ void func_0036EC10(u32 s)
     for (k = 0; k < 0x10; k++) {
         int *g = (int *)(func_0033EF80(k));
 
-        if ((g[0x19] & 1) != 0 && GROUP_ALIVE(g) && s == ((u8 *)g[0])[0x79]) {
+        if ((g[0x19] & 1) != 0 && GROUP_ALIVE(g) && s == ((u8 *)PS2_PTR(g[0]))[0x79]) {
             int i = GROUP_INDEX(g);
 
             if (func_00338410(i)[0x25] == 'G') {
@@ -436,7 +436,7 @@ void func_0036ED70(void)
     for (k = 0; k < 0x10; k++) {
         int *g = (int *)(func_0033EF80(k));
 
-        if ((g[0x19] & 1) != 0 && GROUP_ALIVE(g) && s == ((u8 *)g[0])[0x79]) {
+        if ((g[0x19] & 1) != 0 && GROUP_ALIVE(g) && s == ((u8 *)PS2_PTR(g[0]))[0x79]) {
             if (func_00338410(GROUP_INDEX(g))[0x25] == 'G') {
                 g[0x13] = 1;
                 func_00338410(GROUP_INDEX(g))[0x23] = 0;

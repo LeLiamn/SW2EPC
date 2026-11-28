@@ -94,14 +94,14 @@ int func_0017C320(u32 *pack, u32 *out)
     u8 *st;
     u32 k;
 
-    out[0] = (u32)pack;
+    out[0] = (u32)PS2_ADDR(pack);
     out[1] = pack[0];
     st = func_00102D30(pack[0] << 5);
-    out[2] = (u32)st;
+    out[2] = (u32)PS2_ADDR(st);
     for (k = 0; k < out[1]; k++) {
         pack++;
         func_001477C0(st);
-        func_001477E0((u32 *)(out[0] + (*pack & ~3)), (u32 *)st);
+        func_001477E0((u32 *)PS2_PTR((out[0] + (*pack & ~3))), (u32 *)st);
         st += 0x20;
     }
     BIT(out, 0xC, 0) = 1;

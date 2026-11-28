@@ -54,7 +54,7 @@ void func_00178AC0(u8 *param_1)
     uStack_10 = *(u32 *)(param_1 + 0x90);
     uStack_8 = *(u32 *)(param_1 + 0x98);
     uStack_4 = *(u32 *)(param_1 + 0x9C);
-    fStack_c = *(float *)(param_1 + 0x44) - *(float *)(*(int *)(param_1 + 0x114) + 0x80);
+    fStack_c = *(float *)(param_1 + 0x44) - *(float *)PS2_PTR((*(int *)(param_1 + 0x114) + 0x80));
     *(ps2ptr *)(param_1 + 0xD0) = PS2_ADDR(&uStack_10);
     func_001F2BF0(param_1 + 0xD0);
     fVar4 = *(float *)(param_1 + 0xE0);
@@ -70,7 +70,7 @@ void func_00178AC0(u8 *param_1)
         }
         else {
             *(u16 *)(param_1 + 0x278) = 0xFFFF;
-            uVar1 = *(u32 *)(*(int *)(param_1 + 0x210) + 0x18);
+            uVar1 = *(u32 *)PS2_PTR((*(int *)(param_1 + 0x210) + 0x18));
             if ((uVar1 & 0x40000020) == 0) {
                 if (*(int *)(param_1 + 0x288) == 0) {
                     if (*(float *)(param_1 + 0xE0) - *(float *)(param_1 + 0x44) < 50.0f) {
@@ -78,7 +78,7 @@ void func_00178AC0(u8 *param_1)
                     }
                     else if ((uVar1 & 0x440) == 0) {
                         if ((*(int *)(param_1 + 0x11C) == 0) ||
-                              (1 < *(u32 *)(*(int *)(param_1 + 0x11C) + 0x204))) {
+                              (1 < *(u32 *)PS2_PTR((*(int *)(param_1 + 0x11C) + 0x204)))) {
                             if (*(int *)(param_1 + 0x118) == 0x3C) {
                                 *(u16 *)(param_1 + 0x278) = 0x11;
                             }
@@ -238,6 +238,20 @@ int func_0017DEA0(int param_1)
 void func_0017E010(int param_1)
 {
     func_0017DF30(param_1, *(u8 *)(g_00424D20 + param_1));
+}
+
+/* 0x0017E0C0, 0x48 bytes. Sets the music volume from a settings value 0-15 (0x1F72 at 15), over
+ * `frames` frames. */
+void func_0017E0C0(u8 volume, int frames)
+{
+    func_00115450(volume * 0x1F72 / 15, frames);
+}
+
+/* 0x0017E130, 0x10 bytes, matching. No music is asked for any more (both bytes 'i'). */
+void func_0017E130(void)
+{
+    *(u8 *)&g_0045D2D8 = 0x69;
+    *(u8 *)&g_0045D2D0 = 0x69;
 }
 
 /* 0x0017E140, 0x58 bytes. */

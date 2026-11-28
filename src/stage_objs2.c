@@ -24,7 +24,15 @@ typedef unsigned int u32;
 
 extern u8 g_005B4DF0[];                  /* the players' cameras' flags (0x240 apart) */
 extern u8 g_00799920[0x100];
-extern u8 *g_0045D5E8;                   /* (small data) the free list */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D5E8_a;                   /* (small data) the free list */
+#define g_0045D5E8 ((u8 *)PS2_PTR(g_0045D5E8_a))
+#define g_0045D5E8_SET(v) (g_0045D5E8_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D5E8;
+#define g_0045D5E8_a (*(ps2ptr *)&g_0045D5E8)
+#define g_0045D5E8_SET(v) (g_0045D5E8 = (v))
+#endif
 
 void func_002C7310(int x, int y, int a, int w, int h, int b, int c);
 void func_001ACA70(u32 *o, int a, int b, int c, int d);
@@ -92,7 +100,7 @@ int func_002BBF60(float *lo, float *hi)
 
     for (k = 0; k < 2; k++) {
         if ((g_005B4DF0[k * 0x240] & 1) != 0) {
-            float x = *(float *)(0x574E20 + k * 0x630), z = *(float *)(0x574E28 + k * 0x630);
+            float x = *(float *)PS2_PTR(0x574E20 + k * 0x630), z = *(float *)PS2_PTR(0x574E28 + k * 0x630);
 
             if (lo[0] <= x && x <= hi[0] && lo[1] <= z && z <= hi[1])
                 break;
@@ -112,7 +120,7 @@ int func_002BC2B0(u8 *a, int *b)
     if (a[3] == 0) {
         d = *(float *)(a + 4);
     } else {
-        u8 *r = func_001FF140(*(short *)(b[0] + 0x54));
+        u8 *r = func_001FF140(*(short *)PS2_PTR((b[0] + 0x54)));
 
         d = *(float *)(r + 0x24) - *(float *)(r + 0x14);
     }
@@ -219,7 +227,7 @@ void func_002BCA70(void)
     int k;
 
     func_00118850(g_00799920, 0x100);
-    g_0045D5E8 = g_00799920;
+    g_0045D5E8_SET(g_00799920);
     for (k = 0; k < 0xF; k++, p += 0x10)
         *(u8 **)p = p + 0x10;
     *(u8 **)p = 0;
@@ -269,7 +277,7 @@ void func_002BCAE0(u8 *p, u8 *rec, u32 size)
 int func_002BDC40(int *b)
 {
     int fwd = FORWARD(b);
-    u8 *r = func_0027F120(func_001FF100(*(short *)(b[0] + 0x54), 10));
+    u8 *r = func_0027F120(func_001FF100(*(short *)PS2_PTR((b[0] + 0x54)), 10));
 
     return *(float *)(g_007994E0[r[0]] + 4)
         <= (float)b[1] * *(float *)(g_007994E0[r[0]] + 8 + !fwd * 4);
@@ -284,7 +292,7 @@ int func_002BDD10(int *b)
 
     if (func_002BDC40(b) == 0)
         return 0;
-    o = (u8 *)b[0];
+    o = (u8 *)PS2_PTR(b[0]);
     r = func_0027F120(func_001FF100(*(short *)(o + 0x54), 10));
     n = r[0];
     if (FORWARD(b)) {
@@ -297,7 +305,7 @@ int func_002BDD10(int *b)
         func_002A5B10(*(u32 *)(q + 4));
         func_002BBF00(((u8 *)b)[10]);
     }
-    func_002BC110((int)o, g_007994E0[n][0x10 + i]);
+    func_002BC110((int)PS2_ADDR(o), g_007994E0[n][0x10 + i]);
     return 1;
 }
 
@@ -429,7 +437,15 @@ extern int *g_00412470[];
 extern u8 g_0073E020[10];
 extern u8 g_004123A5;
 extern u8 g_004123B0[][0x30];
+#ifdef SW2E_PC
+extern ps2ptr g_0045D5A0_a;
+#define g_0045D5A0 ((u8 *)PS2_PTR(g_0045D5A0_a))
+#define g_0045D5A0_SET(v) (g_0045D5A0_a = PS2_ADDR(v))
+#else
 extern u8 *g_0045D5A0;
+#define g_0045D5A0_a (*(ps2ptr *)&g_0045D5A0)
+#define g_0045D5A0_SET(v) (g_0045D5A0 = (v))
+#endif
 
 int func_002C33C0(u8 *o, int a);
 
@@ -532,7 +548,7 @@ int func_002C3AD0(int k)
 /* 0x002C3E20, 0xC4 bytes. Counts the stage objects of kind `*kind` that `fn` accepts. */
 int func_002C3E20(char *kind, int (*fn)(u32, int), int a)
 {
-    u8 *o = *(u8 **)PS2_PTR(0x700001D0);
+    u8 *o = PS2_GETP(u8 *, 0x700001D0);
     u32 n = func_00196A10(), k;
     int c = 0;
 
@@ -556,6 +572,6 @@ int func_002C49D0(u8 *o, char c)
     v = v == 0 ? 0x28 : v - 1;
     if (r == 0 || v != r[0x14])
         return 0;
-    g_0045D5A0 = (c == 2 || c == 0) ? o : 0;
+    g_0045D5A0_SET((c == 2 || c == 0) ? o : 0);
     return 1;
 }

@@ -19,9 +19,25 @@ typedef unsigned int u32;
 
 extern u8 g_007BEC50[][0x58];            /* the windows */
 extern u8 g_007BF540[2][0x9C];           /* the players' battle results */
+#ifdef SW2E_PC
+extern ps2ptr g_007BEC40_a;
+#define g_007BEC40 ((u8 *)PS2_PTR(g_007BEC40_a))
+#define g_007BEC40_SET(v) (g_007BEC40_a = PS2_ADDR(v))
+#else
 extern u8 *g_007BEC40;
+#define g_007BEC40_a (*(ps2ptr *)&g_007BEC40)
+#define g_007BEC40_SET(v) (g_007BEC40 = (v))
+#endif
 extern int g_007BEC38, g_007BEC3C;
-extern u8 *g_0045D830;                   /* (small data) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D830_a;                   /* (small data) */
+#define g_0045D830 ((u8 *)PS2_PTR(g_0045D830_a))
+#define g_0045D830_SET(v) (g_0045D830_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D830;
+#define g_0045D830_a (*(ps2ptr *)&g_0045D830)
+#define g_0045D830_SET(v) (g_0045D830 = (v))
+#endif
 extern int g_0045D834;
 extern char g_0045C490[];                /* the allocations' source name */
 extern void (*g_0041CE70[])(void), (*g_0041CEA0[])(void), (*g_0041CED0[])(void);
@@ -145,7 +161,7 @@ int func_003D9E90(void)
 void func_003DA7F0(void)
 {
     func_003DA890();
-    g_007BEC40 = func_001026D0(1, 0x8C, 0, 1, 0, 0, g_0045C490, 0x6D);
+    g_007BEC40_SET(func_001026D0(1, 0x8C, 0, 1, 0, 0, g_0045C490, 0x6D));
     func_00102960(1);
 }
 
@@ -154,7 +170,7 @@ void func_003DA850(void)
 {
     if (g_007BEC40 != 0) {
         func_00102EC0(g_007BEC40);
-        g_007BEC40 = 0;
+        g_007BEC40_SET(0);
     }
 }
 
@@ -175,7 +191,7 @@ void func_003DA8B0(int v)
 /* 0x003DB0B0, 0xC bytes, matching. */
 void func_003DB0B0(void)
 {
-    g_0045D830 = 0;
+    g_0045D830_SET(0);
     g_0045D834 = 0;
 }
 
@@ -184,7 +200,7 @@ void func_003DB1B0(void)
 {
     if (g_0045D830 != 0) {
         func_00102EC0(g_0045D830);
-        g_0045D830 = 0;
+        g_0045D830_SET(0);
         g_0045D834 = 0;
     }
 }

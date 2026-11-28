@@ -185,8 +185,60 @@ extern Ints15 g_0041CCA0;
 
 extern int g_0041CDE0[0xC], g_0041CE10[0xC], g_0041CE40[0xC];
 extern char *g_0043C120[];               /* screen texts */
-extern char *g_0043C524, *g_0043C534;
-extern u8 *g_0043C738, *g_0043C750, *g_0043C754, *g_0043C758;
+#ifdef SW2E_PC
+extern ps2ptr g_0043C524_a;
+#define g_0043C524 ((char *)PS2_PTR(g_0043C524_a))
+#define g_0043C524_SET(v) (g_0043C524_a = PS2_ADDR(v))
+#else
+extern char *g_0043C524;
+#define g_0043C524_a (*(ps2ptr *)&g_0043C524)
+#define g_0043C524_SET(v) (g_0043C524 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C534_a;
+#define g_0043C534 ((char *)PS2_PTR(g_0043C534_a))
+#define g_0043C534_SET(v) (g_0043C534_a = PS2_ADDR(v))
+#else
+extern char *g_0043C534;
+#define g_0043C534_a (*(ps2ptr *)&g_0043C534)
+#define g_0043C534_SET(v) (g_0043C534 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C738_a;
+#define g_0043C738 ((u8 *)PS2_PTR(g_0043C738_a))
+#define g_0043C738_SET(v) (g_0043C738_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043C738;
+#define g_0043C738_a (*(ps2ptr *)&g_0043C738)
+#define g_0043C738_SET(v) (g_0043C738 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C750_a;
+#define g_0043C750 ((u8 *)PS2_PTR(g_0043C750_a))
+#define g_0043C750_SET(v) (g_0043C750_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043C750;
+#define g_0043C750_a (*(ps2ptr *)&g_0043C750)
+#define g_0043C750_SET(v) (g_0043C750 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C754_a;
+#define g_0043C754 ((u8 *)PS2_PTR(g_0043C754_a))
+#define g_0043C754_SET(v) (g_0043C754_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043C754;
+#define g_0043C754_a (*(ps2ptr *)&g_0043C754)
+#define g_0043C754_SET(v) (g_0043C754 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C758_a;
+#define g_0043C758 ((u8 *)PS2_PTR(g_0043C758_a))
+#define g_0043C758_SET(v) (g_0043C758_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043C758;
+#define g_0043C758_a (*(ps2ptr *)&g_0043C758)
+#define g_0043C758_SET(v) (g_0043C758 = (v))
+#endif
 
 void func_003D47A0(int k, int x, int y, int alpha);
 void func_003D54C0(void);

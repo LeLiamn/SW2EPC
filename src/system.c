@@ -37,7 +37,8 @@ typedef unsigned long long u64;
 /* Scratchpad words. */
 #define g_70000150 (*(u32 *)PS2_PTR(0x70000150))    /* the packet buffer in use (0 / 1) */
 #define g_70000154 (*(int *)PS2_PTR(0x70000154))    /* the vertical scale (1 full height, 2 half) */
-#define g_70000158 (*(u32 **)PS2_PTR(0x70000158))   /* the packet's write pointer */
+#define g_70000158 PS2_GETP(u32 *, 0x70000158)   /* the packet's write pointer */
+#define g_70000158_SET(v) PS2_SETP(0x70000158, v)
 
 /* Kernel calls. */
 void FlushCache(int a);
@@ -166,9 +167,9 @@ void func_001004B0(void)
 }
 
 /* 0x00100870, 0x4C bytes, matching. Sends until accepted. */
-void func_00100870(u32 a, u32 b, int c)
+void func_00100870(void *file, const char *path, int c)
 {
-    while (!func_00115A50((void *)PS2_PTR(a), (const char *)PS2_PTR(b), 0))
+    while (!func_00115A50(file, path, 0))
         ;
 }
 
@@ -519,7 +520,7 @@ void func_001019F0(void)
     func_00126558(0);
     func_001265F0(0, 0);
     REG_DMAC_2_GIF_QWC = 10;
-    REG_DMAC_2_GIF_MADR = (u32)g_00400B80;
+    REG_DMAC_2_GIF_MADR = (u32)PS2_ADDR(g_00400B80);
     REG_DMAC_2_GIF_CHCR = 0x101;
     func_001265F0(0, 0);
     g_0045D1EC = 0;
@@ -640,11 +641,11 @@ void func_00101C90(int flip, int in_interrupt)
         g_70000150 ^= 1;
         chain = g_0045D1F8[g_70000150];
         chain[0] = 0x10000005;
-        g_70000158 = chain + 3;
+        g_70000158_SET(chain + 3);
         chain[1] = 0;
         chain[2] = 0x13000000;
         *g_70000158 = 0x51000005;
-        g_70000158 = g_70000158 + 1;
+        g_70000158_SET(g_70000158 + 1);
         gif = (u64 *)g_70000158;
         gif[0] = 0x1000000000008004ULL;
         gif[1] = 0x0E;
@@ -656,7 +657,7 @@ void func_00101C90(int flip, int in_interrupt)
         gif[7] = 0x22;
         gif[8] = 0;
         gif[9] = 0x49;
-        g_70000158 = (u32 *)(gif + 10);
+        g_70000158_SET((u32 *)(gif + 10));
     }
 }
 
@@ -670,7 +671,7 @@ void func_00102020(void)
     p[2] = 0;
     p[3] = 0;
     FlushCache(0);
-    g_70000158 = p + 4;
+    g_70000158_SET(p + 4);
 }
 
 /* 0x00102070, 0x48 bytes, matching. Sets the two packet buffers (by default 0x00460130 and 0x004B0130,
@@ -771,7 +772,7 @@ void func_00102290(void)
     *(u32 *)&g_0045D1B4 = 0x3991A2B5;
     g_70000150 = 0;
     func_00102070(0, 0);
-    g_70000158 = g_0045D1F8[g_70000150];
+    g_70000158_SET(g_0045D1F8[g_70000150]);
     g_0045D1A0 = 0;
     g_0045D19C = 0;
     g_0045D198 = 0;

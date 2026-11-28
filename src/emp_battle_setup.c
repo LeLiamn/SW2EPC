@@ -555,7 +555,15 @@ extern int g_0045D79C, g_0045D7A4;
 extern int g_007B9560[0x10][2];          /* the voice queue (voice, delay) */
 extern int g_007B95FC[8];                /* the battle's officers */
 extern int g_007B9828[2];
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2F0_a;
+#define g_0045D2F0 ((u8 *)PS2_PTR(g_0045D2F0_a))
+#define g_0045D2F0_SET(v) (g_0045D2F0_a = PS2_ADDR(v))
+#else
 extern u8 *g_0045D2F0;
+#define g_0045D2F0_a (*(ps2ptr *)&g_0045D2F0)
+#define g_0045D2F0_SET(v) (g_0045D2F0 = (v))
+#endif
 extern u32 g_7000015C;
 
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)

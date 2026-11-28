@@ -109,3 +109,77 @@ void sw2e_intr_enable(void)
     if (sw2e_platform)
         sw2e_platform->intr_enable();
 }
+
+/* ---- Sony's VU0 library (libvu0), row-vector matrices of 4 x 4 floats ---- */
+
+/* sceVu0UnitMatrix(m) */
+void func_00142EA8(float *m)
+{
+    int i;
+
+    for (i = 0; i < 16; i++)
+        m[i] = i % 5 == 0 ? 1.0f : 0.0f;
+}
+
+/* 0x00142FF0 / 0x00143098: the rotation matrix of `angle` about X / Y, as the decompiled callers
+ * use them (to check against the VU0 code) */
+void func_00142FF0(float *m, float angle)
+{
+    float c = cosf(angle), s = sinf(angle);
+
+    func_00142EA8(m);
+    m[5] = c; m[6] = s;
+    m[9] = -s; m[10] = c;
+}
+
+void func_00143098(float *m, float angle)
+{
+    float c = cosf(angle), s = sinf(angle);
+
+    func_00142EA8(m);
+    m[0] = c; m[2] = -s;
+    m[8] = s; m[10] = c;
+}
+
+/* 0x001436C8: copies x, y, z */
+void func_001436C8(float *to, const float *from)
+{
+    to[0] = from[0];
+    to[1] = from[1];
+    to[2] = from[2];
+}
+
+/* sceVu0NormalLightMatrix(m, l0, l1, l2): the three light directions, normalised and turned
+ * round, as the rows of a matrix that is then transposed (to check against the VU0 code) */
+void func_00143268(float *m, const float *l0, const float *l1, const float *l2)
+{
+    const float *l[3] = { l0, l1, l2 };
+    float t[16];
+    int i, k;
+
+    for (i = 0; i < 3; i++) {
+        float n = sqrtf(l[i][0] * l[i][0] + l[i][1] * l[i][1] + l[i][2] * l[i][2]);
+        float s = n > 0.0f ? -1.0f / n : 0.0f;
+
+        t[i * 4 + 0] = l[i][0] * s;
+        t[i * 4 + 1] = l[i][1] * s;
+        t[i * 4 + 2] = l[i][2] * s;
+        t[i * 4 + 3] = 0.0f;
+    }
+    t[12] = t[13] = t[14] = 0.0f;
+    t[15] = 1.0f;
+    for (i = 0; i < 4; i++)
+        for (k = 0; k < 4; k++)
+            m[i * 4 + k] = t[k * 4 + i];
+}
+
+/* sceVu0LightColorMatrix(m, c0, c1, c2, ambient): the colours as the matrix's vectors */
+void func_00143328(float *m, const float *c0, const float *c1, const float *c2, const float *a)
+{
+    const float *c[4] = { c0, c1, c2, a };
+    int i, k;
+
+    for (i = 0; i < 4; i++)
+        for (k = 0; k < 4; k++)
+            m[i * 4 + k] = c[i][k];
+}

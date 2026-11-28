@@ -24,7 +24,15 @@ typedef unsigned int u32;
 #define g_70000D68 (*(int *)PS2_PTR(0x70000D68))
 #define g_70000D6C (*(float *)PS2_PTR(0x70000D6C))  /* (scratchpad) the effects' time scale */
 
-extern u8 *g_0045D398;                   /* (small data) the effect pack */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D398_a;                   /* (small data) the effect pack */
+#define g_0045D398 ((u8 *)PS2_PTR(g_0045D398_a))
+#define g_0045D398_SET(v) (g_0045D398_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D398;
+#define g_0045D398_a (*(ps2ptr *)&g_0045D398)
+#define g_0045D398_SET(v) (g_0045D398 = (v))
+#endif
 extern u8 *g_0072C870[0x18B];            /* the effects by number */
 extern u8 **g_0040BDC0[0x18B];           /* effects sharing another's (by number) */
 extern u32 g_0045D324;                   /* (small data) 1: no sharing */
@@ -54,11 +62,11 @@ void func_001C0250(void)
         return;
     e = (u32 *)(g_0045D398 + 4);
     for (k = 0; k < 0x18B; k++, e += 2) {
-        *e = *e + (u32)g_0045D398;
+        *e = *e + (u32)PS2_ADDR(g_0045D398);
         if (g_0072C870[k] != 0)
             continue;
-        if (*(u32 *)*e == 0x00424645) {              /* "EFB" */
-            g_0072C870[k] = (u8 *)*e;
+        if (*(u32 *)PS2_PTR(*e) == 0x00424645) {              /* "EFB" */
+            g_0072C870[k] = (u8 *)PS2_PTR(*e);
             func_001C8CF0(k);
         } else if (g_0045D324 == 0 && g_0040BDC0[k] != 0) {
             g_0072C870[k] = g_0072C870[*(u32 *)g_0040BDC0[k]];
@@ -216,16 +224,16 @@ void func_001C09C0(u8 *r, u8 *e)
         if (done & bit)
             continue;
         if (p[0] == 0) {
-            t = *(float *)((u8 *)p[1] + 0x1C);
+            t = *(float *)((u8 *)PS2_PTR(p[1]) + 0x1C);
             if (t0 < t && t <= *(float *)(r + 0x28)) {
-                func_001C3490(r, (u8 *)p[1], k, shared);
+                func_001C3490(r, (u8 *)PS2_PTR(p[1]), k, shared);
                 *(u32 *)(r + 0x3C) |= bit;
                 *(int *)(r + 0x4C) += 1;
             }
         } else if (p[0] == 1) {
-            t = *(float *)((u8 *)p[1] + 0x5C);
+            t = *(float *)((u8 *)PS2_PTR(p[1]) + 0x5C);
             if (t0 < t && t <= *(float *)(r + 0x28)) {
-                func_001C4B10(r, (u8 *)p[1], k, PS2_ADDR(shared));
+                func_001C4B10(r, (u8 *)PS2_PTR(p[1]), k, PS2_ADDR(shared));
                 *(u32 *)(r + 0x3C) |= bit;
                 *(int *)(r + 0x4C) += 1;
             }
@@ -324,9 +332,9 @@ int func_001C0D90(u32 *r)
     } else {
         u32 *p;
 
-        for (p = (u32 *)r[0]; p != 0; p = (u32 *)p[5])
+        for (p = (u32 *)PS2_PTR(r[0]); p != 0; p = (u32 *)PS2_PTR(p[5]))
             *p = 0;
-        for (p = (u32 *)r[2]; p != 0; p = (u32 *)p[6])
+        for (p = (u32 *)PS2_PTR(r[2]); p != 0; p = (u32 *)PS2_PTR(p[6]))
             *p = 0;
     }
     if (r[0xD] & 2) {

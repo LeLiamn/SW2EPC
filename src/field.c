@@ -30,7 +30,15 @@ float fabsf(float x);
 #pragma opt_unroll_loops on
 
 extern u8 g_005BD750[5][0x5C8];          /* the map objects */
-extern u8 *g_0045D2F0;                   /* (small data) the current map */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2F0_a;                   /* (small data) the current map */
+#define g_0045D2F0 ((u8 *)PS2_PTR(g_0045D2F0_a))
+#define g_0045D2F0_SET(v) (g_0045D2F0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2F0;
+#define g_0045D2F0_a (*(ps2ptr *)&g_0045D2F0)
+#define g_0045D2F0_SET(v) (g_0045D2F0 = (v))
+#endif
 extern const char g_004251D0[];          /* "Field.c" */
 extern u32 g_00424F20[];                 /* the map files by map number */
 extern u32 g_00424F30[];                 /* the map files by scenario map */
@@ -41,7 +49,15 @@ extern u32 g_00669DC0[2];                /* (settings) +0: the scenario */
 extern u32 g_00669DD4[5];                /* (settings) the five maps of mode 2 */
 extern u32 g_00669F98[2];                /* (settings) +0: a counter */
 extern int g_00669F6C[4];                /* (settings) +0: the game mode (1: ?) */
-extern u8 *g_005BA694;                   /* the scenario table's entries (100 bytes each) */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA694_a;                   /* the scenario table's entries (100 bytes each) */
+#define g_005BA694 ((u8 *)PS2_PTR(g_005BA694_a))
+#define g_005BA694_SET(v) (g_005BA694_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA694;
+#define g_005BA694_a (*(ps2ptr *)&g_005BA694)
+#define g_005BA694_SET(v) (g_005BA694 = (v))
+#endif
 
 void func_0018CAB0(u8 *map, u32 *data, u32 size);
 void func_0018CDA0(u8 *map);
@@ -65,7 +81,7 @@ void func_0018C500(void)
 
     if (func_0032E7B0() != 0)
         ev = func_0032F090(func_0032F780());
-    g_0045D2F0 = g_005BD750[0];
+    g_0045D2F0_SET(g_005BD750[0]);
     if (ev != -1) {
         func_0018C490(g_005BD750[0], ev + 0xB46);
         m = g_00669DB8[0] == 2 ? g_00669DD4[g_00669F98[0] % 5] : g_00669DD4[0];
@@ -103,7 +119,7 @@ void func_0018C730(void)
     } else {
         func_0018CDA0(g_0045D2F0);
     }
-    g_0045D2F0 = 0;
+    g_0045D2F0_SET(0);
 }
 
 /* 0x0018C7B0, 0xBC bytes. Splits a pack (a count, then offsets) of `size` bytes into a table of
@@ -114,7 +130,7 @@ u32 func_0018C7B0(u32 **out, u32 *pack, int size)
 
     size = size - pack[1];
     for (i = 0; i < pack[0]; i++) {
-        t[i * 2] = (u32)pack + pack[1 + i];
+        t[i * 2] = (u32)PS2_ADDR(pack) + pack[1 + i];
         if (i != 0) {
             t[i * 2 - 1] = t[i * 2] - t[i * 2 - 2];
             size = size - (t[i * 2] - t[i * 2 - 2]);
@@ -132,7 +148,7 @@ u32 func_0018C7B0(u32 **out, u32 *pack, int size)
  * +0xF9; in mode 1 the values come from func_002EFB00(4). */
 void func_0018C870(u8 *map, u32 *blk)
 {
-    u8 *d = (u8 *)blk[0];
+    u8 *d = (u8 *)PS2_PTR(blk[0]);
     u32 n, i;
 
     U8(map, 0x54) = (u8)(blk[1] >> 6);
@@ -296,7 +312,7 @@ u32 func_0018D010(u32 **k)
 {
     u32 h = k[0][1] + k[0][0] + ~k[1][1] + ~k[1][0];
 
-    if ((u32)k[2] & 1)
+    if ((u32)PS2_ADDR(k[2]) & 1)
         h = h ^ 0x1895F7C2;
     return h;
 }
@@ -308,7 +324,7 @@ int func_0018D0A0(u32 **a, u32 **b)
         return 0;
     if (*(unsigned long long *)a[1] != *(unsigned long long *)b[1])
         return 0;
-    return (((u32)a[2] ^ (u32)b[2]) & 1) == 0;
+    return (((u32)PS2_ADDR(a[2]) ^ (u32)PS2_ADDR(b[2])) & 1) == 0;
 }
 
 /* 0x0018D100, 0x40 bytes, matching. Allocates the map's two work tables (+0x100, +0x104). */

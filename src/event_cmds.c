@@ -20,7 +20,15 @@ typedef unsigned long long u64;
 
 extern int g_0045D3E0;                   /* (small data) the player */
 extern int g_0045D470;
-extern u8 *g_0045D2C0;                   /* (small data) the camera */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2C0_a;                   /* (small data) the camera */
+#define g_0045D2C0 ((u8 *)PS2_PTR(g_0045D2C0_a))
+#define g_0045D2C0_SET(v) (g_0045D2C0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2C0;
+#define g_0045D2C0_a (*(ps2ptr *)&g_0045D2C0)
+#define g_0045D2C0_SET(v) (g_0045D2C0 = (v))
+#endif
 extern u8 g_00730570[2][0x240];          /* the players' cameras */
 extern u8 g_00730730[];
 extern int g_0073C790;                   /* the event file */
@@ -31,10 +39,19 @@ extern u8 *g_0072C870[];                 /* the loaded model files */
 extern u16 g_0040C940[];                 /* event model -> model file */
 extern u32 g_0040C9F0[];                 /* event model flags */
 extern int g_0040CAA0[0x22];
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
 extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 
 #define SP_LIST (*(int *)PS2_PTR(0x70000D60))
-#define SP_PKT (*(u32 **)PS2_PTR(0x70000158))
+#define SP_PKT PS2_GETP(u32 *, 0x70000158)
+#define SP_PKT_SET(v) PS2_SETP(0x70000158, v)
 #define FL38(o) (*(u32 *)((o) + 0x38))
 
 /* Reads the command's next argument into `out`. */
@@ -160,7 +177,7 @@ void func_001D89C0(u8 *p)
         u8 *part = func_0014F810(m, d[0]);
         u32 *q = (u32 *)o;
 
-        q[4] = (u32)part;
+        q[4] = (u32)PS2_ADDR(part);
         q[0] = *(u32 *)(part + 0x30);
         q[1] = *(u32 *)(part + 0x34);
         q[2] = *(u32 *)(part + 0x38);
@@ -168,9 +185,9 @@ void func_001D89C0(u8 *p)
         ((float *)q)[1] = *(float *)(p + 0x34) - 1.0f;
         SP_LIST = 0xB;
         if (f == 0)
-            q[5] = (u32)func_001C7F30(g_0040C940[b], o, 0, PLAYER_FLAGS(g_0040C9F0[c]));
+            q[5] = (u32)PS2_ADDR(func_001C7F30(g_0040C940[b], o, 0, PLAYER_FLAGS(g_0040C9F0[c])));
         else
-            q[7] = (u32)func_001C8340(g_0040C940[b], o, 0, PLAYER_FLAGS(g_0040C9F0[c]));
+            q[7] = (u32)PS2_ADDR(func_001C8340(g_0040C940[b], o, 0, PLAYER_FLAGS(g_0040C9F0[c])));
         o[0x27] = 2;
     }
 }
@@ -218,7 +235,7 @@ void func_001D8F90(void)
     p[1] = 0;
     p[2] = 0x13000000;
     p[3] = 0;
-    SP_PKT = p + 4;
+    SP_PKT_SET(p + 4);
     q = (u64 *)(func_00105190());
     q[2] = 0x8000000044ULL;
     q[3] = 0x43;
@@ -230,30 +247,30 @@ void func_001D8F90(void)
     q[9] = 0x3B;
     p = SP_PKT;
     p[0] = 0x30000005;
-    p[1] = (u32)q;
+    p[1] = (u32)PS2_ADDR(q);
     p[2] = 0x13000000;
     p[3] = 0x51000005;
-    SP_PKT = p + 4;
+    SP_PKT_SET(p + 4);
     q = (u64 *)(func_00105410());
     q[3] = 0x3F80000080000000ULL;
     q[4] = 0xFFFE79007000ULL;
     q[5] = 0xFFFE7A809000ULL;
     p = SP_PKT;
     p[0] = 0x30000003;
-    p[1] = (u32)q;
+    p[1] = (u32)PS2_ADDR(q);
     p[2] = 0x13000000;
     p[3] = 0x51000003;
-    SP_PKT = p + 4;
+    SP_PKT_SET(p + 4);
     q = (u64 *)(func_00105410());
     q[3] = 0x3F80000080000000ULL;
     q[4] = 0xFFFE84807000ULL;
     q[5] = 0xFFFE87009000ULL;
     p = SP_PKT;
     p[0] = 0x30000003;
-    p[1] = (u32)q;
+    p[1] = (u32)PS2_ADDR(q);
     p[2] = 0x13000000;
     p[3] = 0x51000003;
-    SP_PKT = p + 4;
+    SP_PKT_SET(p + 4);
 }
 
 /* 0x001D91F0, 0x84 bytes, matching. The event scene's actors' frame. */
@@ -276,7 +293,7 @@ int func_001D93B0(u32 *e, float *dt)
 
     if ((*e & 1) == 0)
         return 0;
-    g_0045D2C0 = g_00730570[g_0045D3E0];
+    g_0045D2C0_SET(g_00730570[g_0045D3E0]);
     func_001D7470(*dt);
     func_001E2360(*dt, e);
     func_001D8EC0(*dt, (unsigned char *)(e));
@@ -294,7 +311,7 @@ void func_001D9490(u32 *e, int k)
 {
     int a = 0, b = 0;
 
-    g_0045D2C0 = g_00730570[g_0045D3E0];
+    g_0045D2C0_SET(g_00730570[g_0045D3E0]);
     if (k == 1) {
         a = 2;
         b = 0;
@@ -477,14 +494,14 @@ void func_001DAD50(u32 *e, u8 *f)
 
     if (f == 0)
         return;
-    e[1] = (u32)f;
-    e[2] = (u32)f;
+    e[1] = (u32)PS2_ADDR(f);
+    e[2] = (u32)PS2_ADDR(f);
     ((float *)e)[0x12] = 0.5f;
     e[0] |= 1;
-    c = (u8 *)e[2];
-    e[3] = (u32)(c + c[c[6] + 7] + 7);
-    e[4] = (u32)(c + 7);
-    e[5] = (u32)(c + c[6] + 8);
+    c = (u8 *)PS2_PTR(e[2]);
+    e[3] = (u32)PS2_ADDR((c + c[c[6] + 7] + 7));
+    e[4] = (u32)PS2_ADDR((c + 7));
+    e[5] = (u32)PS2_ADDR((c + c[6] + 8));
 }
 
 /* 0x001DADC0, 0xD8 bytes. Runs the commands due (up to a wait not reached or the end). */
@@ -585,15 +602,15 @@ void func_001DBB50(void)
 void func_001DC2B0(u32 *p)
 {
     p[7] = 0x1C;
-    p[4] = (u32)func_0020EC50(0x1C0);
-    p[5] = (u32)func_0020EC50(p[7] << 4);
+    p[4] = (u32)PS2_ADDR(func_0020EC50(0x1C0));
+    p[5] = (u32)PS2_ADDR(func_0020EC50(p[7] << 4));
     p[0] = 0;
     ((float *)p)[1] = 0.98f;
     p[2] = 0;
     p[3] = 0;
     p[9] = 0x24;
     ((float *)p)[8] = 4.6f;
-    p[6] = (u32)func_001DC040;
+    p[6] = (u32)PS2_CODE(func_001DC040);
 }
 
 /* 0x001DC330, 0x84 bytes. The three effect pairs of event file 0xB6. */
@@ -607,10 +624,10 @@ void func_001DC330(void)
     for (k = 0; k < 3; k++) {
         u32 *e = (u32 *)g_00730DA0[k];
 
-        e[0] = (u32)func_0020EC50(0x30);
-        e[1] = (u32)func_0020EC50(0x30);
-        func_001DC2B0((u32 *)e[0]);
-        func_001DC2B0((u32 *)e[1]);
+        e[0] = (u32)PS2_ADDR(func_0020EC50(0x30));
+        e[1] = (u32)PS2_ADDR(func_0020EC50(0x30));
+        func_001DC2B0((u32 *)PS2_PTR(e[0]));
+        func_001DC2B0((u32 *)PS2_PTR(e[1]));
     }
 }
 
@@ -623,10 +640,10 @@ void func_001DC3C0(void)
         u32 *e = (u32 *)g_00730DA0[k];
 
         if (g_00730DA0[k][0xE] != 0) {
-            *(u32 **)(e[0] + 0x28) = e;
-            func_002E9840((u8 *)e[0]);
-            *(u32 **)(e[1] + 0x28) = e;
-            func_002E9840((u8 *)e[1]);
+            *(u32 **)PS2_PTR((e[0] + 0x28)) = e;
+            func_002E9840((u8 *)PS2_PTR(e[0]));
+            *(u32 **)PS2_PTR((e[1] + 0x28)) = e;
+            func_002E9840((u8 *)PS2_PTR(e[1]));
         }
     }
 }
@@ -637,7 +654,7 @@ void func_001DC650(u32 *p)
     u32 k;
 
     for (k = 0; k < p[0]; k++) {
-        u8 *q = (u8 *)p[1] + k * 0x10;
+        u8 *q = (u8 *)PS2_PTR(p[1]) + k * 0x10;
 
         *(u32 *)q = 0;
         *(u32 *)(q + 8) = 0;
@@ -669,8 +686,25 @@ u32 func_001DCDE0(u32 v)
 
 extern u16 g_0073C794, g_0073C796;       /* the scene's two forces */
 extern u8 g_0073C7A2[], g_0073C7A5;
-extern u8 *g_0045D3E8;                   /* (small data) the caption buffer */
-extern char *g_0042E260[], *g_0042C730[], *g_0043CB80;
+#ifdef SW2E_PC
+extern ps2ptr g_0045D3E8_a;                   /* (small data) the caption buffer */
+#define g_0045D3E8 ((u8 *)PS2_PTR(g_0045D3E8_a))
+#define g_0045D3E8_SET(v) (g_0045D3E8_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D3E8;
+#define g_0045D3E8_a (*(ps2ptr *)&g_0045D3E8)
+#define g_0045D3E8_SET(v) (g_0045D3E8 = (v))
+#endif
+extern char *g_0042E260[], *g_0042C730[];
+#ifdef SW2E_PC
+extern ps2ptr g_0043CB80_a;
+#define g_0043CB80 ((char *)PS2_PTR(g_0043CB80_a))
+#define g_0043CB80_SET(v) (g_0043CB80_a = PS2_ADDR(v))
+#else
+extern char *g_0043CB80;
+#define g_0043CB80_a (*(ps2ptr *)&g_0043CB80)
+#define g_0043CB80_SET(v) (g_0043CB80 = (v))
+#endif
 extern char g_00428F50[], g_00428F60[], g_00428F70[], g_00428F78[];
 extern u8 g_00669D60[];
 extern u8 g_00730DE0[2][0x38];
@@ -699,7 +733,7 @@ void func_001DB2D0(u32 *e)
         func_001204B0(g_0045D3E8, g_00428F50, army, g_0043CB80, g_0042C730[g_0073C794],
                       g_0042C730[g_0073C796]);
     }
-    e[9] = (u32)g_0045D3E8;
+    e[9] = (u32)PS2_ADDR(g_0045D3E8);
 }
 
 /* 0x001DB6B0, 0x1F0 bytes. Draws the subtitles (when switched on in the settings). */

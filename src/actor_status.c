@@ -126,7 +126,7 @@ int func_0024FB50(u8 *a, u32 *st)
     st[2] = 0;
     st[7] = 0;
     *(float *)&st[8] = 0.2f;
-    st[0xE] = (u32)func_001C8340(0x10, (unsigned char *)((float *)(a + 0x40)), 0, f);
+    st[0xE] = (u32)PS2_ADDR(func_001C8340(0x10, (unsigned char *)((float *)(a + 0x40)), 0, f));
     func_0021A3B0(4, PS2_ADDR(a + 0x40));
     return 1;
 }
@@ -205,10 +205,10 @@ int func_0024FF60(u8 *a, u32 *st, int level)
     }
     f |= 1;
     for (k = 0; k < 9; k++)
-        st[0xC + k] = (u32)func_001C8340(k1, (void *)NODE_POS(a, g_00410A60[k]), 0, f);
+        st[0xC + k] = (u32)PS2_ADDR(func_001C8340(k1, (void *)NODE_POS(a, g_00410A60[k]), 0, f));
     for (k = 9; k < 0xD; k++)
-        st[0xC + k] = (u32)func_001C8340(k2, (void *)NODE_POS(a, g_00410A60[k]), 0, f);
-    st[0x19] = (u32)func_001C8340(k3, (void *)NODE_POS(a, g_00410A60[0xD]), 0, f);
+        st[0xC + k] = (u32)PS2_ADDR(func_001C8340(k2, (void *)NODE_POS(a, g_00410A60[k]), 0, f));
+    st[0x19] = (u32)PS2_ADDR(func_001C8340(k3, (void *)NODE_POS(a, g_00410A60[0xD]), 0, f));
     return 1;
 }
 
@@ -225,7 +225,7 @@ static void stop_glows(u32 *st)
     u32 k;
 
     for (k = 0; k < 0xE; k++) {
-        u8 *e = (u8 *)st[0xC + k];
+        u8 *e = (u8 *)PS2_PTR(st[0xC + k]);
 
         if (e != 0) {
             FX_STOP(e);
@@ -250,7 +250,7 @@ void func_00250190(u8 *a, u32 *st, int level)
                 stop_glows(st);
                 st[0xA] = 1;
             } else {
-                *(float **)((u8 *)st[0xC + k] + 0xF0) = NODE_POS(a, g_00410A60[k]);
+                *(float **)((u8 *)PS2_PTR(st[0xC + k]) + 0xF0) = NODE_POS(a, g_00410A60[k]);
             }
         }
         return;
@@ -297,7 +297,7 @@ static int halo_start(u8 *a, u32 *st, int k)
     d[1] = g_70000030[1];
     d[2] = g_70000030[2];
     d[3] = g_70000030[3];
-    st[0xC] = (u32)func_001C8340(k, (unsigned char *)(p), PS2_ADDR(d), f | 1);
+    st[0xC] = (u32)PS2_ADDR(func_001C8340(k, (unsigned char *)(p), PS2_ADDR(d), f | 1));
     return 1;
 }
 
@@ -363,7 +363,7 @@ int func_002505E0(u8 *a, u32 *st, int k)
     f = fx_flags(a);
     midpoint(p, r, l);
     g_70000D60 = 0;
-    st[0xC] = (u32)func_001C8340(k, (unsigned char *)(p), 0, f);
+    st[0xC] = (u32)PS2_ADDR(func_001C8340(k, (unsigned char *)(p), 0, f));
     return 1;
 }
 
@@ -371,7 +371,7 @@ int func_002505E0(u8 *a, u32 *st, int k)
 void func_00250730(u8 *a, u32 *st)
 {
     float *r = NODE_POS(a, 7), *l = NODE_POS(a, 6);
-    u8 *e = (u8 *)st[0xC];
+    u8 *e = (u8 *)PS2_PTR(st[0xC]);
 
     if (1.0f <= *(float *)(e + 0x28) && (*(u32 *)(e + 0x34) & 1) == 0) {
         status_end(a, st);
@@ -410,7 +410,7 @@ int func_00250870(u8 *a, u32 *st)
         float *p = NODE_POS(a, g_00410A70[j]);
 
         g_70000D60 = 0;
-        st[0xC + j] = (u32)func_001C8340(k, (unsigned char *)(p), 0, f | 8);
+        st[0xC + j] = (u32)PS2_ADDR(func_001C8340(k, (unsigned char *)(p), 0, f | 8));
     }
     return 1;
 }
@@ -419,7 +419,7 @@ int func_00250870(u8 *a, u32 *st)
  * first). */
 void func_00250A60(u8 *a, u32 *st)
 {
-    u8 *e = (u8 *)st[0xC];
+    u8 *e = (u8 *)PS2_PTR(st[0xC]);
     int over = 0;
     u32 k;
 
@@ -433,7 +433,7 @@ void func_00250A60(u8 *a, u32 *st)
     }
     for (k = 0; k < 0xB; k++) {
         if (st[0xC + k] != 0)
-            *(float **)((u8 *)st[0xC + k] + 0xF0) = NODE_POS(a, g_00410A70[k]);
+            *(float **)((u8 *)PS2_PTR(st[0xC + k]) + 0xF0) = NODE_POS(a, g_00410A70[k]);
     }
 }
 
@@ -472,10 +472,10 @@ int func_00250C10(u8 *a, u32 *st)
         k = 0x2E;
     if ((SETTINGS_FLAGS & 2) == 0) {
         g_70000D60 = 3;
-        st[0xC] = (u32)func_001C8340(0x2B, (unsigned char *)(p), 0, 0x209);
+        st[0xC] = (u32)PS2_ADDR(func_001C8340(0x2B, (unsigned char *)(p), 0, 0x209));
     }
     g_70000D60 = 0;
-    st[0xD] = (u32)func_001C8340(k, (unsigned char *)(p), 0, 0x209);
+    st[0xD] = (u32)PS2_ADDR(func_001C8340(k, (unsigned char *)(p), 0, 0x209));
     return 1;
 }
 
@@ -485,12 +485,12 @@ void func_00250D00(u8 *a, u32 *st)
     float *p = NODE_POS(a, 0);
 
     if ((SETTINGS_FLAGS & 2) == 0 && st[0xC] != 0) {
-        *(float **)((u8 *)st[0xC] + 0xF0) = p;
-        *(float *)((u8 *)st[0xC] + 0x2C) = (float)a[0x14D] / 128.0f;
+        *(float **)((u8 *)PS2_PTR(st[0xC]) + 0xF0) = p;
+        *(float *)((u8 *)PS2_PTR(st[0xC]) + 0x2C) = (float)a[0x14D] / 128.0f;
     }
     if (st[0xD] != 0) {
-        *(float **)((u8 *)st[0xD] + 0xF0) = p;
-        *(float *)((u8 *)st[0xD] + 0x2C) = (float)a[0x14D] / 128.0f;
+        *(float **)((u8 *)PS2_PTR(st[0xD]) + 0xF0) = p;
+        *(float *)((u8 *)PS2_PTR(st[0xD]) + 0x2C) = (float)a[0x14D] / 128.0f;
     }
 }
 
@@ -528,17 +528,17 @@ int func_00250E30(u8 *a, u32 *st)
     }
     if (*(int *)(a + 0x11C) == 0 || *(int *)(o + 0x11C) == 0 || g_0045D344 == 0 || (a[0x27C] & 4) == 0)
         return 0;
-    st[0xB] = (u32)o;
+    st[0xB] = (u32)PS2_ADDR(o);
     midpoint(p, NODE_POS(o, 1), NODE_POS(a, 1));
-    if (a[0x14E] < 2 || ((u8 *)st[0xB])[0x14E] < 2) {
+    if (a[0x14E] < 2 || ((u8 *)PS2_PTR(st[0xB]))[0x14E] < 2) {
         func_00229050(0);
         k = 0xC;
     } else {
         k = 0xCD;
     }
-    f = func_0016C040(a) == 0 && func_0016C040((u8 *)st[0xB]) == 0 ? 0 : 0x200;
+    f = func_0016C040(a) == 0 && func_0016C040((u8 *)PS2_PTR(st[0xB])) == 0 ? 0 : 0x200;
     g_70000D60 = 0;
-    st[0xC] = (u32)func_001C8340(k, (unsigned char *)(p), 0, f | 9);
+    st[0xC] = (u32)PS2_ADDR(func_001C8340(k, (unsigned char *)(p), 0, f | 9));
     return 1;
 }
 
@@ -549,10 +549,10 @@ void func_00251000(u8 *a, u32 *st)
     u32 k;
 
     if (linked || st[0xC] != 0 || st[0xD] != 0) {
-        if (st[0xB] != 0 && linked && *(int *)((u8 *)st[0xB] + 0x11C) == 0) {
+        if (st[0xB] != 0 && linked && *(int *)((u8 *)PS2_PTR(st[0xB]) + 0x11C) == 0) {
             for (k = 0; k < 2; k++) {
                 if (st[0xC + k] != 0) {
-                    FX_STOP((u8 *)st[0xC + k]);
+                    FX_STOP((u8 *)PS2_PTR(st[0xC + k]));
                     st[0xC + k] = 0;
                 }
             }
@@ -593,7 +593,7 @@ int func_002513D0(u8 *a, u32 *st)
     }
     f = fx_flags(a);
     g_70000D60 = 0;
-    st[0xC] = (u32)func_001C8340(0x37, (unsigned char *)(h), 0, f | 1);
+    st[0xC] = (u32)PS2_ADDR(func_001C8340(0x37, (unsigned char *)(h), 0, f | 1));
     return 1;
 }
 
@@ -611,11 +611,11 @@ void func_002514E0(u8 *a, u32 *st)
 
     if (*(short *)(a + 0x176) == 0) {
         if (st[0xC] != 0) {
-            FX_STOP((u8 *)st[0xC]);
+            FX_STOP((u8 *)PS2_PTR(st[0xC]));
             st[0xC] = 0;
         }
     } else {
-        *(float **)((u8 *)st[0xC] + 0xF0) = h;
+        *(float **)((u8 *)PS2_PTR(st[0xC]) + 0xF0) = h;
     }
 }
 
@@ -647,10 +647,10 @@ int func_00251590(u8 *a, u32 *st, int k1, int k2)
     f = fx_flags(a);
     if ((SETTINGS_FLAGS & 2) == 0) {
         g_70000D60 = 3;
-        st[0xC] = (u32)func_001C8340(k1, (unsigned char *)(p), 0, f | 9);
+        st[0xC] = (u32)PS2_ADDR(func_001C8340(k1, (unsigned char *)(p), 0, f | 9));
     }
     g_70000D60 = 0;
-    st[0xD] = (u32)func_001C8340(k2, (unsigned char *)(p), 0, f | 9);
+    st[0xD] = (u32)PS2_ADDR(func_001C8340(k2, (unsigned char *)(p), 0, f | 9));
     return 1;
 }
 
@@ -660,11 +660,11 @@ void func_00251680(u8 *a, u32 *st)
     float *p = NODE_POS(a, 0);
 
     if ((SETTINGS_FLAGS & 2) == 0) {
-        *(float *)((u8 *)st[0xC] + 0x2C) = (float)a[0x14D] / 128.0f;
-        *(float **)((u8 *)st[0xC] + 0xF0) = p;
+        *(float *)((u8 *)PS2_PTR(st[0xC]) + 0x2C) = (float)a[0x14D] / 128.0f;
+        *(float **)((u8 *)PS2_PTR(st[0xC]) + 0xF0) = p;
     }
-    *(float *)((u8 *)st[0xD] + 0x2C) = (float)a[0x14D] / 128.0f;
-    *(float **)((u8 *)st[0xD] + 0xF0) = p;
+    *(float *)((u8 *)PS2_PTR(st[0xD]) + 0x2C) = (float)a[0x14D] / 128.0f;
+    *(float **)((u8 *)PS2_PTR(st[0xD]) + 0xF0) = p;
 }
 
 /* 0x00251730, 0x124 bytes. Starts effect `k` on seven body nodes. */
@@ -681,7 +681,7 @@ int func_00251730(u8 *a, u32 *st, int k)
         float *p = NODE_POS(a, g_0045CDE8[j]);
 
         g_70000D60 = 0;
-        st[0xC + j] = (u32)func_001C8340(k, (unsigned char *)(p), 0, 0x208);
+        st[0xC + j] = (u32)PS2_ADDR(func_001C8340(k, (unsigned char *)(p), 0, 0x208));
     }
     return 1;
 }
@@ -689,7 +689,7 @@ int func_00251730(u8 *a, u32 *st, int k)
 /* 0x00251860, 0x134 bytes. The seven effects follow their nodes (all end with the first). */
 void func_00251860(u8 *a, u32 *st)
 {
-    u8 *e = (u8 *)st[0xC];
+    u8 *e = (u8 *)PS2_PTR(st[0xC]);
     int over = 0;
     u32 k;
 
@@ -702,7 +702,7 @@ void func_00251860(u8 *a, u32 *st)
         return;
     }
     for (k = 0; k < 7; k++)
-        *(float **)((u8 *)st[0xC + k] + 0xF0) = NODE_POS(a, g_0045CDE8[k]);
+        *(float **)((u8 *)PS2_PTR(st[0xC + k]) + 0xF0) = NODE_POS(a, g_0045CDE8[k]);
 }
 
 int func_00251A00(u8 *a, u32 *st, int k);
@@ -735,7 +735,7 @@ int func_00251A00(u8 *a, u32 *st, int k)
     f = fx_flags(a);
     st[1] = k;
     g_70000D60 = 0;
-    st[0xC] = (u32)func_001C8340(k, (unsigned char *)(p), 0, f | 1);
+    st[0xC] = (u32)PS2_ADDR(func_001C8340(k, (unsigned char *)(p), 0, f | 1));
     return 1;
 }
 
@@ -755,26 +755,26 @@ void func_00251B20(u8 *a, u32 *st)
 
     if (t == 0) {
         if (st[0xC] != 0) {
-            FX_STOP((u8 *)st[0xC]);
+            FX_STOP((u8 *)PS2_PTR(st[0xC]));
             st[0xC] = 0;
         }
     } else if (t < 0x12) {
         if (st[0xC] != 0) {
             float *q = (float *)(st + 0x1C);
 
-            *(u32 *)((u8 *)st[0xC] + 0x34) |= 0x800;
+            *(u32 *)((u8 *)PS2_PTR(st[0xC]) + 0x34) |= 0x800;
             q[0] = p[0];
             q[1] = p[1];
             q[2] = p[2];
             q[3] = p[3];
-            *(float **)((u8 *)st[0xC] + 0xF0) = q;
+            *(float **)((u8 *)PS2_PTR(st[0xC]) + 0xF0) = q;
             st[0xC] = 0;
         }
     } else if (st[0xC] == 0) {
         func_002519A0(a, st, st[1]);
     } else {
-        *(float **)((u8 *)st[0xC] + 0xF0) = p;
-        *(float *)((u8 *)st[0xC] + 0x2C) = (float)a[0x14D] / 128.0f;
+        *(float **)((u8 *)PS2_PTR(st[0xC]) + 0xF0) = p;
+        *(float *)((u8 *)PS2_PTR(st[0xC]) + 0x2C) = (float)a[0x14D] / 128.0f;
     }
 }
 
@@ -794,7 +794,7 @@ static float *copy_node(u8 *a, u32 *st, int n)
 }
 
 /* Leaves the first effect where it stands (to fade) and forgets it. */
-#define FX_LEAVE(st) (*(u32 *)((u8 *)(st)[0xC] + 0x34) |= 0x800, (st)[0xC] = 0)
+#define FX_LEAVE(st) (*(u32 *)((u8 *)PS2_PTR((st)[0xC]) + 0x34) |= 0x800, (st)[0xC] = 0)
 
 int func_00251C80(u8 *a, u32 *st, int k);
 void func_00251D90(u8 *a, u32 *st);
@@ -826,7 +826,7 @@ int func_00251C80(u8 *a, u32 *st, int k)
     f = fx_flags(a);
     midpoint(p, r, l);
     g_70000D60 = 0;
-    st[0xC] = (u32)func_001C8340(k, (unsigned char *)(p), 0, f | 9);
+    st[0xC] = (u32)PS2_ADDR(func_001C8340(k, (unsigned char *)(p), 0, f | 9));
     st[3] = 0;
     st[1] = k;
     return 1;
@@ -847,7 +847,7 @@ void func_00251E00(u8 *a, u32 *st)
 
     if (t == 0) {
         if (st[0xC] != 0) {
-            FX_STOP((u8 *)st[0xC]);
+            FX_STOP((u8 *)PS2_PTR(st[0xC]));
             st[0xC] = 0;
         }
         if (st[3] == 0) {
@@ -865,7 +865,7 @@ void func_00251E00(u8 *a, u32 *st)
             st[3] = 1;
             f = fx_flags(a);
             midpoint((float *)(st + 0x1C), NODE_POS(a, 7), NODE_POS(a, 6));
-            *(u32 *)((u8 *)st[0xC] + 0x34) |= 0x400;
+            *(u32 *)((u8 *)PS2_PTR(st[0xC]) + 0x34) |= 0x400;
             st[0xC] = 0;
             p = NODE_POS(a, 0);
             g_70000D60 = 1;
@@ -874,7 +874,7 @@ void func_00251E00(u8 *a, u32 *st)
     } else {
         midpoint((float *)(st + 0x1C), NODE_POS(a, 7), NODE_POS(a, 6));
         if (st[0xC] != 0)
-            *(float *)((u8 *)st[0xC] + 0x2C) = (float)a[0x14D] / 128.0f;
+            *(float *)((u8 *)PS2_PTR(st[0xC]) + 0x2C) = (float)a[0x14D] / 128.0f;
     }
 }
 
@@ -906,10 +906,10 @@ static int ground_pair(u8 *a, u32 *st, int k1, int k2)
     }
     if ((SETTINGS_FLAGS & 2) == 0) {
         g_70000D60 = 3;
-        st[0xC] = (u32)func_001C8340(k1, (unsigned char *)(p), 0, 0x209);
+        st[0xC] = (u32)PS2_ADDR(func_001C8340(k1, (unsigned char *)(p), 0, 0x209));
     }
     g_70000D60 = 0;
-    st[0xD] = (u32)func_001C8340(k2, (unsigned char *)(p), 0, 0x209);
+    st[0xD] = (u32)PS2_ADDR(func_001C8340(k2, (unsigned char *)(p), 0, 0x209));
     return 1;
 }
 
@@ -919,12 +919,12 @@ static void ground_pair_step(u8 *a, u32 *st)
     float *p = NODE_POS(a, 0);
 
     if ((SETTINGS_FLAGS & 2) == 0 && st[0xC] != 0) {
-        *(float **)((u8 *)st[0xC] + 0xF0) = p;
-        *(float *)((u8 *)st[0xC] + 0x2C) = (float)a[0x14D] / 128.0f;
+        *(float **)((u8 *)PS2_PTR(st[0xC]) + 0xF0) = p;
+        *(float *)((u8 *)PS2_PTR(st[0xC]) + 0x2C) = (float)a[0x14D] / 128.0f;
     }
     if (st[0xD] != 0) {
-        *(float **)((u8 *)st[0xD] + 0xF0) = p;
-        *(float *)((u8 *)st[0xD] + 0x2C) = (float)a[0x14D] / 128.0f;
+        *(float **)((u8 *)PS2_PTR(st[0xD]) + 0xF0) = p;
+        *(float *)((u8 *)PS2_PTR(st[0xD]) + 0x2C) = (float)a[0x14D] / 128.0f;
     }
 }
 
@@ -1018,7 +1018,7 @@ int func_00252600(u8 *a, u32 *st, int k)
     f = fx_flags(a);
     p = copy_node(a, st, 0);
     g_70000D60 = 0;
-    st[0xC] = (u32)func_001C84B0(k, (unsigned char *)(p), 0, f | 0x109);
+    st[0xC] = (u32)PS2_ADDR(func_001C84B0(k, (unsigned char *)(p), 0, f | 0x109));
     return 1;
 }
 
@@ -1068,7 +1068,7 @@ int func_00252810(u8 *a, u32 *st)
     g_70000D60 = 0;
     p = copy_node(a, st, 0);
     p[1] = func_001F2B70((unsigned char *)(p));
-    st[0xC] = (u32)func_001C84B0(0xE4, (unsigned char *)(p), 0, f | 0x11);
+    st[0xC] = (u32)PS2_ADDR(func_001C84B0(0xE4, (unsigned char *)(p), 0, f | 0x11));
     return 1;
 }
 
@@ -1242,7 +1242,7 @@ void func_00253170(u8 *a, u32 *st)
 
     for (k = 0; k < 0x10; k++) {
         if (st[0xC + k] != 0) {
-            FX_STOP((u8 *)st[0xC + k]);
+            FX_STOP((u8 *)PS2_PTR(st[0xC + k]));
             st[0xC + k] = 0;
         }
     }
@@ -1332,7 +1332,7 @@ void func_00253480(void)
                     g_0076E700[n] &= ~(1 << (kind & 0x1F));
                     g_00755D30[n]--;
                     for (i = 0; i < 0x10; i++) {
-                        u8 *e = (u8 *)st[0xC + i];
+                        u8 *e = (u8 *)PS2_PTR(st[0xC + i]);
 
                         if (e != 0 && !(1.0f <= *(float *)(e + 0x28) && (*(u32 *)(e + 0x34) & 1) == 0)) {
                             FX_STOP(e);
@@ -1363,7 +1363,7 @@ void func_00253690(u32 kind, u8 *a)
 
             for (i = 0; i < 0x10; i++) {
                 if (st[0xC + i] != 0) {
-                    FX_STOP((u8 *)st[0xC + i]);
+                    FX_STOP((u8 *)PS2_PTR(st[0xC + i]));
                     st[0xC + i] = 0;
                 }
             }
@@ -1428,16 +1428,16 @@ void func_002538C0(u32 k, u8 v)
         case 10:
         case 0x11:
             if (st[0xC] != 0)
-                *(float *)((u8 *)st[0xC] + 0x2C) = f;
+                *(float *)((u8 *)PS2_PTR(st[0xC]) + 0x2C) = f;
             if (st[0xD] != 0)
-                *(float *)((u8 *)st[0xD] + 0x2C) = f;
+                *(float *)((u8 *)PS2_PTR(st[0xD]) + 0x2C) = f;
             break;
         case 0xD:
         case 0xE:
         case 0xF:
         case 0x10:
             if (st[0xC] != 0)
-                *(float *)((u8 *)st[0xC] + 0x2C) = f;
+                *(float *)((u8 *)PS2_PTR(st[0xC]) + 0x2C) = f;
             break;
         }
     }
@@ -1570,7 +1570,7 @@ void func_00253FC0(void)
 {
     if ((g_005755A8 & 2) == 0 && g_0045D520 == 0) {
         g_70000D60 = 0;
-        g_0045D520 = (u32)func_001C8340(0xCF, (unsigned char *)((float *)g_005B4D80), 0, 0x265);
+        g_0045D520 = (u32)PS2_ADDR(func_001C8340(0xCF, (unsigned char *)((float *)g_005B4D80), 0, 0x265));
         func_00229E20(2);
     }
 }
@@ -1580,7 +1580,7 @@ void func_00254030(void)
 {
     if ((g_005755A8 & 2) == 0) {
         if (g_0045D520 != 0) {
-            *(u32 *)((u8 *)g_0045D520 + 0x34) |= 0x800;
+            *(u32 *)((u8 *)PS2_PTR(g_0045D520) + 0x34) |= 0x800;
             g_0045D520 = 0;
         }
         func_00229E30();

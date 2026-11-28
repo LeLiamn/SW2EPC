@@ -433,7 +433,15 @@ int func_00165180(Unit *u, int keep, int add)
 extern u8 g_00693970[];                 /* the game state: the officers at +0x100C0 */
 extern u8 g_005B50A0[][0xD0];            /* the unit descriptions (+0x10 flag 1: usable, +0x1C weapon kind) */
 extern u8 g_006A3A30[][0xC0];            /* the officers (+0x10 record, +0x82 life, +0xB8 flags) */
-extern u8 *g_0045D300;                   /* (small data) the state descriptions (0xA0 each) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D300_a;                   /* (small data) the state descriptions (0xA0 each) */
+#define g_0045D300 ((u8 *)PS2_PTR(g_0045D300_a))
+#define g_0045D300_SET(v) (g_0045D300_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D300;
+#define g_0045D300_a (*(ps2ptr *)&g_0045D300)
+#define g_0045D300_SET(v) (g_0045D300 = (v))
+#endif
 extern float g_004064D0[4][4];           /* the unit colours by player (the first: the default) */
 extern float g_00406510[4][4], g_00406550[4][4], g_00406590[4][4];  /* states 0x2E, 0x31, 0x32 */
 
@@ -839,9 +847,25 @@ void func_00166510(float dt, Unit *u)
     BIT(u, 0x19F, 5) = 0;
 }
 
-extern u32 *g_005B5040;                  /* (small data) the face motion: header +4 tracks, +0xC the tracks */
+#ifdef SW2E_PC
+extern ps2ptr g_005B5040_a;                  /* (small data) the face motion: header +4 tracks, +0xC the tracks */
+#define g_005B5040 ((u32 *)PS2_PTR(g_005B5040_a))
+#define g_005B5040_SET(v) (g_005B5040_a = PS2_ADDR(v))
+#else
+extern u32 *g_005B5040;
+#define g_005B5040_a (*(ps2ptr *)&g_005B5040)
+#define g_005B5040_SET(v) (g_005B5040 = (v))
+#endif
 extern u8 g_005B5078[][0xD0];            /* weapon kinds (+0: the kind's motions, +0x50 the mounted ones) */
-extern u8 *g_005BA688;                   /* (small data) the shared motions */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA688_a;                   /* (small data) the shared motions */
+#define g_005BA688 ((u8 *)PS2_PTR(g_005BA688_a))
+#define g_005BA688_SET(v) (g_005BA688_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA688;
+#define g_005BA688_a (*(ps2ptr *)&g_005BA688)
+#define g_005BA688_SET(v) (g_005BA688 = (v))
+#endif
 extern int g_0045D2C8;                   /* (small data) the side in the duel view */
 
 float *func_0016A170(Unit *u, int node);
@@ -1717,10 +1741,28 @@ void func_001688D0(Unit *u)
 
 typedef unsigned long long u64;
 
-#define g_70000158 (*(u32 **)PS2_PTR(0x70000158))         /* the DMA chain's write cursor */
+#define g_70000158 PS2_GETP(u32 *, 0x70000158)         /* the DMA chain's write cursor */
+#define g_70000158_SET(v) PS2_SETP(0x70000158, v)
 
 extern int g_0045D2A8;                   /* (small data) slow motion: its timer */
-extern u8 *g_005B4A00, *g_005B4A04;      /* the two duelling units */
+#ifdef SW2E_PC
+extern ps2ptr g_005B4A00_a;      /* the two duelling units */
+#define g_005B4A00 ((u8 *)PS2_PTR(g_005B4A00_a))
+#define g_005B4A00_SET(v) (g_005B4A00_a = PS2_ADDR(v))
+#else
+extern u8 *g_005B4A00;
+#define g_005B4A00_a (*(ps2ptr *)&g_005B4A00)
+#define g_005B4A00_SET(v) (g_005B4A00 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005B4A04_a;      /* the two duelling units */
+#define g_005B4A04 ((u8 *)PS2_PTR(g_005B4A04_a))
+#define g_005B4A04_SET(v) (g_005B4A04_a = PS2_ADDR(v))
+#else
+extern u8 *g_005B4A04;
+#define g_005B4A04_a (*(ps2ptr *)&g_005B4A04)
+#define g_005B4A04_SET(v) (g_005B4A04 = (v))
+#endif
 extern u32 g_0076E700[];                 /* per player: state flags */
 extern float g_00574D90[4];              /* the units' colour (w: the brightness) */
 
@@ -1822,7 +1864,7 @@ void func_001698D0(Unit *u, int mode)
         c[k] = g_00574D90[k];
     for (k = 0; k < 4; k++)
         d[4 + k] = (u32)(int)(c[k] * 16.0f);    /* vftoi4 */
-    g_70000158 = d + 8;
+    g_70000158_SET(d + 8);
     func_0014F0E0(PTR(u, 0x11C), alpha);
     s = u + 0x290;
     for (k = 0; k < 4; k++, s += 0x70) {
@@ -1858,14 +1900,14 @@ void func_001698D0(Unit *u, int mode)
         q[1] = 0xE;
         q[2] = 0x44;
         q[3] = 0x42;
-        g_70000158 = (u32 *)(q + 4);
+        g_70000158_SET((u32 *)(q + 4));
     }
     d = g_70000158;
     d[0] = 0x10000000;
     d[1] = 0;
     d[2] = 0x13000000;
     d[3] = 0;
-    g_70000158 = d + 4;
+    g_70000158_SET(d + 4);
 }
 
 #define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))          /* (scratchpad) the random seed */

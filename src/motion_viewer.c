@@ -19,7 +19,15 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 extern u8 g_006A3A30[][0xC0];            /* battle officers */
-extern u8 *g_0045D2C0;                   /* (small data) the camera */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2C0_a;                   /* (small data) the camera */
+#define g_0045D2C0 ((u8 *)PS2_PTR(g_0045D2C0_a))
+#define g_0045D2C0_SET(v) (g_0045D2C0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2C0;
+#define g_0045D2C0_a (*(ps2ptr *)&g_0045D2C0)
+#define g_0045D2C0_SET(v) (g_0045D2C0 = (v))
+#endif
 extern u8 g_005B4BC0[];                  /* the viewer's camera */
 extern u8 g_005B4DF0;
 extern u32 g_0041D7D0[8];
@@ -185,7 +193,7 @@ void func_003E8560(void)
         func_0014D560(m, 0, 0);
     }
     func_00182C30();
-    g_0045D2C0 = g_005B4BC0;
+    g_0045D2C0_SET(g_005B4BC0);
     g_005B4DF0 = (g_005B4DF0 & 0xFE) | 1;
     func_003E8770();
 }

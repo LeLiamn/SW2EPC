@@ -42,13 +42,21 @@ typedef struct {
     u32 a, b, c;
 } SortRecord;
 
-extern Destructor *g_00563280;           /* the destructor chain */
+#ifdef SW2E_PC
+extern ps2ptr g_00563280_a;           /* the destructor chain */
+#define g_00563280 ((Destructor *)PS2_PTR(g_00563280_a))
+#define g_00563280_SET(v) (g_00563280_a = PS2_ADDR(v))
+#else
+extern Destructor *g_00563280;
+#define g_00563280_a (*(ps2ptr *)&g_00563280)
+#define g_00563280_SET(v) (g_00563280 = (v))
+#endif
 extern Vec4 g_004015D0[10];              /* the VU0 constants */
 extern u8 g_0041DE00[];                  /* a DMA packet for VU0 (its microcode?) */
 extern int g_00563290[16];               /* the quicksort's pending upper bounds */
 extern int g_005632D0[16];               /* and lower bounds */
 
-#define SCRATCH_F(off) (*(float *)(0x70000000 + (off)))
+#define SCRATCH_F(off) (*(float *)PS2_PTR(0x70000000 + (off)))
 
 int func_0011B050(int channel);                  /* sceDmaGetChan */
 void func_0011B380(int chan, void *packet);      /* sceDmaSend */
@@ -66,7 +74,7 @@ void func_00117EB0(void)
     while (g_00563280 != 0) {
         Destructor *d = g_00563280;
 
-        g_00563280 = d->next;
+        g_00563280_SET(d->next);
         d->run(d->object, -1);
     }
 }

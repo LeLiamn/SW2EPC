@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 210208,
-    "non_matching": 1737188
+    "matching": 210256,
+    "non_matching": 1737380
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2589
+    "matching": 2591
   },
   "layout": "treemap",
   "areas": [
@@ -259,14 +259,14 @@
         },
         {
           "name": "emp_cq_main.c",
-          "description": "Estimated range 0x2FF3F0-0x31C840; 419 function(s) decompiled",
+          "description": "Estimated range 0x2FF3F0-0x31C840; 421 function(s) decompiled",
           "code": {
-            "total": 122972,
+            "total": 123004,
             "matching": 10784,
-            "non_matching": 112188
+            "non_matching": 112220
           },
           "decompiled_functions": {
-            "count": 419,
+            "count": 421,
             "matching": 124
           }
         },
@@ -589,15 +589,15 @@
         },
         {
           "name": "ObjAction.c",
-          "description": "Estimated range 0x27BF40-0x2877B8; 98 function(s) decompiled",
+          "description": "Estimated range 0x27BF40-0x2877B8; 99 function(s) decompiled",
           "code": {
             "total": 47224,
-            "matching": 1408,
+            "matching": 1440,
             "non_matching": 34264
           },
           "decompiled_functions": {
-            "count": 98,
-            "matching": 22
+            "count": 99,
+            "matching": 23
           }
         },
         {
@@ -659,15 +659,15 @@
         },
         {
           "name": "MotionManager.c",
-          "description": "Estimated range 0x1748E8-0x1814A8; 43 function(s) decompiled",
+          "description": "Estimated range 0x1748E8-0x1814A8; 45 function(s) decompiled",
           "code": {
             "total": 52160,
-            "matching": 1136,
-            "non_matching": 6628
+            "matching": 1152,
+            "non_matching": 6708
           },
           "decompiled_functions": {
-            "count": 43,
-            "matching": 9
+            "count": 45,
+            "matching": 10
           }
         },
         {
@@ -685,14 +685,14 @@
         },
         {
           "name": "FlagModel.c",
-          "description": "Estimated range 0x2A5E80-0x2AA7D8; 31 function(s) decompiled",
+          "description": "Estimated range 0x2A5E80-0x2AA7D8; 32 function(s) decompiled",
           "code": {
             "total": 18776,
             "matching": 224,
-            "non_matching": 7376
+            "non_matching": 7456
           },
           "decompiled_functions": {
-            "count": 31,
+            "count": 32,
             "matching": 2
           }
         },

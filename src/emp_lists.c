@@ -19,12 +19,37 @@ typedef unsigned int u32;
 
 #include "sw2e_draw.h"
 
-extern u8 *g_0045D7DC, *g_0045D7E0;      /* (small data) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D7DC_a;      /* (small data) */
+#define g_0045D7DC ((u8 *)PS2_PTR(g_0045D7DC_a))
+#define g_0045D7DC_SET(v) (g_0045D7DC_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D7DC;
+#define g_0045D7DC_a (*(ps2ptr *)&g_0045D7DC)
+#define g_0045D7DC_SET(v) (g_0045D7DC = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D7E0_a;      /* (small data) */
+#define g_0045D7E0 ((u8 *)PS2_PTR(g_0045D7E0_a))
+#define g_0045D7E0_SET(v) (g_0045D7E0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D7E0;
+#define g_0045D7E0_a (*(ps2ptr *)&g_0045D7E0)
+#define g_0045D7E0_SET(v) (g_0045D7E0 = (v))
+#endif
 extern u8 g_007BA600[];
 extern u8 g_007BA7D0[], g_007BA7F0[], g_007BA810[], g_007BA830[];
 extern float g_007BA7D8, g_007BA7F8, g_007BA818, g_007BA838;
 extern u8 g_007BA7DD, g_007BA7FD, g_007BA81D, g_007BA83D;
+#ifdef SW2E_PC
+extern ps2ptr g_007BA840_a;
+#define g_007BA840 ((u8 *)PS2_PTR(g_007BA840_a))
+#define g_007BA840_SET(v) (g_007BA840_a = PS2_ADDR(v))
+#else
 extern u8 *g_007BA840;
+#define g_007BA840_a (*(ps2ptr *)&g_007BA840)
+#define g_007BA840_SET(v) (g_007BA840 = (v))
+#endif
 extern u8 g_00418D80[][4];
 extern short g_00418B80[][0x2A];
 extern int g_0056CCA4[4];
@@ -46,7 +71,7 @@ void func_00390780(void)
 {
     if (g_0045D7E0 != 0) {
         func_00102EC0(g_0045D7E0);
-        g_0045D7E0 = 0;
+        g_0045D7E0_SET(0);
     }
 }
 
@@ -425,10 +450,19 @@ typedef unsigned long long u64;
 extern char g_00459AE0[], g_00459B08[], g_00459B20[];
 extern short g_007BA850, g_007BA852;
 extern u8 g_007BA85C, g_007BA85D;
-extern u8 *g_0045D0B0;                   /* (small data) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D0B0_a;                   /* (small data) */
+#define g_0045D0B0 ((u8 *)PS2_PTR(g_0045D0B0_a))
+#define g_0045D0B0_SET(v) (g_0045D0B0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D0B0;
+#define g_0045D0B0_a (*(ps2ptr *)&g_0045D0B0)
+#define g_0045D0B0_SET(v) (g_0045D0B0 = (v))
+#endif
 extern u8 g_0056CCC8[4];
 
-#define SP_PKT (*(u32 **)PS2_PTR(0x70000158))
+#define SP_PKT PS2_GETP(u32 *, 0x70000158)
+#define SP_PKT_SET(v) PS2_SETP(0x70000158, v)
 
 void func_003914C0(void);
 void func_00392FF0(int a);
@@ -612,10 +646,10 @@ static void full_screen(u64 a, u64 t, int k)
         u32 *p = SP_PKT;
 
         p[0] = 0x30000005;
-        p[1] = (u32)q;
+        p[1] = (u32)PS2_ADDR(q);
         p[2] = 0x13000000;
         p[3] = 0x51000005;
-        SP_PKT = p + 4;
+        SP_PKT_SET(p + 4);
     } else {
         func_001052E0((unsigned char *)(q), k);
     }
@@ -675,9 +709,9 @@ void func_00396480(u32 *p)
 {
     if ((p[0] & 0x10) != 0 || func_00102960(0) == 0)
         return;
-    if (func_0011EAE8((u8 *)p[4], g_0045D0B0, 4) == 0) {
+    if (func_0011EAE8((u8 *)PS2_PTR(p[4]), g_0045D0B0, 4) == 0) {
         if (p[4] != 0) {
-            func_00102EC0((u8 *)p[4]);
+            func_00102EC0((u8 *)PS2_PTR(p[4]));
             p[4] = 0;
         }
         func_00395E20((u8 *)p, 1);
@@ -693,7 +727,15 @@ void func_00396480(u32 *p)
 
 extern u8 g_007BA870[0x38];              /* the movie gallery */
 extern float g_007BA858;
+#ifdef SW2E_PC
+extern ps2ptr g_007BA860_a;
+#define g_007BA860 ((u8 *)PS2_PTR(g_007BA860_a))
+#define g_007BA860_SET(v) (g_007BA860_a = PS2_ADDR(v))
+#else
 extern u8 *g_007BA860;
+#define g_007BA860_a (*(ps2ptr *)&g_007BA860)
+#define g_007BA860_SET(v) (g_007BA860 = (v))
+#endif
 extern u8 g_007BA8B0[];                  /* the command menu */
 
 void func_001265F0(int a, int b);
@@ -755,7 +797,7 @@ void func_00397260(void)
     }
     for (k = 3; k < 6; k++) {
         if (q[k] != 0) {
-            func_00102EC0((u8 *)q[k]);
+            func_00102EC0((u8 *)PS2_PTR(q[k]));
             q[k] = 0;
         }
     }
@@ -771,7 +813,7 @@ void func_00397330(void)
 
     if (q == 0)
         return;
-    g_007BA860 = func_002EE540();
+    g_007BA860_SET(func_002EE540());
     r = func_001AE550(g_007BA858, g_007BA860, &g_007BA850, &g_007BA85C, 0);
     g_007BA85D = (g_007BA85D & 0xFE) | (r & 1);
     func_00396420((u32 *)q);

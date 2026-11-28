@@ -1,7 +1,7 @@
 /*
  * emp_cq_main.c - the Empire mode's conquest main loop: the game state blocks, loading and
  * leaving, the turn's scene steps, end checks and the notices shown to the player
- * (0x0030CCD0-...). Written so far: from 0x0030CCD0.
+ * (0x0030CCB0-...). Written so far: from 0x0030CCB0.
  *
  * Decompiled by reading the original machine code (Ghidra + R5900 extension, checked against the
  * disassembly). Unknown functions and globals keep neutral names (func_/g_ + address); comments
@@ -42,17 +42,120 @@ typedef struct {
 
 extern Notice g_007A3BC0;
 extern int g_007A4270[6];                /* a pending event command (func_0030E0F0) */
-extern u8 *g_007A3B98, *g_007A3B9C, *g_007A3BA0;   /* the three game state blocks */
+#ifdef SW2E_PC
+extern ps2ptr g_007A3B98_a;   /* the three game state blocks */
+#define g_007A3B98 ((u8 *)PS2_PTR(g_007A3B98_a))
+#define g_007A3B98_SET(v) (g_007A3B98_a = PS2_ADDR(v))
+#else
+extern u8 *g_007A3B98;
+#define g_007A3B98_a (*(ps2ptr *)&g_007A3B98)
+#define g_007A3B98_SET(v) (g_007A3B98 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_007A3B9C_a;   /* the three game state blocks */
+#define g_007A3B9C ((u8 *)PS2_PTR(g_007A3B9C_a))
+#define g_007A3B9C_SET(v) (g_007A3B9C_a = PS2_ADDR(v))
+#else
+extern u8 *g_007A3B9C;
+#define g_007A3B9C_a (*(ps2ptr *)&g_007A3B9C)
+#define g_007A3B9C_SET(v) (g_007A3B9C = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_007A3BA0_a;   /* the three game state blocks */
+#define g_007A3BA0 ((u8 *)PS2_PTR(g_007A3BA0_a))
+#define g_007A3BA0_SET(v) (g_007A3BA0_a = PS2_ADDR(v))
+#else
+extern u8 *g_007A3BA0;
+#define g_007A3BA0_a (*(ps2ptr *)&g_007A3BA0)
+#define g_007A3BA0_SET(v) (g_007A3BA0 = (v))
+#endif
 extern u8 g_007B4C40[500], g_007B4010[3000], g_007A4290[0xFCE4];
 extern int g_007A3BA8, g_007A3BAC, g_007A3BB0;
 extern int g_007B4E48, g_007B4E4C, g_007B4E50;      /* the turn's scene step (+4) */
-extern void *g_0045D6B0, *g_0045D6B4, *g_0045D6B8, *g_0045D6BC, *g_0045D6C0;   /* (small data) */
-extern void *g_0045D6A4, *g_0045D6A8;    /* (small data) two 0x67C-byte buffers */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D6B0_a;   /* (small data) */
+#define g_0045D6B0 ((void *)PS2_PTR(g_0045D6B0_a))
+#define g_0045D6B0_SET(v) (g_0045D6B0_a = PS2_ADDR(v))
+#else
+extern void *g_0045D6B0;
+#define g_0045D6B0_a (*(ps2ptr *)&g_0045D6B0)
+#define g_0045D6B0_SET(v) (g_0045D6B0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D6B4_a;   /* (small data) */
+#define g_0045D6B4 ((void *)PS2_PTR(g_0045D6B4_a))
+#define g_0045D6B4_SET(v) (g_0045D6B4_a = PS2_ADDR(v))
+#else
+extern void *g_0045D6B4;
+#define g_0045D6B4_a (*(ps2ptr *)&g_0045D6B4)
+#define g_0045D6B4_SET(v) (g_0045D6B4 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D6B8_a;   /* (small data) */
+#define g_0045D6B8 ((void *)PS2_PTR(g_0045D6B8_a))
+#define g_0045D6B8_SET(v) (g_0045D6B8_a = PS2_ADDR(v))
+#else
+extern void *g_0045D6B8;
+#define g_0045D6B8_a (*(ps2ptr *)&g_0045D6B8)
+#define g_0045D6B8_SET(v) (g_0045D6B8 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D6BC_a;   /* (small data) */
+#define g_0045D6BC ((void *)PS2_PTR(g_0045D6BC_a))
+#define g_0045D6BC_SET(v) (g_0045D6BC_a = PS2_ADDR(v))
+#else
+extern void *g_0045D6BC;
+#define g_0045D6BC_a (*(ps2ptr *)&g_0045D6BC)
+#define g_0045D6BC_SET(v) (g_0045D6BC = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D6C0_a;   /* (small data) */
+#define g_0045D6C0 ((void *)PS2_PTR(g_0045D6C0_a))
+#define g_0045D6C0_SET(v) (g_0045D6C0_a = PS2_ADDR(v))
+#else
+extern void *g_0045D6C0;
+#define g_0045D6C0_a (*(ps2ptr *)&g_0045D6C0)
+#define g_0045D6C0_SET(v) (g_0045D6C0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D6A4_a;    /* (small data) two 0x67C-byte buffers */
+#define g_0045D6A4 ((void *)PS2_PTR(g_0045D6A4_a))
+#define g_0045D6A4_SET(v) (g_0045D6A4_a = PS2_ADDR(v))
+#else
+extern void *g_0045D6A4;
+#define g_0045D6A4_a (*(ps2ptr *)&g_0045D6A4)
+#define g_0045D6A4_SET(v) (g_0045D6A4 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D6A8_a;    /* (small data) two 0x67C-byte buffers */
+#define g_0045D6A8 ((void *)PS2_PTR(g_0045D6A8_a))
+#define g_0045D6A8_SET(v) (g_0045D6A8_a = PS2_ADDR(v))
+#else
+extern void *g_0045D6A8;
+#define g_0045D6A8_a (*(ps2ptr *)&g_0045D6A8)
+#define g_0045D6A8_SET(v) (g_0045D6A8 = (v))
+#endif
 extern const char g_004467F8[];          /* "emp_cq_main.c" */
-extern const char *g_0043C5EC, *g_0043C5F0;   /* help lines */
+#ifdef SW2E_PC
+extern ps2ptr g_0043C5EC_a;   /* help lines */
+#define g_0043C5EC ((const char *)PS2_PTR(g_0043C5EC_a))
+#define g_0043C5EC_SET(v) (g_0043C5EC_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C5EC;
+#define g_0043C5EC_a (*(ps2ptr *)&g_0043C5EC)
+#define g_0043C5EC_SET(v) (g_0043C5EC = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C5F0_a;   /* help lines */
+#define g_0043C5F0 ((const char *)PS2_PTR(g_0043C5F0_a))
+#define g_0043C5F0_SET(v) (g_0043C5F0_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C5F0;
+#define g_0043C5F0_a (*(ps2ptr *)&g_0043C5F0)
+#define g_0043C5F0_SET(v) (g_0043C5F0 = (v))
+#endif
 
 int func_002F7D90(int n, int (*keep)(u32, int, int), int a, int b, int c, int p5);
-void *func_0030CCC0(void);
 void func_0011ED38(void *to, int value, int size);
 void func_0011EB80(void *to, const void *from, int size);
 float sqrtf(float x);        /* (VU0 vsqrt) */
@@ -75,6 +178,18 @@ void func_0030DB70(void);
 void func_0030EA60(void);
 void func_0030EBB0(void);
 
+/* 0x0030CCB0, 0xC bytes. The officer table. */
+u8 *func_0030CCB0(void)
+{
+    return g_007A3BA0;
+}
+
+/* 0x0030CCC0, 0xC bytes. The force table. */
+u8 *func_0030CCC0(void)
+{
+    return g_007A3B9C;
+}
+
 /* 0x0030CCD0, 0xC bytes. The region table. */
 u8 *func_0030CCD0(void)
 {
@@ -84,9 +199,9 @@ u8 *func_0030CCD0(void)
 /* 0x0030CCE0, 0x78 bytes. Clears the three game state blocks (regions, forces, officers). */
 void func_0030CCE0(void)
 {
-    g_007A3B98 = g_007B4C40;
-    g_007A3B9C = g_007B4010;
-    g_007A3BA0 = g_007A4290;
+    g_007A3B98_SET(g_007B4C40);
+    g_007A3B9C_SET(g_007B4010);
+    g_007A3BA0_SET(g_007A4290);
     func_0011ED38(g_007B4C40, 0, 500);
     func_0011ED38(g_007A3B9C, 0, 3000);
     func_0011ED38(g_007A3BA0, 0, 0xFCE4);
@@ -343,27 +458,27 @@ void *func_0030D810(void) { return g_0045D6C0; }
 /* 0x0030D820, 0x40 bytes, matching. Loads LINKDATA entry 0x81. */
 void func_0030D820(void)
 {
-    g_0045D6B0 = func_001026D0(1, 0x81, 0, 1, 0, 0, g_004467F8, 0x392);
+    g_0045D6B0_SET(func_001026D0(1, 0x81, 0, 1, 0, 0, g_004467F8, 0x392));
 }
 
 /* 0x0030D860, 0x6C bytes, matching. Loads entries 0x81 and 0x39. */
 void func_0030D860(void)
 {
-    g_0045D6B0 = func_001026D0(1, 0x81, 0, 1, 0, 0, g_004467F8, 0x39A);
-    g_0045D6B8 = func_001026D0(1, 0x39, 0, 1, 0, 0, g_004467F8, 0x39C);
+    g_0045D6B0_SET(func_001026D0(1, 0x81, 0, 1, 0, 0, g_004467F8, 0x39A));
+    g_0045D6B8_SET(func_001026D0(1, 0x39, 0, 1, 0, 0, g_004467F8, 0x39C));
 }
 
 /* 0x0030D8D0, 0x10C bytes, matching. Loads entries 0x81, 0x82, 0x39, 0x36 and 0x37. */
 void func_0030D8D0(void)
 {
-    g_0045D6B0 = func_001026D0(1, 0x81, 0, 1, 0, 0, g_004467F8, 0x3A5);
+    g_0045D6B0_SET(func_001026D0(1, 0x81, 0, 1, 0, 0, g_004467F8, 0x3A5));
     func_00102960(1);
-    g_0045D6B4 = func_001026D0(1, 0x82, 0, 1, 0, 0, g_004467F8, 0x3A9);
+    g_0045D6B4_SET(func_001026D0(1, 0x82, 0, 1, 0, 0, g_004467F8, 0x3A9));
     func_00102960(1);
-    g_0045D6B8 = func_001026D0(1, 0x39, 0, 1, 0, 0, g_004467F8, 0x3AD);
+    g_0045D6B8_SET(func_001026D0(1, 0x39, 0, 1, 0, 0, g_004467F8, 0x3AD));
     func_00102960(1);
-    g_0045D6BC = func_001026D0(1, 0x36, 0, 1, 0, 0, g_004467F8, 0x3B0);
-    g_0045D6C0 = func_001026D0(1, 0x37, 0, 1, 0, 0, g_004467F8, 0x3B1);
+    g_0045D6BC_SET(func_001026D0(1, 0x36, 0, 1, 0, 0, g_004467F8, 0x3B0));
+    g_0045D6C0_SET(func_001026D0(1, 0x37, 0, 1, 0, 0, g_004467F8, 0x3B1));
     func_002D6890();
 }
 
@@ -375,13 +490,13 @@ void func_0030D9E0(int a, int b)
     func_0030E100();
     func_0030E2D0();
     func_0038C6F0();
-    g_0045D6A4 = func_00102DB0(0x10, 0x67C);
-    g_0045D6A8 = func_00102DB0(0x10, 0x67C);
-    g_0045D6B0 = 0;
-    g_0045D6B4 = 0;
-    g_0045D6B8 = 0;
-    g_0045D6BC = 0;
-    g_0045D6C0 = 0;
+    g_0045D6A4_SET(func_00102DB0(0x10, 0x67C));
+    g_0045D6A8_SET(func_00102DB0(0x10, 0x67C));
+    g_0045D6B0_SET(0);
+    g_0045D6B4_SET(0);
+    g_0045D6B8_SET(0);
+    g_0045D6BC_SET(0);
+    g_0045D6C0_SET(0);
     if (a == 0 && b == 0) {
         func_0030D8D0();
         func_003907B0();
@@ -423,7 +538,7 @@ void func_0030DB50(void)
 #define FREE_FILE(p) do {               \
         if ((p) != 0) {                 \
             func_00102EC0(p);           \
-            (p) = 0;                    \
+            p##_SET(0);                 \
         }                               \
     } while (0)
 
@@ -1684,7 +1799,15 @@ extern int g_00414B50[3][3];             /* by training command: the three stats
 extern int g_00414B80[];                 /* by stat: the skill that helps it */
 extern int g_00446900[3][12];            /* by training command: the skills it cannot teach */
 extern const char *g_0042D3E0[];         /* skill names ("Vitality", ...) */
-extern char *g_0045CFE8;                 /* (small data) a text buffer */
+#ifdef SW2E_PC
+extern ps2ptr g_0045CFE8_a;                 /* (small data) a text buffer */
+#define g_0045CFE8 ((char *)PS2_PTR(g_0045CFE8_a))
+#define g_0045CFE8_SET(v) (g_0045CFE8_a = PS2_ADDR(v))
+#else
+extern char *g_0045CFE8;
+#define g_0045CFE8_a (*(ps2ptr *)&g_0045CFE8)
+#define g_0045CFE8_SET(v) (g_0045CFE8 = (v))
+#endif
 
 int func_002FBE80(int f);
 
@@ -5386,7 +5509,7 @@ void func_00388200(int a, int b);
 void func_003890B0(int a);
 int func_00389090(void);
 
-#define CMD_MENU() ((CmdMenu *)func_002FC2C0()[0x1A5])
+#define CMD_MENU() ((CmdMenu *)PS2_PTR(func_002FC2C0()[0x1A5]))
 
 /* 0x0031D680, 0xC bytes, matching. The command record being built. */
 CmdRecord *func_0031D680(void)
@@ -5565,7 +5688,7 @@ int func_0031DD70(int k)
 int func_0031DDB0(void)
 {
     int *st = func_002FC2C0();
-    CmdMenu *m = (CmdMenu *)st[0x1A5];
+    CmdMenu *m = (CmdMenu *)PS2_PTR(st[0x1A5]);
     int sel;
 
     func_003A90D0(0);
@@ -5617,7 +5740,33 @@ typedef struct {
 } ListWindow;
 
 extern ListWindow g_007B5900;
-extern const char *g_0043C578, *g_0043C730, *g_0043C560;
+#ifdef SW2E_PC
+extern ps2ptr g_0043C578_a;
+#define g_0043C578 ((const char *)PS2_PTR(g_0043C578_a))
+#define g_0043C578_SET(v) (g_0043C578_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C578;
+#define g_0043C578_a (*(ps2ptr *)&g_0043C578)
+#define g_0043C578_SET(v) (g_0043C578 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C730_a;
+#define g_0043C730 ((const char *)PS2_PTR(g_0043C730_a))
+#define g_0043C730_SET(v) (g_0043C730_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C730;
+#define g_0043C730_a (*(ps2ptr *)&g_0043C730)
+#define g_0043C730_SET(v) (g_0043C730 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C560_a;
+#define g_0043C560 ((const char *)PS2_PTR(g_0043C560_a))
+#define g_0043C560_SET(v) (g_0043C560_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C560;
+#define g_0043C560_a (*(ps2ptr *)&g_0043C560)
+#define g_0043C560_SET(v) (g_0043C560 = (v))
+#endif
 
 int func_003890A0(void);
 void func_0037EB40(void *pic, int a, int sel);
@@ -5839,7 +5988,7 @@ void func_0031EA10(void)
 void func_0031EB20(void)
 {
     int *st = func_002FC2C0(), r;
-    CmdMenu *m = (CmdMenu *)st[0x1A5];
+    CmdMenu *m = (CmdMenu *)PS2_PTR(st[0x1A5]);
 
     r = func_00389050();
     if (r == 1) {

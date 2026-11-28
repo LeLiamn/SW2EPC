@@ -22,6 +22,10 @@ file sets how the decompiled C has to be written so that the same sources build 
 | `PS2_PTR(a)` | `(void *)(a)` | `ram + a` (or the scratchpad) |
 | `PS2_ADDR(p)` | `(unsigned int)(p)` | `p - ram` |
 | `PS2_MEM(a)` | — | the address of a global at a fixed PS2 address |
+| `PS2_GETP(T, a)` / `PS2_SETP(a, v)` | `*(T *)a` / `*(T *)a = v` | the pointer stored at PS2 address `a` (4 bytes), read as `T` / stored |
+| `PS2_FUNC(a)` / `PS2_CODE(f)` | casts | the C function for code address `a` / the code address of `f` |
+| `PS2_ANYPTR(o)` | `(void *)(o)` | for macros given either a pointer or an address held in an integer |
+| `sw2e_uptr` | `unsigned int` | an integer as wide as a native pointer (alignment arithmetic) |
 
 On the PS2 build these are plain casts, so the code CodeWarrior generates does not change.
 
@@ -41,8 +45,9 @@ On the PS2 build these are plain casts, so the code CodeWarrior generates does n
 4. **Globals keep their `extern` declarations as they are.** The PC build rewrites them, see
    below.
 5. **Tables of function pointers in PS2 data** (scene tables, callbacks) hold PS2 code addresses.
-   On the PC they are looked up through a table generated from the function tags
-   (`PS2_FUNC(addr)`, to be written).
+   On the PC they are looked up through a table generated from the function tags:
+   `PS2_FUNC(addr)` gives the C function for a code address, `PS2_CODE(f)` the code address of a
+   function (both plain casts on the PS2).
 6. **Shared prototypes go in headers** (`src/sw2e_draw.h` for the drawing helpers), with full
    argument lists. See "Shared prototypes and stack arguments" in [code.md](code.md).
 7. **Every file in `src/` includes `src/sw2e_protos.h`**, the prototypes of every function
@@ -129,3 +134,55 @@ Three more PC forms were added for this build:
     `ps2ptr` (rules 2 and 3).
 - Much of this can be converted by script. The rest is done file by file as the code is linked
   for the PC.
+
+## Running on the PC: the second round (2026-11-28)
+
+With the first Sony library replacements in place, the PC build boots the EU disc, starts the disc
+reader thread, reads the LINKDATA headers and runs the game's start-up up to the first function
+that is not decompiled yet (see [pc_build.md](pc_build.md)). Getting there needed the rules above
+applied across the sources. Most of it was done by script and checked the same way each time:
+every changed file still compiles with CodeWarrior, and no matching function changed
+(fingerprints against the last commit).
+
+- **Pointer globals (248) are 4-byte slots.** Each declaration became the form below. The PS2 build
+  keeps the original declaration, so CodeWarrior sees the same code:
+
+  ```c
+  #ifdef SW2E_PC
+  extern ps2ptr g_0045D540_a;
+  #define g_0045D540 ((u8 *)PS2_PTR(g_0045D540_a))
+  #define g_0045D540_SET(v) (g_0045D540_a = PS2_ADDR(v))
+  #else
+  extern u8 *g_0045D540;
+  #define g_0045D540_a (*(ps2ptr *)&g_0045D540)
+  #define g_0045D540_SET(v) (g_0045D540 = (v))
+  #endif
+  ```
+
+  Assignments read `g_0045D540_SET(x);`. Arrays of pointers (117 declarations) are not converted
+  yet.
+- **Pointers kept in PS2 memory through macros** (the scratchpad's packet cursor `0x70000158`,
+  the stage unit tables) use `PS2_GETP` / `PS2_SETP` the same way (`NAME_SET(v)`).
+- **Casts between pointers and integers** follow rule 3 everywhere GCC can see them:
+  - 471 pointer-to-`int` casts became `(int)PS2_ADDR(p)`;
+  - 3,163 integer-to-pointer casts became `(T *)PS2_PTR(x)`, since an integer in the decompiled
+    code holds a PS2 address;
+  - 137 integer arguments passed to pointer parameters of the Sony replacements (memset,
+    strcpy, sprintf...) became `PS2_PTR(x)`.
+
+  GCC now reports no pointer and integer of different sizes.
+- **Fixed addresses written as integers** (`(T *)0x70000000`, `(float *)(0x574E20 + k * 0x630)`)
+  go through `PS2_PTR`.
+- **PC data the game stores as an address** (string literals of the PC build passed as paths, for
+  example) gets a 64 KB window at `0x50000000 + n * 0x10000`, so `PS2_ADDR` and `PS2_PTR` work on
+  it too.
+- **Code addresses passed as integers** use `PS2_CODE(f)`, and calls through them `PS2_FUNC(a)`.
+
+Still to do on the same lines:
+
+- Pointer fields inside structures that live in PS2 memory (rule 2). GCC cannot see these; they
+  show up as crashes (the node lists of `ui_misc2.c` were the first, now `ps2ptr` links).
+- The 117 arrays of pointers.
+- `sprintf` replacement: a `%s` argument is read as a PS2 address when its value is below
+  `0x02000000`. An integer passed on the stack can come with a garbage upper half; wrap such an
+  argument in `PS2_PTR` at the call site.

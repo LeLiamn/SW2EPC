@@ -33,8 +33,24 @@ typedef struct {
 typedef u16 *(*EvCmd)(u16 *c);
 
 extern EvStill g_007B5DD0;
-extern u8 *g_0045D6D0;                   /* (small data) the event file */
-extern u8 *g_0045D6D4;                   /* (small data) the current event */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D6D0_a;                   /* (small data) the event file */
+#define g_0045D6D0 ((u8 *)PS2_PTR(g_0045D6D0_a))
+#define g_0045D6D0_SET(v) (g_0045D6D0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D6D0;
+#define g_0045D6D0_a (*(ps2ptr *)&g_0045D6D0)
+#define g_0045D6D0_SET(v) (g_0045D6D0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D6D4_a;                   /* (small data) the current event */
+#define g_0045D6D4 ((u8 *)PS2_PTR(g_0045D6D4_a))
+#define g_0045D6D4_SET(v) (g_0045D6D4_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D6D4;
+#define g_0045D6D4_a (*(ps2ptr *)&g_0045D6D4)
+#define g_0045D6D4_SET(v) (g_0045D6D4 = (v))
+#endif
 extern int g_0045D6D8, g_0045D6DC, g_0045D6E4;
 extern int g_0045CFEC;                   /* (small data) the last message */
 extern u8 g_00447A10[];                  /* "" */
@@ -53,7 +69,6 @@ u8 *func_0032C050(void);
 void func_0032C8C0(void);
 void func_0032CE80(void);
 void func_0032CFC0(void);
-void func_0017E0C0(int v, int k);
 void func_0032D0E0(void);
 
 /* 0x00329D20, 0x14 bytes. The current event's part `k`. */
@@ -132,7 +147,7 @@ void func_0032A2C0(char *s, int *out)
 {
     *out = -1;
     if (func_00120A40(s) < 0x14A && func_00120A40(s) != 0) {
-        int *p = (int *)((u32)(s + func_00120A40(s) + 4) & ~3u);
+        int *p = (int *)PS2_PTR(((u32)PS2_ADDR((s + func_00120A40(s) + 4)) & ~3u));
 
         *out = p[0] == 0 ? p[1] : p[0];
     }
@@ -409,7 +424,7 @@ void func_0032B660(void)
 /* 0x0032B730, 0x30 bytes. Selects event `k` of the file. */
 void func_0032B730(int k)
 {
-    g_0045D6D4 = g_0045D6D0 + *(int *)(g_0045D6D0 + k * 8 - 0xD4);
+    g_0045D6D4_SET(g_0045D6D0 + *(int *)(g_0045D6D0 + k * 8 - 0xD4));
     func_0032B0C0(k);
 }
 
@@ -418,8 +433,8 @@ void func_0032B760(void)
 {
     if (g_0045D6D0 != 0) {
         func_00102EC0(g_0045D6D0);
-        g_0045D6D0 = 0;
-        g_0045D6D4 = 0;
+        g_0045D6D0_SET(0);
+        g_0045D6D4_SET(0);
     }
     func_0032C8C0();
     func_0032CE80();
@@ -429,7 +444,7 @@ void func_0032B760(void)
 /* 0x0032B950, 0x40 bytes, matching. Starts loading the event file. */
 void func_0032B950(void)
 {
-    g_0045D6D0 = func_001026D0(1, 0xAC, 0, 0, 0, 0, g_00447A20, 0x787);
+    g_0045D6D0_SET(func_001026D0(1, 0xAC, 0, 0, 0, 0, g_00447A20, 0x787));
 }
 
 /* 0x0032BAF0, 0x1C bytes, matching. */
@@ -498,9 +513,33 @@ int func_0032BFF0(int a, int b, int t, int n)
 /* The portrait and text windows (parts of 0x0032C050-0x0032D9BC): two portraits (state at
  * +0x4EC8: 0 opening, 1 shown, 2 closing, 3 closed; 8 frames each way) and one text window. */
 
-extern u8 *g_0045D6EC;                   /* (small data) the portraits */
-extern u8 *g_0045D6F0;                   /* (small data) the text window */
-extern u8 *g_0045D6F4;                   /* (small data) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D6EC_a;                   /* (small data) the portraits */
+#define g_0045D6EC ((u8 *)PS2_PTR(g_0045D6EC_a))
+#define g_0045D6EC_SET(v) (g_0045D6EC_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D6EC;
+#define g_0045D6EC_a (*(ps2ptr *)&g_0045D6EC)
+#define g_0045D6EC_SET(v) (g_0045D6EC = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D6F0_a;                   /* (small data) the text window */
+#define g_0045D6F0 ((u8 *)PS2_PTR(g_0045D6F0_a))
+#define g_0045D6F0_SET(v) (g_0045D6F0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D6F0;
+#define g_0045D6F0_a (*(ps2ptr *)&g_0045D6F0)
+#define g_0045D6F0_SET(v) (g_0045D6F0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D6F4_a;                   /* (small data) */
+#define g_0045D6F4 ((u8 *)PS2_PTR(g_0045D6F4_a))
+#define g_0045D6F4_SET(v) (g_0045D6F4_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D6F4;
+#define g_0045D6F4_a (*(ps2ptr *)&g_0045D6F4)
+#define g_0045D6F4_SET(v) (g_0045D6F4 = (v))
+#endif
 extern int g_007B5E28, g_007B5E30, g_007B5E34, g_007B5E38;
 extern u8 g_007B5E4A, g_007B5E4B;
 
@@ -567,7 +606,7 @@ void func_0032C8C0(void)
 {
     if (g_0045D6EC != 0) {
         func_00102EC0(g_0045D6EC);
-        g_0045D6EC = 0;
+        g_0045D6EC_SET(0);
     }
 }
 
@@ -575,7 +614,7 @@ void func_0032C8C0(void)
 void func_0032C8F0(void)
 {
     if (g_0045D6EC == 0)
-        g_0045D6EC = func_00102DB0(0x10, 0x4EF0);
+        g_0045D6EC_SET(func_00102DB0(0x10, 0x4EF0));
 }
 
 /* 0x0032C920, 0x14 bytes. Portrait `k`'s state. */
@@ -621,7 +660,7 @@ void func_0032CE80(void)
 {
     if (g_0045D6F0 != 0) {
         func_00102EC0(g_0045D6F0);
-        g_0045D6F0 = 0;
+        g_0045D6F0_SET(0);
     }
 }
 
@@ -629,7 +668,7 @@ void func_0032CE80(void)
 void func_0032CEB0(void)
 {
     if (g_0045D6F0 == 0)
-        g_0045D6F0 = func_00102DB0(0x10, 0xC420);
+        g_0045D6F0_SET(func_00102DB0(0x10, 0xC420));
 }
 
 /* 0x0032CEE0, 0x14 bytes, matching. */
@@ -649,7 +688,7 @@ void func_0032CFC0(void)
 {
     if (g_0045D6F4 != 0) {
         func_00102EC0(g_0045D6F4);
-        g_0045D6F4 = 0;
+        g_0045D6F4_SET(0);
     }
 }
 

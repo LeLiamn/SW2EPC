@@ -138,31 +138,31 @@ void func_001DA490(u32 *param_1)
     u32 uStack_8;
     u32 uVar4;
 
-    puVar1 = (u8 *)param_1[4];
-    param_1[4] = (u32)(puVar1 + 1);
-    puVar2 = (u8 *)param_1[5];
-    param_1[5] = (u32)(puVar2 + 1);
+    puVar1 = (u8 *)PS2_PTR(param_1[4]);
+    param_1[4] = (u32)PS2_ADDR((puVar1 + 1));
+    puVar2 = (u8 *)PS2_PTR(param_1[5]);
+    param_1[5] = (u32)PS2_ADDR((puVar2 + 1));
     uVar4 = func_001D6BD0((unsigned int *)(auStack_2), (unsigned int *)PS2_PTR(param_1[3]), *puVar1, *puVar2);
     param_1[3] = uVar4;
-    puVar1 = (u8 *)param_1[4];
-    param_1[4] = (u32)(puVar1 + 1);
-    puVar2 = (u8 *)param_1[5];
-    param_1[5] = (u32)(puVar2 + 1);
+    puVar1 = (u8 *)PS2_PTR(param_1[4]);
+    param_1[4] = (u32)PS2_ADDR((puVar1 + 1));
+    puVar2 = (u8 *)PS2_PTR(param_1[5]);
+    param_1[5] = (u32)PS2_ADDR((puVar2 + 1));
     uVar4 = func_001D6BD0((unsigned int *)(&uStack_4), (unsigned int *)PS2_PTR(param_1[3]), *puVar1, *puVar2);
     param_1[3] = uVar4;
-    puVar1 = (u8 *)param_1[4];
-    param_1[4] = (u32)(puVar1 + 1);
-    puVar2 = (u8 *)param_1[5];
-    param_1[5] = (u32)(puVar2 + 1);
+    puVar1 = (u8 *)PS2_PTR(param_1[4]);
+    param_1[4] = (u32)PS2_ADDR((puVar1 + 1));
+    puVar2 = (u8 *)PS2_PTR(param_1[5]);
+    param_1[5] = (u32)PS2_ADDR((puVar2 + 1));
     uVar4 = func_001D6BD0(&uStack_8, (unsigned int *)PS2_PTR(param_1[3]), *puVar1, *puVar2);
     param_1[3] = uVar4;
     *(u8 *)(param_1 + 0x14) = auStack_2[0];
     switch(uStack_4) {
     case 0:
-        param_1[6] = 1 << (*(u8 *)(*(u8 *)(g_0073C79A + 0x3) + 0x73C79E) & 0x1F);
+        param_1[6] = 1 << (*(u8 *)PS2_PTR((*(u8 *)(g_0073C79A + 0x3) + 0x73C79E)) & 0x1F);
         break;
     case 1:
-        param_1[6] = 1 << (*(u8 *)(*(u8 *)(g_0073C79A + 0x3) + 0x73C79B) & 0x1F);
+        param_1[6] = 1 << (*(u8 *)PS2_PTR((*(u8 *)(g_0073C79A + 0x3) + 0x73C79B)) & 0x1F);
         break;
     case 2:
         param_1[6] = 0xFFFFFFFF;
@@ -269,7 +269,7 @@ void func_001F63A0(u8 *param_1, int param_2, int param_3, int param_4, int param
 /* 0x00201F80, 0x80 bytes, matching. */
 void func_00201F80(u8 *param_1)
 {
-    switch(*(u8 *)(*(int *)(param_1 + 0x68) + 0x1C)) {
+    switch(*(u8 *)PS2_PTR((*(int *)(param_1 + 0x68) + 0x1C))) {
     case 8:
     case 0xC:
     case 0xD:
@@ -300,7 +300,7 @@ void func_00287360(int param_1, int param_2, int param_3, int param_4, int param
     func_002CD2C0(0, 0);
     iVar2 = (int)param_6;
     func_002CD2C0(2, 0, param_3 + iVar2, param_4, param_5, param_6, param_7, param_8);
-    func_001204B0(auStack_20, 0x4407C8, param_1);
+    func_001204B0(auStack_20, PS2_PTR(0x4407C8), param_1);
     if ((long long)param_6 < 0) {
         fVar3 = (float)(param_6 & 0xFFFFFFFF);
     }
@@ -707,7 +707,7 @@ void func_003315E0(int param_1)
         uVar1 = PS2_ADDR(func_00390760(0x119));
         uVar2 = func_00331010();
         uVar2 = PS2_ADDR(func_0030CB80(uVar2));
-        func_001204B0(g_007B4E60, uVar1, uVar2);
+        func_001204B0(g_007B4E60, PS2_PTR(uVar1), uVar2);
         break;
     default:
         goto switchD_00331618_default;
@@ -761,7 +761,7 @@ void func_00331720(int param_1)
     case 0x12:
         uVar1 = PS2_ADDR(func_00390760(0x11C));
         uVar2 = PS2_ADDR(func_00372480(param_1 + -0x10));
-        func_001204B0(g_007B4E60, uVar1, uVar2);
+        func_001204B0(g_007B4E60, PS2_PTR(uVar1), uVar2);
         break;
     default:
         goto switchD_0033175c_default;
@@ -816,7 +816,7 @@ void func_00331860(int param_1)
         uVar1 = PS2_ADDR(func_00390760(0x11B));
         uVar2 = func_00331010();
         uVar2 = PS2_ADDR(func_0030CB80(uVar2));
-        func_001204B0(g_007B4E60, uVar1, uVar2);
+        func_001204B0(g_007B4E60, PS2_PTR(uVar1), uVar2);
         break;
     default:
         goto switchD_00331898_default;
@@ -870,7 +870,7 @@ void func_003319A0(int param_1)
     case 0x12:
         uVar1 = PS2_ADDR(func_00390760(0x11A));
         uVar2 = PS2_ADDR(func_00372480(param_1 + -0x10));
-        func_001204B0(g_007B4E60, uVar1, uVar2);
+        func_001204B0(g_007B4E60, PS2_PTR(uVar1), uVar2);
         break;
     default:
         goto switchD_003319dc_default;

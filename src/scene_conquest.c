@@ -80,12 +80,36 @@ extern struct {
 /* (scratchpad) screen scale divisor? */
 #define g_70000154 (*(int *)PS2_PTR(0x70000154))
 extern const char g_00446350[];           /* "StateConquest.c" */
-extern const char *g_0043C5EC;            /* a button help line */
+#ifdef SW2E_PC
+extern ps2ptr g_0043C5EC_a;            /* a button help line */
+#define g_0043C5EC ((const char *)PS2_PTR(g_0043C5EC_a))
+#define g_0043C5EC_SET(v) (g_0043C5EC_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C5EC;
+#define g_0043C5EC_a (*(ps2ptr *)&g_0043C5EC)
+#define g_0043C5EC_SET(v) (g_0043C5EC = (v))
+#endif
 extern u16 g_004463E0[];                  /* 2000, 2400 ... 8000 (gold per level?) */
 
 /* Small data ($gp). */
-extern u8 *g_0045D67C;                    /* the background (LINKDATA entry 4) */
-extern u8 *g_0045D680;                    /* its animation player */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D67C_a;                    /* the background (LINKDATA entry 4) */
+#define g_0045D67C ((u8 *)PS2_PTR(g_0045D67C_a))
+#define g_0045D67C_SET(v) (g_0045D67C_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D67C;
+#define g_0045D67C_a (*(ps2ptr *)&g_0045D67C)
+#define g_0045D67C_SET(v) (g_0045D67C = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D680_a;                    /* its animation player */
+#define g_0045D680 ((u8 *)PS2_PTR(g_0045D680_a))
+#define g_0045D680_SET(v) (g_0045D680_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D680;
+#define g_0045D680_a (*(ps2ptr *)&g_0045D680)
+#define g_0045D680_SET(v) (g_0045D680 = (v))
+#endif
 extern int g_0045D684;                    /* frame shown */
 
 void func_003A7360(void);
@@ -105,7 +129,7 @@ void func_002F1950(void)
 {
     if (g_0045D67C == 0) {
         func_00101400(0);
-        g_0045D67C = func_001026D0(1, 4, 0, 1, 0, 0, g_00446350, 0x32);
+        g_0045D67C_SET(func_001026D0(1, 4, 0, 1, 0, 0, g_00446350, 0x32));
         func_00102960(0);
     }
 }
@@ -115,7 +139,7 @@ void func_002F19B0(void)
 {
     if (g_0045D67C != 0) {
         func_00102EC0(g_0045D67C);
-        g_0045D67C = 0;
+        g_0045D67C_SET(0);
     }
 }
 
@@ -123,7 +147,7 @@ void func_002F19B0(void)
 void func_002F19E0(void)
 {
     func_00102960(1);
-    g_0045D680 = func_00102DB0(0x40, 0x24);
+    g_0045D680_SET(func_00102DB0(0x40, 0x24));
     func_00143DA0(g_0045D680, g_0045D67C, 0x1D00);
     g_0045D684 = 0;
 }
@@ -133,7 +157,7 @@ void func_002F1A20(void)
 {
     func_00143D60(g_0045D680);
     func_00102EC0(g_0045D680);
-    g_0045D680 = 0;
+    g_0045D680_SET(0);
 }
 
 /* 0x002F1A50, 0x14C bytes. Draws the background: the next frame every other frame, as one

@@ -22,7 +22,15 @@ extern u8 g_007954A0[];
 extern float g_00795FF0, g_00795FF4, g_00795FF8, g_00795FFC;
 extern u8 g_004122D0[], g_004123A0[];
 extern u32 g_0045D5C8, g_0045D5C4, g_0045D5A4;
-extern u8 *g_0045D5A8;                   /* (small data) the free list */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D5A8_a;                   /* (small data) the free list */
+#define g_0045D5A8 ((u8 *)PS2_PTR(g_0045D5A8_a))
+#define g_0045D5A8_SET(v) (g_0045D5A8_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D5A8;
+#define g_0045D5A8_a (*(ps2ptr *)&g_0045D5A8)
+#define g_0045D5A8_SET(v) (g_0045D5A8 = (v))
+#endif
 extern u8 g_0045D5B0[8];
 extern int g_0045D5B4;
 extern u8 g_0045D5B8[2];
@@ -239,7 +247,7 @@ void func_002C2A10(void)
 void func_002C2A30(u8 *p, int n)
 {
     func_00118AC0((unsigned int *)(g_00795790), (u8 *)p, 0x10);
-    func_002BCAE0(g_004123A0, (unsigned char *)PS2_PTR((int)(p + 0x10)), n - 0x10);
+    func_002BCAE0(g_004123A0, (unsigned char *)PS2_PTR((int)PS2_ADDR((p + 0x10))), n - 0x10);
 }
 
 /* 0x002C2A90, 0x20 bytes, matching. */
@@ -300,7 +308,7 @@ void func_002C3620(const u8 *src)
 void func_002C3D60(void)
 {
     func_00118850(g_0045D5B0, 8);
-    g_0045D5A8 = g_0045D5B0;
+    g_0045D5A8_SET(g_0045D5B0);
     g_0045D5B4 = 0;
 }
 
@@ -313,7 +321,7 @@ u8 *func_002C3D90(u8 v)
         return 0;
     p[0] = v;
     p[1] = 0;
-    g_0045D5A8 = *(u8 **)(p + 4);
+    g_0045D5A8_SET(*(u8 **)(p + 4));
     return p;
 }
 
@@ -323,7 +331,7 @@ void func_002C3E00(u8 *p)
     if (p != 0) {
         p[0] = 0;
         *(u8 **)(p + 4) = g_0045D5A8;
-        g_0045D5A8 = p;
+        g_0045D5A8_SET(p);
     }
 }
 

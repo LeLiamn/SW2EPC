@@ -17,7 +17,15 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
+#ifdef SW2E_PC
+extern ps2ptr g_007B5E4C_a;
+#define g_007B5E4C ((int *)PS2_PTR(g_007B5E4C_a))
+#define g_007B5E4C_SET(v) (g_007B5E4C_a = PS2_ADDR(v))
+#else
 extern int *g_007B5E4C;
+#define g_007B5E4C_a (*(ps2ptr *)&g_007B5E4C)
+#define g_007B5E4C_SET(v) (g_007B5E4C = (v))
+#endif
 extern short g_007B5E44, g_007B5E46;
 extern int g_007B5E24;
 extern int g_007B5E50[5];
@@ -226,8 +234,24 @@ int func_0032ED30(u32 a, u32 b, u32 c, int d)
 }
 
 extern u8 g_00669D60[];
-extern int *g_0045D718;                  /* (small data) the six command values */
-extern u8 *g_0045D71C;                   /* (small data) records of 0x3C bytes */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D718_a;                  /* (small data) the six command values */
+#define g_0045D718 ((int *)PS2_PTR(g_0045D718_a))
+#define g_0045D718_SET(v) (g_0045D718_a = PS2_ADDR(v))
+#else
+extern int *g_0045D718;
+#define g_0045D718_a (*(ps2ptr *)&g_0045D718)
+#define g_0045D718_SET(v) (g_0045D718 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D71C_a;                   /* (small data) records of 0x3C bytes */
+#define g_0045D71C ((u8 *)PS2_PTR(g_0045D71C_a))
+#define g_0045D71C_SET(v) (g_0045D71C_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D71C;
+#define g_0045D71C_a (*(ps2ptr *)&g_0045D71C)
+#define g_0045D71C_SET(v) (g_0045D71C = (v))
+#endif
 extern int (*g_00414EF0[6])(void);
 extern int g_00414EA0[0x12];
 
@@ -362,9 +386,34 @@ int func_0032F1A0(int a, int i)
 /* ---- The command state's buffers, text helpers and Empire flags (parts of 0x0032F1D0-
  * 0x0032FF64). ---- */
 
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
 extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 extern int (*g_00447AD0[0x18])(void), (*g_00447BB0[0x8D])(void);
-extern u8 *g_0045D710, *g_0045D714;      /* (small data) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D710_a;      /* (small data) */
+#define g_0045D710 ((u8 *)PS2_PTR(g_0045D710_a))
+#define g_0045D710_SET(v) (g_0045D710_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D710;
+#define g_0045D710_a (*(ps2ptr *)&g_0045D710)
+#define g_0045D710_SET(v) (g_0045D710 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D714_a;      /* (small data) */
+#define g_0045D714 ((u8 *)PS2_PTR(g_0045D714_a))
+#define g_0045D714_SET(v) (g_0045D714_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D714;
+#define g_0045D714_a (*(ps2ptr *)&g_0045D714)
+#define g_0045D714_SET(v) (g_0045D714 = (v))
+#endif
 extern int g_0045D700, g_0045D704, g_0045D708, g_0045D70C;
 extern u32 g_0045D000, g_0045D008, g_0045D00C;
 extern int g_0045D020, g_0045D720, g_0045D724, g_0045D728, g_0045D72C, g_0045D730, g_0045D738;
@@ -374,7 +423,6 @@ extern u32 g_7000015C;
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
 u32 func_00120A40(const char *s);
-void func_0017E0C0(int v, int a);
 
 /* 0x0032F1D0, 0xC4 bytes. A weapon kind's model group. */
 int func_0032F1D0(int k)
@@ -415,15 +463,15 @@ void func_0032F530(void)
 {
     if (g_0045D710 != 0) {
         func_00102EC0(g_0045D710);
-        g_0045D710 = 0;
+        g_0045D710_SET(0);
     }
     if (g_0045D714 != 0) {
         func_00102EC0(g_0045D714);
-        g_0045D714 = 0;
+        g_0045D714_SET(0);
     }
     if (g_0045D718 != 0) {
         func_00102EC0((unsigned char *)(g_0045D718));
-        g_0045D718 = 0;
+        g_0045D718_SET(0);
     }
     g_0045D70C = 0;
     g_0045D708 = 0;
@@ -432,9 +480,9 @@ void func_0032F530(void)
 /* 0x0032F5A0, 0xA0 bytes. */
 void func_0032F5A0(void)
 {
-    g_0045D718 = (int *)(func_00102DB0(0x10, 0x18));
-    g_0045D714 = func_00102DB0(0x10, 600);
-    g_0045D710 = func_00102DB0(0x10, 0x240);
+    g_0045D718_SET((int *)(func_00102DB0(0x10, 0x18)));
+    g_0045D714_SET(func_00102DB0(0x10, 600));
+    g_0045D710_SET(func_00102DB0(0x10, 0x240));
     g_007B5E50[0] = 0;
     g_007B5E50[1] = 0;
     g_0045D000 = 0x19F;
@@ -457,14 +505,14 @@ void func_0032F640(void)
 {
     if (g_0045D71C != 0) {
         func_00102EC0(g_0045D71C);
-        g_0045D71C = 0;
+        g_0045D71C_SET(0);
     }
 }
 
 /* 0x0032F670, 0x48 bytes, matching. */
 void func_0032F670(void)
 {
-    g_0045D71C = func_001026D0(1, 0xAB, 0, 1, 0, 0, g_00447B50, 0x499);
+    g_0045D71C_SET(func_001026D0(1, 0xAB, 0, 1, 0, 0, g_00447B50, 0x499));
     func_00102960(1);
 }
 

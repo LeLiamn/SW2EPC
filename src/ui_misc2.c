@@ -20,14 +20,39 @@ typedef unsigned int u32;
 extern u8 g_0045D5B0[2];                 /* (small data) */
 extern u8 g_007954C0[], g_00795460[0x40];
 extern u8 g_00795060[0x10][0x40];
-extern u8 **g_0045D590, **g_0045D594;    /* (small data) used and free nodes */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D590_a;    /* (small data) used and free nodes */
+#define g_0045D590 ((ps2ptr *)PS2_PTR(g_0045D590_a))
+#define g_0045D590_SET(v) (g_0045D590_a = PS2_ADDR(v))
+#else
+extern ps2ptr *g_0045D590;
+#define g_0045D590_a (*(ps2ptr *)&g_0045D590)
+#define g_0045D590_SET(v) (g_0045D590 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D594_a;    /* (small data) used and free nodes */
+#define g_0045D594 ((ps2ptr *)PS2_PTR(g_0045D594_a))
+#define g_0045D594_SET(v) (g_0045D594_a = PS2_ADDR(v))
+#else
+extern ps2ptr *g_0045D594;
+#define g_0045D594_a (*(ps2ptr *)&g_0045D594)
+#define g_0045D594_SET(v) (g_0045D594 = (v))
+#endif
 extern int g_0045D598, g_0045D5A0;
 extern u8 g_005BC5A8[0x10][0x110];       /* the message log */
 extern int g_005BD6A8, g_005BD6AC;
 extern u8 g_00669D60[];
 extern u8 *g_00412680[];
 extern u8 g_00799A20[0x10], g_00799A38[0x10], g_00799A50[0x10];
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
 extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 
 /* 0x002C3DC0, 0x3C bytes. The record of kind `k` (0: none). */
 u8 *func_002C3DC0(u8 k)
@@ -51,31 +76,32 @@ u8 *func_002C44F0(void)
     return g_007954C0;
 }
 
-/* 0x002C4500, 0x28 bytes. Takes a node from the free list. */
+/* 0x002C4500, 0x28 bytes. Takes a node from the free list. Nodes are 0x40 bytes: +0 the next
+ * node, +4 the model (PS2 addresses). */
 void func_002C4500(void)
 {
-    u8 **n = g_0045D594;
+    ps2ptr *n = g_0045D594;
 
     if (n != 0) {
-        g_0045D594 = (u8 **)n[0];
-        n[0] = (u8 *)g_0045D590;
-        g_0045D590 = n;
+        g_0045D594_a = n[0];
+        n[0] = g_0045D590_a;
+        g_0045D590_SET(n);
     }
 }
 
 /* 0x002C4530, 0x40 bytes, matching. Gives back the first node of list `l` (dropping its model). */
-void func_002C4530(u8 ***l)
+void func_002C4530(unsigned int *l)
 {
-    u8 **n = *l;
+    ps2ptr *n = (ps2ptr *)PS2_PTR(*l);
 
     if (n != 0) {
-        u8 *o = n[1];
+        u8 *o = (u8 *)PS2_PTR(n[1]);
 
         if (o != 0)
             *(u32 *)(o + 0x38) |= 8;
-        *l = (u8 **)n[0];
-        n[0] = (u8 *)g_0045D594;
-        g_0045D594 = n;
+        *l = n[0];
+        n[0] = g_0045D594_a;
+        g_0045D594_SET(n);
     }
 }
 
@@ -86,18 +112,18 @@ void func_002C4570(void)
 
     g_0045D5A0 = 0;
     g_0045D598 = 0;
-    g_0045D594 = (u8 **)g_00795060[0];
-    g_0045D590 = 0;
+    g_0045D594_SET((ps2ptr *)g_00795060[0]);
+    g_0045D590_a = 0;
     for (k = 0; k < 0xF; k++)
-        *(u8 **)g_00795060[k] = g_00795060[k + 1];
-    *(u8 **)g_00795060[0xF] = 0;
+        *(ps2ptr *)g_00795060[k] = PS2_ADDR(g_00795060[k + 1]);
+    *(ps2ptr *)g_00795060[0xF] = 0;
 }
 
 /* 0x002C45C0, 0x3C bytes, matching. */
 void func_002C45C0(void)
 {
     while (g_0045D590 != 0)
-        func_002C4530(&g_0045D590);
+        func_002C4530(&g_0045D590_a);
 }
 
 /* 0x002C4600, 0x28 bytes, matching. */

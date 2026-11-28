@@ -632,7 +632,15 @@ extern int g_007729DC;
 extern u8 g_00748A2C, g_00748A2D;
 extern int g_00669F6C;
 extern u8 g_006935DB_state;               /* message box 1 state (see scene_shop.c) */
-extern const char *g_0043C31C;            /* "Saving here will update your per..." */
+#ifdef SW2E_PC
+extern ps2ptr g_0043C31C_a;            /* "Saving here will update your per..." */
+#define g_0043C31C ((const char *)PS2_PTR(g_0043C31C_a))
+#define g_0043C31C_SET(v) (g_0043C31C_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C31C;
+#define g_0043C31C_a (*(ps2ptr *)&g_0043C31C)
+#define g_0043C31C_SET(v) (g_0043C31C = (v))
+#endif
 
 void func_0021C090(void);
 void func_0021C0D0(void);
@@ -1292,7 +1300,15 @@ extern u8 g_00500700_pads[];
 #define PAD_PRESSED(n) (*(unsigned short *)&g_00500700_pads[(n) * 0x88 + 0x4C])
 
 extern u8 g_006934B4_answers[];           /* message box answers, 0x128 bytes per box */
-extern const char *g_004563A0;            /* "This weapon's data will be saved..." */
+#ifdef SW2E_PC
+extern ps2ptr g_004563A0_a;            /* "This weapon's data will be saved..." */
+#define g_004563A0 ((const char *)PS2_PTR(g_004563A0_a))
+#define g_004563A0_SET(v) (g_004563A0_a = PS2_ADDR(v))
+#else
+extern const char *g_004563A0;
+#define g_004563A0_a (*(ps2ptr *)&g_004563A0)
+#define g_004563A0_SET(v) (g_004563A0 = (v))
+#endif
 
 /* 0x0021ED70, 0x1D4 bytes. Item screen, "keep which one" step (controller `pad`, open box `box`):
  * a "yes" in the question box keeps the choice and moves on (page 7); OK asks to confirm, Up or
@@ -1337,9 +1353,69 @@ int func_0021ED70(int pad, int box)
 typedef unsigned long long u64;
 
 extern int g_0056CCA4, g_0056CCA8, g_0056CCAC, g_0056CCB0;    /* drawing modes */
+#ifdef SW2E_PC
+extern ps2ptr g_005BD724_a;
+#define g_005BD724 ((u8 *)PS2_PTR(g_005BD724_a))
+#define g_005BD724_SET(v) (g_005BD724_a = PS2_ADDR(v))
+#else
 extern u8 *g_005BD724;
-extern const char *g_0043C5EC, *g_0043C610, *g_0043C6E4, *g_0043C6E8, *g_0043C804;
-extern const char *g_00456368;            /* "Please select the weapon whose d..." */
+#define g_005BD724_a (*(ps2ptr *)&g_005BD724)
+#define g_005BD724_SET(v) (g_005BD724 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C5EC_a;
+#define g_0043C5EC ((const char *)PS2_PTR(g_0043C5EC_a))
+#define g_0043C5EC_SET(v) (g_0043C5EC_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C5EC;
+#define g_0043C5EC_a (*(ps2ptr *)&g_0043C5EC)
+#define g_0043C5EC_SET(v) (g_0043C5EC = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C610_a;
+#define g_0043C610 ((const char *)PS2_PTR(g_0043C610_a))
+#define g_0043C610_SET(v) (g_0043C610_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C610;
+#define g_0043C610_a (*(ps2ptr *)&g_0043C610)
+#define g_0043C610_SET(v) (g_0043C610 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C6E4_a;
+#define g_0043C6E4 ((const char *)PS2_PTR(g_0043C6E4_a))
+#define g_0043C6E4_SET(v) (g_0043C6E4_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C6E4;
+#define g_0043C6E4_a (*(ps2ptr *)&g_0043C6E4)
+#define g_0043C6E4_SET(v) (g_0043C6E4 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C6E8_a;
+#define g_0043C6E8 ((const char *)PS2_PTR(g_0043C6E8_a))
+#define g_0043C6E8_SET(v) (g_0043C6E8_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C6E8;
+#define g_0043C6E8_a (*(ps2ptr *)&g_0043C6E8)
+#define g_0043C6E8_SET(v) (g_0043C6E8 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C804_a;
+#define g_0043C804 ((const char *)PS2_PTR(g_0043C804_a))
+#define g_0043C804_SET(v) (g_0043C804_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C804;
+#define g_0043C804_a (*(ps2ptr *)&g_0043C804)
+#define g_0043C804_SET(v) (g_0043C804 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_00456368_a;            /* "Please select the weapon whose d..." */
+#define g_00456368 ((const char *)PS2_PTR(g_00456368_a))
+#define g_00456368_SET(v) (g_00456368_a = PS2_ADDR(v))
+#else
+extern const char *g_00456368;
+#define g_00456368_a (*(ps2ptr *)&g_00456368)
+#define g_00456368_SET(v) (g_00456368 = (v))
+#endif
 
 void func_00285E50(u32 a, u32 b, u32 c, int d, int e);
 void func_003DACA0(void);
@@ -1434,7 +1510,15 @@ extern u8 g_0069395E_state;               /* box 1 open when neither 0 nor 0xFF 
 
 extern int g_00747970;                    /* frames before leaving */
 extern u8 *g_005BA6A0_bases;              /* sc_ubase.c records, 0x2C bytes (see MISC.md 0051) */
-extern const char *g_00456318;            /* "... %s ... %s" (item earned) */
+#ifdef SW2E_PC
+extern ps2ptr g_00456318_a;            /* "... %s ... %s" (item earned) */
+#define g_00456318 ((const char *)PS2_PTR(g_00456318_a))
+#define g_00456318_SET(v) (g_00456318_a = PS2_ADDR(v))
+#else
+extern const char *g_00456318;
+#define g_00456318_a (*(ps2ptr *)&g_00456318)
+#define g_00456318_SET(v) (g_00456318 = (v))
+#endif
 extern const char *g_0042DC10[];          /* item names ("Cross Spear"...) */
 
 int func_0021D0D0(int pad, int box);
@@ -1681,7 +1765,15 @@ int func_0021F680(void)
 #define PAD_REPEAT(n) (*(unsigned short *)&g_00500700_pads[(n) * 0x88 + 0x4E])
 
 extern int g_00749410, g_00749414, g_00749418;   /* army page targets (0x00749414 negated) */
-extern const char *g_0044D990;            /* "Your army has earned no experience..." */
+#ifdef SW2E_PC
+extern ps2ptr g_0044D990_a;            /* "Your army has earned no experience..." */
+#define g_0044D990 ((const char *)PS2_PTR(g_0044D990_a))
+#define g_0044D990_SET(v) (g_0044D990_a = PS2_ADDR(v))
+#else
+extern const char *g_0044D990;
+#define g_0044D990_a (*(ps2ptr *)&g_0044D990)
+#define g_0044D990_SET(v) (g_0044D990 = (v))
+#endif
 
 /* One counting step: `value` goes up by 8 towards `target`, with a tick sound on odd frames
  * (`blink`). Sets `counting` to 0 once it got there. */

@@ -56,7 +56,7 @@ void func_002D32B0(int param_1, int param_2, int param_3, int param_4, int param
     int uVar1;
 
     iVar2 = func_002F27D0(param_5);
-    uVar1 = *(u8 *)(*(u32 *)g_005BA6A0 + iVar2 * 0x2C + 7);
+    uVar1 = *(u8 *)PS2_PTR((*(u32 *)g_005BA6A0 + iVar2 * 0x2C + 7));
     iVar2 = func_0017CA50(uVar1, 0);
     iVar3 = func_0017CA50(uVar1, 1);
     *(u32 *)(g_0056CCA4) = 6;

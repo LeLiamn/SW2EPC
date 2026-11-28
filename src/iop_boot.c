@@ -120,7 +120,7 @@ void func_00106490(void)
     while (i < 9) {
         g_00560820.addr = iop;
         g_00560820.mode = 0;
-        g_00560820.data = (u32)(buffer + modules[i].offset * 16);
+        g_00560820.data = (u32)PS2_ADDR((buffer + modules[i].offset * 16));
         g_00560820.size = modules[i].size << 4;
         func_001281A0(&g_00560820, 1);
         if (func_00130D78(iop, 0, 0) >= 0)

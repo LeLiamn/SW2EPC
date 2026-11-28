@@ -26,7 +26,24 @@ extern u8 g_0045B3F0[], g_0045A940[], g_0041BFF0[];
 extern int g_00459F80[][8];
 extern int g_007BAE7C, g_007BAE94[];
 extern int g_007BAE70, g_007BAE84, g_007BAEAC[];
-extern u8 *g_0043C55C, *g_0043C5EC;
+#ifdef SW2E_PC
+extern ps2ptr g_0043C55C_a;
+#define g_0043C55C ((u8 *)PS2_PTR(g_0043C55C_a))
+#define g_0043C55C_SET(v) (g_0043C55C_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043C55C;
+#define g_0043C55C_a (*(ps2ptr *)&g_0043C55C)
+#define g_0043C55C_SET(v) (g_0043C55C = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C5EC_a;
+#define g_0043C5EC ((u8 *)PS2_PTR(g_0043C5EC_a))
+#define g_0043C5EC_SET(v) (g_0043C5EC_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043C5EC;
+#define g_0043C5EC_a (*(ps2ptr *)&g_0043C5EC)
+#define g_0043C5EC_SET(v) (g_0043C5EC = (v))
+#endif
 
 #define M32(o) (*(int *)(g_007BAC40 + (o)))
 #define M8(o) (g_007BAC40[o])

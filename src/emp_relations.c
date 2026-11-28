@@ -41,7 +41,15 @@ extern struct {
     u8 list[0x19];
 } g_007BF680;
 
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
 extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 extern int g_0056CCA4[4];                /* the text colours */
 extern float g_0056CCC0, g_0056CCC4;     /* the text size */
 extern char g_0045C588[], g_0045C598[];

@@ -113,14 +113,14 @@ int func_00203BA0(u8 *param_1)
         lVar2 = func_00206590(param_1);
         if ((lVar2 == 0) && (lVar2 = func_00206950(param_1), lVar2 == 0)) {
             if ((*(u32 *)(iVar3 + 0xB8) & 0x180) != 0) {
-                *(u8 *)(*(int *)(iVar3 + 0x10) + 0x7A) = 1;
+                *(u8 *)PS2_PTR((*(int *)(iVar3 + 0x10) + 0x7A)) = 1;
             }
             *(u32 *)(iVar3 + 0xBC) = *(u32 *)(iVar3 + 0xBC) & 0xFFF8003F;
             *(u8 *)(iVar3 + 0x7D) = 0;
             return 0;
         }
     }
-    else if ((*(u32 *)(*(int *)(iVar3 + 8) + 0xB8) & 0xC) == 0) {
+    else if ((*(u32 *)PS2_PTR((*(int *)(iVar3 + 8) + 0xB8)) & 0xC) == 0) {
         func_00206950(param_1);
         iVar1 = *(int *)(iVar3 + 8);
         goto LAB_00203c40;
@@ -146,7 +146,7 @@ void func_00240B30(u8 *param_1)
     iVar1 = (u8 *)PS2_PTR(*(int *)(iVar3 + 0x110));
     lVar5 = 0;
     if (*(int *)(iVar3 + 0x11C) != 0) {
-        if (0 < *(int *)((u32)*(u8 *)(iVar3 + 0x14E) * 0x70 + 0x74B868)) {
+        if (0 < *(int *)PS2_PTR(((u32)*(u8 *)(iVar3 + 0x14E) * 0x70 + 0x74B868))) {
             lVar2 = func_0016C040(param_1);
             if (lVar2 == 0) {
                 uVar4 = 0;

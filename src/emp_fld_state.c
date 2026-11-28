@@ -37,7 +37,15 @@ typedef struct {
 } BattleState;
 
 extern BattleState g_007B6FB0;
-extern u8 *g_0045D768;                   /* (small data) the set-up data file */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D768_a;                   /* (small data) the set-up data file */
+#define g_0045D768 ((u8 *)PS2_PTR(g_0045D768_a))
+#define g_0045D768_SET(v) (g_0045D768_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D768;
+#define g_0045D768_a (*(ps2ptr *)&g_0045D768)
+#define g_0045D768_SET(v) (g_0045D768 = (v))
+#endif
 extern int g_0045D088[2];                /* (small data) reserve base list sizes */
 extern u32 g_00415CF0[4], g_00415D00[3];
 extern u8 g_00669D60[];                  /* the settings */
@@ -185,18 +193,18 @@ int func_0035ECF0(int k, int a)
 /* 0x0035ED20, 0x70 bytes. Loads the set-up data file and turns its offsets into pointers. */
 void func_0035ED20(void)
 {
-    g_0045D768 = func_001026D0(1, 0x4AA, 0, 1, 0, 0, g_00448238, 0xC2);
-    *(int *)(g_0045D768 + 4) += (int)g_0045D768;
-    *(int *)(g_0045D768 + 8) += (int)g_0045D768;
-    *(int *)(g_0045D768 + 0xC) += (int)g_0045D768;
-    *(int *)(g_0045D768 + 0x10) += (int)g_0045D768;
+    g_0045D768_SET(func_001026D0(1, 0x4AA, 0, 1, 0, 0, g_00448238, 0xC2));
+    *(int *)(g_0045D768 + 4) += (int)PS2_ADDR(g_0045D768);
+    *(int *)(g_0045D768 + 8) += (int)PS2_ADDR(g_0045D768);
+    *(int *)(g_0045D768 + 0xC) += (int)PS2_ADDR(g_0045D768);
+    *(int *)(g_0045D768 + 0x10) += (int)PS2_ADDR(g_0045D768);
 }
 
 /* 0x0035ED90, 0x20 bytes, matching. Frees it. */
 void func_0035ED90(void)
 {
     func_00102EC0(g_0045D768);
-    g_0045D768 = 0;
+    g_0045D768_SET(0);
 }
 
 /* Pad `n`'s ready test. */
@@ -776,7 +784,7 @@ void func_003600F0(void)
 void func_00360100(void)
 {
     if (func_0033B1E0(func_0033F110(1)) == 0 && func_0035F3D0(1) == 0) {
-        if (func_00352240((u8 *)func_0034EC80(func_0035F200(1)), 0) != 0) {
+        if (func_00352240((u8 *)PS2_PTR(func_0034EC80(func_0035F200(1))), 0) != 0) {
             func_0035CC80();
             func_0035F370(1);
         }
@@ -801,26 +809,26 @@ u32 func_003601B0(u32 s)
 
     if (s >= 2)
         return 0x14;
-    func_003653F0((void *)PS2_PTR((int)l), (int *)(buf), 0x14);
-    func_00365230((void *)PS2_PTR((int)l));
+    func_003653F0((void *)PS2_PTR((int)PS2_ADDR(l)), (int *)(buf), 0x14);
+    func_00365230((void *)PS2_PTR((int)PS2_ADDR(l)));
     e = func_0035D5A0(s);
     for (k = 0; k < 0x14; k++) {
-        u8 *b = (u8 *)func_0034EC80(k);
+        u8 *b = (u8 *)PS2_PTR(func_0034EC80(k));
 
         if (b != 0 && func_0034EE50(b) != 0 && s == (u32)func_0034EDB0(b))
-            func_00364E40((void *)PS2_PTR((int)l), k);
+            func_00364E40((void *)PS2_PTR((int)PS2_ADDR(l)), k);
     }
-    if (func_003653D0((void *)PS2_PTR((int)l)) != 0)
-        return func_00365060((void *)PS2_PTR((int)l));
+    if (func_003653D0((void *)PS2_PTR((int)PS2_ADDR(l))) != 0)
+        return func_00365060((void *)PS2_PTR((int)PS2_ADDR(l)));
     for (k = 0; k < 0x14; k++) {
-        u8 *b = (u8 *)func_0034EC80(k);
+        u8 *b = (u8 *)PS2_PTR(func_0034EC80(k));
 
         if (b != 0 && func_0034EE50(b) != 0 && k != func_0035F200(e))
-            func_00364E40((void *)PS2_PTR((int)l), k);
+            func_00364E40((void *)PS2_PTR((int)PS2_ADDR(l)), k);
     }
-    if (func_003653D0((void *)PS2_PTR((int)l)) == 0)
+    if (func_003653D0((void *)PS2_PTR((int)PS2_ADDR(l))) == 0)
         return 0x14;
-    return func_00365060((void *)PS2_PTR((int)l));
+    return func_00365060((void *)PS2_PTR((int)PS2_ADDR(l)));
 }
 
 extern int g_00669F9C, g_00669FA0;       /* the battle's frame counter, its time limit */
@@ -961,7 +969,7 @@ int func_003607F0(void)
     if (func_0036D310() != 0)
         return 0;
     for (s = 0; s < 2; s++) {
-        u8 *b = (u8 *)func_0034EC80(func_0035F200(s));
+        u8 *b = (u8 *)PS2_PTR(func_0034EC80(func_0035F200(s)));
 
         if ((s != 1 || func_0036D2E0() == 0 || func_0035F440() == 0) && s != (u32)func_0034EDB0(b)) {
             func_0035C9D0(0, s == 0 ? 0 : 1);
@@ -1207,7 +1215,7 @@ void func_00361310(void)
         for (k = 0; k < 0x14; k++) {
             u8 **g;
 
-            if (func_0034EE50((u8 *)func_0034EC80(k)) != 0 && (g = func_0033EFD0(s, k)) != 0
+            if (func_0034EE50((u8 *)PS2_PTR(func_0034EC80(k))) != 0 && (g = func_0033EFD0(s, k)) != 0
                 && (((u32 *)g)[0x19] & 1) != 0)
                 ((int *)g)[0x13] = 1;
         }

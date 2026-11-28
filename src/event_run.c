@@ -22,9 +22,34 @@ typedef void (*EvFn)(u8 *p);
 extern int g_0045D374;                   /* (small data) the scene kind */
 extern u8 g_0045D3D4;                    /* (small data) the scene kind kept */
 extern int g_0045D3E0;                   /* (small data) the player */
-extern u8 *g_0045D3E4, *g_0045D3E8;
+#ifdef SW2E_PC
+extern ps2ptr g_0045D3E4_a;
+#define g_0045D3E4 ((u8 *)PS2_PTR(g_0045D3E4_a))
+#define g_0045D3E4_SET(v) (g_0045D3E4_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D3E4;
+#define g_0045D3E4_a (*(ps2ptr *)&g_0045D3E4)
+#define g_0045D3E4_SET(v) (g_0045D3E4 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D3E8_a;
+#define g_0045D3E8 ((u8 *)PS2_PTR(g_0045D3E8_a))
+#define g_0045D3E8_SET(v) (g_0045D3E8_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D3E8;
+#define g_0045D3E8_a (*(ps2ptr *)&g_0045D3E8)
+#define g_0045D3E8_SET(v) (g_0045D3E8 = (v))
+#endif
 extern u8 *g_0045D3F0[2];                /* (small data) the players' shake records */
-extern u8 *g_0045D2C0;                   /* (small data) the camera */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2C0_a;                   /* (small data) the camera */
+#define g_0045D2C0 ((u8 *)PS2_PTR(g_0045D2C0_a))
+#define g_0045D2C0_SET(v) (g_0045D2C0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2C0;
+#define g_0045D2C0_a (*(ps2ptr *)&g_0045D2C0)
+#define g_0045D2C0_SET(v) (g_0045D2C0 = (v))
+#endif
 extern u8 g_00730570[2][0x240];          /* the players' cameras */
 extern u8 g_00730A20[2][0x174];
 extern u8 g_00730DA0[3][0x10];           /* the effect pairs */
@@ -32,7 +57,15 @@ extern int g_00730E50[];
 extern u8 *g_0073C7B0[0x34F];            /* the event file cache */
 extern u8 g_0073C7A4, g_0073C7A5;
 extern char g_00428EE8[];                /* the allocations' source name */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
 extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 extern EvFn g_0040CA30[0xD], g_0040CA70[9], g_0040CB30[5], g_0040CB48[3], g_0040CB58[3];
 extern EvFn g_0040CB70[8];
 
@@ -129,7 +162,7 @@ void func_001D91A0(u8 *p, int b)
 /* 0x001D9280, 0x54 bytes, matching. Starts the event for the current player. */
 void func_001D9280(u8 *p)
 {
-    func_001D91A0(p, (int)g_00730A20[g_0045D3E0]);
+    func_001D91A0(p, (int)PS2_ADDR(g_00730A20[g_0045D3E0]));
     func_001D91F0((unsigned int *)(p), 1);
 }
 
@@ -148,7 +181,7 @@ void func_001D92E0(u8 *p)
 /* 0x001D9350, 0x5C bytes. */
 void func_001D9350(u8 *p)
 {
-    g_0045D2C0 = g_00730570[g_0045D3E0];
+    g_0045D2C0_SET(g_00730570[g_0045D3E0]);
     func_001D75D0();
     func_001E2150(p);
     func_001D8E90();
@@ -282,7 +315,7 @@ void func_001DB660(u8 *p)
 /* 0x001DB8A0, 0x20 bytes, matching. */
 void func_001DB8A0(u8 *e)
 {
-    g_0045D3E8 = func_0020EC50(0x100);
+    g_0045D3E8_SET(func_0020EC50(0x100));
 }
 
 /* 0x001DB8C0, 0xC bytes. */
@@ -302,7 +335,7 @@ void func_001DB9F0(void)
 {
     if (g_0045D3E4 != 0) {
         func_00102EC0(g_0045D3E4);
-        g_0045D3E4 = 0;
+        g_0045D3E4_SET(0);
     }
 }
 

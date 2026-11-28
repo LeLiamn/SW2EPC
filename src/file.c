@@ -25,9 +25,12 @@ typedef unsigned int u32;
 
 /* The containers (0x00500460). */
 typedef struct {
-    u32 *header;             /* the header read at start-up (0 = none) */
-    u32 (*index)[2];         /* header + 0x10: per entry its offset and size */
+    ps2ptr header;           /* u32 *: the header read at start-up (0 = none) */
+    ps2ptr index;            /* u32 (*)[2]: header + 0x10, per entry its offset and size */
 } Container;
+
+#define C_HEADER(c) ((u32 *)PS2_PTR((c)->header))
+#define C_INDEX(c) ((u32 (*)[2])PS2_PTR((c)->index))
 
 extern struct {
     int ready;               /* 0x00500460 */
@@ -37,12 +40,16 @@ extern struct {
 
 /* A container's index, addressed from the object's base (the original folds the field's offset
  * into the load, not into the address). */
+#ifdef SW2E_PC
+#define CONTAINER_INDEX(w) ((u32 (*)[2])PS2_PTR(*(ps2ptr *)((u8 *)&g_00500460 + (w) * 8 + 0x18)))
+#else
 #define CONTAINER_INDEX(w) (*(u32 (**)[2])((u8 *)&g_00500460 + (w) * 8 + 0x18))
+#endif
 
 extern u32 g_0045CC04;                    /* (small data) the second source of BNS entries */
 
 /* The containers' paths (0x00400C20) and the names searched for their first sector. */
-extern const char *g_00400C20[4];         /* "cdrom0:LINKDATA.ANS;1", ... */
+extern ps2ptr g_00400C20[4];              /* const char *: "cdrom0:LINKDATA.ANS;1", ... */
 
 void *func_00102880(const char *path, void *dest, int read, u32 size, u32 offset, const char *file,
                     int line);
@@ -60,28 +67,28 @@ void func_00102410(void)
         if (i == 3) {
             c->header = 0;
         } else if (i == 2) {
-            func_00100870(PS2_ADDR(found), PS2_ADDR("\\LINKDATA.CNS"), 0);
+            func_00100870(found, "\\LINKDATA.CNS", 0);
             g_00500460.start[i] = found[0];
-            c->header = (u32 *)(func_00102DB0(0x40, 0x800));
-            func_00102880(g_00400C20[i], c->header, 1, 0x800, 0, "file.c", 0x57);
+            c->header = PS2_ADDR(func_00102DB0(0x40, 0x800));
+            func_00102880((const char *)PS2_PTR(g_00400C20[i]), C_HEADER(c), 1, 0x800, 0, "file.c", 0x57);
         } else if (i == 1) {
-            func_00100870(PS2_ADDR(found), PS2_ADDR("\\LINKDATA.BNS"), 0);
+            func_00100870(found, "\\LINKDATA.BNS", 0);
             g_00500460.start[i] = found[0];
-            c->header = (u32 *)(func_00102DB0(0x40, 0x7000));
-            func_00102880(g_00400C20[i], c->header, 1, 0x7000, 0, "file.c", 0x4A);
+            c->header = PS2_ADDR(func_00102DB0(0x40, 0x7000));
+            func_00102880((const char *)PS2_PTR(g_00400C20[i]), C_HEADER(c), 1, 0x7000, 0, "file.c", 0x4A);
         } else if (i == 0) {
-            func_00100870(PS2_ADDR(found), PS2_ADDR("\\LINKDATA.ANS"), 0);
+            func_00100870(found, "\\LINKDATA.ANS", 0);
             g_00500460.start[i] = found[0];
-            c->header = (u32 *)(func_00102DB0(0x40, 0x800));
-            func_00102880(g_00400C20[i], c->header, 1, 0x800, 0, "file.c", 0x3D);
+            c->header = PS2_ADDR(func_00102DB0(0x40, 0x800));
+            func_00102880((const char *)PS2_PTR(g_00400C20[i]), C_HEADER(c), 1, 0x800, 0, "file.c", 0x3D);
         } else {
             c->header = 0;
         }
         if (c->header != 0) {
-            if (c->header[0] == 0x33B59) {
-                c->index = (u32 (*)[2])(c->header + 4);
+            if (C_HEADER(c)[0] == 0x33B59) {
+                c->index = PS2_ADDR(C_HEADER(c) + 4);
             } else {
-                func_00102EC0((unsigned char *)(c->header));
+                func_00102EC0((unsigned char *)C_HEADER(c));
                 c->header = 0;
                 c->index = 0;
             }
@@ -97,7 +104,7 @@ void func_00102610(void)
     for (i = 0; i < 4; i++) {
         g_00500460.start[i] = 0;
         if (g_00500460.container[i].header != 0)
-            func_00102EC0((unsigned char *)(g_00500460.container[i].header));
+            func_00102EC0((unsigned char *)C_HEADER(&g_00500460.container[i]));
     }
 }
 
@@ -123,20 +130,20 @@ void *func_001026D0(int which, int entry, void *dest, int now, u32 size, u32 off
     skip = (offset + 0x7FF) >> 11;
     if (dest == 0)
         dest = func_00102DB0(0x40, sectors * 0x800);
-    if (func_00115C70() == 0 || which != 1 || ((u32)dest & 0x80000003) != 0) {
-        u32 sector = g_00500460.start[which] + g_00500460.container[which].index[entry][0];
+    if (func_00115C70() == 0 || which != 1 || (PS2_ADDR(dest) & 0x80000003) != 0) {
+        u32 sector = g_00500460.start[which] + C_INDEX(&g_00500460.container[which])[entry][0];
 
         if (now == 0)
-            func_00100AC0(sector, skip, sectors, (u32)dest);
+            func_00100AC0(sector, skip, sectors, PS2_ADDR(dest));
         else
-            func_00100C60(sector, skip, sectors, (u32)dest);
+            func_00100C60(sector, skip, sectors, PS2_ADDR(dest));
     } else {
-        u32 at = g_00500460.container[1].index[entry][0];
+        u32 at = C_INDEX(&g_00500460.container[1])[entry][0];
 
         if (now == 0)
-            func_00100B90(g_0045CC04, skip + at, sectors, (u32)dest);
+            func_00100B90(g_0045CC04, skip + at, sectors, PS2_ADDR(dest));
         else
-            func_00100D00(g_0045CC04, skip + at, sectors, (u32)dest);
+            func_00100D00(g_0045CC04, skip + at, sectors, PS2_ADDR(dest));
     }
     return dest;
 }
@@ -160,7 +167,7 @@ void *func_00102880(const char *path, void *dest, int read, u32 size, u32 offset
     if (dest == 0)
         dest = func_00102DB0(0x40, sectors * 0x800);
     if (read != 0) {
-        func_00100D00((u32)path, (offset + 0x7FF) >> 11, sectors, (u32)dest);
+        func_00100D00(PS2_ADDR(path), (offset + 0x7FF) >> 11, sectors, PS2_ADDR(dest));
         if ((size & 0x7FF) != 0)
             func_00118850((u8 *)dest + size, 0x800 - (size & 0x7FF));
     }

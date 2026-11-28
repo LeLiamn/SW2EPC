@@ -28,7 +28,15 @@ typedef struct {
 } WindowAnim;
 
 extern u8 *g_0043C120[];                 /* the edit screens' texts */
+#ifdef SW2E_PC
+extern ps2ptr g_0043C738_a;
+#define g_0043C738 ((u8 *)PS2_PTR(g_0043C738_a))
+#define g_0043C738_SET(v) (g_0043C738_a = PS2_ADDR(v))
+#else
 extern u8 *g_0043C738;
+#define g_0043C738_a (*(ps2ptr *)&g_0043C738)
+#define g_0043C738_SET(v) (g_0043C738 = (v))
+#endif
 
 void func_003D47A0(int k, int x, int y, u8 alpha);
 
@@ -399,7 +407,15 @@ typedef unsigned long long u64;
 
 extern int g_007BEC38;                   /* frames shown (-1: none) */
 extern int g_007BEC3C;                   /* its kind (1 and 3: additive) */
-extern u8 *g_007BEC40;                   /* its textures */
+#ifdef SW2E_PC
+extern ps2ptr g_007BEC40_a;                   /* its textures */
+#define g_007BEC40 ((u8 *)PS2_PTR(g_007BEC40_a))
+#define g_007BEC40_SET(v) (g_007BEC40_a = PS2_ADDR(v))
+#else
+extern u8 *g_007BEC40;
+#define g_007BEC40_a (*(ps2ptr *)&g_007BEC40)
+#define g_007BEC40_SET(v) (g_007BEC40 = (v))
+#endif
 extern u8 g_00500764, g_00500765;
 extern u16 g_0050074C;
 
@@ -481,7 +497,15 @@ typedef struct {
     int state;               /* 1 opening, 2 open, 3 closing */
 } SlideBox;
 
-extern SlideBox *g_0045D830;             /* (small data) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D830_a;             /* (small data) */
+#define g_0045D830 ((SlideBox *)PS2_PTR(g_0045D830_a))
+#define g_0045D830_SET(v) (g_0045D830_a = PS2_ADDR(v))
+#else
+extern SlideBox *g_0045D830;
+#define g_0045D830_a (*(ps2ptr *)&g_0045D830)
+#define g_0045D830_SET(v) (g_0045D830 = (v))
+#endif
 extern int g_0045D834;
 extern Box5 g_0045C4C0;
 
@@ -504,10 +528,10 @@ void func_003DB120(int n)
 
     if (g_0045D830 != 0) {
         func_00102EC0((unsigned char *)(g_0045D830));
-        g_0045D830 = 0;
+        g_0045D830_SET(0);
     }
     g_0045D834 = n;
-    g_0045D830 = (SlideBox *)(func_00102DB0(0x10, n * 0x4C));
+    g_0045D830_SET((SlideBox *)(func_00102DB0(0x10, n * 0x4C)));
     for (k = 0; k < n; k++)
         func_003DB0C0(&g_0045D830[k]);
 }

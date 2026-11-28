@@ -19,15 +19,31 @@ typedef unsigned int u32;
 extern u32 g_7000015C;                   /* (scratchpad) the random seed */
 extern u8 g_00669D60[];
 extern u8 g_004296E0[][0x48];            /* troop chance table */
+#ifdef SW2E_PC
+extern ps2ptr g_00731628_a;
+#define g_00731628 ((u8 *)PS2_PTR(g_00731628_a))
+#define g_00731628_SET(v) (g_00731628_a = PS2_ADDR(v))
+#else
 extern u8 *g_00731628;
+#define g_00731628_a (*(ps2ptr *)&g_00731628)
+#define g_00731628_SET(v) (g_00731628 = (v))
+#endif
 extern int g_007315E0[];                 /* the duel state (+0x38: its 4 actors) */
 extern u8 g_0073164C;
-extern u8 *g_0045D410;                   /* (small data) the stage units' seen bits */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D410_a;                   /* (small data) the stage units' seen bits */
+#define g_0045D410 ((u8 *)PS2_PTR(g_0045D410_a))
+#define g_0045D410_SET(v) (g_0045D410_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D410;
+#define g_0045D410_a (*(ps2ptr *)&g_0045D410)
+#define g_0045D410_SET(v) (g_0045D410 = (v))
+#endif
 extern int (*g_00429410[0x1D])(void);
 
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
-#define SPAD_INT(a) (*(int *)(a))
-#define SPAD_PTR(a) (*(u8 **)(a))
+#define SPAD_INT(a) (*(int *)PS2_PTR(a))
+#define SPAD_PTR(a) ((u8 *)PS2_PTR(*(ps2ptr *)PS2_PTR(a)))
 
 void func_001F3150(int a, int b, int c);
 void func_001F3FC0(float d, int a, int b, int c);
@@ -148,7 +164,7 @@ int func_001F17B0(u8 *c, u32 i)
 void func_001F1E90(void)
 {
     func_00102EC0(g_00731628);
-    g_00731628 = 0;
+    g_00731628_SET(0);
 }
 
 /* 0x001F27D0, 0x34 bytes. Marks duel actor `k`. */
@@ -387,7 +403,15 @@ int func_001F2A00(void)
  * records are 0x88 bytes from 0x00693970; the map cells count the troops of each side in their
  * slots (+8) and their soldiers (+0xC). ---- */
 
-extern u8 *g_0045D2F0;                   /* (small data) the map */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2F0_a;                   /* (small data) the map */
+#define g_0045D2F0 ((u8 *)PS2_PTR(g_0045D2F0_a))
+#define g_0045D2F0_SET(v) (g_0045D2F0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2F0;
+#define g_0045D2F0_a (*(ps2ptr *)&g_0045D2F0)
+#define g_0045D2F0_SET(v) (g_0045D2F0 = (v))
+#endif
 extern int g_0045D2A8;
 extern u8 g_00693970[];
 extern u8 g_004295A0[][0xC], g_00429678[0xC], g_00429690[][0xC];
@@ -710,7 +734,7 @@ u32 func_001F1C00(u8 *c, u32 k)
 /* 0x001F1C70, 0xE0 bytes. Loads the duel's file. */
 void func_001F1C70(void)
 {
-    g_00731628 = func_001026D0(1, 0xC07, 0, 1, 0, 0, (const char *)(g_004298D8), 0xC);
+    g_00731628_SET(func_001026D0(1, 0xC07, 0, 1, 0, 0, (const char *)(g_004298D8), 0xC));
     DUEL_BUFFERS();
     DUEL(0) = 5;
 }
@@ -872,7 +896,7 @@ int func_001F2680(int a)
 /* 0x001F2880, 0x158 bytes. */
 int func_001F2880(u32 side)
 {
-    u32 s = side != ((u8 *)DUEL(14))[0x14E];
+    u32 s = side != ((u8 *)PS2_PTR(DUEL(14)))[0x14E];
 
     if (DUEL(0) == 4 || DUEL(0) == 3 || DUEL(0) == 2) {
         if ((u32)DUEL(9) > 5)
@@ -889,7 +913,7 @@ int func_001F2AF0(void)
 
     if ((GAME_FLAGS & 0x800000) != 0 && func_001F29E0() != 0 && func_001F24C0() != 0) {
         r = DUEL(15);
-        if (r != 0 && ((u8 *)r)[0x14E] == 0)
+        if (r != 0 && ((u8 *)PS2_PTR(r))[0x14E] == 0)
             r = DUEL(14);
     }
     return r;

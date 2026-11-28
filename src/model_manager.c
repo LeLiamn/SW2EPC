@@ -64,8 +64,42 @@ extern u8 *g_006AAAE0[0xD6][4];          /* per object: its texture file, id, me
 extern TexSlot g_006AA9B0[0x12], g_006AA630[0x38];
 extern int g_006AAAD0[4];                /* texture memory used (two banks), next CLUT */
 extern u16 g_006AAADC, g_006AAADE;
-extern u8 *g_0045D300;                   /* the slots' colours (0xA0 each) */
-extern void *g_0045D308, *g_0045D310, *g_0045D318;
+#ifdef SW2E_PC
+extern ps2ptr g_0045D300_a;                   /* the slots' colours (0xA0 each) */
+#define g_0045D300 ((u8 *)PS2_PTR(g_0045D300_a))
+#define g_0045D300_SET(v) (g_0045D300_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D300;
+#define g_0045D300_a (*(ps2ptr *)&g_0045D300)
+#define g_0045D300_SET(v) (g_0045D300 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D308_a;
+#define g_0045D308 ((void *)PS2_PTR(g_0045D308_a))
+#define g_0045D308_SET(v) (g_0045D308_a = PS2_ADDR(v))
+#else
+extern void *g_0045D308;
+#define g_0045D308_a (*(ps2ptr *)&g_0045D308)
+#define g_0045D308_SET(v) (g_0045D308 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D310_a;
+#define g_0045D310 ((void *)PS2_PTR(g_0045D310_a))
+#define g_0045D310_SET(v) (g_0045D310_a = PS2_ADDR(v))
+#else
+extern void *g_0045D310;
+#define g_0045D310_a (*(ps2ptr *)&g_0045D310)
+#define g_0045D310_SET(v) (g_0045D310 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D318_a;
+#define g_0045D318 ((void *)PS2_PTR(g_0045D318_a))
+#define g_0045D318_SET(v) (g_0045D318_a = PS2_ADDR(v))
+#else
+extern void *g_0045D318;
+#define g_0045D318_a (*(ps2ptr *)&g_0045D318)
+#define g_0045D318_SET(v) (g_0045D318 = (v))
+#endif
 extern u8 g_006D2EC0[], g_006D2EF0[];
 extern u32 g_00669DB8[4];
 extern float g_0045CDA4, g_0045CDA8;
@@ -103,7 +137,7 @@ void func_001BC8C0(void)
     u8 n;
 
     func_00102680(1, 0x56A);
-    g_0045D300 = func_001026D0(1, 0x56A, 0, 1, 0, 0, g_00425E70, 0xDC);
+    g_0045D300_SET(func_001026D0(1, 0x56A, 0, 1, 0, 0, g_00425E70, 0xDC));
     g_00406740[0][0] = 0.0f;
     g_00406740[0][1] = 0.0f;
     g_00406740[0][2] = 0.0f;
@@ -122,8 +156,8 @@ void func_001BC8C0(void)
         g_00406740[k][3] = 1.0f;
     }
     f = func_001026D0(1, 0x570, 0, 1, 0, 0, g_00425E70, 0xF0);
-    g_0045D310 = (void *)PS2_PTR(func_00107440(f, 0x2920, 0x3CE4));
-    g_0045D318 = (void *)PS2_PTR(func_00107440(f, 0x2920, 0x3CE0));
+    g_0045D310_SET((void *)PS2_PTR(func_00107440(f, 0x2920, 0x3CE4)));
+    g_0045D318_SET((void *)PS2_PTR(func_00107440(f, 0x2920, 0x3CE0)));
     func_00102EC0(f);
     for (k = 0; k < 0x40; k++) {
         func_00147D20((unsigned int *)(g_006CDF50[k] + 0x10));
@@ -159,7 +193,7 @@ void func_001BC8C0(void)
     for (k = 0; k < 0xD6; k++)
         func_00148130(g_006C3590[k]);
     f = func_001026D0(1, 0x68E, 0, 1, 0, 0, g_00425E70, 0x12E);
-    g_0045D308 = (void *)PS2_PTR(func_00107440(f, 0x2A20, 0x3ED0));
+    g_0045D308_SET((void *)PS2_PTR(func_00107440(f, 0x2A20, 0x3ED0)));
     func_00102EC0(f);
     func_001BC540();
     for (k = 0; k < 0xD6; k++) {
@@ -210,7 +244,7 @@ void func_001BCE60(void)
             func_001BE0F0(k);
     }
     func_00102EC0(g_0045D300);
-    g_0045D300 = 0;
+    g_0045D300_SET(0);
 }
 
 /* Frees a pool's actors that hold a model (+0x1F8). */
@@ -266,9 +300,9 @@ int func_001BD180(int k, int alt, int a, int v)
         v = 0;
     if (s[0] == 0 && s[1] == 0 && func_001BD150(k) == 0) {
         if (alt == 0)
-            s[0] = (u32)func_001026D0(1, v + func_001BE870(k), 0, a, 0, 0, g_00425E70, 0x201);
+            s[0] = (u32)PS2_ADDR(func_001026D0(1, v + func_001BE870(k), 0, a, 0, 0, g_00425E70, 0x201));
         else
-            s[0] = (u32)func_001026D0(1, v + func_001BE890(k), 0, a, 0, 0, g_00425E70, 0x1FD);
+            s[0] = (u32)PS2_ADDR(func_001026D0(1, v + func_001BE890(k), 0, a, 0, 0, g_00425E70, 0x1FD));
     }
     return 1;
 }
@@ -286,14 +320,14 @@ static inline void setup_slot(int k, int slot, int mode2)
     else
         func_00147D30((unsigned int *)((u8 *)f + (f[1] & ~3u)), s + 0x10, func_001BE8B0(k), func_001BE8D0(k));
     if (slot == 0x3C)
-        func_001482F0((unsigned int *)((u8 *)f + (f[2] & ~3u)), g_006D2EC0, (u64)(u32)g_0045D318);
+        func_001482F0((unsigned int *)((u8 *)f + (f[2] & ~3u)), g_006D2EC0, (u64)(u32)PS2_ADDR(g_0045D318));
     else
         func_001482F0((unsigned int *)((u8 *)f + (f[2] & ~3u)), s + 0xB0, *(u64 *)(s + 0xA0));
     p = f + 3;
     func_00148420(s + 0xB0, col);
     if (f[0] == 6) {
         if (slot == 0x3C)
-            func_001482F0((unsigned int *)((u8 *)f + (*p & ~3u)), g_006D2EF0, (u64)(u32)g_0045D318);
+            func_001482F0((unsigned int *)((u8 *)f + (*p & ~3u)), g_006D2EF0, (u64)(u32)PS2_ADDR(g_0045D318));
         else
             func_001482F0((unsigned int *)((u8 *)f + (*p & ~3u)), s + 0xE0, *(u64 *)(s + 0xA0));
         p = f + 4;
@@ -328,7 +362,7 @@ void func_001BD540(void)
         u32 *s = (u32 *)g_006CDF50[k];
 
         if (func_001BE8F0(k) == 0 && s[1] == 0 && s[0] != 0) {
-            func_00102EC0((void *)s[0]);
+            func_00102EC0((void *)PS2_PTR(s[0]));
             s[0] = 0;
         }
     }
@@ -368,7 +402,7 @@ int func_001BD6D0(int k, int a)
 
     if (s[0] == 0 && s[1] == 0 && func_001BD150(k) == 0) {
         for (v = 0; v < 2; v++) {
-            s[v * 0x54] = (u32)func_001026D0(1, v + func_001BE870(k), 0, a, 0, 0, g_00425E70, 0x2B4);
+            s[v * 0x54] = (u32)PS2_ADDR(func_001026D0(1, v + func_001BE870(k), 0, a, 0, 0, g_00425E70, 0x2B4));
             if (k > 0x1B)
                 return 1;
         }
@@ -396,11 +430,11 @@ int func_001BD9B0(int k, int a)
         if (d->tex != 0xFFFF && func_001BC650(d->tex) == 0) {
             func_00103000(0);
             f[0] = func_001026D0(1, d->tex, 0, a, 0, 0, g_00425E70, 0x396);
-            f[1] = (u8 *)d->tex;
+            f[1] = (u8 *)PS2_PTR(d->tex);
             func_00103000(1);
         }
         f[2] = func_001026D0(1, d->mesh, 0, a, 0, 0, g_00425E70, 0x39F);
-        f[3] = (u8 *)d->mesh;
+        f[3] = (u8 *)PS2_PTR(d->mesh);
     }
     return 1;
 }
@@ -442,7 +476,7 @@ static inline u64 upload_object(int k, TexSlot *e, ObjectDesc *d, int *used, int
  * shared one; height `h` when given must match), its mesh opened with it and coloured. */
 int func_001BDAE0(int k, int h, int bank)
 {
-    u64 t = (u64)(u32)g_0045D308;
+    u64 t = (u64)(u32)PS2_ADDR(g_0045D308);
     ObjectDesc *d;
     u8 **f = g_006AAAE0[k];
 
@@ -477,7 +511,7 @@ int func_001BDAE0(int k, int h, int bank)
 /* 0x001BDDB0, 0x27C bytes. The same for mode 2 (one bank, its own list). */
 int func_001BDDB0(int k, int h)
 {
-    u64 t = (u64)(u32)g_0045D308;
+    u64 t = (u64)(u32)PS2_ADDR(g_0045D308);
     ObjectDesc *d;
     u8 **f = g_006AAAE0[k];
 

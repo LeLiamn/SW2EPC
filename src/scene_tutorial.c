@@ -28,6 +28,8 @@ int func_0039E760(int edited);
 int func_002F3C20(void *);
 #endif
 #define SW2E_FILE_SCENE_TUTORIAL_C
+#define SW2E_OWN_PROTO_func_0030CCB0   /* declared here with the record types */
+#define SW2E_OWN_PROTO_func_0030CCC0
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
 
@@ -109,11 +111,51 @@ typedef struct {
     int list_b[24];          /* the next ones (not func_002F3F20) */
 } TutorialSetup;
 
-extern GameStateCopy *g_0045D850;         /* (small data) the five buffers */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D850_a;         /* (small data) the five buffers */
+#define g_0045D850 ((GameStateCopy *)PS2_PTR(g_0045D850_a))
+#define g_0045D850_SET(v) (g_0045D850_a = PS2_ADDR(v))
+#else
+extern GameStateCopy *g_0045D850;
+#define g_0045D850_a (*(ps2ptr *)&g_0045D850)
+#define g_0045D850_SET(v) (g_0045D850 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D854_a;
+#define g_0045D854 ((OfficerRecord *)PS2_PTR(g_0045D854_a))
+#define g_0045D854_SET(v) (g_0045D854_a = PS2_ADDR(v))
+#else
 extern OfficerRecord *g_0045D854;
+#define g_0045D854_a (*(ps2ptr *)&g_0045D854)
+#define g_0045D854_SET(v) (g_0045D854 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D858_a;
+#define g_0045D858 ((EntryRecord14 *)PS2_PTR(g_0045D858_a))
+#define g_0045D858_SET(v) (g_0045D858_a = PS2_ADDR(v))
+#else
 extern EntryRecord14 *g_0045D858;
+#define g_0045D858_a (*(ps2ptr *)&g_0045D858)
+#define g_0045D858_SET(v) (g_0045D858 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D85C_a;
+#define g_0045D85C ((EntryRecord78 *)PS2_PTR(g_0045D85C_a))
+#define g_0045D85C_SET(v) (g_0045D85C_a = PS2_ADDR(v))
+#else
 extern EntryRecord78 *g_0045D85C;
+#define g_0045D85C_a (*(ps2ptr *)&g_0045D85C)
+#define g_0045D85C_SET(v) (g_0045D85C = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D860_a;
+#define g_0045D860 ((TutorialSetup *)PS2_PTR(g_0045D860_a))
+#define g_0045D860_SET(v) (g_0045D860_a = PS2_ADDR(v))
+#else
 extern TutorialSetup *g_0045D860;
+#define g_0045D860_a (*(ps2ptr *)&g_0045D860)
+#define g_0045D860_SET(v) (g_0045D860 = (v))
+#endif
 
 extern GameStateCopy g_00669D60;          /* the game state (only copied here) */
 extern int g_0045C9C0[][8];               /* per main menu entry: up to eight entries */
@@ -647,38 +689,38 @@ void func_003F4620(void)
 {
     if (g_0045D860 != 0) {
         func_00102EC0((unsigned char *)(g_0045D860));
-        g_0045D860 = 0;
+        g_0045D860_SET(0);
     }
     if (g_0045D85C != 0) {
         func_00102EC0((unsigned char *)(g_0045D85C));
-        g_0045D85C = 0;
+        g_0045D85C_SET(0);
     }
     if (g_0045D858 != 0) {
         func_00102EC0((unsigned char *)(g_0045D858));
-        g_0045D858 = 0;
+        g_0045D858_SET(0);
     }
     if (g_0045D854 != 0) {
         func_00102EC0((unsigned char *)(g_0045D854));
-        g_0045D854 = 0;
+        g_0045D854_SET(0);
     }
     if (g_0045D850 != 0) {
         func_00102EC0((unsigned char *)(g_0045D850));
-        g_0045D850 = 0;
+        g_0045D850_SET(0);
     }
 }
 
 /* 0x003F46B0, 0x184 bytes, matching. Scene 0x17 enter. */
 void func_003F46B0(void)
 {
-    g_0045D850 = (GameStateCopy *)(func_00102DB0(0x10, 0x25310));
+    g_0045D850_SET((GameStateCopy *)(func_00102DB0(0x10, 0x25310)));
     func_0011ED38(g_0045D850, 0, 0x25310);
-    g_0045D854 = (OfficerRecord *)(func_00102DB0(0x10, 0xFCE4));
+    g_0045D854_SET((OfficerRecord *)(func_00102DB0(0x10, 0xFCE4)));
     func_0011ED38(g_0045D854, 0, 0xFCE4);
-    g_0045D858 = (EntryRecord14 *)(func_00102DB0(0x10, 500));
+    g_0045D858_SET((EntryRecord14 *)(func_00102DB0(0x10, 500)));
     func_0011ED38(g_0045D858, 0, 500);
-    g_0045D85C = (EntryRecord78 *)(func_00102DB0(0x10, 3000));
+    g_0045D85C_SET((EntryRecord78 *)(func_00102DB0(0x10, 3000)));
     func_0011ED38(g_0045D85C, 0, 3000);
-    g_0045D860 = (TutorialSetup *)(func_00102DB0(0x10, 0xE0));
+    g_0045D860_SET((TutorialSetup *)(func_00102DB0(0x10, 0xE0)));
     func_0011ED38(g_0045D860, 0, 0xE0);
     if (func_0017DDA0() != 0)
         func_0017DF10();
@@ -730,7 +772,15 @@ typedef struct {
     u8 unknown_2a[2];
 } TutorialWindow;
 
-extern TutorialWindow *g_0045D864;        /* (small data) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D864_a;        /* (small data) */
+#define g_0045D864 ((TutorialWindow *)PS2_PTR(g_0045D864_a))
+#define g_0045D864_SET(v) (g_0045D864_a = PS2_ADDR(v))
+#else
+extern TutorialWindow *g_0045D864;
+#define g_0045D864_a (*(ps2ptr *)&g_0045D864)
+#define g_0045D864_SET(v) (g_0045D864 = (v))
+#endif
 
 /* Shared menu flags (0x00799A24, see scene_edit.c). */
 extern struct {
@@ -1125,7 +1175,7 @@ int func_003F5410(void)
  * entry 0x91, rounded up to 0x800). */
 void func_003F5430(void)
 {
-    g_0045D864 = (TutorialWindow *)(func_00102DB0(0x10, 0x2C));
+    g_0045D864_SET((TutorialWindow *)(func_00102DB0(0x10, 0x2C)));
     func_00118850((unsigned char *)(g_0045D864), 0x2C);
     g_0045D864->page[0] = func_00102DB0(0x40, (func_00102680(1, 0x91) + 0x7FF) & ~0x7FF);
     g_0045D864->page[1] = func_00102DB0(0x40, (func_00102680(1, 0x91) + 0x7FF) & ~0x7FF);
@@ -1147,5 +1197,5 @@ void func_003F54C0(void)
     g_0045D864->page[0] = 0;
     if (g_0045D864 != 0)
         func_00102EC0((unsigned char *)(g_0045D864));
-    g_0045D864 = 0;
+    g_0045D864_SET(0);
 }

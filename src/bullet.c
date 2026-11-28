@@ -22,7 +22,15 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
-extern u8 *g_0045D2FC;                   /* (small data) the projectile kinds' file */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2FC_a;                   /* (small data) the projectile kinds' file */
+#define g_0045D2FC ((u8 *)PS2_PTR(g_0045D2FC_a))
+#define g_0045D2FC_SET(v) (g_0045D2FC_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2FC;
+#define g_0045D2FC_a (*(ps2ptr *)&g_0045D2FC)
+#define g_0045D2FC_SET(v) (g_0045D2FC = (v))
+#endif
 extern const char g_00425D50[];          /* "Bullet.c" */
 
 void func_001ACA70(u8 *b, u8 *kind, float *pos, float *dir, u8 *unit);
@@ -122,12 +130,12 @@ void func_001AE1D0(u8 *b, u8 *kind)
 /* 0x001AE4F0, 0x40 bytes, matching. Loads the projectile kinds (LINKDATA entry 0x56E). */
 void func_001AE4F0(void)
 {
-    g_0045D2FC = func_001026D0(1, 0x56E, 0, 1, 0, 0, g_00425D50, 0x2DF);
+    g_0045D2FC_SET(func_001026D0(1, 0x56E, 0, 1, 0, 0, g_00425D50, 0x2DF));
 }
 
 /* 0x001AE530, 0x20 bytes, matching. Frees them. */
 void func_001AE530(void)
 {
     func_00102EC0(g_0045D2FC);
-    g_0045D2FC = 0;
+    g_0045D2FC_SET(0);
 }

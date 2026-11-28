@@ -253,7 +253,33 @@ typedef struct {
 
 extern StartMenu s_007B93D8;
 
-extern void *g_0045D774, *g_0045D778, *g_0045D77C;   /* (small data) the loaded files */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D774_a;   /* (small data) the loaded files */
+#define g_0045D774 ((void *)PS2_PTR(g_0045D774_a))
+#define g_0045D774_SET(v) (g_0045D774_a = PS2_ADDR(v))
+#else
+extern void *g_0045D774;
+#define g_0045D774_a (*(ps2ptr *)&g_0045D774)
+#define g_0045D774_SET(v) (g_0045D774 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D778_a;   /* (small data) the loaded files */
+#define g_0045D778 ((void *)PS2_PTR(g_0045D778_a))
+#define g_0045D778_SET(v) (g_0045D778_a = PS2_ADDR(v))
+#else
+extern void *g_0045D778;
+#define g_0045D778_a (*(ps2ptr *)&g_0045D778)
+#define g_0045D778_SET(v) (g_0045D778 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D77C_a;   /* (small data) the loaded files */
+#define g_0045D77C ((void *)PS2_PTR(g_0045D77C_a))
+#define g_0045D77C_SET(v) (g_0045D77C_a = PS2_ADDR(v))
+#else
+extern void *g_0045D77C;
+#define g_0045D77C_a (*(ps2ptr *)&g_0045D77C)
+#define g_0045D77C_SET(v) (g_0045D77C = (v))
+#endif
 
 /* Help lines (part of the text table at 0x0043C32C, see scene_config.c; 0xF0 + letter = a
  * button icon). */
@@ -401,14 +427,14 @@ int func_003654F0(int entry)
 /* 0x00365530, 0xBC bytes, matching. Loads the scene's three files (LINKDATA entries 0x7F, 0x82 and 0x81). */
 void func_00365530(void)
 {
-    g_0045D77C = 0;
-    g_0045D77C = func_001026D0(1, 0x7F, 0, 1, 0, 0, "StateStartUp.c", 0xAC);
+    g_0045D77C_SET(0);
+    g_0045D77C_SET(func_001026D0(1, 0x7F, 0, 1, 0, 0, "StateStartUp.c", 0xAC));
     func_00102960(1);
-    g_0045D778 = 0;
-    g_0045D778 = func_001026D0(1, 0x82, 0, 1, 0, 0, "StateStartUp.c", 0xB2);
+    g_0045D778_SET(0);
+    g_0045D778_SET(func_001026D0(1, 0x82, 0, 1, 0, 0, "StateStartUp.c", 0xB2));
     func_00102960(1);
-    g_0045D774 = 0;
-    g_0045D774 = func_001026D0(1, 0x81, 0, 1, 0, 0, "StateStartUp.c", 0xB8);
+    g_0045D774_SET(0);
+    g_0045D774_SET(func_001026D0(1, 0x81, 0, 1, 0, 0, "StateStartUp.c", 0xB8));
     func_00102960(1);
 }
 
@@ -417,15 +443,15 @@ void func_003655F0(void)
 {
     if (g_0045D778 != 0) {
         func_00102EC0(g_0045D778);
-        g_0045D778 = 0;
+        g_0045D778_SET(0);
     }
     if (g_0045D77C != 0) {
         func_00102EC0(g_0045D77C);
-        g_0045D77C = 0;
+        g_0045D77C_SET(0);
     }
     if (g_0045D774 != 0) {
         func_00102EC0(g_0045D774);
-        g_0045D774 = 0;
+        g_0045D774_SET(0);
     }
 }
 

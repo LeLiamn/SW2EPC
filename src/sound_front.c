@@ -35,14 +35,30 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
-extern int *g_0074B7D8;                  /* the sound table */
+#ifdef SW2E_PC
+extern ps2ptr g_0074B7D8_a;                  /* the sound table */
+#define g_0074B7D8 ((int *)PS2_PTR(g_0074B7D8_a))
+#define g_0074B7D8_SET(v) (g_0074B7D8_a = PS2_ADDR(v))
+#else
+extern int *g_0074B7D8;
+#define g_0074B7D8_a (*(ps2ptr *)&g_0074B7D8)
+#define g_0074B7D8_SET(v) (g_0074B7D8 = (v))
+#endif
 extern int g_0074B7EC[2];                /* the two stream buffers */
 extern u32 g_0074B7F4;                   /* the one in use */
 extern int g_0074B7D4, g_0074B7E8;
 extern int g_0045D4C4, g_0045D4C8, g_0045D4CC;   /* (small data) */
 extern u8 g_00669D60[];                  /* settings: +0x53, +0x54 volumes */
 extern int g_00500474;
+#ifdef SW2E_PC
+extern ps2ptr g_00500478_a;
+#define g_00500478 ((u8 *)PS2_PTR(g_00500478_a))
+#define g_00500478_SET(v) (g_00500478_a = PS2_ADDR(v))
+#else
 extern u8 *g_00500478;
+#define g_00500478_a (*(ps2ptr *)&g_00500478)
+#define g_00500478_SET(v) (g_00500478 = (v))
+#endif
 extern int g_0040E9E0[][9];              /* the effects banks */
 extern int g_0043D010[0xB], g_0043D040[0xB];
 extern char g_0043D070[];
@@ -306,7 +322,7 @@ void func_0023AA60(int k, u32 dst, int a)
         return;
     if (dst == 0)
         dst = func_00117DE0();
-    func_001026D0(0, 0x69, (void *)(dst | 0x80000001), a, t[k * 5 + 4] << 0xB, t[k * 5 + 3] << 0xB,
+    func_001026D0(0, 0x69, (void *)PS2_PTR((dst | 0x80000001)), a, t[k * 5 + 4] << 0xB, t[k * 5 + 3] << 0xB,
                   g_0043D070, 0x284);
 }
 
@@ -319,7 +335,7 @@ void func_0023AB00(int k, int a)
 /* 0x0023AB20, 0x44 bytes. Loads the sound table. */
 void func_0023AB20(void)
 {
-    g_0074B7D8 = func_001026D0(1, 0x569, 0, 1, 0, 0, g_0043D070, 0x290);
+    g_0074B7D8_SET(func_001026D0(1, 0x569, 0, 1, 0, 0, g_0043D070, 0x290));
 }
 
 /* 0x0023AB70, 0x48 bytes. Sets the music volume (0-15). */
@@ -401,13 +417,45 @@ void func_0023ADA0(void)
 extern int g_0074B7D0, g_0074B7E4;       /* IOP and SPU memory cursors */
 extern int g_0074B7F8, g_0074B800, g_0074B808, g_0074B810, g_0074B818, g_0074B820;
 extern int g_0074B824, g_0074B828, g_0074B82C, g_0074B830;   /* the stage's four banks */
+#ifdef SW2E_PC
+extern ps2ptr g_0074B834_a;
+#define g_0074B834 ((u8 *)PS2_PTR(g_0074B834_a))
+#define g_0074B834_SET(v) (g_0074B834_a = PS2_ADDR(v))
+#else
 extern u8 *g_0074B834;
+#define g_0074B834_a (*(ps2ptr *)&g_0074B834)
+#define g_0074B834_SET(v) (g_0074B834 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0074B838_a;
+#define g_0074B838 ((int *)PS2_PTR(g_0074B838_a))
+#define g_0074B838_SET(v) (g_0074B838_a = PS2_ADDR(v))
+#else
 extern int *g_0074B838;
+#define g_0074B838_a (*(ps2ptr *)&g_0074B838)
+#define g_0074B838_SET(v) (g_0074B838 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0074B83C_a;
+#define g_0074B83C ((u8 *)PS2_PTR(g_0074B83C_a))
+#define g_0074B83C_SET(v) (g_0074B83C_a = PS2_ADDR(v))
+#else
 extern u8 *g_0074B83C;
+#define g_0074B83C_a (*(ps2ptr *)&g_0074B83C)
+#define g_0074B83C_SET(v) (g_0074B83C = (v))
+#endif
 extern int g_0074B840, g_0074B844, g_0074B848, g_0074B84C, g_0074B850;
 extern int g_0074B854, g_0074B858, g_0074B85C, g_0074B860;
 extern u8 g_006A3A30[][0xC0];
+#ifdef SW2E_PC
+extern ps2ptr g_005BD724_a;
+#define g_005BD724 ((u8 *)PS2_PTR(g_005BD724_a))
+#define g_005BD724_SET(v) (g_005BD724_a = PS2_ADDR(v))
+#else
 extern u8 *g_005BD724;
+#define g_005BD724_a (*(ps2ptr *)&g_005BD724)
+#define g_005BD724_SET(v) (g_005BD724 = (v))
+#endif
 extern int g_0043D080[];
 extern u8 g_0043D0F0[];
 
@@ -427,9 +475,9 @@ void func_0023AE30(int k, int wait)
         dst = g_0074B7D0 + g_0074B7D4;
         g_0074B7D4 += e[4] * 0x800;
     }
-    func_001026D0(1, 0x568, (void *)(e[0] | 2), wait, e[6] << 0xB, e[5] << 0xB, g_0043D070, 0x327);
+    func_001026D0(1, 0x568, (void *)PS2_PTR((e[0] | 2)), wait, e[6] << 0xB, e[5] << 0xB, g_0043D070, 0x327);
     if (n != 0)
-        func_001026D0(1, 0x567, (void *)(dst | 3), wait, e[4] << 0xB, (e[3] + 0x55) * 0x800,
+        func_001026D0(1, 0x567, (void *)PS2_PTR((dst | 3)), wait, e[4] << 0xB, (e[3] + 0x55) * 0x800,
                       g_0043D070, 0x32B);
     if (wait != 0)
         func_0023AD60(k);
@@ -593,9 +641,9 @@ void func_0023B8A0(void)
     g_0074B854 = 0xFF;
     g_0074B860 = 0;
     g_0074B85C = 0;
-    g_0074B834 = 0;
-    g_0074B838 = 0;
-    g_0074B83C = 0;
+    g_0074B834_SET(0);
+    g_0074B838_SET(0);
+    g_0074B83C_SET(0);
     if ((GAME_FLAGS & 4) != 0)
         return;
     n = func_002D6B50();
@@ -603,9 +651,9 @@ void func_0023B8A0(void)
         n = 100;
     g_0074B840 = n;
     if (n != 0) {
-        g_0074B834 = func_00102DB0(0x10, n << 4);
-        g_0074B838 = (int *)(func_00102DB0(0x10, n << 2));
-        g_0074B83C = func_00102DB0(0x10, n);
+        g_0074B834_SET(func_00102DB0(0x10, n << 4));
+        g_0074B838_SET((int *)(func_00102DB0(0x10, n << 2)));
+        g_0074B83C_SET(func_00102DB0(0x10, n));
         func_0023B650();
     }
 }
@@ -632,7 +680,6 @@ void func_0023BA20(void);
 void func_0017DF10(void);
 void func_0017DE50(void);
 void func_002A7560(void);
-void func_0017E130(void);
 
 /* 0x0023BF10, 0x38 bytes. */
 void func_0023BF10(void)

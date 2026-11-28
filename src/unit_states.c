@@ -19,7 +19,24 @@ typedef unsigned int u32;
 
 extern u8 g_006A3A30[][0xC0];            /* battle officers */
 extern u8 g_00669D60[];
-extern u8 *g_006AA59C, *g_006AA5A0;      /* the duelling officers (first, second side) */
+#ifdef SW2E_PC
+extern ps2ptr g_006AA59C_a;      /* the duelling officers (first, second side) */
+#define g_006AA59C ((u8 *)PS2_PTR(g_006AA59C_a))
+#define g_006AA59C_SET(v) (g_006AA59C_a = PS2_ADDR(v))
+#else
+extern u8 *g_006AA59C;
+#define g_006AA59C_a (*(ps2ptr *)&g_006AA59C)
+#define g_006AA59C_SET(v) (g_006AA59C = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_006AA5A0_a;      /* the duelling officers (first, second side) */
+#define g_006AA5A0 ((u8 *)PS2_PTR(g_006AA5A0_a))
+#define g_006AA5A0_SET(v) (g_006AA5A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_006AA5A0;
+#define g_006AA5A0_a (*(ps2ptr *)&g_006AA5A0)
+#define g_006AA5A0_SET(v) (g_006AA5A0 = (v))
+#endif
 extern short g_0040C790[][2];
 extern u32 g_7000015C;
 
@@ -155,21 +172,21 @@ void func_001CF000(u8 *u, u8 *w)
         if ((FL_B8(a) & 4) == 0) {
             if (g_006AA59C == b && g_006AA59C != 0) {
                 DUEL_RELEASE(g_006AA59C);
-                g_006AA59C = 0;
+                g_006AA59C_SET(0);
             }
             if (g_006AA5A0 != 0)
                 DUEL_RELEASE(g_006AA5A0);
             FL_B8(b) |= 0x40000;
-            g_006AA5A0 = b;
+            g_006AA5A0_SET(b);
         } else {
             if (g_006AA5A0 == b && g_006AA5A0 != 0) {
                 DUEL_RELEASE(g_006AA5A0);
-                g_006AA5A0 = 0;
+                g_006AA5A0_SET(0);
             }
             if (g_006AA59C != 0)
                 DUEL_RELEASE(g_006AA59C);
             FL_B8(b) |= 0x20000;
-            g_006AA59C = b;
+            g_006AA59C_SET(b);
         }
     }
     b[0xA6] = a[0xA6];

@@ -78,7 +78,15 @@ extern short g_007B9980;
 extern u8 g_007B9982;
 extern int g_007B98A4, g_007B98B4;
 extern int g_007B99F0, g_007B99F4, g_007B99F8, g_007B99FC;
-extern u8 *g_0045D7C0;                   /* (small data) the current menu */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D7C0_a;                   /* (small data) the current menu */
+#define g_0045D7C0 ((u8 *)PS2_PTR(g_0045D7C0_a))
+#define g_0045D7C0_SET(v) (g_0045D7C0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D7C0;
+#define g_0045D7C0_a (*(ps2ptr *)&g_0045D7C0)
+#define g_0045D7C0_SET(v) (g_0045D7C0 = (v))
+#endif
 
 u32 func_0036FD70(u32 s);
 void func_0036FD30(u32 s, int v);

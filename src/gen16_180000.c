@@ -115,7 +115,7 @@ void func_002445A0(u8 *param_1, u8 *param_2)
         iVar5 = iVar5 * 8;
         sVar2 = *(short *)(g_004106A0 + iVar5);
         iVar3 = (u32)bVar1 * 0x48;
-        puVar4 = (u32 *)(iVar3 + 0x669E04);
+        puVar4 = (u32 *)PS2_PTR((iVar3 + 0x669E04));
         *(u32 *)(g_00669E04 + iVar3) = *(u32 *)(g_00669E04 + iVar3) | 2;
         uVar6 = (u32)(((float)(int)sVar2 * 50.0f) / 60.0f);
         if (*(u32 *)(g_00669E0C + iVar3) < uVar6) {
@@ -143,7 +143,7 @@ void func_002445A0(u8 *param_1, u8 *param_2)
         }
     }
     else if (iVar3 == 2) {
-        sVar2 = *(short *)(iVar5 * 8 + 0x4106A4);
+        sVar2 = *(short *)PS2_PTR((iVar5 * 8 + 0x4106A4));
         iVar3 = (u32)bVar1 * 0x48;
         *(u32 *)(g_00669E04 + iVar3) = *(u32 *)(g_00669E04 + iVar3) | 0x10;
         uVar6 = (u32)(((float)(int)sVar2 * 50.0f) / 60.0f);
@@ -156,7 +156,7 @@ void func_002445A0(u8 *param_1, u8 *param_2)
         }
     }
     else if (iVar3 == 1) {
-        sVar2 = *(short *)(iVar5 * 8 + 0x4106A2);
+        sVar2 = *(short *)PS2_PTR((iVar5 * 8 + 0x4106A2));
         iVar3 = (u32)bVar1 * 0x48;
         *(u32 *)(g_00669E04 + iVar3) = *(u32 *)(g_00669E04 + iVar3) | 4;
         uVar6 = (u32)(((float)(int)sVar2 * 50.0f) / 60.0f);
@@ -169,7 +169,7 @@ void func_002445A0(u8 *param_1, u8 *param_2)
         }
     }
     else if (iVar3 == 0) {
-        sVar2 = *(short *)(iVar5 * 8 + 0x4106A0);
+        sVar2 = *(short *)PS2_PTR((iVar5 * 8 + 0x4106A0));
         iVar3 = (u32)bVar1 * 0x48;
         *(u32 *)(g_00669E04 + iVar3) = *(u32 *)(g_00669E04 + iVar3) | 2;
         uVar6 = (u32)(((float)(int)sVar2 * 50.0f) / 60.0f);
@@ -354,7 +354,7 @@ void func_00380A40(int param_1, int param_2, int param_3, int param_4, int param
     }
     func_002D67E0(9, iVar5 + 0x10, iVar4 + 0x4E, 0, 1, 0x80);
     iVar1 = func_002F41E0(param_2);
-    func_001204B0(auStack_10, 0x459558, iVar1 + 1 + param_6);
+    func_001204B0(auStack_10, PS2_PTR(0x459558), iVar1 + 1 + param_6);
     func_002C4F40(14.0f, (char *)(auStack_10), iVar5 + 0x54, iVar4 + 0x4F, 1, 0, 6);
     if (param_5 == 0) {
         func_002D67E0(8, iVar5 + 0x10, iVar4 + 0x60, 0, 1, 0x80);
@@ -412,7 +412,7 @@ void func_003DA010(int param_1, int param_2)
     if (10000 < iVar1) {
         iVar1 = 10000;
     }
-    func_001204B0(auStack_10, 0x45C488, iVar1, 10000);
+    func_001204B0(auStack_10, PS2_PTR(0x45C488), iVar1, 10000);
     func_002C4F40(14.0f, (char *)(auStack_10), param_1 + 0x54, param_2 + 0x61, 1, 0, 6);
     func_001A85D0((float)iVar1 / 10000.0f, 0, 1.0f, param_1 + 0x54, param_2 + 0x70, 0, 2, 0, 0x5C, 1);
 }

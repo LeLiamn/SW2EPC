@@ -372,11 +372,27 @@ extern void (*g_0040DF50[3])(int pad);    /* page 13 handlers (the last one empt
 
 /* Small data ($gp). */
 extern void (*g_0045CDB0[2])(int pad);    /* page 12 handlers */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2C0_a;
+#define g_0045D2C0 ((u8 *)PS2_PTR(g_0045D2C0_a))
+#define g_0045D2C0_SET(v) (g_0045D2C0_a = PS2_ADDR(v))
+#else
 extern u8 *g_0045D2C0;
+#define g_0045D2C0_a (*(ps2ptr *)&g_0045D2C0)
+#define g_0045D2C0_SET(v) (g_0045D2C0 = (v))
+#endif
 extern int g_0045D494;                    /* step of the build-up (movie first) */
 extern int g_0045D498;                    /* its frame count */
 extern int g_0045D49C;                    /* 1 while the loading screen is open */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D670_a;
+#define g_0045D670 ((u8 *)PS2_PTR(g_0045D670_a))
+#define g_0045D670_SET(v) (g_0045D670_a = PS2_ADDR(v))
+#else
 extern u8 *g_0045D670;
+#define g_0045D670_a (*(ps2ptr *)&g_0045D670)
+#define g_0045D670_SET(v) (g_0045D670 = (v))
+#endif
 
 void func_00220970(int page);
 int func_0029D220(u8 *state);
@@ -441,7 +457,15 @@ extern int g_0040DF10[7];                 /* main menu entries 0-6: their page *
 extern u8 g_00442FF0[][0x10], g_00443140[][0x10];      /* camera directions of pages 2 and 3 */
 extern float g_004433E0[][4];             /* camera targets of page 2 */
 extern float g_004436D8, g_004436DC;      /* distance range of page 2 */
-extern const char *g_0043C3EC;            /* "You do not have any mounts." */
+#ifdef SW2E_PC
+extern ps2ptr g_0043C3EC_a;            /* "You do not have any mounts." */
+#define g_0043C3EC ((const char *)PS2_PTR(g_0043C3EC_a))
+#define g_0043C3EC_SET(v) (g_0043C3EC_a = PS2_ADDR(v))
+#else
+extern const char *g_0043C3EC;
+#define g_0043C3EC_a (*(ps2ptr *)&g_0043C3EC)
+#define g_0043C3EC_SET(v) (g_0043C3EC = (v))
+#endif
 
 #define g_00749AE8 (g_00749AE4[4])        /* non-zero: the player has mounts */
 #define PLAYER_CURSOR(p) ((&g_00749AEC)[p])            /* main menu cursor per player */
@@ -1483,7 +1507,15 @@ void func_00223BB0(int player)
 #define P10_CHOICE  (&g_00749B6C[4])
 #define P10_LIST    (&g_00749B6C[6])
 
-extern u8 *g_0045D2F0;                    /* (small data) the battle map: +4 its 32 x 32 cells */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2F0_a;                    /* (small data) the battle map: +4 its 32 x 32 cells */
+#define g_0045D2F0 ((u8 *)PS2_PTR(g_0045D2F0_a))
+#define g_0045D2F0_SET(v) (g_0045D2F0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2F0;
+#define g_0045D2F0_a (*(ps2ptr *)&g_0045D2F0)
+#define g_0045D2F0_SET(v) (g_0045D2F0 = (v))
+#endif
 extern u32 g_006AA580[6];                 /* a list ... */
 extern u32 g_006AA598;                    /* ... and its count */
 
@@ -2358,7 +2390,7 @@ void func_002267F0(void)
 /* 0x00226BE0, 0x2C bytes, matching. */
 void func_00226BE0(void)
 {
-    g_0045D2C0 = g_0045D670;
+    g_0045D2C0_SET(g_0045D670);
     func_00103000(0);
     func_00103000(1);
 }
@@ -2381,7 +2413,7 @@ void func_00226C10(void)
             func_0019BD90(1);
         }
     }
-    g_0045D2C0 = unit;
+    g_0045D2C0_SET(unit);
     func_00103000(0);
     func_0028FB40(g_007499EC);
     func_002D68F0();

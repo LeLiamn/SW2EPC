@@ -17,7 +17,8 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 /* The scratchpad block. */
-#define SU_INFO (*(u8 **)PS2_PTR(0x70000180))       /* 0x10 bytes per unit */
+#define SU_INFO PS2_GETP(u8 *, 0x70000180)       /* 0x10 bytes per unit */
+#define SU_INFO_SET(v) PS2_SETP(0x70000180, v)
 #define SU_A (*(u8 ***)PS2_PTR(0x70000184))         /* three model lists */
 #define SU_B (*(u8 ***)PS2_PTR(0x70000188))
 #define SU_C (*(u8 ***)PS2_PTR(0x7000018C))
@@ -136,7 +137,7 @@ void func_00207E90(void)
  * 0x20 the fixed one, else a record of that size). */
 void func_00207FA0(u32 *t)
 {
-    u32 base = ((u32)t + t[0] * 4 + 0x13) & 0xFFFFFFF0, off = 0, k;
+    u32 base = ((u32)PS2_ADDR(t) + t[0] * 4 + 0x13) & 0xFFFFFFF0, off = 0, k;
     u8 **shape = SU_SHAPE, **data = SU_DATA;
 
     g_700001A0[0] = 0;
@@ -151,10 +152,10 @@ void func_00207FA0(u32 *t)
             data[k] = 0;
         } else if (n == 0x20) {
             shape[k] = g_700001B0;
-            data[k] = (u8 *)(base + off);
+            data[k] = (u8 *)PS2_PTR((base + off));
         } else {
-            shape[k] = (u8 *)(base + off);
-            data[k] = (u8 *)(base + off + 0x10);
+            shape[k] = (u8 *)PS2_PTR((base + off));
+            data[k] = (u8 *)PS2_PTR((base + off + 0x10));
         }
         off += n;
     }
@@ -169,7 +170,7 @@ void func_00208070(u32 *t)
         u32 s = t[k + 1];
 
         if (s != 0) {
-            t[k + 1] = (((u32)t + n * 4 + 0x13) & 0xFFFFFFF0) + off;
+            t[k + 1] = (((u32)PS2_ADDR(t) + n * 4 + 0x13) & 0xFFFFFFF0) + off;
             off += s;
         }
     }
@@ -197,23 +198,23 @@ void func_00208140(u8 *info, u32 *f)
 
     func_00118850((void *)PS2_PTR(0x70000180), 0x40);
     for (k = 0; k < f[0]; k++)
-        f[k + 1] += (u32)f;
-    a = (u32 *)f[1];
+        f[k + 1] += (u32)PS2_ADDR(f);
+    a = (u32 *)PS2_PTR(f[1]);
     func_00208070(a);
-    func_00208070((u32 *)f[2]);
-    func_00208070((u32 *)f[3]);
+    func_00208070((u32 *)PS2_PTR(f[2]));
+    func_00208070((u32 *)PS2_PTR(f[3]));
     size = *(int *)(g_00669D60 + 0x58) == 2 ? 2000 : a[0] << 2;
-    SU_INFO = info;
+    SU_INFO_SET(info);
     SU_A = (u8 **)(a + 1);
-    SU_B = (u8 **)(f[2] + 4);
-    SU_C = (u8 **)(f[3] + 4);
+    SU_B = (u8 **)PS2_PTR((f[2] + 4));
+    SU_C = (u8 **)PS2_PTR((f[3] + 4));
     SU_SHAPE = (u8 **)(func_00102D30(size));
     SU_DATA = (u8 **)(func_00102D30(size));
     SU_COUNT = a[0];
     func_00118850((void *)SU_SHAPE, size);
     func_00118850((void *)SU_DATA, size);
     func_00207E90();
-    func_00207FA0((u32 *)f[4]);
+    func_00207FA0((u32 *)PS2_PTR(f[4]));
 }
 
 /* The stage units' collision boxes (0x20 bytes each; parts of 0x0020A710-0x0020BF4C): a unit's
@@ -371,8 +372,10 @@ void func_0020BDE0(u8 *q, u8 *box, u8 *u)
 /* Ground heights over the stage units (0x00209BB0-0x0020A04C; heights grow downward, so the
  * highest is the smallest). */
 
-#define SU_BOXES (*(float **)PS2_PTR(0x700001D4))  /* (scratchpad) the collision boxes (8 floats each) */
-#define UNITS (*(u8 **)PS2_PTR(0x700001D0))        /* (scratchpad) the stage units (0x70 bytes each) */
+#define SU_BOXES PS2_GETP(float *, 0x700001D4)  /* (scratchpad) the collision boxes (8 floats each) */
+#define SU_BOXES_SET(v) PS2_SETP(0x700001D4, v)
+#define UNITS PS2_GETP(u8 *, 0x700001D0)        /* (scratchpad) the stage units (0x70 bytes each) */
+#define UNITS_SET(v) PS2_SETP(0x700001D0, v)
 
 /* Whether point `p` lies over box `b` (with a 0.1 margin). */
 static int over_box(float *p, float *b)
@@ -421,7 +424,7 @@ float func_00209E00(float *p)
     float h = 0.0f;
 
     func_001185B0(seen, 0x50);
-    for (c = (u32 *)PS2_PTR(func_001946A0(p, 1)); c != 0; c = (u32 *)c[1]) {
+    for (c = (u32 *)PS2_PTR(func_001946A0(p, 1)); c != 0; c = (u32 *)PS2_PTR(c[1])) {
         u32 i = c[0], bit = 1 << (i & 7);
         u8 *u;
         int ok;

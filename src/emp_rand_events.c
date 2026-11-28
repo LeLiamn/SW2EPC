@@ -15,6 +15,8 @@
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
 
+int func_002F7D90(int k, int (*keep)(), int a, int b, int sort, int unused);   /* (emp_officer.c) */
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -43,7 +45,6 @@ extern Ints10 g_00415090;
 #define PAD1_PRESSED() ((g_00500764 & 1) == 0 || (g_00500765 & 1) != 1 ? 0 : g_0050074C)
 
 void func_00228180(void);
-void func_0017E0C0(int a, int b);
 int func_0017E0A0(void);
 void func_0017D8E0(int a);
 void func_00334670(int k);
@@ -54,7 +55,6 @@ void func_003319A0(int k);
 void func_003315E0(int k);
 int func_001204B0(char *to, const char *f, ...);
 int func_001207E0(const char *a, const char *b);
-int func_002F7D90(int a, int fn, int b, int c, int d, int e);
 int func_003303B0(int k);
 int func_003301A0(int k);
 
@@ -733,7 +733,7 @@ int func_00332610(void)
 static void rumour_event(int p, int k)
 {
     if (PROVINCE_OK(p) && func_0030C250(p) != 0 && func_00329370(k) == 0
-        && func_002F7D90(0, (int)func_002F86B0, p, 0, 0, 0) > 0) {
+        && func_002F7D90(0, func_002F86B0, p, 0, 0, 0) > 0) {
         func_0030E140(k, -1, -1, -1);
         g_0045D730 = 10;
         func_003292D0(k, 5);

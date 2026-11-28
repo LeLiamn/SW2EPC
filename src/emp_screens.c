@@ -23,7 +23,15 @@ typedef unsigned long long u64;
 
 extern u8 g_0045D7EC[2];                 /* (small data) the players' tactic bits */
 extern int g_0045D7F0, g_0045D7F4;       /* (small data) */
-extern u8 *g_0045D7FC;                   /* (small data) the screen textures */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D7FC_a;                   /* (small data) the screen textures */
+#define g_0045D7FC ((u8 *)PS2_PTR(g_0045D7FC_a))
+#define g_0045D7FC_SET(v) (g_0045D7FC_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D7FC;
+#define g_0045D7FC_a (*(ps2ptr *)&g_0045D7FC)
+#define g_0045D7FC_SET(v) (g_0045D7FC = (v))
+#endif
 extern char g_0045B6D8[];                /* the allocations' source name */
 extern int (*g_0045B580[0x1D])(void), (*g_0045B620[0x1E])(void);
 extern u16 g_0045B600[][2], g_0045B610[][2];
@@ -34,6 +42,7 @@ extern float g_007BAEF8, g_007BAED8;
 extern u8 g_007BAEFD, g_007BAEDD;
 
 #define TEX g_0045D7FC
+#define TEX_SET(v) g_0045D7FC_SET(v)
 
 int func_0039B980(void);
 void func_003B9D80(void);
@@ -245,7 +254,7 @@ void func_003B3470(void)
 /* 0x003B38F0, 0x48 bytes, matching. Loads the screen textures. */
 void func_003B38F0(void)
 {
-    TEX = func_001026D0(1, 0x89, 0, 1, 0, 0, g_0045B6D8, 0x159);
+    TEX_SET(func_001026D0(1, 0x89, 0, 1, 0, 0, g_0045B6D8, 0x159));
     func_00102960(1);
 }
 
@@ -254,7 +263,7 @@ void func_003B3940(void)
 {
     if (TEX != 0) {
         func_00102EC0(TEX);
-        TEX = 0;
+        TEX_SET(0);
     }
 }
 
@@ -1534,7 +1543,7 @@ void func_003BD2A0(u8 *b)
     func_00118850((unsigned char *)(p), 0x34);
     p[10] = 0;
     p[11] = 0;
-    p[12] = (int)func_001026D0(1, 0x85, 0, 1, 0, 0, g_0045BC08, 0x28);
+    p[12] = (int)PS2_ADDR(func_001026D0(1, 0x85, 0, 1, 0, 0, g_0045BC08, 0x28));
     for (k = 0; k < 10; k++)
         p[k] = 1;
     p[6] = 0;

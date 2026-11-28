@@ -706,9 +706,25 @@ extern char *g_005BC260[];               /* texts by index */
 extern u32 g_005BC020, g_005BC028;       /* window kinds */
 extern u32 g_005BC02C, g_005BC030, g_005BC034, g_005BC038, g_005BC03C, g_005BC048, g_005BC04C;
 extern u32 g_005BC064;
+#ifdef SW2E_PC
+extern ps2ptr g_005BD724_a;
+#define g_005BD724 ((u8 *)PS2_PTR(g_005BD724_a))
+#define g_005BD724_SET(v) (g_005BD724_a = PS2_ADDR(v))
+#else
 extern u8 *g_005BD724;
+#define g_005BD724_a (*(ps2ptr *)&g_005BD724)
+#define g_005BD724_SET(v) (g_005BD724 = (v))
+#endif
 extern u32 g_005BD728, g_005BD72C;
-extern u8 *g_005BA6A0;                   /* officer table (0x2C bytes each, +6 a portrait?) */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;                   /* officer table (0x2C bytes each, +6 a portrait?) */
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 extern u8 g_00669DB0[0x10];              /* in the settings: +0 bit 5 a display flag */
 extern u32 g_00669DE8[][0x12];           /* per player settings (+0: the player's officer list) */
 
@@ -1475,8 +1491,42 @@ extern u8 g_005BA7E8[];
 extern u32 g_005BBEE8;                   /* (= +0x1700) the objectives' count */
 extern u8 g_0073DB80[8][0x1C];           /* player 1's map markers */
 extern u8 g_0073DE10[8][0x1C];           /* player 2's map markers */
-extern u8 *g_0073DA28, *g_0073DA2C;      /* player 1's marker sprites */
-extern u8 *g_0073DCB8, *g_0073DCBC;      /* player 2's marker sprites */
+#ifdef SW2E_PC
+extern ps2ptr g_0073DA28_a;      /* player 1's marker sprites */
+#define g_0073DA28 ((u8 *)PS2_PTR(g_0073DA28_a))
+#define g_0073DA28_SET(v) (g_0073DA28_a = PS2_ADDR(v))
+#else
+extern u8 *g_0073DA28;
+#define g_0073DA28_a (*(ps2ptr *)&g_0073DA28)
+#define g_0073DA28_SET(v) (g_0073DA28 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0073DA2C_a;      /* player 1's marker sprites */
+#define g_0073DA2C ((u8 *)PS2_PTR(g_0073DA2C_a))
+#define g_0073DA2C_SET(v) (g_0073DA2C_a = PS2_ADDR(v))
+#else
+extern u8 *g_0073DA2C;
+#define g_0073DA2C_a (*(ps2ptr *)&g_0073DA2C)
+#define g_0073DA2C_SET(v) (g_0073DA2C = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0073DCB8_a;      /* player 2's marker sprites */
+#define g_0073DCB8 ((u8 *)PS2_PTR(g_0073DCB8_a))
+#define g_0073DCB8_SET(v) (g_0073DCB8_a = PS2_ADDR(v))
+#else
+extern u8 *g_0073DCB8;
+#define g_0073DCB8_a (*(ps2ptr *)&g_0073DCB8)
+#define g_0073DCB8_SET(v) (g_0073DCB8 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0073DCBC_a;      /* player 2's marker sprites */
+#define g_0073DCBC ((u8 *)PS2_PTR(g_0073DCBC_a))
+#define g_0073DCBC_SET(v) (g_0073DCBC_a = PS2_ADDR(v))
+#else
+extern u8 *g_0073DCBC;
+#define g_0073DCBC_a (*(ps2ptr *)&g_0073DCBC)
+#define g_0073DCBC_SET(v) (g_0073DCBC = (v))
+#endif
 extern int g_00669F9C;                   /* the battle's frame counter */
 
 #define OBJ(i) (g_005BA7E8 + (i) * 0x170)
@@ -1917,7 +1967,15 @@ void func_0018C080(void)
 {
 }
 
-extern u8 *g_0045D2F0;                   /* (small data) the map: +4 its 32 x 32 blocks of 5 x 5 cells */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2F0_a;                   /* (small data) the map: +4 its 32 x 32 blocks of 5 x 5 cells */
+#define g_0045D2F0 ((u8 *)PS2_PTR(g_0045D2F0_a))
+#define g_0045D2F0_SET(v) (g_0045D2F0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2F0;
+#define g_0045D2F0_a (*(ps2ptr *)&g_0045D2F0)
+#define g_0045D2F0_SET(v) (g_0045D2F0 = (v))
+#endif
 
 int func_0011B740(int x);                /* abs */
 

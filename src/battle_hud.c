@@ -27,7 +27,33 @@ extern u8 g_007BF6A4[];
 extern u8 g_007BF6C0[2][0x18];
 extern int g_007BF6F0[9];
 extern int g_007BF720[2][4];
-extern u8 *g_0045D838, *g_0045D83C, *g_0045D840;   /* (small data) the overlay textures */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D838_a;   /* (small data) the overlay textures */
+#define g_0045D838 ((u8 *)PS2_PTR(g_0045D838_a))
+#define g_0045D838_SET(v) (g_0045D838_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D838;
+#define g_0045D838_a (*(ps2ptr *)&g_0045D838)
+#define g_0045D838_SET(v) (g_0045D838 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D83C_a;   /* (small data) the overlay textures */
+#define g_0045D83C ((u8 *)PS2_PTR(g_0045D83C_a))
+#define g_0045D83C_SET(v) (g_0045D83C_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D83C;
+#define g_0045D83C_a (*(ps2ptr *)&g_0045D83C)
+#define g_0045D83C_SET(v) (g_0045D83C = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D840_a;   /* (small data) the overlay textures */
+#define g_0045D840 ((u8 *)PS2_PTR(g_0045D840_a))
+#define g_0045D840_SET(v) (g_0045D840_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D840;
+#define g_0045D840_a (*(ps2ptr *)&g_0045D840)
+#define g_0045D840_SET(v) (g_0045D840 = (v))
+#endif
 extern char g_0045C5A0[];                /* the allocations' source name */
 
 void func_003DEB40(int k);
@@ -509,7 +535,7 @@ void func_003E30D0(void)
 /* 0x003E3100, 0x48 bytes, matching. */
 void func_003E3100(void)
 {
-    g_0045D838 = func_001026D0(1, 0x8E, 0, 1, 0, 0, g_0045C5A0, 0x59);
+    g_0045D838_SET(func_001026D0(1, 0x8E, 0, 1, 0, 0, g_0045C5A0, 0x59));
     func_00102960(1);
 }
 
@@ -518,7 +544,7 @@ void func_003E3150(void)
 {
     if (g_0045D838 != 0) {
         func_00102EC0(g_0045D838);
-        g_0045D838 = 0;
+        g_0045D838_SET(0);
     }
 }
 
@@ -562,7 +588,7 @@ void func_003E4220(int x, int y, int a, int p3)
 /* 0x003E4280, 0x48 bytes, matching. */
 void func_003E4280(void)
 {
-    g_0045D83C = func_001026D0(1, 0x8F, 0, 1, 0, 0, g_0045C5A0, 0x36C);
+    g_0045D83C_SET(func_001026D0(1, 0x8F, 0, 1, 0, 0, g_0045C5A0, 0x36C));
     func_00102960(1);
 }
 
@@ -571,14 +597,14 @@ void func_003E42D0(void)
 {
     if (g_0045D83C != 0) {
         func_00102EC0(g_0045D83C);
-        g_0045D83C = 0;
+        g_0045D83C_SET(0);
     }
 }
 
 /* 0x003E4480, 0x48 bytes, matching. */
 void func_003E4480(void)
 {
-    g_0045D840 = func_001026D0(1, 0x90, 0, 1, 0, 0, g_0045C5A0, 0x3D8);
+    g_0045D840_SET(func_001026D0(1, 0x90, 0, 1, 0, 0, g_0045C5A0, 0x3D8));
     func_00102960(1);
 }
 
@@ -587,14 +613,22 @@ void func_003E44D0(void)
 {
     if (g_0045D840 != 0) {
         func_00102EC0(g_0045D840);
-        g_0045D840 = 0;
+        g_0045D840_SET(0);
     }
 }
 
 /* More overlay pieces, the battle's difficulty values and set-up (parts of 0x003E0A50-
  * 0x003E6DEC). */
 
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
 extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 extern u8 g_006A3A30[][0xC0];
 extern int g_0041D028[3], g_0041D038[3], g_0041D048[3], g_0041D350[4], g_0041D4E0[0x30];
 extern int g_0041D5A0[5], g_0041D5C0[5], g_0041D5E0[5], g_0041D600[5];
@@ -602,8 +636,33 @@ extern u8 g_007BF780[];
 extern u8 g_007BF74D, g_007BF76D;
 extern float g_007BF748, g_007BF768;
 extern char g_0045C610[], g_0045C628[];
-extern int *g_0045D844;                  /* (small data) */
-extern u8 *g_005BBF18, *g_005BBF1C;
+#ifdef SW2E_PC
+extern ps2ptr g_0045D844_a;                  /* (small data) */
+#define g_0045D844 ((int *)PS2_PTR(g_0045D844_a))
+#define g_0045D844_SET(v) (g_0045D844_a = PS2_ADDR(v))
+#else
+extern int *g_0045D844;
+#define g_0045D844_a (*(ps2ptr *)&g_0045D844)
+#define g_0045D844_SET(v) (g_0045D844 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BBF18_a;
+#define g_005BBF18 ((u8 *)PS2_PTR(g_005BBF18_a))
+#define g_005BBF18_SET(v) (g_005BBF18_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BBF18;
+#define g_005BBF18_a (*(ps2ptr *)&g_005BBF18)
+#define g_005BBF18_SET(v) (g_005BBF18 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BBF1C_a;
+#define g_005BBF1C ((u8 *)PS2_PTR(g_005BBF1C_a))
+#define g_005BBF1C_SET(v) (g_005BBF1C_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BBF1C;
+#define g_005BBF1C_a (*(ps2ptr *)&g_005BBF1C)
+#define g_005BBF1C_SET(v) (g_005BBF1C = (v))
+#endif
 
 int func_003E2200(int k);
 u8 func_003E2EF0(int a);
@@ -887,16 +946,16 @@ int func_003E5930(void)
 /* 0x003E5D80, 0x60 bytes. Loads the battle message file. */
 void func_003E5D80(void)
 {
-    g_0045D844 = (int *)func_001026D0(1, 0x4AC, 0, 1, 0, 0, g_0045C628, 0x15C);
-    g_005BBF18 = (u8 *)g_0045D844 + g_0045D844[0];
-    g_005BBF1C = (u8 *)g_0045D844 + g_0045D844[1];
+    g_0045D844_SET((int *)func_001026D0(1, 0x4AC, 0, 1, 0, 0, g_0045C628, 0x15C));
+    g_005BBF18_SET((u8 *)g_0045D844 + g_0045D844[0]);
+    g_005BBF1C_SET((u8 *)g_0045D844 + g_0045D844[1]);
 }
 
 /* 0x003E5DE0, 0x20 bytes, matching. */
 void func_003E5DE0(void)
 {
     func_00102EC0((u8 *)g_0045D844);
-    g_0045D844 = 0;
+    g_0045D844_SET(0);
 }
 
 /* 0x003E68A0, 0x24 bytes, matching. */
@@ -1215,7 +1274,7 @@ void func_003E2B30(int p)
         u8 *e = (u8 *)PS2_PTR(0x574DE0) + p * 0x630;
 
         if (j != 0)
-            e = (u8 *)func_003E1F60(p, j - 1);
+            e = (u8 *)PS2_PTR(func_003E1F60(p, j - 1));
         if (e != 0 && (e[0x19C] & 2) != 0)
             list[n++] = e;
     }
@@ -1233,7 +1292,15 @@ void func_003E2B30(int p)
 extern char g_0045C5B0[];
 extern int g_0041D2F0[7], g_0041D310[7], g_0041D330[8];
 extern short g_007BF760, g_007BF764;
+#ifdef SW2E_PC
+extern ps2ptr g_007BF770_a;
+#define g_007BF770 ((u8 *)PS2_PTR(g_007BF770_a))
+#define g_007BF770_SET(v) (g_007BF770_a = PS2_ADDR(v))
+#else
 extern u8 *g_007BF770;
+#define g_007BF770_a (*(ps2ptr *)&g_007BF770)
+#define g_007BF770_SET(v) (g_007BF770 = (v))
+#endif
 extern u8 g_0056CCC8[4];
 
 int func_001204B0(char *buf, const char *fmt, ...);
@@ -1378,11 +1445,44 @@ void func_003E4B30(void)
 
 extern short g_007BF740[2];
 extern u8 g_007BF74C, g_007BF76C;
+#ifdef SW2E_PC
+extern ps2ptr g_007BF750_a;
+#define g_007BF750 ((u8 *)PS2_PTR(g_007BF750_a))
+#define g_007BF750_SET(v) (g_007BF750_a = PS2_ADDR(v))
+#else
 extern u8 *g_007BF750;
+#define g_007BF750_a (*(ps2ptr *)&g_007BF750)
+#define g_007BF750_SET(v) (g_007BF750 = (v))
+#endif
 extern int g_0041D360[0x30][2];
-extern u32 *g_005BA7CC;                  /* the stage's script file */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7CC_a;                  /* the stage's script file */
+#define g_005BA7CC ((u32 *)PS2_PTR(g_005BA7CC_a))
+#define g_005BA7CC_SET(v) (g_005BA7CC_a = PS2_ADDR(v))
+#else
+extern u32 *g_005BA7CC;
+#define g_005BA7CC_a (*(ps2ptr *)&g_005BA7CC)
+#define g_005BA7CC_SET(v) (g_005BA7CC = (v))
+#endif
 extern u32 g_005BA7D0, g_005BA7D4, g_005BA7D8;
-extern u8 **g_005BA7DC, **g_005BA7E0;
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7DC_a;
+#define g_005BA7DC ((u8 **)PS2_PTR(g_005BA7DC_a))
+#define g_005BA7DC_SET(v) (g_005BA7DC_a = PS2_ADDR(v))
+#else
+extern u8 **g_005BA7DC;
+#define g_005BA7DC_a (*(ps2ptr *)&g_005BA7DC)
+#define g_005BA7DC_SET(v) (g_005BA7DC = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7E0_a;
+#define g_005BA7E0 ((u8 **)PS2_PTR(g_005BA7E0_a))
+#define g_005BA7E0_SET(v) (g_005BA7E0_a = PS2_ADDR(v))
+#else
+extern u8 **g_005BA7E0;
+#define g_005BA7E0_a (*(ps2ptr *)&g_005BA7E0)
+#define g_005BA7E0_SET(v) (g_005BA7E0 = (v))
+#endif
 
 u8 *func_002EE590(void);
 u8 *func_002EE5A0(void);
@@ -1404,7 +1504,7 @@ void func_003E4DA0(void)
     if (*(int *)(p + 0x10) == 5) {
         u8 *w = func_002EE590();
 
-        g_007BF770 = w;
+        g_007BF770_SET(w);
         b = func_001AE550(g_007BF768, w, &g_007BF760, &g_007BF76C, 0);
         g_007BF76D = (g_007BF76D & 0xFE) | (b & 1);
         if ((b & 1) != 0) {
@@ -1420,7 +1520,7 @@ void func_003E4DA0(void)
     func_003E4AD0();
     func_003E48A0();
     func_003E4B30();
-    g_007BF750 = func_002EE5A0();
+    g_007BF750_SET(func_002EE5A0());
     b = func_001AE550(g_007BF748, g_007BF750, g_007BF740, &g_007BF74C, 0);
     g_007BF74D = (g_007BF74D & 0xFE) | (b & 1);
     k = *(short *)(p + 0xE) + *(short *)(p + 0xC);
@@ -1515,19 +1615,19 @@ void func_003E5970(void)
 {
     u32 n, k;
 
-    g_005BA7CC = (u32 *)func_001026D0(1, func_003E5930(), 0, 1, 0, 0, g_0045C628, 0x121);
+    g_005BA7CC_SET((u32 *)func_001026D0(1, func_003E5930(), 0, 1, 0, 0, g_0045C628, 0x121));
     n = g_005BA7CC[0];
     g_005BA7D4 = g_005BA7CC[1];
     g_005BA7D8 = g_005BA7CC[2];
     g_005BA7D0 = n;
     if (n == 0) {
-        g_005BA7E0 = 0;
-        g_005BA7DC = 0;
+        g_005BA7E0_SET(0);
+        g_005BA7DC_SET(0);
         return;
     }
     if (n * 4 != 0) {
-        g_005BA7DC = (u8 **)(func_00102DB0(0x10, n * 4));
-        g_005BA7E0 = (u8 **)(func_00102DB0(0x10, n * 4));
+        g_005BA7DC_SET((u8 **)(func_00102DB0(0x10, n * 4)));
+        g_005BA7E0_SET((u8 **)(func_00102DB0(0x10, n * 4)));
     }
     for (k = 0; k < n; k++) {
         u8 *b = (u8 *)g_005BA7CC + g_005BA7CC[3 + k];
@@ -1576,11 +1676,36 @@ extern int g_0041D640[6], g_0041D660[6], g_0041D680[];
 extern u8 *g_0045D848[2];                /* (small data) the horse model files */
 extern u8 *g_007BFB00[6];
 extern u32 g_007BF7D8;
-extern u8 *g_0072C860, *g_0072C868;
+#ifdef SW2E_PC
+extern ps2ptr g_0072C860_a;
+#define g_0072C860 ((u8 *)PS2_PTR(g_0072C860_a))
+#define g_0072C860_SET(v) (g_0072C860_a = PS2_ADDR(v))
+#else
+extern u8 *g_0072C860;
+#define g_0072C860_a (*(ps2ptr *)&g_0072C860)
+#define g_0072C860_SET(v) (g_0072C860 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0072C868_a;
+#define g_0072C868 ((u8 *)PS2_PTR(g_0072C868_a))
+#define g_0072C868_SET(v) (g_0072C868_a = PS2_ADDR(v))
+#else
+extern u8 *g_0072C868;
+#define g_0072C868_a (*(ps2ptr *)&g_0072C868)
+#define g_0072C868_SET(v) (g_0072C868 = (v))
+#endif
 extern u8 g_007BF8C0[], g_007BF7A0[], g_007BFA80[];
 extern u8 g_00693703, g_0069382B, g_00693953;
 extern char g_0045C6E0[];
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2C0_a;
+#define g_0045D2C0 ((u8 *)PS2_PTR(g_0045D2C0_a))
+#define g_0045D2C0_SET(v) (g_0045D2C0_a = PS2_ADDR(v))
+#else
 extern u8 *g_0045D2C0;
+#define g_0045D2C0_a (*(ps2ptr *)&g_0045D2C0)
+#define g_0045D2C0_SET(v) (g_0045D2C0 = (v))
+#endif
 extern int g_0045D378;
 
 /* 0x003E6940, 0x270 bytes. The enemy level by the player's provinces and turn (0-7, halved on
@@ -1665,12 +1790,12 @@ float func_003E6DF0(u8 *o)
 
     if (o == 0 || (*(u32 *)(o + 0xB8) & 1) == 0)
         return 1.0f;
-    g = (int *)func_003B0340(o);
+    g = (int *)PS2_PTR(func_003B0340(o));
     if (g == 0 || (g[0x19] & 1) == 0)
         return 1.0f;
     if ((*(u32 *)(g_00669D60 + 0x200) & 0xC) == 0)
         v = g[0x13];
-    else if (((u8 *)g[0])[0x79] == 0)
+    else if (((u8 *)PS2_PTR(g[0]))[0x79] == 0)
         v = 0x15E;
     else
         v = 0x28A;
@@ -1764,8 +1889,8 @@ void func_003E7310(int k)
 {
     int s = func_0036B330();
 
-    g_0072C860 = g_0045D848[s >= 3];
-    g_0072C868 = g_007BFB00[s];
+    g_0072C860_SET(g_0045D848[s >= 3]);
+    g_0072C868_SET(g_007BFB00[s]);
     *(int *)PS2_PTR(0x70000D60) = k == 0 ? 5 : 0xC;
     func_0017A920(g_007BF8C0);
     func_001CB810(g_007BF7A0, 0x30);
@@ -1781,9 +1906,9 @@ void func_003E7430(void)
     u8 *keep = g_0045D2C0;
 
     g_0045D378 = 0;
-    g_0045D2C0 = g_007BF8C0;
+    g_0045D2C0_SET(g_007BF8C0);
     func_001CAF50(g_007BF7A0);
-    g_0045D2C0 = keep;
+    g_0045D2C0_SET(keep);
 }
 
 /* 0x003E7470, 0x40 bytes, matching. */

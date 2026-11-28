@@ -22,8 +22,24 @@ extern u8 g_007993E0[], g_00799450[], g_00799480[], g_007994B0[];
 extern u8 g_00799520[0x20][0x20];        /* the effect slots */
 extern u8 g_007994E0[], g_007993A0[], g_00796040[];
 extern float g_007993C4, g_007993C8, g_007993CC;
-extern u8 *g_0045D5E4;                   /* (small data) the free effect slots */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D5E4_a;                   /* (small data) the free effect slots */
+#define g_0045D5E4 ((u8 *)PS2_PTR(g_0045D5E4_a))
+#define g_0045D5E4_SET(v) (g_0045D5E4_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D5E4;
+#define g_0045D5E4_a (*(ps2ptr *)&g_0045D5E4)
+#define g_0045D5E4_SET(v) (g_0045D5E4 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D5D4_a;
+#define g_0045D5D4 ((u8 *)PS2_PTR(g_0045D5D4_a))
+#define g_0045D5D4_SET(v) (g_0045D5D4_a = PS2_ADDR(v))
+#else
 extern u8 *g_0045D5D4;
+#define g_0045D5D4_a (*(ps2ptr *)&g_0045D5D4)
+#define g_0045D5D4_SET(v) (g_0045D5D4 = (v))
+#endif
 extern u32 g_0045D5E0;
 extern u8 g_00412290[];
 extern int g_00412294;
@@ -139,7 +155,7 @@ int func_002BEF70(int a, int b)
 /* 0x002B9D70, 0x44 bytes. */
 void func_002B9D70(int t)
 {
-    func_00375C20(0, t, 0x4A, (int)g_00412290, 7);
+    func_00375C20(0, t, 0x4A, (int)PS2_ADDR(g_00412290), 7);
     func_00376100(g_00412294, -1, -1);
 }
 
@@ -183,7 +199,7 @@ void func_002BBE70(void)
 {
     int k;
 
-    g_0045D5E4 = g_00799520[0];
+    g_0045D5E4_SET(g_00799520[0]);
     for (k = 0; k < 0x1F; k++)
         *(u8 **)g_00799520[k] = g_00799520[k + 1];
     *(u8 **)g_00799520[0x1F] = 0;
@@ -196,7 +212,7 @@ void func_002BBF00(u32 k)
         u8 *e = g_00799520[k & 0xFF];
 
         *(u8 **)e = g_0045D5E4;
-        g_0045D5E4 = e;
+        g_0045D5E4_SET(e);
     }
 }
 
@@ -250,7 +266,7 @@ float func_002BF000(float f)
 void func_002BF990(void)
 {
     func_00118850(g_00796040, 0x3180);
-    g_0045D5D4 = g_00796040;
+    g_0045D5D4_SET(g_00796040);
     *(u8 **)g_00796040 = g_00796040 + 0xC60;
     *(int *)(g_00796040 + 0x2520) = 0;
     *(u8 **)(g_00796040 + 0xC60) = g_00796040 + 0x18C0;

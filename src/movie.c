@@ -110,7 +110,15 @@ extern u16 g_0045D22C;                   /* the movie's volume */
 extern int g_0045D25C;                   /* pad reads left / vblanks */
 extern void (*g_0045D260)(int frame);    /* the caller's frame callback */
 extern int (*g_0045D264)(void);          /* the caller's stop test */
-extern u8 *g_0045D268;                   /* the work area */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D268_a;                   /* the work area */
+#define g_0045D268 ((u8 *)PS2_PTR(g_0045D268_a))
+#define g_0045D268_SET(v) (g_0045D268_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D268;
+#define g_0045D268_a (*(ps2ptr *)&g_0045D268)
+#define g_0045D268_SET(v) (g_0045D268 = (v))
+#endif
 extern int g_0045D26C;                   /* the movie has no audio track? */
 extern int g_0045D1E0;                   /* the GIF DMA channel */
 
@@ -369,7 +377,7 @@ int func_00116E20(u8 *data, int entry, int *entries, int timed, int (*stop)(void
     g_0045D26C = no_audio;
     if (timed != 0)
         ms = func_00107628();
-    g_0045D268 = func_00102DB0(0x40, 0x5014);
+    g_0045D268_SET(func_00102DB0(0x40, 0x5014));
     if (g_0045D268 == 0) {
         r = -1;
     } else {

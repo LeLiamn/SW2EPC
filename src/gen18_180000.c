@@ -198,11 +198,11 @@ void func_0022A6B0(int param_1, int param_2)
     int * piVar4;
     u32 uVar5;
 
-    piVar4 = (int *)param_1;
+    piVar4 = (int *)PS2_PTR(param_1);
     if (param_2 != 0) {
         bVar1 = *(u8 *)PS2_PTR(param_2);
-        if ((bVar1 < 0x20) && (bVar2 = ((u8 *)param_2)[1], bVar2 < 0x20)) {
-            uVar5 = *(u32 *)(*(int *)(*piVar4 + 4) + ((u32)bVar1 + (u32)bVar2 * 0x20) * 4);
+        if ((bVar1 < 0x20) && (bVar2 = ((u8 *)PS2_PTR(param_2))[1], bVar2 < 0x20)) {
+            uVar5 = *(u32 *)PS2_PTR((*(int *)PS2_PTR((*piVar4 + 4)) + ((u32)bVar1 + (u32)bVar2 * 0x20) * 4));
             goto LAB_0022a718;
         }
     }
@@ -227,11 +227,11 @@ void func_0022A900(int param_1, int param_2)
     int * piVar4;
     u32 uVar5;
 
-    piVar4 = (int *)param_1;
+    piVar4 = (int *)PS2_PTR(param_1);
     if (param_2 != 0) {
         bVar1 = *(u8 *)PS2_PTR(param_2);
-        if ((bVar1 < 0x20) && (bVar2 = ((u8 *)param_2)[1], bVar2 < 0x20)) {
-            uVar5 = *(u32 *)(*(int *)(*piVar4 + 4) + ((u32)bVar1 + (u32)bVar2 * 0x20) * 4);
+        if ((bVar1 < 0x20) && (bVar2 = ((u8 *)PS2_PTR(param_2))[1], bVar2 < 0x20)) {
+            uVar5 = *(u32 *)PS2_PTR((*(int *)PS2_PTR((*piVar4 + 4)) + ((u32)bVar1 + (u32)bVar2 * 0x20) * 4));
             goto LAB_0022a968;
         }
     }
@@ -269,15 +269,15 @@ void func_002911C0(void)
     piVar12 = aiStack_30;
     do {
         uVar8 = PS2_ADDR(func_001050F0());
-        *(unsigned long long *)((int)uVar8 + 0x10) = 0x8000000044;
-        *(unsigned long long *)((int)uVar8 + 0x18) = 0x43;
+        *(unsigned long long *)PS2_PTR(((int)uVar8 + 0x10)) = 0x8000000044;
+        *(unsigned long long *)PS2_PTR(((int)uVar8 + 0x18)) = 0x43;
         func_00105390((unsigned char *)PS2_PTR(uVar8));
         uVar8 = func_00106C90(*(unsigned long long *)g_0068F0F8, 0x3F55);
         iVar7 = PS2_ADDR(func_00105860(uVar8, 0));
         *piVar12 = iVar7;
         uVar8 = func_00106C90(*(unsigned long long *)g_0068F0F8, 0x3F55);
         iVar13 = iVar13 + 1;
-        *(unsigned long long *)(*piVar12 + 0x18) = uVar8;
+        *(unsigned long long *)PS2_PTR((*piVar12 + 0x18)) = uVar8;
         piVar12 = piVar12 + 1;
     } while (iVar13 < 0xC);
     iVar13 = 0;
@@ -1087,10 +1087,10 @@ void func_0039F590(void)
         lVar7 = func_002ED160();
         if (lVar7 < 0x18) {
             *(u8 *)(g_007BAC00 + 0xD) = *(u8 *)(g_007BAC00 + 0xD) & 0xFE;
-            *(char *)((*(u32 *)(g_007BAC00 + 0x10)) + 0x13) = (char)lVar7;
+            *(char *)PS2_PTR(((*(u32 *)(g_007BAC00 + 0x10)) + 0x13)) = (char)lVar7;
         }
         else {
-            *(u8 *)((*(u32 *)(g_007BAC00 + 0x10)) + 0x13) = 0x18;
+            *(u8 *)PS2_PTR(((*(u32 *)(g_007BAC00 + 0x10)) + 0x13)) = 0x18;
         }
     }
     sVar2 = *(short *)(g_007BAC00 + 0x4);
@@ -1108,7 +1108,7 @@ void func_0039F590(void)
         iVar9 = 0;
         iVar4 = 0;
         piVar5 = (int *)PS2_PTR(0x7BABE0);
-        pbVar11 = (u8 *)(*(u32 *)(g_007BAC00 + 0x10) + 0x13);
+        pbVar11 = (u8 *)PS2_PTR((*(u32 *)(g_007BAC00 + 0x10) + 0x13));
         do {
             iVar10 = (int)sVar1 - (int)((int)sVar2 * (iVar4 - (*pbVar11 - 10))) / 10;
             if (0x10 < iVar10) {
@@ -1155,10 +1155,10 @@ void func_003E7C10(void)
         lVar7 = func_002ED160();
         if (lVar7 < 0x12) {
             *(u8 *)(g_007BFB30 + 0xD) = *(u8 *)(g_007BFB30 + 0xD) & 0xFE;
-            *(char *)((*(u32 *)(g_007BFB30 + 0x10)) + 0x13) = (char)lVar7;
+            *(char *)PS2_PTR(((*(u32 *)(g_007BFB30 + 0x10)) + 0x13)) = (char)lVar7;
         }
         else {
-            *(u8 *)((*(u32 *)(g_007BFB30 + 0x10)) + 0x13) = 0x12;
+            *(u8 *)PS2_PTR(((*(u32 *)(g_007BFB30 + 0x10)) + 0x13)) = 0x12;
         }
     }
     sVar2 = *(short *)(g_007BFB30 + 0x4);
@@ -1176,7 +1176,7 @@ void func_003E7C10(void)
         iVar9 = 0;
         iVar4 = 0;
         piVar5 = (int *)PS2_PTR(0x7BFB20);
-        pbVar11 = (u8 *)(*(u32 *)(g_007BFB30 + 0x10) + 0x13);
+        pbVar11 = (u8 *)PS2_PTR((*(u32 *)(g_007BFB30 + 0x10) + 0x13));
         do {
             iVar10 = (int)sVar1 - (int)((int)sVar2 * (iVar4 - (*pbVar11 - 10))) / 10;
             if (0x10 < iVar10) {

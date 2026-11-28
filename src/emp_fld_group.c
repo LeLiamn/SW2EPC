@@ -2351,7 +2351,7 @@ u32 func_0033F4D0(int c, u32 side, u32 *out, u32 max)
 /* 0x0033F530, 0x44 bytes, matching. */
 int func_0033F530(u8 **g, u32 x)
 {
-    return func_00347820((u8 **)x, GI(g));
+    return func_00347820((u8 **)PS2_PTR(x), GI(g));
 }
 
 /* 0x0033F580, 0x30 bytes, matching. */
@@ -2363,7 +2363,7 @@ u32 func_0033F580(u32 x, u32 *out, u32 max)
 /* 0x0033F5B0, 0x44 bytes, matching. */
 int func_0033F5B0(u8 **g, u32 x)
 {
-    return func_00347860((u8 **)x, GI(g));
+    return func_00347860((u8 **)PS2_PTR(x), GI(g));
 }
 
 /* 0x0033F600, 0x30 bytes, matching. */
@@ -4433,7 +4433,15 @@ int func_00346040(void)
  * 0x00347F1C). */
 
 extern u8 g_007B6270[2][0x456];          /* troop parameters: 0x25 kinds of 0x1E bytes per side */
-extern u8 *g_005BA6A0;                   /* the battle set-up data */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;                   /* the battle set-up data */
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 extern int g_006AA5F0;
 
 void func_003460B0(u8 **g);

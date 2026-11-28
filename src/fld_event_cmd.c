@@ -32,10 +32,43 @@ extern EvCmd g_007B6B20[0x20];
 extern u8 g_007B6C20, g_007B6C21;
 extern u8 g_00693970[];                  /* the game state (unit records first, 0x88 bytes) */
 extern u8 g_006A1D58[][0x68];            /* the soldier groups */
-extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each) */
-extern u8 *g_005BA6BC;                   /* the battle message texts */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;                   /* the officer table (0x2C bytes each) */
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6BC_a;                   /* the battle message texts */
+#define g_005BA6BC ((u8 *)PS2_PTR(g_005BA6BC_a))
+#define g_005BA6BC_SET(v) (g_005BA6BC_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6BC;
+#define g_005BA6BC_a (*(ps2ptr *)&g_005BA6BC)
+#define g_005BA6BC_SET(v) (g_005BA6BC = (v))
+#endif
 extern u8 *g_005BA6C4[];                 /* the officers' line texts, by kind */
-extern u8 *g_005BA7B4, *g_005BA7B8;      /* two more text tables */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7B4_a;      /* two more text tables */
+#define g_005BA7B4 ((u8 *)PS2_PTR(g_005BA7B4_a))
+#define g_005BA7B4_SET(v) (g_005BA7B4_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA7B4;
+#define g_005BA7B4_a (*(ps2ptr *)&g_005BA7B4)
+#define g_005BA7B4_SET(v) (g_005BA7B4 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7B8_a;      /* two more text tables */
+#define g_005BA7B8 ((u8 *)PS2_PTR(g_005BA7B8_a))
+#define g_005BA7B8_SET(v) (g_005BA7B8_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA7B8;
+#define g_005BA7B8_a (*(ps2ptr *)&g_005BA7B8)
+#define g_005BA7B8_SET(v) (g_005BA7B8 = (v))
+#endif
 extern u8 g_005BBF18[];                  /* the message formatter */
 extern char g_005BBF20[];                /* the message text */
 extern u32 g_005BC020, g_005BC028;       /* window kinds */
@@ -130,7 +163,7 @@ void func_00356110(EvCmd *c)
 void func_003561D0(EvCmd *c)
 {
     if (c->a < 0x14) {
-        u8 *b = (u8 *)func_0034EC80(c->a);
+        u8 *b = (u8 *)PS2_PTR(func_0034EC80(c->a));
 
         if (func_0034EE50(b) != 0) {
             u8 xy[2];
@@ -1159,7 +1192,7 @@ void func_00358FD0(EvCmd *c)
 
     if (func_0035F520(s) <= 0x13)
         return;
-    func_0034ED90((u8 *)func_0034EC80(func_0035F200(s)), cell);
+    func_0034ED90((u8 *)PS2_PTR(func_0034EC80(func_0035F200(s))), cell);
     for (k = 6; k < 8; k++) {
         u8 **g = func_0033EF80(s * 8 + k);
 
@@ -1247,7 +1280,7 @@ void func_003595C0(void)
     u8 cell[4];
     u32 i;
 
-    func_0034ED90((u8 *)func_0034EC80(func_0035F200(1)), cell);
+    func_0034ED90((u8 *)PS2_PTR(func_0034EC80(func_0035F200(1))), cell);
     func_0033DDC0(g, cell);
     i = GROUP_INDEX(g);
     func_00357420(0x2E, i, 0, 2, 0);
@@ -1613,7 +1646,7 @@ void func_0035A760(EvCmd *c)
     t[1] = g_00415780[1];
     t[2] = g_00415780[2];
     t[3] = g_00415780[3];
-    b = (u8 *)func_0034EC80(c->a);
+    b = (u8 *)PS2_PTR(func_0034EC80(c->a));
     o = func_0034EDB0(b);
     if (o < 2 && (u = (u8 *)PS2_PTR(func_00352850(b, o))) != 0)
         func_003574E0(t[RANDOM() & 3], UNIT_INDEX(u), 2, 0);
@@ -1623,7 +1656,7 @@ void func_0035A760(EvCmd *c)
 void func_0035A850(EvCmd *c)
 {
     u16 k = c->a;
-    u8 *b = (u8 *)func_0034EC80(k), *u;
+    u8 *b = (u8 *)PS2_PTR(func_0034EC80(k)), *u;
     u32 o = func_0034EDB0(b);
 
     if (o < 2 && o == c->b && (u = (u8 *)PS2_PTR(func_00352850(b, o))) != 0) {
@@ -1636,7 +1669,7 @@ void func_0035A850(EvCmd *c)
  * half their most life (line 5). */
 void func_0035A910(EvCmd *c)
 {
-    u8 *b = (u8 *)func_0034EC80(c->a), *u;
+    u8 *b = (u8 *)PS2_PTR(func_0034EC80(c->a)), *u;
     u32 o = func_0034EDB0(b), k;
 
     if (o >= 2 || (u = (u8 *)PS2_PTR(func_00352850(b, o))) == 0)
@@ -1687,7 +1720,7 @@ static void base_effect(u8 *b, u32 o, int kind)
  * 8). */
 void func_0035AB10(EvCmd *c)
 {
-    u8 *b = (u8 *)func_0034EC80(c->a), *u;
+    u8 *b = (u8 *)PS2_PTR(func_0034EC80(c->a)), *u;
     u32 o = func_0034EDB0(b);
 
     if (o < 2 && (u = (u8 *)PS2_PTR(func_00352850(b, o))) != 0) {
@@ -1699,7 +1732,7 @@ void func_0035AB10(EvCmd *c)
 /* 0x0035AC60, 0x14C bytes. The same with line 7, effect 9. */
 void func_0035AC60(EvCmd *c)
 {
-    u8 *b = (u8 *)func_0034EC80(c->a), *u;
+    u8 *b = (u8 *)PS2_PTR(func_0034EC80(c->a)), *u;
     u32 o = func_0034EDB0(b);
 
     if (o < 2 && (u = (u8 *)PS2_PTR(func_00352850(b, o))) != 0) {
@@ -1806,7 +1839,7 @@ void func_0035AF70(void)
  * there. */
 void func_0035B060(void)
 {
-    u8 *b = (u8 *)func_0034EC80(func_0035F200(0)), *g = 0;
+    u8 *b = (u8 *)PS2_PTR(func_0034EC80(func_0035F200(0))), *g = 0;
     int list[16], n;
 
     n = func_0033F4D0(PS2_ADDR(b), 0, (unsigned int *)(list), 0x10);
@@ -1822,14 +1855,14 @@ void func_0035B060(void)
 /* 0x0035B190, 0x3C bytes. Message 0x6A at side 0's main base. */
 void func_0035B190(void)
 {
-    func_00357070(func_0034ED40((u8 *)func_0034EC80(func_0035F200(0))));
+    func_00357070(func_0034ED40((u8 *)PS2_PTR(func_0034EC80(func_0035F200(0)))));
     func_00357110(0x6A);
 }
 
 /* 0x0035B1D0, 0x3C bytes. Message 0x6B at side 1's main base. */
 void func_0035B1D0(void)
 {
-    func_00357070(func_0034ED40((u8 *)func_0034EC80(func_0035F200(1))));
+    func_00357070(func_0034ED40((u8 *)PS2_PTR(func_0034EC80(func_0035F200(1)))));
     func_00357110(0x6B);
 }
 

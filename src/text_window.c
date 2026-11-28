@@ -795,7 +795,7 @@ static inline u64 win_xyz(float x, float y, float z)
  * line by the window's timer (+0x122) while it closes (state 7). */
 void func_001B0EC0(Glyph *g)
 {
-    TextWindow *w = &g_00693394[*(int *)(u32)g->pad];
+    TextWindow *w = &g_00693394[*(int *)PS2_PTR((u32)g->pad)];
     u32 u, v;
     u64 t = glyph_texels(g, &u, &v);
     u8 *p = func_00105B40(t, 0);
@@ -947,7 +947,7 @@ static inline u8 *glyph_strip(Glyph *g)
  * (state 4); nothing otherwise. */
 void func_001B3070(Glyph *g)
 {
-    TextWindow *w = (TextWindow *)(u32)g->pad;
+    TextWindow *w = (TextWindow *)PS2_PTR((u32)g->pad);
     u8 *p = glyph_strip(g);
     int x = g->x, y = g->y, gw = g->w, gh = g->h;
 
@@ -998,7 +998,7 @@ static inline void zoom_glyph(u8 *p, Glyph *g, int w2, int h2, int a)
  * fades out while it closes (timer / 10), half transparent when waiting. */
 void func_001B3A90(Glyph *g)
 {
-    TextWindow *w = (TextWindow *)(u32)g->pad;
+    TextWindow *w = (TextWindow *)PS2_PTR((u32)g->pad);
     u32 u, v;
     u64 t = glyph_texels(g, &u, &v);
     u8 *p = func_00105860(t, 0);
@@ -1063,7 +1063,7 @@ static inline void window_text(TextWindow *w, void (*draw)(Glyph *g))
         g_0056CCAC = w->b[4];
         g_0056CCA8 = g_0056CCA4;
         g_0056CCB0 = g_0056CCAC;
-        func_00146270((const unsigned char *)(w->text), w->x + w->pad[2], w->y + w->pad[0], w->b[1], (int)w);
+        func_00146270((const unsigned char *)(w->text), w->x + w->pad[2], w->y + w->pad[0], w->b[1], (int)PS2_ADDR(w));
         g_0056CCA8 = c0;
         g_0056CCAC = c0;
         g_0056CCB0 = c0;
@@ -1403,7 +1403,7 @@ void func_001B5400(TextWindow *w, int k)
  * to its lines less its timer), squeezed down while it closes (timer / 5), whole when shown. */
 void func_001B7270(Glyph *g)
 {
-    TextWindow *w = (TextWindow *)(u32)g->pad;
+    TextWindow *w = (TextWindow *)PS2_PTR((u32)g->pad);
     u8 *p = glyph_strip(g);
     int x = g->x, y = g->y, gw = g->w, gh = g->h;
 
@@ -1520,7 +1520,7 @@ void func_001B7D20(TextWindow *w, int k)
         g_0056CCB8 = 5;
         g_0056CCAC = g_0056CCA8;
         g_0056CCB0 = g_0056CCA4;
-        func_00146270((const unsigned char *)(w->text), w->x + w->pad[2], w->y + w->pad[0], w->b[1], (int)w);
+        func_00146270((const unsigned char *)(w->text), w->x + w->pad[2], w->y + w->pad[0], w->b[1], (int)PS2_ADDR(w));
         g_0056CCA8 = c0;
         g_0056CCAC = c0;
         g_0056CCB0 = c0;
@@ -1537,7 +1537,15 @@ typedef struct {
     u8 pad[3];
 } MenuLine;
 
-extern MenuLine *g_00693960;             /* the menu's lines */
+#ifdef SW2E_PC
+extern ps2ptr g_00693960_a;             /* the menu's lines */
+#define g_00693960 ((MenuLine *)PS2_PTR(g_00693960_a))
+#define g_00693960_SET(v) (g_00693960_a = PS2_ADDR(v))
+#else
+extern MenuLine *g_00693960;
+#define g_00693960_a (*(ps2ptr *)&g_00693960)
+#define g_00693960_SET(v) (g_00693960 = (v))
+#endif
 extern u8 g_00693964, g_00693965, g_00693966, g_00693967;   /* count, chosen, colours */
 extern u8 g_0069395C, g_0069395D, g_0069395F;               /* fade: mode, layer, speed */
 extern signed char g_0069395E;           /* fade: its alpha (also read by sc_ubase.c) */
@@ -1658,7 +1666,7 @@ void func_001B8C20(int half)
 void func_001B8D10(void)
 {
     g_00693966 = 5;
-    g_00693960 = 0;
+    g_00693960_SET(0);
     g_00693967 = 1;
     g_00693964 = 0;
     g_00693965 = 0;
@@ -1668,7 +1676,7 @@ void func_001B8D10(void)
 void func_001B8D40(void)
 {
     g_00693966 = 5;
-    g_00693960 = 0;
+    g_00693960_SET(0);
     g_00693967 = 1;
     g_00693964 = 0;
     g_00693965 = 0;
@@ -1689,7 +1697,7 @@ void func_001B8D70(void)
             int i;
 
             for (i = 0; i < ((u8 *)e)[4]; i++)
-                func_00105900((u8 *)e[0] + i * 0x50, ((u8 *)e)[5]);
+                func_00105900((u8 *)PS2_PTR(e[0]) + i * 0x50, ((u8 *)e)[5]);
         } else if (l->kind == 0) {
             u32 *t = k == g_00693965 ? l->chosen : l->normal;
             u8 c = k == g_00693965 ? g_00693967 : g_00693966;
@@ -1698,7 +1706,7 @@ void func_001B8D70(void)
             g_0056CCAC = c;
             g_0056CCA8 = g_0056CCA4;
             g_0056CCB0 = g_0056CCAC;
-            func_00146270((const unsigned char *)((const char *)t[4]), t[0], t[1], 5, 0);
+            func_00146270((const unsigned char *)((const char *)PS2_PTR(t[4])), t[0], t[1], 5, 0);
             g_0056CCA8 = c0;
             g_0056CCAC = c0;
             g_0056CCB0 = c0;

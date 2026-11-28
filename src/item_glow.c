@@ -220,7 +220,15 @@ extern u8 g_006A3A30[][0xC0];            /* the battle officers */
 extern u8 *g_00754FE0[0x10];             /* the items' glow effects */
 extern u8 g_00754B90[][0x30];            /* the item models */
 extern int g_0045D4F8;                   /* (small data) their number */
-extern u8 *g_0045D4FC;                   /* (small data) the item model data */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D4FC_a;                   /* (small data) the item model data */
+#define g_0045D4FC ((u8 *)PS2_PTR(g_0045D4FC_a))
+#define g_0045D4FC_SET(v) (g_0045D4FC_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D4FC;
+#define g_0045D4FC_a (*(ps2ptr *)&g_0045D4FC)
+#define g_0045D4FC_SET(v) (g_0045D4FC = (v))
+#endif
 extern u8 g_00669D60[];
 extern int g_00669F6C;
 
@@ -254,7 +262,7 @@ void func_0024BE90(void)
     for (k = 0; k < g_0045D4F8; k++)
         func_001483B0(g_00754B90[k]);
     func_00102EC0(g_0045D4FC);
-    g_0045D4FC = 0;
+    g_0045D4FC_SET(0);
 }
 
 /* 0x0024BF20, 0x34 bytes. When resuming, drops the saved items again. */

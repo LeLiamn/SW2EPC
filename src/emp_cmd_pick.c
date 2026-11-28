@@ -14,6 +14,8 @@
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
 
+int func_002F7D90(int k, int (*keep)(), int a, int b, int sort, int unused);   /* (emp_officer.c) */
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -31,7 +33,24 @@ extern float g_0056CCC0, g_0056CCC4;
 extern int g_007B5E70[];
 extern int g_007B5F00[9][3];
 extern int g_007B5F30[];
-extern u8 *g_0043C560, *g_0043C578;
+#ifdef SW2E_PC
+extern ps2ptr g_0043C560_a;
+#define g_0043C560 ((u8 *)PS2_PTR(g_0043C560_a))
+#define g_0043C560_SET(v) (g_0043C560_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043C560;
+#define g_0043C560_a (*(ps2ptr *)&g_0043C560)
+#define g_0043C560_SET(v) (g_0043C560 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C578_a;
+#define g_0043C578 ((u8 *)PS2_PTR(g_0043C578_a))
+#define g_0043C578_SET(v) (g_0043C578_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043C578;
+#define g_0043C578_a (*(ps2ptr *)&g_0043C578)
+#define g_0043C578_SET(v) (g_0043C578 = (v))
+#endif
 
 #define PAD1_PRESSED() ((g_00500764 & 1) == 0 || (g_00500765 & 1) != 1 ? 0 : g_0050074C)
 #define PAD1_REPEAT() ((g_00500764 & 1) == 0 || (g_00500765 & 1) != 1 ? 0 : g_0050074E)
@@ -49,7 +68,6 @@ typedef struct {
 #define REC_COUNT(r) ((r)[0x1C])
 #define REC_CHOSEN(r) ((r)[0x1D])
 
-int func_002F7D90(int a, int fn, int b, int c, int d, int e);
 void func_002C7310(int x, int y, int a, int w, int h, int c, int d);
 int func_0030D7D0(void);
 void func_0037E920(int c, int k, int x, int y, int a, char *t, int b);
@@ -98,7 +116,7 @@ void func_00335090(int *r)
 
     func_00335000(r);
     func_002FD490();
-    n = func_002F7D90(0, (int)func_002F82A0, f, 0, 1, 0);
+    n = func_002F7D90(0, func_002F82A0, f, 0, 1, 0);
     l = (int *)(func_002F7B10());
     func_002F7C40((unsigned int *)(l), n);
     c = func_00327870();
@@ -336,7 +354,7 @@ void func_00335D60(void)
 {
     int *s = (int *)func_002FC2C0();
 
-    func_00335060((PickCmd *)s[0x1A7]);
+    func_00335060((PickCmd *)PS2_PTR(s[0x1A7]));
     func_002FC560();
     s[0] = 0;
 }
@@ -419,7 +437,7 @@ int func_00335F20(int k)
 /* 0x00335FC0, 0x80 bytes. */
 void func_00335FC0(void)
 {
-    int n = func_002F7D90(0, (int)func_002F8160, func_00327D50(), 0, 1, 0);
+    int n = func_002F7D90(0, func_002F8160, func_00327D50(), 0, 1, 0);
     int *l = (int *)func_002F7B10(), k;
 
     for (k = 0; k < n; k++, l++)
@@ -442,7 +460,7 @@ void func_00336040(u32 *l)
 u32 func_003360B0(int f)
 {
     u32 *l = (u32 *)func_002F7B10(), best = 0x19F;
-    int n = func_002F7D90(0, (int)func_002F8160, f, 0, 1, 0);
+    int n = func_002F7D90(0, func_002F8160, f, 0, 1, 0);
     int top = 0, a = 0, b = 0, k;
 
     for (k = 0; k < n; k++, l++) {
@@ -478,7 +496,7 @@ u32 func_003360B0(int f)
 u32 func_00336230(int f, u32 skip)
 {
     u32 *l = (u32 *)func_002F7B10(), best = 0x19F;
-    int n = func_002F7D90(0, (int)func_002F8340, f, 0, 0, 0);
+    int n = func_002F7D90(0, func_002F8340, f, 0, 0, 0);
     int a = 0, b = 0, k;
 
     if (n == 0)
@@ -646,11 +664,11 @@ void func_00336AE0(int f, int p, int me, u32 *s)
     func_002F7B10();
     for (k = 0; k < 9; k++)
         s[k] = 0x19F;
-    n1 = func_002F7D90(0, (int)func_002F80C0, p, 0, 1, 0);
+    n1 = func_002F7D90(0, func_002F80C0, p, 0, 1, 0);
     src = (u32 *)func_002F7B10();
     for (k = 0; k < n1; k++)
         s[k] = src[k];
-    n2 = func_002F7D90(0, (int)func_002F8110, p, 0, 0, 0);
+    n2 = func_002F7D90(0, func_002F8110, p, 0, 0, 0);
     src = (u32 *)func_002F7B10();
     for (k = 0; k < n2; k++)
         s[3 + k] = src[k];
@@ -898,7 +916,7 @@ void func_00337A70(void)
 {
     int *s = (int *)func_002FC2C0();
 
-    func_00335EF0((int *)s[0x1A8]);
+    func_00335EF0((int *)PS2_PTR(s[0x1A8]));
     func_002FC660();
     s[0] = 0;
 }

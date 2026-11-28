@@ -329,7 +329,7 @@ void func_00272B60(u8 *p)
 /* 0x00272C00, 0x5C bytes. Ends the event scene's sounds (the listener's place back). */
 void func_00272C00(u8 *p)
 {
-    u32 *l = (u32 *)LISTENER(), *t = (u32 *)l[4];
+    u32 *l = (u32 *)LISTENER(), *t = (u32 *)PS2_PTR(l[4]);
 
     if (t != 0) {
         t[0] = l[0];
@@ -358,8 +358,8 @@ void func_00272C80(u8 *e)
     l = (u32 *)LISTENER();
     *(short *)(l + 5) = 0;
     if (l[4] == 0)
-        l[4] = (u32)(*(u8 **)(g_006A3A30[g_0045D3E0 == 0 ? 0 : 1] + 0x14) + 0x40);
-    t = (u32 *)l[4];
+        l[4] = (u32)PS2_ADDR((*(u8 **)(g_006A3A30[g_0045D3E0 == 0 ? 0 : 1] + 0x14) + 0x40));
+    t = (u32 *)PS2_PTR(l[4]);
     l[0] = t[0];
     l[1] = t[1];
     l[2] = t[2];

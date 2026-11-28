@@ -79,7 +79,7 @@ void func_003C0110(void)
 {
     int *p = (int *)func_002FC2C0();
 
-    func_003C0080((int *)p[0x1AF]);
+    func_003C0080((int *)PS2_PTR(p[0x1AF]));
     func_002FC560();
     func_003A9070(0);
     *p = 0;
@@ -90,7 +90,7 @@ void func_003C0150(void)
 {
     int *p = (int *)func_002FC2C0();
 
-    func_003C0080((int *)p[0x1AF]);
+    func_003C0080((int *)PS2_PTR(p[0x1AF]));
     func_002FC660();
     func_003A9070(0);
     *p = 0;

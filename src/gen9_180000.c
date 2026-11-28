@@ -300,8 +300,8 @@ void func_00239AD0(u8 *param_1)
 
     pbVar1 = (u8 *)func_001F14E0(param_1);
     iVar2 = param_1;
-    if ((long long)*(char *)(*(int *)(iVar2 + 0x14) + 0x19D) << 0x3C < 0) {
-        if ((*(u8 *)(*(int *)(iVar2 + 0x14) + 0xE8) & 1) != 0) {
+    if ((long long)*(char *)PS2_PTR((*(int *)(iVar2 + 0x14) + 0x19D)) << 0x3C < 0) {
+        if ((*(u8 *)PS2_PTR((*(int *)(iVar2 + 0x14) + 0xE8)) & 1) != 0) {
             func_00239980(param_1);
             return;
         }

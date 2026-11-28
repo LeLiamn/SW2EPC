@@ -77,7 +77,15 @@ typedef struct {
     u32 data2;               /* +0x8EC0 */
 } MogiWork;
 
-extern MogiWork *g_0045D7E4;               /* (small data: reached through $gp) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D7E4_a;               /* (small data: reached through $gp) */
+#define g_0045D7E4 ((MogiWork *)PS2_PTR(g_0045D7E4_a))
+#define g_0045D7E4_SET(v) (g_0045D7E4_a = PS2_ADDR(v))
+#else
+extern MogiWork *g_0045D7E4;
+#define g_0045D7E4_a (*(ps2ptr *)&g_0045D7E4)
+#define g_0045D7E4_SET(v) (g_0045D7E4 = (v))
+#endif
 extern const char g_00459A40[];            /* "StateSetupEmpMogi.c" (__FILE__ for the loader) */
 
 void func_0038FBD0(void);
@@ -199,7 +207,7 @@ void func_00390C70(void)
 
     w = (MogiWork *)(func_00102DB0(0x10, sizeof(MogiWork)));
     w->mode = 0;
-    g_0045D7E4 = w;
+    g_0045D7E4_SET(w);
     w->data = 0;
     w->data = PS2_ADDR(func_001026D0(1, 0x88, 0, 1, 0, 0, g_00459A40, 206));
     func_0038F4B0();
@@ -238,7 +246,7 @@ void func_00390E30(void)
     func_0038D330();
     func_0038ED70();
     func_0038E000();
-    func_00102EC0((unsigned char *)PS2_PTR((u32)g_0045D7E4));
+    func_00102EC0((unsigned char *)PS2_PTR((u32)PS2_ADDR(g_0045D7E4)));
     func_003F8B80();
 }
 

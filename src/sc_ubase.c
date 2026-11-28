@@ -28,10 +28,42 @@ typedef unsigned int u32;
 #define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))          /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10 & 0xFFFF)
 
-extern u8 *g_005BA69C;                   /* the officer table's file */
-extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each, from +4) */
-extern u32 *g_005BA7C4;                  /* +0: the number of 0x20-byte unit records */
-extern u8 *g_005BA7C8;                   /* the unit records */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA69C_a;                   /* the officer table's file */
+#define g_005BA69C ((u8 *)PS2_PTR(g_005BA69C_a))
+#define g_005BA69C_SET(v) (g_005BA69C_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA69C;
+#define g_005BA69C_a (*(ps2ptr *)&g_005BA69C)
+#define g_005BA69C_SET(v) (g_005BA69C = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;                   /* the officer table (0x2C bytes each, from +4) */
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7C4_a;                  /* +0: the number of 0x20-byte unit records */
+#define g_005BA7C4 ((u32 *)PS2_PTR(g_005BA7C4_a))
+#define g_005BA7C4_SET(v) (g_005BA7C4_a = PS2_ADDR(v))
+#else
+extern u32 *g_005BA7C4;
+#define g_005BA7C4_a (*(ps2ptr *)&g_005BA7C4)
+#define g_005BA7C4_SET(v) (g_005BA7C4 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7C8_a;                   /* the unit records */
+#define g_005BA7C8 ((u8 *)PS2_PTR(g_005BA7C8_a))
+#define g_005BA7C8_SET(v) (g_005BA7C8_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA7C8;
+#define g_005BA7C8_a (*(ps2ptr *)&g_005BA7C8)
+#define g_005BA7C8_SET(v) (g_005BA7C8 = (v))
+#endif
 extern u32 g_00669DB8[4];                /* (settings) +0: the game mode */
 extern const char g_00425688[];          /* "sc_ubase.c" */
 extern const char g_00425740[];          /* "" */
@@ -51,8 +83,8 @@ u8 *func_0019FBC0(int item);
 /* 0x0019A7B0, 0x50 bytes. Loads the officer table (LINKDATA entry 0x33). */
 void func_0019A7B0(void)
 {
-    g_005BA69C = func_001026D0(1, 0x33, 0, 1, 0, 0, g_00425688, 0xF5);
-    g_005BA6A0 = g_005BA69C + 4;
+    g_005BA69C_SET(func_001026D0(1, 0x33, 0, 1, 0, 0, g_00425688, 0xF5));
+    g_005BA6A0_SET(g_005BA69C + 4);
 }
 
 /* A map coordinate in 100ths, kept within 0-0x63F. */
@@ -1159,7 +1191,15 @@ void func_0019EFD0(void)
 #define SET16(off) (*(u16 *)(g_00669D60 + (off)))
 #define SET8(off)  (*(u8 *)(g_00669D60 + (off)))
 
-extern u8 *g_0045D2F8;                   /* (small data) the settings in use (0: the main ones) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2F8_a;                   /* (small data) the settings in use (0: the main ones) */
+#define g_0045D2F8 ((u8 *)PS2_PTR(g_0045D2F8_a))
+#define g_0045D2F8_SET(v) (g_0045D2F8_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2F8;
+#define g_0045D2F8_a (*(ps2ptr *)&g_0045D2F8)
+#define g_0045D2F8_SET(v) (g_0045D2F8 = (v))
+#endif
 extern u32 g_005DF9A0, g_006725B0;
 extern u8 g_0068DDE0[];
 
@@ -1293,7 +1333,7 @@ void func_0019F750(u8 *p)
     func_00118AC0((unsigned int *)(g_00669D60 + 0x204), p + 0x100, 4);
     func_00118AC0((unsigned int *)(g_00669D60 + 0x208), p + 0x104, 4);
     func_00118AC0((unsigned int *)(g_00669D60 + 0x214), p + 0x108, 0x40);
-    func_0019F920(h, (const u8 *)func_002EFB00(0));
+    func_0019F920(h, (const u8 *)PS2_PTR(func_002EFB00(0)));
     g_00669D81[0] = h[9];
 }
 
@@ -1327,7 +1367,7 @@ void func_0019F920(u8 *d, const u8 *s)
 /* 0x0019F940, 0x8 bytes, matching. Sets the settings in use. */
 void func_0019F940(u8 *p)
 {
-    g_0045D2F8 = p;
+    g_0045D2F8_SET(p);
 }
 
 /* 0x0019F950, 0x8 bytes, matching. Nothing. */
@@ -2040,7 +2080,6 @@ void func_001A2040(void)
 
 extern u8 g_004281BF, g_004281CF, g_004281D7, g_004281DF, g_004281E7, g_004281EF, g_004281F7;
 
-void func_0017E0C0(int v, int a);
 
 /* Officer `id`'s stat `k`: its base, skill 9 (x `all`) and skill `k` (x `per`) and its weapon
  * bonuses. */

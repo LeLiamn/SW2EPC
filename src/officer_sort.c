@@ -21,12 +21,29 @@ typedef int (*OfficerCmp)(int a, int b);
 
 extern int g_007BFB60[];
 extern int g_0045C870[0x46];
-extern u8 *g_0043C648, *g_0043C578;
+#ifdef SW2E_PC
+extern ps2ptr g_0043C648_a;
+#define g_0043C648 ((u8 *)PS2_PTR(g_0043C648_a))
+#define g_0043C648_SET(v) (g_0043C648_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043C648;
+#define g_0043C648_a (*(ps2ptr *)&g_0043C648)
+#define g_0043C648_SET(v) (g_0043C648 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C578_a;
+#define g_0043C578 ((u8 *)PS2_PTR(g_0043C578_a))
+#define g_0043C578_SET(v) (g_0043C578_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043C578;
+#define g_0043C578_a (*(ps2ptr *)&g_0043C578)
+#define g_0043C578_SET(v) (g_0043C578 = (v))
+#endif
 
 /* 0x003EE4A0, 0x3C bytes. */
 int func_003EE4A0(void)
 {
-    u8 *m = (u8 *)func_002FC2C0()[0x1AB];
+    u8 *m = (u8 *)PS2_PTR(func_002FC2C0()[0x1AB]);
 
     return g_007BFB60[func_003EE460(*(u16 *)(m + 0x1C))];
 }
@@ -34,7 +51,7 @@ int func_003EE4A0(void)
 /* 0x003EEDD0, 0x70 bytes. The page's help line. */
 void func_003EEDD0(void)
 {
-    int v = *(int *)((u8 *)func_002FC2C0()[0x1AB] + 4);
+    int v = *(int *)((u8 *)PS2_PTR(func_002FC2C0()[0x1AB]) + 4);
 
     if (v == 1)
         func_001A7DC0((const char *)(g_0043C648), 0x80, 2);
@@ -55,7 +72,7 @@ void func_003EEF50(void)
 /* 0x003EF070, 0x60 bytes. */
 int func_003EF070(void)
 {
-    int v = *(int *)((u8 *)func_002FC2C0()[0x1AB] + 4);
+    int v = *(int *)((u8 *)PS2_PTR(func_002FC2C0()[0x1AB]) + 4);
 
     if (v == 1) {
         func_003EEAE0();

@@ -25,12 +25,21 @@ extern u8 *g_00791FD0[0x28];             /* a model per kind */
 extern u32 g_0045D57C, g_0045D580;       /* (small data) the first free request, slot */
 extern int g_0045CEC8, g_0045CECC;       /* free counts */
 extern int g_0045D584, g_0045D588, g_0045D58C;
-extern u8 *g_0045D2C0;                   /* the camera */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2C0_a;                   /* the camera */
+#define g_0045D2C0 ((u8 *)PS2_PTR(g_0045D2C0_a))
+#define g_0045D2C0_SET(v) (g_0045D2C0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2C0;
+#define g_0045D2C0_a (*(ps2ptr *)&g_0045D2C0)
+#define g_0045D2C0_SET(v) (g_0045D2C0 = (v))
+#endif
 extern u8 g_004004B0[];
 extern u8 g_00441570[0x28];
 extern int g_00441430[0x28], g_004414D0[0x28], g_00441390[0x28], g_004412F0[0x28];
 
-#define SP_PKT (*(u32 **)PS2_PTR(0x70000158))
+#define SP_PKT PS2_GETP(u32 *, 0x70000158)
+#define SP_PKT_SET(v) PS2_SETP(0x70000158, v)
 #define REQ(k) g_0078E010[k]
 #define SLOT(k) g_00792070[k]
 #define FL38(o) (*(u32 *)((o) + 0x38))
@@ -45,7 +54,7 @@ u32 *func_002AE090(u32 *p)
     int k;
 
     p[0] = 0x50000000;
-    p[1] = (u32)g_004004B0;
+    p[1] = (u32)PS2_ADDR(g_004004B0);
     p[2] = 0x11000000;
     p[3] = 0;
     p[4] = 0x10000008;
@@ -314,5 +323,5 @@ void func_002AF340(int cam, float *c)
             g_00791FD0[k] = 0;
         }
     }
-    SP_PKT = pk;
+    SP_PKT_SET(pk);
 }

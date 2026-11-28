@@ -178,7 +178,8 @@ void func_001796D0(void)
 
 typedef unsigned long long u64;
 
-#define g_70000158 (*(u32 **)PS2_PTR(0x70000158))         /* the DMA chain's write cursor */
+#define g_70000158 PS2_GETP(u32 *, 0x70000158)         /* the DMA chain's write cursor */
+#define g_70000158_SET(v) PS2_SETP(0x70000158, v)
 
 extern u32 g_0045D2B8;                   /* (small data) the number of units drawn */
 extern Unit *g_00574DA0[];               /* the units to draw */
@@ -228,7 +229,7 @@ static inline void set_scissor(u64 s)
     q[3] = 0x40;
     q[4] = s;
     q[5] = 0x41;
-    g_70000158 = (u32 *)(q + 6);
+    g_70000158_SET((u32 *)(q + 6));
 }
 
 /* 0x0017A400, 0x130 bytes. Limits drawing to the top (`bottom` 0) or bottom half of the
@@ -264,7 +265,7 @@ void func_0017A530(void)
     q[3] = 0x40;
     q[4] = (u64)(func_00100FB0() - 1) << 16 | (u64)(func_00100FC0() - 1) << 48;
     q[5] = 0x41;
-    g_70000158 = (u32 *)(q + 6);
+    g_70000158_SET((u32 *)(q + 6));
 }
 
 /* 0x0017A640, 0x78 bytes. Takes every unit's model away (end of a battle). */

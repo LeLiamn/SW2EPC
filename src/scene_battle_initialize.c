@@ -149,8 +149,24 @@ extern IntroShots g_00730A44[2];
 extern u8 g_005B4BC0[2][0x240];
 extern u8 g_005B49E0[2][0xF0];
 extern u8 g_00574DE0[2][0x630];
-extern u8 *g_0045D2C0;                    /* the first player unit */
-extern u8 *g_005BA694;                    /* stage records, 100 bytes (+2: music?) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2C0_a;                    /* the first player unit */
+#define g_0045D2C0 ((u8 *)PS2_PTR(g_0045D2C0_a))
+#define g_0045D2C0_SET(v) (g_0045D2C0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2C0;
+#define g_0045D2C0_a (*(ps2ptr *)&g_0045D2C0)
+#define g_0045D2C0_SET(v) (g_0045D2C0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA694_a;                    /* stage records, 100 bytes (+2: music?) */
+#define g_005BA694 ((u8 *)PS2_PTR(g_005BA694_a))
+#define g_005BA694_SET(v) (g_005BA694_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA694;
+#define g_005BA694_a (*(ps2ptr *)&g_005BA694)
+#define g_005BA694_SET(v) (g_005BA694 = (v))
+#endif
 extern int g_0045D2A8;
 extern int g_0072CC44, g_0072CC48;
 extern const char g_00428EA0[];           /* "StateBattleInitialize.c" */
@@ -183,7 +199,6 @@ void func_00218790(int a, int b);
 void func_00218C40(int a, int b);
 int func_0017DDA0(void);
 void func_002171E0(void);
-void func_0017E0C0(int volume, int b);
 void func_001D47C0(void);
 void func_001D6B40(void);
 
@@ -300,7 +315,7 @@ void func_001D41A0(void)
         g_005B4BC0[1][0x230] = (g_005B4BC0[1][0x230] & 0xFE) | 1;
         func_0017AC50(g_005B4BC0[1]);
     }
-    g_0045D2C0 = g_005B4BC0[0];
+    g_0045D2C0_SET(g_005B4BC0[0]);
 }
 
 /* The stage record of the battle (mode 2 and 3 use fixed records 0x54 / 0x55). */
@@ -997,19 +1012,19 @@ void func_001D2DF0(float dt)
     if ((g_00669F60 & 0x10) == 0) {
         if ((g_00669F60 & 2) == 0) {
             if ((g_006A3A44[0].flags & 0x10) == 0) {
-                g_0045D2C0 = g_005B4BC0[0];
+                g_0045D2C0_SET(g_005B4BC0[0]);
                 func_00177530(0);
             }
         } else {
             if ((g_006A3A44[0].flags & 0x10) == 0) {
-                g_0045D2C0 = g_005B4BC0[0];
+                g_0045D2C0_SET(g_005B4BC0[0]);
                 func_00177530(0);
             }
             if ((g_006A3A44[1].flags & 0x10) == 0) {
-                g_0045D2C0 = g_005B4BC0[1];
+                g_0045D2C0_SET(g_005B4BC0[1]);
                 func_00177530(1);
             }
-            g_0045D2C0 = g_005B4BC0[0];
+            g_0045D2C0_SET(g_005B4BC0[0]);
         }
     }
     func_001784E0(dt);
@@ -1253,7 +1268,7 @@ void func_001D3C20(void)
     if (func_0032E7B0() != 0)
         return;
     func_00191240(0);
-    g_0045D2C0 = g_005B4BC0[0];
+    g_0045D2C0_SET(g_005B4BC0[0]);
     func_0022E5D0();
     func_00195C60();
     func_00195CE0();
@@ -1272,7 +1287,7 @@ void func_001D3C20(void)
 #define SELECT_PLAYER(p) do {                   \
         func_0017A400(p);                       \
         g_0045D470 = (p);                       \
-        g_0045D2C0 = g_005B4BC0[p];             \
+        g_0045D2C0_SET(g_005B4BC0[p]);             \
     } while (0)
 
 /* 0x001D3CE0, 0x168 bytes. Draws the battle with two views (two armies). */

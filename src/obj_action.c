@@ -44,20 +44,79 @@ typedef struct {
 
 extern ObjAct g_007720C0[50];
 extern ObjKind g_0043FE40[];
-extern u8 *g_0045D540;                   /* (small data) the map objects (3 bytes each) */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D540_a;                   /* (small data) the map objects (3 bytes each) */
+#define g_0045D540 ((u8 *)PS2_PTR(g_0045D540_a))
+#define g_0045D540_SET(v) (g_0045D540_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D540;
+#define g_0045D540_a (*(ps2ptr *)&g_0045D540)
+#define g_0045D540_SET(v) (g_0045D540 = (v))
+#endif
 extern u8 g_0045D544[3];
-extern u8 *g_0045D548, *g_0045D54C;      /* (small data) per object values */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D548_a;      /* (small data) per object values */
+#define g_0045D548 ((u8 *)PS2_PTR(g_0045D548_a))
+#define g_0045D548_SET(v) (g_0045D548_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D548;
+#define g_0045D548_a (*(ps2ptr *)&g_0045D548)
+#define g_0045D548_SET(v) (g_0045D548 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D54C_a;      /* (small data) per object values */
+#define g_0045D54C ((u8 *)PS2_PTR(g_0045D54C_a))
+#define g_0045D54C_SET(v) (g_0045D54C_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D54C;
+#define g_0045D54C_a (*(ps2ptr *)&g_0045D54C)
+#define g_0045D54C_SET(v) (g_0045D54C = (v))
+#endif
 extern u32 g_0045D550;
 extern float g_0045D554;                 /* (small data) the action time step */
-extern u8 *g_0045D558, *g_0045D55C;      /* (small data) object bit sets */
-extern ObjAct **g_0045D560;              /* (small data) each object's running action */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D558_a;      /* (small data) object bit sets */
+#define g_0045D558 ((u8 *)PS2_PTR(g_0045D558_a))
+#define g_0045D558_SET(v) (g_0045D558_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D558;
+#define g_0045D558_a (*(ps2ptr *)&g_0045D558)
+#define g_0045D558_SET(v) (g_0045D558 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D55C_a;      /* (small data) object bit sets */
+#define g_0045D55C ((u8 *)PS2_PTR(g_0045D55C_a))
+#define g_0045D55C_SET(v) (g_0045D55C_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D55C;
+#define g_0045D55C_a (*(ps2ptr *)&g_0045D55C)
+#define g_0045D55C_SET(v) (g_0045D55C = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D560_a;              /* (small data) each object's running action */
+#define g_0045D560 ((ObjAct **)PS2_PTR(g_0045D560_a))
+#define g_0045D560_SET(v) (g_0045D560_a = PS2_ADDR(v))
+#else
+extern ObjAct **g_0045D560;
+#define g_0045D560_a (*(ps2ptr *)&g_0045D560)
+#define g_0045D560_SET(v) (g_0045D560 = (v))
+#endif
 extern u32 g_0045D564;                   /* (small data) the number of objects */
-extern u8 *g_0045D2F0;                   /* (small data) the battlefield map */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2F0_a;                   /* (small data) the battlefield map */
+#define g_0045D2F0 ((u8 *)PS2_PTR(g_0045D2F0_a))
+#define g_0045D2F0_SET(v) (g_0045D2F0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2F0;
+#define g_0045D2F0_a (*(ps2ptr *)&g_0045D2F0)
+#define g_0045D2F0_SET(v) (g_0045D2F0 = (v))
+#endif
 extern u8 g_0073DC98[], g_0073DF28[];
 extern u8 g_00669D60[];
 extern int g_00669DB8, g_00669F6C;
 
-#define UNITS (*(u8 **)PS2_PTR(0x700001D0))       /* (scratchpad) the stage units (0x70 bytes each) */
+#define UNITS PS2_GETP(u8 *, 0x700001D0)       /* (scratchpad) the stage units (0x70 bytes each) */
+#define UNITS_SET(v) PS2_SETP(0x700001D0, v)
 #define g_70000874 (*(u32 *)PS2_PTR(0x70000874))
 #define g_70000878 (*(float *)PS2_PTR(0x70000878))
 #define SETTINGS_FLAGS (*(u32 *)(g_00669D60 + 0x200))
@@ -516,9 +575,16 @@ void func_0027F460(void)
 /* 0x0027F5D0, 0x38 bytes, matching. Sets up the objects. */
 void func_0027F5D0(void)
 {
-    g_0045D54C = 0;
-    g_0045D548 = 0;
-    g_0045D560 = (ObjAct **)(func_00102D30(g_0045D564 << 2));
+    g_0045D54C_SET(0);
+    g_0045D548_SET(0);
+    g_0045D560_SET((ObjAct **)(func_00102D30(g_0045D564 << 2)));
     func_0027F460();
     func_0027F610();
+}
+
+/* 0x0027F6D0, 0x14 bytes, matching. Takes the stage's object table: its count, then 3 bytes per object. */
+void func_0027F6D0(u32 *table)
+{
+    g_0045D564 = table[0];
+    g_0045D540_SET((u8 *)(table + 1));
 }

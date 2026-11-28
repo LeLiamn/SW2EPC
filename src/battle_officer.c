@@ -342,8 +342,24 @@ void func_001BA3D0(u8 *b)
         func_0019BD90(1);
 }
 
-extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each) */
-extern u8 *g_005BA7C8;                   /* the unit records (0x20 bytes each) */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;                   /* the officer table (0x2C bytes each) */
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005BA7C8_a;                   /* the unit records (0x20 bytes each) */
+#define g_005BA7C8 ((u8 *)PS2_PTR(g_005BA7C8_a))
+#define g_005BA7C8_SET(v) (g_005BA7C8_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA7C8;
+#define g_005BA7C8_a (*(ps2ptr *)&g_005BA7C8)
+#define g_005BA7C8_SET(v) (g_005BA7C8 = (v))
+#endif
 extern u32 g_00669F60[4];
 extern int g_00669F6C[4];
 extern u8 g_00669D81[0x10];
@@ -683,7 +699,7 @@ void func_001BB5C0(u8 *t, u8 *o, int *base)
     }
     for (k = 0; k < 0xD; k++) {
         if (base[k] == 0) {
-            base[k] = (int)o;
+            base[k] = (int)PS2_ADDR(o);
             break;
         }
     }

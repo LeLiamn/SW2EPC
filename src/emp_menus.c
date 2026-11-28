@@ -25,7 +25,15 @@ extern short g_007BAA54[6];
 extern int g_007BAA64;
 extern u8 g_007BAA70[], g_0045D7E8[];
 extern int g_00459B60[][2];
+#ifdef SW2E_PC
+extern ps2ptr g_0043C5A8_a;
+#define g_0043C5A8 ((u8 *)PS2_PTR(g_0043C5A8_a))
+#define g_0043C5A8_SET(v) (g_0043C5A8_a = PS2_ADDR(v))
+#else
 extern u8 *g_0043C5A8;
+#define g_0043C5A8_a (*(ps2ptr *)&g_0043C5A8)
+#define g_0043C5A8_SET(v) (g_0043C5A8 = (v))
+#endif
 extern u8 g_00500764, g_00500765;
 extern u16 g_0050074C;
 
@@ -45,7 +53,7 @@ void func_00388710(void);
 void func_0032D3C0(u8 *a);
 void func_0037ED80(u8 *a, int x, int y, int f, int *v, int b, int c);
 
-#define MENU2() ((int *)func_002FC2C0()[0x1AB])
+#define MENU2() ((int *)PS2_PTR(func_002FC2C0()[0x1AB]))
 
 /* 0x00398630, 0x20 bytes. Whether the current entry is available. */
 int func_00398630(void)
@@ -228,7 +236,7 @@ void func_0039BB00(void)
 {
     int *st = func_002FC2C0();
 
-    func_0039BA60((int *)st[0x1A9]);
+    func_0039BA60((int *)PS2_PTR(st[0x1A9]));
     func_002FC560();
     st[0] = 0;
     func_003A9480(0);
@@ -237,7 +245,7 @@ void func_0039BB00(void)
 /* 0x0039BB40, 0x40 bytes. */
 void func_0039BB40(void)
 {
-    if (*(int *)func_002FC2C0()[0x1A9] == 1)
+    if (*(int *)PS2_PTR(func_002FC2C0()[0x1A9]) == 1)
         func_0039B700();
 }
 
@@ -460,7 +468,7 @@ extern int g_0041D680[], g_0041D710[], g_0041D740[];
 extern u16 g_0050074E;
 
 #define PAD1_REPEAT() ((g_00500764 & 1) == 0 || (g_00500765 & 1) != 1 ? 0 : g_0050074E)
-#define MENU5() ((u8 *)func_002FC2C0()[0x1A5])
+#define MENU5() ((u8 *)PS2_PTR(func_002FC2C0()[0x1A5]))
 
 void func_00388200(int a, int k);
 int func_00388DA0(void);

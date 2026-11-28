@@ -17,13 +17,30 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 extern u32 g_7000015C;                   /* (scratchpad) the random seed */
-extern u8 *g_0043C560, *g_0043C730;      /* help texts */
+#ifdef SW2E_PC
+extern ps2ptr g_0043C560_a;      /* help texts */
+#define g_0043C560 ((u8 *)PS2_PTR(g_0043C560_a))
+#define g_0043C560_SET(v) (g_0043C560_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043C560;
+#define g_0043C560_a (*(ps2ptr *)&g_0043C560)
+#define g_0043C560_SET(v) (g_0043C560 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0043C730_a;      /* help texts */
+#define g_0043C730 ((u8 *)PS2_PTR(g_0043C730_a))
+#define g_0043C730_SET(v) (g_0043C730_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043C730;
+#define g_0043C730_a (*(ps2ptr *)&g_0043C730)
+#define g_0043C730_SET(v) (g_0043C730 = (v))
+#endif
 extern u8 g_007B5C90[];                  /* the end-of-turn steps' state */
 extern int (*g_00414CC0[5])(void);       /* the end-of-turn steps */
 
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
-#define MENU() ((u8 *)func_002FC2C0()[0x1A5])
+#define MENU() ((u8 *)PS2_PTR(func_002FC2C0()[0x1A5]))
 #define MI(o) (*(int *)(MENU() + (o)))
 
 void func_00388710(void);
@@ -89,7 +106,7 @@ void func_003202B0(void)
 void func_003203A0(void)
 {
     int *st = func_002FC2C0();
-    u8 *m = (u8 *)st[0x1A5];
+    u8 *m = (u8 *)PS2_PTR(st[0x1A5]);
     int v = func_00389050();
 
     if (v == 1) {
@@ -299,7 +316,15 @@ int func_003214C0(void)
 
 /* End-of-turn steps (parts of 0x00322030-0x0032367C). */
 
-extern u8 *g_0043CE80;                   /* "New artwork has been added ..." */
+#ifdef SW2E_PC
+extern ps2ptr g_0043CE80_a;                   /* "New artwork has been added ..." */
+#define g_0043CE80 ((u8 *)PS2_PTR(g_0043CE80_a))
+#define g_0043CE80_SET(v) (g_0043CE80_a = PS2_ADDR(v))
+#else
+extern u8 *g_0043CE80;
+#define g_0043CE80_a (*(ps2ptr *)&g_0043CE80)
+#define g_0043CE80_SET(v) (g_0043CE80 = (v))
+#endif
 extern int (*g_00414CE0[0x17])(void);    /* the turn's steps */
 
 int func_002F7D90(int a, int (*fn)(), int b, int c, int d, int e);
@@ -792,7 +817,7 @@ void func_00325110(int *a, int *b)
 /* 0x00325360, 0x44 bytes, matching. Sets the after-battle step (7 starts the province change). */
 void func_00325360(int v)
 {
-    int *p = (int *)func_002FC2C0()[0x1AA];
+    int *p = (int *)PS2_PTR(func_002FC2C0()[0x1AA]);
 
     p[0] = v;
     if (v == 7)
@@ -852,7 +877,7 @@ void func_003255C0(void)
         ids[k] = func_00325500();
         func_00328670(ids[k]);
     }
-    func_0030E390(0x17, 0, -1, -1, (int *)PS2_PTR((int)ids), n);
+    func_0030E390(0x17, 0, -1, -1, (int *)PS2_PTR((int)PS2_ADDR(ids)), n);
     func_00325360(3);
 }
 
@@ -863,8 +888,8 @@ extern int g_007B5CB0[];                 /* the second after-battle step */
 extern int g_00414D40[];                 /* the scenarios' first years */
 extern u32 g_0068EFD8, g_0068EFDC;
 
-#define AFTER() ((int *)func_002FC2C0()[0x1AA])
-#define AFTER2() ((int *)func_002FC2C0()[0x1AE])
+#define AFTER() ((int *)PS2_PTR(func_002FC2C0()[0x1AA]))
+#define AFTER2() ((int *)PS2_PTR(func_002FC2C0()[0x1AE]))
 
 void func_003986E0(int a, int b, int *c, int d);
 void func_001204B0(char *buf, int fmt, int a, int b, int c);
@@ -975,7 +1000,7 @@ void func_00325FC0(void)
 {
     int *st = func_002FC2C0();
 
-    func_00323E60((unsigned int *)((int *)st[0x1AA]));
+    func_00323E60((unsigned int *)((int *)PS2_PTR(st[0x1AA])));
     func_002FC560();
     st[0] = 0;
 }
@@ -1105,7 +1130,7 @@ void func_003276D0(void)
 
 /* The yearly officer step (0x00329A00-0x00329D1C; its state at FC2C0()[0x1A6]). */
 
-#define STEP3() ((int *)func_002FC2C0()[0x1A6])
+#define STEP3() ((int *)PS2_PTR(func_002FC2C0()[0x1A6]))
 
 int func_0032D9C0(void);
 void func_0032D3C0(int a);
@@ -1167,7 +1192,7 @@ void func_00329BE0(void)
 {
     int *st = func_002FC2C0();
 
-    func_003298A0((int *)st[0x1A6]);
+    func_003298A0((int *)PS2_PTR(st[0x1A6]));
     func_002FC560();
     st[0] = 0;
 }

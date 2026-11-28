@@ -40,7 +40,15 @@ typedef struct {
 extern BaseDrop g_007B6D30[0x14];
 extern u8 g_00693970[];
 extern u8 g_006A1D58[][0x68];
-extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each) */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;                   /* the officer table (0x2C bytes each) */
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 extern u8 g_00669D60[];                  /* the settings */
 extern int g_00669F9C;                   /* the battle's frame counter */
 extern u32 g_0076E700[];                 /* per model kind flags */
@@ -348,7 +356,7 @@ void func_0035DEE0(u32 k, int kind, int period)
     float xy[2];
     u32 v[4];
 
-    if (k >= 0x14 || kind != 0 || (b = (u8 *)func_0034EC80(k)) == 0 || func_0034EE50(b) == 0)
+    if (k >= 0x14 || kind != 0 || (b = (u8 *)PS2_PTR(func_0034EC80(k))) == 0 || func_0034EE50(b) == 0)
         return;
     g_007B6D30[k].on = 1;
     g_007B6D30[k].drop = g_0045D080;
@@ -372,7 +380,7 @@ void func_0035E010(void)
     for (k = 0; k < 0x14; k++)
         g_007B6D30[k].on = 0;
     for (k = 0; k < 0x14; k++) {
-        u8 *b = (u8 *)func_0034EC80(k), c[4];
+        u8 *b = (u8 *)PS2_PTR(func_0034EC80(k)), c[4];
 
         if (b != 0 && func_0034EE50(b) != 0) {
             func_0034ED90(b, c);
@@ -425,7 +433,7 @@ void func_0035E210(u32 k)
 {
     u8 *b;
 
-    if (k < 0x14 && (b = (u8 *)func_0034EC80(k)) != 0 && func_0034EE50(b) != 0) {
+    if (k < 0x14 && (b = (u8 *)PS2_PTR(func_0034EC80(k))) != 0 && func_0034EE50(b) != 0) {
         if (func_0034EDB0(b) == 0)
             func_0035E190(k);
         else
@@ -445,7 +453,7 @@ int func_0035E2D0(u32 k)
 {
     u8 *b;
 
-    if (k >= 0x14 || (b = (u8 *)func_0034EC80(k)) == 0 || func_0034EE50(b) == 0)
+    if (k >= 0x14 || (b = (u8 *)PS2_PTR(func_0034EC80(k))) == 0 || func_0034EE50(b) == 0)
         return 0;
     if (func_0034EE80(b) != 0)
         return 0;

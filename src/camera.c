@@ -27,12 +27,12 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 typedef signed char s8;
 
-#define U8(o, off)  (*(u8 *)((u8 *)(o) + (off)))
+#define U8(o, off)  (*(u8 *)((u8 *)PS2_ANYPTR(o) + (off)))
 #define S16(o, off) (*(short *)((u8 *)(o) + (off)))
 #define U16(o, off) (*(u16 *)((u8 *)(o) + (off)))
-#define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
+#define U32(o, off) (*(u32 *)((u8 *)PS2_ANYPTR(o) + (off)))
 #define S32(o, off) (*(int *)((u8 *)(o) + (off)))
-#define F32(o, off) (*(float *)((u8 *)(o) + (off)))
+#define F32(o, off) (*(float *)((u8 *)PS2_ANYPTR(o) + (off)))
 #define PTR(o, off) (*(u8 **)((u8 *)(o) + (off)))
 
 #define PI     3.1415927f
@@ -45,7 +45,7 @@ typedef struct {
     signed char f0 : 1, f1 : 1, f2 : 1, f3 : 1, f4 : 1, f5 : 1, f6 : 1, f7 : 1;
 } Bits8;
 
-#define BIT(o, off, n) (((Bits8 *)((u8 *)(o) + (off)))->f##n)
+#define BIT(o, off, n) (((Bits8 *)((u8 *)PS2_ANYPTR(o) + (off)))->f##n)
 
 #define ACT(u) PTR(u, 0x210)
 
@@ -306,8 +306,8 @@ void func_00161E10(int *cam, Unit *u, u8 *obj)
     h = (g_00669F60 & 2) ? g_0045CE84 * 0.3f : g_0045CE84;
     F32(cam, 0x14) = h * -1.0f;
     cam[6] = 0;
-    cam[0] = (int)obj;
-    cam[1] = (int)u;
+    cam[0] = (int)PS2_ADDR(obj);
+    cam[1] = (int)PS2_ADDR(u);
     cam[7] = 0;
     U16(cam, 0x36) = 0;
     cam[0xF] = 0;
@@ -337,11 +337,11 @@ void func_00161E10(int *cam, Unit *u, u8 *obj)
  * facing, or its yaw when mounted or in actions with flag 8. */
 void func_00162130(int *cam)
 {
-    Unit *u = (Unit *)cam[1];
+    Unit *u = (Unit *)PS2_PTR(cam[1]);
     float y;
 
     cam[6] = 0x1E;
-    if ((U32(ACT(u), 0x1C) & 8) == 0 && (U32(ACT((Unit *)cam[1]), 0x18) & 0x8000000) == 0)
+    if ((U32(ACT(u), 0x1C) & 8) == 0 && (U32(ACT((Unit *)PS2_PTR(cam[1])), 0x18) & 0x8000000) == 0)
         y = func_00161600(u) + PI;
     else
         y = F32(u, 0x54) + PI;
@@ -401,8 +401,8 @@ static inline void turn_y(float *out, float yaw, const float *v)
  * (150, 70, 50 during hits with flag 0x800; 100 high with flag 4). */
 void func_00162250(float mx, float my, float mz, int *cam, float *out)
 {
-    u8 *obj = (u8 *)cam[0];
-    Unit *u = (Unit *)cam[1];
+    u8 *obj = (u8 *)PS2_PTR(cam[0]);
+    Unit *u = (Unit *)PS2_PTR(cam[1]);
     float h, dt[4], view[4], d[4], v[4];
     u8 *hit;
     u32 f;
@@ -412,11 +412,11 @@ void func_00162250(float mx, float my, float mz, int *cam, float *out)
         for (k = 0; k < 4; k++)
             out[k] = F32(obj, 0x1D0 + k * 4);
     }
-    h = (U32(ACT((Unit *)cam[1]), 0x18) & 0x8000000) == 0 ? g_0045D568 : g_0045CE64;
+    h = (U32(ACT((Unit *)PS2_PTR(cam[1])), 0x18) & 0x8000000) == 0 ? g_0045D568 : g_0045CE64;
     if (g_00669F60 & 2)
         h = h + 50.0f;
     out[1] = out[1] - h;
-    hit = PTR(ACT((Unit *)cam[1]), 0x14);
+    hit = PTR(ACT((Unit *)PS2_PTR(cam[1])), 0x14);
     if (hit != 0 && (U16(hit, 0x1C) & 0x800)) {
         mx = 150.0f;
         my = 70.0f;
@@ -428,8 +428,8 @@ void func_00162250(float mx, float my, float mz, int *cam, float *out)
         dt[k] = out[k] - F32(obj, 0x1D0 + k * 4);
         view[k] = F32(obj, 0x1D0 + k * 4) - F32(obj, 0x1C0 + k * 4);
     }
-    f = U32(ACT((Unit *)cam[1]), 0x18);
-    if (PTR(ACT((Unit *)cam[1]), 0x14) == 0 && (f & 0x40) == 0 && (f & 0x400) == 0) {
+    f = U32(ACT((Unit *)PS2_PTR(cam[1])), 0x18);
+    if (PTR(ACT((Unit *)PS2_PTR(cam[1])), 0x14) == 0 && (f & 0x40) == 0 && (f & 0x400) == 0) {
         if (1.0f < dt[0] * dt[0] + dt[2] * dt[2] && (f & 0x80)) {
             float a[4] = { dt[0], 0.0f, dt[2], dt[3] }, b[4] = { view[0], 0.0f, view[2], view[3] };
             float la = sqrtf(a[0] * a[0] + a[2] * a[2] + a[3] * a[3]);
@@ -473,7 +473,7 @@ void func_00162250(float mx, float my, float mz, int *cam, float *out)
  * height follows by its own rate `c`. The positions are kept for the next frame. */
 void func_001626E0(int *cam, float *t, float *e, float a, float b, float c, float d)
 {
-    u8 *obj = (u8 *)cam[0];
+    u8 *obj = (u8 *)PS2_PTR(cam[0]);
     float nt[4], ne[4], x, z;
     int k;
 
@@ -505,7 +505,7 @@ static inline float len3(const float *v)
  * along its surface; the offset found goes to +0xD0 and is used for 15 frames (+0x36). */
 int func_00162840(int *cam, float *eye, float *target)
 {
-    Unit *u = (Unit *)cam[1];
+    Unit *u = (Unit *)PS2_PTR(cam[1]);
     float d[4], back[4], p[4], q[4], dist;
     Ray r1, r2;
     int k;
@@ -566,7 +566,7 @@ int func_00162840(int *cam, float *eye, float *target)
  * 1 - distance / the camera's distance (0 to 1); the height offset eases back by 5. */
 void func_00162B00(int *cam, float *eye, float *target, Ray *r, float *closeness)
 {
-    float d = func_00161D90(F32(cam, 0xC), (Unit *)cam[1], 0), v[4], c;
+    float d = func_00161D90(F32(cam, 0xC), (Unit *)PS2_PTR(cam[1]), 0), v[4], c;
     int k;
 
     for (k = 0; k < 4; k++) {
@@ -602,9 +602,9 @@ int func_00162C30(int *cam, float *eye, float *target, float *closeness, int fre
         U16(cam, 0x36) = 0;
         return 0;
     }
-    if (func_00161490(p, (Unit *)cam[1]) == 0) {
+    if (func_00161490(p, (Unit *)PS2_PTR(cam[1])) == 0) {
         for (k = 0; k < 4; k++)
-            p[k] = F32((u8 *)cam[0], 0x1D0 + k * 4);
+            p[k] = F32((u8 *)PS2_PTR(cam[0]), 0x1D0 + k * 4);
     }
     ray_test(&r, p, target);
     if ((u8)r.result != 0 && (r.result & 0x8000) == 0) {
@@ -686,7 +686,7 @@ static inline float wrap1(float a)
  * the turn timer (+0x18) runs out, or ends once within 5 degrees. */
 void func_00163050(float dt, int *cam)
 {
-    u8 *obj = (u8 *)cam[0];
+    u8 *obj = (u8 *)PS2_PTR(cam[0]);
     float t[4], e[4], d[4], v[4], ang, want, left, close, len;
     int k, hit, pulled;
 
@@ -701,7 +701,7 @@ void func_00163050(float dt, int *cam)
     for (k = 0; k < 4; k++)
         e[k] = t[k] + v[k] / len * *(float *)&cam[3];
     hit = func_00162C30(cam, e, t, &close, 0);
-    pulled = func_00161790(close, (Unit *)cam[1], cam, e, t, 0);
+    pulled = func_00161790(close, (Unit *)PS2_PTR(cam[1]), cam, e, t, 0);
     func_001626E0(cam, t, e, 6.0f, 6.0f, (hit == 0 && pulled == 0) ? 1.0f : 3.0f, dt);
     if (fabsf(left) < 0.08726647f)
         cam[6] = 0;
@@ -714,11 +714,11 @@ void func_00163050(float dt, int *cam)
  * (4 when mounted), or 5 when the scenery was in the way. */
 void func_00163380(float dt, int *cam)
 {
-    u8 *obj = (u8 *)cam[0];
+    u8 *obj = (u8 *)PS2_PTR(cam[0]);
     float t[4], e[4], f[4], dist, len, close;
     int k, hit, pulled;
 
-    *(float *)&cam[3] = func_00161D90(*(float *)&cam[3], (Unit *)cam[1], 0);
+    *(float *)&cam[3] = func_00161D90(*(float *)&cam[3], (Unit *)PS2_PTR(cam[1]), 0);
     func_00162250(g_0045CE74, g_0045CE78, g_0045CE7C, cam, t);
     for (k = 0; k < 4; k++)
         f[k] = t[k] - F32(obj, 0x1C0 + k * 4);
@@ -729,15 +729,15 @@ void func_00163380(float dt, int *cam)
             f[k] = f[k] / len;
     }
     dist = *(float *)&cam[3];
-    if (U32(ACT((Unit *)cam[1]), 0x1C) & 1)
+    if (U32(ACT((Unit *)PS2_PTR(cam[1])), 0x1C) & 1)
         dist = dist * 1.25f;
     for (k = 0; k < 3; k++)
         e[k] = f[k] * (dist * -1.0f) + t[k];
     e[3] = 1.0f;
     hit = func_00162C30(cam, e, t, &close, 1);
-    pulled = func_00161790(close, (Unit *)cam[1], cam, e, t, 0);
+    pulled = func_00161790(close, (Unit *)PS2_PTR(cam[1]), cam, e, t, 0);
     if (hit == 0 && pulled == 0) {
-        if ((U32(ACT((Unit *)cam[1]), 0x18) & 0x8000000) == 0)
+        if ((U32(ACT((Unit *)PS2_PTR(cam[1])), 0x18) & 0x8000000) == 0)
             func_001626E0(cam, t, e, 2.5f, 2.5f, 1.0f, dt);
         else
             func_001626E0(cam, t, e, 4.0f, 4.0f, 1.0f, dt);
@@ -750,7 +750,7 @@ void func_00163380(float dt, int *cam)
  * actions that keep their direction; the height offset eases back to 0. */
 void func_001635F0(float dt, int *cam)
 {
-    Unit *u = (Unit *)cam[1];
+    Unit *u = (Unit *)PS2_PTR(cam[1]);
     float t[4], e[4], f[4], s, r, close;
     int hit, pulled;
 
@@ -771,7 +771,7 @@ void func_001635F0(float dt, int *cam)
     e[2] = f[2] * s + t[2] + 0.0f;
     e[3] = 1.0f;
     hit = func_00162C30(cam, e, t, &close, 0);
-    pulled = func_00161790(close, (Unit *)cam[1], cam, e, t, 1);
+    pulled = func_00161790(close, (Unit *)PS2_PTR(cam[1]), cam, e, t, 1);
     if (hit == 0 && pulled == 0)
         func_001626E0(cam, t, e, 2.5f, 2.5f, 0.5f, dt);
     else
@@ -785,8 +785,8 @@ void func_001635F0(float dt, int *cam)
  * under the ceiling when it stays in the target's area. */
 void func_001637B0(float dt, int *cam)
 {
-    u8 *obj = (u8 *)cam[0];
-    u8 *act = ACT((Unit *)cam[1]);
+    u8 *obj = (u8 *)PS2_PTR(cam[0]);
+    u8 *act = ACT((Unit *)PS2_PTR(cam[1]));
     float old[4], q[4];
     Ray r;
     int k;
@@ -809,7 +809,7 @@ void func_001637B0(float dt, int *cam)
     }
     F32(obj, 0x224) = (g_00669F60 & 2) == 0 ? 0.2617994f : 0.17453294f;
     F32(obj, 0x220) = 0.0f;
-    cam[7] = (int)act;
+    cam[7] = (int)PS2_ADDR(act);
     if (BIT(cam, 0x3C, 1) && (U32(act, 0x18) & 0x20) == 0)
         BIT(cam, 0x3C, 1) = 0;
     r.from = old;
@@ -867,7 +867,7 @@ void func_0029EC70(float dt, int *cam);
  * eased at 0.25; the eye kept in front of the scenery. */
 void func_00163A20(float dt, int *cam)
 {
-    u8 *u = (u8 *)cam[1], *obj = (u8 *)cam[0];
+    u8 *u = (u8 *)PS2_PTR(cam[1]), *obj = (u8 *)PS2_PTR(cam[0]);
     float t[4], d[4], e[4], h, len;
     Ray r;
     int k;
@@ -898,7 +898,7 @@ void func_00163A20(float dt, int *cam)
  * nearer the eye (the other one if the scenery is in the way), at least 50 above the ground. */
 void func_00163BA0(float dt, int *cam)
 {
-    u8 *obj = (u8 *)cam[0], *a = (u8 *)cam[1], *b = (u8 *)cam[0xB];
+    u8 *obj = (u8 *)PS2_PTR(cam[0]), *a = (u8 *)PS2_PTR(cam[1]), *b = (u8 *)PS2_PTR(cam[0xB]);
     float half[4], mid[4], side[4], p[4], q[4], e[4], da, db, l, h;
     Ray r;
     int k;
@@ -949,7 +949,7 @@ void func_00163BA0(float dt, int *cam)
  * last frame. The unit (and +0x270) gets flag 8 at +0x199 meanwhile. */
 void func_00163F00(float dt, int *cam)
 {
-    u8 *obj = (u8 *)cam[0];
+    u8 *obj = (u8 *)PS2_PTR(cam[0]);
     float t0[4], e0[4], m[4][4], o[8], v[4], h;
     int k, cut = 0;
     Ray r;
@@ -958,7 +958,7 @@ void func_00163F00(float dt, int *cam)
         t0[k] = F32(obj, 0x1D0 + k * 4);
         e0[k] = F32(obj, 0x1C0 + k * 4);
     }
-    func_001479D0(*(float *)&cam[0xC], (MotionState *)cam[0xA], o);
+    func_001479D0(*(float *)&cam[0xC], (MotionState *)PS2_PTR(cam[0xA]), o);
     CAM_MATRIX(m, &cam[0x28], &cam[0x24]);
     v[0] = o[0];
     v[1] = o[1];
@@ -981,7 +981,7 @@ void func_00163F00(float dt, int *cam)
     if (h < F32(obj, 0x1C4))
         F32(obj, 0x1C4) = h;
     if (cam[1] != 0) {
-        u8 *u = (u8 *)cam[1];
+        u8 *u = (u8 *)PS2_PTR(cam[1]);
         int pass;
 
         for (pass = 0; pass < 2; pass++) {
@@ -1006,7 +1006,7 @@ void func_00163F00(float dt, int *cam)
             BIT(PTR(u, 0x270), 0x199, 3) = 1;
     }
     *(float *)&cam[0xC] = *(float *)&cam[0xC] + dt;
-    if (cut || (float)(S32(*(u8 **)cam[0xA], 8) - 1) < *(float *)&cam[0xC]) {
+    if (cut || (float)(S32(*(u8 **)PS2_PTR(cam[0xA]), 8) - 1) < *(float *)&cam[0xC]) {
         cam[0xA] = 0;
         cam[0xC] = 0;
     }
@@ -1018,7 +1018,7 @@ void func_00163F00(float dt, int *cam)
  * as in the original). The first float argument is not used. */
 void func_00164270(float unused, float dt, int *cam)
 {
-    u8 *obj = (u8 *)cam[0];
+    u8 *obj = (u8 *)PS2_PTR(cam[0]);
     float t[4], d[4];
     int k;
 
@@ -1063,14 +1063,14 @@ void func_00164440(float step, float dt, int *cam)
 {
     int k;
 
-#define CAM_OBJ ((u8 *)cam[0])
+#define CAM_OBJ ((u8 *)PS2_PTR(cam[0]))
     if (cam[0x10] != 0) {
         for (k = 0; k < 4; k++) {
             F32(CAM_OBJ, 0x1C0 + k * 4) = F32(CAM_OBJ, 0x1C0 + k * 4) - F32(cam, 0x60 + k * 4);
             F32(CAM_OBJ, 0x1D0 + k * 4) = F32(CAM_OBJ, 0x1D0 + k * 4) - F32(cam, 0x80 + k * 4);
         }
     }
-    if (func_0016C070((Unit *)cam[1]) != 0) {
+    if (func_0016C070((Unit *)PS2_PTR(cam[1])) != 0) {
         g_0045D2A8 = 0;
         func_00254030();
         func_00163A20(dt, cam);

@@ -32,7 +32,8 @@ typedef signed char s8;
 float fabsf(float x);
 float sqrtf(float x);
 
-#define g_70000158 (*(u32 **)PS2_PTR(0x70000158))         /* the DMA chain's write cursor */
+#define g_70000158 PS2_GETP(u32 *, 0x70000158)         /* the DMA chain's write cursor */
+#define g_70000158_SET(v) PS2_SETP(0x70000158, v)
 
 /* A motion being played (camera). */
 /* A flag byte: the original tests its bits as signed one-bit fields (LSB first). */
@@ -146,7 +147,7 @@ void func_001477E0(u32 *motion, u32 *out)
     float pos[3];
     u32 i;
 
-    out[0] = (u32)motion;
+    out[0] = (u32)PS2_ADDR(motion);
     for (i = 0; i < motion[1]; i++) {
         u32 w = *(const u32 *)p++;
         u32 size = w >> 13 & 7;
@@ -181,7 +182,7 @@ void func_001477E0(u32 *motion, u32 *out)
 /* 0x00147980, 0x34 bytes, matching. Frees a camera motion. */
 void func_00147980(u32 *state)
 {
-    func_00102EC0((void *)state[0]);
+    func_00102EC0((void *)PS2_PTR(state[0]));
     state[0] = 0;
     func_001477C0(state);
 }
@@ -350,7 +351,7 @@ u64 func_00147D30(u32 *file, Tm3 *t, u32 tbp, u32 cbp)
 /* 0x00147F40, 0x30 bytes, matching. Frees a tm3 texture's file. */
 void func_00147F40(u32 *t)
 {
-    func_00102EC0((void *)t[0]);
+    func_00102EC0((void *)PS2_PTR(t[0]));
     func_00147D20(t);
 }
 
@@ -363,7 +364,7 @@ static inline void send_ref(u32 qwc, u32 addr)
     d[1] = addr;
     d[2] = 0;
     d[3] = 0;
-    g_70000158 = d + 4;
+    g_70000158_SET(d + 4);
 }
 
 /* Writes a TEXFLUSH into the chain. */
@@ -383,22 +384,22 @@ static inline void send_texflush(void)
     d[9] = 0;
     d[10] = 0x3F;
     d[11] = 0;
-    g_70000158 = d + 12;
+    g_70000158_SET(d + 12);
 }
 
 /* 0x00147F70, 0xFC bytes. Sends palette `frame` and the pixels of a tm3 texture, then a
  * TEXFLUSH. */
 void func_00147F70(Tm3 *t, int frame)
 {
-    send_ref(t->palette_qwc[0], (u32)t->palette[frame]);
-    send_ref(t->qwc, (u32)t->data);
+    send_ref(t->palette_qwc[0], (u32)PS2_ADDR(t->palette[frame]));
+    send_ref(t->qwc, (u32)PS2_ADDR(t->data));
     send_texflush();
 }
 
 /* 0x00148070, 0xC0 bytes. Sends palette `frame` only, then a TEXFLUSH. */
 void func_00148070(Tm3 *t, int frame)
 {
-    send_ref(t->palette_qwc[0], (u32)t->palette[frame]);
+    send_ref(t->palette_qwc[0], (u32)PS2_ADDR(t->palette[frame]));
     send_texflush();
 }
 
@@ -417,9 +418,9 @@ void func_00148150(Model *m)
     ModelPart *part;
     u32 i, n;
 
-    f[1] += (u32)f;
-    list = (u32 *)(f[2] + (u32)f);
-    f[2] = (u32)list;
+    f[1] += (u32)PS2_ADDR(f);
+    list = (u32 *)PS2_PTR((f[2] + (u32)PS2_ADDR(f)));
+    f[2] = (u32)PS2_ADDR(list);
     m->count = list[0];
     part = (ModelPart *)(func_00102DB0(0x10, list[0] << 4));
     m->parts = part;
@@ -519,7 +520,7 @@ void func_00148460(Model *m)
 
     for (i = 0; i < m->count; i++, part++) {
         if (part->qwc != 0)
-            send_ref(part->qwc, (u32)part->data);
+            send_ref(part->qwc, (u32)PS2_ADDR(part->data));
     }
 }
 
@@ -531,8 +532,8 @@ void func_001484E0(Model *m)
 
     for (i = 0; i < m->count; i++, part++) {
         if (part->qwc != 0) {
-            send_ref(2, (u32)part->header);
-            send_ref(part->qwc, (u32)part->data);
+            send_ref(2, (u32)PS2_ADDR(part->header));
+            send_ref(part->qwc, (u32)PS2_ADDR(part->data));
         }
     }
 }
@@ -1546,7 +1547,7 @@ static inline void dma_put(u32 a, u32 b, u32 c, u32 d)
     p[1] = b;
     p[2] = c;
     p[3] = d;
-    g_70000158 = p + 4;
+    g_70000158_SET(p + 4);
 }
 
 /* Copies `n` words into the chain. */
@@ -1558,7 +1559,7 @@ static inline void dma_copy(const void *from, int n)
 
     for (i = 0; i < n; i++)
         p[i] = s[i];
-    g_70000158 = p + n;
+    g_70000158_SET(p + n);
 }
 
 /* Starts an object's VU1 data for this frame: its packet (alpha, texture, node count) and its
@@ -1587,8 +1588,8 @@ static inline void actor_begin(Actor *a, Model *m, u32 alpha)
         head = buf + 0x407;
     }
     *head = at | (n & 0xFF) << 16 | 0x6C000000;
-    dma_put(0x3000000D, (u32)packet, 0, 0);
-    dma_put(qwc | 0x30000000, (u32)a->matrices[frame], 0, 0);
+    dma_put(0x3000000D, (u32)PS2_ADDR(packet), 0, 0);
+    dma_put(qwc | 0x30000000, (u32)PS2_ADDR(a->matrices[frame]), 0, 0);
 }
 
 /* 0x0014F0C0, 0x1C bytes, matching. Draws an object, opaque. */
@@ -1663,7 +1664,7 @@ void func_0014F4B0(Actor *a, const float *light, const float *normal, const floa
     p[1] = colour[1];
     p[2] = colour[2];
     p[3] = colour[3];
-    g_70000158 = p + 4;
+    g_70000158_SET(p + 4);
     if (m->flag2e == 0) {
         dma_put(0x10000000, 0, 0, 0x14000000);
     } else {
@@ -1692,7 +1693,7 @@ void func_0014F8B0(u32 *o, Model *m)
 {
     int i;
 
-    o[0x58] = (u32)m;
+    o[0x58] = (u32)PS2_ADDR(m);
     ((u8 *)o)[0x164] = 0x80;
     for (i = 0; i < 2; i++, o += 0x24) {
         o[0] = 0x11000000;
@@ -1737,7 +1738,7 @@ static inline void simple_begin(u8 *o)
         for (i = 0; i < 16; i++)
             ((u32 *)(p + 0x50))[i] = ((u32 *)(o + 0x120))[i];
     }
-    dma_put(0x30000009, (u32)p, 0, 0);
+    dma_put(0x30000009, (u32)PS2_ADDR(p), 0, 0);
 }
 
 /* 0x0014F970, 0xD8 bytes. Draws a simple object. */
@@ -1790,7 +1791,7 @@ extern u8 g_0041FD00[], g_0041EC00[], g_00420E00[];   /* VU1 microprograms (MPG 
  * (the camera's +0x210 scaled by 65525), its position (+0x1C0) and its matrix (+0x100). */
 void func_0014FCB0(u8 *cam)
 {
-    dma_put(0x30000004, (u32)g_00406340, 0x13000000, 0);
+    dma_put(0x30000004, (u32)PS2_ADDR(g_00406340), 0x13000000, 0);
     g_0056CCD0.d = *(float *)(cam + 0x210);
     g_0056CCD0.d = g_0056CCD0.d * 65525.0f;
     dma_put(0x10000001, 0, 0, 0x6C010000);
@@ -1803,14 +1804,14 @@ void func_0014FCB0(u8 *cam)
 /* 0x0014FE00, 0xA8 bytes. Loads the VU1 microprogram at 0x0041FD00 and starts it. */
 void func_0014FE00(void)
 {
-    dma_put(0x3000010F, (u32)g_0041FD00, 0x0300023C, 0x0200008B);
+    dma_put(0x3000010F, (u32)PS2_ADDR(g_0041FD00), 0x0300023C, 0x0200008B);
     dma_put(0x10000000, 0, 0, 0x1500000C);
 }
 
 /* 0x0014FEB0, 0xA8 bytes. Loads the VU1 microprogram at 0x0041EC00 and starts it. */
 void func_0014FEB0(void)
 {
-    dma_put(0x30000106, (u32)g_0041EC00, 0x0300023C, 0x0200008B);
+    dma_put(0x30000106, (u32)PS2_ADDR(g_0041EC00), 0x0300023C, 0x0200008B);
     dma_put(0x10000000, 0, 0, 0x1500000C);
 }
 
@@ -1822,7 +1823,7 @@ void func_0014FF60(u8 *cam)
     dma_copy(cam + 0xC0, 16);
     dma_put(0x10000004, 0, 0, 0x6C040007);
     dma_copy(cam + 0x80, 16);
-    dma_put(0x30000111, (u32)g_00420E00, 0x0300023C, 0x0200008B);
+    dma_put(0x30000111, (u32)PS2_ADDR(g_00420E00), 0x0300023C, 0x0200008B);
     dma_put(0x10000000, 0, 0, 0x1500000C);
 }
 
@@ -1843,7 +1844,7 @@ static inline void gs_test_alpha_zbuf(u64 test)
     q[5] = 0x42;
     q[6] = (u64)func_00100FE0() | 0x3A000000;
     q[7] = 0x4E;
-    g_70000158 = (u32 *)(q + 8);
+    g_70000158_SET((u32 *)(q + 8));
 }
 
 /* 0x001500E0, 0xD8 bytes. The depth and alpha tests, the alpha reference being `ref`. */

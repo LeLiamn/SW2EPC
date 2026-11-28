@@ -152,19 +152,19 @@ int func_003EA660(int a, int b, int *list, int n)
 /* 0x003EA820, 0x28 bytes, matching. */
 void func_003EA820(int s, int k, int f, int lv)
 {
-    func_003EA430(s, k, f, lv, (int)func_003EA660, 0, 0);
+    func_003EA430(s, k, f, lv, (int)PS2_CODE(func_003EA660), 0, 0);
 }
 
 /* 0x003EA850, 0x2C bytes, matching. */
 void func_003EA850(int s, int k, int f, int lv, int a, int b)
 {
-    func_003EA430(s, k, f, lv, (int)func_003EA660, a, b);
+    func_003EA430(s, k, f, lv, (int)PS2_CODE(func_003EA660), a, b);
 }
 
 /* 0x003EA880, 0x2C bytes, matching. */
 void func_003EA880(int s, int k, int *l, int n, int lv, int a, int b)
 {
-    func_003EA470(s, k, (unsigned int *)(l), n, lv, (int)func_003EA660, a, b);
+    func_003EA470(s, k, (unsigned int *)(l), n, lv, (int)PS2_CODE(func_003EA660), a, b);
 }
 
 /* 0x003EA8B0, 0x16C bytes. The same order without the free officers rule. */
@@ -188,7 +188,7 @@ int func_003EA8B0(int a, int b, int *list, int n)
 /* 0x003EAA20, 0x2C bytes, matching. */
 void func_003EAA20(int s, int k, int f, int lv, int *a, int b)
 {
-    func_003EA430(s, k, f, lv, (int)func_003EA8B0, (int)a, b);
+    func_003EA430(s, k, f, lv, (int)PS2_CODE(func_003EA8B0), (int)PS2_ADDR(a), b);
 }
 
 /* 0x003EAA50, 0x110 bytes. Sets up special battle `k` (its stage and weather?). */
@@ -734,7 +734,15 @@ extern int g_007BFB60[0x1E], g_007BFBE0[0x1E][4];
 extern float g_007BFDC8;
 extern u8 g_007BFDCC, g_007BFDCD;
 extern short g_007BFDC0[2];
+#ifdef SW2E_PC
+extern ps2ptr g_007BFDD0_a;
+#define g_007BFDD0 ((u8 *)PS2_PTR(g_007BFDD0_a))
+#define g_007BFDD0_SET(v) (g_007BFDD0_a = PS2_ADDR(v))
+#else
 extern u8 *g_007BFDD0;
+#define g_007BFDD0_a (*(ps2ptr *)&g_007BFDD0)
+#define g_007BFDD0_SET(v) (g_007BFDD0 = (v))
+#endif
 
 /* 0x003EDC00, 0x68 bytes. */
 void func_003EDC00(void)
@@ -789,10 +797,10 @@ int func_003EEF60(void)
 {
     int *m = func_002FC2C0();
 
-    if (*(int *)m[0x1AB] != 0) {
+    if (*(int *)PS2_PTR(m[0x1AB]) != 0) {
         int r;
 
-        g_007BFDD0 = func_002EE550();
+        g_007BFDD0_SET(func_002EE550());
         r = func_001AE550(g_007BFDC8, g_007BFDD0, g_007BFDC0, &g_007BFDCC, 0);
         g_007BFDCD = (g_007BFDCD & 0xFE) | (r & 1);
         if ((r & 1) != 0) {

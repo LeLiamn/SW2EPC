@@ -1431,6 +1431,12 @@ void func_00392A10(void);
 #endif
 
 #ifndef SW2E_FILE_EMP_CQ_MAIN_C
+#ifndef SW2E_OWN_PROTO_func_0030CCB0
+unsigned char *func_0030CCB0(void);
+#endif
+#ifndef SW2E_OWN_PROTO_func_0030CCC0
+unsigned char *func_0030CCC0(void);
+#endif
 unsigned char *func_0030CCD0(void);
 void func_0030CCE0(void);
 void func_0030CD60(void);
@@ -4544,6 +4550,7 @@ void func_002789C0(void);
 void func_0027A040(void);
 void func_0029CB20(int, int, unsigned char *);
 int func_002A5C40(int);
+void func_002A6470(void);
 int func_002A6550(int, int, int);
 int func_002A7F20(int, unsigned char *);
 int func_002C1830(int, int, int);
@@ -4724,6 +4731,8 @@ void func_0017DDE0(void);
 void func_0017DE70(int);
 int func_0017DEA0(int);
 void func_0017E010(int);
+void func_0017E0C0(unsigned char, int);
+void func_0017E130(void);
 void func_0017E140(unsigned int *);
 #endif
 
@@ -6263,6 +6272,7 @@ void func_0027F2C0(void);
 void func_0027F430(void);
 void func_0027F460(void);
 void func_0027F5D0(void);
+void func_0027F6D0(unsigned int *);
 #endif
 
 #ifndef SW2E_FILE_OBJ_EFFECTS_C
@@ -7802,7 +7812,7 @@ void func_0020BDE0(unsigned char *, unsigned char *, unsigned char *);
 #ifndef SW2E_FILE_SYSTEM_C
 void func_00100410(void);
 void func_001004B0(void);
-void func_00100870(unsigned int, unsigned int, int);
+void func_00100870(void *, const char *, int);
 void func_001008C0(void);
 void func_00100980(void);
 int func_00100A30(int);
@@ -8201,7 +8211,7 @@ unsigned char *func_002C3DC0(unsigned char);
 unsigned char func_002C4220(int, unsigned char *);
 unsigned char *func_002C44F0(void);
 void func_002C4500(void);
-void func_002C4530(unsigned char ***);
+void func_002C4530(unsigned int *);
 void func_002C4570(void);
 void func_002C45C0(void);
 void func_002C4600(const void *);

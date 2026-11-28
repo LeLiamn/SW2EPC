@@ -252,8 +252,24 @@ void func_00193AA0(void)
 }
 
 extern u32 g_00669DC0[2];                /* (settings) +0: the scenario */
-extern u8 *g_005BA694;                   /* the scenario table's entries (100 bytes each) */
-extern u8 *g_0045D2F4;                   /* (small data) the stage table file (+4: its data) */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA694_a;                   /* the scenario table's entries (100 bytes each) */
+#define g_005BA694 ((u8 *)PS2_PTR(g_005BA694_a))
+#define g_005BA694_SET(v) (g_005BA694_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA694;
+#define g_005BA694_a (*(ps2ptr *)&g_005BA694)
+#define g_005BA694_SET(v) (g_005BA694 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2F4_a;                   /* (small data) the stage table file (+4: its data) */
+#define g_0045D2F4 ((u8 *)PS2_PTR(g_0045D2F4_a))
+#define g_0045D2F4_SET(v) (g_0045D2F4_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2F4;
+#define g_0045D2F4_a (*(ps2ptr *)&g_0045D2F4)
+#define g_0045D2F4_SET(v) (g_0045D2F4 = (v))
+#endif
 extern int g_00669F6C[4];                /* (settings) +0: the game mode (1: ?) */
 extern const char g_004253D0[];          /* "Stage.c" */
 
@@ -349,14 +365,14 @@ void func_00194010(void)
     func_00193B90();
     p = (u32 *)SPP(0x880);
     for (k = 0; k < p[0]; k++)
-        p[1 + k] = p[1 + k] + (u32)p;
+        p[1 + k] = p[1 + k] + (u32)PS2_ADDR(p);
     a = p[2];
     b = p[3];
     c = p[4];
     d = p[1];
     func_001F4DC0();
-    func_00193D40(func_00196540((u8 *)d));
-    func_001966C0((u8 *)a, (u8 *)b, c);
+    func_00193D40(func_00196540((u8 *)PS2_PTR(d)));
+    func_001966C0((u8 *)PS2_PTR(a), (u8 *)PS2_PTR(b), c);
     func_00197470(SPP(0x884));
     func_00196980();
     if (g_00669F6C[0] == 1)
@@ -369,7 +385,7 @@ void func_00194100(void)
 {
     if (g_0045D2F4 != 0) {
         func_00102EC0(g_0045D2F4);
-        g_0045D2F4 = 0;
+        g_0045D2F4_SET(0);
     }
 }
 
@@ -379,7 +395,7 @@ void func_00194100(void)
 #define GRID_W (*(u8 *)SPAD(0x840))
 #define GRID_H (*(u8 *)SPAD(0x841))
 
-void func_0027F6D0(u32 a);
+
 
 /* 0x00194130, 0x84 bytes. Loads the stage table (LINKDATA entry 0x34), its offsets made into
  * addresses. */
@@ -387,10 +403,10 @@ void func_00194130(void)
 {
     u32 *t = func_001026D0(1, 0x34, 0, 1, 0, 0, g_004253D0, 0x591), k;
 
-    g_0045D2F4 = (u8 *)t;
+    g_0045D2F4_SET((u8 *)t);
     for (k = 0; k < t[0]; k++)
-        t[1 + k] = t[1 + k] + (u32)t;
-    func_0027F6D0(t[2]);
+        t[1 + k] = t[1 + k] + (u32)PS2_ADDR(t);
+    func_0027F6D0((u32 *)PS2_PTR(t[2]));
 }
 
 /* 0x001941C0, 0xA0 bytes, matching. The terrain kind of ground type `t` (0x15-0x26; others are kept). */
@@ -803,18 +819,66 @@ int func_00195E30(int k, int alt)
  * +0x30 two banks of 10 light matrices (0x280 bytes each) and +0x530 their colour matrices; +0xA30
  * four slots; +0xAD0 per bank the squared draw distances (3); +0xAE8 / +0xAEC the object followed. */
 extern u32 g_005D25E0;
+#ifdef SW2E_PC
+extern ps2ptr g_005D25E4_a;
+#define g_005D25E4 ((u16 *)PS2_PTR(g_005D25E4_a))
+#define g_005D25E4_SET(v) (g_005D25E4_a = PS2_ADDR(v))
+#else
 extern u16 *g_005D25E4;
+#define g_005D25E4_a (*(ps2ptr *)&g_005D25E4)
+#define g_005D25E4_SET(v) (g_005D25E4 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005D25E8_a;
+#define g_005D25E8 ((u8 *)PS2_PTR(g_005D25E8_a))
+#define g_005D25E8_SET(v) (g_005D25E8_a = PS2_ADDR(v))
+#else
 extern u8 *g_005D25E8;
+#define g_005D25E8_a (*(ps2ptr *)&g_005D25E8)
+#define g_005D25E8_SET(v) (g_005D25E8 = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005D25EC_a;
+#define g_005D25EC ((u32 *)PS2_PTR(g_005D25EC_a))
+#define g_005D25EC_SET(v) (g_005D25EC_a = PS2_ADDR(v))
+#else
 extern u32 *g_005D25EC;
+#define g_005D25EC_a (*(ps2ptr *)&g_005D25EC)
+#define g_005D25EC_SET(v) (g_005D25EC = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_005D25F0_a;
+#define g_005D25F0 ((u8 *)PS2_PTR(g_005D25F0_a))
+#define g_005D25F0_SET(v) (g_005D25F0_a = PS2_ADDR(v))
+#else
 extern u8 *g_005D25F0;
+#define g_005D25F0_a (*(ps2ptr *)&g_005D25F0)
+#define g_005D25F0_SET(v) (g_005D25F0 = (v))
+#endif
 extern u32 g_005D25F8, g_005D25FC, g_005D2600, g_005D2604, g_005D2608, g_005D260C;
 extern u8 g_005D2610[2][0x280];          /* the light matrices per bank */
 extern u8 g_005D2B10[2][0x280];          /* the colour matrices per bank */
 extern u32 g_005D3010[4];
 extern float g_005D30B0[2][3];
 extern u32 g_005D30C8;
+#ifdef SW2E_PC
+extern ps2ptr g_005D30CC_a;
+#define g_005D30CC ((u8 *)PS2_PTR(g_005D30CC_a))
+#define g_005D30CC_SET(v) (g_005D30CC_a = PS2_ADDR(v))
+#else
 extern u8 *g_005D30CC;
-extern u8 *g_0045D460;                   /* (small data) the light set */
+#define g_005D30CC_a (*(ps2ptr *)&g_005D30CC)
+#define g_005D30CC_SET(v) (g_005D30CC = (v))
+#endif
+#ifdef SW2E_PC
+extern ps2ptr g_0045D460_a;                   /* (small data) the light set */
+#define g_0045D460 ((u8 *)PS2_PTR(g_0045D460_a))
+#define g_0045D460_SET(v) (g_0045D460_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D460;
+#define g_0045D460_a (*(ps2ptr *)&g_0045D460)
+#define g_0045D460_SET(v) (g_0045D460 = (v))
+#endif
 
 void func_00195DC0(u8 *p, u32 n);
 void func_001F6CA0(u8 a, u16 id, u8 *p, u32 w);
@@ -869,7 +933,7 @@ static inline void open_list(u8 *l)
     for (k = 0; k < *(u32 *)(l + 0x38); k++, e += 4) {
         u8 *o = l + e[0] * 0x10;
 
-        e[0] = (u32)o;
+        e[0] = (u32)PS2_ADDR(o);
         if ((*(u32 *)(o + 8) & 0x38000) == 0x18000)
             *(u32 *)(o + 0x10) = 1;
     }
@@ -1103,7 +1167,7 @@ void func_00196E10(u32 x)
     for (k = 0; k < n; k++, m += 0x70) {
         if (m[0x68] > 0xC) {
             g_005D30C8 = x;
-            g_005D30CC = m;
+            g_005D30CC_SET(m);
         }
     }
 }
@@ -1112,7 +1176,7 @@ void func_00196E10(u32 x)
 void func_00196E80(void)
 {
     g_005D30C8 = 0;
-    g_005D30CC = 0;
+    g_005D30CC_SET(0);
 }
 
 extern u8 *g_005D3020[4];                /* four stage parts drawn */
@@ -1145,7 +1209,7 @@ void func_00196EA0(void)
         return;
     }
     for (k = 0; k < 4; k++) {
-        u8 *m = (u8 *)g_005D3010[k];
+        u8 *m = (u8 *)PS2_PTR(g_005D3010[k]);
 
         if (m == 0)
             continue;
@@ -1253,12 +1317,12 @@ void func_00197300(u32 *f)
 
     func_00118850((unsigned char *)(&g_005D25E0), 0xAF0);
     for (k = 0; k < f[0]; k++)
-        f[1 + k] = f[1 + k] + (u32)f;
-    g_005D25E0 = *(u32 *)f[1];
-    g_005D25E4 = (u16 *)f[2];
-    g_005D25E8 = (u8 *)f[3];
-    g_005D25EC = (u32 *)f[4];
-    g_005D25F0 = (u8 *)f[5];
+        f[1 + k] = f[1 + k] + (u32)PS2_ADDR(f);
+    g_005D25E0 = *(u32 *)PS2_PTR(f[1]);
+    g_005D25E4_SET((u16 *)PS2_PTR(f[2]));
+    g_005D25E8_SET((u8 *)PS2_PTR(f[3]));
+    g_005D25EC_SET((u32 *)PS2_PTR(f[4]));
+    g_005D25F0_SET((u8 *)PS2_PTR(f[5]));
     g_005D25F4 = g_005D25E0;
     if (g_00669DB8[0] == 2) {
         g_005D25F8 = 40000;
@@ -1291,11 +1355,11 @@ void func_00197470(u8 *file)
     u32 *f = (u32 *)file, k;
 
     for (k = 0; k < f[0]; k++)
-        f[1 + k] = f[1 + k] + (u32)f;
+        f[1 + k] = f[1 + k] + (u32)PS2_ADDR(f);
     func_001FFF10(f[1], f[3]);
     func_00208140((unsigned char *)PS2_PTR(f[2]), (unsigned int *)PS2_PTR(f[4]));
     if (g_00669DB8[0] != 2)
-        func_00197300((u32 *)f[5]);
+        func_00197300((u32 *)PS2_PTR(f[5]));
     func_0027F5D0();
     func_002479C0();
     func_001FF0D0();

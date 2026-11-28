@@ -111,12 +111,12 @@ void func_00143AB0(IpuPicture *p)
     u32 bits;
 
     func_00143FF0();
-    func_00143A40((u32)p->data, p->size);
+    func_00143A40((u32)PS2_ADDR(p->data), p->size);
     bits = func_00143970();
     REG_IPU_CTRL = (bits & ~4) << 16;
     REG_IPU_CMD = ((bits >> 2) & 1) << 24 | 0x10010000 | g_0056CC80.command;
     g_0056CC80.command = 0;
-    func_001439E0((u32)p->pixels[g_70000150], p->tiles);
+    func_001439E0((u32)PS2_ADDR(p->pixels[g_70000150]), p->tiles);
 }
 
 /* 0x00143B50, 0x90 bytes. The handler at the end of a decode: starts the next one, or marks the

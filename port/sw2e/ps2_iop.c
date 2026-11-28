@@ -98,3 +98,100 @@ unsigned char *func_0011B050(int channel)
         return 0;
     return sw2e_hw + (g_dma_base[channel] & 0xFFFF);
 }
+
+/* ---- more of the disc library ---- */
+
+int func_0011A1C8(int mode) { (void)mode; return 2; }     /* sceCdDiskReady: 2 = ready */
+int func_0011A720(void) { return 0x0A; }                  /* sceCdStatus: paused, a disc in */
+int func_0011A7D0(void) { return 0; }                     /* sceCdGetError: none */
+int func_0011A868(void) { return 1; }                     /* sceCdBreak */
+
+/* sceCdReadIOPm(lsn, sectors, buffer, mode): a read into IOP memory, for the sound driver's
+ * streams. There is no IOP memory on the PC: the sound streams will be read by the port's own
+ * mixer, so nothing is read here. */
+int func_0011A5C8(unsigned int lsn, unsigned int sectors, void *buffer, void *mode)
+{
+    (void)lsn; (void)sectors; (void)buffer; (void)mode;
+    return 1;
+}
+
+/* sceDmaSync-like (0x0011B620): transfers end at once */
+void func_0011B620(int chan, int a, int b) { (void)chan; (void)a; (void)b; }
+
+/* ---- files through the C library (open / read / lseek / close on cdrom0:) ----
+ * The game opens files on the disc by path ("cdrom0:\\PATH;1"); they are read through the
+ * platform's disc calls, which take the path without the device. */
+
+#define MAX_FILES 16
+static struct { int used; char path[128]; long long size, pos; } g_files[MAX_FILES];
+
+static const char *disc_path(const char *path)
+{
+    const char *p = strchr(path, ':');
+
+    return p ? p + 1 : path;
+}
+
+/* open(path, mode) */
+int func_0012D168(const char *path, int mode)
+{
+    int i;
+    long long size;
+
+    (void)mode;
+    size = P->disc_file_size(disc_path(path));
+    if (size < 0)
+        return -1;
+    for (i = 0; i < MAX_FILES; i++) {
+        if (!g_files[i].used) {
+            g_files[i].used = 1;
+            strncpy(g_files[i].path, disc_path(path), sizeof(g_files[i].path) - 1);
+            g_files[i].size = size;
+            g_files[i].pos = 0;
+            return i + 3;                   /* 0-2 are the console's */
+        }
+    }
+    return -1;
+}
+
+int func_0012D3F8(int fd)                                 /* close */
+{
+    if (fd < 3 || fd >= MAX_FILES + 3 || !g_files[fd - 3].used)
+        return -1;
+    g_files[fd - 3].used = 0;
+    return 0;
+}
+
+int func_0012D570(int fd, int offset, int whence)         /* lseek: 0 set, 1 current, 2 end */
+{
+    long long base;
+
+    if (fd < 3 || fd >= MAX_FILES + 3 || !g_files[fd - 3].used)
+        return -1;
+    base = whence == 0 ? 0 : whence == 1 ? g_files[fd - 3].pos : g_files[fd - 3].size;
+    g_files[fd - 3].pos = base + offset;
+    return (int)g_files[fd - 3].pos;
+}
+
+int func_0012D7B0(int fd, void *buffer, int size)         /* read */
+{
+    long long n;
+
+    if (fd < 3 || fd >= MAX_FILES + 3 || !g_files[fd - 3].used || size < 0)
+        return -1;
+    n = P->disc_read_file(g_files[fd - 3].path, (unsigned long long)g_files[fd - 3].pos, buffer, (size_t)size);
+    if (n > 0)
+        g_files[fd - 3].pos += n;
+    return (int)n;
+}
+
+/* ---- kernel ---- */
+
+void func_00128060(int a) { (void)a; }                    /* FlushCache */
+int func_001288C0(int cause) { (void)cause; return 0; }   /* EnableIntc */
+void func_00128990(int channel) { (void)channel; }        /* DisableDmac */
+
+/* ---- IPU (movie pictures): to be written with the movie player ---- */
+
+void func_00127670(int a, int b) { (void)a; (void)b; }    /* sceIpuSync */
+void func_00127750(void) {}                               /* sceIpuInit */

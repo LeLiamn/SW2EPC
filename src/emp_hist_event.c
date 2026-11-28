@@ -20,7 +20,15 @@ typedef unsigned int u32;
 
 extern int g_007BFB48[3];                /* the event step, its event, its result */
 extern char g_007B4E60[];                /* a message buffer */
-extern u8 *g_0045D2C0;                   /* (small data) the camera */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D2C0_a;                   /* (small data) the camera */
+#define g_0045D2C0 ((u8 *)PS2_PTR(g_0045D2C0_a))
+#define g_0045D2C0_SET(v) (g_0045D2C0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0045D2C0;
+#define g_0045D2C0_a (*(ps2ptr *)&g_0045D2C0)
+#define g_0045D2C0_SET(v) (g_0045D2C0 = (v))
+#endif
 extern u8 g_005B4BC0[];
 
 void func_001784E0(void);
@@ -53,7 +61,7 @@ int func_003E96E0(void)
 void func_003E8940(void)
 {
     if (func_003E96E0() != 0) {
-        g_0045D2C0 = g_005B4BC0;
+        g_0045D2C0_SET(g_005B4BC0);
         func_001796D0();
     }
 }

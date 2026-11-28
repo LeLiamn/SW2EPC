@@ -316,3 +316,33 @@ Write a dated section in [launcher.md](launcher.md) (or UPP's `docs/runtime.md`)
 - any change to `upp.h` (refresh `port/upp/upp.h` from it).
 
 SW2EPC then links against it, and the next round of work is checked with the real runtime.
+
+## Sony library replacements: first runs on the UPP runtime (2026-11-28)
+
+SW2EPC now replaces the Sony libraries the start-up needs, in `port/sw2e/`, on top of the platform
+calls:
+
+| File | What it replaces | Platform calls used |
+|---|---|---|
+| `ps2_iop.c` | IOP boot and modules, CD (`sceCdSearchFile`, `sceCdRead`...), C library files on `cdrom0:`, DMA channels | `disc_file_lsn`, `disc_file_size`, `disc_read_sectors`, `disc_read_file` |
+| `ps2_kernel.c` | threads, semaphores, interrupt handlers, alarms | `thread_*`, `event_*`, `intr_*` |
+| `ps2_gs.c` | libgraph start-up, vsync, GS / VIF1 packet sends (counted, not drawn) | `vblank_add`, `vsync` |
+| `ps2_pad.c` | libpad | `pad_read`, `pad_rumble` |
+| `ps2_sound.c` | the sound driver's requests (accepted, nothing played) and its command encoders | — |
+| `ps2_mc.c` | libmc: every request finds no card (result -10) until `save_*` exists | — |
+| `ps2_libc.c` | heap, strings, `sprintf`, maths, GCC's software doubles | `log` |
+| `pc_hw.c` | VU0 macro code and libvu0 matrices | — |
+
+With the UPP runtime (`--headless`), the game:
+
+1. loads its boot executable and boots the IOP;
+2. sets up the GS (PAL, interlaced, field) and its vblank handler on `vblank_add`;
+3. starts its disc reader thread (priority 5) through `thread_create`, which signals the main
+   thread with semaphores;
+4. finds the three LINKDATA containers with `disc_file_lsn` and reads their headers;
+5. runs its start-up (game state, sound front, stage tables...) and stops, through `fatal()`, at
+   the first game function that is not decompiled yet. At the time of writing that is
+   `func_00177F80`, the battle units' set-up.
+
+The runtime's threads, events and vblank tick work for this. Nothing new is needed from UPP for
+now. Milestone 2 (pads, audio, saves) becomes useful when the game reaches its title screen.

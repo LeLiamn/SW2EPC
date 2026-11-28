@@ -30,9 +30,25 @@ typedef unsigned long long u64;
 /* A texture coordinate pair (texel centres). */
 #define GS_UV(u, v) ((u64)(long long)((u) << 4 | 8) | (u64)(long long)((v) << 4 | 8) << 16)
 
-extern u8 *g_0068F3D0;                   /* the portraits' buffer */
+#ifdef SW2E_PC
+extern ps2ptr g_0068F3D0_a;                   /* the portraits' buffer */
+#define g_0068F3D0 ((u8 *)PS2_PTR(g_0068F3D0_a))
+#define g_0068F3D0_SET(v) (g_0068F3D0_a = PS2_ADDR(v))
+#else
+extern u8 *g_0068F3D0;
+#define g_0068F3D0_a (*(ps2ptr *)&g_0068F3D0)
+#define g_0068F3D0_SET(v) (g_0068F3D0 = (v))
+#endif
 extern u8 *g_0068F10C[0xB1];             /* the portraits loaded */
-extern u8 *g_005BA6A0;                   /* the officer table (0x2C bytes each; +6 portrait) */
+#ifdef SW2E_PC
+extern ps2ptr g_005BA6A0_a;                   /* the officer table (0x2C bytes each; +6 portrait) */
+#define g_005BA6A0 ((u8 *)PS2_PTR(g_005BA6A0_a))
+#define g_005BA6A0_SET(v) (g_005BA6A0_a = PS2_ADDR(v))
+#else
+extern u8 *g_005BA6A0;
+#define g_005BA6A0_a (*(ps2ptr *)&g_005BA6A0)
+#define g_005BA6A0_SET(v) (g_005BA6A0 = (v))
+#endif
 extern const char g_00425D40[];          /* "cmnparts.c" */
 
 void func_001A9030(void);
@@ -57,7 +73,7 @@ static inline int scale_y(int y)
 /* 0x001A8F00, 0x30 bytes. Takes the portraits' buffer and loads the main portraits. */
 void func_001A8F00(void)
 {
-    g_0068F3D0 = func_00102DB0(0x10, 0x70A40);
+    g_0068F3D0_SET(func_00102DB0(0x10, 0x70A40));
     func_001A9030();
 }
 
@@ -148,7 +164,7 @@ void func_001A9350(void)
 {
     if (g_0068F3D0 != 0) {
         func_00102EC0(g_0068F3D0);
-        g_0068F3D0 = 0;
+        g_0068F3D0_SET(0);
     }
     func_00118850((unsigned char *)(g_0068F10C), 0x2C4);
 }
