@@ -58,7 +58,6 @@ int func_0030D7D0();
 int func_00322C70();
 int func_00322E80();
 int func_00323040();
-int func_00324340();
 int func_0038A010();
 int func_0038A330();
 int func_0038A3D0();

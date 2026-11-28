@@ -15,6 +15,8 @@ typedef unsigned int u32;
 
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_003A3420();
+int func_00397B10();
 
 #include "sw2e_draw.h"
 
@@ -82,7 +84,6 @@ extern int g_0045D7D8;   /* (small data) */
 extern int g_0045D824;   /* (small data) */
 extern u32 g_7000015C;   /* (scratchpad) */
 
-int func_003820C0();
 int func_0011EB80();
 int func_001204B0();
 int func_00120928();
@@ -110,18 +111,15 @@ int func_0038DC40();
 int func_0038E730();
 int func_0038E750();
 int func_0038FB10();
-int func_00397B10();
 int func_00397F40();
 int func_0039A630();
 int func_0039AD50();
-int func_0039C540();
 int func_0039D930();
 int func_0039EFB0();
 int func_0039F920();
 int func_0039F940();
 int func_0039F950();
 int func_0039F9E0();
-int func_003A3420();
 int func_003A34C0();
 int func_003A3F20();
 int func_003A64A0();

@@ -134,8 +134,6 @@ int func_002BC110();
 int func_002C33C0();
 int func_002C7310();
 int func_002CAE90();
-int func_002CC190();
-int func_002CCE60();
 int func_002CD920();
 int func_002D8DA0();
 int func_002DB550();

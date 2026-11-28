@@ -21,6 +21,8 @@ extern u8 g_007BBC80[0x18];
 extern u8 g_007BBE80[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_00397B10();
+int func_002CCE60();
 
 #define true 1
 #define false 0
@@ -69,7 +71,6 @@ int func_002456C0();
 int func_0029A1C0();
 int func_002C5930();
 int func_002C7C00();
-int func_002CCE60();
 int func_002CD5E0();
 int func_0032F420();
 int func_003646A0();
@@ -82,7 +83,6 @@ void *func_0038E750();
 int func_0038E770();
 int func_0038E880();
 int func_0038E8F0();
-int func_00397B10();
 int func_00397F40();
 int func_003D96A0();
 void func_00290390(int param_1, int param_2, int param_3, int param_4);

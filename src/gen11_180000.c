@@ -23,6 +23,7 @@ extern u8 g_007BFB20[0x18];
 extern u8 g_007BFB3C[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_0022A5E0();
 int func_001EE3B0();
 
 #define true 1
@@ -221,12 +222,10 @@ int func_00210ED0();
 int func_00229E50();
 int func_0022A200();
 int func_0022A480();
-int func_0022A5E0();
 int func_00238AE0();
 int func_00246610();
 int func_0024B330();
 int func_00290F90();
-int func_002911C0();
 void func_0029D9F0(float, float, float, float, u8 *, u8 *, u8 *, u8 *);
 int func_002B20A0();
 int func_002B29B0();
@@ -262,8 +261,6 @@ int func_003AEF30();
 int func_003B4180();
 int func_003B4EC0();
 int func_00207830(u8 *param_1);
-void func_0039F590(void);
-void func_003E7C10(void);
 
 /* 0x001820F0, 0x244 bytes. */
 int func_001820F0(int *param_1)
