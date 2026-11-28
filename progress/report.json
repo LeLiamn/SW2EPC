@@ -2,8 +2,8 @@
   "unit": "bytes",
   "code": {
     "total": 3166376,
-    "matching": 204048,
-    "non_matching": 1673968
+    "matching": 204128,
+    "non_matching": 1683104
   },
   "data": {
     "total": 2155890688,
@@ -11,7 +11,7 @@
   },
   "functions": {
     "total": 10632,
-    "matching": 2533
+    "matching": 2534
   },
   "layout": "treemap",
   "areas": [
@@ -189,14 +189,14 @@
         },
         {
           "name": "SceneTitle.c",
-          "description": "Estimated range 0x268448-0x27BF40; 96 function(s) decompiled",
+          "description": "Estimated range 0x268448-0x27BF40; 99 function(s) decompiled",
           "code": {
             "total": 80632,
             "matching": 608,
-            "non_matching": 20336
+            "non_matching": 21600
           },
           "decompiled_functions": {
-            "count": 96,
+            "count": 99,
             "matching": 11
           }
         },
@@ -659,15 +659,15 @@
         },
         {
           "name": "MotionManager.c",
-          "description": "Estimated range 0x1748E8-0x1814A8; 31 function(s) decompiled",
+          "description": "Estimated range 0x1748E8-0x1814A8; 42 function(s) decompiled",
           "code": {
             "total": 52160,
-            "matching": 1136,
-            "non_matching": 4628
+            "matching": 1216,
+            "non_matching": 5956
           },
           "decompiled_functions": {
-            "count": 31,
-            "matching": 9
+            "count": 42,
+            "matching": 10
           }
         },
         {
@@ -716,40 +716,40 @@
       "children": [
         {
           "name": "ev_main.c",
-          "description": "Estimated range 0x1D6F88-0x1DA818; 40 function(s) decompiled",
+          "description": "Estimated range 0x1D6F88-0x1DA818; 43 function(s) decompiled",
           "code": {
             "total": 14480,
             "matching": 1072,
-            "non_matching": 7408
+            "non_matching": 7824
           },
           "decompiled_functions": {
-            "count": 40,
+            "count": 43,
             "matching": 15
           }
         },
         {
           "name": "ev_config.c",
-          "description": "Estimated range 0x201B40-0x20F408; 133 function(s) decompiled",
+          "description": "Estimated range 0x201B40-0x20F408; 134 function(s) decompiled",
           "code": {
             "total": 55496,
             "matching": 2496,
-            "non_matching": 20600
+            "non_matching": 20984
           },
           "decompiled_functions": {
-            "count": 133,
+            "count": 134,
             "matching": 37
           }
         },
         {
           "name": "ev_message.c",
-          "description": "Estimated range 0x1DA818-0x1E10A0; 45 function(s) decompiled",
+          "description": "Estimated range 0x1DA818-0x1E10A0; 56 function(s) decompiled",
           "code": {
             "total": 26760,
             "matching": 1072,
-            "non_matching": 8308
+            "non_matching": 11844
           },
           "decompiled_functions": {
-            "count": 45,
+            "count": 56,
             "matching": 17
           }
         },
@@ -768,14 +768,14 @@
         },
         {
           "name": "sc_sysmsg.c",
-          "description": "Estimated range 0x23CED8-0x245518; 53 function(s) decompiled",
+          "description": "Estimated range 0x23CED8-0x245518; 54 function(s) decompiled",
           "code": {
             "total": 34368,
             "matching": 288,
-            "non_matching": 16704
+            "non_matching": 18592
           },
           "decompiled_functions": {
-            "count": 53,
+            "count": 54,
             "matching": 5
           }
         },
@@ -820,14 +820,14 @@
         },
         {
           "name": "BriefingCmnParts.c",
-          "description": "Estimated range 0x2C1EA8-0x2DE550; 159 function(s) decompiled",
+          "description": "Estimated range 0x2C1EA8-0x2DE550; 160 function(s) decompiled",
           "code": {
             "total": 116392,
             "matching": 2384,
-            "non_matching": 36800
+            "non_matching": 36864
           },
           "decompiled_functions": {
-            "count": 159,
+            "count": 160,
             "matching": 34
           }
         }
@@ -903,14 +903,14 @@
         },
         {
           "name": "SecretSorts.c",
-          "description": "Estimated range 0x24FF58-0x268448; 109 function(s) decompiled",
+          "description": "Estimated range 0x24FF58-0x268448; 110 function(s) decompiled",
           "code": {
             "total": 99568,
             "matching": 1648,
-            "non_matching": 23008
+            "non_matching": 23264
           },
           "decompiled_functions": {
-            "count": 109,
+            "count": 110,
             "matching": 28
           }
         }
