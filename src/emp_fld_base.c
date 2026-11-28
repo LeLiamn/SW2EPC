@@ -372,7 +372,7 @@ extern void (*g_004154E0[4])(u8 *g);     /* by side state: what its groups do */
 extern u8 g_00669F60;                    /* settings flags */
 extern int g_00669F9C, g_00669FA0;
 extern int g_006AA624;
-#define g_7000015C (*(u32 *)0x7000015C)   /* (scratchpad) the random seed */
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))   /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
 int func_0034ED40(u8 *u);

@@ -62,7 +62,7 @@ static inline int box1_open(void)
 }
 
 /* 0x7000015C: random seed in the scratchpad (see main.c). */
-#define g_7000015C (*(u32 *)0x7000015C)
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))
 /* Next value of the game's random generator (0..65535), inlined in the original. */
 #define random16() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, (g_7000015C >> 16) & 0xFFFF)
 

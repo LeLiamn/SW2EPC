@@ -342,7 +342,7 @@ void func_00183670(int param_1)
     int * piVar6;
 
     func_001F0960((float *)((u32 *)PS2_PTR(param_1)), (float *)(&iStack_4), (float *)(&iStack_8));
-    piVar6 = (int *)0x73DA30;
+    piVar6 = (int *)PS2_PTR(0x73DA30);
     piVar4 = (int *)0;
     iVar2 = 200;
     iVar3 = 0;
@@ -377,7 +377,7 @@ void func_00183670(int param_1)
             }
         }
     }
-    piVar6 = (int *)0x73DCC0;
+    piVar6 = (int *)PS2_PTR(0x73DCC0);
     piVar4 = (int *)0;
     iVar2 = 200;
     if ((*(u32 *)g_00669F60 & 2) != 0) {
@@ -934,7 +934,7 @@ void func_001EA090(void)
 
     bVar2 = false;
     iVar9 = 0;
-    piVar6 = (int *)0x731390;
+    piVar6 = (int *)PS2_PTR(0x731390);
     pcVar4 = (char *)(&cStack_110);
     piVar10 = piVar6;
     piVar5 = piVar6;
@@ -2182,7 +2182,7 @@ void func_00246750(void)
 
     iVar2 = 0x7F;
     g_0045D4E8 = 0x752B50;
-    puVar3 = (u32 *)0x752B50;
+    puVar3 = (u32 *)PS2_PTR(0x752B50);
     do {
         puVar1 = puVar3 + 2;
         iVar2 = iVar2 + -1;
@@ -3840,7 +3840,7 @@ void func_002DBB70(void)
 
     iVar3 = 0x7F;
     g_0045D614 = 0x79CE10;
-    puVar2 = (u32 *)0x79CE10;
+    puVar2 = (u32 *)PS2_PTR(0x79CE10);
     do {
         puVar1 = puVar2 + 0x18;
         iVar3 = iVar3 + -1;
@@ -3859,7 +3859,7 @@ void func_002DC4D0(void)
 
     iVar3 = 0x1F;
     *(u32 *)(g_0045D610) = 0x79CC10;
-    puVar2 = (u32 *)0x79CC10;
+    puVar2 = (u32 *)PS2_PTR(0x79CC10);
     do {
         puVar1 = puVar2 + 4;
         iVar3 = iVar3 + -1;
@@ -3879,7 +3879,7 @@ void func_002DCD40(void)
 
     iVar3 = 0x7F;
     g_0045D60C = 0x79A410;
-    puVar2 = (u32 *)0x79A410;
+    puVar2 = (u32 *)PS2_PTR(0x79A410);
     do {
         puVar1 = puVar2 + 0x14;
         iVar3 = iVar3 + -1;
@@ -3898,7 +3898,7 @@ void func_002DF6C0(void)
 
     iVar3 = 0x1F;
     g_0045D600 = 0x799AF0;
-    puVar2 = (u32 *)0x799AF0;
+    puVar2 = (u32 *)PS2_PTR(0x799AF0);
     do {
         puVar1 = puVar2 + 4;
         iVar3 = iVar3 + -1;

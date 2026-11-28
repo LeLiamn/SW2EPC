@@ -107,7 +107,7 @@ extern struct {
     } while (0)
 
 /* GS packets (see the GS manual: XYZ2 is x, y in 1/16 pixel with a 0x8000 offset, z). */
-#define g_70000154 (*(int *)0x70000154)    /* (scratchpad) the vertical scale */
+#define g_70000154 (*(int *)PS2_PTR(0x70000154))    /* (scratchpad) the vertical scale */
 #define SCALE_Y(y) ((y) * 0x280 / 0x1E0 * 0x1C0 / 0x200)
 #define GS_XYZ(x, y, z) ((u64)(long long)((x) * 16 + 0x7000) |                  \
                          (u64)(long long)(((y) * 16 - 0xE00) / g_70000154 + 0x8000) << 16 | \

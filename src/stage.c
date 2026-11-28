@@ -21,7 +21,7 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
-#define SPAD(off) ((u8 *)0x70000000 + (off))
+#define SPAD(off) ((u8 *)PS2_PTR(0x70000000) + (off))
 #define SP32(off) (*(u32 *)SPAD(off))
 #define SPF(off)  (*(float *)SPAD(off))
 #define SPP(off)  (*(u8 **)SPAD(off))
@@ -61,7 +61,7 @@ int func_00193450(u32 layer, u8 *o)
 
     if (func_00191330(SPAD(0xB90) + b * 4, o + 0x1E) == 0)
         return 0;
-    return func_001912E0((u8 *)0x5BF440 + o[0x1C] * 0x1E90 + b * 0x98D0, o[0x1E], o[0x1F]) != 0;
+    return func_001912E0((u8 *)PS2_PTR(0x5BF440) + o[0x1C] * 0x1E90 + b * 0x98D0, o[0x1E], o[0x1F]) != 0;
 }
 
 /* 0x001934D0, 0xC bytes, matching. The number of height layers. */
@@ -317,7 +317,7 @@ void func_00193EA0(void)
     else
         r = PTR4(g_0045D2F4) + 4 + *(unsigned short *)(g_005BA694 + SCENARIO() * 100 + 2) * 0x10;
     func_00118850(SPAD(0x870), 0x330);
-    func_00118850((u8 *)0x5BF440, 0x131A0);
+    func_00118850((u8 *)PS2_PTR(0x5BF440), 0x131A0);
     SPP(0xB50) = r;
     SPF(0x874) = 50.0f;
     SPF(0x878) = 0.02f;
@@ -1019,14 +1019,14 @@ void func_00196B10(int bank)
         u32 *l1 = (u32 *)PS2_PTR(func_002184D0(1, k)), *l2;
         int i, j;
 
-        func_00143268(nl, g_0045D460 + 0x10, (void *)0x700000C0, (void *)0x700000C0);
+        func_00143268(nl, g_0045D460 + 0x10, (void *)PS2_PTR(0x700000C0), (void *)PS2_PTR(0x700000C0));
         l2 = (u32 *)PS2_PTR(func_002184D0(2, k));
-        func_00143328(cl, l2, (void *)0x700000C0, (void *)0x700000C0, l1);
+        func_00143328(cl, l2, (void *)PS2_PTR(0x700000C0), (void *)PS2_PTR(0x700000C0), l1);
         for (i = 0; i < 4; i++)
             for (j = 0; j < 4; j++)
                 ((float *)m)[i * 4 + j] = cl[0][j] * nl[i][0] + cl[1][j] * nl[i][1]
                                           + cl[2][j] * nl[i][2] + cl[3][j] * nl[i][3];
-        func_00143328(c, (void *)0x700000C0, (void *)0x700000C0, (void *)0x700000C0, l1);
+        func_00143328(c, (void *)PS2_PTR(0x700000C0), (void *)PS2_PTR(0x700000C0), (void *)PS2_PTR(0x700000C0), l1);
     }
 }
 

@@ -684,7 +684,7 @@ void func_001E9D30(int param_1)
                 uVar1 = 0x80;
             }
             iVar7 = 0;
-            piVar5 = (int *)0x731390;
+            piVar5 = (int *)PS2_PTR(0x731390);
             piVar4 = piVar5;
             piVar3 = piVar5;
             do {

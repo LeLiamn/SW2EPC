@@ -37,9 +37,9 @@ typedef unsigned int u32;
 typedef unsigned long long u64;
 
 /* The scratchpad words (constant addresses). */
-#define g_70000150 (*(int *)0x70000150)          /* frame index: 0 or 1 */
-#define g_70000154 (*(int *)0x70000154)          /* 1 or 2 (field mode?) */
-#define g_70000158 (*(u32 **)0x70000158)         /* the DMA chain's write cursor */
+#define g_70000150 (*(int *)PS2_PTR(0x70000150))          /* frame index: 0 or 1 */
+#define g_70000154 (*(int *)PS2_PTR(0x70000154))          /* 1 or 2 (field mode?) */
+#define g_70000158 (*(u32 **)PS2_PTR(0x70000158))         /* the DMA chain's write cursor */
 
 /* A queued packet. */
 typedef struct Node {

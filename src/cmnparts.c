@@ -25,7 +25,7 @@ typedef unsigned int u32;
 #include "sw2e_draw.h"
 typedef unsigned long long u64;
 
-#define g_70000154 (*(int *)0x70000154)    /* (scratchpad) the vertical scale */
+#define g_70000154 (*(int *)PS2_PTR(0x70000154))    /* (scratchpad) the vertical scale */
 
 /* A texture coordinate pair (texel centres). */
 #define GS_UV(u, v) ((u64)(long long)((u) << 4 | 8) | (u64)(long long)((v) << 4 | 8) << 16)
@@ -603,7 +603,7 @@ extern u64 g_0068F0F0, g_0068F0F8, g_0068F100;   /* the TEX0 values of the textu
 extern u32 g_0068F108;
 extern u8 g_00574DE0[][0x630];           /* the units */
 
-#define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))          /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10 & 0xFFFF)
 
 void vu0_sincos(float a, float *s, float *c);    /* VU0 micro subroutine 0x20 */

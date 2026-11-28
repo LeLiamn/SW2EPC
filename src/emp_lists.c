@@ -428,7 +428,7 @@ extern u8 g_007BA85C, g_007BA85D;
 extern u8 *g_0045D0B0;                   /* (small data) */
 extern u8 g_0056CCC8[4];
 
-#define SP_PKT (*(u32 **)0x70000158)
+#define SP_PKT (*(u32 **)PS2_PTR(0x70000158))
 
 void func_003914C0(void);
 void func_00392FF0(int a);

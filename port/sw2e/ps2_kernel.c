@@ -63,6 +63,10 @@ static int refer(int sema, SemaParam *status)
         return -1;
     memset(status, 0, sizeof(*status));
     status->count = n;
+    /* The platform does not tell how many threads wait. A count of 0 is taken as "someone may
+     * wait": the game's vblank handler signals its frame semaphore only when a thread waits, so
+     * with this a frame can at most be signalled once ahead. */
+    status->wait_threads = n == 0;
     return sema;
 }
 

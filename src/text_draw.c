@@ -42,7 +42,7 @@ typedef struct {
 #define UBIT(lv, n) (((UBits8 *)&(lv))->f##n)
 typedef unsigned long long u64;
 
-#define g_70000154 (*(int *)0x70000154)          /* 1 or 2 (field mode?) */
+#define g_70000154 (*(int *)PS2_PTR(0x70000154))          /* 1 or 2 (field mode?) */
 
 /* A font. */
 typedef struct {

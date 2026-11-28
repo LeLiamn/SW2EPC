@@ -3282,7 +3282,7 @@ int func_00306140(int f, int large, int *r, int n, int *mark, int total, int hav
     return best;
 }
 
-#define g_7000015C (*(u32 *)0x7000015C)   /* (scratchpad) the random seed */
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))   /* (scratchpad) the random seed */
 
 extern int g_007A3B10[];                 /* the computer turn's state block */
 

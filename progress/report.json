@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 208000,
-    "non_matching": 1739284
+    "non_matching": 1739396
   },
   "data": {
     "total": 2155890688,
@@ -537,14 +537,14 @@
         },
         {
           "name": "DistantView.c",
-          "description": "Estimated range 0x22A120-0x234490; 74 function(s) decompiled",
+          "description": "Estimated range 0x22A120-0x234490; 76 function(s) decompiled",
           "code": {
             "total": 41840,
             "matching": 880,
-            "non_matching": 22836
+            "non_matching": 22948
           },
           "decompiled_functions": {
-            "count": 74,
+            "count": 76,
             "matching": 13
           }
         },

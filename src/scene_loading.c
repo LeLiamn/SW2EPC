@@ -53,7 +53,7 @@ extern struct {
 #define g_00669F60 (g_00669D60.g_00669F60)
 
 /* (scratchpad) screen scale divisor? */
-#define g_70000154 (*(int *)0x70000154)
+#define g_70000154 (*(int *)PS2_PTR(0x70000154))
 extern u8 g_0045D678;                     /* 1 once the fade-out started */
 extern const char g_00445AE8[];           /* "SceneLoading.c" */
 

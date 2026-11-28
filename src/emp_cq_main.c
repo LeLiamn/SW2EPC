@@ -25,7 +25,7 @@ typedef unsigned int u32;
 #include "sw2e_draw.h"
 
 #define IS_FORCE(f) ((f) >= 0 && (f) < func_0030AB90())
-#define g_7000015C (*(u32 *)0x7000015C)   /* (scratchpad) the random seed */
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))   /* (scratchpad) the random seed */
 
 /* A notice to the player (0x007A3BC0, returned by func_0030E2C0). */
 typedef struct {

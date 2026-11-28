@@ -282,6 +282,27 @@ static const upp_platform g_platform = {
     .thread_terminate = stub_thread_terminate,
 };
 
+#ifdef _WIN32
+/* Development aid: on a crash, print the faulting address and the return addresses on the stack
+ * (turn them into lines with addr2line -f -e build/pc/sw2epc.exe <address>). */
+#include <windows.h>
+static LONG WINAPI stub_crash(EXCEPTION_POINTERS *e)
+{
+    void *frames[32];
+    USHORT n = RtlCaptureStackBackTrace(0, 32, frames, NULL), i;
+    HMODULE base = GetModuleHandleA(NULL);
+
+    fprintf(stderr, "[crash] exception 0x%08lX at %p (exe offset 0x%llx), address %p\n",
+            e->ExceptionRecord->ExceptionCode, e->ExceptionRecord->ExceptionAddress,
+            (unsigned long long)((char *)e->ExceptionRecord->ExceptionAddress - (char *)base + 0x140000000ULL),
+            e->ExceptionRecord->NumberParameters > 1 ? (void *)e->ExceptionRecord->ExceptionInformation[1] : 0);
+    fprintf(stderr, "[crash] rip %p\n", (void *)e->ContextRecord->Rip);
+    for (i = 0; i < n; i++)
+        fprintf(stderr, "[crash]   %p\n", frames[i]);
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+#endif
+
 int main(int argc, char **argv)
 {
     const upp_game_api *game = upp_game_entry();
@@ -293,6 +314,10 @@ int main(int argc, char **argv)
         return 1;
     }
     int run = 0, i;
+
+#ifdef _WIN32
+    SetUnhandledExceptionFilter(stub_crash);
+#endif
 
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--disc") == 0 && i + 1 < argc)

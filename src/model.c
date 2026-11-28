@@ -32,7 +32,7 @@ typedef signed char s8;
 float fabsf(float x);
 float sqrtf(float x);
 
-#define g_70000158 (*(u32 **)0x70000158)         /* the DMA chain's write cursor */
+#define g_70000158 (*(u32 **)PS2_PTR(0x70000158))         /* the DMA chain's write cursor */
 
 /* A motion being played (camera). */
 /* A flag byte: the original tests its bits as signed one-bit fields (LSB first). */
@@ -1077,7 +1077,7 @@ void func_00149730(Actor *a, char mode, int frame)
         a->d++;
 }
 
-#define g_70000150 (*(int *)0x70000150)          /* frame index: 0 or 1 */
+#define g_70000150 (*(int *)PS2_PTR(0x70000150))          /* frame index: 0 or 1 */
 
 #define PI     3.1415927f
 #define TWO_PI 6.2831855f

@@ -24,8 +24,8 @@ extern u8 g_005B4BC0[];                  /* the viewer's camera */
 extern u8 g_005B4DF0;
 extern u32 g_0041D7D0[8];
 
-#define UNIT1 ((u8 *)0x574DE0)
-#define SP_BUF (*(int *)0x70000150)
+#define UNIT1 ((u8 *)PS2_PTR(0x574DE0))
+#define SP_BUF (*(int *)PS2_PTR(0x70000150))
 #define WAIT(p) (*(short *)((p) + 0x1C4))
 #define VFLAGS(p) ((p)[0x1C8])
 

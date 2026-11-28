@@ -61,7 +61,7 @@ extern u8 g_005B4D80[][0x240];
 
 void func_00156AF0(Unit *u, u16 id);
 void func_00158CD0(Unit *u, u32 kind);
-#define g_70000D60 (*(int *)0x70000D60)
+#define g_70000D60 (*(int *)PS2_PTR(0x70000D60))
 
 /* 0x001508F0, 0x20 bytes, matching. Sets the low direction flags (bits 0-14). */
 void func_001508F0(Unit *u, u32 flags)
@@ -271,7 +271,7 @@ int func_00150FD0(Unit *u, Unit *other, short side)
     off[3] = 0.0f;
     for (i = 0; i < 4; i++)
         for (k = 0; k < 4; k++)
-            m[i][k] = ((float *)0x70000000)[i * 4 + k];
+            m[i][k] = ((float *)PS2_PTR(0x70000000))[i * 4 + k];
     vu0_rot_y(m, F32(other, 0x54));
     for (k = 0; k < 4; k++)
         v[k] = m[0][k] * off[0] + m[1][k] * off[1] + m[2][k] * off[2] + m[3][k] * off[3];
@@ -348,7 +348,7 @@ void func_001512F0(Unit *u)
     func_00253300(3, u);
 }
 
-#define g_7000015C (*(u32 *)0x7000015C)          /* the random seed */
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))          /* the random seed */
 #define RANDOM()   (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
 extern u8 g_00693970[];                 /* the game state: the officers at +0x100C0 */
@@ -1390,7 +1390,7 @@ void func_001D0970(Unit *u);
 void func_001ACA70(u32 a, u8 *effect, float *pos, u8 *dir, u32 b);
 void func_001CD060(Unit *h, Unit *u, u8 *hit, u8 *dir, u8 *pos, int a, int b, int c, int a8, int a9);
 
-#define VEC_ZERO ((float *)0x700000C0)   /* (0, 0, 0, 0) in the scratchpad */
+#define VEC_ZERO ((float *)PS2_PTR(0x700000C0))   /* (0, 0, 0, 0) in the scratchpad */
 
 /* 0x00155140, 0x118 bytes. Grabs `v` with hit `hit`: the follow-up action, facing `target`
  * (+0x1D0), and the hold (+0x280 / +0x284, the hit's two bytes for the held one). */
@@ -1539,7 +1539,7 @@ int func_00155360(float dt, float g, Unit *u)
         if (S32(u, 0x118) == 0x3C && S32(u, 0x11C) != 0 && (s8)U8(u, 0x27C) >= 0
             && U32(u, 0x28C) != 0) {
             float *m = func_0016A170(u, 0x11);
-            float *t = (float *)0x70000030;
+            float *t = (float *)PS2_PTR(0x70000030);
             float p[4];
             int k;
 
@@ -2111,7 +2111,7 @@ static inline void scratch_unit(float m[4][4])
 
     for (i = 0; i < 4; i++)
         for (k = 0; k < 4; k++)
-            m[i][k] = ((float *)0x70000000)[i * 4 + k];
+            m[i][k] = ((float *)PS2_PTR(0x70000000))[i * 4 + k];
 }
 
 /* m * v (column vectors). */
@@ -2413,7 +2413,7 @@ void func_00158660(Unit *u, int k)
     } else {
         float (*n)[4] = (float (*)[4])func_0016A170(u, kind == 0 ? 0x13 : kind == 1 ? 0x14 : 0x12);
 
-        mat_vec(pos, n, kind == 1 ? g_00406420 : (float *)0x70000030);
+        mat_vec(pos, n, kind == 1 ? g_00406420 : (float *)PS2_PTR(0x70000030));
         for (i = 0; i < 4; i++)
             pos[i] = pos[i] / pos[3];
     }
@@ -2717,9 +2717,9 @@ static inline void attack_effect(Unit *u, u8 *hit, u8 *eff, float (*m)[4])
     u32 f = U32(eff, 0x30), e;
     int i;
 
-    off[0] = ((float *)0x70000030)[0];
-    off[1] = ((float *)0x70000030)[1];
-    off[2] = ((float *)0x70000030)[2];
+    off[0] = ((float *)PS2_PTR(0x70000030))[0];
+    off[1] = ((float *)PS2_PTR(0x70000030))[1];
+    off[2] = ((float *)PS2_PTR(0x70000030))[2];
     off[3] = 1.0f;
     if (f & 0x200000)
         off[0] = (float)eff[0x44];

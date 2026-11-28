@@ -298,7 +298,7 @@ extern struct {
 #define g_00799A68 (s_00799A24.g_00799A68)
 
 /* 0x7000015C: random seed in the scratchpad (set to 12345 at start-up, see main.c). */
-#define g_7000015C (*(u32 *)0x7000015C)
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))
 
 /* Shop state. */
 extern u8 g_00440CD8[];

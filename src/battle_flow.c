@@ -79,7 +79,7 @@ void func_00182350(void)
 {
     func_00118850(g_00693970, 0xE3E8);
     g_006AA574 = 0;
-    *(int *)0x70000160 = (GAME_FLAGS & 2) == 0 ? 0x50 : 0x3C;
+    *(int *)PS2_PTR(0x70000160) = (GAME_FLAGS & 2) == 0 ? 0x50 : 0x3C;
 }
 
 /* 0x00182C20, 8 bytes, matching. */

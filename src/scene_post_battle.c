@@ -33,7 +33,7 @@ extern struct {
 #define g_0045D8A0 (g_0045D880.requested)
 
 /* 0x7000015C: random seed in the scratchpad (see main.c). */
-#define g_7000015C (*(u32 *)0x7000015C)
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))
 
 /* ---- The game state (0x00669D60): what this scene reads ---------------------------------------- */
 

@@ -1095,8 +1095,6 @@ int func_0022C9E0(u8 *param_1, int param_2, u8 *param_3, int *param_4);
 void func_0022CD40(int param_1, int param_2, int param_3);
 void func_0022CD70(int param_1, int param_2);
 int func_0022CDA0(u8 *param_1, unsigned long long *param_2);
-void func_0022D590(int param_1);
-void func_0022D5D0(int param_1);
 void func_0022ECD0(int param_1);
 void func_0022F120(u8 *param_1, u8 *param_2, u8 *param_3, int param_4, int param_5);
 void func_0022F450(int param_1, int param_2);

@@ -23,7 +23,7 @@ extern int g_0072D100;
 extern u8 g_00408510[], g_00408530[], g_00408550[];
 
 #define SP_INT(a) (*(int *)(a))
-#define SP_PKT (*(u32 **)0x70000158)      /* (scratchpad) the packet pointer */
+#define SP_PKT (*(u32 **)PS2_PTR(0x70000158))      /* (scratchpad) the packet pointer */
 #define SP_LIST SP_INT(0x70000D60)       /* (scratchpad) the list being drawn */
 #define SP_COUNT SP_INT(0x70000D64)
 
@@ -461,7 +461,7 @@ void func_001C8130(int k, int a, int b, u32 f, int u)
         return;
     if (func_001C8BE0(0, a) == 0)
         return;
-    if (func_0016C040((u8 *)0x574DE0 + u * 0x630) != 0)
+    if (func_0016C040((u8 *)PS2_PTR(0x574DE0) + u * 0x630) != 0)
         f |= 0x200;
     o = func_001C7FC0(k, a, b, f | 1);
     if (o == 0)
@@ -1205,7 +1205,7 @@ void func_001CC500(u32 *a, u32 *b)
     g_007302E0[2] = 0x11000000;
     g_007302E0[3] = 0x6C060000;
     for (k = 0; k < 16; k++)
-        g_007302E0[4 + k] = ((u32 *)0x70000000)[k];
+        g_007302E0[4 + k] = ((u32 *)PS2_PTR(0x70000000))[k];
     for (k = 0; k < 4; k++)
         g_007302E0[20 + k] = a[k];
     for (k = 0; k < 4; k++)

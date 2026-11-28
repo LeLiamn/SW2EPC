@@ -36,7 +36,7 @@ extern u8 *g_0045D2C0;                   /* (small data) the camera */
 extern u8 g_005B4BC0[], g_005B4E00[];    /* the two players' cameras */
 extern u8 g_00669D60[];
 
-#define SCREEN (*(int *)0x70000150)      /* (scratchpad) the screen being drawn */
+#define SCREEN (*(int *)PS2_PTR(0x70000150))      /* (scratchpad) the screen being drawn */
 
 void func_00248D10(int how, int k, Gauges *g, u8 *buf);
 

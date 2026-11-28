@@ -33,8 +33,8 @@ extern u32 g_0040C9F0[];                 /* event model flags */
 extern int g_0040CAA0[0x22];
 extern u8 *g_005BA6A0;
 
-#define SP_LIST (*(int *)0x70000D60)
-#define SP_PKT (*(u32 **)0x70000158)
+#define SP_LIST (*(int *)PS2_PTR(0x70000D60))
+#define SP_PKT (*(u32 **)PS2_PTR(0x70000158))
 #define FL38(o) (*(u32 *)((o) + 0x38))
 
 /* Reads the command's next argument into `out`. */

@@ -378,7 +378,7 @@ static inline void plain_sprite(u8 *p, u64 set, int tex, u64 uv0, u64 uv1, int g
     *(u64 *)(p + 0x40) = xy;
 }
 
-#define g_70000154 (*(int *)0x70000154)    /* (scratchpad) the vertical scale */
+#define g_70000154 (*(int *)PS2_PTR(0x70000154))    /* (scratchpad) the vertical scale */
 
 /* A gradient packet (blue-grey from top to bottom). */
 static inline void gradient(u8 *p)
@@ -828,7 +828,7 @@ void func_001B0EC0(Glyph *g)
     func_00105BE0(p, g->layer);
 }
 
-#define g_70000150 (*(int *)0x70000150)    /* (scratchpad) the frame's buffer (0 / 1) */
+#define g_70000150 (*(int *)PS2_PTR(0x70000150))    /* (scratchpad) the frame's buffer (0 / 1) */
 
 extern void (*g_0056CCA0)(Glyph *g);     /* (font state) the glyph drawer */
 extern u32 g_0056CCA4, g_0056CCA8, g_0056CCAC, g_0056CCB0, g_0056CCB8;   /* colours, layer */
@@ -1295,7 +1295,7 @@ void func_001B5400(TextWindow *w, int k)
         left = digits * 0x10 + 0x24;
     }
     if (kind == 0 || kind == 6 || kind == 7)
-        w->w = func_001AB3A0(16.0f, (u8 *)0x4053F0, *(u8 **)(st + 0x2F0));
+        w->w = func_001AB3A0(16.0f, (u8 *)PS2_PTR(0x4053F0), *(u8 **)(st + 0x2F0));
     else
         w->w = func_0019AF10(16.0f, *(u16 *)(st + 0x2E8), *(u16 *)(st + 0x2EA));
     w->x = 0x1F0 - w->w - left;

@@ -23,21 +23,21 @@ typedef unsigned int u32;
 typedef unsigned long long u64;
 
 /* PS2 hardware registers. */
-#define REG_RCNT0_COUNT     (*(volatile u32 *)0x10000000)
-#define REG_RCNT0_MODE      (*(volatile u32 *)0x10000010)
-#define REG_RCNT1_COUNT     (*(volatile u32 *)0x10000800)
-#define REG_RCNT1_MODE      (*(volatile u32 *)0x10000810)
-#define REG_VIF1_FBRST      (*(volatile u32 *)0x10003C10)
-#define REG_DMAC_2_GIF_CHCR (*(volatile u32 *)0x1000A000)
-#define REG_DMAC_2_GIF_MADR (*(volatile u32 *)0x1000A010)
-#define REG_DMAC_2_GIF_QWC  (*(volatile u32 *)0x1000A020)
-#define REG_GS_PMODE        (*(volatile u64 *)0x12000000)
-#define REG_GS_CSR          (*(volatile u64 *)0x12001000)
+#define REG_RCNT0_COUNT     (*(volatile u32 *)PS2_PTR(0x10000000))
+#define REG_RCNT0_MODE      (*(volatile u32 *)PS2_PTR(0x10000010))
+#define REG_RCNT1_COUNT     (*(volatile u32 *)PS2_PTR(0x10000800))
+#define REG_RCNT1_MODE      (*(volatile u32 *)PS2_PTR(0x10000810))
+#define REG_VIF1_FBRST      (*(volatile u32 *)PS2_PTR(0x10003C10))
+#define REG_DMAC_2_GIF_CHCR (*(volatile u32 *)PS2_PTR(0x1000A000))
+#define REG_DMAC_2_GIF_MADR (*(volatile u32 *)PS2_PTR(0x1000A010))
+#define REG_DMAC_2_GIF_QWC  (*(volatile u32 *)PS2_PTR(0x1000A020))
+#define REG_GS_PMODE        (*(volatile u64 *)PS2_PTR(0x12000000))
+#define REG_GS_CSR          (*(volatile u64 *)PS2_PTR(0x12001000))
 
 /* Scratchpad words. */
-#define g_70000150 (*(u32 *)0x70000150)    /* the packet buffer in use (0 / 1) */
-#define g_70000154 (*(int *)0x70000154)    /* the vertical scale (1 full height, 2 half) */
-#define g_70000158 (*(u32 **)0x70000158)   /* the packet's write pointer */
+#define g_70000150 (*(u32 *)PS2_PTR(0x70000150))    /* the packet buffer in use (0 / 1) */
+#define g_70000154 (*(int *)PS2_PTR(0x70000154))    /* the vertical scale (1 full height, 2 half) */
+#define g_70000158 (*(u32 **)PS2_PTR(0x70000158))   /* the packet's write pointer */
 
 /* Kernel calls. */
 void FlushCache(int a);
@@ -88,7 +88,8 @@ extern int g_0045D1D4;                    /* the height (448 / 224) */
 extern float g_0045D1D8;
 extern int g_0045D1DC;                    /* the width (512) */
 extern int g_0045D1E0;                    /* the GIF DMA channel */
-extern u8 *g_0045D1E4;                    /* the VIF1 DMA channel's control */
+extern ps2ptr g_0045D1E4;                 /* the VIF1 DMA channel's control */
+#define VIF1_CHAN ((u8 *)PS2_PTR(g_0045D1E4))
 extern int g_0045D1E8;                    /* the screen offset (y, -24..24) */
 extern int g_0045D1EC;                    /* the screen offset (x, -24..24) */
 extern u32 g_0045D1F0;                    /* the field (GS_CSR bit 13) */
@@ -594,8 +595,8 @@ void func_00101C90(int flip, int in_interrupt)
     if (func_001265F0(1, 0) != 0) {               /* the previous transfer is not over */
         int stopped = in_interrupt == 0 ? func_00131EA0() : 0;
 
-        func_0011B690(g_0045D1E4);
-        *g_0045D1E4 &= 0xCF;
+        func_0011B690(VIF1_CHAN);
+        *VIF1_CHAN &= 0xCF;
         REG_VIF1_FBRST = 1;
         func_00125870();
         if (stopped != 0)
@@ -628,14 +629,14 @@ void func_00101C90(int flip, int in_interrupt)
         iFlushCache(0);
     func_001272E8(g_00500130, field);
     func_001265F0(0, 0);
-    *g_0045D1E4 = (*g_0045D1E4 & 0xBF) | 0x40;
+    *VIF1_CHAN = (*VIF1_CHAN & 0xBF) | 0x40;
     if (flip == 0) {
-        func_0011B380(g_0045D1E4, g_0045D1F8[g_70000150 ^ 1]);
+        func_0011B380(VIF1_CHAN, g_0045D1F8[g_70000150 ^ 1]);
     } else {
         u32 *chain;
         u64 *gif;
 
-        func_0011B380(g_0045D1E4, g_0045D1F8[g_70000150]);
+        func_0011B380(VIF1_CHAN, g_0045D1F8[g_70000150]);
         g_70000150 ^= 1;
         chain = g_0045D1F8[g_70000150];
         chain[0] = 0x10000005;

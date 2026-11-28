@@ -528,7 +528,7 @@ void func_0038C750(u32 *param_1)
     u32 uVar1;
 
     iVar2 = 0xD1;
-    puVar3 = (u32 *)0x7B9F44;
+    puVar3 = (u32 *)PS2_PTR(0x7B9F44);
     do {
         iVar2 = iVar2 + -1;
         uVar1 = param_1[1];
@@ -5552,7 +5552,7 @@ void func_003BFC30(u32 *param_1, int param_2, int param_3)
 
     *(u32 *)(g_007BEAD0 + 0x8) = (u32)(param_3 != 0);
     *(u32 *)(g_007BEAD0) = 0;
-    puVar3 = (u32 *)0x7BEADC;
+    puVar3 = (u32 *)PS2_PTR(0x7BEADC);
     iVar1 = 0x11;
     puVar2 = param_1;
     *(u32 *)(g_007BEAD0 + 0x4) = param_2;
@@ -5563,7 +5563,7 @@ void func_003BFC30(u32 *param_1, int param_2, int param_3)
         puVar3 = puVar3 + 1;
     } while (0 < iVar1);
     puVar3 = param_1 + 0x11;
-    puVar2 = (u32 *)0x7BEB20;
+    puVar2 = (u32 *)PS2_PTR(0x7BEB20);
     iVar1 = 0x11;
     do {
         iVar1 = iVar1 + -1;
@@ -5572,7 +5572,7 @@ void func_003BFC30(u32 *param_1, int param_2, int param_3)
         puVar2 = puVar2 + 1;
     } while (0 < iVar1);
     param_1 = param_1 + 0x22;
-    puVar2 = (u32 *)0x7BEB64;
+    puVar2 = (u32 *)PS2_PTR(0x7BEB64);
     iVar1 = 0x11;
     do {
         iVar1 = iVar1 + -1;
@@ -5590,7 +5590,7 @@ void func_003BFCF0(u32 *param_1)
     u32 * puVar3;
 
     iVar1 = 0x11;
-    puVar2 = (u32 *)0x7BEADC;
+    puVar2 = (u32 *)PS2_PTR(0x7BEADC);
     puVar3 = param_1;
     do {
         iVar1 = iVar1 + -1;
@@ -5599,7 +5599,7 @@ void func_003BFCF0(u32 *param_1)
         puVar2 = puVar2 + 1;
     } while (0 < iVar1);
     puVar2 = param_1 + 0x11;
-    puVar3 = (u32 *)0x7BEB20;
+    puVar3 = (u32 *)PS2_PTR(0x7BEB20);
     iVar1 = 0x11;
     do {
         iVar1 = iVar1 + -1;
@@ -5608,7 +5608,7 @@ void func_003BFCF0(u32 *param_1)
         puVar3 = puVar3 + 1;
     } while (0 < iVar1);
     param_1 = param_1 + 0x22;
-    puVar3 = (u32 *)0x7BEB64;
+    puVar3 = (u32 *)PS2_PTR(0x7BEB64);
     iVar1 = 0x11;
     do {
         iVar1 = iVar1 + -1;

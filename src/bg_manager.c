@@ -87,7 +87,7 @@ extern PadState g_00500700[2];
 
 #define SE(kind) func_0023AD10((kind), 0, 0x2CDC, 0x2CDC, 0x1000)
 
-#define g_70000154 (*(int *)0x70000154)    /* (scratchpad) the vertical scale */
+#define g_70000154 (*(int *)PS2_PTR(0x70000154))    /* (scratchpad) the vertical scale */
 #define SCALE_Y(y) ((y) * 0x280 / 0x1E0 * 0x1C0 / 0x200)
 #define GS_XYZ(x, y, z) ((u64)(long long)((x) * 16 + 0x7000) |                  \
                          (u64)(long long)(((y) * 16 - 0xE00) / g_70000154 + 0x8000) << 16 | \

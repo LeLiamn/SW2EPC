@@ -1107,7 +1107,7 @@ void func_0039F590(void)
     else if (*(int *)((u8 *)PS2_PTR(iVar4) + 0x220) == 0) {
         iVar9 = 0;
         iVar4 = 0;
-        piVar5 = (int *)0x7BABE0;
+        piVar5 = (int *)PS2_PTR(0x7BABE0);
         pbVar11 = (u8 *)(*(u32 *)(g_007BAC00 + 0x10) + 0x13);
         do {
             iVar10 = (int)sVar1 - (int)((int)sVar2 * (iVar4 - (*pbVar11 - 10))) / 10;
@@ -1175,7 +1175,7 @@ void func_003E7C10(void)
     else if (*(int *)((u8 *)PS2_PTR(iVar4) + 0x220) == 0) {
         iVar9 = 0;
         iVar4 = 0;
-        piVar5 = (int *)0x7BFB20;
+        piVar5 = (int *)PS2_PTR(0x7BFB20);
         pbVar11 = (u8 *)(*(u32 *)(g_007BFB30 + 0x10) + 0x13);
         do {
             iVar10 = (int)sVar1 - (int)((int)sVar2 * (iVar4 - (*pbVar11 - 10))) / 10;

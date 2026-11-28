@@ -658,7 +658,7 @@ void func_001660C0(Unit *u, float *pos)
 }
 
 extern u8 g_005ADD80[0x40][0xC0];        /* 64 effect records (+0x88 owner, +0x8C flag 1: on) */
-#define g_700000C0 ((float *)0x700000C0)  /* (scratchpad) a zero vector */
+#define g_700000C0 ((float *)PS2_PTR(0x700000C0))  /* (scratchpad) a zero vector */
 
 int func_0016C070(Unit *u);
 void func_002A5B10(void);
@@ -914,7 +914,7 @@ static inline float *root_node(u8 *a)
 /* The motion's root offset turned with the unit (by the scratchpad matrix at 0x70000080). */
 static inline void root_offset(Unit *u)
 {
-    float r[4][4], m[4][4], *n = (float *)PTR(PTR(u, 0x11C), 0x208), *s = (float *)0x70000080;
+    float r[4][4], m[4][4], *n = (float *)PTR(PTR(u, 0x11C), 0x208), *s = (float *)PS2_PTR(0x70000080);
     int i, k;
 
     ROT_MATRIX(r, &F32(u, 0x50));
@@ -1141,7 +1141,7 @@ static inline float track_at(const float *p, u32 size, float t)
 /* Turns the offset +0x80 with the unit (rotation +0x50 by the scratchpad matrix at 0x70000080). */
 static inline void turn_offset(Unit *u)
 {
-    float r[4][4], m[4][4], v[4], *s = (float *)0x70000080;
+    float r[4][4], m[4][4], v[4], *s = (float *)PS2_PTR(0x70000080);
     int i, k;
 
     ROT_MATRIX(r, &F32(u, 0x50));
@@ -1339,7 +1339,7 @@ void func_00168190(Unit *u)
                 for (k = 0; k < 4; k++)
                     F32(u, 0x40 + k * 4) = F32(c, 0x40 + k * 4);
             } else {
-                float *m = func_0016A170(c, (char)U8(u, 0x275)), *s = (float *)0x70000030;
+                float *m = func_0016A170(c, (char)U8(u, 0x275)), *s = (float *)PS2_PTR(0x70000030);
                 float w;
 
                 for (k = 0; k < 4; k++)
@@ -1478,14 +1478,14 @@ void func_001687C0(Unit *u, u8 *slot, int c, int on, int colour)
                 U32(t, 0x10) = 0;
                 func_00209190((float *)(t + 0x20), (float *)(t + 0x30), U8(u, 0x14E), c);
                 if (colour)
-                    func_00208980(t, (void *)0x70000000, U8(u, 0x184));
+                    func_00208980(t, (void *)PS2_PTR(0x70000000), U8(u, 0x184));
             }
         }
     } else if (t != 0) {
         U32(t, 0x10) = 1;
         func_00209190((float *)(t + 0x20), (float *)(t + 0x30), U8(u, 0x14E), c);
         if (colour)
-            func_00208980(t, (void *)0x70000000, U8(u, 0x184));
+            func_00208980(t, (void *)PS2_PTR(0x70000000), U8(u, 0x184));
     }
 }
 
@@ -1499,7 +1499,7 @@ void func_0016EC90(float rate, float f, u8 *slot, u8 *node, u8 colour, int flag,
 /* A node's point (its matrix times the scratchpad's (0, 0, 0, 1), divided by w) into out. */
 static inline void node_point(float *out, float *m)
 {
-    float *s = (float *)0x70000030, w;
+    float *s = (float *)PS2_PTR(0x70000030), w;
     int k;
 
     for (k = 0; k < 4; k++)
@@ -1717,7 +1717,7 @@ void func_001688D0(Unit *u)
 
 typedef unsigned long long u64;
 
-#define g_70000158 (*(u32 **)0x70000158)         /* the DMA chain's write cursor */
+#define g_70000158 (*(u32 **)PS2_PTR(0x70000158))         /* the DMA chain's write cursor */
 
 extern int g_0045D2A8;                   /* (small data) slow motion: its timer */
 extern u8 *g_005B4A00, *g_005B4A04;      /* the two duelling units */
@@ -1868,7 +1868,7 @@ void func_001698D0(Unit *u, int mode)
     g_70000158 = d + 4;
 }
 
-#define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))          /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
 short func_0034A530(void);
@@ -1962,7 +1962,7 @@ int func_0016A340(Unit *v, u8 *hit)
     return 0;
 }
 
-#define g_70000D60 (*(int *)0x70000D60)          /* (scratchpad) */
+#define g_70000D60 (*(int *)PS2_PTR(0x70000D60))          /* (scratchpad) */
 
 float func_003AFF70(u8 *officer);
 float func_003AFE50(u8 *officer);
@@ -2722,7 +2722,7 @@ void func_0016C620(Unit *u)
  * 0x56CCE0 (+0x2C: none). */
 void func_0016C7A0(int p)
 {
-    u8 *r = (u8 *)0x56CCE0 + p * 0x780;
+    u8 *r = (u8 *)PS2_PTR(0x56CCE0) + p * 0x780;
     int k;
 
     for (k = 0; k < 0x1E; k++) {
@@ -2740,7 +2740,7 @@ int func_001BEA50(u8 kind);
  * move back one; the last drops): points `a`, `b`, `c`, value `t`, `id` and `flag`. */
 void func_0016C810(float t, int p, float *a, float *b, float *c, short id, int flag)
 {
-    u8 *list = (u8 *)0x56CCE0 + p * 0x780;
+    u8 *list = (u8 *)PS2_PTR(0x56CCE0) + p * 0x780;
     int k, i;
 
     for (k = 0x1D; k > 0; k--)

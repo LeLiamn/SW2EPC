@@ -22,6 +22,14 @@
 
 typedef unsigned int ps2ptr;
 
+/* An integer as wide as a native pointer, for alignment arithmetic on pointers ((u32)p on the
+ * PS2 would cut a PC pointer to 32 bits). Plain unsigned int on the PS2 build. */
+#ifdef SW2E_PC
+typedef unsigned long long sw2e_uptr;
+#else
+typedef unsigned int sw2e_uptr;
+#endif
+
 #ifdef SW2E_PC
 
 /* the EE kernel calls under PC names (some PS2 names are also Windows kernel32 functions) */
@@ -31,20 +39,33 @@ typedef unsigned int ps2ptr;
 #define PS2_SPR_BASE 0x70000000u         /* the scratchpad, 16 KB */
 #define PS2_SPR_SIZE 0x4000u
 
+#define PS2_HW_BASE  0x10000000u         /* EE hardware registers (timers, DMA, VIF, GIF...), 64 KB */
+#define PS2_HW_SIZE  0x10000u
+#define PS2_GS_BASE  0x12000000u         /* GS privileged registers, 8 KB */
+#define PS2_GS_SIZE  0x2000u
+
 extern unsigned char *sw2e_ram;                     /* the PS2 RAM block, allocated by the port */
 extern unsigned char *sw2e_spr;                     /* the scratchpad */
+extern unsigned char *sw2e_hw;                      /* stand-ins for the hardware registers */
+extern unsigned char *sw2e_gs;
 
-/* The native pointer for PS2 address `a` (RAM mirrors at 0x20000000/0x30000000 included). */
+/* The native pointer for PS2 address `a` (RAM mirrors at 0x20000000/0x30000000 included).
+ * Hardware registers get blocks of their own, which the port reads where it replaces the
+ * hardware (DMA, GS), so a register write never lands in the RAM. */
 static inline void *sw2e_ptr(unsigned int a)
 {
     if (a == 0)
         return (void *)0;
     if ((a & 0xF0000000u) == PS2_SPR_BASE)
         return sw2e_spr + (a & (PS2_SPR_SIZE - 1));
+    if ((a & 0xFFFF0000u) == PS2_HW_BASE)
+        return sw2e_hw + (a & (PS2_HW_SIZE - 1));
+    if ((a & 0xFFFFE000u) == PS2_GS_BASE)
+        return sw2e_gs + (a & (PS2_GS_SIZE - 1));
     return sw2e_ram + (a & (PS2_RAM_SIZE - 1));
 }
 
-/* The PS2 address of native pointer `p`, which must point into the RAM block or the scratchpad. */
+/* The PS2 address of native pointer `p`, which must point into one of the blocks above. */
 static inline unsigned int sw2e_addr(const void *p)
 {
     const unsigned char *q = (const unsigned char *)p;
@@ -53,6 +74,10 @@ static inline unsigned int sw2e_addr(const void *p)
         return 0;
     if (q >= sw2e_spr && q < sw2e_spr + PS2_SPR_SIZE)
         return PS2_SPR_BASE + (unsigned int)(q - sw2e_spr);
+    if (q >= sw2e_hw && q < sw2e_hw + PS2_HW_SIZE)
+        return PS2_HW_BASE + (unsigned int)(q - sw2e_hw);
+    if (q >= sw2e_gs && q < sw2e_gs + PS2_GS_SIZE)
+        return PS2_GS_BASE + (unsigned int)(q - sw2e_gs);
     return (unsigned int)(q - sw2e_ram);
 }
 

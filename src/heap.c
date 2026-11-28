@@ -20,22 +20,24 @@
 typedef unsigned char u8;
 typedef unsigned int u32;
 
-/* A block's header (16 bytes). */
+/* A block's header (16 bytes). The links are PS2 addresses (docs/port.md). */
 typedef struct Block {
-    struct Block *prev;
-    struct Block *next;
-    u8 *data;                /* 0 = free */
+    ps2ptr prev;             /* Block */
+    ps2ptr next;             /* Block */
+    ps2ptr data;             /* 0 = free */
     u32 size;                /* with the header */
 } Block;
 
-/* A heap (0x14 bytes). */
+/* A heap (0x14 bytes); every field is the PS2 address of a Block. */
 typedef struct {
-    Block *first;
-    Block *cursor;           /* where the next search starts */
-    Block *last;             /* the farthest block used */
-    Block *saved_cursor;
-    Block *saved_last;
+    ps2ptr first;
+    ps2ptr cursor;           /* where the next search starts */
+    ps2ptr last;             /* the farthest block used */
+    ps2ptr saved_cursor;
+    ps2ptr saved_last;
 } Heap;
+
+#define BLK(a) ((Block *)PS2_PTR(a))   /* the block at PS2 address a */
 
 extern struct {
     Heap heap[2];            /* 0x005004A0, 0x005004B4 */
@@ -70,8 +72,8 @@ void func_00102AE0(u8 *base, u32 size)
     Block *start = (Block *)base;
     Block *end = (Block *)(base + ((size - 0x10) & ~0xF));
 
-    g_005004A0.heap[1].last = end;
-    g_005004A0.heap[0].first = start;
+    g_005004A0.heap[1].last = PS2_ADDR(end);
+    g_005004A0.heap[0].first = PS2_ADDR(start);
     end->prev = 0;
     start->prev = 0;
     g_005004A0.free = size - 0x20 - (size & 0xF);
@@ -82,10 +84,10 @@ void func_00102AE0(u8 *base, u32 size)
     end->size = g_005004A0.free;
     start->size = g_005004A0.free;
     g_005004A0.size = size;
-    g_005004A0.heap[0].last = start;
-    g_005004A0.heap[0].cursor = start;
-    g_005004A0.heap[1].cursor = end;
-    g_005004A0.heap[1].first = end;
+    g_005004A0.heap[0].last = PS2_ADDR(start);
+    g_005004A0.heap[0].cursor = PS2_ADDR(start);
+    g_005004A0.heap[1].cursor = PS2_ADDR(end);
+    g_005004A0.heap[1].first = PS2_ADDR(end);
 }
 
 /* 0x00102B60, 0x14 bytes, matching. */
@@ -109,7 +111,7 @@ void func_00102B80(void)
 Block *func_00102BD0(u32 *need)
 {
     Heap *h = func_00102A80();
-    Block *b = h->cursor;
+    Block *b = BLK(h->cursor);
 
     for (;;) {
         if (b->data == 0) {
@@ -123,38 +125,38 @@ Block *func_00102BD0(u32 *need)
 
                 if (g_005004A0.which != 0)
                     step = -want;
-                n = (Block *)((u8 *)b + step);
+                n = BLK(PS2_ADDR(b) + step);     /* 32-bit: step is negative for heap 1 */
                 n->size = size - want;
-                n->prev = b;
+                n->prev = PS2_ADDR(b);
                 n->next = b->next;
                 n->data = 0;
                 if (n->next != 0)
-                    n->next->prev = n;
+                    BLK(n->next)->prev = PS2_ADDR(n);
                 b->size = *need;
-                b->next = n;
-                b->data = (u8 *)((g_005004A0.which == 0 ? b : n) + 1);
-                if (h->cursor == b)
-                    h->cursor = n;
+                b->next = PS2_ADDR(n);
+                b->data = PS2_ADDR(g_005004A0.which == 0 ? b : n) + sizeof(Block);
+                if (h->cursor == PS2_ADDR(b))
+                    h->cursor = PS2_ADDR(n);
             } else if (want == size) {
                 b->size = want;
-                n = b->next;
-                b->data = (u8 *)((g_005004A0.which == 0 ? b : n) + 1);
-                for (; n->data != 0; n = n->next)
+                n = BLK(b->next);
+                b->data = PS2_ADDR(g_005004A0.which == 0 ? b : n) + sizeof(Block);
+                for (; n->data != 0; n = BLK(n->next))
                     ;
-                h->cursor = n;
+                h->cursor = PS2_ADDR(n);
             } else {
                 goto next;
             }
             if (g_005004A0.which == 0)
-                farther = h->last < n;
+                farther = h->last < PS2_ADDR(n);
             else
-                farther = n < h->last;
+                farther = PS2_ADDR(n) < h->last;
             if (farther)
-                h->last = n;
+                h->last = PS2_ADDR(n);
             return b;
         }
 next:
-        b = b->next;
+        b = BLK(b->next);
         if (b == 0)
             return 0;
     }
@@ -174,7 +176,7 @@ u8 *func_00102D30(u32 size)
     if (b == 0)
         return 0;
     g_005004A0.free -= size;
-    return b->data;
+    return (u8 *)PS2_PTR(b->data);
 }
 
 /* 0x00102DB0, 0xB4 bytes. Allocates `size` bytes aligned to `align`. */
@@ -194,17 +196,17 @@ u8 *func_00102DB0(int align, u32 size)
     if (b == 0)
         return 0;
     g_005004A0.free -= need;
-    data = b->data;
-    pad = (int)((unsigned long)data % align);
+    data = (u8 *)PS2_PTR(b->data);
+    pad = (int)(PS2_ADDR(data) % align);
     data += pad != 0 ? align - pad : 0;
-    b->data = data;
+    b->data = PS2_ADDR(data);
     return data;
 }
 
 /* 0x00102E70, 0x50 bytes, matching. Merges a block with its next one when that one is free. */
 void func_00102E70(Heap *h, Block *b)
 {
-    Block *n = b->next;
+    Block *n = BLK(b->next);
 
     if (n != 0 && n->data == 0) {
         b->size += n->size;
@@ -212,9 +214,9 @@ void func_00102E70(Heap *h, Block *b)
         n->prev = 0;
         b->next = n->next;
         if (b->next != 0)
-            b->next->prev = b;
+            BLK(b->next)->prev = PS2_ADDR(b);
         else
-            h->last = b;
+            h->last = PS2_ADDR(b);
     }
 }
 
@@ -229,30 +231,30 @@ void func_00102EC0(u8 *data)
     if (data == 0)
         return;
     h = func_00102A80();
-    for (b = h->last->prev; data != b->data; b = b->prev)
+    for (b = BLK(BLK(h->last)->prev); PS2_ADDR(data) != b->data; b = BLK(b->prev))
         ;
     b->data = 0;
-    if (h->last->prev == b)
-        h->last = b;
+    if (BLK(h->last)->prev == PS2_ADDR(b))
+        h->last = PS2_ADDR(b);
     g_005004A0.free += b->size;
-    p = b->prev;
+    p = BLK(b->prev);
     if (p != 0 && p->data == 0) {
         p->size += b->size;
-        b = b->next;
-        p->next = b;
+        b = BLK(b->next);
+        p->next = PS2_ADDR(b);
         if (b == 0)
-            h->last = p;
+            h->last = PS2_ADDR(p);
         else
-            b->prev = p;
+            b->prev = PS2_ADDR(p);
         b = p;
     }
     func_00102E70(h, b);
     if (g_005004A0.which == 0)
-        nearer = b < h->cursor;
+        nearer = PS2_ADDR(b) < h->cursor;
     else
-        nearer = h->cursor < b;
+        nearer = h->cursor < PS2_ADDR(b);
     if (nearer)
-        h->cursor = b;
+        h->cursor = PS2_ADDR(b);
 }
 
 /* 0x00102FC0, 0x40 bytes. The end of the area: the top of the memory (the C library's heap is
@@ -260,7 +262,7 @@ void func_00102EC0(u8 *data)
 u8 *func_00102FC0(void)
 {
     func_0011E008(func_0011DFB0(0x183EFF0));
-    return (u8 *)0x1FFF000;
+    return (u8 *)PS2_PTR(0x1FFF000);
 }
 
 /* 0x00103000, 0x20 bytes, matching. Picks the heap in use (0 or 1); the previous choice. */
@@ -277,7 +279,7 @@ int func_00103000(u32 which)
 void func_00103020(void)
 {
     func_00103000(1);
-    func_00102AE0((u8 *)0x7C1000, func_00102FC0() - (u8 *)0x7C1000);
+    func_00102AE0((u8 *)PS2_PTR(0x7C1000), func_00102FC0() - (u8 *)PS2_PTR(0x7C1000));
 }
 
 /* 0x00103060, 0x2C bytes, matching. The same, once. */

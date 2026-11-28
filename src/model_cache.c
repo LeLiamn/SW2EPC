@@ -32,7 +32,7 @@ extern u8 *g_0045D418, *g_0045D41C, *g_0045D420;   /* (small data) the load heap
 extern u8 *g_0045D424, *g_0045D428;
 extern u8 *g_0073DA10, *g_0073DA14, *g_0073DA1C;
 
-#define SP_PKT (*(u8 **)0x70000158)
+#define SP_PKT (*(u8 **)PS2_PTR(0x70000158))
 
 void func_0020E9D0(int k);
 void func_0020ED30(void);

@@ -6022,6 +6022,11 @@ void func_00117E50(void);
 void func_00117E90(void);
 #endif
 
+#ifndef SW2E_FILE_MC_STATE_C
+void func_0022D590(int);
+void func_0022D5D0(int);
+#endif
+
 #ifndef SW2E_FILE_MODEL_C
 void func_00147780(void *);
 void func_001477A0(void *);

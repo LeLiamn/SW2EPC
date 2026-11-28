@@ -19,10 +19,10 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
-#define g_70000D60 (*(int *)0x70000D60)    /* (scratchpad) the effect layer being drawn */
-#define g_70000D64 (*(int *)0x70000D64)
-#define g_70000D68 (*(int *)0x70000D68)
-#define g_70000D6C (*(float *)0x70000D6C)  /* (scratchpad) the effects' time scale */
+#define g_70000D60 (*(int *)PS2_PTR(0x70000D60))    /* (scratchpad) the effect layer being drawn */
+#define g_70000D64 (*(int *)PS2_PTR(0x70000D64))
+#define g_70000D68 (*(int *)PS2_PTR(0x70000D68))
+#define g_70000D6C (*(float *)PS2_PTR(0x70000D6C))  /* (scratchpad) the effects' time scale */
 
 extern u8 *g_0045D398;                   /* (small data) the effect pack */
 extern u8 *g_0072C870[0x18B];            /* the effects by number */
@@ -233,8 +233,8 @@ void func_001C09C0(u8 *r, u8 *e)
     }
 }
 
-#define g_70000150 (*(int *)0x70000150)    /* (scratchpad) the frame's buffer (0 / 1) */
-#define g_7000015C (*(u32 *)0x7000015C)    /* (scratchpad) the random seed */
+#define g_70000150 (*(int *)PS2_PTR(0x70000150))    /* (scratchpad) the frame's buffer (0 / 1) */
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))    /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10 & 0xFFFF)
 
 extern u32 g_0045D2A8;                   /* (small data) the game paused */

@@ -532,7 +532,7 @@ int func_002C3AD0(int k)
 /* 0x002C3E20, 0xC4 bytes. Counts the stage objects of kind `*kind` that `fn` accepts. */
 int func_002C3E20(char *kind, int (*fn)(u32, int), int a)
 {
-    u8 *o = *(u8 **)0x700001D0;
+    u8 *o = *(u8 **)PS2_PTR(0x700001D0);
     u32 n = func_00196A10(), k;
     int c = 0;
 

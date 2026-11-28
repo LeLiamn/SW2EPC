@@ -183,7 +183,7 @@ void func_00183240(void)
             return;
         }
         uVar3 = 0;
-        pbVar2 = (u8 *)0x5BC2A0;
+        pbVar2 = (u8 *)PS2_PTR(0x5BC2A0);
         do {
             if (pbVar2[3] != 1) break;
             uVar3 = uVar3 + 1;
@@ -696,7 +696,7 @@ void func_0029B900(int param_1, int param_2, int param_3, int param_4, int *para
 
     lVar3 = func_0036D780();
     if (lVar3 == 0) {
-        puVar4 = (u8 *)0x4113E0;
+        puVar4 = (u8 *)PS2_PTR(0x4113E0);
     }
     else {
         puVar4 = g_00411380;

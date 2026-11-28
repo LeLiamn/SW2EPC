@@ -483,7 +483,7 @@ void func_0016E910(u8 *slot)
 void func_0016EAB0(float grow, float *e)
 {
     u8 *t = *(u8 **)&e[0x1A];
-    float *s = (float *)0x70000030, len;
+    float *s = (float *)PS2_PTR(0x70000030), len;
     int k;
 
     for (k = 0; k < 4; k++) {
@@ -499,7 +499,7 @@ void func_0016EAB0(float grow, float *e)
 void func_0016EB20(float grow, float *e)
 {
     u8 *t = *(u8 **)&e[0x1A];
-    float *s = (float *)0x70000030, len;
+    float *s = (float *)PS2_PTR(0x70000030), len;
     int k;
 
     if (t == 0)
@@ -538,8 +538,8 @@ void func_0016EBB0(u8 *slot, void *m, int colour)
 
 typedef unsigned long long u64;
 
-#define g_70000158 (*(u32 **)0x70000158)         /* the DMA chain's write cursor */
-#define SCRATCH_W ((const float *)0x70000030)   /* (scratchpad) the point (0, 0, 0, 1) */
+#define g_70000158 (*(u32 **)PS2_PTR(0x70000158))         /* the DMA chain's write cursor */
+#define SCRATCH_W ((const float *)PS2_PTR(0x70000030))   /* (scratchpad) the point (0, 0, 0, 1) */
 
 extern float g_00406580[0x38];           /* per kind: the reach of a two-handed weapon's end */
 extern float g_004065A0[0x38];           /* the same, on the other side */

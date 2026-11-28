@@ -29,10 +29,10 @@ extern float g_0045CDE4;                 /* (small data) */
 extern u8 g_00410A40[12], g_00410A50[12], g_00410A60[14], g_00410A70[11];
 extern u8 g_00669D60[];
 
-#define g_70000D60 (*(int *)0x70000D60)    /* (scratchpad) the effect layer */
-#define g_70000030 ((float *)0x70000030)   /* (scratchpad) the camera position */
-#define g_70000150 (*(int *)0x70000150)
-#define g_70000158 (*(u32 *)0x70000158)
+#define g_70000D60 (*(int *)PS2_PTR(0x70000D60))    /* (scratchpad) the effect layer */
+#define g_70000030 ((float *)PS2_PTR(0x70000030))   /* (scratchpad) the camera position */
+#define g_70000150 (*(int *)PS2_PTR(0x70000150))
+#define g_70000158 (*(u32 *)PS2_PTR(0x70000158))
 #define SETTINGS_FLAGS (*(u32 *)(g_00669D60 + 0x200))
 
 void func_001C7F30(int k, float *pos, int c, u32 f);

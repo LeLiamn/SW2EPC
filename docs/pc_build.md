@@ -7,11 +7,11 @@ see [port.md](port.md), [upp_integration.md](upp_integration.md) and [launcher.m
 
 | | |
 |---|---|
-| Source files compiled | 160 of 160 |
-| Port files compiled | 4 of 4 |
+| Source files compiled | 161 of 161 |
+| Port files compiled | 9 of 9 |
 | Functions defined twice | 0 |
-| Functions called but not decompiled yet | 979 |
-| Other symbols from outside the sources | 35 (C library, port) |
+| Functions called but not decompiled yet | 919 |
+| Other symbols from outside the sources | 48 (C library, port) |
 | Link | ok: `build/pc/sw2epc.exe` |
 
 ## First run
@@ -23,35 +23,37 @@ With the player's own disc image (`--run`), stand-in runtime:
 [info] segment 0x00100000: 0x35D180 bytes from the disc
 [info] segment 0x007C0000: 0x0 bytes from the disc
 [info] boot executable loaded (3529520 bytes)
-[fatal] not decompiled yet: func_0011DFB0
+[warning] sceCdSearchFile: \MODULES\MODULES.BIN;1 not on the disc
+[info] GS video mode: PAL, interlaced, field (sceGsResetGraph mode 0)
+[info] run() ends
 ```
 
 ## Missing functions by area
 
 | Area | Functions |
 |---|---|
-| Sony libraries | 155 |
-| game code | 824 |
+| Sony libraries | 99 |
+| game code | 820 |
 
 Called from the most files:
 
-- `func_001204B0` (Sony libraries, 45 files)
-- `func_00120928` (game code, 25 files)
 - `func_002C7310` (game code, 23 files)
-- `func_0011ED38` (Sony libraries, 20 files)
-- `func_0011EB80` (Sony libraries, 18 files)
 - `func_001FF100` (game code, 18 files)
 - `func_0017DF10` (game code, 17 files)
 - `func_0017DDA0` (game code, 16 files)
 - `func_001FF140` (game code, 11 files)
 - `func_00206080` (game code, 10 files)
-- `func_00120A40` (game code, 9 files)
 - `func_001FF230` (game code, 9 files)
 - `func_0021A630` (game code, 9 files)
 - `func_0017E0C0` (game code, 8 files)
 - `func_00204B60` (game code, 8 files)
 - `func_002A6D20` (game code, 8 files)
-- `func_001265F0` (Sony libraries, 7 files)
 - `func_00238AE0` (game code, 7 files)
 - `func_00380E80` (game code, 7 files)
 - `func_002A5B10` (game code, 6 files)
+- `func_002A6910` (game code, 6 files)
+- `func_0032D3C0` (game code, 6 files)
+- `func_0032F420` (game code, 6 files)
+- `func_00375F90` (game code, 6 files)
+- `func_00388710` (game code, 6 files)
+- `func_00389090` (game code, 6 files)

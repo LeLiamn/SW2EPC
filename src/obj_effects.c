@@ -30,7 +30,7 @@ extern u8 g_004004B0[];
 extern u8 g_00441570[0x28];
 extern int g_00441430[0x28], g_004414D0[0x28], g_00441390[0x28], g_004412F0[0x28];
 
-#define SP_PKT (*(u32 **)0x70000158)
+#define SP_PKT (*(u32 **)PS2_PTR(0x70000158))
 #define REQ(k) g_0078E010[k]
 #define SLOT(k) g_00792070[k]
 #define FL38(o) (*(u32 *)((o) + 0x38))
@@ -141,7 +141,7 @@ void func_002AEBB0(void)
         *(u32 *)(b + 8) = 0x11000000;
         *(u32 *)(b + 0xC) = 0x6C040013;
         for (j = 0; j < 16; j++)
-            *(u32 *)(b + 0x10 + j * 4) = ((u32 *)0x70000000)[j];
+            *(u32 *)(b + 0x10 + j * 4) = ((u32 *)PS2_PTR(0x70000000))[j];
     }
     for (k = 0; k < 0x28; k++)
         g_00791FD0[k] = 0;

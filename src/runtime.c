@@ -123,9 +123,9 @@ void func_001181E0(void)
     func_0011B380(func_0011B050(0), g_0041DE00);
     func_001265F0(0, 0);
     func_00117FA0();
-    func_00142EA8((float *)0x70000000);
-    func_00142FF0((float *)0x70000040, 3.14159274f);
-    func_00143098((float *)0x70000080, 3.14159274f);
+    func_00142EA8((float *)PS2_PTR(0x70000000));
+    func_00142FF0((float *)PS2_PTR(0x70000040), 3.14159274f);
+    func_00143098((float *)PS2_PTR(0x70000080), 3.14159274f);
     SCRATCH_F(0xC0) = 0.0f;
     SCRATCH_F(0xC4) = 0.0f;
     SCRATCH_F(0xC8) = 0.0f;
@@ -263,7 +263,7 @@ void func_001185E0(u8 *to, u32 n, u8 c)
             *to++ = c;
         return;
     }
-    q = (u32 *)(((u32)to + 0xF) & ~0xF);
+    q = (u32 *)(((sw2e_uptr)to + 0xF) & ~0xF);
     head = (u8 *)q - to;
     for (i = 0; i < head; i++)
         *to++ = c;
@@ -298,7 +298,7 @@ void func_00118850(u8 *to, u32 n)
             *to++ = 0;
         return;
     }
-    q = (u32 *)(((u32)to + 0xF) & ~0xF);
+    q = (u32 *)(((sw2e_uptr)to + 0xF) & ~0xF);
     head = (u8 *)q - to;
     for (i = 0; i < head; i++)
         *to++ = 0;
@@ -335,7 +335,7 @@ void func_00118AC0(u32 *to, u8 *from, u32 n)
         func_0011EB80(to, from, n);
         return;
     }
-    q = (u32 *)(((u32)from + 0xF) & ~0xF);
+    q = (u32 *)(((sw2e_uptr)from + 0xF) & ~0xF);
     head = (u8 *)q - from;
     d = (u8 *)to;
     for (i = 0; i < head; i++)

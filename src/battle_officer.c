@@ -21,7 +21,7 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
-#define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))          /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10 & 0xFFFF)
 
 extern u8 g_006A95B0[15][0xC0];          /* the spare battle officers */
@@ -626,9 +626,9 @@ void func_001BAF20(u8 *o)
     }
 }
 
-#define g_70000164 (*(int *)0x70000164)    /* (scratchpad) how many units can be in battle */
-#define g_7000016C (*(float *)0x7000016C)  /* (scratchpad) the drawing distance */
-#define g_70000170 (*(float *)0x70000170)  /* (scratchpad) its square */
+#define g_70000164 (*(int *)PS2_PTR(0x70000164))    /* (scratchpad) how many units can be in battle */
+#define g_7000016C (*(float *)PS2_PTR(0x7000016C))  /* (scratchpad) the drawing distance */
+#define g_70000170 (*(float *)PS2_PTR(0x70000170))  /* (scratchpad) its square */
 
 extern u32 g_006AA5A0, g_006AA5A4, g_006AA5A8, g_006AA5AC, g_006AA5B0, g_006AA5B4, g_006AA5B8;
 extern int g_006AA5D8;

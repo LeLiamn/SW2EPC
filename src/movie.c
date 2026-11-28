@@ -26,9 +26,9 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 typedef unsigned long long u64;
 
-#define REG_RCNT1_COUNT (*(volatile u32 *)0x10000800)
-#define REG_GS_DISPFB1  (*(volatile u64 *)0x12000070)
-#define REG_GS_DISPLAY1 (*(volatile u64 *)0x12000080)
+#define REG_RCNT1_COUNT (*(volatile u32 *)PS2_PTR(0x10000800))
+#define REG_GS_DISPFB1  (*(volatile u64 *)PS2_PTR(0x12000070))
+#define REG_GS_DISPLAY1 (*(volatile u64 *)PS2_PTR(0x12000080))
 
 /* GS registers as bitfields (first field = lowest bits). */
 typedef struct {
@@ -278,10 +278,10 @@ void func_00116B40(void *arg)
 {
     u8 *work = arg;
 
-    func_0011EB80(work + 0x1000, (void *)0x70000000, 0x4000);
+    func_0011EB80(work + 0x1000, (void *)PS2_PTR(0x70000000), 0x4000);
     *(int *)(work + 0x5010) = func_00107578(*(u8 **)(work + 0x5004), *(u32 *)(work + 0x5008), 0,
                                             *(int **)(work + 0x500C));
-    func_0011EB80((void *)0x70000000, work + 0x1000, 0x4000);
+    func_0011EB80((void *)PS2_PTR(0x70000000), work + 0x1000, 0x4000);
     WakeupThread(*(int *)(work + 0x5000));
     ExitThread();
 }

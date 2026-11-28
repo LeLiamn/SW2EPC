@@ -78,7 +78,7 @@ extern struct {
 #define g_007B4E50 (s_007B4E48.g_007B4E50)
 
 /* (scratchpad) screen scale divisor? */
-#define g_70000154 (*(int *)0x70000154)
+#define g_70000154 (*(int *)PS2_PTR(0x70000154))
 extern const char g_00446350[];           /* "StateConquest.c" */
 extern const char *g_0043C5EC;            /* a button help line */
 extern u16 g_004463E0[];                  /* 2000, 2400 ... 8000 (gold per level?) */

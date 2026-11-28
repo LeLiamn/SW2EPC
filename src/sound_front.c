@@ -459,7 +459,7 @@ void func_0023B320(void)
     int k;
 
     for (k = 0; k < 0x8F; k++) {
-        u8 *u = (u8 *)0x574DE0 + k * 0x630;
+        u8 *u = (u8 *)PS2_PTR(0x574DE0) + k * 0x630;
 
         if ((u[0x198] & 2) != 0) {
             func_0016C9B0(u);

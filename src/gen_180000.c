@@ -135,7 +135,7 @@ int func_00181F20(int param_1)
     u32 uVar3;
 
     uVar3 = 0;
-    piVar2 = (int *)0x693970;
+    piVar2 = (int *)PS2_PTR(0x693970);
     do {
         func_00118AC0((u32 *)(piVar2), (u8 *)PS2_PTR(param_1), 0x88);
         if ((piVar2[0x20] & 1U) != 0) {
@@ -230,7 +230,7 @@ void func_00183130(void)
     if ((*(u8 *)g_005BC3A0 & 0x20) == 0) {
         while ((*(u8 *)(g_005BC3A0 + 0x4) & 8) == 0) {
             if ((*(u8 *)(g_005BC3A0 + 0x4) & 1) == 0) {
-                pbVar1 = (u8 *)0x5BC2A0;
+                pbVar1 = (u8 *)PS2_PTR(0x5BC2A0);
                 uVar2 = 0;
                 do {
                     if (pbVar1[3] == 1) break;
@@ -276,7 +276,7 @@ int func_00183410(int param_1, int param_2, int param_3, int param_4, int param_
     else if (param_5 != 0) {
         bVar7 = 6;
     }
-    pbVar4 = (u8 *)0x5BC2A0;
+    pbVar4 = (u8 *)PS2_PTR(0x5BC2A0);
     uVar6 = 0;
     do {
         if (((*pbVar4 & 1) == 0) || (pbVar4[3] < param_4)) break;
@@ -1208,7 +1208,7 @@ int func_001D1540(void)
             bVar1 = false;
             iVar5 = 0;
             iVar3 = (int)g_00669D60;
-            piVar2 = (int *)0x6AA59C;
+            piVar2 = (int *)PS2_PTR(0x6AA59C);
             do {
                 if (((*(int *)(iVar3 + 0xA0) != 0) && (*piVar2 != 0)) && (*piVar2 == iVar4 + 0x6A95B0)) {
                     bVar1 = true;
@@ -1522,7 +1522,7 @@ void func_001DF170(void)
     u32 * puVar1;
 
     iVar2 = 0;
-    puVar1 = (u32 *)0x730E50;
+    puVar1 = (u32 *)PS2_PTR(0x730E50);
     do {
         *puVar1 = 0xFFFFFFFF;
         iVar2 = iVar2 + 8;

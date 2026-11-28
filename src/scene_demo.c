@@ -63,7 +63,7 @@ extern struct {
 
 /* The game's random generator (see scene_shop.c). */
 /* 0x7000015C: the random seed in the scratchpad (see main.c). */
-#define g_7000015C (*(u32 *)0x7000015C)
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))
 #define random16() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, (g_7000015C >> 16) & 0xFFFF)
 
 #define OFFICER_NONE 0x19F

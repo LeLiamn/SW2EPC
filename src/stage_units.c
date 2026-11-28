@@ -17,15 +17,15 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 /* The scratchpad block. */
-#define SU_INFO (*(u8 **)0x70000180)       /* 0x10 bytes per unit */
-#define SU_A (*(u8 ***)0x70000184)         /* three model lists */
-#define SU_B (*(u8 ***)0x70000188)
-#define SU_C (*(u8 ***)0x7000018C)
-#define SU_SHAPE (*(u8 ***)0x70000190)     /* each unit's shape record */
-#define SU_DATA (*(u8 ***)0x70000194)      /* each unit's data */
-#define SU_COUNT (*(u16 *)0x70000198)
-#define g_700001A0 ((u8 *)0x700001A0)      /* the empty shape */
-#define g_700001B0 ((u8 *)0x700001B0)      /* the shape of size 0x20 */
+#define SU_INFO (*(u8 **)PS2_PTR(0x70000180))       /* 0x10 bytes per unit */
+#define SU_A (*(u8 ***)PS2_PTR(0x70000184))         /* three model lists */
+#define SU_B (*(u8 ***)PS2_PTR(0x70000188))
+#define SU_C (*(u8 ***)PS2_PTR(0x7000018C))
+#define SU_SHAPE (*(u8 ***)PS2_PTR(0x70000190))     /* each unit's shape record */
+#define SU_DATA (*(u8 ***)PS2_PTR(0x70000194))      /* each unit's data */
+#define SU_COUNT (*(u16 *)PS2_PTR(0x70000198))
+#define g_700001A0 ((u8 *)PS2_PTR(0x700001A0))      /* the empty shape */
+#define g_700001B0 ((u8 *)PS2_PTR(0x700001B0))      /* the shape of size 0x20 */
 
 extern u8 g_00669D60[];
 
@@ -195,7 +195,7 @@ void func_00208140(u8 *info, u32 *f)
     u32 *a, k;
     int size;
 
-    func_00118850((void *)0x70000180, 0x40);
+    func_00118850((void *)PS2_PTR(0x70000180), 0x40);
     for (k = 0; k < f[0]; k++)
         f[k + 1] += (u32)f;
     a = (u32 *)f[1];
@@ -371,8 +371,8 @@ void func_0020BDE0(u8 *q, u8 *box, u8 *u)
 /* Ground heights over the stage units (0x00209BB0-0x0020A04C; heights grow downward, so the
  * highest is the smallest). */
 
-#define SU_BOXES (*(float **)0x700001D4)  /* (scratchpad) the collision boxes (8 floats each) */
-#define UNITS (*(u8 **)0x700001D0)        /* (scratchpad) the stage units (0x70 bytes each) */
+#define SU_BOXES (*(float **)PS2_PTR(0x700001D4))  /* (scratchpad) the collision boxes (8 floats each) */
+#define UNITS (*(u8 **)PS2_PTR(0x700001D0))        /* (scratchpad) the stage units (0x70 bytes each) */
 
 /* Whether point `p` lies over box `b` (with a 0.1 margin). */
 static int over_box(float *p, float *b)
@@ -416,7 +416,7 @@ float func_00209BB0(u8 *u, float *p)
 /* 0x00209E00, 0x24C bytes. The highest stage unit ground at point `p` (each unit once). */
 float func_00209E00(float *p)
 {
-    u8 *seen = (u8 *)0x700001E0;
+    u8 *seen = (u8 *)PS2_PTR(0x700001E0);
     u32 *c;
     float h = 0.0f;
 

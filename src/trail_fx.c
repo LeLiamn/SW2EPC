@@ -111,7 +111,7 @@ extern u32 g_0040D020[];
 extern int g_0045D378;                   /* (small data) the screen being drawn (two players) */
 extern u8 g_00733551;
 
-#define PACKET (*(u32 **)0x70000158)     /* (scratchpad) the current GIF packet */
+#define PACKET (*(u32 **)PS2_PTR(0x70000158))     /* (scratchpad) the current GIF packet */
 
 u32 *func_00208470(u32 *p);
 u32 *func_00208270(u32 *p, u8 *t);

@@ -32,7 +32,7 @@ extern FxSlots g_0074B868[0x8F];
 extern u8 g_00574DE0[][0x630];           /* the actors */
 extern u32 g_00410670[12];               /* the weapon element effects, by bit */
 
-#define g_70000D60 (*(int *)0x70000D60)  /* (scratchpad) the effect layer */
+#define g_70000D60 (*(int *)PS2_PTR(0x70000D60))  /* (scratchpad) the effect layer */
 
 void func_0021A610(u8 *e);
 void func_0023F730(u8 *a, FxSlots *s);

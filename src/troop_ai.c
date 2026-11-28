@@ -30,8 +30,8 @@ extern u8 g_00440418[];
 extern u32 g_7000015C;                   /* (scratchpad) the random seed */
 
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
-#define UNITS (*(u8 **)0x700001D0)       /* (scratchpad) the stage units (0x70 bytes each) */
-#define g_700001E0 ((u8 *)0x700001E0)    /* (scratchpad) a unit bit set */
+#define UNITS (*(u8 **)PS2_PTR(0x700001D0))       /* (scratchpad) the stage units (0x70 bytes each) */
+#define g_700001E0 ((u8 *)PS2_PTR(0x700001E0))    /* (scratchpad) a unit bit set */
 
 void func_00204D00(u8 *s, int a);
 void func_00206080(u8 *s);
@@ -628,10 +628,10 @@ void func_00204EA0(u8 *s)
         func_00206080(p);
         a = *(u8 **)(p + 0x14);
         *(u32 *)(a + 0x13C) = 0;
-        *(u32 *)(a + 0x1D0) = *(u32 *)0x700000C0;
-        *(u32 *)(a + 0x1D4) = *(u32 *)0x700000C4;
-        *(u32 *)(a + 0x1D8) = *(u32 *)0x700000C8;
-        *(u32 *)(a + 0x1DC) = *(u32 *)0x700000CC;
+        *(u32 *)(a + 0x1D0) = *(u32 *)PS2_PTR(0x700000C0);
+        *(u32 *)(a + 0x1D4) = *(u32 *)PS2_PTR(0x700000C4);
+        *(u32 *)(a + 0x1D8) = *(u32 *)PS2_PTR(0x700000C8);
+        *(u32 *)(a + 0x1DC) = *(u32 *)PS2_PTR(0x700000CC);
     }
 }
 
@@ -719,10 +719,10 @@ void func_00201990(u8 *s);
 static void stop_target(u8 *a)
 {
     *(u32 *)(a + 0x13C) = 0;
-    *(u32 *)(a + 0x1D0) = *(u32 *)0x700000C0;
-    *(u32 *)(a + 0x1D4) = *(u32 *)0x700000C4;
-    *(u32 *)(a + 0x1D8) = *(u32 *)0x700000C8;
-    *(u32 *)(a + 0x1DC) = *(u32 *)0x700000CC;
+    *(u32 *)(a + 0x1D0) = *(u32 *)PS2_PTR(0x700000C0);
+    *(u32 *)(a + 0x1D4) = *(u32 *)PS2_PTR(0x700000C4);
+    *(u32 *)(a + 0x1D8) = *(u32 *)PS2_PTR(0x700000C8);
+    *(u32 *)(a + 0x1DC) = *(u32 *)PS2_PTR(0x700000CC);
 }
 
 /* 0x002018B0, 0x60 bytes. Order 0x10000 (wait): ends with its timer. */

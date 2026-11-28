@@ -23,7 +23,7 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 typedef unsigned long long u64;
 
-#define g_7000015C (*(u32 *)0x7000015C)          /* the random seed (scratchpad) */
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))          /* the random seed (scratchpad) */
 
 extern volatile int g_0045D1AC;          /* (small data) 1: flip at vblank (system.c) */
 

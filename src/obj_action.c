@@ -57,9 +57,9 @@ extern u8 g_0073DC98[], g_0073DF28[];
 extern u8 g_00669D60[];
 extern int g_00669DB8, g_00669F6C;
 
-#define UNITS (*(u8 **)0x700001D0)       /* (scratchpad) the stage units (0x70 bytes each) */
-#define g_70000874 (*(u32 *)0x70000874)
-#define g_70000878 (*(float *)0x70000878)
+#define UNITS (*(u8 **)PS2_PTR(0x700001D0))       /* (scratchpad) the stage units (0x70 bytes each) */
+#define g_70000874 (*(u32 *)PS2_PTR(0x70000874))
+#define g_70000878 (*(float *)PS2_PTR(0x70000878))
 #define SETTINGS_FLAGS (*(u32 *)(g_00669D60 + 0x200))
 
 u32 func_001FF100(u16 v, int k);

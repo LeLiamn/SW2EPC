@@ -23,7 +23,7 @@ typedef unsigned int u32;
 #include "sw2e_draw.h"
 typedef unsigned long long u64;
 
-#define g_70000154 (*(int *)0x70000154)    /* (scratchpad) the vertical scale */
+#define g_70000154 (*(int *)PS2_PTR(0x70000154))    /* (scratchpad) the vertical scale */
 
 extern u64 g_0068F0F0, g_0068F0F8;     /* the TEX0 values of the texture sets */
 

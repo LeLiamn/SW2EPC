@@ -84,7 +84,7 @@ void func_00100500(void);
 extern u32 g_0045CB80_a[], g_0045CB80_b[], g_0045CB80_c[], g_0045CB80_d[];
 
 /* 0x7000015C: a word in the PS2 scratchpad RAM, set to 12345 at start-up (random seed?). */
-#define g_7000015C (*(volatile u32 *)0x7000015C)
+#define g_7000015C (*(volatile u32 *)PS2_PTR(0x7000015C))
 
 void func_00117F10(void *a, void *b, void *c, void *d);
 

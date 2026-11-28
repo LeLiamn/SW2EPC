@@ -19,7 +19,7 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 typedef unsigned long long u64;
 
-#define SPAD(off) ((u8 *)0x70000000 + (off))
+#define SPAD(off) ((u8 *)PS2_PTR(0x70000000) + (off))
 #define SP32(off) (*(u32 *)SPAD(off))
 #define SPP(off)  (*(u8 **)SPAD(off))
 #define SP_PKT    (*(u32 **)SPAD(0x158))
@@ -54,10 +54,10 @@ void func_001F44E0(int k)
         return;
     u = (u8 *)PS2_PTR(func_001F2AF0());
     if (u == 0) {
-        b = k == 3 ? (u8 *)0x575410 : (u8 *)0x574DE0;
+        b = k == 3 ? (u8 *)PS2_PTR(0x575410) : (u8 *)PS2_PTR(0x574DE0);
     } else {
         func_001F4280(u + 0x90, g_0045D2C0 + 0x1C0);
-        b = (u8 *)0x574DE0;
+        b = (u8 *)PS2_PTR(0x574DE0);
     }
     func_001F4280(b + 0x90, g_0045D2C0 + 0x1C0);
 }

@@ -1066,7 +1066,7 @@ void func_003E1DD0(void)
             u32 t[3], n, j = 0;
 
             func_00118850((unsigned char *)(t), 0xC);
-            n = func_003E1930(300.0f, (u8 *)0x574DE0 + p * 0x630, t);
+            n = func_003E1930(300.0f, (u8 *)PS2_PTR(0x574DE0) + p * 0x630, t);
             for (; j < n; j++)
                 g_007BF720[p][j] = t[j];
             for (; j < 3; j++)
@@ -1212,7 +1212,7 @@ void func_003E2B30(int p)
     u32 n = 0, j;
 
     for (j = 0; j < 4; j++) {
-        u8 *e = (u8 *)0x574DE0 + p * 0x630;
+        u8 *e = (u8 *)PS2_PTR(0x574DE0) + p * 0x630;
 
         if (j != 0)
             e = (u8 *)func_003E1F60(p, j - 1);
@@ -1766,7 +1766,7 @@ void func_003E7310(int k)
 
     g_0072C860 = g_0045D848[s >= 3];
     g_0072C868 = g_007BFB00[s];
-    *(int *)0x70000D60 = k == 0 ? 5 : 0xC;
+    *(int *)PS2_PTR(0x70000D60) = k == 0 ? 5 : 0xC;
     func_0017A920(g_007BF8C0);
     func_001CB810(g_007BF7A0, 0x30);
     func_001C8620(g_007BF7A0, s < 3 ? 0xF5 : 0xF6, g_007BFA80, 0, 0x80024);

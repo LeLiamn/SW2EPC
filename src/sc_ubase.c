@@ -25,7 +25,7 @@ typedef unsigned int u32;
 #define U16(o, off) (*(u16 *)((u8 *)(o) + (off)))
 #define U32(o, off) (*(u32 *)((u8 *)(o) + (off)))
 
-#define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))          /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10 & 0xFFFF)
 
 extern u8 *g_005BA69C;                   /* the officer table's file */
@@ -166,10 +166,10 @@ u32 func_0019AEF0(u32 t)
 int func_0019AF10(float size, u32 t, u32 n)
 {
     u32 a = func_0019AE90(t);
-    int w = func_001AA320(size, (u8 *)0x4053F0, a);
+    int w = func_001AA320(size, (u8 *)PS2_PTR(0x4053F0), a);
 
     if (a != n)
-        w = w + func_001AA320(size, (u8 *)0x4053F0, n) + (int)(size * 8.0f / 20.0f);
+        w = w + func_001AA320(size, (u8 *)PS2_PTR(0x4053F0), n) + (int)(size * 8.0f / 20.0f);
     return w + 1;
 }
 
@@ -604,7 +604,7 @@ int func_0019CD70(int p, u32 exp, int quiet)
             func_0019CB90(p);
             PSET(p, 0x98) = need < PSET(p, 0x98) ? PSET(p, 0x98) - need : 0;
             func_001F9AC0(p, level, (level & 1) == 0 && level < 0xD, learnt);
-            *(u32 *)0x70000D60 = 0;
+            *(u32 *)PS2_PTR(0x70000D60) = 0;
             func_001C8780(0x25, PS2_ADDR(g_00574DE0[p]), 0, 0x204);
         }
         return 1;

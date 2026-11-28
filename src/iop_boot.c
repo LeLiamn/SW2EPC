@@ -51,8 +51,10 @@ typedef struct {
 extern Module g_00400C30[9];             /* the modules in MODULES.BIN */
 extern SifDma g_00560820;
 
-extern u8 *g_0045D1E4;                   /* (small data) the VIF1 DMA channel */
-extern u8 *g_0045D1E0;                   /* (small data) the GIF DMA channel */
+extern ps2ptr g_0045D1E4;                /* (small data) the VIF1 DMA channel */
+extern ps2ptr g_0045D1E0;                /* (small data) the GIF DMA channel */
+#define VIF1_CHAN ((u8 *)PS2_PTR(g_0045D1E4))
+#define GIF_CHAN ((u8 *)PS2_PTR(g_0045D1E0))
 
 void func_00125870(void);                /* sceGsResetPath? */
 void func_0011B078(int a);               /* sceDmaReset? */
@@ -82,10 +84,10 @@ void func_00106420(void)
 {
     func_00125870();
     func_0011B078(1);
-    g_0045D1E4 = func_0011B050(1);
-    *g_0045D1E4 = (*g_0045D1E4 & ~0x40) | 0x40;
-    g_0045D1E0 = func_0011B050(2);
-    *g_0045D1E0 = *g_0045D1E0 & ~0x40;
+    g_0045D1E4 = PS2_ADDR(func_0011B050(1));
+    *VIF1_CHAN = (*VIF1_CHAN & ~0x40) | 0x40;
+    g_0045D1E0 = PS2_ADDR(func_0011B050(2));
+    *GIF_CHAN = *GIF_CHAN & ~0x40;
 }
 
 /* 0x00106490, 0x198 bytes. Loads the IOP modules from MODULES.BIN (a module that fails to start

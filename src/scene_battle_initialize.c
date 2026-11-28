@@ -655,11 +655,11 @@ extern float g_0045CC7C;                  /* game speed */
 extern int g_0045CC80;
 extern int g_0045D470;                    /* player being handled (0 or 1) */
 /* (scratchpad) non-zero: fewer soldiers */
-#define g_70000174 (*(int *)0x70000174)
+#define g_70000174 (*(int *)PS2_PTR(0x70000174))
 /* (scratchpad) */
-#define g_70000D60 (*(int *)0x70000D60)
+#define g_70000D60 (*(int *)PS2_PTR(0x70000D60))
 /* (scratchpad) the camera's direction vector? */
-#define g_700000C0 ((float *)0x700000C0)
+#define g_700000C0 ((float *)PS2_PTR(0x700000C0))
 extern u8 g_00428DC0[];                   /* soldiers per stage music? (indexed by the record) */
 
 /* Players in battle (0x006A3A44, 0xC0 bytes each): +0 their unit, +0xA4 flags. */

@@ -23,18 +23,18 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
-#define REG_IPU_CMD            (*(volatile u32 *)0x10002000)
-#define REG_IPU_CTRL           (*(volatile u32 *)0x10002010)
-#define REG_DMAC_3_CHCR        (*(volatile u32 *)0x1000B000)   /* from the IPU */
-#define REG_DMAC_3_MADR        (*(volatile u32 *)0x1000B010)
-#define REG_DMAC_3_QWC         (*(volatile u32 *)0x1000B020)
-#define REG_DMAC_4_CHCR        (*(volatile u32 *)0x1000B400)   /* to the IPU */
-#define REG_DMAC_4_MADR        (*(volatile u32 *)0x1000B410)
-#define REG_DMAC_4_QWC         (*(volatile u32 *)0x1000B420)
-#define REG_DMAC_ENABLER       (*(volatile u32 *)0x1000F520)
-#define REG_DMAC_ENABLEW       (*(volatile u32 *)0x1000F590)
+#define REG_IPU_CMD            (*(volatile u32 *)PS2_PTR(0x10002000))
+#define REG_IPU_CTRL           (*(volatile u32 *)PS2_PTR(0x10002010))
+#define REG_DMAC_3_CHCR        (*(volatile u32 *)PS2_PTR(0x1000B000))   /* from the IPU */
+#define REG_DMAC_3_MADR        (*(volatile u32 *)PS2_PTR(0x1000B010))
+#define REG_DMAC_3_QWC         (*(volatile u32 *)PS2_PTR(0x1000B020))
+#define REG_DMAC_4_CHCR        (*(volatile u32 *)PS2_PTR(0x1000B400))   /* to the IPU */
+#define REG_DMAC_4_MADR        (*(volatile u32 *)PS2_PTR(0x1000B410))
+#define REG_DMAC_4_QWC         (*(volatile u32 *)PS2_PTR(0x1000B420))
+#define REG_DMAC_ENABLER       (*(volatile u32 *)PS2_PTR(0x1000F520))
+#define REG_DMAC_ENABLEW       (*(volatile u32 *)PS2_PTR(0x1000F590))
 
-#define g_70000150 (*(int *)0x70000150)          /* frame index: 0 or 1 */
+#define g_70000150 (*(int *)PS2_PTR(0x70000150))          /* frame index: 0 or 1 */
 
 /* A picture to decode. */
 typedef struct {

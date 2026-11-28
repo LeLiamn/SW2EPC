@@ -83,7 +83,7 @@ extern struct {
 #define g_00669DB2 (g_00669D60.g_00669DB2)
 #define g_00669DB3 (g_00669D60.g_00669DB3)
 /* (scratchpad) screen scale divisor? */
-#define g_70000154 (*(int *)0x70000154)
+#define g_70000154 (*(int *)PS2_PTR(0x70000154))
 extern const char g_00424AD0[];           /* "StateInitialize.c" */
 
 /* Scene 0x00 state, small data ($gp). */

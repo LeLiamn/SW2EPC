@@ -389,7 +389,7 @@ static inline void turn_y(float *out, float yaw, const float *v)
 
     for (i = 0; i < 4; i++)
         for (k = 0; k < 4; k++)
-            m[i][k] = ((float *)0x70000000)[i * 4 + k];
+            m[i][k] = ((float *)PS2_PTR(0x70000000))[i * 4 + k];
     vu0_rot_y(m, yaw);
     for (k = 0; k < 4; k++)
         out[k] = m[0][k] * v[0] + m[1][k] * v[1] + m[2][k] * v[2] + m[3][k] * v[3];

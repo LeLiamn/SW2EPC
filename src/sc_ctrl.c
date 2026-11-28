@@ -885,7 +885,7 @@ void func_00187A70(short *cmd, int player)
  * texts by index). */
 #define SC_VAR(i) (*(int *)((u8 *)&g_005BA690 + (i) * 4 + 0x1BD0))
 
-#define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))          /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
 extern u32 g_005BD73C;

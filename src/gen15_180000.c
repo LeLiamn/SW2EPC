@@ -53,7 +53,6 @@ extern int g_0045D810;   /* (small data) */
 
 int func_001204B0();
 int func_002284E0();
-int func_0022D590();
 int func_00279140();
 int func_0029C800();
 int func_002A85F0();
@@ -136,7 +135,7 @@ int func_0022D7C0(u8 *param_1, int param_2)
         *puVar2 = *puVar2 | 2;
     }
     else {
-        func_0022D590();
+        func_0022D590(*(int *)(param_1 + 8));
         *puVar2 = 0;
         *(u32 *)(g_0074A150 + iVar1) = 0;
         if (*(int *)(g_0074A144 + iVar1) == 1) {

@@ -772,7 +772,7 @@ int func_0018F800(u8 *cell, int dir)
     return (U8(e, dir + 0x18) & 1) != 0;
 }
 
-#define g_7000015C (*(u32 *)0x7000015C)          /* (scratchpad) the random seed */
+#define g_7000015C (*(u32 *)PS2_PTR(0x7000015C))          /* (scratchpad) the random seed */
 #define RANDOM() (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, g_7000015C >> 0x10)
 
 void func_0027DE50(u8 a, u16 *p, u16 *q);
@@ -1290,8 +1290,8 @@ void func_00191200(float *out, void *p)
     func_00191110(g_0045D2F0, out, (float *)p);
 }
 
-#define g_70000888 (*(u32 *)0x70000888)          /* (scratchpad) the current layer */
-#define g_7000088C (*(u32 *)0x7000088C)          /* (scratchpad) its bank (layers 3, 4: 1) */
+#define g_70000888 (*(u32 *)PS2_PTR(0x70000888))          /* (scratchpad) the current layer */
+#define g_7000088C (*(u32 *)PS2_PTR(0x7000088C))          /* (scratchpad) its bank (layers 3, 4: 1) */
 
 /* 0x00191240, 0x1C bytes, matching. Selects layer `k`. */
 void func_00191240(u32 k)
@@ -1303,7 +1303,7 @@ void func_00191240(u32 k)
 /* 0x00191260, 0x44 bytes. Sets colour `i` of the scratchpad table at 0x70000B90. */
 u8 *func_00191260(int i, u8 r, u8 g, u8 b, u8 a)
 {
-    u8 *c = (u8 *)0x70000B90 + i * 4;
+    u8 *c = (u8 *)PS2_PTR(0x70000B90) + i * 4;
 
     c[0] = r;
     c[1] = g;
@@ -1315,7 +1315,7 @@ u8 *func_00191260(int i, u8 r, u8 g, u8 b, u8 a)
 /* 0x001912B0, 0x2C bytes. Bit grid `i` of the current bank (0x1E90 bytes each). */
 u8 *func_001912B0(int i)
 {
-    return (u8 *)0x5BF440 + i * 0x1E90 + g_7000088C * 0x98D0;
+    return (u8 *)PS2_PTR(0x5BF440) + i * 0x1E90 + g_7000088C * 0x98D0;
 }
 
 /* 0x001912E0, 0x44 bytes. Whether cell (x, z) of a 250-wide bit grid is clear. */

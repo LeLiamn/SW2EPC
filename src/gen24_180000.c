@@ -1058,8 +1058,6 @@ int func_0022C9E0(u8 *param_1, int param_2, u8 *param_3, int *param_4);
 void func_0022CD40(int param_1, int param_2, int param_3);
 void func_0022CD70(int param_1, int param_2);
 int func_0022CDA0(u8 *param_1, unsigned long long *param_2, int p2);
-void func_0022D590(int param_1);
-void func_0022D5D0(int param_1);
 void func_0022ECD0(int param_1);
 void func_0022F120(u8 *param_1, u8 *param_2, u8 *param_3, int param_4, int param_5);
 void func_0022F450(int param_1, int param_2);
@@ -1631,7 +1629,7 @@ void func_001C7730(void)
     g_0045D38C = 0;
   }
   uVar2 = 0;
-  piVar1 = (int *)0x72cea0;
+  piVar1 = (int *)PS2_PTR(0x72cea0);
   do {
     if (*piVar1 != 0) {
       func_00102EC0((unsigned char *)PS2_PTR(*(int *)PS2_PTR(0x72CEA0)));
@@ -1657,7 +1655,7 @@ void func_001C7CE0(void)
   
   func_00103000(0);
   uVar2 = 0;
-  piVar1 = (int *)0x72cea0;
+  piVar1 = (int *)PS2_PTR(0x72cea0);
   do {
     if (*piVar1 != 0) {
       func_00102EC0((unsigned char *)PS2_PTR(*(int *)PS2_PTR(0x72CEA0)));
@@ -2692,7 +2690,7 @@ void func_002A7CE0(void)
 
   
   iVar1 = 0;
-  piVar2 = (int *)0x77cea0;
+  piVar2 = (int *)PS2_PTR(0x77cea0);
   do {
     if ((piVar2[2] != 0x11) && (piVar2[3] == 0)) {
       if (*piVar2 != 0) {

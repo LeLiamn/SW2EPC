@@ -178,7 +178,7 @@ void func_001796D0(void)
 
 typedef unsigned long long u64;
 
-#define g_70000158 (*(u32 **)0x70000158)         /* the DMA chain's write cursor */
+#define g_70000158 (*(u32 **)PS2_PTR(0x70000158))         /* the DMA chain's write cursor */
 
 extern u32 g_0045D2B8;                   /* (small data) the number of units drawn */
 extern Unit *g_00574DA0[];               /* the units to draw */

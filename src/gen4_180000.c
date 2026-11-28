@@ -215,11 +215,11 @@ void func_00216990(void)
     u32 uVar7;
 
     uVar7 = 0;
-    puVar6 = (u32 *)0x73F8F0;
-    puVar5 = (u32 *)0x73E160;
-    puVar4 = (u32 *)0x73E0E0;
-    puVar3 = (u32 *)0x7404B0;
-    puVar2 = (u32 *)0x740430;
+    puVar6 = (u32 *)PS2_PTR(0x73F8F0);
+    puVar5 = (u32 *)PS2_PTR(0x73E160);
+    puVar4 = (u32 *)PS2_PTR(0x73E0E0);
+    puVar3 = (u32 *)PS2_PTR(0x7404B0);
+    puVar2 = (u32 *)PS2_PTR(0x740430);
     do {
         *puVar6 = 0;
         uVar7 = uVar7 + 1;
@@ -618,7 +618,7 @@ void func_002EB0F0(void)
     u32 uVar4;
     u32 uVar5;
 
-    puVar6 = (u32 *)0x7A0640;
+    puVar6 = (u32 *)PS2_PTR(0x7A0640);
     uVar5 = 0;
     g_70000D60 = 0;
     do {

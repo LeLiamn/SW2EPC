@@ -1105,7 +1105,7 @@ void func_002A79C0(void)
 
     iVar2 = 0;
     g_0045D570 = 0;
-    puVar1 = (u32 *)0x77CEA0;
+    puVar1 = (u32 *)PS2_PTR(0x77CEA0);
     do {
         func_00148130(puVar1 + 4);
         iVar2 = iVar2 + 1;
@@ -1161,7 +1161,7 @@ int func_002A7BF0(void)
     int uVar3;
 
     iVar4 = 0;
-    piVar5 = (int *)0x77CEA0;
+    piVar5 = (int *)PS2_PTR(0x77CEA0);
     do {
         if ((piVar5[2] != 0x11) && (piVar5[3] == 0)) {
             iVar1 = *piVar5;
@@ -1242,7 +1242,7 @@ void func_002A7EC0(void)
     uVar2 = 0;
     g_0045D578 = 0;
     g_0045D574 = 0x30;
-    puVar1 = (u32 *)0x77CFA0;
+    puVar1 = (u32 *)PS2_PTR(0x77CFA0);
     do {
         func_00118850((u8 *)(puVar1), 0x110);
         *puVar1 = uVar2;
@@ -2776,7 +2776,7 @@ void func_002F03B0(void)
     u32 uVar2;
 
     uVar2 = 0;
-    piVar1 = (int *)0x7A22C0;
+    piVar1 = (int *)PS2_PTR(0x7A22C0);
     do {
         if (*piVar1 != 0) {
             func_002EFC80(piVar1);
