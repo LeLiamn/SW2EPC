@@ -196,3 +196,97 @@ In this order:
 
 Report progress, questions or changes in [launcher.md](launcher.md) (dated section plus a line
 in its changes log), as before.
+
+## What SW2EPC needs from the UPP runtime: milestone 1 (2026-11-28)
+
+The smallest runtime that lets SW2EPC go on. It is the target for the work starting on the UPP
+side now. Everything in it is generic for PS2 ports; nothing is SW2E-only. Each point says how to
+check that it is done ("square"), without waiting for the game.
+
+### Needed, in this order
+
+1. **Start-up and release.**
+   - What: `main()` with `--disc <image>`. Read `SYSTEM.CNF`, find the boot executable, compute
+     its SHA-1 and match it against `games/sw2e/game.json` (`eu-1.00`). Fill `release()`, then
+     call `upp_game_entry()`, check `version` and `size`, and call `init()`.
+     `--force-release <id>` as agreed.
+   - Square when: the EU image gives `eu-1.00` with the SHA-1
+     `346e805e6b6b9b00c0df31d12659c59fcb55020d`. An unknown image stops with a clear message.
+     A game table with `thread_model` = 0 is refused.
+2. **The disc.**
+   - What: `disc_file_size`, `disc_read_file`, `disc_file_lsn` and `disc_read_sectors`, thread-safe.
+     Paths are case-insensitive, without `;1`, and may contain folders. Reads give the run token
+     up while reading.
+   - Square when: `SLES_546.24` reads as 3,529,520 bytes. `SYSTEM.CNF`, `LINKDATA.BNS` (size and
+     first sector) and a sector read at the same position give the same bytes. A missing path
+     gives -1.
+3. **Logging, fatal, options.**
+   - What: `log` (levels 0-3, `debug.log_level`, allowed from a vblank callback), `fatal(fmt, ...)`
+     (logged, shown, clean end, never returns), and `option_bool / number / string` with the
+     fallback when the key is unknown.
+   - Square when: `fatal` from the game thread ends the process cleanly with the message.
+4. **Threads, events and mutexes in the PS2 mode.** This is the most important point: the game
+   starts a disc reader thread (priority 5) and waits on semaphores before its first frame.
+   - What: the run token. Only the token holder runs game code, and switches happen only at the
+     blocking calls and at the wake-ups that make a higher-priority thread ready.
+     - `thread_create` starts at once and returns ids from 1; the `run()` thread is 0.
+     - Also needed: `thread_join`, `thread_yield`, `sleep_us`, `thread_self`,
+       `thread_set_priority`, `thread_sleep` (a wake-up sent first is kept),
+       `thread_wakeup` [irq], `thread_exit`, `thread_terminate`.
+     - Events: `event_create(initial, max)`, `event_wait` (-1 = forever, 0 = poll),
+       `event_signal` [irq], `event_count` [irq], `event_destroy`.
+     - Mutexes: create, lock, unlock, destroy.
+   - Square when, with a small test game:
+     - two threads of different priorities hand a counter back and forth through events, in the
+       order the PS2 would give;
+     - a higher-priority thread woken by `event_signal` runs before the signaller goes on;
+     - `thread_sleep` after an early `thread_wakeup` does not block;
+     - `event_wait(id, 0)` never blocks.
+5. **Frame pacing, vblank and a window.**
+   - What:
+     - `vsync()`: present, wait for the next tick (50.0 for SW2E), sample the pads, and return 0
+       when the window closes. The game then has 2 s to leave `run()`.
+     - `video_present(rgba, w, h, pitch)` [irq], never blocking. A picture can be any size
+       (SW2E's frame size is still to be read from its display set-up code).
+     - `set_frame_rate`, `frame_count` [irq], `ticks_us` [irq].
+     - `vblank_add` / `vblank_remove`, called on the runtime's own clock, holding the run token.
+       The tick must also fire while the game thread is blocked elsewhere (loading), because the
+       game's threads wait on a semaphore signalled from the vblank callback.
+     - `intr_disable` / `intr_enable` [irq]: the tick waits while disabled.
+   - Square when:
+     - a test game showing a moving gradient at 50 Hz runs smoothly;
+     - its vblank callback counts 50 ticks a second, even while the game thread sits in
+       `event_wait`;
+     - closing the window makes `vsync()` return 0.
+
+### Can wait (milestone 2 and later)
+
+- **Pads** (`pad_read`, `pad_rumble`): needed when the title screen is reached.
+- **Audio** (`audio_push`, `audio_queued`, 48 kHz).
+- **Saves** (`save_*`).
+- **The 3D path** (platform version 2), once the SW2EPC renderer starts.
+- Dual-layer discs, the launcher's own menu, `launch.json`. The dev mode `--disc` is enough for
+  now.
+
+### How to try it with SW2EPC
+
+1. Build the runtime as a static library, objects, or a few C files.
+2. In this repository: `py tools/pc_build.py --runtime <UPP lib or .c files> --upp-include
+   <UPP>/include/upp --disc "Iso/<image>.iso"`.
+3. Expected today: the log shows the boot executable loaded, then
+   `[fatal] not decompiled yet: func_0011DFB0`. That means the runtime works up to the point
+   where SW2EPC has to provide the next function. Anything that stops earlier, or a crash, is a
+   runtime problem to look at together.
+4. Once SW2EPC has replaced the CD and IOP libraries, the same command is the real test of the
+   threads (the disc reader thread) and of the vblank tick.
+
+### When milestone 1 is square
+
+Write a dated section in [launcher.md](launcher.md) (or UPP's `docs/runtime.md`):
+
+- which points are done;
+- how to build the runtime: the CMake target name or the files, and the libraries it needs
+  (SDL3, OS libraries);
+- any change to `upp.h` (refresh `port/upp/upp.h` from it).
+
+SW2EPC then links against it, and the next round of work is checked with the real runtime.

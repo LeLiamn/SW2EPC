@@ -756,6 +756,21 @@ libraries (CD, SIF/IOP, pads, sound, memory card). The real `upp_runtime` (windo
 `video_present`, `vsync`, disc, then threads in the PS2 mode) is what will make the first picture
 visible.
 
+## This project: what SW2EPC needs from the runtime, milestone 1 (2026-11-28)
+
+UPP is now building the runtime. What SW2EPC needs first, with a check for each point, is in
+[upp_integration.md](upp_integration.md) ("milestone 1"). In short, in this order:
+
+1. start-up and release identification;
+2. the disc calls;
+3. `log`, `fatal`, options;
+4. **threads, events and mutexes in the PS2 mode** (the game starts its disc thread before its
+   first frame);
+5. `vsync`, `video_present`, the vblank tick on the runtime's own clock, and a window.
+
+Pads, audio and saves can wait. When milestone 1 is done, write a dated section here saying which
+points are done and how to build the runtime.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -797,3 +812,5 @@ visible.
   `event_count` and the PS2 thread calls; `SleepThread` as a yield flagged as a hang risk.
 - 2026-11-28: this project adopted UPP's `include/upp/upp.h` (size fields, `fatal`, `event_count`,
   PS2 thread calls); built and run against UPP's own copy of the header.
+- 2026-11-28: this project listed what it needs from the runtime first (milestone 1, in
+  [upp_integration.md](upp_integration.md)).
