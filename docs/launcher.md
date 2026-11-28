@@ -632,6 +632,94 @@ The practical guide is in [upp_integration.md](upp_integration.md). It covers:
 - the known limits;
 - what would help most from the UPP side.
 
+## Launcher side: `upp.h` taken over (2026-11-28)
+
+The first PC build is a big step: it links, loads the player's boot executable and reaches
+`main()`. `upp.h` follows the contract closely. UPP has taken it over:
+
+- **Reference copy:** `include/upp/upp.h` in the UPP repository. Build against it with
+  `--upp-include <UPP>/include/upp`. `port/upp/upp.h` here can be replaced by that copy.
+- **Version:** it stays `UPP_PLATFORM_VERSION 1`, since nothing was released.
+- **Documentation:** UPP's `docs/runtime.md` now points to the header as the reference, and lists
+  every change under "Changes from the SW2EPC draft".
+
+### Changes to the header
+
+1. **`size` after `version`** in `upp_game_api` and `upp_platform`, for forward compatibility as
+   agreed. `upp_game_entry()` must fill it. Designated initializers avoid any order mistake:
+
+   ```c
+   static const upp_game_api api = {
+       .version = UPP_PLATFORM_VERSION, .size = sizeof(upp_game_api),
+       .game_id = "sw2e", .frame_rate = 50.0, .thread_model = UPP_THREADS_PS2,
+       .init = sw2e_init, .run = sw2e_run, .shutdown = sw2e_shutdown,
+   };
+   ```
+2. **`UPP_THREADS_PS2 = 1`, `UPP_THREADS_PARALLEL = 2`**, and 0 is refused. A table that forgets
+   the field fails instead of silently getting parallel threads. SW2E uses the name, so its code
+   does not change.
+3. **`upp_release.region`** is added at the end. The id is the manifest's, so `eu-1.00`, not
+   `eu-sles-54624-1.00`. Please fix the comment and the stand-in.
+4. **New calls**, added at the end of `upp_platform`:
+
+   | Call | Replaces |
+   |---|---|
+   | `fatal(fmt, ...)` | `exit(3)` in `sw2e_missing()`: the message is logged and shown to the player, then the process ends cleanly. |
+   | `ticks_us()` | reading the PS2 timers or the raster counter |
+   | `audio_queued()` | keeping the mix in step with the ticks |
+   | `event_count(id)` | `iReferSemaStatus`, which returns a count of 0 today |
+   | `thread_self()` | `GetThreadId`, which always returns 0 today |
+   | `thread_set_priority(id, p)` | `ChangeThreadPriority`, which only stores the value today |
+   | `thread_sleep()`, `thread_wakeup(id)` | `SleepThread`, `WakeupThread`, `iWakeupThread` |
+   | `thread_exit()`, `thread_terminate(id)` | `ExitThread`, `TerminateThread` |
+
+5. **`[irq]` marks** on the calls allowed in a vblank callback: `log`, `video_present`,
+   `frame_count`, `intr_disable`, `intr_enable`, `event_signal`, `event_count`, `thread_wakeup`
+   and `ticks_us`.
+6. **Thread ids:** the `run()` thread is 0, and created threads start at 1. This matches
+   `ps2_kernel.c`.
+7. **Disc paths** are case-insensitive, without the `;1` suffix.
+
+Kept as in the draft, and UPP's document is updated to match:
+- `init()` returns 1 on success.
+- `run()` returns `void`.
+- The disc is read by path or by sector, and the runtime caches path look-ups.
+- `upp_save_info`, the pad layout and integer ids are unchanged.
+
+### One bug to fix in `ps2_kernel.c`
+
+`SleepThread()` calls `thread_yield()`. This is not just inexact: under `UPP_THREADS_PS2` it can
+hang the game.
+
+- A yield only lets threads of the **same** priority run. A thread that "sleeps" this way stays
+  ready, so lower-priority threads never get the run token.
+- When the disc reader (priority 5) waits for work with `SleepThread()`, any lower-priority thread
+  starves.
+- Since there is no time slicing, a `SleepThread()` loop with nothing else ready spins forever.
+
+The fix is the new `thread_sleep()` / `thread_wakeup()`, with the PS2 wake-up count: a wake-up
+sent before the sleep is not lost. Please also wire `GetThreadId`, `ChangeThreadPriority`,
+`ExitThread` and `TerminateThread` to the new calls.
+
+### Build notes for linking the real runtime
+
+- `upp_runtime` is a C++20 static library on SDL3, which is linked statically. The C game objects
+  link with it unchanged, with two conditions:
+  - link with `g++`, or add `-lstdc++`;
+  - add the system libraries SDL3 needs. The UPP build will write them to a file, to be passed
+    with `--runtime`.
+- Same toolchain on both sides: MinGW-w64 GCC 15.2, 64-bit.
+
+### What comes next on the UPP side
+
+In the order asked for:
+
+1. A runtime with a window, `video_present`, `vsync` and the disc calls.
+2. Threads and events in the PS2 model.
+3. Pads, then audio and saves.
+
+It will be tested with a dummy game first, then with `sw2epc.exe`. Progress will be noted here.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -668,3 +756,6 @@ The practical guide is in [upp_integration.md](upp_integration.md). It covers:
   Sony library call.
 - 2026-11-28: this project added [upp_integration.md](upp_integration.md) (how to plug the port
   into the UPP runtime) and `--runtime` / `--upp-include` in `tools/pc_build.py`.
+- 2026-11-28: UPP took over `upp.h` (reference: UPP `include/upp/upp.h`, still version 1) with
+  `size` fields, thread model values, `region`, `fatal`, `ticks_us`, `audio_queued`,
+  `event_count` and the PS2 thread calls; `SleepThread` as a yield flagged as a hang risk.
