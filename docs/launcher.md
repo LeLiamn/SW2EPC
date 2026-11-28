@@ -905,6 +905,34 @@ copy in `port/upp/upp.h` can be refreshed when convenient. Details are in UPP's
 When `ps2_mc.c` moves from "no card" to the `save_*` calls, and `ps2_sound.c` to `audio_push`,
 report anything that does not fit here.
 
+## This project: milestone 2 checked, and what SW2E draws (2026-11-28)
+
+**Milestone 2 checked.** `upp.h` only gained comments; `port/upp/upp.h` is refreshed (UPP commit
+4a566ff). SW2EPC links the new `upp_runtime.rsp` and runs as before, headless, up to
+`func_00177F80`. UPP's tests pass (4 of 4). The pad format matches `port/sw2e/ps2_pad.c` exactly
+(PS2 button bits, DualShock 2 pressure order, sticks centred on 0x80). Nothing to adjust.
+
+**Ahead of the 3D questions:** what is known so far about the game's drawing, from the data
+formats and the decompiled code. The game does not draw on the PC yet (`ps2_gs.c` only counts
+packets), so these points come from reading the code, not from a trace.
+
+| Point | What is known | How sure |
+|---|---|---|
+| Display | PAL, interlaced, field mode (`sceGsResetGraph` mode 0). Double buffer 640 x 512, 32-bit colour (`PSMCT32`), 16-bit Z (`PSMZ16S`, 0x3A), cleared each frame (`sceGsSetDefDBuff(db, 0, 640, 512, 0, 0x3A, 1)`). | Certain (seen at run time) |
+| Textures | Indexed, mostly: TIM2 8-bit (256 colours) and 4-bit (16 colours) with 32-bit palettes in CSM1 order; `tm3` files 8-bit with 16 x 16 32-bit palettes; several palettes per image for colour variants. 16,027 TIM2 textures in all. | Certain (all decoded) |
+| Texture uploads | `sceGsSetDefLoadImage` / `sceGsExecLoadImage` (host to GS memory), and GIF IMAGE packets inside the `tm3` files. So the port sees uploads by GS address (TBP), format and size, and draws refer to them through `TEX0`. | Certain |
+| 3D geometry | Characters, weapons and battlefield pieces are VIF packets for the VU1: each batch has a GIF tag (PRIM 3 = triangles or 4 = strips, `REGS` = ST, RGBAQ, XYZ2) and the vertices, transformed and lit by the game's VU1 microcode. The port will run the VU1 programs' job in C, then hand triangles to the runtime: SW2EPC sends already transformed vertices (screen x/y, depth, ST/Q, colour, fog), which fits the version 2 sketch. | Format certain; VU1 code to write |
+| 2D | Menus, text, HUD: sprites and triangles in GIF packets built by the EE. | Certain |
+| Fog | Used. The mesh writer switches fog on and off per mesh (`func_001CC450`, flag 0x10), through a VU1 data block; the fog value is per vertex (computed on the VU1), with the GS fog colour. | Certain that it is used; the formula comes with the VU1 code |
+| Alpha blending | Used widely (fades, effects, HUD). The exact `ALPHA` / `TEST` modes in use are not listed yet. | To list |
+| Render-to-texture, frame-buffer effects | Not known yet. To check in the effects and distant-view code. | Open |
+
+**How the open points will be settled:** `ps2_gs.c` will record every GS register value the game
+sends (blend, test and texture modes, frame and Z addresses), and SW2EPC will write the full list
+here once the game reaches its title screen and its first battle. Until then, the parts of version
+2 that do not depend on it (the GPU device, indexed textures, the GS colour scale and blend
+formula, the internal resolution) can go ahead as planned.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -957,3 +985,6 @@ report anything that does not fit here.
   the real runtime; EE kernel calls renamed `ee_*` on the PC build (kernel32 clash).
 - 2026-11-28: launcher side: runtime milestone 2 (pads, audio, saves) built and checked with
   SW2EPC; `upp.h` comments pin down the save, pad and audio rules (no interface change).
+- 2026-11-28: this project checked milestone 2 (nothing to adjust) and wrote what is known of the
+  game's drawing ahead of the 3D questions (display, textures, VU1 geometry, fog; blend modes and
+  render-to-texture still open).
