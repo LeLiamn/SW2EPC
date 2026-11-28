@@ -927,11 +927,7 @@ int func_002D07E0();
 void func_002D37F0(float, int, int, int, int, int, int, int, int, int, int);
 int func_002D73D0();
 int func_002D8480();
-int func_002D8950();
 int func_002D9010();
-int func_002D94F0();
-int func_002D9590();
-int func_002D9640();
 int func_002DA8C0();
 int func_002DBAA0();
 int func_002E1700();
@@ -2899,7 +2895,7 @@ int func_002DAEE0(void)
     if (SV(0x70) == 4) {
         if (SV(0x10) == 0x14) {
             if (SV(0x78) == 1) {
-                func_002D8950(SV_BASE);
+                func_002D8950(g_00799A70);
             } else {
                 done = 1;
                 if (SV(0x78) == 0)
@@ -2919,7 +2915,7 @@ int func_002DAEE0(void)
         func_002D8EE0(SV_BASE);
     } else if (SV(0x10) == 0x14) {
         if (SV(0x78) == 1) {
-            func_002D8950(SV_BASE);
+            func_002D8950(g_00799A70);
         } else if (SV(0x78) == 0) {
             done = func_002D8C30(SV_BASE, 0);
         } else if (SV(0x6C) == 0) {
@@ -2963,7 +2959,7 @@ int func_002DAEE0(void)
             if (SV(0x70) == 3)
                 func_002DA2D0(SV_BASE);
             else
-                func_002D9640(SV_BASE);
+                func_002D9640(g_00799A70);
         }
     }
     stop = SV(0x78) != 5 && done != 0 && g_006934B3[SV(0x78) * 0x128] != 0;
@@ -2977,6 +2973,276 @@ int func_002DAEE0(void)
 /* 0x002DA2C0, 0x8 bytes. Nothing (the save manager's draw step). */
 void func_002DA2C0(void)
 {
+}
+
+/* The message texts: two tables of string addresses (0x0043C130 and 0x0043C1E8, the second for
+ * the other game data kind, g_0045D5EC), the same entry order in both. */
+#define SV_TEXT(k) ((const char *)PS2_PTR(*(u32 *)PS2_PTR((*(int *)g_0045D5EC == 0 ? 0x43C130 : 0x43C1E8) + (k) * 4)))
+enum {
+    T_LOADED = 0, T_SAVED_DATA = 1, T_UNABLE_LOAD = 7, T_NO_SAVE = 9, T_SAVED_DATA2 = 15,
+    T_NO_CARD = 16, T_NO_CARD2 = 17, T_INSERT = 23, T_NO_CARD3 = 27, T_BEGIN = 40
+};
+#define SV_FMT1 ((const char *)PS2_PTR(0x4426B0))   /* "%s" */
+#define SV_FMT2 ((const char *)PS2_PTR(0x4427C8))   /* "%s\n%s" */
+int func_002EFBB0();
+int func_002D9010();
+extern u8 g_0076F615[];
+
+#define SI(o) (*(int *)(s + (o)))
+
+/* A message with a "Begin game" answer (shown with a choice), the save manager then waits. */
+static void sv_ask_begin(u8 *s, int text)
+{
+    func_001204B0((char *)PS2_PTR(SI(0x24)), SV_FMT2, SV_TEXT(text), SV_TEXT(T_BEGIN));
+    func_002D82C0(PS2_ADDR(s), 1);
+    SI(0x14) = 0x16;
+    SI(0x18) = 0x3B9;
+    SI(0x48) = 1;
+    SI(0x4C) = 1;
+}
+
+/* A plain message. */
+static void sv_say(u8 *s, int text)
+{
+    func_001204B0((char *)PS2_PTR(SI(0x24)), SV_FMT1, SV_TEXT(text));
+    func_002D82C0(PS2_ADDR(s), 0);
+}
+
+/* A message of two texts. */
+static void sv_say2(u8 *s, int a, int b)
+{
+    func_001204B0((char *)PS2_PTR(SI(0x24)), SV_FMT2, SV_TEXT(a), SV_TEXT(b));
+    func_002D82C0(PS2_ADDR(s), 0);
+}
+
+enum { T_UNABLE_SAVE = 24, T_FREE_SPACE = 25 };    /* "You are currently unable to save. Continue?",
+                                                 * "%s\nAt least %dKB of free space is required..." */
+#define SV_NEED_KB 0x2A6                         /* 678 KB for a save */
+char *func_001206B0(char *to, const char *from);   /* strcat */
+
+/* Asks to go on (a message with a choice); the save manager waits for the answer. */
+static void sv_wait_answer(u8 *s)
+{
+    func_002D82C0(PS2_ADDR(s), 1);
+    SI(0x14) = 0x16;
+    SI(0x18) = 0x3B9;
+    SI(0x48) = 1;
+    SI(0x4C) = 1;
+    SI(0x70) = 4;
+}
+
+/* 0x002D94F0, 0x98 bytes. The card's data is of another kind: begin the game anyway? */
+void func_002D94F0(u8 *s)
+{
+    func_001204B0((char *)PS2_PTR(SI(0x24)), SV_FMT2, SV_TEXT(T_SAVED_DATA2), SV_TEXT(T_BEGIN));
+    sv_wait_answer(s);
+}
+
+/* 0x002D9590, 0xB0 bytes. Not enough free space: begin the game anyway? */
+void func_002D9590(u8 *s)
+{
+    func_001204B0((char *)PS2_PTR(SI(0x24)), SV_TEXT(T_FREE_SPACE), SV_TEXT(T_NO_CARD3), SV_NEED_KB, SV_TEXT(T_BEGIN));
+    sv_wait_answer(s);
+}
+
+/* Message `k` of the save manager's table (0x0043C120: "Checking the memory card...", ...); the
+ * first 0x2E have a second wording for the other data kind (g_0045D5EC). */
+#define SV_MSG(k) ((const char *)PS2_PTR(*(u32 *)PS2_PTR(0x43C120 + \
+    ((k) + ((k) < 0x2E && *(int *)g_0045D5EC != 0 ? 0x2E : 0)) * 4)))
+#define M_CARD_CHANGED 1                         /* "The memory card ... was changed" (?) */
+#define M_BEGIN 0x2C                             /* "Begin game?" */
+
+/* 0x002D8950, 0x2D4 bytes. The save manager while a message is up (+0x28 4 or 5 for an
+ * answered message): checks that the card was not changed, then goes on to the step after the
+ * message (+0x14), runs the message's function (+0x7C), or shows the next message (+0x18). */
+void func_002D8950(u8 *s)
+{
+    int m;
+
+    if (SI(0x28) != 4 && SI(0x28) != 5) {
+        if (SI(0x4C) == 0 && func_002D8370() == 0 && func_0022DCA0() == 0) {
+            func_001204B0((char *)PS2_PTR(SI(0x24)), SV_FMT1, SV_MSG(M_CARD_CHANGED));
+            func_002D82C0(PS2_ADDR(s), 0);
+        }
+        return;
+    }
+    if (func_0022DCD0() == 0)
+        return;
+    if (SI(0x4C) == 0 && func_0022DD60() != -1 && func_0022DCA0() == 0) {
+        func_001204B0((char *)PS2_PTR(SI(0x24)), SV_FMT1, SV_MSG(M_CARD_CHANGED));
+        func_002D82C0(PS2_ADDR(s), 0);
+        return;
+    }
+    if (SI(0x28) == 4) {
+        SI(0x10) = SI(0x14);
+        if (SI(0x7C) != 0)
+            ((void (*)(u8 *))PS2_FUNC(SI(0x7C)))(s);
+        SI(0x48) = 0;
+        SI(0x4C) = 0;
+    } else {
+        m = SI(0x18);
+        if (m < 0x3B9) {
+            if (m == M_BEGIN) {
+                func_001204B0((char *)PS2_PTR(SI(0x24)), SV_FMT1, SV_MSG(M_BEGIN));
+                func_002D82C0(PS2_ADDR(s), 1);
+                SI(0x14) = 0x16;
+                SI(0x18) = 0x3B9;
+                SI(0x48) = 1;
+                SI(0x70) = 4;
+                SI(0x4C) = 1;
+            } else {
+                func_001204B0((char *)PS2_PTR(SI(0x24)), SV_FMT1, SV_MSG(m));
+                func_002D82C0(PS2_ADDR(s), 0);
+                SI(0x4C) = 0;
+            }
+        } else {
+            SI(0x10) = SI(0x14);
+            if (SI(0x48) != 0) {
+                SI(0x10) = 0;
+                SI(0x70) = 0;
+                SI(0x48) = 0;
+                SI(0x34) = 0;
+            }
+            SI(0x4C) = 0;
+        }
+    }
+    SI(0x7C) = 0;
+}
+
+/* 0x002D9640, 0x898 bytes. The load side of the start-up check, one step: reads the memory
+ * card's state (func_0022DCA0) and the save's, and shows the matching message. Steps (+0x10):
+ * 0 look at the card, 1 its files, 4 / 5 / 7 the load, 9 the data checked; 0x14 a message is up,
+ * 0x16 done. +0x2C is the kind of check (2: the game's own), +0x58 set when the player may go on
+ * without a card. */
+void func_002D9640(u8 *s)
+{
+    int next = 0x16;
+    u32 st;
+    int k;
+
+    if (func_0022DD60() != -1) {
+        if (SI(0x2C) == 2) {
+            if (SI(0x58) == 0) {
+                if (SI(0x10) == 4) {
+                    if (SI(0) == 0)
+                        sv_ask_begin(s, T_SAVED_DATA);
+                    else
+                        sv_say(s, T_SAVED_DATA);
+                    SI(0x70) = 4;
+                } else if (SI(0x10) == 0) {
+                    st = func_0022DCA0();
+                    func_00104030();
+                    *(int *)g_0045D5EC = 0;
+                    if (st & 0x400000)
+                        func_002D9400(s);
+                    else if (st & 0x40000000)
+                        func_002D94F0(s);
+                    else
+                        func_002D9590(s);
+                } else {
+                    if (SI(0) == 0)
+                        sv_ask_begin(s, T_UNABLE_LOAD);
+                    else
+                        sv_say(s, T_UNABLE_LOAD);
+                    SI(0x70) = 4;
+                }
+                next = 0x14;
+            }
+        } else {
+            if (SI(0x10) == 4) {
+                sv_say(s, T_SAVED_DATA);
+            } else if (SI(0x10) == 0) {
+                func_00104030();
+                *(int *)g_0045D5EC = 0;
+                st = func_0022DCA0();
+                if (st & 0x400000) {
+                    sv_say2(s, T_NO_CARD, T_INSERT);
+                    SI(0x10) = 0x14;
+                    return;
+                }
+                if ((st & 0x40000000) == 0) {
+                    if ((st & 1) == 0)
+                        sv_say2(s, T_NO_CARD3, T_INSERT);
+                    else
+                        sv_say(s, T_NO_CARD3);
+                } else {
+                    sv_say(s, T_SAVED_DATA2);
+                }
+            } else {
+                sv_say(s, T_UNABLE_LOAD);
+            }
+            next = 0x14;
+        }
+        SI(0x10) = next;
+        return;
+    }
+    k = SI(0x10);
+    if (k == 9) {
+        u8 *data = (u8 *)PS2_PTR(SI(0xC));
+
+        if (*(short *)(data + 4) == 0x67) {
+            if (func_002DAE60(data, 0) == 0) {
+                if (SI(0) == 0)
+                    sv_ask_begin(s, T_SAVED_DATA);
+                else
+                    sv_say(s, T_SAVED_DATA);
+            } else {
+                func_001A1AE0(data);
+                sv_say(s, T_LOADED);
+                func_0019F550();
+                SI(0x30) = 1;
+                g_0076F615[0] = func_002EFBB0() == 0;
+                func_00160010(1);
+            }
+        } else if (SI(0) == 0) {
+            sv_ask_begin(s, T_SAVED_DATA);
+        } else {
+            sv_say(s, T_SAVED_DATA);
+        }
+        SI(0x70) = 4;
+        SI(0x10) = 0x14;
+        return;
+    }
+    if (k == 7) {
+        next = 9;
+    } else if (k == 5) {
+        next = 7;
+    } else if (k == 4) {
+        next = 5;
+    } else if (k == 1) {
+        next = func_002D9010(s);
+    } else if (k != 0) {
+        SI(0x10) = 0x16;
+        return;
+    } else {
+        func_00104030();
+        *(int *)g_0045D5EC = 0;
+        st = func_0022DCA0();
+        if ((st & 0x800000) == 0) {
+            if ((st & 0x400) == 0) {
+                next = 1;
+            } else if (SI(0x2C) != 2) {
+                sv_say(s, T_NO_SAVE);
+                next = 0x14;
+            }
+            SI(0x10) = next;
+            return;
+        }
+        if (SI(0x58) == 0) {
+            if (SI(0x2C) == 2) {
+                func_002D9310(s);
+            } else {
+                sv_say2(s, T_NO_CARD2, T_INSERT);
+            }
+        }
+        if (SI(0x58) == 0) {
+            next = 0x14;
+        } else {
+            SI(0x70) = 4;
+            next = 0x16;
+        }
+    }
+    SI(0x10) = next;
 }
 
 /* 0x002DB700, 0x4C bytes. */

@@ -1337,6 +1337,39 @@ Mark the option "available" in the manifest when it works.
 
 Nothing needed from you before the title-screen trace.
 
+## This project: the first picture (2026-11-28)
+
+**The reference renderer draws the game's first screen.** The start-up now gets through the save
+manager's memory card check. With no card (libmc answers "no card" until `save_*` is used),
+the game shows its message box and waits for the answer. Recorded with `debug.gs_trace=true` and
+drawn with `upp-cli gs-trace --frames`, the frames show the message window (a grey box with a
+border) and the "YES / NO" choice, with NO highlighted. The draw buffer is right, and so is the
+displayed field after the output pass. Nothing was special-cased on either side.
+
+The trace (25 s, killed by the time-out while the game waits):
+
+| Point | Seen |
+|---|---|
+| Volume | 946 frames, 26,433 primitives, at most 28 in a frame |
+| Draws | the output pass (15,136 sprites, context 1); the message box and text: 10,351 sprites in context 2, `PSMT4` 512 x 256 with a `PSMCT32` CSM1 palette (one CLUT load each), Z 0 to 65534 |
+| Uploads | 289 at start-up (1,207 KB), none per frame |
+| Display | `PMODE` 0x8066, `SMODE2` 3, `DISPFB2` 0x1000, `DISPLAY2` 0x1FF9FF02048290 at every flip |
+
+**Known on this side, not a runtime matter:**
+- The message's text is not drawn yet (only the window and the choice). That is SW2EPC's text
+  path, to check.
+- The message says the saved data is damaged, where it should say there is no memory card. That
+  is SW2EPC's libmc answers.
+
+**One thing to look at on the UPP side:** when the process is stopped from outside (`timeout`,
+SIGTERM) while the game runs, the runtime prints `terminate called without an active
+exception`. The trace was still written. It looks like a `std::thread` destroyed while still
+joinable during an external stop. It is harmless here, but it may hide a missing join on the
+normal exit path too.
+
+Next on this side: the message text, the right "no card" wording, then answering the message and
+going on to the title screen. The title-screen trace follows.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -1411,3 +1444,5 @@ Nothing needed from you before the title-screen trace.
 - 2026-11-28: launcher side: reference GS renderer on the CPU (step 2a) draws the packets and
   shows the display circuits; layouts checked on SW2E's textures; `TEST` 0x3000D corrected to
   `GREATER`; progressive picture agreed as `display.progressive` on the game side.
+- 2026-11-28: this project reached the first picture (the memory card message box, drawn by the
+  reference renderer); text and wording still to fix on this side; a note on `terminate called`.

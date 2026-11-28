@@ -115,8 +115,6 @@ int func_002C7310();
 int func_002C7C00();
 int func_002C92A0();
 int func_002D8480();
-int func_002D8950();
-int func_002D9640();
 int func_002DA2D0();
 int func_002DA8C0();
 int func_002DED90();
@@ -1470,11 +1468,11 @@ void func_0032CFF0(void)
         iVar2 = func_0032B180();
         lVar3 = func_001207E0(*(u32 *)(iVar1 + iVar2 * 4 + 0x24), 0x447A30);
         if (lVar3 != 0) {
-            func_001206B0(auStack_150, 0x447A38);
+            func_001206B0(auStack_150, PS2_PTR(0x447A38));
         }
         lVar3 = func_0032B180();
         iVar1 = (u8 *)func_00329D60();
-        func_001206B0(auStack_150, *(u32 *)(iVar1 + (lVar3 != 0 ^ 1) * 4 + 0x24));
+        func_001206B0(auStack_150, PS2_PTR(*(u32 *)(iVar1 + (lVar3 != 0 ^ 1) * 4 + 0x24)));
         func_0032CF00(auStack_150);
     }
     lVar3 = PS2_ADDR(func_00329D60());

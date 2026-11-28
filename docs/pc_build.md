@@ -10,8 +10,8 @@ see [port.md](port.md), [upp_integration.md](upp_integration.md) and [launcher.m
 | Source files compiled | 161 of 161 |
 | Port files compiled | 10 of 10 |
 | Functions defined twice | 0 |
-| Functions called but not decompiled yet | 807 |
-| Other symbols from outside the sources | 40 (C library, port) |
+| Functions called but not decompiled yet | 805 |
+| Other symbols from outside the sources | 41 (C library, port) |
 | Link | ok: `build/pc/sw2epc.exe` |
 
 ## Missing functions by area
@@ -19,7 +19,7 @@ see [port.md](port.md), [upp_integration.md](upp_integration.md) and [launcher.m
 | Area | Functions |
 |---|---|
 | Sony libraries | 1 |
-| game code | 806 |
+| game code | 804 |
 
 Called from the most files:
 
@@ -42,4 +42,4 @@ Called from the most files:
 - `func_00375F90` (game code, 6 files)
 - `func_00388710` (game code, 6 files)
 - `func_00389090` (game code, 6 files)
-- `func_001206B0` (game code, 5 files)
+- `func_0017AC50` (game code, 5 files)

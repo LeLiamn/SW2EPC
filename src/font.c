@@ -24,9 +24,9 @@ typedef unsigned long long u64;
 /* A font (see text_draw.c). */
 typedef struct {
     u64 tex0[2];             /* the second is -1 when there is one texture */
-    u16 *cells;
+    ps2ptr cells;            /* u16 * */
     u32 count;
-    u8 *widths;
+    ps2ptr widths;           /* u8 * */
     u32 pad;
     u16 cell_w, cell_h;
     u16 draw_w, draw_h;
@@ -38,7 +38,7 @@ extern Font g_004053C0[2];
 
 /* The text state (see text_draw.c). */
 extern struct {
-    void *custom;
+    ps2ptr custom;           /* void (Glyph *): a code address */
     int colour[4];
     int outline;
     int style;

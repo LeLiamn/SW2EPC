@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 210256,
-    "non_matching": 1739840
+    "non_matching": 1743120
   },
   "data": {
     "total": 2155890688,
@@ -820,14 +820,14 @@
         },
         {
           "name": "BriefingCmnParts.c",
-          "description": "Estimated range 0x2C1EA8-0x2DE550; 175 function(s) decompiled",
+          "description": "Estimated range 0x2C1EA8-0x2DE550; 179 function(s) decompiled",
           "code": {
             "total": 116392,
             "matching": 2528,
-            "non_matching": 41552
+            "non_matching": 44832
           },
           "decompiled_functions": {
-            "count": 175,
+            "count": 179,
             "matching": 35
           }
         }

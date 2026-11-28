@@ -19,6 +19,7 @@ extern const upp_platform *sw2e_platform;
 void *func_0011EB80(void *to, const void *from, unsigned int n) { return memmove(to, from, n); }   /* memcpy */
 void *func_0011ED38(void *to, int c, unsigned int n) { return memset(to, c, n); }               /* memset */
 char *func_00120928(char *to, const char *from) { return strcpy(to, from); }                     /* strcpy */
+char *func_001206B0(char *to, const char *from) { return strcat(to, from); }                     /* strcat */
 unsigned int func_00120A40(const char *s) { return (unsigned int)strlen(s); }                    /* strlen */
 
 /* A %s argument: the decompiled code passes strings as native pointers or as PS2 addresses held

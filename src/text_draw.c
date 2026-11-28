@@ -47,9 +47,9 @@ typedef unsigned long long u64;
 /* A font. */
 typedef struct {
     u64 tex0[2];             /* the second is -1 when there is one texture */
-    u16 *cells;              /* +0x10 each cell's position (u, v), or 0: a grid from ' ' */
+    ps2ptr cells;            /* +0x10 u16 *: each cell's position (u, v), or 0: a grid from ' ' */
     u32 count;               /* +0x14 characters in the grid */
-    u8 *widths;              /* +0x18 each character's width, or 0 */
+    ps2ptr widths;           /* +0x18 u8 *: each character's width, or 0 */
     u32 pad;
     u16 cell_w;              /* +0x20 */
     u16 cell_h;
@@ -58,6 +58,9 @@ typedef struct {
     u16 columns;             /* +0x28 */
     u16 rows;                /* +0x2A per texture */
 } Font;
+
+#define FONT_CELLS(f) ((u16 *)PS2_PTR((f)->cells))
+#define FONT_WIDTHS(f) ((u8 *)PS2_PTR((f)->widths))
 
 /* A character to draw. */
 typedef struct {
@@ -72,7 +75,7 @@ typedef struct {
 
 /* The text state (0x0056CCA0). */
 extern struct {
-    void (*custom)(Glyph *g);    /* style 5 */
+    ps2ptr custom;               /* style 5: void (Glyph *g), a code address */
     int colour[4];           /* 0x0056CCA4 palette indices, one per corner */
     int outline;             /* 0x0056CCB4 */
     int style;               /* 0x0056CCB8 0-5 */
@@ -134,7 +137,7 @@ static inline void glyph_cell(const Glyph *g, u32 *u, u32 *v)
         *u = f->cell_w * (code % f->columns);
         *v = f->cell_h * (code / f->columns);
     } else {
-        u16 *c = (u16 *)((u8 *)f->cells + code * 4);
+        u16 *c = (u16 *)((u8 *)FONT_CELLS(f) + code * 4);
 
         *u = c[0];
         *v = c[1];
@@ -271,7 +274,7 @@ void func_001458A0(Glyph *g)
 void func_00145F10(Glyph *g)
 {
     if (g_0056CCA0.custom != 0)
-        g_0056CCA0.custom(g);
+        ((void (*)(Glyph *))PS2_FUNC(g_0056CCA0.custom))(g);
 }
 
 /* 0x00145F50, 0x58 bytes, matching. Before a string: the alpha blending (ALPHA_2 = 0x44), except for
@@ -446,10 +449,10 @@ void func_00146270(const u8 *text, int x, int y, int layer, int kind)
                     start = g.x;
                     if (UBIT(g_0056CCA0.flags, 0) == 0) {
                         if UBIT(g_0056CCA0.flags, 1)
-                            g.x += (0xC - g.font->widths[g.code]) / 2;
+                            g.x += (0xC - FONT_WIDTHS(g.font)[g.code]) / 2;
                     } else {
                         g.x += ((int)(cw & 0xFFFF)
-                                - (int)((float)(g.font->draw_w * g.font->widths[g.code]
+                                - (int)((float)(g.font->draw_w * FONT_WIDTHS(g.font)[g.code]
                                                 / g.font->cell_w) * sx / 20.0f)) / 2;
                     }
                 }
@@ -464,7 +467,7 @@ void func_00146270(const u8 *text, int x, int y, int layer, int kind)
                     if UBIT(g_0056CCA0.flags, 1)
                         g.x = start + 0xC;
                     else
-                        g.x += (int)((float)(g.font->draw_w * g.font->widths[g.code]
+                        g.x += (int)((float)(g.font->draw_w * FONT_WIDTHS(g.font)[g.code]
                                              / g.font->cell_w) * sx / 20.0f);
                 } else {
                     g.x = start + g.w;
@@ -532,7 +535,7 @@ static inline int char_width(u8 c, float sx)
         return (int)((float)g_004053C0.draw_w * sx / 20.0f);
     if UBIT(g_0056CCA0.flags, 1)
         return 0xC;
-    return (int)((float)(g_004053C0.draw_w * g_004053C0.widths[func_00145FB0(&g_004053C0, c)]
+    return (int)((float)(g_004053C0.draw_w * FONT_WIDTHS(&g_004053C0)[func_00145FB0(&g_004053C0, c)]
                          / g_004053C0.cell_w) * sx / 20.0f);
 }
 

@@ -272,15 +272,18 @@ int func_001AA320(float size, u8 *font, u32 c)
 /* A font (0x004053C0 the text font, 0x004053F0 the names' font). */
 typedef struct {
     u64 tex0[2];          /* the two texture pages (the second for glyphs past 400) */
-    u16 *uv;              /* +0x10 the extra glyphs' texels */
+    ps2ptr uv;            /* +0x10 u16 *: the extra glyphs' texels */
     u32 count;            /* +0x14 glyphs with a width */
-    u8 *widths;           /* +0x18 */
+    ps2ptr widths;        /* +0x18 u8 * */
     u16 tex_w, tex_h;     /* +0x1C */
     u16 cell_w, cell_h;   /* +0x20 */
     u16 scale;            /* +0x24 */
     u16 pad;
     u16 cols, rows;       /* +0x28 glyphs per row and rows per page */
 } Font;
+
+#define FONT_UV(f) ((u16 *)PS2_PTR((f)->uv))
+#define FONT_WIDTHS(f) ((u8 *)PS2_PTR((f)->widths))
 
 extern Font g_004053C0, g_004053F0;
 extern const u8 g_004248F0[][4];         /* text colours (RGB) */
@@ -318,7 +321,7 @@ float func_001AA400(float size, float h, u8 *p, u32 c, float *pos, int col, int 
     u32 u, v;
 
     if (c <= 0x2D0)
-        w = size * (float)f->widths[c] / 20.0f;
+        w = size * (float)FONT_WIDTHS(f)[c] / 20.0f;
     if (flat == 0) {
         w = w * 0.8f;
         y1 = h * 0.5f + pos[1] + 0.0f;
@@ -328,10 +331,10 @@ float func_001AA400(float size, float h, u8 *p, u32 c, float *pos, int col, int 
     x1 = pos[0] + w;
     *(u64 *)(p + 0x18) = (c & 0x7FFFFFFF) <= 400 ? f->tex0[0] : f->tex0[1];
     *(u64 *)(p + 0x20) = TEXT_RGBA(col, a);
-    v = f->uv[c * 2 + 1];
-    u = f->uv[c * 2];
+    v = FONT_UV(f)[c * 2 + 1];
+    u = FONT_UV(f)[c * 2];
     *(u64 *)(p + 0x28) = st_pair((float)u / (float)f->tex_w + 0.001f, (float)(v + 1) / (float)f->tex_h);
-    *(u64 *)(p + 0x38) = st_pair((float)(u + f->widths[c]) / (float)f->tex_w,
+    *(u64 *)(p + 0x38) = st_pair((float)(u + FONT_WIDTHS(f)[c]) / (float)f->tex_w,
                                  (float)(v + f->cell_h) / (float)f->tex_h - 0.001f);
     if (flat == 0) {
         *(u64 *)(p + 0x30) = xyz_ftoi4(pos[0], pos[1], pos[2]);
@@ -394,13 +397,13 @@ int func_001AA9B0(float size, float h, u8 *p, u32 id, float *pos, int col, int a
             gu = f->cell_w * (k % f->cols);
             gv = f->cell_h * (k / f->cols);
         } else {
-            gu = f->uv[g * 2];
-            gv = f->uv[g * 2 + 1];
+            gu = FONT_UV(f)[g * 2];
+            gv = FONT_UV(f)[g * 2 + 1];
         }
         *(u64 *)(p + 0x28) = st_pair((float)(int)gu / (float)f->tex_w, (float)(int)gv / (float)f->tex_h);
         *(u64 *)(p + 0x38) = st_pair((float)(int)(gu + f->cell_w) / (float)f->tex_w,
                                      (float)(int)(gv + f->cell_h - 1) / (float)f->tex_h);
-        adv = g < f->count ? (int)((float)(f->scale * f->widths[g] / f->cell_w) * size / 20.0f)
+        adv = g < f->count ? (int)((float)(f->scale * FONT_WIDTHS(f)[g] / f->cell_w) * size / 20.0f)
                            : 0;
         if (flat == 0) {
             *(u64 *)(p + 0x30) = xyz_ftoi4(x, y0, z);
