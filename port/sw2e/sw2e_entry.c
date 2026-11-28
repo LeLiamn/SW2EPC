@@ -54,8 +54,30 @@ static int load_elf(const unsigned char *elf, size_t size)
     return 1;
 }
 
+#ifdef _WIN32
+#include <windows.h>
+#include <stdio.h>
+/* A crash in the game's code: its place in the executable (exe offset, for addr2line), written
+ * before the process ends. Only access violations are reported. */
+static LONG WINAPI sw2e_crash(EXCEPTION_POINTERS *e)
+{
+    if (e->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION) {
+        HMODULE base = GetModuleHandleA(NULL);
+
+        fprintf(stderr, "[crash] access violation at exe offset 0x%llx, address %p\n",
+                (unsigned long long)((char *)e->ExceptionRecord->ExceptionAddress - (char *)base + 0x140000000ULL),
+                e->ExceptionRecord->NumberParameters > 1 ? (void *)e->ExceptionRecord->ExceptionInformation[1] : 0);
+        fflush(stderr);
+    }
+    return EXCEPTION_CONTINUE_SEARCH;
+}
+#endif
+
 static int sw2e_init(const upp_platform *platform)
 {
+#ifdef _WIN32
+    AddVectoredExceptionHandler(1, sw2e_crash);
+#endif
     const upp_release *rel;
     int64_t size;
     unsigned char *elf;

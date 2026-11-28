@@ -1177,6 +1177,34 @@ the header from UPP's repository and links its `upp_runtime` build, so the port 
 UPP's current interface. Nothing changes on the UPP side. The header lives only in UPP's git, as
 agreed when UPP took it over.
 
+## This project: the packets go to `gs_packets` (2026-11-28)
+
+`port/sw2e/ps2_gs.c` now sends what the game builds to the two new calls (checked against UPP
+commit 7a566f6, which accepts them):
+
+- **libgraph is written after Sony's code** in the executable: display environments
+  (`sceGsSetDefDispEnv`, PAL/NTSC positions), draw environments for both contexts, clears, the
+  double buffers (`sceGsSetDefDBuff` and the two-context `...Dc` variant the game uses), the
+  half-pixel offsets per field, `sceGsSwapDBuff(Dc)`, `sceGsPutDrawEnv`, `sceGsExecLoadImage`.
+  The environments the game sends are therefore the console's.
+- **`sceGsPutDispEnv`** writes `PMODE`, `SMODE2`, `DISPFB2`, `DISPLAY2` and `BGCOLOR` through
+  `gs_privileged`.
+- **DMA:** `sceDmaSendN` to the GIF goes to `gs_packets` as it is. `sceDmaSend` chains are walked
+  tag by tag (REFE, CNT, NEXT, REF, REFS, CALL, RET, END, with TTE as set in the channel). On VIF1,
+  the `DIRECT`/`DIRECTHL` data goes to `gs_packets`, and the VU1 parts (`MPG`, `UNPACK`, `MSCAL`)
+  are only counted until the VU1 programs are rewritten.
+- **The game's set-up:** a two-context double buffer of 512 x 448, `PSMCT32`, Z `PSMZ16S`, PAL
+  interlaced field mode.
+
+**What reaches the runtime so far** (start-up only, up to the first missing function): texture
+uploads, sent as on the console. That means 169 upload packets (A+D `BITBLTBUF`/`TRXPOS`/
+`TRXREG`/`TRXDIR`, then IMAGE), 16-colour palettes (4 quadwords) and 256-colour palettes (64
+quadwords) in `PSMCT32`, and pictures of 140, 4,096 and 8,192 quadwords. No display registers or
+draws yet: the start-up stops at `func_00177F80`, before the first frame.
+
+`--opt debug.gs_trace=true` writes no `gs_trace.bin` with 7a566f6 yet (the trace is the next step
+on your list). As soon as it exists, this project will record the start-up with it and report.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -1241,3 +1269,5 @@ agreed when UPP took it over.
 - 2026-11-28: this project accepted the GS level (`gs_packets`, `gs_privileged`); next: send the
   packets, the display registers, then the first GS trace.
 - 2026-11-28: this project removed its copy of `upp.h`; the build takes it from UPP's repository.
+- 2026-11-28: this project sends the GS packets and display registers through `gs_packets` /
+  `gs_privileged` (libgraph written after Sony's code, DMA chains walked); start-up uploads flow.

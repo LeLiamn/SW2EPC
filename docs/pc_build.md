@@ -11,7 +11,7 @@ see [port.md](port.md), [upp_integration.md](upp_integration.md) and [launcher.m
 | Port files compiled | 9 of 9 |
 | Functions defined twice | 0 |
 | Functions called but not decompiled yet | 815 |
-| Other symbols from outside the sources | 34 (C library, port) |
+| Other symbols from outside the sources | 40 (C library, port) |
 | Link | ok: `build/pc/sw2epc.exe` |
 
 ## Missing functions by area

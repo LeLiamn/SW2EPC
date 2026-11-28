@@ -58,8 +58,8 @@ extern int g_005632D0[16];               /* and lower bounds */
 
 #define SCRATCH_F(off) (*(float *)PS2_PTR(0x70000000 + (off)))
 
-int func_0011B050(int channel);                  /* sceDmaGetChan */
-void func_0011B380(int chan, void *packet);      /* sceDmaSend */
+unsigned char *func_0011B050(int channel);       /* sceDmaGetChan */
+void func_0011B380(unsigned char *chan, void *packet);   /* sceDmaSend */
 int func_001265F0(int a, int b);                 /* sceGsSyncPath */
 void func_00142EA8(float *m);                    /* sceVu0UnitMatrix */
 void func_00142FF0(float *m, float angle);       /* a rotation matrix (X?) */
