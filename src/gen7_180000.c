@@ -44,7 +44,6 @@ int func_0030D7D0();
 int func_0030D800();
 int func_0030D810();
 int func_0032D3C0();
-int func_00373A70();
 int func_0037F610();
 int func_0037FD50();
 int func_00381CA0();

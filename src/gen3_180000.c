@@ -21,8 +21,8 @@ extern u8 g_007BBC80[0x18];
 extern u8 g_007BBE80[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_00397B10();
 int func_002CCE60();
+int func_00397B10();
 
 #define true 1
 #define false 0
@@ -88,41 +88,6 @@ int func_003D96A0();
 void func_00290390(int param_1, int param_2, int param_3, int param_4);
 void func_002D2160(int param_1, int param_2, int param_3, int param_4, int param_5);
 int func_003B9770(int param_1);
-
-/* 0x001EC650, 0x13C bytes. */
-void func_001EC650(u8 *param_1)
-{
-    float fStack_10;
-    float fStack_c;
-    int lVar3;
-    unsigned long long * puVar2;
-    int uStack_3;
-    int uStack_4;
-    u32 uVar1;
-
-    uVar1 = *(u32 *)(param_1 + 0x80);
-    *(u32 *)(param_1 + 0x80) = uVar1 & 0xF9FFFFFF;
-    if ((uVar1 & 0x20000) == 0) {
-        puVar2 = (unsigned long long *)(param_1 + 0x28);
-    }
-    else {
-        puVar2 = (unsigned long long *)(param_1 + 0x30);
-    }
-    fStack_10 = (float)*puVar2;
-    fStack_c = (float)((unsigned long long)*puVar2 >> 0x20);
-    uStack_4 = (u8)((int)fStack_10 / 5000);
-    uStack_3 = (u8)((int)fStack_c / 5000);
-    lVar3 = func_00190590((u8 *)(&uStack_4), 0x40);
-    if ((lVar3 != 0) && (lVar3 = func_00190590((u8 *)(&uStack_4), 0x1000000), lVar3 == 0)) {
-        *(u32 *)(param_1 + 0x80) = *(u32 *)(param_1 + 0x80) | 0x2000000;
-    }
-    lVar3 = func_0032E7B0();
-    if (((lVar3 == 0) && ((*(u32 *)g_00669F60 & 4) == 0)) &&
-          ((lVar3 = func_00190590((u8 *)(&uStack_4), 0x80), lVar3 != 0 ||
-            (lVar3 = func_00190D60((u8 *)(&uStack_4)), lVar3 != 0)))) {
-        *(u32 *)(param_1 + 0x80) = *(u32 *)(param_1 + 0x80) | 0x4000000;
-    }
-}
 
 /* 0x001EDAD0, 0x74 bytes. */
 int func_001EDAD0(u8 *param_1, u16 *param_2, int param_3)
@@ -372,7 +337,7 @@ void func_0029DE30(float param_1, float param_2, float param_3, float *param_4)
         *param_4 = fVar1 + param_1;
     }
     else {
-        *param_4 = 0.0;
+        *param_4 = 0.0f;
     }
     fVar1 = param_4[1];
     if (param_2 < fVar1) {
@@ -382,7 +347,7 @@ void func_0029DE30(float param_1, float param_2, float param_3, float *param_4)
         param_4[1] = fVar1 + param_2;
     }
     else {
-        param_4[1] = 0.0;
+        param_4[1] = 0.0f;
     }
     fVar1 = param_4[2];
     if (param_3 < fVar1) {
@@ -392,7 +357,7 @@ void func_0029DE30(float param_1, float param_2, float param_3, float *param_4)
         param_4[2] = fVar1 + param_3;
     }
     else {
-        param_4[2] = 0.0;
+        param_4[2] = 0.0f;
     }
 }
 
@@ -514,7 +479,7 @@ void func_002CD480(int param_1, int param_2, int param_3, int param_4, int param
 
     iVar3 = (int)param_5;
     iVar1 = 1;
-    while (iVar3 = iVar3 / 10, 1.0 <= (float)iVar3) {
+    while (iVar3 = iVar3 / 10, 1.0f <= (float)iVar3) {
         iVar1 = iVar1 + 1;
     }
     iVar3 = 0;

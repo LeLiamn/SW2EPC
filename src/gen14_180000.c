@@ -845,7 +845,7 @@ int func_00271610(float param_1, u8 *param_2)
             else {
                 uVar5 = (u32)*(u8 *)((u8 *)PS2_PTR(iVar2) + 6);
             }
-            if ((float)(int)uVar5 - 1.0 <= fVar9) {
+            if ((float)(int)uVar5 - 1.0f <= fVar9) {
                 return true;
             }
         }
@@ -917,9 +917,9 @@ void func_00272A70(u8 *param_1)
     *(ps2ptr *)(param_1 + 0x14) = PS2_ADDR(puVar2 + 1);
     uVar3 = func_001D6BD0((u32 *)(&uStack_2), (u32 *)PS2_PTR(*(u32 *)(param_1 + 0xC)), *puVar1, *puVar2);
     *(u32 *)(param_1 + 0xC) = uVar3;
-    fVar4 = ((float)uStack_2 * 50.0) / 60.0;
-    if (2.1474836e+09 <= fVar4) {
-        fVar4 = fVar4 - 2.1474836e+09;
+    fVar4 = ((float)uStack_2 * 50.0f) / 60.0f;
+    if (2.1474836e+09f <= fVar4) {
+        fVar4 = fVar4 - 2.1474836e+09f;
     }
     func_0017DEA0((int)fVar4 & 0xFFFF);
 }

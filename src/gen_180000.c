@@ -15,6 +15,7 @@ typedef unsigned int u32;
 
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_001EAC90();
 int func_001C39A0();
 int func_001C4A00();
 int func_001EC180();
@@ -96,7 +97,6 @@ int func_001C5E20();
 int func_001C7DB0();
 int func_001C8CF0();
 int func_001E0B40();
-int func_001EAC90();
 int func_001EBFC0();
 int func_001EC530();
 int func_001ED580();
@@ -127,8 +127,6 @@ int func_002622C0();
 int func_00263BD0();
 int func_002641B0();
 int func_00264840();
-int func_002698A0();
-int func_0026FC90();
 int func_002A6D20();
 int func_002F00F0();
 int func_0034A9D0();

@@ -22,6 +22,7 @@ extern u8 g_0076F5B0[0x18];
 extern u8 g_0076F5C4[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_00263AD0();
 
 #define true 1
 #define false 0
@@ -52,7 +53,6 @@ extern int g_0045D810;   /* (small data) */
 int func_001204B0();
 int func_002284E0();
 int func_0022D590();
-int func_00263AD0();
 int func_00278FC0();
 int func_00279140();
 int func_0029C800();
@@ -105,7 +105,7 @@ void func_002287F0(int param_1)
         *(int *)(g_70000150 * 0x90 + iVar2 + 0xC4) = *(int *)(iVar2 + 0x24) * 8 + 0x7900;
         fVar5 = *(float *)(iVar2 + 8) + *(float *)(iVar2 + 0xC);
         *(float *)(iVar2 + 8) = fVar5;
-        if (1.0 < fVar5) {
+        if (1.0f < fVar5) {
             func_002284E0();
         }
         else if (*(float *)(iVar2 + 0x10) < fVar5) {
@@ -510,22 +510,22 @@ void func_00380EB0(float param_1, int param_2, int param_3, int param_4, int par
     func_001A85D0((float)iVar2 / (float)iVar3, (float)iVar7 / (float)iVar4, 1.0f, param_4 + 0x54,
                               param_5 + 0x70, 0, 4, 0xB, 0x5C, 1);
     iVar7 = func_002F39F0(param_3);
-    func_001A85D0((float)iVar7 / 350.0, 0, 1.0f, param_4 + 0x54, param_5 + 0x84, 0, 6, 0, 0x5C, 1);
+    func_001A85D0((float)iVar7 / 350.0f, 0, 1.0f, param_4 + 0x54, param_5 + 0x84, 0, 6, 0, 0x5C, 1);
     uVar5 = func_002F39F0(param_3);
     func_001204B0(auStack_10, 0x459570, uVar5);
     func_002C4F40(14.0f, (char *)(auStack_10), param_4 + 0xB8, param_5 + 0x81, 1, 0, 6);
     iVar7 = func_002F4C40(param_3);
-    func_001A85D0((float)iVar7 / 350.0, 0, 1.0f, param_4 + 0x54, param_5 + 0x96, 0, 7, 0, 0x5C, 1);
+    func_001A85D0((float)iVar7 / 350.0f, 0, 1.0f, param_4 + 0x54, param_5 + 0x96, 0, 7, 0, 0x5C, 1);
     uVar5 = func_002F4C40(param_3);
     func_001204B0(auStack_10, 0x459570, uVar5);
     func_002C4F40(14.0f, (char *)(auStack_10), param_4 + 0xB8, param_5 + 0x93, 1, 0, 6);
     iVar7 = func_002F4DD0(param_3);
-    func_001A85D0((float)iVar7 / 250.0, 0, 1.0f, param_4 + 0x54, param_5 + 0xA8, 0, 8, 0, 0x5C, 1);
+    func_001A85D0((float)iVar7 / 250.0f, 0, 1.0f, param_4 + 0x54, param_5 + 0xA8, 0, 8, 0, 0x5C, 1);
     uVar5 = func_002F4DD0(param_3);
     func_001204B0(auStack_10, 0x459570, uVar5);
     func_002C4F40(14.0f, (char *)(auStack_10), param_4 + 0xB8, param_5 + 0xA5, 1, 0, 6);
     iVar7 = func_002F4F60(param_3);
-    func_001A85D0((float)iVar7 / 250.0, 0, 1.0f, param_4 + 0x54, param_5 + 0xBA, 0, 9, 0, 0x5C, 1);
+    func_001A85D0((float)iVar7 / 250.0f, 0, 1.0f, param_4 + 0x54, param_5 + 0xBA, 0, 9, 0, 0x5C, 1);
     uVar5 = func_002F4F60(param_3);
     func_001204B0(auStack_10, 0x459570, uVar5);
     func_002C4F40(14.0f, (char *)(auStack_10), param_4 + 0xB8, param_5 + 0xB7, 1, 0, 6);
@@ -565,22 +565,22 @@ void func_003819E0(int param_1, int param_2, int param_3, int param_4)
     func_001204B0(auStack_20, 0x459570, uVar2);
     func_002C4F40(14.0f, (char *)(auStack_20), param_3 + 0xB8, param_4 + 0x81, 1, 0, 6);
     iVar1 = func_002F39F0(param_2);
-    func_001A85D0((float)iVar1 / 350.0, 0, 1.0f, param_3 + 0x54, param_4 + 0x84, 0, 6, 0, 0x5C, 1);
+    func_001A85D0((float)iVar1 / 350.0f, 0, 1.0f, param_3 + 0x54, param_4 + 0x84, 0, 6, 0, 0x5C, 1);
     uVar2 = func_002F4C40(param_2);
     func_001204B0(auStack_20, 0x459570, uVar2);
     func_002C4F40(14.0f, (char *)(auStack_20), param_3 + 0xB8, param_4 + 0x93, 1, 0, 6);
     iVar1 = func_002F4C40(param_2);
-    func_001A85D0((float)iVar1 / 350.0, 0, 1.0f, param_3 + 0x54, param_4 + 0x96, 0, 7, 0, 0x5C, 1);
+    func_001A85D0((float)iVar1 / 350.0f, 0, 1.0f, param_3 + 0x54, param_4 + 0x96, 0, 7, 0, 0x5C, 1);
     uVar2 = func_002F4DD0(param_2);
     func_001204B0(auStack_20, 0x459570, uVar2);
     func_002C4F40(14.0f, (char *)(auStack_20), param_3 + 0xB8, param_4 + 0xA5, 1, 0, 6);
     iVar1 = func_002F4DD0(param_2);
-    func_001A85D0((float)iVar1 / 250.0, 0, 1.0f, param_3 + 0x54, param_4 + 0xA8, 0, 8, 0, 0x5C, 1);
+    func_001A85D0((float)iVar1 / 250.0f, 0, 1.0f, param_3 + 0x54, param_4 + 0xA8, 0, 8, 0, 0x5C, 1);
     uVar2 = func_002F4F60(param_2);
     func_001204B0(auStack_20, 0x459570, uVar2);
     func_002C4F40(14.0f, (char *)(auStack_20), param_3 + 0xB8, param_4 + 0xB7, 1, 0, 6);
     iVar1 = func_002F4F60(param_2);
-    func_001A85D0((float)iVar1 / 250.0, 0, 1.0f, param_3 + 0x54, param_4 + 0xBA, 0, 9, 0, 0x5C, 1);
+    func_001A85D0((float)iVar1 / 250.0f, 0, 1.0f, param_3 + 0x54, param_4 + 0xBA, 0, 9, 0, 0x5C, 1);
     uVar2 = func_002F5AA0(param_2);
     func_003B5300(uVar2, param_3 + 0x54, param_4 + 200, 0, 1);
 }

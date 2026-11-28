@@ -15,6 +15,7 @@ typedef unsigned int u32;
 
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_002CD2C0();
 
 #define true 1
 #define false 0
@@ -47,11 +48,8 @@ int func_001204B0();
 void func_001C7F30(int k, float *pos, int c, u32 f);
 int func_001FF100();
 int func_0027C210();
-int func_002CD2C0();
-int func_002CE030();
 int func_002CE160();
 int func_002F7D90();
-int func_0039BD40();
 int func_0039C490();
 int func_003AF040();
 

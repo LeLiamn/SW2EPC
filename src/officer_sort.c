@@ -11,6 +11,7 @@
 #define SW2E_FILE_OFFICER_SORT_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_003EEAE0();
 
 typedef unsigned char u8;
 typedef unsigned short u16;

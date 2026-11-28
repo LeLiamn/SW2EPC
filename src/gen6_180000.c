@@ -16,6 +16,7 @@ typedef unsigned int u32;
 extern u8 g_00799A20[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_001ECEA0();
 
 #define true 1
 #define false 0
@@ -70,7 +71,6 @@ int func_0032F420();
 int func_00388DA0();
 int func_00389090();
 int func_003F55E0();
-void func_00398D60(int param_1, int param_2, int param_3);
 
 /* 0x001DEFB0, 0x15C bytes. */
 void func_001DEFB0(int param_1, int param_2)

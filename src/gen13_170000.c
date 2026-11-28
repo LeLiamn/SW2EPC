@@ -58,7 +58,7 @@ void func_00178AC0(u8 *param_1)
     *(ps2ptr *)(param_1 + 0xD0) = PS2_ADDR(&uStack_10);
     func_001F2BF0(param_1 + 0xD0);
     fVar4 = *(float *)(param_1 + 0xE0);
-    if ((*(u8 *)(param_1 + 0x14E) < 2) && (400.0 < fVar4 - fVar5)) {
+    if ((*(u8 *)(param_1 + 0x14E) < 2) && (400.0f < fVar4 - fVar5)) {
         iVar3 = (u32)*(u8 *)(param_1 + 0x14E) * 0xF0;
         *(u8 *)(g_005B4A1C + iVar3) = *(u8 *)(g_005B4A1C + iVar3) & 0xFD | 2;
     }
@@ -73,7 +73,7 @@ void func_00178AC0(u8 *param_1)
             uVar1 = *(u32 *)(*(int *)(param_1 + 0x210) + 0x18);
             if ((uVar1 & 0x40000020) == 0) {
                 if (*(int *)(param_1 + 0x288) == 0) {
-                    if (*(float *)(param_1 + 0xE0) - *(float *)(param_1 + 0x44) < 50.0) {
+                    if (*(float *)(param_1 + 0xE0) - *(float *)(param_1 + 0x44) < 50.0f) {
                         bVar2 = false;
                     }
                     else if ((uVar1 & 0x440) == 0) {

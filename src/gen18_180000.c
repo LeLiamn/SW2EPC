@@ -19,6 +19,9 @@ extern u8 g_007BFB20[0x18];
 extern u8 g_007BFB3C[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_0022A200();
+int func_00383C10();
+int func_001EC650();
 
 #define true 1
 #define false 0
@@ -60,12 +63,10 @@ extern int g_0045D810;   /* (small data) */
 
 int func_001EC5C0();
 int func_001FF100();
-int func_002095D0();
 int func_00229E50();
 int func_0022A000();
 int func_0022A010();
 int func_0022A1F0();
-int func_0022A200();
 int func_00254470();
 int func_00254880();
 int func_002DCFA0();
@@ -76,7 +77,6 @@ void *func_0030D7D0();
 int func_00347F20();
 int func_0037EB40();
 int func_00381CA0();
-int func_00383C10();
 int func_00388710();
 int func_003890A0();
 
@@ -171,7 +171,7 @@ int func_0020A7E0(int *param_1, float *param_2, int param_3)
         fVar6 = (fVar6 - fVar7) / (*(float *)((u8 *)PS2_PTR(iVar3) + iVar4) - fVar7);
     }
     fVar7 = *(float *)(iVar1 + iVar5 * 4);
-    fVar6 = fVar6 * (*(float *)((u8 *)PS2_PTR(iVar3) + iVar5 * 4) - fVar7) + fVar7 + 0.0;
+    fVar6 = fVar6 * (*(float *)((u8 *)PS2_PTR(iVar3) + iVar5 * 4) - fVar7) + fVar7 + 0.0f;
     if (param_3 == 0) {
         fVar6 = param_2[4] - fVar6;
     }

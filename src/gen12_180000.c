@@ -247,19 +247,19 @@ void func_002B4E80(u8 *param_1, int *param_2, u16 *param_3, int param_4, int par
         iVar10 = 0;
         do {
             if (uVar8 == (param_5 & 0xFF)) {
-                fVar11 = 1.0;
+                fVar11 = 1.0f;
             }
             else {
-                fVar11 = 0.675;
+                fVar11 = 0.675f;
             }
-            fVar11 = fVar11 * 128.0;
-            if (2.1474836e+09 <= fVar11) {
-                fVar11 = fVar11 - 2.1474836e+09;
+            fVar11 = fVar11 * 128.0f;
+            if (2.1474836e+09f <= fVar11) {
+                fVar11 = fVar11 - 2.1474836e+09f;
             }
             uVar7 = (long long)(int)fVar11 & 0xFF;
             if (param_2[2] == 0xF) {
                 fVar12 = (float)*param_2;
-                fVar11 = (((float)*param_2 - -258.0) / 10.0) * (float)(*(u32 *)g_00795054 - iVar10) + -258.0;
+                fVar11 = (((float)*param_2 - -258.0f) / 10.0f) * (float)(*(u32 *)g_00795054 - iVar10) + -258.0f;
                 if (fVar11 < fVar12) {
                     iVar2 = *(int *)(param_1 + 8);
                 }
@@ -291,7 +291,7 @@ void func_002B4E80(u8 *param_1, int *param_2, u16 *param_3, int param_4, int par
             }
             else {
                 fVar12 = (float)*param_2;
-                fVar11 = (((float)*param_2 - -168.0) / 10.0) * (float)(*(u32 *)g_00795054 - iVar10) + -168.0;
+                fVar11 = (((float)*param_2 - -168.0f) / 10.0f) * (float)(*(u32 *)g_00795054 - iVar10) + -168.0f;
                 if (fVar12 <= fVar11) {
                     fVar11 = fVar12;
                 }
@@ -541,18 +541,18 @@ void func_002EE610(int param_1, int param_2)
             iVar4 = func_00106F10((u8 *)PS2_PTR(iVar14));
             lVar7 = func_002ED150();
             if ((lVar7 == 0) && (uVar15 == ((unsigned long long)param_2 & 0xFFFFFFFF000000FF))) {
-                fVar5 = 1.0;
+                fVar5 = 1.0f;
             }
             else {
-                fVar5 = 0.675;
+                fVar5 = 0.675f;
             }
-            fVar5 = fVar5 * 128.0;
-            if (2.1474836e+09 <= fVar5) {
-                fVar5 = fVar5 - 2.1474836e+09;
+            fVar5 = fVar5 * 128.0f;
+            if (2.1474836e+09f <= fVar5) {
+                fVar5 = fVar5 - 2.1474836e+09f;
             }
-            fVar19 = (((float)*(u16 *)(iVar4 + 0x14) + 16.0) / 10.0) * (float)(*(u32 *)g_007A22B8 - iVar13) +
-                              (float)(int)-(u32)*(u16 *)(iVar4 + 0x14) + 0.0;
-            if (fVar19 < 16.0) {
+            fVar19 = (((float)*(u16 *)(iVar4 + 0x14) + 16.0f) / 10.0f) * (float)(*(u32 *)g_007A22B8 - iVar13) +
+                              (float)(int)-(u32)*(u16 *)(iVar4 + 0x14) + 0.0f;
+            if (fVar19 < 16.0f) {
                 iVar20 = (int)fVar19;
             }
             else {
@@ -654,18 +654,18 @@ void func_002EEB60(int param_1, int param_2)
             iVar4 = func_00106F10((u8 *)PS2_PTR(iVar14));
             lVar7 = func_002ED150();
             if ((lVar7 == 0) && (uVar15 == ((unsigned long long)param_2 & 0xFFFFFFFF000000FF))) {
-                fVar5 = 1.0;
+                fVar5 = 1.0f;
             }
             else {
-                fVar5 = 0.675;
+                fVar5 = 0.675f;
             }
-            fVar5 = fVar5 * 128.0;
-            if (2.1474836e+09 <= fVar5) {
-                fVar5 = fVar5 - 2.1474836e+09;
+            fVar5 = fVar5 * 128.0f;
+            if (2.1474836e+09f <= fVar5) {
+                fVar5 = fVar5 - 2.1474836e+09f;
             }
-            fVar18 = (((float)*(u16 *)(iVar4 + 0x14) + 16.0) / 10.0) * (float)(*(u32 *)g_007A22B8 - iVar13) +
-                              (float)(int)-(u32)*(u16 *)(iVar4 + 0x14) + 0.0;
-            if (fVar18 < 16.0) {
+            fVar18 = (((float)*(u16 *)(iVar4 + 0x14) + 16.0f) / 10.0f) * (float)(*(u32 *)g_007A22B8 - iVar13) +
+                              (float)(int)-(u32)*(u16 *)(iVar4 + 0x14) + 0.0f;
+            if (fVar18 < 16.0f) {
                 iVar19 = (int)fVar18;
             }
             else {
@@ -928,19 +928,19 @@ void func_003F0020(int param_1, int param_2, int param_3, int param_4, int param
             uVar5 = func_002F39F0(param_2);
             func_003EFB90(param_1, uVar5, 0xB8, param_4 + 0x65, 0, 1);
             iVar2 = func_002F39F0(param_2);
-            func_001A85D0((float)iVar2 / 350.0, 0, 1.0f, 0xA0, param_4 + 0x71, 0, 6, 0, 0x30, 1);
+            func_001A85D0((float)iVar2 / 350.0f, 0, 1.0f, 0xA0, param_4 + 0x71, 0, 6, 0, 0x30, 1);
             uVar5 = func_002F4C40(param_2);
             func_003EFB90(param_1, uVar5, 0xF6, param_4 + 0x65, 0, 1);
             iVar2 = func_002F4C40(param_2);
-            func_001A85D0((float)iVar2 / 350.0, 0, 1.0f, 0xDE, param_4 + 0x71, 0, 7, 0, 0x30, 1);
+            func_001A85D0((float)iVar2 / 350.0f, 0, 1.0f, 0xDE, param_4 + 0x71, 0, 7, 0, 0x30, 1);
             uVar5 = func_002F4DD0(param_2);
             func_003EFB90(param_1, uVar5, 0x134, param_4 + 0x65, 0, 1);
             iVar2 = func_002F4DD0(param_2);
-            func_001A85D0((float)iVar2 / 250.0, 0, 1.0f, 0x11C, param_4 + 0x71, 0, 8, 0, 0x30, 1);
+            func_001A85D0((float)iVar2 / 250.0f, 0, 1.0f, 0x11C, param_4 + 0x71, 0, 8, 0, 0x30, 1);
             uVar5 = func_002F4F60(param_2);
             func_003EFB90(param_1, uVar5, 0x172, param_4 + 0x65, 0, 1);
             iVar2 = func_002F4F60(param_2);
-            func_001A85D0((float)iVar2 / 250.0, 0, 1.0f, 0x15A, param_4 + 0x71, 0, 9, 0, 0x30, 1);
+            func_001A85D0((float)iVar2 / 250.0f, 0, 1.0f, 0x15A, param_4 + 0x71, 0, 9, 0, 0x30, 1);
             uVar8 = func_00327870();
             if (param_2 == uVar8) {
                 iVar3 = 0;

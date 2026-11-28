@@ -117,21 +117,21 @@ void func_002445A0(u8 *param_1, u8 *param_2)
         iVar3 = (u32)bVar1 * 0x48;
         puVar4 = (u32 *)(iVar3 + 0x669E04);
         *(u32 *)(g_00669E04 + iVar3) = *(u32 *)(g_00669E04 + iVar3) | 2;
-        uVar6 = (u32)(((float)(int)sVar2 * 50.0) / 60.0);
+        uVar6 = (u32)(((float)(int)sVar2 * 50.0f) / 60.0f);
         if (*(u32 *)(g_00669E0C + iVar3) < uVar6) {
             *(u32 *)(g_00669E0C + iVar3) = uVar6;
         }
         func_00247FA0(*(u8 *)(param_1 + 0x14E), 9, 6);
         sVar2 = *(short *)(g_004106A2 + iVar5);
         *puVar4 = *puVar4 | 4;
-        uVar6 = (u32)(((float)(int)sVar2 * 50.0) / 60.0);
+        uVar6 = (u32)(((float)(int)sVar2 * 50.0f) / 60.0f);
         if (*(u32 *)(g_00669E10 + iVar3) < uVar6) {
             *(u32 *)(g_00669E10 + iVar3) = uVar6;
         }
         func_00247FA0(*(u8 *)(param_1 + 0x14E), 0xB, 6);
         sVar2 = *(short *)(g_004106A4 + iVar5);
         *puVar4 = *puVar4 | 0x10;
-        uVar6 = (u32)(((float)(int)sVar2 * 50.0) / 60.0);
+        uVar6 = (u32)(((float)(int)sVar2 * 50.0f) / 60.0f);
         if (*(u32 *)(g_00669E18 + iVar3) < uVar6) {
             *(u32 *)(g_00669E18 + iVar3) = uVar6;
         }
@@ -146,7 +146,7 @@ void func_002445A0(u8 *param_1, u8 *param_2)
         sVar2 = *(short *)(iVar5 * 8 + 0x4106A4);
         iVar3 = (u32)bVar1 * 0x48;
         *(u32 *)(g_00669E04 + iVar3) = *(u32 *)(g_00669E04 + iVar3) | 0x10;
-        uVar6 = (u32)(((float)(int)sVar2 * 50.0) / 60.0);
+        uVar6 = (u32)(((float)(int)sVar2 * 50.0f) / 60.0f);
         if (*(u32 *)(g_00669E18 + iVar3) < uVar6) {
             *(u32 *)(g_00669E18 + iVar3) = uVar6;
         }
@@ -159,7 +159,7 @@ void func_002445A0(u8 *param_1, u8 *param_2)
         sVar2 = *(short *)(iVar5 * 8 + 0x4106A2);
         iVar3 = (u32)bVar1 * 0x48;
         *(u32 *)(g_00669E04 + iVar3) = *(u32 *)(g_00669E04 + iVar3) | 4;
-        uVar6 = (u32)(((float)(int)sVar2 * 50.0) / 60.0);
+        uVar6 = (u32)(((float)(int)sVar2 * 50.0f) / 60.0f);
         if (*(u32 *)(g_00669E10 + iVar3) < uVar6) {
             *(u32 *)(g_00669E10 + iVar3) = uVar6;
         }
@@ -172,7 +172,7 @@ void func_002445A0(u8 *param_1, u8 *param_2)
         sVar2 = *(short *)(iVar5 * 8 + 0x4106A0);
         iVar3 = (u32)bVar1 * 0x48;
         *(u32 *)(g_00669E04 + iVar3) = *(u32 *)(g_00669E04 + iVar3) | 2;
-        uVar6 = (u32)(((float)(int)sVar2 * 50.0) / 60.0);
+        uVar6 = (u32)(((float)(int)sVar2 * 50.0f) / 60.0f);
         if (*(u32 *)(g_00669E0C + iVar3) < uVar6) {
             *(u32 *)(g_00669E0C + iVar3) = uVar6;
         }
@@ -278,11 +278,11 @@ void func_002A5130(void)
                     func_0023AC70(*(u32 *)(iVar6 + 0x30), uVar7 + 1, *(u32 *)(iVar6 + 0xC),
                                               *(u32 *)(iVar6 + 0x10),*(u32 *)(iVar6 + 0x14));
                 }
-                if (*(float *)(iVar6 + 0x34) < 100.0) {
-                    *(float *)(iVar6 + 0x34) = *(float *)(iVar6 + 0x34) - 0.02;
+                if (*(float *)(iVar6 + 0x34) < 100.0f) {
+                    *(float *)(iVar6 + 0x34) = *(float *)(iVar6 + 0x34) - 0.02f;
                 }
             }
-            if (*(float *)(iVar6 + 0x34) <= 0.0) {
+            if (*(float *)(iVar6 + 0x34) <= 0.0f) {
                 func_002A5080((u8 *)PS2_PTR(iVar3 + 0x7733F0), iVar6, uVar7 + 1);
             }
         }
@@ -414,5 +414,5 @@ void func_003DA010(int param_1, int param_2)
     }
     func_001204B0(auStack_10, 0x45C488, iVar1, 10000);
     func_002C4F40(14.0f, (char *)(auStack_10), param_1 + 0x54, param_2 + 0x61, 1, 0, 6);
-    func_001A85D0((float)iVar1 / 10000.0, 0, 1.0f, param_1 + 0x54, param_2 + 0x70, 0, 2, 0, 0x5C, 1);
+    func_001A85D0((float)iVar1 / 10000.0f, 0, 1.0f, param_1 + 0x54, param_2 + 0x70, 0, 2, 0, 0x5C, 1);
 }
