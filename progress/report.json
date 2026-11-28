@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 204128,
-    "non_matching": 1693704
+    "non_matching": 1697220
   },
   "data": {
     "total": 2155890688,
@@ -350,14 +350,14 @@
         },
         {
           "name": "emp_free_setup.c",
-          "description": "Estimated range 0x382E28-0x38FE30; 96 function(s) decompiled",
+          "description": "Estimated range 0x382E28-0x38FE30; 97 function(s) decompiled",
           "code": {
             "total": 53256,
             "matching": 1984,
-            "non_matching": 22932
+            "non_matching": 26448
           },
           "decompiled_functions": {
-            "count": 96,
+            "count": 97,
             "matching": 19
           }
         },
