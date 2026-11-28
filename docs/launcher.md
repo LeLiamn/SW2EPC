@@ -1007,6 +1007,101 @@ menus, A for battles)?
 - QoL later: higher internal resolution, texture filtering, widescreen. Is the projection done in
   game code (so widescreen would be a game option, not a runtime one)?
 
+## This project: answers on the 3D path (2026-11-28)
+
+Answers to "Launcher side: questions for the 3D path". Where it says "to record", the value will
+come from a trace: `ps2_gs.c` will log every GS register value the game sends, once the game
+draws on the PC.
+
+### 1. The level of the interface: B, the GS level
+
+SW2EPC recommends **B**: the runtime receives GIF packets as the GS would, keeps a model of GS
+memory and draws from it. No mix with A is needed. The reasons, from the code:
+
+- **What the game produces is GIF packets.** The EE builds the 2D packets itself (menus, text,
+  HUD). The 3D goes through 15 VU1 microprograms that end in `XGKICK`. SW2EPC will rewrite those
+  programs in C so that they write the same GIF packets. A packet can then be checked bit for bit
+  against the console. With A, SW2EPC would add a second translation, which is harder to check.
+- **Textures and palettes are addressed in GS memory.** Uploads go to a GS address (`TBP`), draws
+  name it in `TEX0`, and palettes load through `TEX0.CBP`/`CLD` in CSM1 order. Something has to
+  model GS memory in any case. In the runtime, the next PS2 ports get it for free.
+- **The open points cost nothing with B.** Render-to-texture, GS to GS copies and frame-buffer
+  effects are not known yet (section 4). B handles them when they show up. A would need an
+  interface change.
+- **Speed should not be a problem for this game.** It is a 2006 PS2 game: modest volume, and a
+  texture cache keyed by (`TBP`, `PSM`, `CBP`, size) like the hardware GS renderers should be
+  enough.
+
+Suggested interface: `gs_packets(const void *data, size_t qwords)`, path 3 style (GIF tags with
+PACKED, REGLIST and IMAGE), plus `gs_privileged(reg, value)` for the PCRTC registers SW2EPC writes
+(display mode, `DISPFB`, `DISPLAY`, `PMODE`, `BGCOLOR`). The frame is shown on the runtime's
+vblank, as today. `video_present` stays for software pictures.
+
+### 2. Vertices and VU1
+
+- **Transform:** yes, VU1. The microcode area (`0x003F9680`-`0x00403D30`) holds **15 programs,
+  3,645 instruction pairs** (about 42 KB), uploaded by VIF `MPG`. Models load three of them. They
+  will be rewritten in C in SW2EPC (a new `port/sw2e/vu1_*.c`, not in the runtime), checked
+  against packets from the console.
+- **After the transform:** standard GS screen space, as the VU1 writes it: `XYZ2` with X/Y in
+  12.4 fixed point relative to `XYOFFSET`, integer Z (the Z buffer is 16-bit, `PSMZ16S`), `ST`
+  and `Q` as floats, `RGBAQ`. To record: the `XYOFFSET` values and the Z range.
+- **Primitives:** triangles and triangle strips (models, battlefield; PRIM 3 and 4 in the data),
+  sprites (2D), lines (weapon trails, `weapon.c`). Fans and points: not seen so far.
+
+### 3. Textures and palettes
+
+- **Formats:** `PSMT8` and `PSMT4` with 32-bit palettes in CSM1 order for all 500 top-level TIM2
+  files and all `tm3` files. The 16,027 TIM2 files nested in packs all convert, but are not
+  counted by format yet. Frame: `PSMCT32`. `PSMT8H`/`4HL`/`4HH`, 16-bit palettes and CSM2: not
+  seen, to record.
+- **Sources:** TIM2 (in LINKDATA packs), `tm3` (ready-made GS upload packets), MPEG pictures from
+  the IPU (section 6).
+- **Uploads:** `sceGsExecLoadImage` at load time for the model and stage textures (`texture.c`,
+  `model_cache.c`). Whether some textures are streamed into GS memory within a frame: to record.
+  4 MB of GS memory is tight for a battle, so assume reuse.
+- **Modes:** TIM2 files have no mipmaps. `TFX`/`TCC`, `TEX1` (filtering, LOD), `CLAMP` and
+  `REGION_*`: set by the packets, to record.
+
+### 4. Frame buffer
+
+- **Render-to-texture, GS to GS copies:** not known yet. The planar shadows are a projection
+  matrix (geometry), not a texture. The candidates to check are the effects (`effect.c`) and the
+  distant view.
+- **Read-back to the EE:** not seen. The save icon is a 3D icon file from the disc, not a
+  capture.
+- **Frame size:** 640 x 512 double buffer, interlaced, field mode. Whole frames seem to be drawn
+  and shown field by field. To record: `DISPFB` and `DISPLAY` per frame, and whether `PMODE`
+  uses both read circuits. The fades seen so far are drawn quads, not a PCRTC merge.
+
+### 5. Blending and tests
+
+- **ALPHA, PABE, FBA, ATST/AFAIL, DATE, ZTST, FBMSK/ZMSK, DTHE:** to record. Alpha blending is
+  used widely (fades, effects, HUD).
+- **Fog:** yes. It is switched per mesh (`func_001CC450`) and computed per vertex by the VU1,
+  with `FOGCOL`. So it is the GS's own fog, with F per vertex.
+- **SCISSOR:** used (message windows, menus).
+
+### 6. 2D, movies and volume
+
+- **2D:** menus, fonts and overlays go through the same GS path (EE-built packets: sprites and
+  triangles).
+- **Movies:** on the PS2 the IPU decodes the MPEG-2 into 16 x 16 RGBA macroblocks
+  (`ipu_picture.c`), which are uploaded to GS memory and drawn. On the PC, SW2EPC will decode
+  them itself in place of the IPU and upload the RGBA picture to GS memory. With B, nothing
+  special is needed in the runtime.
+- **Volume in battle:** to record. For scale: up to 143 unit slots (soldiers and officers), each
+  drawn as a skinned model.
+
+### 7. Order and QoL
+
+- **First:** the title screen and menus. They need uploads with palettes, sprites and triangles,
+  alpha blending, `SCISSOR`, and the display registers. **Then** battles: VU1 output, Z buffer,
+  fog.
+- **QoL:** higher internal resolution and texture filtering are runtime options.
+  **Widescreen is a game option:** the projection is set in the game code (camera matrices and
+  the VU1 constants), and the HUD layout has to move too, so SW2EPC will provide it.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -1064,3 +1159,5 @@ menus, A for battles)?
   render-to-texture still open).
 - 2026-11-28: launcher side: questions for the 3D path (platform version 2): interface level
   (draw calls or GS packets), VU1, textures, frame buffer, blending, fog, volume, order.
+- 2026-11-28: this project answered the 3D questions: GS level (B) recommended, 15 VU1 programs to
+  rewrite in C on the SW2EPC side, formats and modes known so far, the rest to come from a GS trace.
