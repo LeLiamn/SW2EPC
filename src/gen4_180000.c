@@ -457,13 +457,6 @@ void func_00255E00(void)
 }
 /* MISSING ['0x5b4d80', '0x5b4d84', '0x5b4d88', '0x5b4d90', '0x5b4d94', '0x5b4d98', '0x5b4de0', '0x5b4de4', '0x76ec60', '0x76ec64', '0x76ec68', '0x76ec6c', '0x76ec70', '0x76ec74', '0x76ec78', '0x76ec7c'] */
 
-/* 0x00278FC0, 0x48 bytes. */
-void func_00278FC0(int param_1, u16 *param_2, int param_3)
-{
-  func_001ABE40((*(u32 *)(g_0076F3AC + 0x0)),param_1,*param_2,param_2[1],0,param_2[2],param_2[3],param_3);
-  return;
-}
-
 /* 0x0029FB30, 0x34 bytes. */
 int func_0029FB30(u8 *param_1)
 {
