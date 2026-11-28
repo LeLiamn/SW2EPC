@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 201952,
-    "non_matching": 1542172
+    "non_matching": 1544476
   },
   "data": {
     "total": 2155890688,
@@ -163,14 +163,14 @@
         },
         {
           "name": "StateEdit.c",
-          "description": "Estimated range 0x36DE68-0x382E28; 308 function(s) decompiled",
+          "description": "Estimated range 0x36DE68-0x382E28; 310 function(s) decompiled",
           "code": {
             "total": 85952,
             "matching": 6304,
-            "non_matching": 51144
+            "non_matching": 52088
           },
           "decompiled_functions": {
-            "count": 308,
+            "count": 310,
             "matching": 107
           }
         },
@@ -415,14 +415,14 @@
         },
         {
           "name": "emp_zuroku.c",
-          "description": "Estimated range 0x3BCB78-0x3C84B8; 190 function(s) decompiled",
+          "description": "Estimated range 0x3BCB78-0x3C84B8; 191 function(s) decompiled",
           "code": {
             "total": 47424,
             "matching": 1840,
-            "non_matching": 31840
+            "non_matching": 31936
           },
           "decompiled_functions": {
-            "count": 190,
+            "count": 191,
             "matching": 31
           }
         },
@@ -441,14 +441,14 @@
         },
         {
           "name": "emp_zuroku_graph.c",
-          "description": "Estimated range 0x3958A8-0x39DD30; 99 function(s) decompiled",
+          "description": "Estimated range 0x3958A8-0x39DD30; 100 function(s) decompiled",
           "code": {
             "total": 33928,
             "matching": 1840,
-            "non_matching": 14820
+            "non_matching": 15220
           },
           "decompiled_functions": {
-            "count": 99,
+            "count": 100,
             "matching": 31
           }
         },
@@ -820,14 +820,14 @@
         },
         {
           "name": "BriefingCmnParts.c",
-          "description": "Estimated range 0x2C1EA8-0x2DE550; 123 function(s) decompiled",
+          "description": "Estimated range 0x2C1EA8-0x2DE550; 124 function(s) decompiled",
           "code": {
             "total": 116392,
             "matching": 2144,
-            "non_matching": 20112
+            "non_matching": 20592
           },
           "decompiled_functions": {
-            "count": 123,
+            "count": 124,
             "matching": 33
           }
         }
@@ -890,14 +890,14 @@
         },
         {
           "name": "JapanMap.c",
-          "description": "Estimated range 0x39DD30-0x3ACA98; 300 function(s) decompiled",
+          "description": "Estimated range 0x39DD30-0x3ACA98; 302 function(s) decompiled",
           "code": {
             "total": 60776,
             "matching": 5840,
-            "non_matching": 32032
+            "non_matching": 32416
           },
           "decompiled_functions": {
-            "count": 300,
+            "count": 302,
             "matching": 82
           }
         },
