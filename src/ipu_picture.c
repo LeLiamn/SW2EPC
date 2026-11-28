@@ -38,17 +38,17 @@ typedef unsigned int u32;
 
 /* A picture to decode. */
 typedef struct {
-    u8 *data;                /* the coded data */
+    ps2ptr data;             /* u8 *: the coded data */
     u32 size;
-    u8 *header;              /* +8 the ipu2 header (+8 width, +0xA height) */
+    ps2ptr header;           /* +8 u8 *: the ipu2 header (+8 width, +0xA height) */
     int tiles;               /* +0xC 16 x 16 tiles */
     int dbp;                 /* +0x10 the GS buffer */
-    u8 *packets[2];          /* +0x14 one upload packet (0x90 bytes) per tile, per frame */
-    u8 *pixels[2];           /* +0x1C the decoded tiles (0x400 bytes each), per frame */
+    ps2ptr packets[2];       /* +0x14 u8 *: one upload packet (0x90 bytes) per tile, per frame */
+    ps2ptr pixels[2];        /* +0x1C u8 *: the decoded tiles (0x400 bytes each), per frame */
 } IpuPicture;
 
 extern struct {
-    IpuPicture *queue[4];    /* 0x0056CC80 */
+    ps2ptr queue[4];         /* 0x0056CC80 IpuPicture * */
     int current;             /* 0x0056CC90 -1: idle */
     int waiting;             /* 0x0056CC94 */
     int handler;             /* 0x0056CC98 */
@@ -90,6 +90,9 @@ void func_001439E0(u32 to, u32 qwc)
     REG_DMAC_3_CHCR = 0x100;
     REG_DMAC_ENABLEW = REG_DMAC_ENABLER & ~0x10000;
     func_00131EF0();
+#ifdef SW2E_PC
+    sw2e_ipu_receive(to, qwc);           /* no IPU: the port decodes, then ends the transfer */
+#endif
 }
 
 /* 0x00143A40, 0x68 bytes, matching. Starts sending `size` bytes of coded data at `from`. */
@@ -111,12 +114,12 @@ void func_00143AB0(IpuPicture *p)
     u32 bits;
 
     func_00143FF0();
-    func_00143A40((u32)PS2_ADDR(p->data), p->size);
+    func_00143A40((u32)PS2_ADDR(PS2_PTR(p->data)), p->size);
     bits = func_00143970();
     REG_IPU_CTRL = (bits & ~4) << 16;
     REG_IPU_CMD = ((bits >> 2) & 1) << 24 | 0x10010000 | g_0056CC80.command;
     g_0056CC80.command = 0;
-    func_001439E0((u32)PS2_ADDR(p->pixels[g_70000150]), p->tiles);
+    func_001439E0((u32)PS2_ADDR(PS2_PTR(p->pixels[g_70000150])), p->tiles);
 }
 
 /* 0x00143B50, 0x90 bytes. The handler at the end of a decode: starts the next one, or marks the
@@ -128,7 +131,7 @@ int func_00143B50(int arg)
     } else {
         g_0056CC80.waiting--;
         g_0056CC80.current++;
-        func_00143AB0(g_0056CC80.queue[g_0056CC80.current]);
+        func_00143AB0((IpuPicture *)PS2_PTR(g_0056CC80.queue[g_0056CC80.current]));
     }
 #ifdef SW2E_PC
     sw2e_intr_enable();
@@ -148,7 +151,7 @@ void func_00143BE0(IpuPicture *p)
         g_0056CC80.current = 0;
         func_00143AB0(p);
     } else {
-        g_0056CC80.queue[g_0056CC80.current + g_0056CC80.waiting + 1] = p;
+        g_0056CC80.queue[g_0056CC80.current + g_0056CC80.waiting + 1] = PS2_ADDR(p);
         g_0056CC80.waiting++;
     }
     if (enabled != 0)
@@ -166,13 +169,13 @@ void func_00143C90(void)
  * then the picture is queued for decoding. */
 void func_00143CC0(IpuPicture *p, int index)
 {
-    u32 *entry = (u32 *)(p->header + 0x10 + index * 8);
+    u32 *entry = (u32 *)PS2_PTR(p->header + 0x10 + index * 8);
     u8 *packet;
     int i;
 
     p->data = p->header + entry[0];
     p->size = entry[1];
-    packet = p->packets[g_70000150];
+    packet = (u8 *)PS2_PTR(p->packets[g_70000150]);
     for (i = 0; i < p->tiles; i++, packet += 0x90)
         func_00104860(packet);
     func_00143BE0(p);
@@ -181,10 +184,10 @@ void func_00143CC0(IpuPicture *p, int index)
 /* 0x00143D60, 0x40 bytes, matching. Frees a picture's buffers. */
 void func_00143D60(IpuPicture *p)
 {
-    func_00102EC0(p->pixels[0]);
-    func_00102EC0(p->pixels[1]);
-    func_00102EC0(p->packets[0]);
-    func_00102EC0(p->packets[1]);
+    func_00102EC0((u8 *)PS2_PTR(p->pixels[0]));
+    func_00102EC0((u8 *)PS2_PTR(p->pixels[1]));
+    func_00102EC0((u8 *)PS2_PTR(p->packets[0]));
+    func_00102EC0((u8 *)PS2_PTR(p->packets[1]));
 }
 
 /* 0x00143DA0, 0x1A4 bytes. Sets a picture up for a pack's header: its buffers and, per frame,
@@ -195,22 +198,22 @@ void func_00143DA0(IpuPicture *p, u8 *header, int dbp)
     u32 h = *(u16 *)(header + 0xA) >> 4;
     int f;
 
-    p->header = header;
+    p->header = PS2_ADDR(header);
     p->tiles = w * h;
     for (f = 0; f < 2; f++) {
         u8 *packet, *pixels;
         int x, y;
 
-        p->pixels[f] = func_00102DB0(0x40, p->tiles << 10);
-        p->packets[f] = func_00102DB0(0x40, p->tiles * 0x90);
+        p->pixels[f] = PS2_ADDR(func_00102DB0(0x40, p->tiles << 10));
+        p->packets[f] = PS2_ADDR(func_00102DB0(0x40, p->tiles * 0x90));
         p->dbp = dbp;
-        packet = p->packets[f];
-        pixels = p->pixels[f];
+        packet = (u8 *)PS2_PTR(p->packets[f]);
+        pixels = (u8 *)PS2_PTR(p->pixels[f]);
         for (y = 0; y < (int)h; y++) {
             for (x = 0; x < (int)w; x++) {
                 func_00104520(packet);
                 func_00104600(packet, pixels, 0x400, dbp, 0,
-                              (*(u16 *)(p->header + 8) + 0x3F) / 64 * 64 / 64, x * 16, y * 16,
+                              (*(u16 *)PS2_PTR(p->header + 8) + 0x3F) / 64 * 64 / 64, x * 16, y * 16,
                               16, 16);
                 packet += 0x90;
                 pixels += 0x400;

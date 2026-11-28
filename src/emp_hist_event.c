@@ -172,7 +172,7 @@ static void event_message(int a, int b)
 
     if (func_0030E1F0() == 2) {
         func_0030E100();
-        func_001204B0(g_007B4E60, PS2_ADDR(func_00390760(func_0036B260() == 0 ? a : b)));
+        func_001204B0(g_007B4E60, PS2_PTR_PC(PS2_ADDR(func_00390760(func_0036B260() == 0 ? a : b))));
         func_00374EE0(PS2_ADDR(g_007B4E60));
         s[0] = 2;
     }

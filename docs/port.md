@@ -186,3 +186,33 @@ Still to do on the same lines:
 - `sprintf` replacement: a `%s` argument is read as a PS2 address when its value is below
   `0x02000000`. An integer passed on the stack can come with a garbage upper half; wrap such an
   argument in `PS2_PTR` at the call site.
+
+## Running on the PC: the third round (2026-11-28)
+
+The start-up now runs to its end, the scene manager enters the first scene (Initialize), and the
+first frames are swapped: the display registers reach the runtime through `gs_privileged`. The
+run stops in the save manager's start-up check (`func_002D9640`, the memory card messages).
+
+New rules and tools, applied by script and checked the usual way (CodeWarrior compiles every
+file, and no matching function changed):
+
+- **Pointer fields in PS2 memory** (rule 2): `*(T **)(E)` reads became `PS2_LOADP(T *, E)` and
+  writes `PS2_STOREP(T *, E, v)`, 445 sites. On the PS2 build both expand to the original
+  expression. Macros of that form (34) got a `_SET` variant, and their assignments were
+  rewritten. A pointer field moved by `++` goes through a statement expression on the PC only.
+- **Structures holding pointers** that live in PS2 memory get `ps2ptr` fields (the IPU queue and
+  pictures, the scene manager's functions, called through `PS2_FUNC`). Arrays of pointers get
+  read/set macros (`PKT(i)` / `PKT_SET(i, v)` in `system.c`). The 117 arrays of pointers left are
+  done as they come up.
+- **Real prototypes for the Sony replacements.** `tools/pc_build.py` writes
+  `build/pc/src/sw2e_sony.h` from the definitions in `port/sw2e/` and forces it into every
+  source file. It also drops every other declaration of those functions from the build copy. The
+  old-style declarations (`int func_X();`) passed integers into pointer parameters with an
+  undefined upper half; now each call is checked. `src/` is not changed by this.
+- **`PS2_PTR_PC(a)`**: an address held in an integer where the PC callee takes a pointer, while the
+  PS2 callers declare the parameter as an `int` (PS2: `a` unchanged).
+- **The IPU** (`port/sw2e/ps2_ipu.c`): a decode ends at once through the channel 3 handler, as the
+  interrupt does on the console. The pictures are left black until the IPU decoder is written in
+  C.
+- **Crash reports:** the port writes the exe offset of an access violation
+  (`[crash] access violation at exe offset ...`, then `addr2line -e build/pc/sw2epc.exe`).

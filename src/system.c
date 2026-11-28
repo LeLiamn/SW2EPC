@@ -95,7 +95,15 @@ extern int g_0045D1E8;                    /* the screen offset (y, -24..24) */
 extern int g_0045D1EC;                    /* the screen offset (x, -24..24) */
 extern u32 g_0045D1F0;                    /* the field (GS_CSR bit 13) */
 extern int g_0045D1F4;                    /* the packet buffers' size */
+#ifdef SW2E_PC
+extern ps2ptr g_0045D1F8_a[2];            /* the two packet buffers (u32 *) */
+#define PKT(i) ((u32 *)PS2_PTR(g_0045D1F8_a[i]))
+#define PKT_SET(i, v) (g_0045D1F8_a[i] = PS2_ADDR(v))
+#else
 extern u32 *g_0045D1F8[2];                /* the two packet buffers */
+#define PKT(i) (g_0045D1F8[i])
+#define PKT_SET(i, v) (g_0045D1F8[i] = (v))
+#endif
 extern int g_0045CC00;                    /* the DMA handler's id (-1 = none) */
 
 /* The display environments (0x00500130, two of 0x28 bytes) and the draw environments. */
@@ -433,7 +441,7 @@ void func_00101470(int mode)
 /* 0x001014E0, 0x14 bytes, matching. */
 u32 *func_001014E0(int i)
 {
-    return g_0045D1F8[i];
+    return PKT(i);
 }
 
 /* 0x00101500, 0x1A0 bytes. A packet that clears a 64-wide strip at `x` (height `h`) with
@@ -632,14 +640,14 @@ void func_00101C90(int flip, int in_interrupt)
     func_001265F0(0, 0);
     *VIF1_CHAN = (*VIF1_CHAN & 0xBF) | 0x40;
     if (flip == 0) {
-        func_0011B380(VIF1_CHAN, g_0045D1F8[g_70000150 ^ 1]);
+        func_0011B380(VIF1_CHAN, PKT(g_70000150 ^ 1));
     } else {
         u32 *chain;
         u64 *gif;
 
-        func_0011B380(VIF1_CHAN, g_0045D1F8[g_70000150]);
+        func_0011B380(VIF1_CHAN, PKT(g_70000150));
         g_70000150 ^= 1;
-        chain = g_0045D1F8[g_70000150];
+        chain = PKT(g_70000150);
         chain[0] = 0x10000005;
         g_70000158_SET(chain + 3);
         chain[1] = 0;
@@ -682,12 +690,12 @@ void func_00102070(u32 *base, int size)
 {
     g_0045D1AC = 0;
     if (base == 0) {
-        g_0045D1F8[0] = g_00460130;
-        g_0045D1F8[1] = g_004B0130;
+        PKT_SET(0, g_00460130);
+        PKT_SET(1, g_004B0130);
         g_0045D1F4 = 0x50000;
     } else {
-        g_0045D1F8[0] = base;
-        g_0045D1F8[1] = (u32 *)((u8 *)g_0045D1F8[0] + size);
+        PKT_SET(0, base);
+        PKT_SET(1, (u32 *)((u8 *)PKT(0) + size));
         g_0045D1F4 = size;
     }
     g_0045D1AC = 1;
@@ -772,7 +780,7 @@ void func_00102290(void)
     *(u32 *)&g_0045D1B4 = 0x3991A2B5;
     g_70000150 = 0;
     func_00102070(0, 0);
-    g_70000158_SET(g_0045D1F8[g_70000150]);
+    g_70000158_SET(PKT(g_70000150));
     g_0045D1A0 = 0;
     g_0045D19C = 0;
     g_0045D198 = 0;

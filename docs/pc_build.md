@@ -8,9 +8,9 @@ see [port.md](port.md), [upp_integration.md](upp_integration.md) and [launcher.m
 | | |
 |---|---|
 | Source files compiled | 161 of 161 |
-| Port files compiled | 9 of 9 |
+| Port files compiled | 10 of 10 |
 | Functions defined twice | 0 |
-| Functions called but not decompiled yet | 812 |
+| Functions called but not decompiled yet | 807 |
 | Other symbols from outside the sources | 40 (C library, port) |
 | Link | ok: `build/pc/sw2epc.exe` |
 
@@ -19,7 +19,7 @@ see [port.md](port.md), [upp_integration.md](upp_integration.md) and [launcher.m
 | Area | Functions |
 |---|---|
 | Sony libraries | 1 |
-| game code | 811 |
+| game code | 806 |
 
 Called from the most files:
 

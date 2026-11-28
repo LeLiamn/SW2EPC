@@ -112,7 +112,8 @@ int func_0010F840(int port, unsigned char channel, unsigned int value)
  * Requests to the IOP sound driver: accepted at once. The port's own sound player will act on
  * them later; the encoders below keep the command sizes exact. */
 
-int func_00107578(void) { return 0; }                     /* the driver's start-up */
+/* 0x00107578: starts a movie's sound (data, size, ?, out): to be written with the movie player */
+int func_00107578(void *data, unsigned int size, int a, int *b) { (void)data; (void)size; (void)a; (void)b; return 0; }
 int func_00107628(void) { return 0; }                     /* opens the driver: its handle */
 int func_00107670(void) { return 0; }                     /* closes it */
 int func_0010B268(int id) { (void)id; return 0; }         /* drops a stream request */
@@ -219,8 +220,11 @@ int func_001136E0(int port) { (void)port; return 0; }
 int func_00113760(int port, unsigned int n) { (void)port; return n < 4 ? 0 : -0x33; }
 int func_00113810(int port, unsigned int n, int a, int b, int c, int d)
 { (void)port; (void)a; (void)b; (void)c; (void)d; return n < 4 ? 0 : -0x33; }
-int func_00113940(int port, unsigned int n) { (void)port; return n < 4 ? 0 : -0x33; }
-int func_00113B88(int port, unsigned int n) { (void)port; return n < 4 ? 0 : -0x33; }
+int func_00113940(int port, unsigned int n, int a, unsigned int b, unsigned int c, unsigned int d,
+                  unsigned int e, unsigned int f, int g, int h)
+{ (void)port; (void)a; (void)b; (void)c; (void)d; (void)e; (void)f; (void)g; (void)h; return n < 4 ? 0 : -0x33; }
+int func_00113B88(int port, unsigned int n, int a, int b, int c, unsigned int d, unsigned int e, int f)
+{ (void)port; (void)a; (void)b; (void)c; (void)d; (void)e; (void)f; return n < 4 ? 0 : -0x33; }
 int func_00113D70(int port, int n) { (void)port; return (unsigned int)(n - 1) < 4 ? 0 : -0x33; }
 
 /* 0x00114240 / 0x00114410 / 0x00114890: default 3D sound parameters */

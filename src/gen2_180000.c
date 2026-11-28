@@ -97,7 +97,6 @@ int func_00206DF0();
 int func_0022BC70();
 int func_0022C370();
 int func_0022C690();
-int func_0022DD60();
 int func_002456F0();
 int func_002470B0();
 int func_0028EED0();

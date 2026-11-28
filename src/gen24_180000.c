@@ -819,9 +819,6 @@ int func_0022A010();
 int func_0022A0E0();
 int func_0022A1F0();
 int func_0022C370(int, int, float *, int);
-int func_0022DD50();
-int func_0022DD60();
-int func_0022DD70();
 int func_00237740();
 int func_00238AE0();
 int func_002392D0();
@@ -1218,7 +1215,6 @@ void func_002D81D0(u8 *param_1);
 void func_002D8DA0(u8 *param_1);
 int func_002DA090(void);
 void func_002DA2D0(int param_1);
-int func_002DAEE0(void);
 int func_002DC510(u8 *param_1, u32 *param_2);
 void func_002DC5C0(u8 *param_1);
 int func_002DCD80(int param_1, u32 *param_2);
@@ -2223,7 +2219,7 @@ void func_0022D910(int param_1)
   lVar2 = func_00141D98(1,auStack_4,&uStack_8);
   if (lVar2 == 1) {
     puVar3 = (u32 *)PS2_PTR(param_1);
-    lVar2 = ((int (*)())PS2_FUNC(((u32 *)g_0042A340)[puVar3[1]]))(param_1,uStack_8);
+    lVar2 = ((int (*)(u8 *, u32))PS2_FUNC(((u32 *)g_0042A340)[puVar3[1]]))((u8 *)puVar3, uStack_8);   /* the record, as the table's functions take it */
     if (lVar2 == 0) {
       if ((puVar3[1] == 0) && (iVar1 = puVar3[4], puVar3[4] = iVar1 + 1, iVar1 + 1 < 3)) {
         *puVar3 = 0;
@@ -2261,7 +2257,7 @@ void func_0022D9C0(u32 *param_1)
     lVar3 = func_00141880(iVar1,0,param_1 + 5);
   }
   else if (iVar2 == 0) {
-    lVar3 = func_00141EB8(iVar1,0,iVar1 * 0x14 + 0x74a144,iVar1 * 0x14 + 0x74a148,0);
+    lVar3 = func_00141EB8(iVar1,0,PS2_PTR(iVar1 * 0x14 + 0x74a144),PS2_PTR(iVar1 * 0x14 + 0x74a148),0);
   }
   else {
     iVar4 = iVar1 * 0x98;

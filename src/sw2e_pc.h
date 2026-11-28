@@ -16,6 +16,9 @@ void sw2e_vu0_matrix(float *m, const float *rot, const float *pos);
 void sw2e_vu0_rotation(float *m, const float *rot);
 /* EI after an interrupt handler (sync.l; ei on the PS2). */
 void sw2e_intr_enable(void);
+/* ipu_picture.c: the IPU's decoded pixels for `qwc` 16 x 16 tiles at PS2 address `to`; the port
+ * decodes the picture sent to the IPU, then runs the end-of-transfer handler of channel 3. */
+void sw2e_ipu_receive(unsigned int to, unsigned int qwc);
 
 #endif
 

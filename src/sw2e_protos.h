@@ -4866,7 +4866,10 @@ void func_002B9040(int, int, int, int, int, int, int, int, int);
 void func_002CDD90(int, int, int, int, int, int, int);
 void func_002CDE50(int, int, int, int, int, int, int, int);
 void func_002CE030(int, int, int, int, int, int, int);
+void func_002D8050(int);
 void func_002D8060(int);
+void func_002DA2C0(void);
+int func_002DAEE0(void);
 void func_002DB700(void);
 float func_002DBAF0(float, float);
 int func_002E6510(float);
@@ -5413,7 +5416,7 @@ void func_00229FC0(int, int, int);
 int func_0022B820(int, int *);
 int func_0022CC20(int, char *, char *, int);
 void func_0022D550(int);
-int func_0022D740(int, int);
+int func_0022D740(unsigned char *, int);
 int func_0022DBB0(void);
 int func_0022DC40(void);
 int func_0022DC70(void);
@@ -5421,7 +5424,7 @@ int func_0022DCA0(void);
 int func_0022DCD0(void);
 void func_0022DD80(int, int);
 void func_0022DDC0(int, int);
-void func_0022DE00(int);
+void func_0022DE00(int, const char *);
 void func_0022DE80(void);
 void func_00236D90(int);
 void func_00236DD0(int);
@@ -6038,6 +6041,9 @@ void func_00117E90(void);
 #ifndef SW2E_FILE_MC_STATE_C
 void func_0022D590(int);
 void func_0022D5D0(int);
+void func_0022DD50(void);
+int func_0022DD60(void);
+void func_0022DD70(int);
 #endif
 
 #ifndef SW2E_FILE_MODEL_C

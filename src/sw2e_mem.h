@@ -114,6 +114,8 @@ unsigned int sw2e_code_addr(void *fn);
 #define PS2_ADDR_ANY(v) _Generic((v),     int: (unsigned int)(sw2e_uptr)(v), unsigned int: (unsigned int)(sw2e_uptr)(v),     long long: (unsigned int)(sw2e_uptr)(v), unsigned long long: (unsigned int)(sw2e_uptr)(v),     default: sw2e_addr((const void *)(sw2e_uptr)(v)))
 #define PS2_LOADP(T, p) ((T)PS2_PTR(*(ps2ptr *)(p)))
 #define PS2_STOREP(T, p, v) (*(ps2ptr *)(p) = PS2_ADDR_ANY(v))
+/* An address held in an integer where the PC call takes a pointer (the PS2 callers see an int). */
+#define PS2_PTR_PC(a) PS2_PTR(a)
 #define PS2_FUNC(a) sw2e_func((unsigned int)(a))
 #define PS2_CODE(f) sw2e_code_addr((void *)(f))
 
@@ -124,6 +126,7 @@ unsigned int sw2e_code_addr(void *fn);
 #define PS2_ANYPTR(o) ((void *)(o))
 #define PS2_LOADP(T, p) (*(T *)(p))
 #define PS2_STOREP(T, p, v) (*(T *)(p) = (v))
+#define PS2_PTR_PC(a) (a)
 #define PS2_FUNC(a) ((void *)(a))
 #define PS2_CODE(f) ((unsigned int)(f))
 

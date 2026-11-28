@@ -1497,9 +1497,9 @@ void func_0022D550(int param_1)
 }
 
 /* 0x0022D740, 0x30 bytes, matching. */
-int func_0022D740(int param_1, int param_2)
+int func_0022D740(u8 *param_1, int param_2)
 {
-    func_0022D590(*(u32 *)PS2_PTR((param_1 + 8)));
+    func_0022D590(*(u32 *)(param_1 + 8));
     return param_2 == 0;
 }
 
@@ -1566,13 +1566,13 @@ void func_0022DDC0(int param_1, int param_2)
 }
 
 /* 0x0022DE00, 0x48 bytes. */
-void func_0022DE00(int param_1)
+void func_0022DE00(int param_1, const char *param_2)
 {
     int iVar1;
 
     iVar1 = *(u32 *)g_0074A008 * 0x98;
     *(u32 *)PS2_PTR((iVar1 + 0x74A0A0)) = param_1;
-    func_00120928(PS2_PTR(iVar1 + 0x74A0B8));
+    func_00120928(PS2_PTR(iVar1 + 0x74A0B8), param_2);
 }
 
 /* 0x0022DE80, 0x34 bytes, matching. */

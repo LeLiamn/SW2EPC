@@ -43,3 +43,23 @@ void func_0022D5D0(int i)
     *(int *)(r + 0xC) = 0;
     *(int *)(r + 0x10) = 0;
 }
+
+extern u8 g_0074A000[0x18];               /* the state: +0 the card's status, +4 a request */
+
+/* 0x0022DD50, 0xC bytes. Clears the card's status (the check starts again). */
+void func_0022DD50(void)
+{
+    *(int *)(g_0074A000 + 0) = 0;
+}
+
+/* 0x0022DD60, 0xC bytes. The card's status (-1 or 2: to check again). */
+int func_0022DD60(void)
+{
+    return *(int *)(g_0074A000 + 0);
+}
+
+/* 0x0022DD70, 0xC bytes. */
+void func_0022DD70(int v)
+{
+    *(int *)(g_0074A000 + 4) = v;
+}

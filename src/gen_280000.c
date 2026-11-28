@@ -104,7 +104,6 @@ int func_00204B60();
 int func_0020E740();
 int func_00217F40();
 int func_0021A630();
-int func_0022DD60();
 int func_00238AE0();
 int func_002456C0();
 int func_002872B0();
@@ -1483,7 +1482,7 @@ void func_002C4AE0(u32 *param_1, int param_2)
     *(u32 *)PS2_PTR((iVar1 + 0x5BC5A8)) = (*(u32 *)(g_00669F9C));
     *(u32 *)PS2_PTR((iVar1 + 0x5BC5B0)) = *param_1;
     *(u32 *)PS2_PTR((iVar1 + 0x5BC5B4)) = param_1[1];
-    func_00120928(PS2_PTR(iVar1 + 0x5BC5B8));
+    func_00120928(PS2_PTR(iVar1 + 0x5BC5B8), (char *)PS2_PTR(param_2));
     if (*(u32 *)g_005BD6A8 < 0x10) {
         *(u32 *)(g_005BD6A8) = *(u32 *)(g_005BD6A8) + 1;
     }

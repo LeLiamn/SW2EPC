@@ -191,8 +191,6 @@ int func_001F7980();
 int func_00207930();
 int func_00215850();
 void *func_0021A630();
-int func_0022DD50();
-int func_0022DD70();
 int func_0022DE50();
 int func_0022F730();
 int func_00238710();
@@ -2636,7 +2634,7 @@ void func_002D9EE0(u8 *param_1)
     }
     else if (iVar1 == 4) {
         func_002D8730(param_1, 2, PS2_ADDR(auStack_80));
-        func_0022DE00(1);
+        func_0022DE00(1, (const char *)auStack_80);
         if (g_0045D5EC == 0) {
             puVar2 = ((u8 *)PS2_PTR(*(ps2ptr *)g_0043C188));
             puVar3 = ((u8 *)PS2_PTR(*(ps2ptr *)g_0043C168));

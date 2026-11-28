@@ -970,7 +970,7 @@ void func_00325E80(int o)
     int a = PS2_ADDR(func_00372660(func_00327CC0()));
     int b = PS2_ADDR(func_0030CB80(func_00327C80()));
 
-    func_001204B0(buf, fmt, a, b, PS2_ADDR(func_002F2A30(o)));
+    func_001204B0(buf, PS2_PTR_PC(fmt), a, b, PS2_ADDR(func_002F2A30(o)));
     func_00374EE0(PS2_ADDR((u8 *)buf));
 }
 

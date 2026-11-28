@@ -858,9 +858,6 @@ int func_0022A010();
 int func_0022A0E0();
 int func_0022A1F0();
 int func_0022C370(int, int, float *, int);
-int func_0022DD50();
-int func_0022DD60();
-int func_0022DD70();
 int func_00237740();
 int func_00238AE0();
 int func_002392D0();
@@ -929,7 +926,6 @@ int func_002CFFD0();
 int func_002D07E0();
 void func_002D37F0(float, int, int, int, int, int, int, int, int, int, int);
 int func_002D73D0();
-int func_002D8050();
 int func_002D8480();
 int func_002D8950();
 int func_002D9010();
@@ -1254,7 +1250,6 @@ void func_002D81D0(u8 *param_1);
 void func_002D8DA0(u8 *param_1);
 int func_002DA090(void);
 void func_002DA2D0(int param_1);
-int func_002DAEE0(void);
 int func_002DC510(u8 *param_1, u32 *param_2);
 void func_002DC5C0(u8 *param_1);
 int func_002DCD80(int param_1, u32 *param_2);
@@ -2825,6 +2820,12 @@ void func_002CE030(int param_1, int param_2, int param_3, int param_4, int param
   return;
 }
 
+/* 0x002D8050, 0xC bytes. Sets the word at 0x00799A9C (+0x20 of the block at 0x00799A7C). */
+void func_002D8050(int v)
+{
+    *(int *)(g_00799A7C + 0x20) = v;
+}
+
 /* 0x002D8060, 0xF4 bytes. */
 void func_002D8060(int param_1)
 {
@@ -2864,6 +2865,119 @@ void func_002D8060(int param_1)
   return;
 }
 /* MISSING ['0x45d5ec'] */
+
+/* The save manager (0x00799A70): +0x10 its step (0x14 busy, 0x16 a question answered), +0x14 /
+ * +0x18 the message and its number, +0x24 the text buffer, +0x28 the slot's kind, +0x40 a request
+ * is waiting, +0x44 the answer, +0x6C, +0x70 the phase of the start-up check (0-4), +0x78 the mode
+ * (0 load, 1 save, 5 none), +0x7C the function run when the message closes. */
+#define SV(o) (*(int *)(g_00799A70 + (o)))
+#define SV_BASE PS2_ADDR(g_00799A70)
+extern u8 g_006934B3[];                  /* per mode, 0x128 bytes apart: +0 stop the check, +1 kind */
+
+/* Shows "there is Samurai Warriors 2 data on the memory card" (two wordings) as a message. */
+static void sv_found_message(void)
+{
+    const char *m = (const char *)PS2_PTR(*(u32 *)(*(int *)g_0045D5EC == 0 ? g_0043C1A0 : g_0043C258));
+
+    func_001204B0((char *)PS2_PTR(SV(0x24)), (const char *)PS2_PTR(0x4426B0), m);
+    func_002D82C0(SV_BASE, 1);
+    SV(0x14) = 0;
+    SV(0x10) = 0x14;
+    SV(0x44) = 0;
+    SV(0x18) = 0x3B9;
+    SV(0x7C) = PS2_CODE(func_002D7EE0);
+}
+
+/* 0x002DAEE0, 0x4D4 bytes. One step of the save manager; non-zero when it is done (and the
+ * caller may go on). Runs the start-up check of the memory card in phases (+0x70): 0, 1, 2 look
+ * for the game's data, 3 the other kind, 4 done. */
+int func_002DAEE0(void)
+{
+    int done = 0, stop, r;
+
+    SV(0x28) = SV(0x78) == 5 ? 0 : g_006934B3[SV(0x78) * 0x128 + 1];
+    if (SV(0x70) == 4) {
+        if (SV(0x10) == 0x14) {
+            if (SV(0x78) == 1) {
+                func_002D8950(SV_BASE);
+            } else {
+                done = 1;
+                if (SV(0x78) == 0)
+                    done = func_002D8C30(SV_BASE, 0);
+            }
+        } else {
+            done = 1;
+        }
+        stop = SV(0x78) != 5 && done != 0 && g_006934B3[SV(0x78) * 0x128] != 0;
+        if (stop) {
+            done = 0;
+            SV(0x10) = 0x16;
+        }
+        return done;
+    }
+    if (SV(0x40) != 0) {
+        func_002D8EE0(SV_BASE);
+    } else if (SV(0x10) == 0x14) {
+        if (SV(0x78) == 1) {
+            func_002D8950(SV_BASE);
+        } else if (SV(0x78) == 0) {
+            done = func_002D8C30(SV_BASE, 0);
+        } else if (SV(0x6C) == 0) {
+            if (SV(0x70) == 0)
+                func_002D83E0(g_00799A70, 1);
+            else if (SV(0x70) == 3)
+                func_002D83E0(g_00799A70, 2);
+        } else if (func_0022DCD0() != 0) {
+            func_002D8480(SV_BASE);
+        }
+    } else if (SV(0x10) == 0x16) {
+        if (SV(0x70) == 0) {
+            if (SV(0x44) == 0) {
+                SV(0x10) = 0;
+                SV(0x70) = 1;
+            } else {
+                SV(0x10) = 0x14;
+                SV(0x40) = 1;
+            }
+            SV(0x44) = 0;
+        } else if (SV(0x70) == 1 || SV(0x70) == 2) {
+            int next = SV(0x70) + 1;
+
+            if (SV(0x44) == 0)
+                SV(0x10) = 0;
+            else
+                sv_found_message();
+            func_002DBAA0();
+            SV(0x44) = 0;
+            SV(0x70) = next;
+        }
+    } else {
+        r = func_0022DD60();
+        if (r == -1 || r == 2) {
+            if (SV(0x70) == 3)
+                func_002DA8C0(SV_BASE);
+            else
+                func_002D9EE0(g_00799A70);
+        }
+        if (func_0022DCD0() != 0) {
+            if (SV(0x70) == 3)
+                func_002DA2D0(SV_BASE);
+            else
+                func_002D9640(SV_BASE);
+        }
+    }
+    stop = SV(0x78) != 5 && done != 0 && g_006934B3[SV(0x78) * 0x128] != 0;
+    if (stop) {
+        done = 0;
+        SV(0x70) = 4;
+    }
+    return done;
+}
+
+/* 0x002DA2C0, 0x8 bytes. Nothing (the save manager's draw step). */
+void func_002DA2C0(void)
+{
+}
 
 /* 0x002DB700, 0x4C bytes. */
 void func_002DB700(void)

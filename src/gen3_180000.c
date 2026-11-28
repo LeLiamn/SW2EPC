@@ -674,7 +674,7 @@ void func_0032FDD0(int param_1, u8 *param_2, u32 *param_3)
     u32 uVar2;
     u32 uVar3;
 
-    uVar2 = func_00120A40();
+    uVar2 = func_00120A40((char *)PS2_PTR(param_1));
     if (uVar2 < 0x86) {
         func_0032F6C0((char *)(param_2), (char *)PS2_PTR(param_1));
         bVar1 = *param_2;
