@@ -62,13 +62,11 @@ int func_001EE570();
 int func_0022DD60();
 int func_00254330();
 int func_002C7310();
-int func_002CE160();
 int func_002EA600();
 int func_0030D7D0();
 int func_00380E80();
 int func_00389D60();
 int func_003B5660();
-void func_00278FC0(int param_1, u16 *param_2, int param_3);
 void func_0029A610(int param_1, int param_2, int param_3, int param_4, int param_5, int param_6);
 
 /* 0x001E95F0, 0xDC bytes. */
@@ -535,7 +533,7 @@ void func_002A9EC0(int param_1, int param_2, int param_3, int param_4, int param
     iVar1 = ((iStack_8 >> 4) + -1) * 0x14;
     iStack_8 = iVar1 + 0xC;
     param_4 = param_4 - (iVar1 + 0x1C);
-    func_002A9D10(param_1, param_3, param_4, param_5, uStack_4, iStack_8, param_6, param_7);
+    func_002A9D10((unsigned char *)PS2_PTR(param_1), param_3, param_4, param_5, uStack_4, iStack_8, param_6, param_7);
     *(u32 *)(g_0056CCA4) = 6;
     *(u32 *)(g_0056CCA4 + 0x4) = 6;
     *(u32 *)(g_0056CCA4 + 0x8) = 6;

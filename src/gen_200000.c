@@ -15,11 +15,7 @@ typedef unsigned int u32;
 
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_0022D910();
-int func_0022D9C0();
 int func_00255310();
-int func_00271A10();
-int func_002E18C0();
 int func_00237D00();
 int func_00206080();
 
@@ -470,8 +466,8 @@ void func_0020C7E0(int param_1, int param_2, int param_3)
                                     if (*(u8 *)(iVar9 + uVar7) < 4) {
                                         bVar11 = *(char *)(puVar12 + 4) +
                                                           *(u8 *)(iVar9 + uVar7) + *(char *)(iVar10 + 0x5B) + 1 & 3;
-                                        func_002E18C0(param_1, param_2, bVar11);
-                                        func_002E18C0(param_1, param_2, bVar11 + 2 & 3);
+                                        func_002E18C0((unsigned char *)PS2_PTR(param_1), (float *)PS2_PTR(param_2), bVar11);
+                                        func_002E18C0((unsigned char *)PS2_PTR(param_1), (float *)PS2_PTR(param_2), bVar11 + 2 & 3);
                                     }
                                     else {
                                         func_0020B410(param_1, param_2);
@@ -537,8 +533,8 @@ void func_0020CA20(int param_1, int param_2, int param_3)
                                 if (*(u8 *)(iVar8 + uVar12) < 4) {
                                     bVar11 = *(char *)(puVar13 + 4) +
                                                       *(u8 *)(iVar8 + uVar12) + *(char *)(iVar10 + 0x5B) + 1 & 3;
-                                    func_002E18C0(param_1, param_2, bVar11);
-                                    func_002E18C0(param_1, param_2, bVar11 + 2 & 3);
+                                    func_002E18C0((unsigned char *)PS2_PTR(param_1), (float *)PS2_PTR(param_2), bVar11);
+                                    func_002E18C0((unsigned char *)PS2_PTR(param_1), (float *)PS2_PTR(param_2), bVar11 + 2 & 3);
                                 }
                                 else {
                                     func_0020B410(param_1, param_2);
@@ -1542,10 +1538,10 @@ int func_0022DCD0(void)
     u32 uVar1;
 
     if (*(u32 *)g_0074A000 == 1) {
-        func_0022D910(g_0074A000);
+        func_0022D910(PS2_ADDR(g_0074A000));
     }
     else if (*(u32 *)g_0074A000 == 0) {
-        func_0022D9C0(g_0074A000);
+        func_0022D9C0((unsigned int *)(g_0074A000));
     }
     uVar1 = 1;
     if ((*(u32 *)g_0074A000 != 2) && (*(u32 *)g_0074A000 != -1)) {

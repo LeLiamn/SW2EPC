@@ -15,8 +15,6 @@ typedef unsigned int u32;
 
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_001C4A00();
-int func_001EAC90();
 int func_001EC180();
 
 extern u8 g_00730560[0x18];
@@ -752,7 +750,7 @@ void func_001C4AC0(int param_1)
     int iVar1;
 
     for (iVar1 = *(int *)((int)param_1 + 8); iVar1 != 0; iVar1 = *(int *)(iVar1 + 0x18)) {
-        func_001C4A00(param_1, iVar1);
+        func_001C4A00((unsigned char *)PS2_PTR(param_1), iVar1);
     }
 }
 
@@ -1775,7 +1773,7 @@ void func_001EBD10(int param_1)
             func_001ED160(param_1, iVar1, 0);
         }
         else {
-            lVar3 = func_001EAC90(param_1, iVar1);
+            lVar3 = func_001EAC90((unsigned char *)PS2_PTR(param_1), (unsigned char *)PS2_PTR(iVar1));
             if (((lVar3 != 0) &&
                     (g_7000015C = g_7000015C * 0x41C64E6D + 0x3039, (g_7000015C >> 0x10) % 100 < 0x32))
                   && ((*(u32 *)(iVar1 + 0x80) & 0xC000) == 0)) {

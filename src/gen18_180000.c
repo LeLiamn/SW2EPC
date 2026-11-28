@@ -19,9 +19,6 @@ extern u8 g_007BFB20[0x18];
 extern u8 g_007BFB3C[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_00229E50();
-int func_0022A200();
-int func_00383C10();
 int func_001EC650();
 
 #define true 1
@@ -216,8 +213,8 @@ LAB_0022a718:
     func_0022A1F0(piVar4 + 0xC, piVar4 + 0x1C, piVar4 + 0x88, 0);
     piVar4[2] = 0;
     piVar4[3] = 0;
-    func_0022A200(param_1, piVar4 + 0xC);
-    iVar3 = func_00229E50(piVar4[3], 0x229F60);
+    func_0022A200((int *)PS2_PTR(param_1), (unsigned char *)(piVar4 + 0xC));
+    iVar3 = func_00229E50(piVar4[3], (unsigned char *)PS2_PTR(0x229F60));
     piVar4[3] = iVar3;
 }
 
@@ -245,8 +242,8 @@ LAB_0022a968:
     func_0022A1F0(piVar4 + 0xC, piVar4 + 0x1C, piVar4 + 0xAC, 0);
     piVar4[2] = 0;
     piVar4[3] = 0;
-    func_0022A200(param_1, piVar4 + 0xC);
-    iVar3 = func_00229E50(piVar4[3], 0x229F60);
+    func_0022A200((int *)PS2_PTR(param_1), (unsigned char *)(piVar4 + 0xC));
+    iVar3 = func_00229E50(piVar4[3], (unsigned char *)PS2_PTR(0x229F60));
     piVar4[3] = iVar3;
 }
 
@@ -454,7 +451,7 @@ void func_003853A0(void)
         *(u16 *)(iVar2 + 0x6E) = 0x28;
         *(u8 *)(iVar2 + 0x71) = 0x80;
         *(u8 *)(iVar2 + 0x72) = 0xF;
-        func_00383C10(&uStack_8, 1);
+        func_00383C10((short unsigned int *)(&uStack_8), 1);
         *(u16 *)(iVar2 + 0xB0) = uStack_8;
         *(short *)(iVar2 + 0xB2) = sStack_6;
         *(u16 *)(iVar2 + 0xB4) = 0x50;
@@ -639,7 +636,7 @@ void func_003853A0(void)
             *(u16 *)(iVar2 + 0x5A) = uVar3;
             *(u8 *)(iVar2 + 0x5D) = uVar9;
             *(u8 *)(iVar2 + 0x5E) = 0xF;
-            func_00383C10(&uStack_8, iVar8);
+            func_00383C10((short unsigned int *)(&uStack_8), iVar8);
             uVar4 = 0x50;
             if (iVar8 == 3) {
                 uVar4 = 0x30;
@@ -679,7 +676,7 @@ void func_003853A0(void)
                 uVar5 = 0;
             }
             *(u8 *)(iVar2 + 0xAD) = uVar5;
-            func_00383C10(&uStack_8, iVar7);
+            func_00383C10((short unsigned int *)(&uStack_8), iVar7);
             uVar4 = 0x50;
             if (iVar7 == 3) {
                 uVar4 = 0x30;
@@ -865,7 +862,7 @@ void func_003853A0(void)
             *(u16 *)(iVar2 + 0x5A) = uVar3;
             *(u8 *)(iVar2 + 0x5D) = uVar9;
             *(u8 *)(iVar2 + 0x5E) = 0xF;
-            func_00383C10(&uStack_8, iVar8);
+            func_00383C10((short unsigned int *)(&uStack_8), iVar8);
             uVar4 = 0x50;
             if (iVar8 == 3) {
                 uVar4 = 0x30;
@@ -898,7 +895,7 @@ void func_003853A0(void)
             *(u8 *)(iVar2 + 0xAF) = 0;
             *(u8 *)(iVar2 + 0xAC) = uVar5;
             *(u8 *)(iVar2 + 0xAD) = uVar5;
-            func_00383C10(&uStack_8, iVar7);
+            func_00383C10((short unsigned int *)(&uStack_8), iVar7);
             uVar4 = 0x50;
             if (iVar7 == 3) {
                 uVar4 = 0x30;
@@ -1020,7 +1017,7 @@ void func_003853A0(void)
             *(u16 *)(iVar2 + 0x5A) = uVar3;
             *(u8 *)(iVar2 + 0x5D) = uVar5;
             *(u8 *)(iVar2 + 0x5E) = 0;
-            func_00383C10(&uStack_8, iVar7);
+            func_00383C10((short unsigned int *)(&uStack_8), iVar7);
             uVar4 = 0x50;
             if (iVar7 == 3) {
                 uVar4 = 0x30;

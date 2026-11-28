@@ -15,8 +15,6 @@ typedef unsigned int u32;
 
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_00278150();
-int func_002D8730();
 int func_00206080();
 int func_00388200();
 
@@ -185,7 +183,6 @@ void *func_001BE6D0();
 void func_001E01D0(float, int);
 int func_001E96D0();
 int func_001E96E0();
-int func_001E98E0();
 int func_001E9980();
 int func_001EA220();
 int func_001EE9C0();
@@ -2619,7 +2616,7 @@ void func_002D9EE0(u8 *param_1)
         uVar5 = 3;
     }
     else if (iVar1 == 4) {
-        func_002D8730(param_1, 2, auStack_80);
+        func_002D8730(param_1, 2, PS2_ADDR(auStack_80));
         func_0022DE00(1);
         if (g_0045D5EC == 0) {
             puVar2 = ((u8 *)PS2_PTR(*(ps2ptr *)g_0043C188));
@@ -2635,7 +2632,7 @@ void func_002D9EE0(u8 *param_1)
         *(u8 *)(g_006934B9) = 1;
     }
     else if (iVar1 == 1) {
-        func_002D8730(param_1, 0, auStack_80);
+        func_002D8730(param_1, 0, PS2_ADDR(auStack_80));
         func_0022DE50(auStack_80);
         uVar5 = 8;
     }

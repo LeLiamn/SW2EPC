@@ -15,7 +15,6 @@ typedef unsigned int u32;
 
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_00383C40();
 int func_003A3420();
 int func_00397B10();
 
@@ -127,10 +126,6 @@ int func_003A9B00();
 int func_003AB200();
 int func_003D4500();
 int func_003F1020();
-int func_00383270();
-int func_003832E0();
-int func_00383610();
-int func_00383AB0();
 int func_00383E00();
 int func_003886D0();
 int func_0039D950();
@@ -219,7 +214,7 @@ void func_003849F0(void)
 
     iVar1 = PS2_ADDR(func_00365450());
     uVar2 = PS2_ADDR(func_00365470());
-    func_00383C40(iVar1 + 0x13C, 0, uVar2, 0x1C);
+    func_00383C40(iVar1 + 0x13C, 0, (unsigned char *)PS2_PTR(uVar2), 0x1C);
 }
 
 /* 0x00387AC0, 0xB0 bytes, matching. */
@@ -1112,7 +1107,7 @@ void func_0038F6F0(void)
 
     iVar1 = PS2_ADDR(func_00390940());
     func_0038F5E0();
-    func_00383C40(iVar1 + 0x8E84, 0, *(u32 *)(iVar1 + 0x8EBC), 0x47);
+    func_00383C40(iVar1 + 0x8E84, 0, (unsigned char *)PS2_PTR(*(u32 *)(iVar1 + 0x8EBC)), 0x47);
 }
 
 /* 0x0038FA80, 0x38 bytes. */

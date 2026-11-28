@@ -23,11 +23,6 @@ extern u8 g_007BFB20[0x18];
 extern u8 g_007BFB3C[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_00180D10();
-int func_00229E50();
-int func_0022A200();
-int func_0022A5E0();
-int func_00382770();
 int func_001EE3B0();
 
 #define true 1
@@ -321,7 +316,7 @@ LAB_001821b0:
             }
             param_1[7] = iVar1;
             if (((param_1[0x20] & 0x20000U) != 0) &&
-                  (func_00180D10(param_1), (param_1[0x20] & 0x1b0U) == 0)) {
+                  (func_00180D10((unsigned char *)(param_1)), (param_1[0x20] & 0x1b0U) == 0)) {
                 param_1[5] = 0x8F;
                 param_1[0x20] = param_1[0x20] & 0xFFFDFFFF;
             }
@@ -1984,7 +1979,7 @@ int func_0022B3C0(u8 *param_1, unsigned long long *param_2)
                             (puVar7 != (u32 *)0 && (puVar7[3] == 1)); puVar7 = (u32 *)*puVar7) {
                     }
                     if (puVar7 == (u32 *)0) {
-                        uVar2 = func_0022A5E0(*(u32 *)puVar10[1], iVar6 + 0x10);
+                        uVar2 = func_0022A5E0((int *)PS2_PTR(*(u32 *)puVar10[1]), PS2_ADDR(iVar6 + 0x10));
                         *(u32 *)((int)param_2 + 0x14) = uVar2;
                     }
                     else {
@@ -2003,7 +1998,7 @@ int func_0022B3C0(u8 *param_1, unsigned long long *param_2)
                     *(u32 *)(param_2 + 2) = puVar7[1];
                 }
                 else {
-                    uVar2 = func_0022A5E0(*(u32 *)puVar10[2], iVar6 + 0x18);
+                    uVar2 = func_0022A5E0((int *)PS2_PTR(*(u32 *)puVar10[2]), PS2_ADDR(iVar6 + 0x18));
                     *(u32 *)(param_2 + 2) = uVar2;
                 }
                 *(u8 *)(param_2 + 3) = *(u8 *)(param_2 + 3) & 0xFE;
@@ -2033,9 +2028,9 @@ int func_0022B3C0(u8 *param_1, unsigned long long *param_2)
         *(u32 *)(iVar6 + 4) = 0;
         *(u32 *)(iVar6 + 0xC) = 0;
         puVar10 = (u32 *)PS2_PTR(*(ps2ptr *)(iVar6 + 8));
-        func_0022A200(param_1, puVar10);
+        func_0022A200((int *)(param_1), (unsigned char *)(puVar10));
         *(u32 *)(iVar6 + 8) = *puVar10;
-        uVar2 = func_00229E50(*(u32 *)(iVar6 + 0xC), 0x229F60);
+        uVar2 = func_00229E50(*(u32 *)(iVar6 + 0xC), (unsigned char *)PS2_PTR(0x229F60));
         *(u32 *)(iVar6 + 0xC) = uVar2;
         uVar11 = uVar11 + 1;
     } while( true );
@@ -5156,7 +5151,7 @@ void func_003BFD80(void)
     iVar2 = 0;
     iVar1 = g_007BEAD0;
     do {
-        func_00382770(iVar2, *(u32 *)g_007BEAD4 == iVar2, iVar1 + 0xC);
+        func_00382770(iVar2, *(u32 *)g_007BEAD4 == iVar2, (int *)(iVar1 + 0xC));
         iVar2 = iVar2 + 1;
         iVar1 = iVar1 + 0x44;
     } while (iVar2 < 3);

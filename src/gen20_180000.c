@@ -48,7 +48,6 @@ int func_001204B0();
 void func_001C7F30(int k, float *pos, int c, u32 f);
 int func_001FF100();
 int func_0027C210();
-int func_002CE160();
 int func_002F7D90();
 int func_0039C490();
 int func_003AF040();

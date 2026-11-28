@@ -4946,6 +4946,63 @@ void func_003AFD90(void);
 void func_003EA470(int, int, unsigned int *, int, int, int, int, int);
 #endif
 
+#ifndef SW2E_FILE_GEN24_180000_C
+void func_00180D10(unsigned char *);
+int func_00184FA0(int);
+void func_00185210(void);
+int func_001BBEA0(int);
+void func_001C4A00(unsigned char *, int);
+void func_001C7730(void);
+void func_001C7CE0(void);
+void func_001E98E0(int);
+int func_001EAC90(unsigned char *, unsigned char *);
+void func_001EB8C0(unsigned char *);
+void func_001EE970(int, int);
+void func_001F6FF0(void);
+void func_0020ECE0(void);
+void func_0020ED30(void);
+int func_00229E50(int, unsigned char *);
+void func_0022A200(int *, unsigned char *);
+int func_0022A5E0(int *, int);
+void func_0022D910(int);
+void func_0022D9C0(unsigned int *);
+void func_0022F510(void);
+void func_00247970(void);
+void func_00271A10(int, int);
+void func_00273B10(void);
+void func_00278150(int);
+void func_002787E0(void);
+void func_00278FC0(int, unsigned short *, int, int, int);
+void func_00279010(int, short *, int, int, int, int, int, int);
+void func_002863E0(int, int, int, int, int, int, int);
+void func_00290390(int, int, int, int);
+void func_0029D230(int, int, int, int, int);
+void func_002A7CE0(void);
+void func_002A9610(int, int, int, int, int, int, int);
+void func_002CE160(int, int, int, int, int, int, int);
+void func_002D68F0(void);
+void func_002D6990(int, int, int, int, int, int, int, int);
+void func_002D8280(unsigned char *);
+void func_002D8730(unsigned char *, int, int);
+void func_002E0000(int, int, int, int, int);
+void func_002E0040(int, int, int, int, int);
+void func_002E18C0(unsigned char *, float *, int);
+void func_002E67B0(int, int);
+void func_002EF080(int, int, int, int, int, int, int);
+void func_00382770(int, int, int *);
+void func_00383270(int, int, int, int);
+void func_003832E0(int, int, int, int, int);
+void func_00383330(int, int, int, int, int, int);
+void func_00383610(int, int, int, int, int);
+void func_00383650(int, int, int, int, int, int *, int *);
+void func_00383AB0(int, int, int, int, int, int);
+void func_00383C10(unsigned short *, int);
+void func_00383C40(int, int, unsigned char *, int);
+void func_0038F560(void);
+void func_003A5E20(void);
+void func_003A6450(int *, int *, int);
+#endif
+
 #ifndef SW2E_FILE_GEN2_180000_C
 void func_00183240(void);
 void func_001EB860(unsigned char *);

@@ -14,7 +14,6 @@
 #define SW2E_FILE_EFFECT_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_001C4A00();
 
 typedef unsigned char u8;
 typedef unsigned short u16;

@@ -35,8 +35,6 @@ extern u8 g_0076F59C[0x3C];
 extern u8 g_0076F5D8[0x3C];
 extern u8 g_0076F614[0x26];
 
-int func_00273B10();
-int func_00278150();
 int func_002EFBB0();
 void func_00276B30(void);
 void func_00276C80(void);

@@ -17,7 +17,6 @@ extern u8 g_007B9E74[0x18];
 extern u8 g_007B9E84[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_00271A10();
 int func_00206080();
 int func_00330650();
 
@@ -840,7 +839,7 @@ int func_00239140(u8 *param_1, int param_2)
             }
             g_7000015C = g_7000015C * 0x41C64E6D + 0x3039;
             if ((g_7000015C >> 0x10) % 100 < uVar4 >> 1) {
-                func_00271A10(param_1, 0x1A);
+                func_00271A10(PS2_ADDR(param_1), 0x1A);
                 uVar2 = 1;
             }
             else {
@@ -853,7 +852,7 @@ int func_00239140(u8 *param_1, int param_2)
                 func_00204B60(param_1, 0x100020);
             }
             else {
-                func_00271A10(param_1, 0x19);
+                func_00271A10(PS2_ADDR(param_1), 0x19);
             }
             uVar2 = 1;
         }

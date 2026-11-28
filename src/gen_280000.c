@@ -15,10 +15,10 @@ typedef unsigned int u32;
 
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
+int func_002A5B10();
+int func_002A5FD0();
 int func_002C33C0();
-int func_002D8280();
 int func_00206080();
-int func_0020ECE0();
 
 #include "sw2e_draw.h"
 
@@ -116,8 +116,6 @@ int func_00297C00();
 int func_00298670();
 int func_0029C930();
 int func_002A5880();
-int func_002A5B10();
-int func_002A5FD0();
 int func_002A60C0();
 int func_002A6290();
 int func_002A62B0();
@@ -150,14 +148,9 @@ int func_002E94F0();
 int func_002EFA70();
 int func_002EFC80();
 int func_00383240();
-int func_00383330();
-int func_002863E0();
 int func_002A6430();
-int func_002A9610();
 int func_002CD5E0();
 int func_002CD780();
-int func_002CE160();
-int func_002EF080();
 
 /* 0x00285CD0, 0x74 bytes, matching. */
 int func_00285CD0(int param_1, int param_2)
@@ -1449,7 +1442,7 @@ int func_002C4030(int param_1, int param_2)
             if ((param_2 != 2) && (param_2 != 0)) {
                 return false;
             }
-            lVar4 = func_002C33C0(param_1, 2);
+            lVar4 = func_002C33C0((unsigned char *)PS2_PTR(param_1), 2);
             if (lVar4 == 0) {
                 return false;
             }
@@ -1475,7 +1468,7 @@ int func_002C4030(int param_1, int param_2)
             return false;
         }
     }
-    lVar4 = func_002C33C0(param_1, 3);
+    lVar4 = func_002C33C0((unsigned char *)PS2_PTR(param_1), 3);
     if (lVar4 != 0) {
         *(char *)(iVar3 + 1) = *(char *)(iVar3 + 1) + -1;
         *(u8 *)(iVar3 + 2) = *(u8 *)(iVar3 + 1);
@@ -2154,7 +2147,7 @@ void func_002D8160(void)
 void func_002D82C0(int param_1, int param_2)
 {
     func_001265F0(0, 1);
-    func_002D8280(param_1);
+    func_002D8280((unsigned char *)PS2_PTR(param_1));
     func_001AEDB0(param_2, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0);
     func_001AEE10(param_2, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF);
     func_001AE9F0(param_2, (char *)PS2_PTR(*(u32 *)((int)param_1 + 0x24)), 1);
@@ -2217,7 +2210,7 @@ void func_002D8EE0(int param_1)
     }
     iVar2 = (int)param_1;
     if (*(int *)(iVar2 + 0x5C) < 1) {
-        func_002D8280(param_1);
+        func_002D8280((unsigned char *)PS2_PTR(param_1));
         *(u32 *)(iVar2 + 0x78) = 5;
         *(u32 *)(iVar2 + 0x10) = 0x14;
     }

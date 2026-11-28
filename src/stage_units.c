@@ -11,7 +11,6 @@
 #define SW2E_FILE_STAGE_UNITS_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_002E18C0();
 
 typedef unsigned char u8;
 typedef unsigned short u16;

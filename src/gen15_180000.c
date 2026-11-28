@@ -23,6 +23,7 @@ extern u8 g_0076F5C4[0x18];
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
 int func_00263AD0();
+int func_002A5B10();
 
 #define true 1
 #define false 0
@@ -53,10 +54,8 @@ extern int g_0045D810;   /* (small data) */
 int func_001204B0();
 int func_002284E0();
 int func_0022D590();
-int func_00278FC0();
 int func_00279140();
 int func_0029C800();
-int func_002A5B10();
 int func_002A85F0();
 int func_002C7310();
 int func_002CB550();
@@ -187,7 +186,7 @@ void func_00273D00(void)
     int uStack_1;
 
     func_001AE550(1.0f, g_0076F498, (short int *)(auStack_10), (u8 *)(&uStack_1), 0);
-    func_00278FC0(0x29, auStack_10, uStack_1, 0, 1);
+    func_00278FC0(0x29, (short unsigned int *)(auStack_10), uStack_1, 0, 1);
 }
 
 /* 0x00273D50, 0xF0 bytes. */
@@ -200,12 +199,12 @@ void func_00273D50(void)
 
     if (*(char *)g_0076F3D4 == 0) {
         func_001AE550(1.0f, g_0076F434, (short int *)(auStack_10), (u8 *)(&uStack_1), 1);
-        func_00278FC0(4, auStack_10, uStack_1, 0, 1);
+        func_00278FC0(4, (short unsigned int *)(auStack_10), uStack_1, 0, 1);
         func_001AE550(1.0f, g_0076F3E4, (short int *)(auStack_18), (u8 *)(&uStack_1), 1);
-        func_00278FC0(0, auStack_18, uStack_1, 0, 1);
+        func_00278FC0(0, (short unsigned int *)(auStack_18), uStack_1, 0, 1);
         func_00279140(*(u16 *)g_0043FAB8, *(u16 *)(g_0043FAB8 + 0x2), 0, *(u16 *)(g_0043FAB8 + 0x4), *(u16 *)(g_0043FAB8 + 0x6), 1);
         func_001AE550(1.0f, g_0076F420, (short int *)(auStack_20), (u8 *)(&uStack_1), 0);
-        func_00278FC0(3, auStack_20, uStack_1, 0, 1);
+        func_00278FC0(3, (short unsigned int *)(auStack_20), uStack_1, 0, 1);
     }
 }
 
@@ -216,11 +215,11 @@ void func_00274400(void)
     int uStack_1;
 
     func_001AE550(1.0f, g_0076F5C4, (short int *)(auStack_10), (u8 *)(&uStack_1), 0);
-    func_00278FC0(0x27, auStack_10, uStack_1, 0, 1);
+    func_00278FC0(0x27, (short unsigned int *)(auStack_10), uStack_1, 0, 1);
     func_001AE550(1.0f, g_0076F59C, (short int *)(auStack_10), (u8 *)(&uStack_1), 0);
-    func_00278FC0(0x28, auStack_10, uStack_1, 0, 1);
+    func_00278FC0(0x28, (short unsigned int *)(auStack_10), uStack_1, 0, 1);
     func_001AE550(1.0f, g_0076F5B0, (short int *)(auStack_10), (u8 *)(&uStack_1), 0);
-    func_00278FC0(0x28, auStack_10, uStack_1, 0, 1);
+    func_00278FC0(0x28, (short unsigned int *)(auStack_10), uStack_1, 0, 1);
 }
 
 /* 0x0028FE20, 0x564 bytes. */

@@ -11,7 +11,6 @@
 #define SW2E_FILE_TROOP_AI2_C
 #include "sw2e_mem.h"
 #include "sw2e_protos.h"
-int func_00271A10();
 
 typedef unsigned char u8;
 typedef unsigned short u16;
