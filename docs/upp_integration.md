@@ -346,3 +346,17 @@ With the UPP runtime (`--headless`), the game:
 
 The runtime's threads, events and vblank tick work for this. Nothing new is needed from UPP for
 now. Milestone 2 (pads, audio, saves) becomes useful when the game reaches its title screen.
+
+## Milestone 2 checked with SW2EPC (2026-11-28, UPP commit 4a566ff)
+
+- `upp.h` only gained comments (pads, audio and saves rules); `port/upp/upp.h` is refreshed from
+  it. No interface change, nothing to adapt.
+- SW2EPC builds against the new `upp_runtime.rsp` (it now also links `upp_core`, for the saves)
+  and runs as before, headless, up to `func_00177F80`. UPP's own tests pass (4 of 4).
+- The pad format matches `port/sw2e/ps2_pad.c`: `upp_button` uses the PS2 bit order, the 12
+  pressures are in the DualShock 2 report's order, sticks centred on 0x80.
+- On the SW2EPC side, still to do: `ps2_mc.c` on `save_*` (the memory card still answers "no
+  card"), and the sound player on `audio_push` once the game plays music.
+
+Nothing more is needed from UPP for SW2EPC's next steps. The next shared piece is the display
+(platform version 2), when the SW2EPC renderer starts.

@@ -1,7 +1,7 @@
 /*
  * upp.h - the UPP (UnifiedPortProject) runtime interface, platform version 1.
  *
- * [SW2EPC] A copy of UPP's include/upp/upp.h (commit f6b0e80, 2026-11-28), kept here so the port
+ * [SW2EPC] A copy of UPP's include/upp/upp.h (commit 4a566ff, 2026-11-28), kept here so the port
  * builds without the UPP repository. UPP's file is the reference: refresh this copy from it, or
  * build with `tools/pc_build.py --upp-include <UPP>/include/upp`.
  *
@@ -133,10 +133,15 @@ struct upp_platform {
     void (*intr_disable)(void);                 /* DI: the tick waits */          /* [irq] */
     void (*intr_enable)(void);                  /* EI */                          /* [irq] */
 
-    /* Audio: signed 16-bit stereo at any rate (the runtime resamples; 48000 needs no conversion) */
+    /* Audio: signed 16-bit stereo at any rate (the runtime resamples; 48000 needs no conversion).
+       count is in frames (left + right pairs). Any thread. Past a second of sound queued, the
+       queue is dropped: pace the pushes with audio_queued(). */
     void (*audio_push)(const int16_t *frames, size_t count, int rate);
 
-    /* Input: two pads, state sampled at the current tick */
+    /* Input: two pads (port 0 and 1), state sampled at each tick, so a frame sees one state.
+       Port 0 is the keyboard and the first gamepad, port 1 the second gamepad. Another port gives
+       a pad that is not connected. Both calls: any thread. small_motor: 0 or 1; big_motor: 0-255;
+       a motor runs until set to 0, as on the PS2. */
     void (*pad_read)(int port, upp_pad *out);
     void (*pad_rumble)(int port, int small_motor, int big_motor);
 
@@ -147,7 +152,14 @@ struct upp_platform {
     int64_t (*disc_file_lsn)(const char *iso_path);                        /* first sector */
     int (*disc_read_sectors)(uint32_t lsn, uint32_t count, void *buf);    /* 2048-byte sectors */
 
-    /* Saves: one memory-card style folder per save, swapped in whole */
+    /* Saves: one memory-card style folder per save, swapped in whole. Names (folders and files):
+       1-63 bytes, no '/', '\' or other character Windows refuses. 1 = done, 0 = failed (logged).
+       save_list: returns how many saves there are, fills up to max (out may be NULL).
+       save_read: bytes read, -1 = no such save or file; buf NULL gives the file's size.
+       save_begin: one save open at a time; it starts as a copy of the folder's current files.
+       save_write: the first write of a file in an open save replaces it, later ones append.
+       save_end: 1 swaps the new folder in, 0 drops it; after a failed write, 1 fails and the
+       previous save stays. A crash at any point leaves the previous save or the new one. */
     int (*save_list)(upp_save_info *out, int max);
     int64_t (*save_read)(const char *folder, const char *file, void *buf, size_t size);
     int (*save_begin)(const char *folder);
