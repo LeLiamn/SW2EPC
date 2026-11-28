@@ -119,6 +119,32 @@ settled from the machine code.
   `PS2_ADDR` there moves one instruction. Five other tags were stale: those generated functions
   did not match before this pass either.
 
+## Generated files (2026-11-28, `src/gen18`..`gen25`)
+
+The later generated files are produced from Ghidra's output and checked in several steps.
+
+- **Prototypes.** The shared prototypes are used from the start, and any call that does not fit
+  is fixed or the function is left out.
+- **Missing arguments.** They are read from the original call site. The tracer follows a
+  constant (also one built with `lui` / `addiu`), a parameter, a parameter plus an offset, a load
+  from a parameter or from a global, and a register not written since the previous call. In that
+  last case the callee keeps the register, so the argument is the previous call's.
+- **Float constants are single precision.** Ghidra prints them without the `f`, which made about
+  47 earlier generated functions compute in emulated double precision (`dpmul`, `dptofp`...).
+  They now all have the suffix.
+- **Same calls as the original.** A function is kept only when it calls the same functions as the
+  original, the same number of times. Nine earlier functions failed this check and were removed.
+  The function must also pass the argument and return audits, and its compiled size must be
+  within 40 % of the original.
+- **Fit with the rest of `src/`.** A generated definition that contradicts how other files call
+  the function is dropped: a different number of arguments, a float, or a result used while the
+  definition returns nothing. When a hand-written declaration only differs in pointer or integer
+  kinds, it gives way to the shared prototype and its calls are converted.
+
+The remaining Ghidra output is mostly vector code (VU0 macro instructions, about 400 KB) and
+functions whose arguments come from saved registers or stack slots that a tool cannot tie to C
+variables safely. Those have to be written by hand.
+
 ## The scene manager (`0x0045D880`)
 
 The whole game runs inside `func_001005A0`, which drives a block of globals at `0x0045D880` (see the
