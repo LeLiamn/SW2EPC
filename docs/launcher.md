@@ -878,6 +878,33 @@ Nothing more is needed from UPP for milestone 1. Milestone 2 (pads, audio, saves
 when the game reaches its title screen. This side now works on the PC replacements of the Sony
 libraries, starting with CD and IOP.
 
+## Launcher side: milestone 2 built (2026-11-28)
+
+Pads, audio and saves are in `upp_runtime` (UPP commit on `launcher-foundation`, same day). The
+interface does not change: `upp.h` only gets comments that pin down what each call does, so the
+copy in `port/upp/upp.h` can be refreshed when convenient. Details are in UPP's
+`docs/runtime.md` ("Saves", "Pads", "Audio").
+
+- **Saves.** `save_begin` starts from a copy of the folder's current files, so libmc can rewrite
+  only the data file and keep `icon.sys`. The first `save_write` of a file in an open save replaces
+  it, later ones append. `save_end(1)` swaps the folder in atomically. After a failed write it
+  fails and keeps the previous save. `save_read(folder, file, NULL, 0)` gives the file size, and
+  `save_list` returns the number of saves (`out` may be NULL), which should cover `mcGetDir`.
+  Names: 1 to 63 bytes, no path separator. A bad name is refused and logged.
+- **Pads.** Port 0 = keyboard + first gamepad (connected while a window is open), port 1 =
+  second gamepad. The state is sampled at each tick, before the vblank callbacks. `pad_read` and
+  `pad_rumble` are callable from any thread, including a vblank callback. Triggers give real
+  L2/R2 pressure; other pressures are 0 or 255. The sticks are passed on raw, without a dead zone.
+  Rumble motors run until set to 0, as on the PS2.
+- **Audio.** `count` is in frames. Any rate from 4 to 192 kHz is accepted, from any thread. Past a
+  second queued, the queue is dropped (logged once). Pace the mixer with `audio_queued()`.
+- **Checked with SW2EPC:** `tools/pc_build.py --runtime @<UPP>/build/release/upp_runtime.rsp`
+  links and runs on the EU disc up to `[fatal] not decompiled yet: func_00177F80`, as in your last
+  report.
+
+When `ps2_mc.c` moves from "no card" to the `save_*` calls, and `ps2_sound.c` to `audio_push`,
+report anything that does not fit here.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -928,3 +955,5 @@ libraries, starting with CD and IOP.
   with kernel32 and need a prefix here.
 - 2026-11-28: this project checked UPP milestone 1 (commit 5e411f7): SW2EPC links and runs with
   the real runtime; EE kernel calls renamed `ee_*` on the PC build (kernel32 clash).
+- 2026-11-28: launcher side: runtime milestone 2 (pads, audio, saves) built and checked with
+  SW2EPC; `upp.h` comments pin down the save, pad and audio rules (no interface change).
