@@ -794,6 +794,72 @@ its checks. Thank you for the detailed squares. Two clarifications before the co
 The result will be noted here in a dated section when milestone 1 is square: which points are
 done, how to build, and what to link.
 
+## Launcher side: milestone 1 is square (2026-11-28)
+
+`upp_runtime` exists: `src/runtime/` in UPP. All five points of milestone 1 are done and checked
+by a small C test game (`tests/runtime_selftest.c`, run by `ctest`), including every square of
+[upp_integration.md](upp_integration.md). The details are in UPP's `docs/runtime.md`, "Building a
+port against upp_runtime".
+
+| Point | Status |
+|---|---|
+| 1. Start-up and release | Done. The EU image gives `eu-1.00` with the expected SHA-1; an unknown disc stops with a message; `thread_model` 0 is refused. |
+| 2. Disc | Done. `SLES_546.24` = 3,529,520 bytes; `SYSTEM.CNF`, `LINKDATA.BNS` size and first sector, and a sector read agree; `cdrom0:\sles_546.24;1` works; a missing path gives -1. |
+| 3. Logging, fatal, options | Done. `log.txt` in the data folder; `fatal()` logs, shows a message box, exits with code 3. |
+| 4. PS2 threads, events, mutexes | Done. The run token, priorities, a wake-up switching at once, `thread_sleep` after an early wake-up, polls that never block, timed waits, mutex hand-over and priority changes all happen in the PS2 order. |
+| 5. Pacing, vblank, window | Done. The 50 Hz tick runs on its own clock, also while a thread is busy or blocked, and `intr_disable` holds it. `video_present` works from a vblank callback. A 4:3 window; closing makes `vsync()` return 0. |
+
+### How to build and link
+
+1. Build UPP: `cmake -S <UPP> -B <UPP>/build/release && cmake --build <UPP>/build/release`.
+2. Build SW2EPC against it:
+   `py tools/pc_build.py --runtime "@<UPP>/build/release/upp_runtime.rsp" --upp-include <UPP>/include/upp`
+   - `upp_runtime.rsp` is a GCC response file that lists everything to link: the runtime,
+     `upp_core`, SDL3 and libstdc++ (both static), and the system libraries.
+   - The plain `gcc` link line in `pc_build.py` works as it is.
+3. Run with the manifests and the DLL. The runtime finds the game's manifest in `games/` next to
+   the executable, or through `--games <UPP>/games`. With MinGW, `libwinpthread-1.dll` must sit
+   next to `sw2epc.exe`; UPP's build copies it to `build/release/bin`.
+
+`port/upp/upp.h` is unchanged: UPP's header did not change for milestone 1.
+
+### One fix needed here before the link works
+
+The link fails today with `multiple definition of 'CreateThread'`. `ps2_kernel.c` defines four EE
+kernel calls whose names are also Windows kernel32 functions:
+
+- `CreateThread`
+- `ExitThread`
+- `TerminateThread`
+- `GetThreadId`
+
+The runtime creates its own threads through the real `CreateThread`, so these names cannot be
+defined in the game. If the link went through, the runtime's threads would land in the PS2 code.
+
+Suggested fix: rename them in the port, for example `ee_CreateThread`. Then map the original
+names in the game's own headers, for example `#define CreateThread ee_CreateThread`. The
+decompiled sources keep reading as before.
+
+Check: the four names were renamed in a scratch copy of `build/pc/obj/` with
+`objcopy --redefine-sym`, and nothing else was touched. With that copy, `sw2epc.exe` links with
+the real runtime and gives exactly the expected log of step 4:
+
+```
+[info] disc: ...Samurai Warriors 2 Empire.iso (ISO (2048)), release eu-1.00, SLES-54624 1.00, boot SLES_546.24
+[info] segment 0x00100000: 0x35D180 bytes from the disc
+[info] segment 0x007C0000: 0x0 bytes from the disc
+[info] boot executable loaded (3529520 bytes)
+[fatal] not decompiled yet: func_0011DFB0
+```
+
+No other clash with kernel32 was found among the game's symbols.
+
+### Next on the UPP side (milestone 2)
+
+Pads (keyboard and gamepads), then audio (`audio_push`, `audio_queued`), then the `save_*`
+calls. Until then they are safe placeholders: no pad connected, sound dropped, saves refused,
+and each one is logged once.
+
 ## Changes log
 
 - 2026-11-27: file created. Interface and module boundary are proposals, not final.
@@ -839,3 +905,6 @@ done, how to build, and what to link.
   [upp_integration.md](upp_integration.md)).
 - 2026-11-28: launcher side accepted milestone 1 and started the runtime; clarified that vblank
   callbacks run in interrupt context (not holding the run token) and the run() thread priority.
+- 2026-11-28: launcher side: milestone 1 of `upp_runtime` built and checked; how to link
+  (`upp_runtime.rsp`); `CreateThread`, `ExitThread`, `TerminateThread` and `GetThreadId` clash
+  with kernel32 and need a prefix here.
