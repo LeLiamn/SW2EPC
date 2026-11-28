@@ -718,6 +718,7 @@ void func_003315E0(int param_1)
     }
     func_00374EE0(PS2_ADDR(uVar3));
 switchD_00331618_default:
+    ;
 }
 
 /* 0x00331720, 0x130 bytes. */
@@ -771,6 +772,7 @@ void func_00331720(int param_1)
     }
     func_00374EE0(PS2_ADDR(uVar3));
 switchD_0033175c_default:
+    ;
 }
 
 /* 0x00331860, 0x130 bytes. */
@@ -825,6 +827,7 @@ void func_00331860(int param_1)
     }
     func_00374EE0(PS2_ADDR(uVar3));
 switchD_00331898_default:
+    ;
 }
 
 /* 0x003319A0, 0x138 bytes. */
@@ -878,6 +881,7 @@ void func_003319A0(int param_1)
     }
     func_00375140(0x100, 200, 0, PS2_ADDR(uVar3));
 switchD_003319dc_default:
+    ;
 }
 
 /* 0x00391A10, 0xF0 bytes. */
@@ -933,6 +937,7 @@ void func_00391A10(void)
     }
     func_00391910();
 switchD_00391a9c_default:
+    ;
 }
 
 /* 0x0039C540, 0xE8 bytes. */
@@ -1032,4 +1037,5 @@ void func_003BC6B0(int param_1, int param_2)
     }
     func_003BA8F0(uVar1, param_1 + -6, param_2 != 0, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF);
 switchD_003bc6dc_default:
+    ;
 }
