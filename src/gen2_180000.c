@@ -1041,11 +1041,11 @@ void func_002D6D70(void)
 /* 0x002D8240, 0x3C bytes. */
 void func_002D8240(u32 *param_1)
 {
-    u32 uVar1;
+    u8 *p;
 
-    uVar1 = param_1[3];
-    func_001A1960(*param_1, (u8 *)PS2_PTR(uVar1), param_1[1]);
-    func_002DAE60((u8 *)PS2_PTR(uVar1), 1);
+    p = (u8 *)PS2_PTR(param_1[3]);
+    func_001A1960(*param_1, p, param_1[1]);
+    func_002DAE60(p, 1);
 }
 
 /* 0x002DAC30, 0x220 bytes. */
@@ -1132,7 +1132,7 @@ void func_002DB4F0(void)
     *(u32 *)(g_00799A70) = g_0045D5F8;
 }
 
-/* 0x002DB800, 0x78 bytes. */
+/* 0x002DB800, 0x78 bytes, matching. */
 void func_002DB800(void)
 {
     u8 auStack_d0[208];

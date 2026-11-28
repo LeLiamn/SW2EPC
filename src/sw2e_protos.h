@@ -1083,7 +1083,7 @@ void func_0019F970(u8 *);
 void func_0019F990(u8 *);
 void func_0019F9B0(u8 *, int);
 void func_0019FA90(u8 *, int);
-u16 func_0019FB00(void);
+u32 func_0019FB00(void);
 int func_0019FB10(void);
 int func_0019FB80(void);
 int func_0019FB90(void);

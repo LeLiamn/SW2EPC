@@ -1428,7 +1428,7 @@ void func_0019FA90(u8 *s, int k)
 }
 
 /* 0x0019FB00, 0xC bytes, matching. */
-u16 func_0019FB00(void)
+u32 func_0019FB00(void)
 {
     return SET16(6);
 }
