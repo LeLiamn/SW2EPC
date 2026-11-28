@@ -1093,37 +1093,6 @@ LAB_00396708:
   return;
 }
 
-/* 0x00398D60, 0x164 bytes. */
-void func_00398D60(int param_1, int param_2, int param_3)
-{
-    int iVar4;
-    int iVar5;
-    int uVar1;
-    unsigned long long uVar2;
-    unsigned long long uVar3;
-
-  
-  func_00106C90((*(unsigned long long *)(g_0068F0F8 + 0x0)),0x3f5b);
-  uVar1 = func_002C5AE0(g_00799A20);
-  iVar5 = param_2 + ((g_00459B60 + 0x4))[param_3 * 2] + -4;
-  iVar4 = param_1 + ((g_00459B60 + 0x0))[param_3 * 2] + -4;
-  uVar2 = func_0030D7D0();
-  uVar3 = func_00397B00(iVar5);
-  func_001ABE40(uVar2,0x59,iVar4,uVar3,0,0xa0,0x1c,0x80);
-  uVar2 = func_001050F0();
-  *(unsigned long long *)((int)uVar2 + 0x10) = 0x48;
-  *(unsigned long long *)((int)uVar2 + 0x18) = 0x43;
-  func_00105230(uVar2,1);
-  uVar2 = func_0030D7D0();
-  uVar3 = func_00397B00(iVar5);
-  func_001ABE40(uVar2,0x59,iVar4,uVar3,0,0xa0,0x1c,uVar1);
-  uVar2 = func_001050F0();
-  *(unsigned long long *)((int)uVar2 + 0x10) = 0x8000000044;
-  *(unsigned long long *)((int)uVar2 + 0x18) = 0x43;
-  func_00105230(uVar2,1);
-  return;
-}
-
 /* 0x0039AC20, 0x130 bytes. */
 void func_0039AC20(void)
 {

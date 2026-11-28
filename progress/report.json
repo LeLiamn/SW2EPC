@@ -3,7 +3,7 @@
   "code": {
     "total": 3166376,
     "matching": 202192,
-    "non_matching": 1571156
+    "non_matching": 1562184
   },
   "data": {
     "total": 2155890688,
@@ -137,14 +137,14 @@
         },
         {
           "name": "StateShop.c",
-          "description": "Estimated range 0x299DB8-0x2A5E80; 67 function(s) decompiled",
+          "description": "Estimated range 0x299DB8-0x2A5E80; 64 function(s) decompiled",
           "code": {
             "total": 49352,
             "matching": 15056,
-            "non_matching": 13416
+            "non_matching": 12088
           },
           "decompiled_functions": {
-            "count": 67,
+            "count": 64,
             "matching": 39
           }
         },
@@ -163,14 +163,14 @@
         },
         {
           "name": "StateEdit.c",
-          "description": "Estimated range 0x36DE68-0x382E28; 311 function(s) decompiled",
+          "description": "Estimated range 0x36DE68-0x382E28; 310 function(s) decompiled",
           "code": {
             "total": 85952,
             "matching": 6304,
-            "non_matching": 52488
+            "non_matching": 51144
           },
           "decompiled_functions": {
-            "count": 311,
+            "count": 310,
             "matching": 107
           }
         },
@@ -215,14 +215,14 @@
         },
         {
           "name": "ScenePreBattle.c",
-          "description": "Estimated range 0x2877B8-0x299DB8; 26 function(s) decompiled",
+          "description": "Estimated range 0x2877B8-0x299DB8; 25 function(s) decompiled",
           "code": {
             "total": 75264,
             "matching": 784,
-            "non_matching": 14128
+            "non_matching": 13904
           },
           "decompiled_functions": {
-            "count": 26,
+            "count": 25,
             "matching": 10
           }
         },
@@ -298,14 +298,14 @@
         },
         {
           "name": "emp_ending_nenpyou.c",
-          "description": "Estimated range 0x3B9068-0x3BCB78; 40 function(s) decompiled",
+          "description": "Estimated range 0x3B9068-0x3BCB78; 39 function(s) decompiled",
           "code": {
             "total": 15120,
             "matching": 1008,
-            "non_matching": 9536
+            "non_matching": 7984
           },
           "decompiled_functions": {
-            "count": 40,
+            "count": 39,
             "matching": 11
           }
         },
@@ -337,14 +337,14 @@
         },
         {
           "name": "emp_ev_still.c",
-          "description": "Estimated range 0x31C840-0x32D7E0; 338 function(s) decompiled",
+          "description": "Estimated range 0x31C840-0x32D7E0; 336 function(s) decompiled",
           "code": {
             "total": 69536,
             "matching": 7328,
-            "non_matching": 41188
+            "non_matching": 39720
           },
           "decompiled_functions": {
-            "count": 338,
+            "count": 336,
             "matching": 121
           }
         },
@@ -441,14 +441,14 @@
         },
         {
           "name": "emp_zuroku_graph.c",
-          "description": "Estimated range 0x3958A8-0x39DD30; 100 function(s) decompiled",
+          "description": "Estimated range 0x3958A8-0x39DD30; 99 function(s) decompiled",
           "code": {
             "total": 33928,
             "matching": 1840,
-            "non_matching": 15220
+            "non_matching": 14852
           },
           "decompiled_functions": {
-            "count": 100,
+            "count": 99,
             "matching": 31
           }
         },
@@ -820,14 +820,14 @@
         },
         {
           "name": "BriefingCmnParts.c",
-          "description": "Estimated range 0x2C1EA8-0x2DE550; 126 function(s) decompiled",
+          "description": "Estimated range 0x2C1EA8-0x2DE550; 122 function(s) decompiled",
           "code": {
             "total": 116392,
             "matching": 2384,
-            "non_matching": 20784
+            "non_matching": 18096
           },
           "decompiled_functions": {
-            "count": 126,
+            "count": 122,
             "matching": 34
           }
         }
